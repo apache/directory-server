@@ -28,18 +28,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import javax.naming.CompoundName;
-import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +56,9 @@ public class LdifFileLoader
     private static final Logger log = LoggerFactory.getLogger( LdifFileLoader.class );
 
     /**
-     * a handle on the top initial context: get new context from this
+     * a handle on the top core session
      */
-    protected DirContext ctx;
+    protected CoreSession coreSession;
     /**
      * the LDIF file or directory containing LDIFs to load
      */
@@ -85,9 +83,9 @@ public class LdifFileLoader
      * @param ctx  the context to load the entries into.
      * @param ldif the file of LDIF entries to load.
      */
-    public LdifFileLoader( DirContext ctx, String ldif )
+    public LdifFileLoader( CoreSession coreSession, String ldif )
     {
-        this( ctx, new File( ldif ), null );
+        this( coreSession, new File( ldif ), null );
     }
 
 
@@ -98,9 +96,9 @@ public class LdifFileLoader
      * @param ldif
      * @param filters
      */
-    public LdifFileLoader( DirContext ctx, File ldif, List<? extends LdifLoadFilter> filters )
+    public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters )
     {
-        this( ctx, ldif, filters, null );
+        this( coreSession, ldif, filters, null );
     }
 
 
@@ -112,9 +110,9 @@ public class LdifFileLoader
      * @param filters
      * @param loader
      */
-    public LdifFileLoader( DirContext ctx, File ldif, List<? extends LdifLoadFilter> filters, ClassLoader loader )
+    public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters, ClassLoader loader )
     {
-        this.ctx = ctx;
+        this.coreSession = coreSession;
         this.ldif = ldif;
         this.loader = loader;
 
@@ -135,7 +133,7 @@ public class LdifFileLoader
      * @param entry the attributes of the entry
      * @return true if all filters passed the entry, false otherwise
      */
-    private boolean applyFilters( String dn, Attributes entry )
+    private boolean applyFilters( LdapDN dn, Entry entry )
     {
         boolean accept = true;
         final int limit = filters.size();
@@ -149,7 +147,7 @@ public class LdifFileLoader
         {
             try
             {
-                accept &= ( filters.get( ii ) ).filter( ldif, dn, entry, ctx );
+                accept &= ( filters.get( ii ) ).filter( ldif, dn, entry, coreSession );
             }
             catch ( NamingException e )
             {
@@ -173,7 +171,7 @@ public class LdifFileLoader
      */
     public int execute()
     {
-        Name rdn = null;
+        LdapDN rdn = null;
         InputStream in = null;
 
         try
@@ -182,44 +180,46 @@ public class LdifFileLoader
 
             for ( LdifEntry ldifEntry:new LdifReader( new BufferedReader( new InputStreamReader( in ) ) ) )
             {
-                String dn = ldifEntry.getDn();
+                LdapDN dn = ldifEntry.getDn();
 
                 if ( ldifEntry.isEntry() )
                 {
-                    Attributes attributes = ldifEntry.getAttributes();
-                    boolean filterAccepted = applyFilters( dn, attributes );
+                    Entry entry = ldifEntry.getEntry();
+                    boolean filterAccepted = applyFilters( dn, entry );
 
                     if ( !filterAccepted )
                     {
                         continue;
                     }
 
-                    rdn = getRelativeName( ctx, dn );
-
                     try
                     {
-                        ctx.lookup( rdn );
+                        coreSession.lookup( dn );
                         log.info( "Found {}, will not create.", rdn );
                     }
                     catch ( Exception e )
                     {
                         try
                         {
-                            ctx.createSubcontext( rdn, attributes );
-                            count++;
+                            coreSession.add( 
+                                new DefaultServerEntry( 
+                                    coreSession.getDirectoryService().getRegistries(), entry ) ); 
+                           count++;
                             log.info( "Created {}.", rdn );
-                        } catch ( NamingException e1 )
+                        } 
+                        catch ( NamingException e1 )
                         {
-                            log.info( "Could not create: " + dn + " with attributes: " + attributes, e1 );
+                            log.info( "Could not create entry " + entry, e1 );
                         }
                     }
                 } else
                 {
                     //modify
-                    List<ModificationItemImpl> items = ldifEntry.getModificationItems();
+                    List<Modification> items = ldifEntry.getModificationItems();
+                    
                     try
                     {
-                        ctx.modifyAttributes( dn, items.toArray( new ModificationItem[items.size()] ) );
+                        coreSession.modify( dn, items );
                         log.info( "Modified: " + dn + " with modificationItems: " + items );
                     }
                     catch ( NamingException e )
@@ -253,40 +253,6 @@ public class LdifFileLoader
         }
 
         return count;
-    }
-
-
-    private Name getRelativeName( DirContext ctx, String baseDn ) throws NamingException
-    {
-        Properties props = new Properties();
-        props.setProperty( "jndi.syntax.direction", "right_to_left" );
-        props.setProperty( "jndi.syntax.separator", "," );
-        props.setProperty( "jndi.syntax.ignorecase", "true" );
-        props.setProperty( "jndi.syntax.trimblanks", "true" );
-
-        Name searchBaseDn;
-
-        try
-        {
-            Name ctxRoot = new CompoundName( ctx.getNameInNamespace(), props );
-            searchBaseDn = new CompoundName( baseDn, props );
-
-            if ( !searchBaseDn.startsWith( ctxRoot ) )
-            {
-                throw new NamingException( "Invalid search base " + baseDn );
-            }
-
-            for ( int ii = 0; ii < ctxRoot.size(); ii++ )
-            {
-                searchBaseDn.remove( 0 );
-            }
-        }
-        catch ( NamingException e )
-        {
-            throw new NamingException( "Failed to initialize search base " + baseDn );
-        }
-
-        return searchBaseDn;
     }
 
 

@@ -24,16 +24,12 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -41,9 +37,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -52,7 +48,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetPrincipal implements ContextOperation
+public class GetPrincipal implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = 4598007518413451945L;
 
@@ -75,52 +71,14 @@ public class GetPrincipal implements ContextOperation
      * Note that the base is a relative path from the existing context.
      * It is not a DN.
      */
-    public Object execute( DirContext ctx, Name base )
+    public Object execute( CoreSession session, LdapDN base ) throws Exception
     {
         if ( principal == null )
         {
             return null;
         }
 
-        String[] attrIDs =
-            {   KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
-                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
-                KerberosAttribute.KRB5_KEY_AT,
-                KerberosAttribute.APACHE_SAM_TYPE_AT, 
-                KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT,
-                KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT, 
-                KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT };
-
-        Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal.getName() ) );
-
-        PrincipalStoreEntry entry = null;
-
-        try
-        {
-            NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
-
-            if ( answer.hasMore() )
-            {
-                SearchResult result = answer.next();
-
-                Attributes attrs = result.getAttributes();
-
-                if ( attrs == null )
-                {
-                    return null;
-                }
-
-                String distinguishedName = result.getName();
-                entry = getEntry( distinguishedName, attrs );
-            }
-        }
-        catch ( NamingException e )
-        {
-            return null;
-        }
-
-        return entry;
+        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getName() ) );
     }
 
 
@@ -132,33 +90,33 @@ public class GetPrincipal implements ContextOperation
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( String distinguishedName, Attributes attrs ) throws NamingException
+    private PrincipalStoreEntry getEntry( ServerEntry entry ) throws Exception
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
-        modifier.setDistinguishedName( distinguishedName );
+        modifier.setDistinguishedName( entry.getDn().getUpName() );
 
-        String principal = ( String ) attrs.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+        String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
 
-        String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get();
+        String keyVersionNumber = entry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).getString();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_DISABLED_AT ).getString();
             modifier.setDisabled( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_LOCKEDOUT_AT ).getString();
             modifier.setLockedOut( "true".equalsIgnoreCase( val ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ).get();
+            String val = entry.get( KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT ).getString();
             try
             {
                 modifier.setExpiration( KerberosTime.getTime( val ) );
@@ -171,15 +129,16 @@ public class GetPrincipal implements ContextOperation
             }
         }
 
-        if ( attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
+        if ( entry.get( KerberosAttribute.APACHE_SAM_TYPE_AT ) != null )
         {
-            String samType = ( String ) attrs.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).get();
+            String samType = entry.get( KerberosAttribute.APACHE_SAM_TYPE_AT ).getString();
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        if ( attrs.get( KerberosAttribute.KRB5_KEY_AT ) != null )
+        if ( entry.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
-            Attribute krb5key = attrs.get( KerberosAttribute.KRB5_KEY_AT );
+            EntryAttribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
+            
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );

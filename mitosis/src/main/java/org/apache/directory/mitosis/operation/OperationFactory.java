@@ -19,17 +19,22 @@
  */
 package org.apache.directory.mitosis.operation;
 
+
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -38,6 +43,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -48,7 +54,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
 import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
@@ -91,7 +96,11 @@ public class OperationFactory
 
     /** The global registries */
     private Registries registries;
+    
+    
+    private DirectoryService ds;
 
+    
     public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
         replicaId = cfg.getReplicaId();
@@ -100,6 +109,7 @@ public class OperationFactory
         csnFactory = cfg.getCsnFactory();
         registries = directoryService.getRegistries();
         attributeRegistry = registries.getAttributeTypeRegistry();
+        this.ds = directoryService;
     }
 
 
@@ -107,7 +117,7 @@ public class OperationFactory
      * Creates a new {@link Operation} that performs LDAP "add" operation
      * with a newly generated {@link CSN}.
      */
-    public Operation newAdd( LdapDN normalizedName, ServerEntry entry ) throws NamingException
+    public Operation newAdd( LdapDN normalizedName, ServerEntry entry ) throws Exception
     {
         return newAdd( newCSN(), normalizedName, entry );
     }
@@ -119,7 +129,7 @@ public class OperationFactory
      * additional attributes; {@link Constants#ENTRY_CSN} ({@link CSN}),
      * {@link Constants#ENTRY_UUID}, and {@link Constants#ENTRY_DELETED}.
      */
-    private Operation newAdd( CSN csn, LdapDN normalizedName, ServerEntry entry ) throws NamingException
+    private Operation newAdd( CSN csn, LdapDN normalizedName, ServerEntry entry ) throws Exception
     {
         // Check an entry already exists.
         checkBeforeAdd( normalizedName );
@@ -234,7 +244,7 @@ public class OperationFactory
      * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newParentName</tt>. 
      */
-    public Operation newModifyRn( LdapDN oldName, Rdn newRdn, boolean deleteOldRn ) throws NamingException
+    public Operation newModifyRn( LdapDN oldName, Rdn newRdn, boolean deleteOldRn ) throws Exception
     {
         LdapDN newParentName = ( LdapDN ) oldName.clone();
         newParentName.remove( oldName.size() - 1 );
@@ -249,7 +259,7 @@ public class OperationFactory
      * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newRdn</tt> and '<tt>true</tt>' <tt>deleteOldRn</tt>. 
      */
-    public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws NamingException
+    public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws Exception
     {
         return newMove( oldName, newParentName, oldName.getRdn(), true );
     }
@@ -261,7 +271,7 @@ public class OperationFactory
      * so it should be reviewed completely again.
      */
     public Operation newMove( LdapDN oldName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn )
-        throws NamingException
+        throws Exception
     {
         // Prepare to create composite operations
         CSN csn = newCSN();
@@ -271,16 +281,21 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         
-        NamingEnumeration<ServerSearchResult> e = nexus.search( 
-            new SearchOperationContext( registries, oldName, AliasDerefMode.DEREF_ALWAYS,
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), ds );
+
+        EntryFilteringCursor cursor = nexus.search( 
+            new SearchOperationContext( adminSession, oldName, AliasDerefMode.DEREF_ALWAYS,
                     new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
-        while ( e.hasMore() )
+        while ( cursor.next() )
         {
-            ServerSearchResult sr = e.next();
+            ServerEntry entry = cursor.get();
 
             // Get the name of the old entry
-            LdapDN oldEntryName = sr.getDn();
+            LdapDN oldEntryName = entry.getDn();
             oldEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Delete the old entry
@@ -294,8 +309,6 @@ public class OperationFactory
                         "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
-            ServerEntry entry = sr.getServerEntry();
-            
             if ( oldEntryName.size() == oldName.size() )
             {
                 if ( deleteOldRn )
@@ -362,11 +375,16 @@ public class OperationFactory
      *
      * @param newEntryName makes sure an entry already exists.
      */
-    private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
+    private void checkBeforeAdd( LdapDN newEntryName ) throws Exception
     {
-        if ( nexus.hasEntry( new EntryOperationContext( registries, newEntryName ) ) )
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), ds );
+
+        if ( nexus.hasEntry( new EntryOperationContext( adminSession, newEntryName ) ) )
         {
-            ServerEntry entry = nexus.lookup( new LookupOperationContext( registries, newEntryName ) );
+            ServerEntry entry = nexus.lookup( new LookupOperationContext( adminSession, newEntryName ) );
             EntryAttribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

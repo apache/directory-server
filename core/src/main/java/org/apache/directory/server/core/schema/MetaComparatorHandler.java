@@ -63,7 +63,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
     
 
-    public MetaComparatorHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    public MetaComparatorHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         this.comparatorRegistry = targetRegistries.getComparatorRegistry();
@@ -75,7 +75,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
@@ -90,7 +90,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws NamingException
+    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
     {
         ComparatorDescription description = new ComparatorDescription();
         description.setNumericOid( getOid( entry ) );
@@ -118,7 +118,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
     
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -136,7 +136,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
     
     
-    public void add( ComparatorDescription comparatorDescription ) throws NamingException
+    public void add( ComparatorDescription comparatorDescription ) throws Exception
     {
         Comparator comparator = factory.getComparator( comparatorDescription, targetRegistries );
         String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
@@ -155,7 +155,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         delete( oid, cascade );
@@ -179,7 +179,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -207,7 +207,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -243,7 +243,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -284,7 +284,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    private void checkOidIsUniqueForComparator( ServerEntry entry ) throws NamingException
+    private void checkOidIsUniqueForComparator( ServerEntry entry ) throws Exception
     {
         String oid = getOid( entry );
         

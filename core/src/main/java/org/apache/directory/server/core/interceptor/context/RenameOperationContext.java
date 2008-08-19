@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -34,21 +37,27 @@ import org.apache.directory.shared.ldap.name.Rdn;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RenameOperationContext extends AbstractOperationContext
+public class RenameOperationContext extends AbstractChangeOperationContext
 {
-    /** The new DN */
+    /** The new RDN */
     private Rdn newRdn;
+
+    /** Cached copy of the new DN */
+    private LdapDN newDn;
 
     /** The flag to remove the old DN Attribute  */
     private boolean delOldDn;
 
+    /** The entry after being renamed and altered for rdn attributes */ 
+    private ClonedServerEntry alteredEntry;
+    
 
     /**
      * Creates a new instance of RenameOperationContext.
      */
-    public RenameOperationContext( Registries registries )
+    public RenameOperationContext( CoreSession session )
     {
-        super( registries );
+    	super( session );
     }
 
 
@@ -59,11 +68,26 @@ public class RenameOperationContext extends AbstractOperationContext
      * @param newRdn the new RDN to use for the target
      * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( Registries registries, LdapDN oldDn, Rdn newRdn, boolean delOldDn )
+    public RenameOperationContext( CoreSession session, LdapDN oldDn, Rdn newRdn, boolean delOldDn )
     {
-        super( registries, oldDn );
+        super( session, oldDn );
         this.newRdn = newRdn;
         this.delOldDn = delOldDn;
+    }
+
+
+    public RenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        super( session, modifyDnRequest.getName() );
+        this.newRdn = modifyDnRequest.getNewRdn();
+        
+        if ( newRdn == null )
+        {
+            throw new IllegalStateException( "newRdn must not be null for a rename: " + modifyDnRequest );
+        }
+        
+        this.delOldDn = modifyDnRequest.getDeleteOldRdn();
+        this.requestControls = modifyDnRequest.getControls();
     }
 
 
@@ -87,6 +111,24 @@ public class RenameOperationContext extends AbstractOperationContext
 
 
     /**
+     * @return The new DN either computed if null or already computed
+     */
+    public LdapDN getNewDn() throws Exception
+    {
+        if ( newDn == null )
+        {
+            newDn = new LdapDN( getDn().getUpName() );
+            newDn.remove( newDn.size() - 1 );
+            newDn.add( newRdn.getUpName() );
+            newDn.normalize( session.getDirectoryService().getRegistries()
+                .getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        
+        return newDn;
+    }
+
+
+    /**
      * @return The new RDN
      */
     public Rdn getNewRdn()
@@ -105,6 +147,33 @@ public class RenameOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.MOD_DN_REQUEST.name();
+    }
+    
+    
+    /**
+     * Returns the entry after it has been renamed and potentially changed for 
+     * Rdn alterations.
+     *
+     * @return the new renamed entry
+     */
+    public ClonedServerEntry getAlteredEntry()
+    {
+        return alteredEntry;
+    }
+
+    
+    public void setAlteredEntry( ClonedServerEntry alteredEntry ) 
+    {
+        this.alteredEntry = alteredEntry;
+    }
+    
+    
     /**
      * @see Object#toString()
      */

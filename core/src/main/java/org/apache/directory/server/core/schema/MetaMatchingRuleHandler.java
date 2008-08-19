@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -53,7 +52,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
     
     public MetaMatchingRuleHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
-        throws NamingException
+        throws Exception
     {
         super( targetRegistries, loader );
         
@@ -63,7 +62,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
 
     protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Schema schema = getSchema( name );
@@ -77,7 +76,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -90,11 +89,11 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schemaName );
-        Set<ServerSearchResult> dependees = dao.listMatchingRuleDependents( mr );
+        Set<ServerEntry> dependees = dao.listMatchingRuleDependents( mr );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -109,7 +108,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( MatchingRule mr, boolean cascade ) throws NamingException
+    public void delete( MatchingRule mr, boolean cascade ) throws Exception
     {
         Schema schema = loader.getSchema( mr.getSchema() );
         if ( ! schema.isDisabled() )
@@ -120,11 +119,11 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         Schema schema = getSchema( name );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
+        Set<ServerEntry> dependees = dao.listMatchingRuleDependents( oldMr );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -157,12 +156,12 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
+        Set<ServerEntry> dependees = dao.listMatchingRuleDependents( oldMr );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -199,12 +198,12 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, oldSchema.getSchemaName() );
-        Set<ServerSearchResult> dependees = dao.listMatchingRuleDependents( oldMr );
+        Set<ServerEntry> dependees = dao.listMatchingRuleDependents( oldMr );
         
         if ( dependees != null && dependees.size() > 0 )
         {
@@ -255,7 +254,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( MatchingRule mr ) throws NamingException
+    public void add( MatchingRule mr ) throws Exception
     {
         Schema schema = loader.getSchema( mr.getSchema() );
         

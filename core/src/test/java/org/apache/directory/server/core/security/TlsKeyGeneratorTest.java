@@ -23,15 +23,10 @@ package org.apache.directory.server.core.security;
 
 import static org.junit.Assert.*;
 
-import java.io.FileInputStream;
 import java.security.KeyPair;
-import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -72,7 +67,7 @@ public class TlsKeyGeneratorTest
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
-    public static void setup() throws NamingException
+    public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
         oidRegistry = new DefaultOidRegistry();
@@ -95,7 +90,7 @@ public class TlsKeyGeneratorTest
      * Test method for all methods in one.
      */
     @Test
-    public void testAll() throws NamingException
+    public void testAll() throws Exception
     {
         DefaultServerEntry entry = new DefaultServerEntry( registries, new LdapDN() );
         TlsKeyGenerator.addKeyPair( entry );

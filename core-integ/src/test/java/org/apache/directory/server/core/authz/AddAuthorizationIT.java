@@ -70,7 +70,7 @@ public class AddAuthorizationIT
      * @return true if the entry can be created by the user at the specified location, false otherwise
      * @throws NamingException if there are problems conducting the test
      */
-    public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws NamingException
+    public boolean checkCanAddEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
         Attribute objectClass = new AttributeImpl( "objectClass" );
@@ -103,7 +103,7 @@ public class AddAuthorizationIT
      * @throws NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAddAdministrators() throws NamingException
+    public void testGrantAddAdministrators() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -137,7 +137,7 @@ public class AddAuthorizationIT
      * @throws NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAddByName() throws NamingException
+    public void testGrantAddByName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -163,7 +163,7 @@ public class AddAuthorizationIT
      * @throws NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAddBySubtree() throws NamingException
+    public void testGrantAddBySubtree() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -189,7 +189,7 @@ public class AddAuthorizationIT
      * @throws NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAddAllUsers() throws NamingException
+    public void testGrantAddAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );

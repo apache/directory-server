@@ -27,12 +27,11 @@ import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.Registries;
 
 import javax.naming.Name;
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -160,12 +159,12 @@ public class CompositeOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries ) 
-        throws NamingException
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+        throws Exception
     {
         for ( Operation op : children )
         {
-            op.execute( nexus, DUMMY_STORE, registries );
+            op.execute( nexus, DUMMY_STORE, coreSession );
         }
     }
 

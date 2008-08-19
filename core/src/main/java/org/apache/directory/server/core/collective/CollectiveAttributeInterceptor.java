@@ -21,32 +21,29 @@ package org.apache.directory.server.core.collective;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,9 +62,6 @@ import java.util.Set;
  */
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
-    /** The global registries */
-    private Registries registries;
-    
     /** The attributeType registry */
     private AttributeTypeRegistry atRegistry;
     
@@ -79,33 +73,30 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry result )
+            throws Exception
         {
-            LdapDN name = ((ServerSearchResult)result).getDn();
+            LdapDN name = result.getDn();
             
             if ( name.isNormalized() == false )
             {
                 name = LdapDN.normalize( name, atRegistry.getNormalizerMapping() );
             }
             
-            ServerEntry entry = result.getServerEntry();
-            String[] retAttrs = controls.getReturningAttributes();
-            addCollectiveAttributes( name, entry, retAttrs );
-            result.setServerEntry( entry );
+            String[] retAttrs = operation.getSearchControls().getReturningAttributes();
+            addCollectiveAttributes( operation, result, retAttrs );
             return true;
         }
     };
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         atRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker( nexus, atRegistry );
-        registries = directoryService.getRegistries();
     }
 
 
@@ -115,49 +106,42 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * attributes that are specified to be excluded via the 'collectiveExclusions'
      * attribute in the entry.
      *
-     * @param normName name of the entry being processed
+     * @param opContext the context of the operation collective attributes 
+     * are added to
      * @param entry the entry to have the collective attributes injected
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws NamingException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( LdapDN normName, ServerEntry entry, String[] retAttrs ) throws NamingException
+    private void addCollectiveAttributes( OperationContext opContext, ClonedServerEntry entry, 
+        String[] retAttrs ) throws Exception
     {
-        EntryAttribute caSubentries;
-
-        //noinspection StringEquality
-        if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
-        {
-            ServerEntry entryWithCAS = nexus.lookup( new LookupOperationContext( registries, normName, new String[] { 
-                SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID } ) );
-            caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        }
-        else
-        {
-            caSubentries = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        }
+        EntryAttribute collectiveAttributeSubentries = 
+            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         
         /*
-         * If there are no collective attribute subentries referenced
-         * then we have no collective attributes to inject to this entry.
+         * If there are no collective attribute subentries referenced then we 
+         * have no collective attributes to inject to this entry.
          */
-        if ( caSubentries == null )
+        if ( collectiveAttributeSubentries == null )
         {
             return;
         }
     
         /*
-         * Before we proceed we need to lookup the exclusions within the
-         * entry and build a set of exclusions for rapid lookup.  We use
-         * OID values in the exclusions set instead of regular names that
-         * may have case variance.
+         * Before we proceed we need to lookup the exclusions within the entry 
+         * and build a set of exclusions for rapid lookup.  We use OID values 
+         * in the exclusions set instead of regular names that may have case 
+         * variance.
          */
-        EntryAttribute collectiveExclusions = entry.get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        EntryAttribute collectiveExclusions = 
+            entry.getOriginalEntry().get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
         
         if ( collectiveExclusions != null )
         {
             if ( collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID )
-                || collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT  ) )
+                 || 
+                 collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT  ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -208,11 +192,19 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( Value<?> value:caSubentries )
+        for ( Value<?> value:collectiveAttributeSubentries )
         {
             String subentryDnStr = ( String ) value.get();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            ServerEntry subentry = nexus.lookup( new LookupOperationContext( registries, subentryDn ) );
+            
+            /*
+             * TODO - Instead of hitting disk here can't we leverage the 
+             * SubentryService to get us cached sub-entries so we're not
+             * wasting time with a lookup here? It is ridiculous to waste
+             * time looking up this sub-entry. 
+             */
+            
+            ServerEntry subentry = opContext.lookup( subentryDn, ByPassConstants.LOOKUP_COLLECTIVE_BYPASS );
             
             for ( AttributeType attributeType:subentry.getAttributeTypes() )
             {
@@ -285,7 +277,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
     
     
-    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws NamingException
+    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws Exception
     {
         Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
@@ -307,9 +299,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+
+    
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) 
+        throws Exception
     {
-        ServerEntry result = nextInterceptor.lookup( opContext );
+        ClonedServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -318,40 +313,39 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) ) 
         {
-            addCollectiveAttributes( opContext.getDn(), result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+            addCollectiveAttributes( opContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {
-            addCollectiveAttributes( opContext.getDn(), result, opContext.getAttrsIdArray() );
+            addCollectiveAttributes( opContext, result, opContext.getAttrsIdArray() );
         }
 
         return result;
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-        return new SearchResultFilteringEnumeration( 
-            result, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
+
     
     // ------------------------------------------------------------------------
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
         
@@ -359,9 +353,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext.getRegistries(),opContext.getDn(), opContext.getModItems() );
+        collectiveAttributesSchemaChecker.checkModify( opContext,opContext.getDn(), opContext.getModItems() );
 
         next.modify( opContext );
     }

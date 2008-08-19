@@ -19,8 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A ListSuffix context used for Interceptors. It contains all the informations
@@ -34,9 +37,9 @@ public class ListSuffixOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of ListSuffixOperationContext.
      */
-    public ListSuffixOperationContext( Registries registries )
+    public ListSuffixOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
     /**
@@ -44,10 +47,20 @@ public class ListSuffixOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public ListSuffixOperationContext( Registries registries, LdapDN dn )
+    public ListSuffixOperationContext( CoreSession session, Registries registries, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
+    
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "ListSuffix";
+    }
+
     
     /**
      * @see Object#toString()

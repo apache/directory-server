@@ -17,8 +17,8 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.trigger;
+
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -30,50 +30,57 @@ import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 
+
 public abstract class AbstractStoredProcedureParameterInjector implements StoredProcedureParameterInjector
 {
-    private Invocation invocation;
+    private OperationContext opContext;
     private Map<Class<?>, MicroInjector> injectors;
     
-    public AbstractStoredProcedureParameterInjector( Invocation invocation )
+    
+    public AbstractStoredProcedureParameterInjector( OperationContext opContext )
     {
-        this.invocation = invocation;
+        this.opContext = opContext;
         injectors = new HashMap<Class<?>, MicroInjector>();
         injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, $operationPrincipalInjector );
         injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, $ldapContextInjector );
     }
     
+    
     protected Name getOperationPrincipal() throws NamingException
     {
-        Principal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
+        Principal principal = opContext.getSession().getEffectivePrincipal();
         Name userName = new LdapDN( principal.getName() );
         return userName;
     }
+    
     
     protected Map<Class<?>, MicroInjector> getInjectors()
     {
         return injectors;
     }
     
-    public Invocation getInvocation()
+    
+    public OperationContext getOperationContext()
     {
-        return invocation;
+        return opContext;
     }
     
-    public void setInvocation( Invocation invocation )
+    
+    public void setOperationContext( OperationContext invocation )
     {
-        this.invocation = invocation;
+        this.opContext = invocation;
     }
     
-    public final List<Object> getArgumentsToInject( Registries registries, List<StoredProcedureParameter> parameterList ) throws NamingException
+    
+    public final List<Object> getArgumentsToInject( OperationContext opContext, 
+        List<StoredProcedureParameter> parameterList ) throws Exception
     {
         List<Object> arguments = new ArrayList<Object>();
         
@@ -83,28 +90,29 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         {
             StoredProcedureParameter spParameter = it.next();
             MicroInjector injector = injectors.get( spParameter.getClass() );
-            arguments.add( injector.inject( registries, spParameter ) );
+            arguments.add( injector.inject( opContext, spParameter ) );
         }
         
         return arguments;
     }
     
+    
     MicroInjector $operationPrincipalInjector = new MicroInjector()
     {
-        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception
         {
             return getOperationPrincipal();
         }
     };
     
+    
     MicroInjector $ldapContextInjector = new MicroInjector()
     {
-        public Object inject(  Registries registries, StoredProcedureParameter param ) throws NamingException
+        public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws Exception
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             LdapDN ldapCtxName = ldapCtxParam.getCtxName();
-            return ( ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext()).lookup( ldapCtxName );
+            return opContext.lookup( ldapCtxName, ByPassConstants.LOOKUP_BYPASS );
         }
     };
-
 }

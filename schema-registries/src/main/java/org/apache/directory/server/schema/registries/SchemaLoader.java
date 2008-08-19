@@ -23,8 +23,6 @@ package org.apache.directory.server.schema.registries;
 import java.util.Collection;
 import java.util.Properties;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.schema.bootstrap.Schema;
 
 
@@ -51,7 +49,7 @@ public interface SchemaLoader
      * @return the Schema object associated with the name
      * @throws NamingException if any problems while trying to find the associated Schema
      */
-    Schema getSchema( String schemaName ) throws NamingException;
+    Schema getSchema( String schemaName ) throws Exception;
     
     /**
      * Gets a schema object based on it's name and some properties.
@@ -61,7 +59,7 @@ public interface SchemaLoader
      * @return the Schema object associated with the name
      * @throws NamingException if any problems while trying to find the associated Schema
      */
-    Schema getSchema( String schemaName, Properties schemaProperties ) throws NamingException;
+    Schema getSchema( String schemaName, Properties schemaProperties ) throws Exception;
     
     /**
      * Loads a collection of schemas.  A best effort should be made to load the dependended 
@@ -71,7 +69,7 @@ public interface SchemaLoader
      * @param registries the registries to populate with these schemas
      * @throws NamingException if any kind of problems are encountered during the load
      */
-    void loadWithDependencies( Collection<Schema> schemas, Registries registries ) throws NamingException;
+    void loadWithDependencies( Collection<Schema> schemas, Registries registries ) throws Exception;
     
     /**
      * Loads a single schema at least and possibly it's dependencies.  
@@ -80,7 +78,7 @@ public interface SchemaLoader
      * @param registries the registries to populate with these schemas
      * @throws NamingException if any kind of problems are encountered during the load
      */
-    void loadWithDependencies( Schema schemas, Registries registries ) throws NamingException;
+    void loadWithDependencies( Schema schemas, Registries registries ) throws Exception;
     
     /**
      * Loads a single schema.  Do not try to resolve dependencies while implementing this method.
@@ -90,5 +88,5 @@ public interface SchemaLoader
      * @param isDepLoad tells the loader if this load request is to satisfy a dependency
      * @throws NamingException if any kind of problems are encountered during the load
      */
-    void load( Schema schema, Registries registries, boolean isDepLoad ) throws NamingException;
+    void load( Schema schema, Registries registries, boolean isDepLoad ) throws Exception;
 }

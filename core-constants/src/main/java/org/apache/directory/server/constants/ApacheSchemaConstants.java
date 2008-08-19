@@ -117,17 +117,24 @@ public interface ApacheSchemaConstants
     String ENTRY_DELETED_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.31";
 
     // SchemaModifiersName
-    String SCHEMA_MODIFIERS_NAME_AT         = "schemaModifiersName";
-    String SCHEMA_MODIFIERS_NAME_AT_OID     = "";
+    String SCHEMA_MODIFIERS_NAME_AT                 = "schemaModifiersName";
+    String SCHEMA_MODIFIERS_NAME_AT_OID             = "";
     
     // SchemaModifyTimestamp
-    String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
-    String SCHEMA_MODIFY_TIMESTAMP_AT_OID = "";
+    String SCHEMA_MODIFY_TIMESTAMP_AT               = "schemaModifyTimestamp";
+    String SCHEMA_MODIFY_TIMESTAMP_AT_OID           = "";
     
     // SubschemaSubentryName
-    String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
-    String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "";
+    String SUBSCHEMA_SUBENTRY_NAME_AT               = "subschemaSubentryName";
+    String SUBSCHEMA_SUBENTRY_NAME_AT_OID           = "";
     
+    // CatalogEntryName
+    String APACHE_CATALOGUE_ENTRY_NAME_AT           = "apacheCatalogEntryName";
+    String APACHE_CATALOGUE_ENTRY_NAME_AT_OID       = "1.3.6.1.4.1.18060.0.4.1.2.17";
+    
+    String APACHE_CATALOGUE_ENTRY_BASE_DN_AT        = "apacheCatalogEntryBaseDn";
+    String APACHE_CATALOGUE_ENTRY_BASE_DN_AT_OID    = "1.3.6.1.4.1.18060.0.4.1.2.18";
+
     // WindowsFilePath
     String WINDOWS_FILE_AT                          = "windowsFilePath";
     String WINDOWS_FILE_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.19";
@@ -135,4 +142,7 @@ public interface ApacheSchemaConstants
     // WindowsFilePath
     String UNIX_FILE_AT                             = "unixFilePath";
     String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
+
+    String PREF_NODE_NAME_AT                        = "prefNodeName";
+    String PREF_NODE_NAME_AT_OID                    = "1.3.6.1.4.1.18060.0.4.1.2.8";
 }

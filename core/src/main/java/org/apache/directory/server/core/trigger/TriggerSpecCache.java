@@ -17,18 +17,23 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.trigger;
 
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -45,8 +50,6 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -87,22 +90,22 @@ public class TriggerSpecCache
      * @param directoryService the directory service core
      * @throws NamingException with problems initializing cache
      */
-    public TriggerSpecCache( DirectoryService directoryService ) throws NamingException
+    public TriggerSpecCache( DirectoryService directoryService ) throws Exception
     {
         this.nexus = directoryService.getPartitionNexus();
         final AttributeTypeRegistry registry = directoryService.getRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
-                public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
+                public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
                 {
                     return registry.getNormalizerMapping();
                 }
             });
-        initialize( directoryService.getRegistries() );
+        initialize( directoryService );
     }
 
 
-    private void initialize( Registries registries ) throws NamingException
+    private void initialize( DirectoryService directoryService ) throws Exception
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -113,18 +116,22 @@ public class TriggerSpecCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, 
+            ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
                     new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<ServerSearchResult> results = 
-                nexus.search( new SearchOperationContext( registries, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
             
-            while ( results.hasMore() )
+            LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            CoreSession adminSession = new DefaultCoreSession( 
+                new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+            EntryFilteringCursor results = nexus.search( new SearchOperationContext( 
+                adminSession, baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
+            
+            while ( results.next() )
             {
-                ServerSearchResult result = results.next();
-                LdapDN subentryDn = result.getDn();
-                ServerEntry resultEntry = result.getServerEntry();
+                ClonedServerEntry resultEntry = results.get();
+                LdapDN subentryDn = resultEntry.getDn();
                 EntryAttribute triggerSpec = resultEntry.get( PRESCRIPTIVE_TRIGGER_ATTR );
                 
                 if ( triggerSpec == null )
@@ -133,7 +140,8 @@ public class TriggerSpecCache
                     continue;
                 }
 
-                LdapDN normSubentryName = subentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                LdapDN normSubentryName = subentryDn.normalize( directoryService.getRegistries()
+                    .getAttributeTypeRegistry().getNormalizerMapping() );
                 subentryAdded( normSubentryName, resultEntry );
             }
             
@@ -142,7 +150,7 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( ServerEntry entry ) throws NamingException
+    private boolean hasPrescriptiveTrigger( ServerEntry entry ) throws Exception
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -151,7 +159,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( LdapDN normName, ServerEntry entry ) throws NamingException
+    public void subentryAdded( LdapDN normName, ServerEntry entry ) throws Exception
     {
         // only do something if the entry contains prescriptiveTrigger
         EntryAttribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -184,7 +192,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( LdapDN normName, ServerEntry entry ) throws NamingException
+    public void subentryDeleted( LdapDN normName, ServerEntry entry ) throws Exception
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -195,7 +203,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, ServerEntry entry ) throws NamingException
+    public void subentryModified( ModifyOperationContext opContext, ServerEntry entry ) throws Exception
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

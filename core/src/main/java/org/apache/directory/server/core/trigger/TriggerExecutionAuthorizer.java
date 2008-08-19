@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.trigger;
 
-import javax.naming.NamingException;
+
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+
 
 public interface TriggerExecutionAuthorizer
 {
-    boolean hasPermission() throws NamingException;
+    boolean hasPermission( OperationContext opContext ) throws Exception;
 }

@@ -19,8 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Entry context used for Interceptors. It contains all the informations
@@ -34,9 +37,9 @@ public class EntryOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of EntryOperationContext.
      */
-    public EntryOperationContext( Registries registries )
+    public EntryOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
     /**
@@ -44,10 +47,20 @@ public class EntryOperationContext extends AbstractOperationContext
      *
      * @param entryDn The Entry DN to unbind
      */
-    public EntryOperationContext( Registries registries, LdapDN entryDn )
+    public EntryOperationContext( CoreSession session, LdapDN entryDn )
     {
-        super( registries, entryDn );
+        super( session, entryDn );
     }
+    
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.ADD_REQUEST.name();
+    }
+
     
     /**
      * @see Object#toString()

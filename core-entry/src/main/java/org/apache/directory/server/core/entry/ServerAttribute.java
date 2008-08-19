@@ -22,6 +22,7 @@ package org.apache.directory.server.core.entry;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -111,4 +112,12 @@ public interface ServerAttribute extends ClientAttribute
      * @throws NamingException if there is a failure to check syntaxes of values
      */
     boolean isValid() throws NamingException;
+
+
+    /**
+     * Convert the ServerAttribute to a ClientAttribute
+     *
+     * @return An instance of ClientAttribute
+     */
+    EntryAttribute toClientAttribute();
 }

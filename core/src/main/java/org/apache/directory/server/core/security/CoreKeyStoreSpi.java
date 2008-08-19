@@ -35,15 +35,12 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -79,12 +76,12 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     }
 
 
-    private ServerEntry getTlsEntry() throws NamingException
+    private ServerEntry getTlsEntry() throws Exception
     {
         LdapDN adminDn = PartitionNexus.getAdminName();
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
-        Attributes attrs = directoryService.getJndiContext( principal ).getAttributes( adminDn );
-        return ServerEntryUtils.toServerEntry( attrs, adminDn, directoryService.getRegistries() );
+        CoreSession session = directoryService.getSession( principal );
+        return session.lookup( adminDn );
     }
     
     
@@ -141,7 +138,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
                 ServerEntry entry = getTlsEntry();
                 return TlsKeyGenerator.getCertificate( entry );
             }
-            catch ( NamingException e )
+            catch ( Exception e )
             {
                 LOG.error( "Failed to access certificate in DIT.", e );
             }

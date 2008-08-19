@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A GetSuffix context used for Interceptors. It contains all the informations
@@ -34,9 +36,9 @@ public class GetSuffixOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of GetSuffixOperationContext.
      */
-    public GetSuffixOperationContext( Registries registries )
+    public GetSuffixOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
     /**
@@ -44,10 +46,20 @@ public class GetSuffixOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public GetSuffixOperationContext( Registries registries, LdapDN dn )
+    public GetSuffixOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
+    
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "GetSuffix";
+    }
+
     
     /**
      * @see Object#toString()

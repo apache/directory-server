@@ -31,10 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -43,24 +40,28 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.server.newldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.plain.PlainMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.newldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.newldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.newldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public abstract class AbstractServerTest extends TestCase
     protected LdapContext sysRoot;
 
     /** the context root for the rootDSE */
-    protected LdapContext rootDSE;
+    protected CoreSession rootDSE;
 
     /** the context root for the schema */
     protected LdapContext schemaRoot;
@@ -114,7 +115,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadTestLdif( boolean verifyEntries ) throws Exception
     {
         return loadLdif( getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" ), verifyEntries );
     }
@@ -131,7 +132,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return a list of entries added to the server in the order they were added
      * @throws NamingException of the load fails
      */
-    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws NamingException
+    protected List<LdifEntry> loadLdif( InputStream in, boolean verifyEntries ) throws Exception
     {
         if ( in == null )
         {
@@ -143,7 +144,8 @@ public abstract class AbstractServerTest extends TestCase
 
         for ( LdifEntry entry:ldifReader )
         {
-            rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
+            rootDSE.add( 
+                new DefaultServerEntry( directoryService.getRegistries(), entry.getEntry() ) ); 
             
             if ( verifyEntries )
             {
@@ -169,19 +171,18 @@ public abstract class AbstractServerTest extends TestCase
      * @param entry the entry to verify
      * @throws NamingException if there are problems accessing the entry
      */
-    protected void verify( LdifEntry entry ) throws NamingException
+    protected void verify( LdifEntry entry ) throws Exception
     {
-        Attributes readAttributes = rootDSE.getAttributes( entry.getDn() );
-        NamingEnumeration<String> readIds = entry.getAttributes().getIDs();
-        while ( readIds.hasMore() )
+        Entry readEntry = rootDSE.lookup( entry.getDn() );
+        
+        for ( EntryAttribute readAttribute:readEntry )
         {
-            String id = readIds.next();
-            Attribute readAttribute = readAttributes.get( id );
-            Attribute origAttribute = entry.getAttributes().get( id );
+            String id = readAttribute.getId();
+            EntryAttribute origAttribute = entry.getEntry().get( id );
             
-            for ( int ii = 0; ii < origAttribute.size(); ii++ )
+            for ( Value<?> value:origAttribute )
             {
-                if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
+                if ( ! readAttribute.contains( value ) )
                 {
                     LOG.error( "Failed to verify entry addition of {}. {} attribute in original " +
                             "entry missing from read entry.", entry.getDn(), id );
@@ -201,7 +202,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return an LDAP context as the the administrator to the rootDSE
      * @throws NamingException if the server cannot be contacted
      */
-    protected LdapContext getWiredContext() throws NamingException
+    protected LdapContext getWiredContext() throws Exception
     {
         return getWiredContext( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
@@ -218,7 +219,7 @@ public abstract class AbstractServerTest extends TestCase
      * @return an LDAP context as the the administrator to the rootDSE
      * @throws NamingException if the server cannot be contacted
      */
-    protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws NamingException
+    protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws Exception
     {
 //        if ( ! apacheDS.isStarted() )
 //        {
@@ -280,18 +281,15 @@ public abstract class AbstractServerTest extends TestCase
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
-        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new SimpleMechanismHandler() );
+        mechanismHandlerMap.put( SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler() );
 
         CramMd5MechanismHandler cramMd5MechanismHandler = new CramMd5MechanismHandler();
-        cramMd5MechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.CRAM_MD5, cramMd5MechanismHandler );
 
         DigestMd5MechanismHandler digestMd5MechanismHandler = new DigestMd5MechanismHandler();
-        digestMd5MechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.DIGEST_MD5, digestMd5MechanismHandler );
 
         GssapiMechanismHandler gssapiMechanismHandler = new GssapiMechanismHandler();
-        gssapiMechanismHandler.setDirectoryService( directoryService );
         mechanismHandlerMap.put( SupportedSaslMechanisms.GSSAPI, gssapiMechanismHandler );
 
         NtlmMechanismHandler ntlmMechanismHandler = new NtlmMechanismHandler();
@@ -306,7 +304,7 @@ public abstract class AbstractServerTest extends TestCase
     }
 
 
-    protected void configureDirectoryService() throws NamingException
+    protected void configureDirectoryService() throws Exception
     {
     }
 
@@ -316,13 +314,6 @@ public abstract class AbstractServerTest extends TestCase
     }
 
 
-    protected void setAllowAnonymousAccess( boolean anonymousAccess )
-    {
-        directoryService.setAllowAnonymousAccess( anonymousAccess );
-        ldapServer.setAllowAnonymousAccess( anonymousAccess );
-    }
-
-    
     /**
      * Deletes the Eve working directory.
      * @param wkdir the directory to delete
@@ -354,7 +345,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param passwd the password of the user
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContexts( String user, String passwd ) throws NamingException
+    protected void setContexts( String user, String passwd ) throws Exception
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, directoryService );
@@ -373,14 +364,14 @@ public abstract class AbstractServerTest extends TestCase
      * @param env an environment to use while setting up the system root.
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContexts( Hashtable<String, Object> env ) throws NamingException
+    protected void setContexts( Hashtable<String, Object> env ) throws Exception
     {
         Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
         envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
         sysRoot = new InitialLdapContext( envFinal, null );
 
         envFinal.put( Context.PROVIDER_URL, "" );
-        rootDSE = new InitialLdapContext( envFinal, null );
+        rootDSE = directoryService.getAdminSession();
 
         envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
         schemaRoot = new InitialLdapContext( envFinal, null );
@@ -402,19 +393,12 @@ public abstract class AbstractServerTest extends TestCase
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
         }
 
         sysRoot = null;
-//        apacheDS = new ApacheDS();
-        
-        if ( start >= nbTests )
-        {
-            System.out.println( "Delta = " + ( System.currentTimeMillis() - t0 ) );
-        }
     }
 
-
+    
     /**
      * Imports the LDIF entries packaged with the Eve JNDI provider jar into
      * the newly created system partition to prime it up for operation.  Note
@@ -431,8 +415,9 @@ public abstract class AbstractServerTest extends TestCase
         {
             for ( LdifEntry ldifEntry:new LdifReader( in ) )
             {
-                LdapDN dn = new LdapDN( ldifEntry.getDn() );
-                rootDSE.createSubcontext( dn, ldifEntry.getAttributes() );
+                rootDSE.add( 
+                    new DefaultServerEntry( 
+                        rootDSE.getDirectoryService().getRegistries(), ldifEntry.getEntry() ) ); 
             }
         }
         catch ( Exception e )
@@ -443,6 +428,7 @@ public abstract class AbstractServerTest extends TestCase
             throw ne;
         }
     }
+
     
     /**
      * Inject an ldif String into the server. DN must be relative to the
@@ -450,16 +436,16 @@ public abstract class AbstractServerTest extends TestCase
      * @param ldif the entries to inject
      * @throws NamingException if the entries cannot be added
      */
-    protected void injectEntries( String ldif ) throws NamingException
+    protected void injectEntries( String ldif ) throws Exception
     {
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
 
         for ( LdifEntry entry : entries )
         {
-            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+            rootDSE.add( 
+                new DefaultServerEntry( 
+                    rootDSE.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
         }
     }
-    
-    
 }

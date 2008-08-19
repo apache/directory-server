@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.schema.registries.Registries;
 
 
 /**
@@ -44,9 +44,9 @@ public class AddContextPartitionOperationContext extends EmptyOperationContext
      *
      * @param partition The partition to add
      */
-    public AddContextPartitionOperationContext( Registries registries, Partition partition )
+    public AddContextPartitionOperationContext( CoreSession session, Partition partition )
     {
-        super( registries );
+        super( session );
         this.partition = partition;
     }
     
@@ -77,5 +77,14 @@ public class AddContextPartitionOperationContext extends EmptyOperationContext
     public void setPartitionConfiguration( Partition partition )
     {
         this.partition = partition;
+    }
+    
+    
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "AddContextPartition";
     }
 }

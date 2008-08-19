@@ -22,34 +22,18 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
-import jdbm.helper.Serializer;
-import jdbm.helper.TupleBrowser;
-import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.directory.server.core.partition.impl.btree.KeyOnlyComparator;
-import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
-import org.apache.directory.server.core.partition.impl.btree.Table;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
-import org.apache.directory.server.core.partition.impl.btree.TupleEnumeration;
-import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
-import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-import org.apache.directory.shared.ldap.util.SingletonEnumeration;
+import jdbm.helper.*;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import org.apache.directory.server.core.avltree.*;
+import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.cursor.SingletonCursor;
+import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.xdbm.*;
+import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 
 /**
@@ -58,99 +42,131 @@ import java.util.TreeSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmTable implements Table
+public class JdbmTable<K,V> implements Table<K,V>
 {
-    /**  */
+    private static final byte[] EMPTY_BYTES = new byte[0];
+
+    /** the key to store and retreive the count information */
     private static final String SZSUFFIX = "_btree_sz";
 
-    /** */
+    /** the name of this table */
     private final String name;
-    /** */
+    /** the JDBM record manager for the file this table is managed in */
     private final RecordManager recMan;
-    /** */
+    /** whether or not this table allows for duplicates */
     private final boolean allowsDuplicates;
-    /** */
-    private final TupleComparator comparator;
+    /** a key comparator for the keys in this Table */
+    private final Comparator<K> keyComparator;
+    /** a value comparator for the values in this Table */
+    private final Comparator<V> valueComparator;
 
-    /** */
-    private int count = 0;
-    /** */
+    /** the current count of entries in this Table */
+    private int count;
+    /** the wrappedCursor JDBM btree used in this Table */
     private BTree bt;
-    /** */
-    private TupleRenderer renderer;
 
+
+    /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
+    /** a cache of duplicate BTrees */
+    private final Map<Long, BTree> duplicateBtrees;
 
-    private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
-    
-    
+    private final Serializer keySerializer;
+
+    private final Serializer valueSerializer;
+
+    AvlTreeMarshaller<V> marshaller;
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates a Jdbm BTree based tuple Table abstraction that enables 
      * duplicates.
      *
      * @param name the name of the table
-     * @param allowsDuplicates whether or not duplicates are enabled 
+     * @param numDupLimit the size limit of duplicates before switching to
+     * BTrees for values instead of AvlTrees
      * @param manager the record manager to be used for this table
-     * @param comparator a tuple comparator
-     * @throws NamingException if the table's file cannot be created
+     * @param keyComparator a key comparator
+     * @param valueComparator a value comparator
+     * @param keySerializer a serializer to use for the keys instead of using
+     * default Java serialization which could be very expensive
+     * @param valueSerializer a serializer to use for the values instead of
+     * using default Java serialization which could be very expensive
+     * @throws IOException if the table's file cannot be created
      */
-    public JdbmTable( String name, boolean allowsDuplicates, int numDupLimit, 
-        RecordManager manager, TupleComparator comparator, Serializer keySerializer, 
-        Serializer valueSerializer )
-        throws NamingException
+    public JdbmTable( String name, int numDupLimit, RecordManager manager,
+        Comparator<K> keyComparator, Comparator<V> valueComparator,
+        Serializer keySerializer, Serializer valueSerializer )
+        throws IOException
     {
+        // TODO make the size of the duplicate btree cache configurable via constructor
+        //noinspection unchecked
+        duplicateBtrees = new SynchronizedLRUMap( 100 );
+
+        if ( valueSerializer != null )
+        {
+            marshaller = new AvlTreeMarshaller<V>( valueComparator,
+                    new MarshallerSerializerBridge<V>( valueSerializer ) );
+        }
+        else
+        {
+            marshaller = new AvlTreeMarshaller<V>( valueComparator );
+        }
+
+        if ( keyComparator == null )
+        {
+            throw new NullPointerException( "Key comparator cannot be null." );
+        }
+        else
+        {
+            this.keyComparator = keyComparator;
+        }
+
+        if ( valueComparator == null )
+        {
+            throw new NullPointerException( "Value comparator must not be null for tables with duplicate keys." );
+        }
+        else
+        {
+            this.valueComparator = valueComparator;
+        }
+
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
-        this.comparator = comparator;
-        this.allowsDuplicates = allowsDuplicates;
 
-        long recId;
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
 
-        try
+        this.allowsDuplicates = true;
+
+        long recId = recMan.getNamedObject( name );
+
+        if ( recId == 0 ) // Create new main BTree
         {
-            recId = recMan.getNamedObject( name );
+            // we do not use the value serializer in the btree since duplicates will use
+            // either BTreeRedirect objects or AvlTree objects whose marshalling is
+            // explicitly managed by this code.  Value serialization is delegated to these
+            // marshallers.
+
+            bt = BTree.createInstance( recMan, keyComparator, keySerializer, null );
+            recId = bt.getRecid();
+            recMan.setNamedObject( name, recId );
+            recId = recMan.insert( 0 );
+            recMan.setNamedObject( name + SZSUFFIX, recId );
         }
-        catch ( IOException e )
+        else // Load existing BTree
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            bt = BTree.load( recMan, recId );
+            recId = recMan.getNamedObject( name + SZSUFFIX );
+            count = ( Integer ) recMan.fetch( recId );
         }
 
-        try
-        {
-
-            //            
-            // Load existing BTree
-            //
-
-            if ( recId != 0 )
-            {
-                bt = BTree.load( recMan, recId );
-                bt.setValueSerializer( valueSerializer );
-                recId = recMan.getNamedObject( name + SZSUFFIX );
-                count = ( ( Integer ) recMan.fetch( recId ) ).intValue();
-            }
-            else
-            {
-                bt = BTree.createInstance( recMan, comparator.getKeyComparator(), keySerializer, valueSerializer );
-                recId = bt.getRecid();
-                recMan.setNamedObject( name, recId );
-                recId = recMan.insert( new Integer( 0 ) );
-                recMan.setNamedObject( name + SZSUFFIX, recId );
-            }
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
     }
 
 
@@ -161,12 +177,46 @@ public class JdbmTable implements Table
      * @param name the name of the table
      * @param manager the record manager to be used for this table
      * @param keyComparator a tuple comparator
-     * @throws NamingException if the table's file cannot be created
+     * @param keySerializer a serializer to use for the keys instead of using
+     * default Java serialization which could be very expensive
+     * @param valueSerializer a serializer to use for the values instead of
+     * using default Java serialization which could be very expensive
+     * @throws IOException if the table's file cannot be created
      */
-    public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator, Serializer keySerializer, Serializer valueSerializer ) 
-        throws NamingException
+    public JdbmTable( String name, RecordManager manager, SerializableComparator<K> keyComparator,
+                      Serializer keySerializer, Serializer valueSerializer )
+        throws IOException
     {
-        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator( keyComparator ), keySerializer, valueSerializer );
+        this.duplicateBtrees = null;
+        this.numDupLimit = Integer.MAX_VALUE;
+        this.name = name;
+        this.recMan = manager;
+
+        this.keyComparator = keyComparator;
+        this.valueComparator = null;
+
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
+
+        this.allowsDuplicates = false;
+
+        long recId = recMan.getNamedObject( name );
+
+        if ( recId != 0 )
+        {
+            bt = BTree.load( recMan, recId );
+            bt.setValueSerializer( valueSerializer );
+            recId = recMan.getNamedObject( name + SZSUFFIX );
+            count = ( Integer ) recMan.fetch( recId );
+        }
+        else
+        {
+            bt = BTree.createInstance( recMan, keyComparator, keySerializer, valueSerializer );
+            recId = bt.getRecid();
+            recMan.setNamedObject( name, recId );
+            recId = recMan.insert( 0 );
+            recMan.setNamedObject( name + SZSUFFIX, recId );
+        }
     }
 
 
@@ -174,17 +224,39 @@ public class JdbmTable implements Table
     // Simple Table Properties
     // ------------------------------------------------------------------------
 
+    
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getComparator()
+     * @see Table#getKeyComparator()
      */
-    public TupleComparator getComparator()
+    public Comparator<K> getKeyComparator()
     {
-        return comparator;
+        return keyComparator;
     }
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#isDupsEnabled()
+     * @see Table#getValueComparator()
+     */
+    public Comparator<V> getValueComparator()
+    {
+        return valueComparator;
+    }
+
+
+    public Serializer getKeySerializer()
+    {
+        return keySerializer;
+    }
+
+
+    public Serializer getValueSerializer()
+    {
+        return valueSerializer;
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Table#isDupsEnabled()
      */
     public boolean isDupsEnabled()
     {
@@ -193,7 +265,7 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getName()
+     * @see org.apache.directory.server.xdbm.Table#getName()
      */
     public String getName()
     {
@@ -201,44 +273,31 @@ public class JdbmTable implements Table
     }
 
 
-    /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#getRenderer()
-     */
-    public TupleRenderer getRenderer()
+    public boolean isCountExact()
     {
-        return renderer;
+        return false;
     }
-
-
-    /**
-     * @see Table#setRenderer(
-     * TupleRenderer)
-     */
-    public void setRenderer( TupleRenderer renderer )
-    {
-        this.renderer = renderer;
-    }
-
-
-    /**
-     * @see Table#isSortedDupsEnabled()
-     */
-    public boolean isSortedDupsEnabled()
-    {
-        // If duplicates are enabled than duplicates will be maintained in
-        // sorted order.
-        return allowsDuplicates;
-    }
-
+        
 
     // ------------------------------------------------------------------------
     // Count Overloads
     // ------------------------------------------------------------------------
 
+    
     /**
-     * @see Table#count(java.lang.Object, boolean)
+     * @see Table#greaterThanCount(Object)
      */
-    public int count( Object key, boolean isGreaterThan ) throws NamingException
+    public int greaterThanCount( K key ) throws IOException
+    {
+        // take a best guess
+        return count;
+    }
+    
+    
+    /**
+     * @see Table#lessThanCount(Object)
+     */
+    public int lessThanCount( K key ) throws IOException
     {
         // take a best guess
         return count;
@@ -246,13 +305,18 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see Table#count(java.lang.Object)
+     * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
      */
-    public int count( Object key ) throws NamingException
+    public int count( K key ) throws IOException
     {
-        if ( !allowsDuplicates )
+        if ( key == null )
         {
-            if ( null == getRaw( key ) )
+            return 0;
+        }
+
+        if ( ! allowsDuplicates )
+        {
+            if ( null == bt.find( key ) )
             {
                 return 0;
             }
@@ -262,39 +326,20 @@ public class JdbmTable implements Table
             }
         }
 
-        Object values = getRaw( key );
-        
-        if ( values == null )
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
         {
-            return 0;
-        }
-        
-        // -------------------------------------------------------------------
-        // Handle the use of a TreeSet for storing duplicates
-        // -------------------------------------------------------------------
-
-        if ( values instanceof TreeSet )
-        {
-            return ( ( TreeSet ) values ).size();
+            return values.getAvlTree().getSize();
         }
 
-        // -------------------------------------------------------------------
-        // Handle the use of a BTree for storing duplicates
-        // -------------------------------------------------------------------
-
-        if ( values instanceof BTreeRedirect )
-        {
-            return getBTree( ( BTreeRedirect ) values ).size();
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        return getBTree( values.getBTreeRedirect() ).size();
     }
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#count()
+     * @see org.apache.directory.server.xdbm.Table#count()
      */
-    public int count() throws NamingException
+    public int count() throws IOException
     {
         return count;
     }
@@ -304,228 +349,173 @@ public class JdbmTable implements Table
     // get/has/put/remove Methods and Overloads
     // ------------------------------------------------------------------------
 
-    /**
-     * @see Table#get(java.lang.Object)
-     */
-    public Object get( Object key ) throws NamingException
-    {
-        if ( ! allowsDuplicates )
-        {
-            return getRaw( key );
-        }
 
-        Object values = getRaw( key );
-        
-        if ( values == null )
+    public V get( K key ) throws Exception
+    {
+        if ( key == null )
         {
             return null;
         }
-        
-        if ( values instanceof TreeSet )
+
+        if ( ! allowsDuplicates )
         {
-            TreeSet set = ( TreeSet ) values;
-            
-            if ( set.size() == 0 )
+            //noinspection unchecked
+            return ( V ) bt.find( key );
+        }                         
+
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
+        {
+            //noinspection unchecked
+            AvlTree<V> set = values.getAvlTree();
+
+            if ( set.getFirst() == null )
             {
                 return null;
             }
-            else
-            {
-                return set.first();
-            }
+            
+            return set.getFirst().getKey();
         }
 
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            
-            if ( tree.size() == 0 )
-            {
-                return null;
-            }
-            else
-            {
-                return firstKey( tree );
-            }
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        // Handle values if they are stored in another BTree
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+        tree.browse().getNext( tuple );
+        //noinspection unchecked
+        return ( V ) tuple.getKey();
     }
 
     
     /**
-     * @see Table#has(java.lang.Object,
-     * java.lang.Object, boolean)
+     * @see Table#hasGreaterOrEqual(Object,Object)
      */
     @SuppressWarnings("unchecked")
-    public boolean has( Object key, Object val, boolean isGreaterThan ) throws NamingException
+    public boolean hasGreaterOrEqual( K key, V val ) throws IOException
     {
-        if ( !allowsDuplicates )
-        {
-            Object rval = getRaw( key );
-
-            // key does not exist so return nothing
-            if ( null == rval )
-            {
-                return false;
-            }
-            // val == val return true
-            else if ( val.equals( rval ) )
-            {
-                return true;
-            }
-            // val >= val and test is for greater then return true
-            else if ( comparator.compareValue( rval, val ) >= 1 && isGreaterThan )
-            {
-                return true;
-            }
-            // val <= val and test is for lesser then return true
-            else if ( comparator.compareValue( rval, val ) <= 1 && !isGreaterThan )
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        Object values = getRaw( key );
-        
-        if ( values == null )
+        if ( key == null )
         {
             return false;
         }
-        
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
-            SortedSet subset = null;
-    
-            if ( set.size() == 0 )
-            {
-                return false;
-            }
-    
-            if ( isGreaterThan )
-            {
-                subset = set.tailSet( val );
-            }
-            else
-            {
-                subset = set.headSet( val );
-            }
-    
-            if ( subset.size() > 0 || set.contains( val ) )
-            {
-                return true;
-            }
-    
-            return false;
-        }
-        
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            if ( tree.size() == 0 )
-            {
-                return false;
-            }
 
-            return btreeHas( tree, val, isGreaterThan );
+        if ( ! allowsDuplicates )
+        {
+            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
+                    "does not contain a value comparator which is needed to answer your ordering question." );
         }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
+        {
+            AvlTree<V> set = values.getAvlTree();
+            LinkedAvlNode<V> result = set.findGreaterOrEqual( val );
+            return result != null;
+        }
+
+        // last option is to try a btree with BTreeRedirects
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        return tree.size() != 0 && btreeHas( tree, val, true );
     }
-    
+
 
     /**
-     * @see Table#has(java.lang.Object, boolean)
+     * @see Table#hasLessOrEqual(Object,Object)
      */
-    public boolean has( Object key, boolean isGreaterThan ) throws NamingException
+    @SuppressWarnings("unchecked")
+    public boolean hasLessOrEqual( K key, V val ) throws IOException
     {
-        try
+        if ( key == null )
         {
-            // See if we can find the border between keys greater than and less
-            // than in the set of keys.  This will be the spot we search from.
-            jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
-
-            // Test for equality first since it satisfies both greater/less than
-            if ( null != tuple && comparator.compareKey( tuple.getKey(), key ) == 0 )
-            {
-                return true;
-            }
-
-            // Greater searches are easy and quick thanks to findGreaterOrEqual
-            if ( isGreaterThan )
-            {
-                // A null return above means there were no equal or greater keys
-                if ( null == tuple )
-                {
-                    return false;
-                }
-
-                // Not Null! - we found a tuple with equal or greater key value
-                return true;
-            }
-
-            // Less than searches occur below and are not as efficient or easy.
-            // We need to scan up from the begining if findGreaterOrEqual failed
-            // or scan down if findGreaterOrEqual succeed.
-            TupleBrowser browser = null;
-            if ( null == tuple )
-            {
-                // findGreaterOrEqual failed so we create a tuple and scan from
-                // the lowest values up via getNext comparing each key to key
-                tuple = new jdbm.helper.Tuple();
-                browser = bt.browse();
-
-                // We should at most have to read one key.  If 1st key is not
-                // less than or equal to key then all keys are > key
-                // since the keys are assorted in ascending order based on the
-                // comparator.
-                while ( browser.getNext( tuple ) )
-                {
-                    if ( comparator.compareKey( tuple.getKey(), key ) <= 0 )
-                    {
-                        return true;
-                    }
-
-                    return false;
-                }
-            }
-            else
-            {
-                // findGreaterOrEqual succeeded so use the existing tuple and
-                // scan the down from the highest key less than key via
-                // getPrevious while comparing each key to key.
-                browser = bt.browse( tuple.getKey() );
-
-                // The above call positions the browser just before the given
-                // key so we need to step forward once then back.  Remember this
-                // key represents a key greater than or equal to key.
-                if ( comparator.compareKey( tuple.getKey(), key ) <= 0 )
-                {
-                    return true;
-                }
-
-                browser.getNext( tuple );
-
-                // We should at most have to read one key, but we don't short
-                // the search as in the search above first because the chance of
-                // unneccessarily looping is nil since values get smaller.
-                while ( browser.getPrevious( tuple ) )
-                {
-                    if ( comparator.compareKey( tuple.getKey(), key ) <= 0 )
-                    {
-                        return true;
-                    }
-                }
-            }
+            return false;
         }
-        catch ( IOException e )
+
+        if ( ! allowsDuplicates )
         {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
+            throw new UnsupportedOperationException( "Unfortunately this Table without duplicates enabled " +
+                    "does not contain a value comparator which is needed to answer your ordering question." );
+        }
+
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
+        {
+            AvlTree<V> set = values.getAvlTree();
+            LinkedAvlNode<V> result = set.findLessOrEqual( val );
+            return result != null;
+        }
+
+        // last option is to try a btree with BTreeRedirects
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        return tree.size() != 0 && btreeHas( tree, val, false );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.xdbm.Table#hasGreaterOrEqual(Object)
+     */
+    public boolean hasGreaterOrEqual( K key ) throws IOException
+    {
+        // See if we can find the border between keys greater than and less
+        // than in the set of keys.  This will be the spot we search from.
+        jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
+
+        // Test for equality first since it satisfies both greater/less than
+        //noinspection unchecked
+        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+        {
+            return true;
+        }
+
+        // Greater searches are easy and quick thanks to findGreaterOrEqual
+        // A null return above means there were no equal or greater keys
+        if ( null == tuple )
+        {
+            return false;
+        }
+
+        // Not Null! - we found a tuple with equal or greater key value
+        return true;
+    }
+
+
+    /**
+     * @see Table#hasLessOrEqual(Object)
+     */
+    public boolean hasLessOrEqual( K key ) throws IOException
+    {
+        // Can only find greater than or equal to with JDBM so we find that
+        // and work backwards to see if we can find one less than the key
+        jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
+
+        // Test for equality first since it satisfies equal to condition
+        //noinspection unchecked
+        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+        {
+            return true;
+        }
+
+        if ( null == tuple )
+        {
+            /*
+             * Jdbm failed to find a key greater than or equal to the argument
+             * which means all the keys in the table are less than the
+             * supplied key argument.  We can hence return true if the table
+             * contains any Tuples.
+             */
+            return count > 0;
+        }
+        else
+        {
+            /*
+             * We have the next tuple whose key is the next greater than the
+             * key argument supplied.  We use this key to advance a browser to
+             * that tuple and scan down to lesser Tuples until we hit one
+             * that is less than the key argument supplied.  Usually this will
+             * be the previous tuple if it exists.
+             */
+            TupleBrowser browser = bt.browse( tuple.getKey() );
+            if ( browser.getPrevious( tuple ) )
+            {
+                return true;
+            }
         }
 
         return false;
@@ -533,748 +523,298 @@ public class JdbmTable implements Table
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#has(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#has(java.lang.Object,
      * java.lang.Object)
      */
-    public boolean has( Object key, Object value ) throws NamingException
+    public boolean has( K key, V value ) throws IOException
     {
-        if ( ! allowsDuplicates )
-        {
-            Object obj = getRaw( key );
-
-            if ( null == obj )
-            {
-                return false;
-            }
-
-            return obj.equals( value );
-        }
-        
-        Object values = getRaw( key );
-        
-        if ( values == null )
+        if ( key == null )
         {
             return false;
         }
-        
-        if ( values instanceof TreeSet )
+
+        if ( ! allowsDuplicates )
         {
-            return ( ( TreeSet ) values ).contains( value );
+            //noinspection unchecked
+            V stored = ( V ) bt.find( key );
+            return null != stored && stored.equals( value );
         }
         
-        if ( values instanceof BTreeRedirect )
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
         {
-            return btreeHas( getBTree( ( BTreeRedirect ) values ), value );
+            return values.getAvlTree().find( value ) != null;
         }
         
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        return getBTree( values.getBTreeRedirect() ).find( value ) != null;
     }
     
 
     /**
      * @see Table#has(java.lang.Object)
      */
-    public boolean has( Object key ) throws NamingException
+    public boolean has( K key ) throws IOException
     {
-        return getRaw( key ) != null;
+        return key != null && bt.find(key) != null;
     }
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#put(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#put(java.lang.Object,
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public Object put( Object key, Object value ) throws NamingException
+    public void put( K key, V value ) throws Exception
     {
-        Object replaced = null;
+        if ( value == null || key == null )
+        {
+            throw new IllegalArgumentException( "null for key or value is not valid" );
+        }
+        
+        V replaced;
 
         if ( ! allowsDuplicates )
         {
-            replaced = putRaw( key, value, true );
+            replaced = ( V ) bt.insert( key, value, true );
 
             if ( null == replaced )
             {
                 count++;
             }
 
-            return replaced;
+            return;
         }
         
-        Object values = getRaw( key );
-        
-        if ( values == null )
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
         {
-            values = new TreeSet( comparator.getValueComparator() );
-        }
-        
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
+            AvlTree<V> set = values.getAvlTree();
+            replaced = set.insert( value );
             
-            if ( set.contains( value ) )
+            if ( replaced != null )// if the value already present returns the same value
             {
-                return value;
+                return;
             }
             
-            boolean addSuccessful = set.add( value );
-            
-            if ( set.size() > numDupLimit )
+            if ( set.getSize() > numDupLimit )
             {
                 BTree tree = convertToBTree( set );
                 BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                replaced = putRaw( key, redirect, true );
+                bt.insert( key, BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
             }
             else
             {
-                replaced = putRaw( key, set, true );
+                bt.insert( key, marshaller.serialize( set ), true );
             }
-            
-            if ( addSuccessful )
-            {
-                count++;
-                return replaced;
-            }
-            return null;
+
+            count++;
+            return;
         }
         
-        if ( values instanceof BTreeRedirect )
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        replaced = ( V ) tree.insert( value, EMPTY_BYTES, true );
+        
+        if ( replaced == null )
         {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            if ( insertDupIntoBTree( tree, value ) )
-            {
-                count++;
-                return values;
-            }
-            return null;
+            count++;
         }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
     
 
     /**
-     * @see Table#put(java.lang.Object,
-     * javax.naming.NamingEnumeration)
-     */
-    @SuppressWarnings("unchecked")
-    public Object put( Object key, NamingEnumeration values ) throws NamingException
-    {
-        /*
-         * If we do not allow duplicates call the single add put using the
-         * first value in the enumeration if it exists.  If it does not we
-         * just return null without doing anything.  If more than one value
-         * is in the enumeration than we blow a UnsupportedOperationException.
-         */
-        if ( !allowsDuplicates )
-        {
-            if ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                if ( values.hasMore() )
-                {
-                    throw new UnsupportedOperationException( "Attempting to put duplicate keys into table " + name
-                        + " which does not support duplicates" );
-                }
-
-                return put( key, value );
-            }
-
-            return null;
-        }
-
-        Object storedValues = getRaw( key );
-        
-        if ( storedValues == null )
-        {
-            storedValues = new TreeSet( comparator.getValueComparator() );
-        }
-        
-        if ( storedValues instanceof TreeSet )
-        {
-            /*
-             * Here the table allows duplicates so we get the TreeSet from the 
-             * Table holding all the duplicate key values or create one if it
-             * does not exist for key.  We check if the value is present and
-             * if it is we add it and increment the table entry counter.
-             */
-            TreeSet set = ( TreeSet ) storedValues;
-            while ( values.hasMore() )
-            {
-                Object val = values.next();
-    
-                if ( !set.contains( val ) )
-                {
-                    boolean isAddSuccessful = set.add( val );
-                    if ( isAddSuccessful )
-                    {
-                        count++;
-                    }
-                }
-            }
-    
-            if ( set.size() > numDupLimit )
-            {
-                BTree tree = convertToBTree( set );
-                BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                return putRaw( key, redirect, true );
-            }
-            else
-            {
-                return putRaw( key, set, true );
-            }
-        }
-        
-        if ( storedValues instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
-            while ( values.hasMore() )
-            {
-                Object val = values.next();
-                
-                if ( insertDupIntoBTree( tree, val ) )
-                {
-                    count++;
-                }
-            }
-
-            return storedValues;
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-
-
-    /**
-     * @see Table#remove(java.lang.Object,
+     * @see org.apache.directory.server.xdbm.Table#remove(java.lang.Object,
      * java.lang.Object)
      */
-    public Object remove( Object key, Object value ) throws NamingException
+    public void remove( K key, V value ) throws IOException
     {
+        if ( key == null )
+        {
+            return;
+        }
+
         if ( ! allowsDuplicates )
         {
-            Object oldValue = getRaw( key );
+            //noinspection unchecked
+            V oldValue = ( V ) bt.find( key );
         
             // Remove the value only if it is the same as value.
             if ( oldValue != null && oldValue.equals( value ) )
             {
-                removeRaw( key );
+                bt.remove( key );
                 count--;
-                return oldValue;
+                return;
             }
 
-            return null;
+            return;
         }
 
-        Object values = getRaw( key );
-        
-        if ( values == null )
+        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        if ( values.isAvlTree() )
         {
-            return null;
-        }
-        
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
+            AvlTree<V> set = values.getAvlTree();
 
             // If removal succeeds then remove if set is empty else replace it
-            if ( set.remove( value ) )
+            if ( set.remove( value ) != null )
             {
                 if ( set.isEmpty() )
                 {
-                    removeRaw( key );
+                    bt.remove( key );
                 }
                 else
                 {
-                    putRaw( key, set, true );
+                    bt.insert( key, marshaller.serialize( set ), true );
                 }
-
-                // Decrement counter if removal occurs.
                 count--;
-                return value;
+                return;
             }
 
-            return null;
+            return;
         }
 
-        // TODO might be nice to add code here that reverts to a TreeSet
         // if the number of duplicates falls below the numDupLimit value
-        if ( values instanceof BTreeRedirect )
+        BTree tree = getBTree( values.getBTreeRedirect() );
+        if ( removeDupFromBTree( tree, value ) )
         {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            
-            if ( removeDupFromBTree( tree, value ) )
+            /*
+             * If we drop below the duplicate limit then we revert from using
+             * a Jdbm BTree to using an in memory AvlTree.
+             */
+            if ( tree.size() <= numDupLimit )
             {
-                if ( tree.size() == 0 )
-                {
-                    removeRaw( key );
-                }
-                
-                count--;
-                return value;
+                AvlTree<V> avlTree = convertToAvlTree( tree );
+                bt.insert( key, marshaller.serialize( avlTree ), true );
+                recMan.delete( tree.getRecid() );
             }
             
-            return null;
+            count--;
         }
         
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
     }
 
 
     /**
-     * @see Table#remove(java.lang.Object,
-     * javax.naming.NamingEnumeration)
+     * @see Table#remove(Object)
      */
-    public Object remove( Object key, NamingEnumeration values ) throws NamingException
+    public void remove( K key ) throws IOException
     {
-        /*
-         * If we do not allow dupliicates call the single remove using the
-         * first value in the enumeration if it exists.  If it does not we
-         * just return null without doing anything.  If more than one value
-         * is in the enumeration than we blow a UnsupportedOperationException.
-         */
-        if ( !allowsDuplicates )
+        if ( key == null )
         {
-            if ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                if ( values.hasMore() )
-                {
-                    throw new UnsupportedOperationException( "Attempting to remove duplicate keys from table " + name
-                        + " which does not support duplicates" );
-                }
-
-                return remove( key, value );
-            }
-
-            return null;
+            return;
         }
 
-        Object storedValues = getRaw( key );
-        
-        if ( storedValues == null )
-        {
-            return null;
-        }
-        
-        if ( storedValues instanceof TreeSet )
-        {
-            /*
-             * Here the table allows duplicates so we get the TreeSet from the 
-             * Table holding all the duplicate key values or return null if it
-             * does not exist for key - nothing to do here.
-             */
-            TreeSet set = ( TreeSet ) storedValues;
-    
-            /*
-             * So we have a valid TreeSet with values in it.  We check if each value
-             * is in the set and remove it if it is present.  We decrement the 
-             * counter while doing so.
-             */
-            Object firstValue = null;
-            while ( values.hasMore() )
-            {
-                Object val = values.next();
-    
-                // get the first value
-                if ( firstValue == null )
-                {
-                    firstValue = val;
-                }
-
-                if ( set.contains( val ) )
-                {
-                    set.remove( val );
-                    count--;
-                }
-            }
-    
-            // Return the raw TreeSet and put the changed one back.
-            putRaw( key, set, true );
-            return firstValue;
-        }
-        
-        // TODO might be nice to add code here that reverts to a TreeSet
-        // if the number of duplicates falls below the numDupLimit value
-        if ( storedValues instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) storedValues );
-            Object first = null;
-            while ( values.hasMore() )
-            {
-                Object val = values.next();
-                
-                if ( removeDupFromBTree( tree, val ) )
-                {
-                    count--;
-                    
-                    if ( first == null )
-                    {
-                        first = val;
-                    }
-                }
-            }
-            
-            return first;
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-
-
-    /**
-     * @see Table#remove(java.lang.Object)
-     */
-    public Object remove( Object key ) throws NamingException
-    {
-        Object returned = removeRaw( key );
+        Object returned = bt.remove( key );
 
         if ( null == returned )
         {
-            return null;
+            return;
         }
 
         if ( ! allowsDuplicates )
         {
             this.count--;
-            return returned;
+            return;
         }
 
-        if ( returned instanceof TreeSet )
+        byte[] serialized = ( byte[] ) returned;
+
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
-            TreeSet set = ( TreeSet ) returned;
-            this.count -= set.size();
-            return set.first();
-        }
-        
-        if ( returned instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) returned );
+            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
             this.count -= tree.size();
-            return removeAll( tree );
+            return;
         }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        else
+        {
+            AvlTree<V> set = marshaller.deserialize( serialized );
+            this.count -= set.getSize();
+            return;
+        }
     }
 
 
-    /**
-     * @see Table#listValues(java.lang.Object)
-     */
-    public NamingEnumeration<Object> listValues( Object key ) throws NamingException
+    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor() throws Exception
     {
-        if ( !allowsDuplicates )
-        {
-            Object value = get( key );
-
-            if ( null == value )
-            {
-                return new EmptyEnumeration();
-            }
-            else
-            {
-                return new SingletonEnumeration( value );
-            }
-        }
-
-        Object values = getRaw( key );
-        
-        if ( values == null )
-        {
-            return new EmptyEnumeration();
-        }
-        
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
-            final Iterator list = set.iterator();
-            return new NamingEnumeration()
-            {
-                public void close()
-                {
-                }
-    
-    
-                public Object nextElement()
-                {
-                    return list.next();
-                }
-    
-    
-                public Object next()
-                {
-                    return list.next();
-                }
-    
-    
-                public boolean hasMore()
-                {
-                    return list.hasNext();
-                }
-    
-    
-                public boolean hasMoreElements()
-                {
-                    return list.hasNext();
-                }
-            };
-        }
-        
-        if ( values instanceof BTreeRedirect )
-        {
-            BTree tree = getBTree( ( BTreeRedirect ) values );
-            return new BTreeEnumeration( tree );
-        }
-        
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-
-
-    // ------------------------------------------------------------------------
-    // listTuple Overloads 
-    // ------------------------------------------------------------------------
-
-    /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples()
-     */
-    public NamingEnumeration<Tuple> listTuples() throws NamingException
-    {
-        NamingEnumeration<Tuple> list = null;
-
-        try
-        {
-            JdbmTupleBrowser browser = new JdbmTupleBrowser( bt.browse() );
-            list = new NoDupsEnumeration( browser, true );
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
         if ( allowsDuplicates )
         {
-            return new DupsEnumeration( this, ( NoDupsEnumeration ) list );
+            return new DupsCursor<K,V>( this );
         }
 
-        return list;
+        return new NoDupsCursor<K,V>( this );
     }
 
 
-    /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples(java.lang.Object)
-     */
-    @SuppressWarnings("unchecked")
-    public NamingEnumeration<Tuple> listTuples( Object key ) throws NamingException
+    public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor( K key ) throws Exception
     {
-        // Handle single and zero value returns without duplicates enabled
-        if ( !allowsDuplicates )
+        if ( key == null )
         {
-            Object val = getRaw( key );
-
-            if ( null == val )
-            {
-                return new EmptyEnumeration();
-            }
-            else
-            {
-                return new SingletonEnumeration( new Tuple( key, getRaw( key ) ) );
-            }
+            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
         }
 
-        Object values = getRaw( key );
+        Object raw = bt.find( key );
 
-        if ( values == null )
+        if ( null == raw )
         {
-            return new EmptyEnumeration();
-        }
-        
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
-            Object[] objs = new Object[set.size()];
-            objs = set.toArray( objs );
-            ArrayIterator iterator = new ArrayIterator( objs );
-            return new TupleEnumeration( key, iterator );
-        }
-        
-        if ( values instanceof BTreeRedirect )
-        {
-            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), key );
+            return new EmptyCursor<org.apache.directory.server.xdbm.Tuple<K,V>>();
         }
 
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
+        if ( ! allowsDuplicates )
+        {
+            //noinspection unchecked
+            return new SingletonCursor<org.apache.directory.server.xdbm.Tuple<K,V>>( new org.apache.directory.server.xdbm.Tuple<K,V>( key, ( V ) raw ) );
+        }
+
+        byte[] serialized = ( byte[] ) raw;
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+        {
+            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            return new KeyTupleBTreeCursor<K,V>( tree, key, valueComparator );
+        }
+
+        AvlTree<V> set = marshaller.deserialize( serialized );
+        return new KeyTupleAvlCursor<K,V>( set, key );
     }
 
 
-    /**
-     * @see Table#listTuples(java.lang.Object,
-     * boolean)
-     */
-    public NamingEnumeration<Tuple> listTuples( Object key, boolean isGreaterThan ) throws NamingException
+    public Cursor<V> valueCursor( K key ) throws Exception
     {
-        NamingEnumeration<Tuple> list = null;
-
-        try
+        if ( key == null )
         {
-            if ( isGreaterThan )
-            {
-                JdbmTupleBrowser browser = new JdbmTupleBrowser( bt.browse( key ) );
-                list = new NoDupsEnumeration( browser, isGreaterThan );
-            }
-            else
-            {
-                /* According to the jdbm docs a browser is positioned right
-                 * before a key greater than or equal to key.  getNext() will
-                 * return the next tuple with a key greater than or equal to
-                 * key.  getPrevious() used in descending scans for less than
-                 * for equal to comparisions will not.  We need to advance
-                 * forward once and check if the returned Tuple key equals
-                 * key.  If it does then we do nothing feeding in the browser
-                 * to the NoDupsCursor.  If it does not we call getPrevious and
-                 * pass it into the NoDupsCursor constructor.
-                 */
-                jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
-                TupleBrowser browser = bt.browse( key );
-
-                if ( browser.getNext( tuple ) )
-                {
-                    Object greaterKey = tuple.getKey();
-
-                    if ( 0 != comparator.compareKey( key, greaterKey ) )
-                    {
-                        // Make sure we don't return greaterKey in cursor
-                        browser.getPrevious( tuple );
-                    }
-                }
-
-                // If greaterKey != key above then it will not be returned.
-                list = new NoDupsEnumeration( new JdbmTupleBrowser( browser ), isGreaterThan );
-            }
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Failed to get TupleBrowser on table " + name + " using key "
-                + renderKey( key ) );
-            ne.setRootCause( e );
-            throw ne;
+            return new EmptyCursor<V>();
         }
 
-        if ( allowsDuplicates )
+        Object raw = bt.find( key );
+
+        if ( null == raw )
         {
-            list = new DupsEnumeration( this, ( NoDupsEnumeration ) list );
+            return new EmptyCursor<V>();
         }
 
-        return list;
+        if ( ! allowsDuplicates )
+        {
+            //noinspection unchecked
+            return new SingletonCursor<V>( ( V ) raw );
+        }
+
+        byte[] serialized = ( byte[] ) raw;
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+        {
+            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            return new KeyBTreeCursor<V>( tree, valueComparator );
+        }
+
+        return new AvlTreeCursor<V>( marshaller.deserialize( serialized ) );
     }
 
-
-    /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples(java.lang.Object,
-     * java.lang.Object, boolean)
-     */
-    @SuppressWarnings("unchecked")
-    public NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException
-    {
-        if ( !allowsDuplicates )
-        {
-            throw new UnsupportedOperationException( "Cannot list tuples over duplicates on table that " +
-                    "does not support duplicates." );
-//            Object rval = getRaw( key );
-//
-//            if ( null == rval ) // key does not exist so return nothing
-//            {
-//                return new EmptyEnumeration();
-//            }
-//            else if ( val.equals( rval ) ) // val == rval return tuple
-//            {
-//                return new SingletonEnumeration( new Tuple( key, val ) );
-//            }
-//            // val >= val and test is for greater then return tuple
-//            else if ( comparator.compareValue( val, rval ) >= 1 && isGreaterThan )
-//            {
-//                return new SingletonEnumeration( new Tuple( key, val ) );
-//            }
-//            // val <= val and test is for lesser then return tuple
-//            else if ( comparator.compareValue( val, rval ) <= 1 && !isGreaterThan )
-//            {
-//                return new SingletonEnumeration( new Tuple( key, val ) );
-//            }
-//
-//            return new EmptyEnumeration();
-        }
-
-        Object values = getRaw( key );
-        
-        if ( values == null )
-        {
-            return new EmptyEnumeration();
-        }
-
-        if ( values instanceof TreeSet )
-        {
-            TreeSet set = ( TreeSet ) values;
-    
-            if ( isGreaterThan )
-            {
-                Set tailSet = set.tailSet( val );
-                
-                if ( tailSet.isEmpty() )
-                {
-                    return new EmptyEnumeration();
-                }
-                
-                Object[] objs = new Object[tailSet.size()];
-                objs = tailSet.toArray( objs );
-                ArrayIterator iterator = new ArrayIterator( objs );
-                return new TupleEnumeration( key, iterator );
-            }
-            else
-            {
-                // Get all values from the smallest upto val and put them into
-                // a list.  They will be in ascending order so we need to reverse
-                // the list after adding val which is not included in headSet.
-                SortedSet headset = set.headSet( val );
-                List list = new ArrayList( headset.size() + 1 );
-                list.addAll( headset );
-    
-                // Add largest value (val) if it is in the set.  TreeSet.headSet
-                // does not get val if val is in the set.  So we add it now to
-                // the end of the list.  List is now ascending from smallest to
-                // val
-                if ( set.contains( val ) )
-                {
-                    list.add( val );
-                }
-    
-                // Reverse the list now we have descending values from val to the
-                // smallest value that key has.  Return tuple cursor over list.
-                Collections.reverse( list );
-                return new TupleEnumeration( key, list.iterator() );
-            }
-        }
-        
-        if ( values instanceof BTreeRedirect )
-        {
-            return new BTreeTupleEnumeration( getBTree( ( BTreeRedirect ) values ), 
-                comparator.getValueComparator(), key, val, isGreaterThan );
-        }
-
-        throw new IllegalStateException( "When using duplicate keys either a TreeSet or BTree is used for values." );
-    }
-    
 
     // ------------------------------------------------------------------------
     // Maintenance Operations 
     // ------------------------------------------------------------------------
 
+
     /**
      * @see Table#close()
      */
-    public synchronized void close() throws NamingException
+    public synchronized void close() throws IOException
     {
         sync();
     }
@@ -1283,379 +823,168 @@ public class JdbmTable implements Table
     /**
      * Synchronizes the buffers with disk.
      *
-     * @throws NamingException if errors are encountered on the flush
+     * @throws IOException if errors are encountered on the flush
      */
-    public void sync() throws NamingException
+    public void sync() throws IOException
     {
-        try
-        {
-            long recId = recMan.getNamedObject( name + SZSUFFIX );
-
-            if ( 0 == recId )
-            {
-                recId = recMan.insert( new Integer( count ) );
-            }
-            else
-            {
-                recMan.update( recId, new Integer( count ) );
-            }
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
+        long recId = recMan.getNamedObject( name + SZSUFFIX );
+        recMan.update( recId, count );
     }
 
+    
+    public Marshaller<AvlTree<V>> getMarshaller()
+    {
+        return marshaller;
+    }
+    
 
     // ------------------------------------------------------------------------
-    // Private Utility Methods 
+    // Private/Package Utility Methods 
     // ------------------------------------------------------------------------
 
-    /**
-     * Renders a key using the renderer associated with this table.
-     *
-     * @param obj the key to render.
-     * @return the rendered String representation of obj
-     */
-    private String renderKey( Object obj )
+
+    DupsContainer<V> getDupsContainer( byte[] serialized ) throws IOException
     {
-        StringBuffer buf = new StringBuffer();
-
-        buf.append( "\'" );
-        if ( null == renderer )
+        if ( serialized == null )
         {
-            buf.append( obj.toString() );
-        }
-        else
-        {
-            buf.append( renderer.getKeyString( obj ) );
+            return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
         }
 
-        buf.append( "\'" );
-        return buf.toString();
+        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+        {
+            return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+        }
+
+        return new DupsContainer<V>( marshaller.deserialize( serialized ) );
     }
 
 
     /**
-     * Gets a Tuple value from the btree while wrapping any IOExceptions with a 
-     * NamingException.
+     * Returns the main BTree used by this table.
      *
-     * @param key the key of the Tuple to get the value of 
-     * @return the raw value object from the btree
-     * @throws NamingException if there are any problems accessing the btree.
+     * @return the main JDBM BTree used by this table
      */
-    private Object getRaw( Object key ) throws NamingException
+    BTree getBTree()
     {
-        Object val = null;
-
-        if ( null == key )
-        {
-            return null;
-        }
-
-        try
-        {
-            if ( !allowsDuplicates )
-            {
-                val = bt.find( key );
-            }
-            else
-            {
-                val = bt.find( key );
-            }
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
-        return val;
+        return bt;
     }
 
 
-    /**
-     * Puts a Tuple into the btree while wrapping any IOExceptions with a 
-     * NamingException.
-     *
-     * @param key the key of the Tuple to put
-     * @param value the value of the Tuple to put
-     * @param doReplace whether or not to replace the object if it exists
-     * @return the raw value object removed from the btree on replacement
-     * @throws NamingException if there are any problems accessing the btree.
-     */
-    private Object putRaw( Object key, Object value, boolean doReplace ) throws NamingException
-    {
-        Object val = null;
-
-        try
-        {
-            val = bt.insert( key, value, doReplace );
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
-        return val;
-    }
-
-
-    /**
-     * Removes a entry from the btree while wrapping any IOExceptions with a 
-     * NamingException.
-     *
-     * @param key the key of the Tuple to remove
-     * @return the raw value object removed from the btree
-     * @throws NamingException if there are any problems accessing the btree.
-     */
-    private Object removeRaw( Object key ) throws NamingException
-    {
-        Object val = null;
-
-        try
-        {
-            val = bt.remove( key );
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException();
-            ne.setRootCause( e );
-            throw ne;
-        }
-
-        return val;
-    }
-
-
-    BTree getBTree( BTreeRedirect redirect ) throws NamingException
+    BTree getBTree( BTreeRedirect redirect ) throws IOException
     {
         if ( duplicateBtrees.containsKey( redirect.getRecId() ) )
         {
             return duplicateBtrees.get( redirect.getRecId() );
         }
         
-        try
-        {
-            BTree tree = BTree.load( recMan, redirect.getRecId().longValue() );
-            duplicateBtrees.put( redirect.getRecId(), tree );
-            return tree;
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "Failed to load btree", 
-                ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
+        BTree tree = BTree.load( recMan, redirect.getRecId() );
+        duplicateBtrees.put( redirect.getRecId(), tree );
+        return tree;
     }
 
 
-    private Object firstKey ( BTree tree ) throws NamingException
-    {
-        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
-        boolean success = false;
-        
-        try
-        {
-            success = tree.browse().getNext( tuple );
-            
-            if ( success )
-            {
-                return tuple.getKey();
-            }
-            else 
-            {
-                return null;
-            }
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
-                + e.getMessage(), ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
-    }
-
-    
-    private boolean btreeHas( BTree tree, Object key, boolean isGreaterThan ) throws NamingException
+    private boolean btreeHas( BTree tree, V key, boolean isGreaterThan ) throws IOException
     {
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         
-        try
+        TupleBrowser browser = tree.browse( key );
+        if ( isGreaterThan )
         {
-            TupleBrowser browser = tree.browse( key );
-            if ( isGreaterThan )
+            return browser.getNext( tuple );
+        }
+        else
+        {
+            if ( browser.getPrevious( tuple ) )
             {
-                boolean success = browser.getNext( tuple );
-                if ( success )
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             else
             {
-                boolean success = browser.getPrevious( tuple );
-                if ( success )
-                {
-                    return true;
-                }
-                else
-                {
-                    /*
-                     * Calls to getPrevious() will return a lower key even
-                     * if there exists a key equal to the one searched
-                     * for.  Since isGreaterThan when false really means
-                     * 'less than or equal to' we must check to see if 
-                     * the key in front is equal to the key argument provided.
-                     */
-                    success = browser.getNext( tuple );
-                    if ( success )
-                    {
-                        Object biggerKey = tuple.getKey();
-                        if ( comparator.compareValue( key, biggerKey ) == 0 )
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+                /*
+                 * getPrevious() above fails which means the browser has is
+                 * before the first Tuple of the btree.  A call to getNext()
+                 * should work every time.
+                 */
+                browser.getNext( tuple );
+
+                /*
+                 * Since the browser is positioned now on the Tuple with the
+                 * smallest key we just need to check if it equals this key
+                 * which is the only chance for returning true.
+                 */
+                //noinspection unchecked
+                V firstKey = ( V ) tuple.getKey();
+                return valueComparator.compare( key, firstKey ) == 0;
             }
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
-                + e.getMessage(), ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
         }
     }
 
 
-    private boolean btreeHas( BTree tree, Object key ) throws NamingException
+    private boolean removeDupFromBTree( BTree tree, V value ) throws IOException
     {
+        Object removed = null;
+        if ( tree.find( value ) != null )
+        {
+            removed = tree.remove( value );
+        }
+        return null != removed;
+    }
+
+
+    private AvlTree<V> convertToAvlTree( BTree bTree ) throws IOException
+    {
+        AvlTree<V> avlTree = new AvlTree<V>( valueComparator );
+        TupleBrowser browser = bTree.browse();
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
-        
-        try
+        while ( browser.getNext( tuple ) )
         {
-            TupleBrowser browser = tree.browse( key );
-            boolean success = browser.getNext( tuple );
-            if ( success )
-            {
-                if ( comparator.compareValue( key, tuple.getKey() ) == 0 )
-                {
-                    return true;
-                }
-            }
+            //noinspection unchecked
+            avlTree.insert( ( V ) tuple.getKey() );
+        }
 
-            return false;
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "IO failure while acessing btree: "
-                + e.getMessage(), ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
-    }
-
-    
-    private boolean insertDupIntoBTree( BTree tree, Object value ) throws LdapNamingException
-    {
-        try
-        {
-            Object replaced = tree.insert( value, EMPTY_BYTES, true );
-            return null == replaced;
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "Failed to insert dup into BTree", 
-                ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
+        return avlTree;
     }
     
 
-    private boolean removeDupFromBTree( BTree tree, Object value ) throws LdapNamingException
+    private BTree convertToBTree( AvlTree<V> avlTree ) throws Exception
     {
-        try
-        {
-            Object removed = null;
-            if ( tree.find( value ) != null )
-            {
-                removed = tree.remove( value );
-            }
-            return null != removed;
-        }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "Failed to remove dup from BTree", 
-                ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
-    }
-    
+        BTree bTree;
 
-    private static final byte[] EMPTY_BYTES = new byte[0];
-    private BTree convertToBTree( TreeSet set ) throws NamingException
-    {
-        try
+        if ( valueSerializer != null )
         {
-            BTree tree = BTree.createInstance( recMan, comparator.getValueComparator() );
-            for ( Iterator ii = set.iterator(); ii.hasNext(); /**/ )
-            {
-                tree.insert( ii.next(), EMPTY_BYTES, true );
-            }
-            return tree;
+            bTree = BTree.createInstance( recMan, valueComparator, valueSerializer, null );
         }
-        catch ( IOException e )
+        else
         {
-            LdapNamingException lne = new LdapNamingException( "Failed to convert TreeSet values to BTree", 
-                ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
+            bTree = BTree.createInstance( recMan, valueComparator );
         }
+
+        Cursor<V> keys = new AvlTreeCursor<V>( avlTree );
+        keys.beforeFirst();
+        while ( keys.next() )
+        {
+            bTree.insert( keys.get(), EMPTY_BYTES, true );
+        }
+        return bTree;
     }
     
     
-    private Object removeAll( BTree tree ) throws NamingException
+    private V removeAll( BTree tree ) throws IOException
     {
-        Object first = null;
+        V first = null;
         jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
-        TupleBrowser browser;
-        try
+        TupleBrowser browser = tree.browse();
+
+        while( browser.getNext( jdbmTuple ) )
         {
-            browser = tree.browse();
-            while( browser.getNext( jdbmTuple ) )
+            tree.remove( jdbmTuple.getKey() );
+            if ( first == null )
             {
-                tree.remove( jdbmTuple.getKey() );
-                if ( first == null )
-                {
-                    first = jdbmTuple.getKey();
-                }
+                //noinspection unchecked
+                first = ( V ) jdbmTuple.getKey();
             }
         }
-        catch ( IOException e )
-        {
-            LdapNamingException lne = new LdapNamingException( "Failed to remove all keys in BTree",
-                ResultCodeEnum.OTHER );
-            lne.setRootCause( e );
-            throw lne;
-        }
-        
+
         return first;
     }
 }
-

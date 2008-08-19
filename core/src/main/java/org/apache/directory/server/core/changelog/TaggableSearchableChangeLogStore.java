@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.changelog;
 
+import org.apache.directory.server.core.partition.Partition;
+
 
 /**
  * TODO TaggableSearchableChangeLogStore.
@@ -34,4 +36,23 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * @return the snapshot query engine for this store.
      */
     TagSearchEngine getTagSearchEngine();
+    
+    /**
+     * 
+     * Gets the read only Partition backed by this ChangeLogStore.
+     * The init() method on this partition needs to be called by the caller.<br><br>
+     * Note: This partition allows add/delete operation on the tags container
+     *       The revisions container is read-only.<br><br>  
+     * The default containers of the partition are
+     *    <li>ou=changelog</li>
+     *    <li>ou=tags,ou=changelog</li>
+     *    <li>ou=revisions,ou=changelog</li> 
+     * 
+     * @param partitionSuffix the suffix of the partition e.x ou=chnagelog
+     * @param revContainerName the container's name for holding the revisions ex. ou=revisions
+     * @param tagContainerName the container's name for holding the tags ex. ou=tags
+     * 
+     * @return the partial-write enabled uninitialized partition
+     */
+    Partition getPartition( String partitionSuffix, String revContainerName, String tagContainerName );
 }

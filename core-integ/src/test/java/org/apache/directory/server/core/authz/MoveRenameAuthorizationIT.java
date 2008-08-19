@@ -30,7 +30,6 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -78,7 +77,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newRdn )
-        throws NamingException
+        throws Exception
     {
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
         Attribute objectClass = new AttributeImpl( "objectClass" );
@@ -117,7 +116,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantByAdministrators() throws NamingException
+    public void testGrantByAdministrators() throws Exception
     {
         // ----------------------------------------------------------------------------
         // Test simple RDN change: NO SUBTREE MOVEMENT!
@@ -223,7 +222,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantByName() throws NamingException
+    public void testGrantByName() throws Exception
     {
         // ----------------------------------------------------------------------------
         // Test simple RDN change: NO SUBTREE MOVEMENT!
@@ -304,7 +303,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantBySubtree() throws NamingException
+    public void testGrantBySubtree() throws Exception
     {
         // ----------------------------------------------------------------------------
         // Test simple RDN change: NO SUBTREE MOVEMENT!
@@ -385,7 +384,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantByAnyuser() throws NamingException
+    public void testGrantByAnyuser() throws Exception
     {
         // ----------------------------------------------------------------------------
         // Test simple RDN change: NO SUBTREE MOVEMENT!
@@ -465,7 +464,7 @@ public class MoveRenameAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testExportAndImportSeperately() throws NamingException
+    public void testExportAndImportSeperately() throws Exception
     {
         // ----------------------------------------------------------------------------
         // Test move and RDN change at the same time.

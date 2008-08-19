@@ -19,18 +19,25 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Modify context used for Interceptors. It contains all the informations
@@ -41,20 +48,21 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyOperationContext extends AbstractOperationContext
+public class ModifyOperationContext extends AbstractChangeOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
+    
+    /** Cloned entry that is modified */
+    private ClonedServerEntry entry;
 
 
     /**
-     * 
      * Creates a new instance of ModifyOperationContext.
-     *
      */
-    public ModifyOperationContext( Registries registries )
+    public ModifyOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
@@ -64,24 +72,21 @@ public class ModifyOperationContext extends AbstractOperationContext
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( Registries registries, LdapDN dn, List<Modification> modItems )
+    public ModifyOperationContext( CoreSession session, LdapDN dn, List<Modification> modItems )
     {
-        super( registries, dn );
+        super( session, dn );
+
         this.modItems = modItems;
     }
 
 
-    /**
-     * Creates a new instance of ModifyOperationContext.
-     *
-     * @param dn the dn of the entry to be modified
-     * @param modItems the modifications to be performed on the entry
-     * @param collateralOperation true if op is collateral, false otherwise
-     */
-    public ModifyOperationContext( Registries registries, LdapDN dn, List<Modification> modItems, boolean collateralOperation )
+    public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws Exception
     {
-        super( registries, dn, collateralOperation );
-        this.modItems = modItems;
+        super( session, modifyRequest.getName() );
+        this.modItems = ServerEntryUtils.toServerModification( 
+            modifyRequest.getModificationItems().toArray( new ModificationItem[0]), 
+            session.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+        this.requestControls = modifyRequest.getControls();
     }
 
 
@@ -117,6 +122,27 @@ public class ModifyOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.MODIFY_REQUEST.name();
+    }
+
+    
+    public void setEntry( ClonedServerEntry entry )
+    {
+        this.entry = entry;
+    }
+    
+    
+    public ClonedServerEntry getEntry()
+    {
+        return entry;
+    }
+
+    
     /**
      * @see Object#toString()
      */

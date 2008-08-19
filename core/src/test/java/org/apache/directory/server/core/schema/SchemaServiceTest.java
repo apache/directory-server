@@ -73,7 +73,7 @@ public class SchemaServiceTest extends TestCase
         assertTrue( nameAttrs.contains( "sn" ) );
         assertTrue( nameAttrs.contains( "title" ) );
         assertTrue( nameAttrs.contains( "l" ) );
-        assertTrue( nameAttrs.contains( "apacheExistance" ) );
+        assertTrue( nameAttrs.contains( "apachePresence" ) );
         assertTrue( nameAttrs.contains( "cn" ) );
         assertTrue( nameAttrs.contains( "st" ) );
         assertTrue( nameAttrs.contains( "givenName" ) );

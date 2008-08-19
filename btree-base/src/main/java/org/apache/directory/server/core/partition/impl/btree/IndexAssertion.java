@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.xdbm.IndexEntry;
+
 import javax.naming.NamingException;
 
 
@@ -31,19 +33,19 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface IndexAssertion
+public interface IndexAssertion<K,E>
 {
     /**
      * Tests to see if a perspective candidate should be returned based on 
      * the evaluation of hard coded logic.  If the entry has not been 
-     * resusitated then the getAttributes member of the record will be null.  As
+     * resusitated then the getObject member of the record will be null.  As
      * a side-effect an index assertion may populate the entry attribute after
      * resusitating an entry from the master table.
      * 
-     * @param record an index record of the entry
+     * @param entry an index record of the entry
      * @return true if the entry should be returned, false otherwise
      * @throws NamingException if their are failures while asserting the 
      * condition
      */
-    boolean assertCandidate( IndexRecord record ) throws NamingException;
+    boolean assertCandidate( IndexEntry<K,E> entry ) throws Exception;
 }

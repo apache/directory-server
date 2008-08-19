@@ -24,9 +24,9 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryFactory;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaService;
@@ -34,10 +34,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -62,13 +58,13 @@ public interface DirectoryService extends ServerEntryFactory
      * @param revision the revision number to revert to
      * @return the new revision reached by applying all changes needed to revert to the
      * original state
-     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws Exception if there are problems reverting back to the earlier state
      * @throws IllegalArgumentException if the revision provided is greater than the current
      * revision or less than 0
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert( long revision ) throws NamingException;
+    long revert( long revision ) throws Exception;
 
 
     /**
@@ -81,11 +77,11 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the new revision reached by applying all changes needed to revert
      * to the new state or the same version before this call if no revert actually
      * took place
-     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws Exception if there are problems reverting back to the earlier state
      * @throws UnsupportedOperationException if this feature is not supported by the
      * change log
      */
-    long revert() throws NamingException;
+    long revert() throws Exception;
 
 
     PartitionNexus getPartitionNexus();
@@ -94,10 +90,10 @@ public interface DirectoryService extends ServerEntryFactory
     InterceptorChain getInterceptorChain();
 
 
-    void addPartition( Partition partition ) throws NamingException;
+    void addPartition( Partition partition ) throws Exception;
     
 
-    void removePartition( Partition partition ) throws NamingException;
+    void removePartition( Partition partition ) throws Exception;
 
 
     Registries getRegistries();
@@ -110,29 +106,35 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     void setSchemaService( SchemaService schemaService );
+    
+    
+    EventService getEventService();
+    
+    
+    void setEventService( EventService eventService );
 
 
     /**
      * Starts up this service.
      * 
-     * @throws NamingException if failed to start up
+     * @throws Exception if failed to start up
      */
-    void startup() throws NamingException;
+    void startup() throws Exception;
 
 
     /**
      * Shuts down this service.
      * 
-     * @throws NamingException if failed to shut down
+     * @throws Exception if failed to shut down
      */
-    void shutdown() throws NamingException;
+    void shutdown() throws Exception;
 
 
     /**
      * Calls {@link Partition#sync()} for all registered {@link Partition}s.
-     * @throws NamingException if synchronization failed
+     * @throws Exception if synchronization failed
      */
-    void sync() throws NamingException;
+    void sync() throws Exception;
 
 
     /**
@@ -141,68 +143,53 @@ public interface DirectoryService extends ServerEntryFactory
      */
     boolean isStarted();
 
-
+    
+    CoreSession getAdminSession() throws Exception;
+    
+    
     /**
-     * Gets a JNDI {@link Context} to the RootDSE as an anonymous user.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as the anonymous user.  This bypasses authentication without 
+     * propagating a bind operation into the core.
      *
-     * @return a JNDI context to the RootDSE
-     * @throws NamingException if failed to create a context
+     * @return a logical session as the anonymous user
      */
-    LdapContext getJndiContext() throws NamingException;
+    CoreSession getSession() throws Exception;
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to a specific entry as an anonymous user.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user.  This bypasses authentication without propagating 
+     * a bind operation into the core.
      *
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the entry at the specified DN
-     * @throws NamingException if failed to create a context
+     * @return a logical session as a specific user
      */
-    LdapContext getJndiContext( String dn ) throws NamingException;
+    CoreSession getSession( LdapPrincipal principal ) throws Exception;
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to the RootDSE as a specific LDAP user principal.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user with a separate authorization principal.  This 
+     * bypasses authentication without propagating a bind operation into the 
+     * core.
      *
-     * @param principal the user to associate with the context
-     * @return a JNDI context to the RootDSE as a specific user
-     * @throws NamingException if failed to create a context
+     * @return a logical session as a specific user
      */
-    LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException;
+    CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception;
 
-
+    
     /**
-     * Gets a JNDI {@link Context} to a specific entry as a specific LDAP user principal.
-     * This bypasses authentication within the server.
+     * Gets a logical session to perform operations on this DirectoryService
+     * as a specific user with a separate authorization principal.  This 
+     * bypasses authentication without propagating a bind operation into the 
+     * core.
      *
-     * @param principal the user to associate with the context
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the specified entry as a specific user
-     * @throws NamingException if failed to create a context
+     * @return a logical session as a specific user
      */
-    LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
+    CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+        throws Exception;
 
-
-    /**
-     * Returns a JNDI {@link Context} with the specified authentication information
-     * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
-     * <tt>baseName</tt>.
-     * 
-     * @param principalDn the distinguished name of the bind principal
-     * @param principal {@link Context#SECURITY_PRINCIPAL} value
-     * @param credential {@link Context#SECURITY_CREDENTIALS} value
-     * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
-     * @param dn the distinguished name of the entry
-     * @return a JNDI context to the specified entry as a specific user
-     * @throws NamingException if failed to create a context
-     */
-    LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String dn ) throws NamingException;
-
-
+    
     void setInstanceId( String instanceId );
 
 
@@ -384,10 +371,16 @@ public interface DirectoryService extends ServerEntryFactory
     
 
     /**
-     * Create a new ServerEntry
+     * Create a new ServerEntry.
      * 
-     * @param ldif The String representing the attributes, as a LDIF file
-     * @param dn The DN for this new entry
+     * @param ldif the String representing the attributes, in LDIF format
+     * @param dn the DN for this new entry
      */
     ServerEntry newEntry( String ldif, String dn );
+    
+    
+    /**
+     * Gets the operation manager.
+     */
+    OperationManager getOperationManager();
 }

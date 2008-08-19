@@ -20,18 +20,13 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.runner.RunWith;
+
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -43,7 +38,13 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -51,7 +52,7 @@ import java.util.Hashtable;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( CiRunner.class )
+@RunWith(CiRunner.class)
 public class DIRSERVER791IT
 {
     public static DirectoryService service;
@@ -64,19 +65,19 @@ public class DIRSERVER791IT
     protected Attributes getTestEntryAttributes()
     {
         Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl("objectClass");
-        ocls.add("top");
-        ocls.add("person");
-        ocls.add("organizationalPerson");
-        ocls.add("inetOrgPerson");
-        attrs.put(ocls);
-        
-        Attribute cn = new AttributeImpl("cn");
-        cn.add("test");
-        cn.add("aaa");
-        attrs.put(cn);
-        
-        attrs.put("sn", "test");
+        Attribute ocls = new AttributeImpl( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        ocls.add( "organizationalPerson" );
+        ocls.add( "inetOrgPerson" );
+        attrs.put( ocls );
+
+        Attribute cn = new AttributeImpl( "cn" );
+        cn.add( "test" );
+        cn.add( "aaa" );
+        attrs.put( cn );
+
+        attrs.put( "sn", "test" );
 
         return attrs;
     }
@@ -87,73 +88,90 @@ public class DIRSERVER791IT
      *
      * @throws NamingException on error
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         Attributes entry = this.getTestEntryAttributes();
-        getSystemContext( service ).createSubcontext("cn=test", entry);
+        getSystemContext( service ).createSubcontext( "cn=test", entry );
     }
 
-    
+
     /**
-     * Demonstrates that removal of a value from RDN attribute which is not part
+     * Tests that it is possible to remove a value (in this case "cn=aaa") 
+     * from the RDN attribute which is not part of the RDN
+     * 
+     * The defect was:
+     * Removal of a value from RDN attribute which is not part
      * of the RDN is not possible.
      *
      * @throws NamingException on error
      */
     @Test
-    public void testDefect1a() throws NamingException 
+    public void testDefect1a() throws Exception
     {
         createData();
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         DirContext ctx = new InitialDirContext( env );
-        Attribute attr = new AttributeImpl("cn", "aaa");
+
+        // remove "cn=aaa", which is not part of the RDN
+        Attribute attr = new AttributeImpl( "cn", "aaa" );
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[] { modification } );
+        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+            { modification } );
 
-        Attributes attrs = ctx.getAttributes("cn=test", new String[] { "cn" });
-        Attribute cn = attrs.get("cn");
+        Attributes attrs = ctx.getAttributes( "cn=test", new String[]
+            { "cn" } );
+        Attribute cn = attrs.get( "cn" );
 
-        assertEquals("number of cn values", 1, cn.size());
-        assertTrue( cn.contains("test") );
-        assertFalse( cn.contains("aaa") );
+        // cn=aaa must be removed, cn=test must exist
+        assertEquals( "number of cn values", 1, cn.size() );
+        assertTrue( cn.contains( "test" ) );
+        assertFalse( cn.contains( "aaa" ) );
     }
 
 
     /**
+     * Tests that it is possible to replace the RDN attribute with 
+     * 
      * Checks whether it is possible to replace the cn attribute with a single
      * value. The JIRA issue states that this one works.
      *
      * @throws NamingException on error
      */
     @Test
-    public void testDefect1b() throws NamingException
+    public void testDefect1b() throws Exception
     {
         createData();
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         DirContext ctx = new InitialDirContext( env );
 
-        Attribute attr = new AttributeImpl("cn", "test");
-        ModificationItemImpl modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr);
-        ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
+        // replace cn attribute with "cn=test", must remove the previous "cn=aaa"
+        Attribute attr = new AttributeImpl( "cn", "test" );
+        ModificationItemImpl modification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+            { modification } );
 
-        Attributes attrs = ctx.getAttributes("cn=test", new String[] { "cn" });
-        Attribute cn = attrs.get("cn");
+        Attributes attrs = ctx.getAttributes( "cn=test", new String[]
+            { "cn" } );
+        Attribute cn = attrs.get( "cn" );
 
-        assertEquals("number of cn values", 1, cn.size());
-        assertTrue(cn.contains("test"));
-        assertFalse(cn.contains("aaa"));
+        // cn=aaa must be removed, cn=test must exist
+        assertEquals( "number of cn values", 1, cn.size() );
+        assertTrue( cn.contains( "test" ) );
+        assertFalse( cn.contains( "aaa" ) );
     }
 
 
     /**
+     * Tests that the server rejects the addition of an non-existing objectClass.
+     * Also checks that the non-existing isn't stored in the entry.
+     * 
+     * The defect was:
      * It is possible to add an value to objectclass, which isn't a valid
      * objectclass. The server returns an error, but nevertheless the invalid
      * value is stored. I think this should be rejected from server.
@@ -161,30 +179,29 @@ public class DIRSERVER791IT
      * @throws NamingException on error
      */
     @Test
-    public void testDefect2() throws NamingException
+    public void testDefect2() throws Exception
     {
         createData();
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         DirContext ctx = new InitialDirContext( env );
 
-
+        // try to add an non-existing objectClass "test", must be rejected
         Attribute attr = new AttributeImpl( "objectclass", "test" );
-        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
-        
-        try 
+        ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        try
         {
-            ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
-            fail("Exception expected");
-        } 
-        catch ( SchemaViolationException sve ) 
+            ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+                { modification } );
+            fail( "Exception expected" );
+        }
+        catch ( SchemaViolationException sve )
         {
             // Valid behavior
-        } 
-        catch ( InvalidAttributeValueException iave ) 
+        }
+        catch ( InvalidAttributeValueException iave )
         {
             // Valid behavior
         }
@@ -193,49 +210,52 @@ public class DIRSERVER791IT
             // Valid behavior
         }
 
-        Attributes attrs = ctx.getAttributes("cn=test", new String[] { "objectClass" });
-        Attribute ocls = attrs.get("objectClass");
-
-        assertEquals("number of objectClasses", 4, ocls.size());
-        assertTrue(ocls.contains("top"));
-        assertTrue(ocls.contains("person"));
-        assertTrue(ocls.contains("organizationalPerson"));
-        assertTrue(ocls.contains("inetOrgPerson"));
-        assertFalse(ocls.contains("test"));
+        // re-read the entry, the non-existing objectClass "test" must not be present
+        Attributes attrs = ctx.getAttributes( "cn=test", new String[]
+            { "objectClass" } );
+        Attribute ocls = attrs.get( "objectClass" );
+        assertEquals( "number of objectClasses", 4, ocls.size() );
+        assertTrue( ocls.contains( "top" ) );
+        assertTrue( ocls.contains( "person" ) );
+        assertTrue( ocls.contains( "organizationalPerson" ) );
+        assertTrue( ocls.contains( "inetOrgPerson" ) );
+        assertFalse( ocls.contains( "test" ) );
     }
 
 
     /**
+     * Tests that no unallowed attribute could be added to the entry.
+     * 
+     * The defect was:
      * It is possible to add an attribute to the entry that is not allowed
      * according the objectclasses. The server should reject this.
      *
      * @throws NamingException on error
      */
     @Test
-    public void testDefect3() throws NamingException
+    public void testDefect3() throws Exception
     {
         createData();
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
         DirContext ctx = new InitialDirContext( env );
 
-
-        Attribute attr = new AttributeImpl("javaDoc", "test");
-        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr);
-    
-        try 
+        // try to add an unallowed attribute, must be rejected
+        Attribute attr = new AttributeImpl( "javaDoc", "test" );
+        ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        try
         {
-            ctx.modifyAttributes("cn=test", new ModificationItemImpl[] { modification });
-            fail("Exception expected");
-        } 
-        catch (SchemaViolationException sve) 
+            ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+                { modification } );
+            fail( "Exception expected" );
+        }
+        catch ( SchemaViolationException sve )
         {
             // Valid behavior
-        } 
-        catch (InvalidAttributeIdentifierException iaie) 
+        }
+        catch ( InvalidAttributeIdentifierException iaie )
         {
             // Valid behavior
         }

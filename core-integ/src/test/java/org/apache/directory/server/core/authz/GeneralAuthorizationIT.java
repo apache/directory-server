@@ -54,7 +54,7 @@ public class GeneralAuthorizationIT
      * @throws NamingException if the test encounters an error
      */
     @Test
-    public void testFailureToAddBadACI() throws NamingException
+    public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
         try

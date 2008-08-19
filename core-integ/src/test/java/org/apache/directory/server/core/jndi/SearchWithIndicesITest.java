@@ -31,7 +31,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -71,7 +71,7 @@ public class SearchWithIndicesITest
 
 
 
-    private void createData() throws NamingException
+    private void createData() throws Exception
     {
         // -------------------------------------------------------------------
         // Enable the nis schema
@@ -107,7 +107,7 @@ public class SearchWithIndicesITest
     }
 
 
-    private DirContext addNisPosixGroup( String name, int gid ) throws NamingException
+    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
         Attributes attrs = new AttributesImpl( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
@@ -145,7 +145,7 @@ public class SearchWithIndicesITest
                 // Do nothing
             }
 
-            Set<Index> indices = new HashSet<Index>();
+            Set<Index<?, ServerEntry>> indices = new HashSet<Index<?, ServerEntry>>();
             indices.addAll( partition.getIndexedAttributes() );
             indices.add( new JdbmIndex( "gidNumber" ) );
             partition.setIndexedAttributes( indices );
@@ -165,7 +165,7 @@ public class SearchWithIndicesITest
      * @return the set of groups
      * @throws NamingException if there are problems conducting the search
      */
-    public Set<String> searchGroups( String filter, SearchControls controls ) throws NamingException
+    public Set<String> searchGroups( String filter, SearchControls controls ) throws Exception
     {
         if ( controls == null )
         {
@@ -193,7 +193,7 @@ public class SearchWithIndicesITest
      * @return the set of group names
      * @throws NamingException if there are problems conducting the search
      */
-    public Set<String> searchGroups( String filter ) throws NamingException
+    public Set<String> searchGroups( String filter ) throws Exception
     {
         return searchGroups( filter, null );
     }

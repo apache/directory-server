@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A RemoveContextPartition context used for Interceptors. It contains all the informations
@@ -34,10 +36,11 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
     /**
      * Creates a new instance of RemoveContextPartitionOperationContext.
      */
-    public RemoveContextPartitionOperationContext( Registries registries )
+    public RemoveContextPartitionOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
+    
     
     /**
      * Creates a new instance of RemoveContextPartitionOperationContext.
@@ -45,10 +48,20 @@ public class RemoveContextPartitionOperationContext extends AbstractOperationCon
      * @param registries
      * @param dn The Entry DN from which the partition should be removed
      */
-    public RemoveContextPartitionOperationContext( Registries registries, LdapDN dn )
+    public RemoveContextPartitionOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
+    
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "RemoveContext";
+    }
+
     
     /**
      * @see Object#toString()

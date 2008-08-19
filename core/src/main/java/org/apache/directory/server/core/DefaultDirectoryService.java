@@ -36,26 +36,25 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.jndi.DeadContext;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
@@ -80,8 +79,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
@@ -90,18 +89,16 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.ldap.LdapContext;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -110,7 +107,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +120,7 @@ import java.util.Set;
  */
 public class DefaultDirectoryService implements DirectoryService
 {
+    /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
     private static final String ILLEGAL_STATE_MSG = "Something has got to be severely " +
@@ -149,8 +146,18 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** the change log service */
     private ChangeLog changeLog;
+    
+    /** 
+     * the interface used to perform various operations on this 
+     * DirectoryService
+     */
+    private OperationManager operationManager = new DefaultOperationManager( this );
 
+    /** the distinguished name of the administrative user */
     private LdapDN adminDn;
+    
+    /** session used as admin for internal operations */
+    private CoreSession adminSession;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -165,7 +172,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Creates a new instance.
+     * Creates a new instance of the directory service.
      */
     public DefaultDirectoryService() 
     {
@@ -193,7 +200,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             loader.loadWithDependencies( bootstrapSchemas, registries );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
         }
@@ -232,6 +239,7 @@ public class DefaultDirectoryService implements DirectoryService
     private Partition systemPartition;
     private Set<Partition> partitions = new HashSet<Partition>();
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
+    private EventService eventService;
 
 
 
@@ -509,7 +517,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition parition ) throws NamingException
+    public void addPartition( Partition parition ) throws Exception
     {
         partitions.add( parition );
 
@@ -518,12 +526,13 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        AddContextPartitionOperationContext addPartitionCtx = new AddContextPartitionOperationContext( registries, parition );
+        AddContextPartitionOperationContext addPartitionCtx = 
+            new AddContextPartitionOperationContext( adminSession, parition );
         partitionNexus.addContextPartition( addPartitionCtx );
     }
 
 
-    public void removePartition( Partition partition ) throws NamingException
+    public void removePartition( Partition partition ) throws Exception
     {
         partitions.remove( partition );
 
@@ -533,13 +542,13 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         RemoveContextPartitionOperationContext removePartitionCtx =
-                new RemoveContextPartitionOperationContext( registries, partition.getSuffixDn() );
+                new RemoveContextPartitionOperationContext( adminSession, partition.getSuffixDn() );
         partitionNexus.removeContextPartition( removePartitionCtx );
     }
 
 
     // ------------------------------------------------------------------------
-    // BackendSubsystem Interface Method Implemetations
+    // BackendSubsystem Interface Method Implementations
     // ------------------------------------------------------------------------
 
 
@@ -550,7 +559,6 @@ public class DefaultDirectoryService implements DirectoryService
 
         list.add( new NormalizationInterceptor() );
         list.add( new AuthenticationInterceptor() );
-        list.add( new ReferralInterceptor() );
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
         list.add( new ExceptionInterceptor() );
@@ -565,70 +573,61 @@ public class DefaultDirectoryService implements DirectoryService
         setInterceptors( list );
     }
 
-
-    public LdapContext getJndiContext() throws NamingException
+    
+    public CoreSession getAdminSession()
     {
-        return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), "" );
+        return adminSession;
+    }
+    
+    
+    public CoreSession getSession() 
+    {
+        return new DefaultCoreSession( new LdapPrincipal(), this );
+    }
+    
+    
+    public CoreSession getSession( LdapPrincipal principal )
+    {
+        return new DefaultCoreSession( principal, this );
+    }
+    
+    
+    public CoreSession getSession( LdapDN principalDn, byte[] credentials ) 
+        throws Exception
+    {
+        if ( ! started )
+        {
+            throw new IllegalStateException( "Service has not started." );
+        }
+
+        BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setCredentials( credentials );
+        bindContext.setDn( principalDn );
+        operationManager.bind( bindContext );
+        
+        return bindContext.getSession();
+    }
+    
+    
+    public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId ) 
+        throws Exception
+    {
+        if ( ! started )
+        {
+            throw new IllegalStateException( "Service has not started." );
+        }
+
+        BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setCredentials( credentials );
+        bindContext.setDn( principalDn );
+        bindContext.setSaslMechanism( saslMechanism );
+        operationManager.bind( bindContext );
+        
+        return bindContext.getSession();
     }
 
 
-    public LdapContext getJndiContext( String dn ) throws NamingException
-    {
-        return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), dn );
-    }
-
-
-    public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
-    {
-        return new ServerLdapContext( this, principal, new LdapDN() );
-    }
-
-
-    public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
-    {
-        return new ServerLdapContext( this, principal, new LdapDN( dn ) );
-    }
-
-
-    public synchronized LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String rootDN ) throws NamingException
-    {
-        checkSecuritySettings( principal, credential, authentication );
-
-        if ( !started )
-        {
-            return new DeadContext();
-        }
-
-        Hashtable<String, Object> environment = new Hashtable<String, Object>();
-
-        if ( principal != null )
-        {
-            environment.put( Context.SECURITY_PRINCIPAL, principal );
-        }
-
-        if ( credential != null )
-        {
-            environment.put( Context.SECURITY_CREDENTIALS, credential );
-        }
-
-        if ( authentication != null )
-        {
-            environment.put( Context.SECURITY_AUTHENTICATION, authentication );
-        }
-
-        if ( rootDN == null )
-        {
-            rootDN = "";
-        }
-        environment.put( Context.PROVIDER_URL, rootDN );
-        environment.put( DirectoryService.JNDI_KEY, this );
-
-        return new ServerLdapContext( this, environment );
-    }
-
-
-    public long revert() throws NamingException
+    public long revert() throws Exception
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -636,6 +635,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         Tag latest = changeLog.getLatest();
+        
         if ( null != latest )
         {
             if ( latest.getRevision() < changeLog.getCurrentRevision() )
@@ -653,7 +653,56 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public long revert( long revision ) throws NamingException
+    /**
+     * We handle the ModDN/ModRDN operation for the revert here. 
+     */
+    private void moddn( LdapDN oldDn, LdapDN newDn, boolean delOldRdn ) throws Exception
+    {
+        if ( oldDn.size() == 0 )
+        {
+            throw new LdapNoPermissionException( "can't rename the rootDSE" );
+        }
+
+        // calculate parents
+        LdapDN oldBase = ( LdapDN ) oldDn.clone();
+        oldBase.remove( oldDn.size() - 1 );
+        LdapDN newBase = ( LdapDN ) newDn.clone();
+        newBase.remove( newDn.size() - 1 );
+
+        // Compute the RDN for each of the DN
+        Rdn newRdn = newDn.getRdn( newDn.size() - 1 );
+        Rdn oldRdn = oldDn.getRdn( oldDn.size() - 1 );
+
+        /*
+         * We need to determine if this rename operation corresponds to a simple
+         * RDN name change or a move operation.  If the two names are the same
+         * except for the RDN then it is a simple modifyRdn operation.  If the
+         * names differ in size or have a different baseDN then the operation is
+         * a move operation.  Furthermore if the RDN in the move operation 
+         * changes it is both an RDN change and a move operation.
+         */
+        if ( ( oldDn.size() == newDn.size() ) && oldBase.equals( newBase ) )
+        {
+            adminSession.rename( oldDn, newRdn, delOldRdn );
+        }
+        else
+        {
+            LdapDN target = ( LdapDN ) newDn.clone();
+            target.remove( newDn.size() - 1 );
+
+            if ( newRdn.equals( oldRdn ) )
+            {
+                adminSession.move( oldDn, target );
+            }
+            else
+            {
+                adminSession.moveAndRename( oldDn, target, new Rdn( newRdn ), delOldRdn );
+            }
+        }
+    }
+    
+    
+    public long revert( long revision ) throws Exception
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
         {
@@ -670,7 +719,6 @@ public class DefaultDirectoryService implements DirectoryService
             throw new IllegalArgumentException( "revision must be less than the current revision" );
         }
 
-        DirContext ctx = getJndiContext( new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE ) );
         Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );
 
         /*
@@ -684,62 +732,80 @@ public class DefaultDirectoryService implements DirectoryService
          *
          * First of all just stop using JNDI and construct the operations to
          * feed into the interceptor pipeline.
+         * 
+         * TODO review this code.
          */
 
         try
         {
             LOG.warn( PARTIAL_IMPL_WARNING );
             cursor.afterLast();
+            
             while ( cursor.previous() ) // apply ldifs in reverse order
             {
                 ChangeLogEvent event = cursor.get();
-                LdifEntry reverse = event.getReverseLdif();
+                List<LdifEntry> reverses = event.getReverseLdifs();
                 
-                switch( reverse.getChangeType().getChangeType() )
+                for ( LdifEntry reverse:reverses )
                 {
-                    case( ChangeType.ADD_ORDINAL ):
-                        ctx.createSubcontext( reverse.getDn(), reverse.getAttributes() );
-                        break;
-                    case( ChangeType.DELETE_ORDINAL ):
-                        ctx.destroySubcontext( reverse.getDn() );
-                        break;
-                    case( ChangeType.MODIFY_ORDINAL ):
-                        ctx.modifyAttributes( reverse.getDn(), reverse.getModificationItemsArray() );
-                        break;
-                    case( ChangeType.MODDN_ORDINAL ):
-                        // NOT BREAK - both ModDN and ModRDN handling is the same
-                    case( ChangeType.MODRDN_ORDINAL ):
-                        if ( reverse.isDeleteOldRdn() )
-                        {
-                            ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-                        }
-                        else
-                        {
-                            ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-                        }
-
-                        ctx.rename( reverse.getDn(), event.getForwardLdif().getDn() );
-                        break;
-                    default:
-                        throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
-                                + " has not yet been implemented!");
+                    switch( reverse.getChangeType().getChangeType() )
+                    {
+                        case( ChangeType.ADD_ORDINAL ):
+                            adminSession.add( 
+                                new DefaultServerEntry( registries, reverse.getEntry() ) ); 
+                            break;
+                            
+                        case( ChangeType.DELETE_ORDINAL ):
+                            adminSession.delete( reverse.getDn() );
+                            break;
+                            
+                        case( ChangeType.MODIFY_ORDINAL ):
+                            List<Modification> mods = reverse.getModificationItems();
+    
+                            adminSession.modify( reverse.getDn(), mods );
+                            break;
+                            
+                        case( ChangeType.MODDN_ORDINAL ):
+                            // NO BREAK - both ModDN and ModRDN handling is the same
+                        
+                        case( ChangeType.MODRDN_ORDINAL ):
+                            LdapDN forwardDn = event.getForwardLdif().getDn();
+                            LdapDN reverseDn = reverse.getDn();
+                            
+                            moddn( reverseDn, forwardDn, reverse.isDeleteOldRdn() );
+    
+                            break;
+                            
+                        default:
+                            LOG.error( "ChangeType unknown" );
+                            throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
+                                    + " has not yet been implemented!");
+                    }
                 }
             }
         }
         catch ( IOException e )
         {
-            throw new NamingException( "Encountered a failure while trying to revert to a previous revision: "
-                    + revision );
+            String message = "Encountered a failure while trying to revert to a previous revision: "
+                + revision;
+            LOG.error( message );
+            throw new NamingException( message );
         }
 
         return changeLog.getCurrentRevision();
     }
 
+    
+    public OperationManager getOperationManager()
+    {
+        return operationManager;
+    }
+    
 
     /**
      * @throws NamingException if the LDAP server cannot be started
      */
-    public synchronized void startup() throws NamingException
+    public synchronized void startup() throws Exception
     {
         if ( started )
         {
@@ -756,7 +822,7 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         shutdown();
                     }
-                    catch ( NamingException e )
+                    catch ( Exception e )
                     {
                         LOG.warn( "Failed to shut down the directory service: "
                             + DefaultDirectoryService.this.instanceId, e );
@@ -773,12 +839,8 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         initialize();
-        firstStart = createBootstrapEntries();
         showSecurityWarnings();
         started = true;
-        
-        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
         if ( !testEntries.isEmpty() )
         {
@@ -787,7 +849,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void sync() throws NamingException
+    public synchronized void sync() throws Exception
     {
         if ( !started )
         {
@@ -799,7 +861,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void shutdown() throws NamingException
+    public synchronized void shutdown() throws Exception
     {
         if ( !started )
         {
@@ -865,93 +927,11 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public ServerEntry newEntry( LdapDN dn ) throws NamingException
+    public ServerEntry newEntry( LdapDN dn ) 
     {
         return new DefaultServerEntry( registries, dn );
     }
     
-    
-    /**
-     * Checks to make sure security environment parameters are set correctly.
-     *
-     * @throws javax.naming.NamingException if the security settings are not correctly configured.
-     * @param authentication the mechanism for authentication
-     * @param credential the password
-     * @param principal the distinguished name of the principal
-     */
-    private void checkSecuritySettings( String principal, byte[] credential, String authentication )
-        throws NamingException
-    {
-        if ( authentication == null )
-        {
-            authentication = "";
-        }
-
-        /*
-         * If bind is strong make sure we have the principal name
-         * set within the environment, otherwise complain
-         */
-        if ( AuthenticationLevel.STRONG.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( principal == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
-                    + " property for strong authentication" );
-            }
-        }
-        /*
-         * If bind is simple make sure we have the credentials and the
-         * principal name set within the environment, otherwise complain
-         */
-        else if ( AuthenticationLevel.SIMPLE.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( credential == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_CREDENTIALS
-                    + " property for simple authentication" );
-            }
-
-            if ( principal == null )
-            {
-                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
-                    + " property for simple authentication" );
-            }
-        }
-        /*
-         * If bind is none make sure credentials and the principal
-         * name are NOT set within the environment, otherwise complain
-         */
-        else if ( AuthenticationLevel.NONE.toString().equalsIgnoreCase( authentication ) )
-        {
-            if ( credential != null )
-            {
-                throw new LdapConfigurationException( "ambiguous bind "
-                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_CREDENTIALS
-                    + " property is set" );
-            }
-
-            if ( principal != null )
-            {
-                throw new LdapConfigurationException( "ambiguous bind "
-                    + "settings encountered where bind is anonymous yet " + Context.SECURITY_PRINCIPAL
-                    + " property is set" );
-            }
-
-            if ( !allowAnonymousAccess )
-            {
-                throw new LdapNoPermissionException( "Anonymous access disabled." );
-            }
-        }
-        else
-        {
-            /*
-             * If bind is anything other than strong, simple, or none we need to complain
-             */
-            throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'",
-                ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-        }
-    }
-
 
     /**
      * Returns true if we had to create the bootstrap entries on the first
@@ -961,7 +941,7 @@ public class DefaultDirectoryService implements DirectoryService
      * @return true if the bootstrap entries had to be created, false otherwise
      * @throws javax.naming.NamingException if entries cannot be created
      */
-    private boolean createBootstrapEntries() throws NamingException
+    private boolean createBootstrapEntries() throws Exception
     {
         boolean firstStart = false;
         
@@ -972,7 +952,7 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, PartitionNexus.getAdminName() ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, PartitionNexus.getAdminName() ) ) )
         {
             firstStart = true;
 
@@ -994,7 +974,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
             TlsKeyGenerator.addKeyPair( serverEntry );
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1005,7 +985,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN userDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         userDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, userDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, userDn ) ) )
         {
             firstStart = true;
 
@@ -1019,7 +999,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1029,7 +1009,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN groupDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         groupDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, groupDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, groupDn ) ) )
         {
             firstStart = true;
 
@@ -1043,7 +1023,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1053,7 +1033,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN name = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         name.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, name ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, name ) ) )
         {
             firstStart = true;
 
@@ -1068,27 +1048,30 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
-            
-            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
-            
-            if ( authzInterceptor == null )
-            {
-                LOG.error( "The Authorization service is null : this is not allowed" );
-                throw new NamingException( "The Authorization service is null" );
-            }
-            
-            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
-            {
-                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
-                    authzInterceptor.getClass().getName() );
-                throw new NamingException( "The Authorization service is incorrectly set" );
-                
-            }
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
 
-            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
-            authzSrvc.cacheNewGroup( name, serverEntry );
-
+            // TODO - confirm if we need this at all since the 
+            // group cache on initialization after this stage will
+            // search the directory for all the groups anyway
+            
+//            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
+//            
+//            if ( authzInterceptor == null )
+//            {
+//                LOG.error( "The Authorization service is null : this is not allowed" );
+//                throw new NamingException( "The Authorization service is null" );
+//            }
+//            
+//            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
+//            {
+//                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
+//                    authzInterceptor.getClass().getName() );
+//                throw new NamingException( "The Authorization service is incorrectly set" );
+//                
+//            }
+//
+//            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
+//            authzSrvc.cacheNewGroup( name, serverEntry );
         }
 
         // -------------------------------------------------------------------
@@ -1098,7 +1081,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
         configurationDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, configurationDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, configurationDn ) ) )
         {
             firstStart = true;
 
@@ -1109,7 +1092,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1119,7 +1102,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
         partitionsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, partitionsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -1130,7 +1113,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1140,7 +1123,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
         servicesDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, servicesDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, servicesDn ) ) )
         {
             firstStart = true;
 
@@ -1151,7 +1134,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1161,7 +1144,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
         interceptorsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, interceptorsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -1172,7 +1155,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         // -------------------------------------------------------------------
@@ -1182,7 +1165,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN sysPrefRootDn = new LdapDN( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
         sysPrefRootDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( registries, sysPrefRootDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, sysPrefRootDn ) ) )
         {
             firstStart = true;
 
@@ -1196,7 +1179,7 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( registries, serverEntry ) );
+            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
 
         return firstStart;
@@ -1207,7 +1190,7 @@ public class DefaultDirectoryService implements DirectoryService
      * Displays security warning messages if any possible secutiry issue is found.
      * @throws NamingException if there are failures parsing and accessing internal structures
      */
-    private void showSecurityWarnings() throws NamingException
+    private void showSecurityWarnings() throws Exception
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
@@ -1215,7 +1198,7 @@ public class DefaultDirectoryService implements DirectoryService
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( registries, adminDn ) );
+        ServerEntry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         
         if ( userPassword instanceof byte[] )
@@ -1242,22 +1225,20 @@ public class DefaultDirectoryService implements DirectoryService
      * 
      * @throws NamingException if the creation of test entries fails.
      */
-    private void createTestEntries() throws NamingException
+    private void createTestEntries() throws Exception
     {
-        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
-        ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
-
         for ( LdifEntry testEntry : testEntries )
         {
             try
             {
-                LdifEntry entry = testEntry.clone();
-                Attributes attributes = entry.getAttributes();
-                String dn = entry.getDn();
+                LdifEntry ldifEntry = testEntry.clone();
+                Entry entry = ldifEntry.getEntry();
+                String dn = ldifEntry.getDn().getUpName();
 
                 try
                 {
-                    ctx.createSubcontext( dn, attributes );
+                    getAdminSession().add( 
+                        new DefaultServerEntry( registries, entry ) ); 
                 }
                 catch ( Exception e )
                 {
@@ -1277,7 +1258,7 @@ public class DefaultDirectoryService implements DirectoryService
      *
      * @throws javax.naming.NamingException if there are problems along the way
      */
-    private void initialize() throws NamingException
+    private void initialize() throws Exception
     {
         if ( LOG.isDebugEnabled() )
         {
@@ -1325,11 +1306,11 @@ public class DefaultDirectoryService implements DirectoryService
                 ResultCodeEnum.OTHER );
         }
 
-        Set<Index> indexedAttributes = new HashSet<Index>();
+        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
         
         for ( String attributeId : listing.getIndexedAttributes() )
         {
-            indexedAttributes.add( new JdbmIndex( attributeId ) );
+            indexedAttributes.add( new JdbmIndex<Object,ServerEntry>( attributeId ) );
         }
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
@@ -1365,7 +1346,7 @@ public class DefaultDirectoryService implements DirectoryService
             if ( partition instanceof BTreePartition )
             {
                 JdbmPartition btpconf = ( JdbmPartition ) partition;
-                for ( Index index : btpconf.getIndexedAttributes() )
+                for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
                 {
                     String schemaName = dao.findSchema( index.getAttributeId() );
                     if ( schemaName == null )
@@ -1397,10 +1378,16 @@ public class DefaultDirectoryService implements DirectoryService
 
         schemaService = new SchemaService( registries, schemaPartition, schemaControl );
 
+        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
         partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.init( this );
-        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( registries, schemaPartition ) );
+        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaPartition ) );
+
+        // Create all the bootstrap entries before initializing chain
+        firstStart = createBootstrapEntries();
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
@@ -1415,6 +1402,7 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "<--- DefaultDirectoryService initialized" );
         }
     }
+    
     
     /**
      * Read an entry (without DN)
@@ -1456,7 +1444,7 @@ public class DefaultDirectoryService implements DirectoryService
                         oldAttribute.add( attribute.get() );
                         attributes.put( oldAttribute );
                     }
-                    catch (NamingException ne)
+                    catch ( NamingException ne )
                     {
                         // Do nothing
                     }
@@ -1497,5 +1485,17 @@ public class DefaultDirectoryService implements DirectoryService
             // do nothing
             return null;
         }
+    }
+
+
+    public EventService getEventService()
+    {
+        return eventService;
+    }
+
+
+    public void setEventService( EventService eventService )
+    {
+        this.eventService = eventService;
     }
 }

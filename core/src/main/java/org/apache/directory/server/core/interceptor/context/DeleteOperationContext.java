@@ -19,8 +19,13 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Delete context used for Interceptors. It contains all the informations
@@ -29,56 +34,77 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeleteOperationContext extends AbstractOperationContext
+public class DeleteOperationContext extends AbstractChangeOperationContext
 {
+    /**
+     * An optimization added to prevent redundant lookups of the deleted 
+     * entry.
+     */
+    private ClonedServerEntry entry;
+    
+    
     /**
      * Creates a new instance of DeleteOperationContext.
      */
-    public DeleteOperationContext( Registries registries )
+    public DeleteOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
 
     /**
      * Creates a new instance of DeleteOperationContext.
      *
-     * @param collateralOperation true if this is a side effect operation
-     */
-    public DeleteOperationContext( Registries registries, boolean collateralOperation )
-    {
-        super( registries, collateralOperation );
-    }
-
-
-    /**
-     * Creates a new instance of DeleteOperationContext.
-     *
      * @param deleteDn The entry DN to delete
      */
-    public DeleteOperationContext( Registries registries, LdapDN deleteDn )
+    public DeleteOperationContext( CoreSession session, LdapDN deleteDn )
     {
-        super( registries, deleteDn );
+        super( session, deleteDn );
     }
 
 
+    public DeleteOperationContext( CoreSession session, DeleteRequest deleteRequest )
+    {
+        super( session, deleteRequest.getName() );
+        this.requestControls = deleteRequest.getControls();
+    }
+    
+    
     /**
-     * Creates a new instance of DeleteOperationContext.
-     *
-     * @param deleteDn The entry DN to delete
-     * @param collateralOperation true if this is a side effect operation
+     * @return the operation name
      */
-    public DeleteOperationContext( Registries registries, LdapDN deleteDn, boolean collateralOperation )
+    public String getName()
     {
-        super( registries, deleteDn, collateralOperation );
+        return MessageTypeEnum.DEL_REQUEST.name();
     }
 
-
+    
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         return "DeleteContext for DN '" + getDn().getUpName() + "'";
+    }
+
+
+    /**
+     * @param entry the entry to set
+     */
+    public void setEntry( ClonedServerEntry entry )
+    {
+        this.entry = entry;
+    }
+
+
+    /**
+     * Gets the deleted entry if cached.  Must be called before deleting the 
+     * entry when the entry member is null or this call will fail.  
+     * 
+     * @return the entry
+     */
+    public ClonedServerEntry getEntry()
+    {
+        return entry;
     }
 }

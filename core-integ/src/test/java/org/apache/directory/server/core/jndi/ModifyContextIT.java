@@ -21,17 +21,18 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -63,10 +64,12 @@ public class ModifyContextIT
      *
      * @throws NamingException on error
      */
-    protected void createData() throws NamingException
+    protected void createData() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+
         LdapContext sysRoot = getSystemContext( service );
 
         /*
@@ -172,7 +175,7 @@ public class ModifyContextIT
      * @throws NamingException on error
      */
     @Test
-    public void testIllegalModifyAdd() throws NamingException
+    public void testIllegalModifyAdd() throws Exception
     {
         createData();
 
@@ -198,8 +201,9 @@ public class ModifyContextIT
     }
 
 
+
     @Test
-    public void testModifyOperation() throws NamingException
+    public void testModifyOperation() throws Exception
     {
         createData();
 
@@ -226,8 +230,36 @@ public class ModifyContextIT
     }
 
 
+    /**
+     * Test that if we try to remove a non existing attribute,
+     * we get a correct LdapNoSuchAttributeException
+     * 
+     * The test is currently disabled
+     */
+    //@Test
+    public void testRemoveNonExistingValueException() throws Exception
+    {
+        createData();
+
+        LdapContext sysRoot = getSystemContext( service );
+        Attributes attributes = new AttributesImpl( true );
+        attributes.put( "ou", "testCases" );
+        
+        try
+        {
+            sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
+            fail();
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            // Expected
+            assertTrue( true );
+        }
+    }
+
+    
     @Test
-    public void testRemoveNonExistingValue() throws NamingException
+    public void testRemoveNonExistingValue() throws Exception
     {
         createData();
 

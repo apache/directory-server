@@ -81,6 +81,10 @@ public class NonExistentState extends AbstractState
         {
             throw new NamingException( iae.getMessage() );
         }
+        catch ( Exception e )
+        {
+            throw new NamingException( e.getMessage() );
+        }
     }
 
 
@@ -101,9 +105,9 @@ public class NonExistentState extends AbstractState
     /**
      * Action where an attempt is made to start up the service.
      *
-     * @throws NamingException on failures to start the core directory service
+     * @throws Exception on failures to start the core directory service
      */
-    public void startup() throws NamingException
+    public void startup() throws Exception
     {
         LOG.debug( "calling startup()" );
         context.getService().startup();
@@ -155,10 +159,10 @@ public class NonExistentState extends AbstractState
                 {
                     startup();
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
-                    LOG.error( "Failed to create and start new server instance: " + ne );
-                    notifier.testAborted( settings.getDescription(), ne );
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
 
@@ -196,10 +200,10 @@ public class NonExistentState extends AbstractState
                 {
                     startup();
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
-                    LOG.error( "Failed to create and start new server instance: " + ne );
-                    notifier.testAborted( settings.getDescription(), ne );
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
 

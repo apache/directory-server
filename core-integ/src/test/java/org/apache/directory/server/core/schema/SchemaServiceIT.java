@@ -32,6 +32,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
@@ -93,7 +94,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testNoStructuralObjectClass() throws NamingException
+    public void testNoStructuralObjectClass() throws Exception
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( "uidObject" );
@@ -116,7 +117,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testMultipleStructuralObjectClasses() throws NamingException
+    public void testMultipleStructuralObjectClasses() throws Exception
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
@@ -142,7 +143,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testAddingTwoDifferentEntitiesWithSameOid() throws NamingException
+    public void testAddingTwoDifferentEntitiesWithSameOid() throws Exception
     {
         String numberOfGunsAttrLdif = "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=attributeTypes,cn=other,ou=schema\n" +
             "m-usage: USER_APPLICATIONS\n" +
@@ -179,13 +180,15 @@ public class SchemaServiceIT
         assertFalse( ldifReader.hasNext() );
         
         // should be fine with unique OID
-        LdapContext root = getRootContext( service );
-        root.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
-         
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), numberOfGunsAttrEntry.getEntry() ) ); 
+
         // should blow chuncks using same OID
         try
         {
-            root.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
+            service.getAdminSession().add( 
+                new DefaultServerEntry( service.getRegistries(), shipOCEntry.getEntry() ) ); 
+            
             fail( "Should not be possible to create two schema entities with the same OID." );
         }
         catch( NamingException e )
@@ -201,7 +204,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFillInObjectClasses() throws NamingException
+    public void testFillInObjectClasses() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute ocs = sysRoot.getAttributes( "cn=person0" ).get( "objectClass" );
@@ -231,7 +234,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchForPerson() throws NamingException
+    public void testSearchForPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -275,7 +278,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForOrgPerson() throws NamingException
+    public void testSearchForOrgPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -312,7 +315,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForInetOrgPerson() throws NamingException
+    public void testSearchForInetOrgPerson() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
@@ -341,7 +344,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws NamingException
+    public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -375,7 +378,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryAllAttrs() throws NamingException
+    public void testSearchForSubSchemaSubEntryAllAttrs() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -399,11 +402,12 @@ public class SchemaServiceIT
         
         assertNotNull( attrs );
         
+        assertNotNull( attrs.get( "nameForms" ) );
     }
 
     
     @Test
-    public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws NamingException
+    public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -454,7 +458,7 @@ public class SchemaServiceIT
      * if they are requested.
      */
     @Test
-    public void testSearchForSubSchemaSubEntryOperationalAttributesSelected() throws NamingException
+    public void testSearchForSubSchemaSubEntryOperationalAttributesSelected() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -500,7 +504,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryBadFilter() throws NamingException
+    public void testSearchForSubSchemaSubEntryBadFilter() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -522,11 +526,11 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryFilterEqualTop() throws NamingException
+    public void testSearchForSubSchemaSubEntryFilterEqualTop() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
+        controls.setReturningAttributes( new String[]{ "*", "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( service )
@@ -555,7 +559,7 @@ public class SchemaServiceIT
         
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
-        assertNotNull( attrs.get( "subtreeSpecification" ) );
+        assertNotNull( attrs.get( "comparators" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "createTimestamp" ) );
         assertNotNull( attrs.get( "dITContentRules" ) );
@@ -566,17 +570,20 @@ public class SchemaServiceIT
         assertNotNull( attrs.get( "modifiersName" ) );
         assertNotNull( attrs.get( "modifyTimestamp" ) );
         assertNotNull( attrs.get( "nameForms" ) );
+        assertNotNull( attrs.get( "normalizers" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "objectClasses" ) );
+        assertNotNull( attrs.get( "subtreeSpecification" ) );
+        assertNotNull( attrs.get( "syntaxCheckers" ) );
     }
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws NamingException
+    public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
+        controls.setReturningAttributes( new String[]{ "*", "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( service )
@@ -622,7 +629,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryNotObjectScope() throws NamingException
+    public void testSearchForSubSchemaSubEntryNotObjectScope() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -644,7 +651,7 @@ public class SchemaServiceIT
 
 
     @Test
-    public void testSearchForSubSchemaSubEntryComposedFilters() throws NamingException
+    public void testSearchForSubSchemaSubEntryComposedFilters() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -671,7 +678,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchSeeAlso() throws NamingException
+    public void testSearchSeeAlso() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -712,7 +719,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchForUnknownAttributes() throws NamingException
+    public void testSearchForUnknownAttributes() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -761,7 +768,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchAttributesOIDObjectClass() throws NamingException
+    public void testSearchAttributesOIDObjectClass() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -810,7 +817,7 @@ public class SchemaServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchAttributesOIDObjectClassName() throws NamingException
+    public void testSearchAttributesOIDObjectClassName() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -861,7 +868,7 @@ public class SchemaServiceIT
      * @throws NamingException
      */
     @Test
-    public void testSearchForName() throws NamingException
+    public void testSearchForName() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();

@@ -17,22 +17,29 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.trigger;
+
 
 import java.util.List;
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
+
+/**
+ * TODO - can we get some documentation on this?
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public interface StoredProcedureParameterInjector
 {
-    List<Object> getArgumentsToInject( Registries registries, List<StoredProcedureParameter> parameterList ) throws NamingException;
+    List<Object> getArgumentsToInject( OperationContext opContext, 
+        List<StoredProcedureParameter> parameterList ) throws Exception;
+    
     
     public interface MicroInjector
     {
-        Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException;
+        Object inject( OperationContext opContext, StoredProcedureParameter param ) throws Exception;
     }
 }

@@ -20,9 +20,17 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Collection;
+import java.util.List;
+
 import javax.naming.ldap.Control;
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -36,21 +44,61 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface OperationContext
 {
     /**
-     * Checks to see if this operation is an indirect system issued operation.
-     * Collateral operations often result from direct operations.
-     *
-     * @return true if the operation represents a collateral request
+     * Checks to see if this operation is the first operation in a chain of 
+     * operations performed on the DirectoryService.  The first operation in  
+     * a sequence of operations, is not a byproduct of another operation 
+     * unlike operations following in the sequence.  The other operations 
+     * following the first, occur as a side effect to complete this first 
+     * operation.
+     * 
+     * @return true if the operation is the first, false otherwise
      */
-    boolean isCollateralOperation();
+    boolean isFirstOperation();
+    
+    
+    /**
+     * Gets the first, direct operation issued against the DirectoryService.
+     *
+     * @return the first, direct operation issued 
+     */
+    OperationContext getFirstOperation();
+    
+    
+    /**
+     * Gets the previous, operation issued on the DirectoryService.
+     *
+     * @return the previous, operation issued
+     */
+    OperationContext getPreviousOperation();
+    
+    
+    /**
+     * Gets the next, indirect operation issued on the DirectoryService.
+     *
+     * @return the next, indirect operation issued 
+     */
+    OperationContext getNextOperation();
+    
+    
+    /**
+     * Gets the last, operation issued on the DirectoryService.
+     *
+     * @return the last, operation issued
+     */
+    OperationContext getLastOperation();
 
 
     /**
-     * Sets this operation context to represent an operation that results as a
-     * byproduct of another directly issued request.
-     *
-     * @param collateralOperation true if this is collateral, false otherwise
+     * Gets the effective principal for this operation which may not be the 
+     * same as the authenticated principal when the session for this context
+     * has an explicit authorization id, or this operation was applied with 
+     * the proxy authorization control.
+     * 
+     * @see CoreSession#getAuthenticatedPrincipal()
+     * @see CoreSession#getEffectivePrincipal()
+     * @return the effective principal for this operation
      */
-    void setCollateralOperation( boolean collateralOperation );
+    LdapPrincipal getEffectivePrincipal();
 
 
     /**
@@ -58,11 +106,6 @@ public interface OperationContext
      */
     LdapDN getDn();
     
-    
-    /**
-     *  @return The global registries 
-     */
-    Registries getRegistries();
     
     /**
      * Set the context DN
@@ -73,9 +116,45 @@ public interface OperationContext
 
     
     /**
+     * Gets the server entry associated with the target DN of this 
+     * OperationContext.  The entry associated with the DN may be altered 
+     * during the course of processing an LDAP operation through the 
+     * InterceptorChain.  This place holder is put here to prevent the need
+     * for repetitive lookups of the target entry.  Furthermore the returned
+     * entry may be altered by any Interceptor in the chain and this is why a
+     * ClonedServerEntry is returned instead of a ServerEntry.  A 
+     * ClonedServerEntry has an immutable reference to the original state of
+     * the target entry.  The original state can be accessed via a call to
+     * {@link ClonedServerEntry#getOriginalEntry()}.  The return value may be 
+     * null in which case any lookup performed to access it may set it to 
+     * prevent the need for subsequent lookups.
+     * 
+     * Also note that during the course of handling some operations such as 
+     * those that rename, move or rename and move the entry, may alter the DN 
+     * of this entry.  Interceptor implementors should not presume the DN or 
+     * the values contained in this entry are currently what is present in the 
+     * DIT.  The original entry contained in the ClonedServerEntry shoudl be 
+     * used as the definitive source of information about the state of the 
+     * entry in the DIT before returning from the Partition subsystem.
+     * 
+     * @return target entry associated with the DN of this OperationContext
+     */
+    ClonedServerEntry getEntry();
+    
+    
+    /**
+     * Sets the server entry associated with the target DN of this 
+     * OperationContext.
+     *
+     * @param entry the entry whose DN is associated with this OperationContext.
+     */
+    void setEntry( ClonedServerEntry entry );
+    
+    
+    /**
      * Adds a response control to this operation.
      *
-     * @param responseControl the response control to add to this operation.
+     * @param responseControl the response control to add to this operation
      */
     void addResponseControl( Control responseControl );
     
@@ -125,7 +204,7 @@ public interface OperationContext
     /**
      * Adds a request control to this operation.
      *
-     * @param requestControl the request control to add to this operation.
+     * @param requestControl the request control to add to this operation
      */
     void addRequestControl( Control requestControl );
     
@@ -140,6 +219,14 @@ public interface OperationContext
     
     
     /**
+     * Checks if any request controls exists for this operation.
+     *
+     * @return true if any request controls exist, false otherwise
+     */
+    boolean hasRequestControls();
+    
+    
+    /**
      * Gets a request control if present for this request.
      * 
      * @param numericOid the numeric OID of the control also known as it's type OID
@@ -151,7 +238,94 @@ public interface OperationContext
     /**
      * Adds many request controls to this operation.
      *
-     * @param requestControls the request controls to add to this operation.
+     * @param requestControls the request controls to add to this operation
      */
     void addRequestControls( Control[] requestControls );
+    
+    
+    /**
+     * @return the operation's name
+     */
+    String getName();
+    
+    
+    /**
+     * Checks to see if an Interceptor is bypassed for this operation.
+     *
+     * @param interceptorName the interceptorName of the Interceptor to check for bypass
+     * @return true if the Interceptor should be bypassed, false otherwise
+     */
+    boolean isBypassed( String interceptorName );
+
+
+    /**
+     * Checks to see if any Interceptors are bypassed by this Invocation.
+     *
+     * @return true if at least one bypass exists
+     */
+    boolean hasBypass();
+    
+    
+    /**
+     * Gets the set of bypassed Interceptors.
+     *
+     * @return the set of bypassed Interceptors
+     */
+    Collection<String> getByPassed();
+    
+    
+    /**
+     * Sets the set of bypassed Interceptors.
+     * 
+     * @param byPassed the set of bypassed Interceptors
+     */
+    void setByPassed( Collection<String> byPassed );
+    
+    
+    /**
+     * Gets the session associated with this operation.
+     *
+     * @return the session associated with this operation
+     */
+    CoreSession getSession();
+    
+    
+    // -----------------------------------------------------------------------
+    // Utility Factory Methods to Create New OperationContexts
+    // -----------------------------------------------------------------------
+    
+    
+    LookupOperationContext newLookupContext( LdapDN dn );
+
+    
+    ClonedServerEntry lookup( LdapDN dn, Collection<String> byPass ) throws Exception;
+    
+    
+    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    
+    
+    void modify( LdapDN dn, List<Modification> mods, Collection<String> byPass ) throws Exception;
+    
+    
+    void add( ServerEntry entry, Collection<String> byPass ) throws Exception;
+    
+    
+    void delete( LdapDN dn, Collection<String> byPass ) throws Exception;
+
+
+    /**
+     * Checks to see if an entry exists.
+     *
+     * @param dn the distinguished name of the entry to check
+     * @param byPass collection of {@link Interceptor}'s to bypass for this check
+     * @return true if the entry exists, false if it does not
+     * @throws Exception on failure to perform this operation
+     */
+    boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception;
+    
+    
+//    AddOperationContext newAddContext( ServerEntry entry );
+    
+    
+//    void add( AddOperationContext addContext ) throws Exception;
 }

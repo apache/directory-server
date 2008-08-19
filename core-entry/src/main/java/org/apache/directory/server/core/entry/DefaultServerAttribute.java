@@ -19,6 +19,10 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
@@ -42,6 +46,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class DefaultServerAttribute extends DefaultClientAttribute implements ServerAttribute
 {
+    public static final long serialVersionUID = 1L;
+    
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerAttribute.class );
     
@@ -49,9 +55,9 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     private AttributeType attributeType;
     
     
-    // -----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     // utility methods
-    // -----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     /**
      * Private helper method used to set an UpId from an attributeType
      * 
@@ -68,6 +74,621 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         }
         
         return atUpId;
+    }
+    
+    
+    //-------------------------------------------------------------------------
+    // Constructors
+    //-------------------------------------------------------------------------
+    /**
+     * 
+     * Creates a new instance of DefaultServerAttribute, by copying
+     * another attribute, which can be a ClientAttribute. If the other
+     * attribute is a ServerAttribute, it will be copied.
+     *
+     * @param attributeType The attribute's type 
+     * @param attribute The attribute to be copied
+     */
+    public DefaultServerAttribute( AttributeType attributeType, EntryAttribute attribute )
+    {
+        // Copy the common values. isHR is only available on a ServerAttribute 
+        this.attributeType = attributeType;
+        this.id = attribute.getId();
+        this.upId = attribute.getUpId();
+
+        if ( attribute instanceof ServerAttribute )
+        {
+            isHR = attribute.isHR();
+
+            // Copy all the values
+            for ( Value<?> value:attribute )
+            {
+                add( value.clone() );
+            }
+        }
+        else
+        {
+            
+            try
+            {
+                isHR = attributeType.getSyntax().isHumanReadable();
+            }
+            catch ( NamingException ne )
+            {
+                // Do nothing : the syntax should always exist ...
+            }
+            
+
+            // Copy all the values
+            for ( Value<?> clientValue:attribute )
+            {
+                Value<?> serverValue = null; 
+
+                // We have to convert the value first
+                if ( clientValue instanceof ClientStringValue )
+                {
+                    if ( isHR )
+                    {
+                        serverValue = new ServerStringValue( attributeType, (String)clientValue.get() );
+                    }
+                    else
+                    {
+                        // We have to convert the value to a binary value first
+                        serverValue = new ServerBinaryValue( attributeType, 
+                            StringTools.getBytesUtf8( (String)clientValue.get() ) );
+                    }
+                }
+                else if ( clientValue instanceof ClientBinaryValue )
+                {
+                    if ( isHR )
+                    {
+                        // We have to convert the value to a String value first
+                        serverValue = new ServerStringValue( attributeType, 
+                            StringTools.utf8ToString( (byte[])clientValue.get() ) );
+                    }
+                    else
+                    {
+                        serverValue = new ServerBinaryValue( attributeType, (byte[])clientValue.get() );
+                    }
+                }
+
+                add( serverValue );
+            }
+        }
+    }
+    
+    
+    // maybe have some additional convenience constructors which take
+    // an initial value as a string or a byte[]
+    /**
+     * Create a new instance of a EntryAttribute, without ID nor value.
+     * 
+     * @param attributeType the attributeType for the empty attribute added into the entry
+     */
+    public DefaultServerAttribute( AttributeType attributeType )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
+        
+        setAttributeType( attributeType );
+    }
+
+
+    /**
+     * Create a new instance of a EntryAttribute, without value.
+     * 
+     * @param upId the ID for the added attributeType
+     * @param attributeType the added AttributeType
+     */
+    public DefaultServerAttribute( String upId, AttributeType attributeType )
+    {
+        if ( attributeType == null ) 
+        {
+            String message = "The AttributeType parameter should not be null";
+            LOG.error( message );
+            throw new IllegalArgumentException( message );
+        }
+
+        setAttributeType( attributeType );
+        setUpId( upId );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the value does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new Value which uses the specified
+     * attributeType.
+     *
+     * @param attributeType the attribute type according to the schema
+     * @param vals an initial set of values for this attribute
+     */
+    public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals )
+    {
+        this( null, attributeType, vals );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the value does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new Value which uses the specified
+     * attributeType.
+     * 
+     * Otherwise, the value is stored, but as a reference. It's not a copy.
+     *
+     * @param upId the ID of the added attribute
+     * @param attributeType the attribute type according to the schema
+     * @param vals an initial set of values for this attribute
+     */
+    public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
+        
+        setAttributeType( attributeType );
+        setUpId( upId, attributeType );
+        add( vals );
+    }
+
+
+    /**
+     * Create a new instance of a EntryAttribute, without ID but with some values.
+     * 
+     * @param attributeType The attributeType added on creation
+     * @param vals The added value for this attribute
+     */
+    public DefaultServerAttribute( AttributeType attributeType, String... vals )
+    {
+        this( null, attributeType, vals );
+    }
+
+
+    /**
+     * Create a new instance of a EntryAttribute.
+     * 
+     * @param upId the ID for the added attribute
+     * @param attributeType The attributeType added on creation
+     * @param vals the added values for this attribute
+     */
+    public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
+
+        setAttributeType( attributeType );
+        add( vals );
+        setUpId( upId, attributeType );
+    }
+
+
+    /**
+     * Create a new instance of a EntryAttribute, with some byte[] values.
+     * 
+     * @param attributeType The attributeType added on creation
+     * @param vals The value for the added attribute
+     */
+    public DefaultServerAttribute( AttributeType attributeType, byte[]... vals )
+    {
+        this( null, attributeType, vals );
+    }
+
+
+    /**
+     * Create a new instance of a EntryAttribute, with some byte[] values.
+     * 
+     * @param upId the ID for the added attribute
+     * @param attributeType the AttributeType to be added
+     * @param vals the values for the added attribute
+     */
+    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
+
+        setAttributeType( attributeType );
+        add( vals );
+        setUpId( upId, attributeType );
+    }
+    
+    
+    //-------------------------------------------------------------------------
+    // API
+    //-------------------------------------------------------------------------
+    /**
+     * <p>
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * </p>
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * <p>
+     * If the value's type is different from the attribute's type,
+     * the value is not added.
+     * </p>
+     * It's the responsibility of the caller to check if the stored
+     * values are consistent with the attribute's type.
+     * <p>
+     *
+     * @param vals some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int add( byte[]... vals )
+    {
+        if ( !isHR )
+        {
+            int nbAdded = 0;
+            
+            for ( byte[] val:vals )
+            {
+                Value<?> value = new ServerBinaryValue( attributeType, val );
+                
+                try
+                {
+                    value.normalize();
+                }
+                catch( NamingException ne )
+                {
+                    // The value can't be normalized : we don't add it.
+                    LOG.error( "The value '" + val + "' can't be normalized, it hasn't been added" );
+                    return 0;
+                }
+                
+                if ( add( value ) != 0 )
+                {
+                    nbAdded++;
+                }
+                else
+                {
+                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                }
+            }
+            
+            return nbAdded;
+        }
+        else
+        {
+            // We can't add Binary values into a String serverAttribute
+            return 0;
+        }
+    }    
+
+
+    /**
+     * <p>
+     * Adds some values to this attribute. If the new values are already present in
+     * the attribute values, the method has no effect.
+     * </p>
+     * <p>
+     * The new values are added at the end of list of values.
+     * </p>
+     * <p>
+     * This method returns the number of values that were added.
+     * </p>
+     * If the value's type is different from the attribute's type,
+     * the value is not added.
+     *
+     * @param vals some new values to be added which may be null
+     * @return the number of added values, or 0 if none has been added
+     */
+    public int add( String... vals )
+    {
+        if ( isHR )
+        {
+            int nbAdded = 0;
+            
+            for ( String val:vals )
+            {
+                if ( add( new ServerStringValue( attributeType, val ) ) != 0 )
+                {
+                    nbAdded++;
+                }
+                else
+                {
+                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                }
+            }
+            
+            return nbAdded;
+        }
+        else
+        {
+            // We can't add String values into a Binary serverAttribute
+            return 0;
+        }
+    }    
+
+
+    /**
+     * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
+     * 
+     * @return the number of added values into this attribute
+     */
+    public int add( Value<?>... vals )
+    {
+        int nbAdded = 0;
+        
+        for ( Value<?> val:vals )
+        {
+            try
+            {
+                if ( attributeType.getSyntax().isHumanReadable() )
+                {
+                    if ( val == null )
+                    {
+                        Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
+                        
+                        if ( !values.contains( nullSV ) )
+                        {
+                            values.add( nullSV );
+                            nbAdded++;
+                        }
+                    }
+                    else if ( val instanceof ServerStringValue )
+                    {
+                        if ( !values.contains( val ) )
+                        {
+                            if ( values.add( val ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else if ( val instanceof ClientStringValue )
+                    {
+                        // If we get a Client value, convert it to a Server value first 
+                        Value<String> serverStringValue = new ServerStringValue( attributeType, (String)val.get() ); 
+                        
+                        if ( !values.contains( serverStringValue ) )
+                        {
+                            if ( values.add( serverStringValue ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        String message = "The value must be a String, as its AttributeType is H/R";
+                        LOG.error( message );
+                    }
+                }
+                else
+                {
+                    if ( val == null )
+                    {
+                        Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
+                        
+                        if ( !values.contains( nullSV ) )
+                        {
+                            values.add( nullSV );
+                            nbAdded++;
+                        }
+                    }
+                    else if ( ( val instanceof ClientBinaryValue ) )
+                    {
+                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, (byte[])val.get() ); 
+                        
+                        if ( !values.contains( serverBinaryValue ) )
+                        {
+                            if ( values.add( serverBinaryValue ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else if ( val instanceof ServerBinaryValue )
+                    {
+                        if ( !values.contains( val ) )
+                        {
+                            if ( values.add( val ) )
+                            {
+                                nbAdded++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        String message = "The value must be a byte[], as its AttributeType is not H/R";
+                        LOG.error( message );
+                    }
+                }
+            }
+            catch ( NamingException ne )
+            {
+                String message = "Error while adding value '" + val.toString() +"' : " + ne.getMessage();
+                LOG.error( message );
+            }
+        }
+        
+        return nbAdded;
+    }
+
+
+    /**
+     * Remove all the values from this attribute type, including a 
+     * null value. 
+     */
+    public void clear()
+    {
+        values.clear();
+    }
+
+
+    /**
+     * <p>
+     * Indicates whether all the specified values are attribute's values. If
+     * at least one value is not an attribute's value, this method will return 
+     * <code>false</code>
+     * </p>
+     * <p>
+     * If the Attribute is HR, this method will returns <code>false</code>
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
+     */
+    public boolean contains( byte[]... vals )
+    {
+        if ( !isHR )
+        {
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( byte[] val:vals )
+            {
+                ServerBinaryValue value = new ServerBinaryValue( attributeType, val );
+                
+                try
+                {
+                    value.normalize();
+                }
+                catch ( NamingException ne )
+                {
+                    return false;
+                }
+                
+                if ( !values.contains( value ) )
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Indicates whether all the specified values are attribute's values. If
+     * at least one value is not an attribute's value, this method will return 
+     * <code>false</code>
+     * </p>
+     * <p>
+     * If the Attribute is not HR, this method will returns <code>false</code>
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
+     */
+    public boolean contains( String... vals )
+    {
+        if ( isHR )
+        {
+            // Iterate through all the values, and quit if we 
+            // don't find one in the values
+            for ( String val:vals )
+            {
+                ServerStringValue value = new ServerStringValue( attributeType, val );
+                
+                if ( !values.contains( value ) )
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Indicates whether the specified values are some of the attribute's values.
+     * </p>
+     * <p>
+     * If the Attribute is HR, te metho will only accept String Values. Otherwise, 
+     * it will only accept Binary values.
+     * </p>
+     *
+     * @param vals the values
+     * @return true if this attribute contains all the values, otherwise false
+     */
+    public boolean contains( Value<?>... vals )
+    {
+        // Iterate through all the values, and quit if we 
+        // don't find one in the values. We have to separate the check
+        // depending on the isHR flag value.
+        if ( isHR )
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ServerStringValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else if ( val instanceof ClientStringValue )
+                {
+                    ServerStringValue serverValue = new ServerStringValue( attributeType, (String)val.get() );
+                    
+                    if ( !values.contains( serverValue ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Not a String value
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    if ( !values.contains( val ) )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Not a Binary value
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+
+    /**
+     * Get the attribute type associated with this ServerAttribute.
+     *
+     * @return the attributeType associated with this entry attribute
+     */
+    public AttributeType getAttributeType()
+    {
+        return attributeType;
     }
     
     
@@ -108,6 +729,201 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     }
     
 
+    /**
+     * <p>
+     * Checks to see if this attribute is valid along with the values it contains.
+     * </p>
+     * <p>
+     * An attribute is valid if :
+     * <li>All of its values are valid with respect to the attributeType's syntax checker</li>
+     * <li>If the attributeType is SINGLE-VALUE, then no more than a value should be present</li>
+     *</p>
+     * @return true if the attribute and it's values are valid, false otherwise
+     * @throws NamingException if there is a failure to check syntaxes of values
+     */
+    public boolean isValid() throws NamingException
+    {
+        // First check if the attribute has more than one value
+        // if the attribute is supposed to be SINGLE_VALUE
+        if ( attributeType.isSingleValue() && ( values.size() > 1 ) )
+        {
+            return false;
+        }
+
+        for ( Value<?> value : values )
+        {
+            if ( ! value.isValid() )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @see EntryAttribute#remove(byte[]...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
+     */
+    public boolean remove( byte[]... vals )
+    {
+        if ( isHR ) 
+        {
+            return false;
+        }
+        
+        boolean removed = true;
+        
+        for ( byte[] val:vals )
+        {
+            ServerBinaryValue value = new ServerBinaryValue( attributeType, val );
+            removed &= values.remove( value );
+        }
+        
+        return removed;
+    }
+
+
+    /**
+     * @see EntryAttribute#remove(String...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
+     */
+    public boolean remove( String... vals )
+    {
+        if ( !isHR )
+        {
+            return false;
+        }
+        
+        boolean removed = true;
+        
+        for ( String val:vals )
+        {
+            ServerStringValue value = new ServerStringValue( attributeType, val );
+            removed &= values.remove( value );
+        }
+        
+        return removed;
+    }
+
+
+    /**
+     * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
+     * 
+     * @return <code>true</code> if all the values shave been removed from this attribute
+     */
+    public boolean remove( Value<?>... vals )
+    {
+        boolean removed = true;
+        
+        // Loop through all the values to remove. If one of
+        // them is not present, the method will return false.
+        // As the attribute may be HR or not, we have two separated treatments
+        if ( isHR )
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientStringValue )
+                {
+                    ServerStringValue ssv = new ServerStringValue( attributeType, (String)val.get() );
+                    removed &= values.remove( ssv );
+                }
+                else if ( val instanceof ServerStringValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    removed = false;
+                }
+            }
+        }
+        else
+        {
+            for ( Value<?> val:vals )
+            {
+                if ( val instanceof ClientBinaryValue )
+                {
+                    ServerBinaryValue sbv = new ServerBinaryValue( attributeType, (byte[])val.get() );
+                    removed &= values.remove( sbv );
+                }
+                else if ( val instanceof ServerBinaryValue )
+                {
+                    removed &= values.remove( val );
+                }
+                else
+                {
+                    removed = false;
+                }
+            }
+        }
+        
+        return removed;
+    }
+
+
+    
+    /**
+     * <p>
+     * Set the attribute type associated with this ServerAttribute.
+     * </p>
+     * <p>
+     * The current attributeType will be replaced. It is the responsibility of
+     * the caller to insure that the existing values are compatible with the new
+     * AttributeType
+     * </p>
+     *
+     * @param attributeType the attributeType associated with this entry attribute
+     */
+    public void setAttributeType( AttributeType attributeType )
+    {
+        if ( attributeType == null )
+        {
+            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+        }
+
+        this.attributeType = attributeType;
+        setUpId( null, attributeType );
+        
+        try
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                isHR = true;
+            }
+            else
+            {
+                isHR = false;
+            }
+        }
+        catch ( NamingException ne )
+        {
+            // If we have an exception while trying to get the Syntax for this attribute
+            // just set it as Binary
+            isHR = false;
+        }
+    }
+    
+    
+    /**
+     * <p>
+     * Overload the ClientAttribte isHR method : we can't change this flag
+     * for a ServerAttribute, as the HR is already set using the AttributeType.
+     * Set the attribute to Human Readable or to Binary. 
+     * </p>
+     * 
+     * @param isHR <code>true</code> for a Human Readable attribute, 
+     * <code>false</code> for a Binary attribute.
+     */
+    public void setHR( boolean isHR )
+    {
+        // Do nothing...
+    }
+
+    
     /**
      * <p>
      * Overload the {@link DefaultClientAttribute#setId(String)} method.
@@ -321,205 +1137,171 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             }
         }
     }
-    
-    
-    /**
-     * <p>
-     * Set the attribute type associated with this ServerAttribute.
-     * </p>
-     * <p>
-     * The current attributeType will be replaced. It is the responsibility of
-     * the caller to insure that the existing values are compatible with the new
-     * AttributeType
-     * </p>
-     *
-     * @param attributeType the attributeType associated with this entry attribute
-     */
-    public void setAttributeType( AttributeType attributeType )
-    {
-        if ( attributeType == null )
-        {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
-        }
 
-        this.attributeType = attributeType;
-        setUpId( null, attributeType );
+
+    /**
+     * Convert the ServerAttribute to a ClientAttribute
+     *
+     * @return An instance of ClientAttribute
+     */
+    public EntryAttribute toClientAttribute()
+    {
+        // Create the new EntryAttribute
+        EntryAttribute clientAttribute = new DefaultClientAttribute( upId );
         
-        try
+        // Copy the values
+        for ( Value<?> value:this )
         {
-            if ( attributeType.getSyntax().isHumanReadable() )
+            Value<?> clientValue = null;
+            
+            if ( value instanceof ServerStringValue )
             {
-                isHR = true;
+                clientValue = new ClientStringValue( (String)value.get() );
             }
             else
             {
-                isHR = false;
+                clientValue = new ClientBinaryValue( (byte[])value.get() );
+            }
+            
+            clientAttribute.add( clientValue );
+        }
+        
+        return clientAttribute;
+    }
+
+
+    //-------------------------------------------------------------------------
+    // Serialization methods
+    //-------------------------------------------------------------------------
+    
+    /**
+     * @see java.io.Externalizable#writeExternal(ObjectOutput)
+     * 
+     * We can't use this method for a ServerAttribute, as we have to feed the value
+     * with an AttributeType object
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+    }
+    
+    
+    /**
+     * @see Externalizable#writeExternal(ObjectOutput)
+     * <p>
+     * 
+     * This is the place where we serialize attributes, and all theirs
+     * elements. 
+     * 
+     * The inner structure is the same as the client attribute, but we can't call
+     * it as we won't be able to serialize the serverValues
+     * 
+     */
+    public void serialize( ObjectOutput out ) throws IOException
+    {
+        // Write the UPId (the id will be deduced from the upID)
+        out.writeUTF( upId );
+        
+        // Write the HR flag, if not null
+        if ( isHR != null )
+        {
+            out.writeBoolean( true );
+            out.writeBoolean( isHR );
+        }
+        else
+        {
+            out.writeBoolean( false );
+        }
+        
+        // Write the number of values
+        out.writeInt( size() );
+        
+        if ( size() > 0 ) 
+        {
+            // Write each value
+            for ( Value<?> value:values )
+            {
+                // Write the value, using the correct method
+                if ( value instanceof ServerStringValue )
+                {
+                    ((ServerStringValue)value).serialize( out );
+                }
+                else
+                {
+                    ((ServerBinaryValue)value).serialize( out );
+                }
             }
         }
-        catch ( NamingException ne )
-        {
-            // If we have an exception while trying to get the Syntax for this attribute
-            // just set it as Binary
-            isHR = false;
-        }
     }
-    
+
     
     /**
-     * Get the attribute type associated with this ServerAttribute.
-     *
-     * @return the attributeType associated with this entry attribute
-     */
-    public AttributeType getAttributeType()
-    {
-        return attributeType;
-    }
-    
-    
-    // maybe have some additional convenience constructors which take
-    // an initial value as a string or a byte[]
-    /**
-     * Create a new instance of a EntryAttribute, without ID nor value.
+     * @see java.io.Externalizable#readExternal(ObjectInput)
      * 
-     * @param attributeType the attributeType for the empty attribute added into the entry
+     * We can't use this method for a ServerAttribute, as we have to feed the value
+     * with an AttributeType object
      */
-    public DefaultServerAttribute( AttributeType attributeType )
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        if ( attributeType == null )
-        {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
-        }
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerAttribute" );
+    }
+    
+    
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     */
+    public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // Read the ID and the UPId
+        upId = in.readUTF();
         
-        setAttributeType( attributeType );
-    }
-
-
-    /**
-     * Create a new instance of a EntryAttribute, without value.
-     * 
-     * @param upId the ID for the added attributeType
-     * @param attributeType the added AttributeType
-     */
-    public DefaultServerAttribute( String upId, AttributeType attributeType )
-    {
-        if ( attributeType == null ) 
-        {
-            String message = "The AttributeType parameter should not be null";
-            LOG.error( message );
-            throw new IllegalArgumentException( message );
-        }
-
-        setAttributeType( attributeType );
+        // Compute the id
         setUpId( upId );
-    }
-
-
-    /**
-     * Doc me more!
-     *
-     * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new Value which uses the specified
-     * attributeType.
-     *
-     * @param attributeType the attribute type according to the schema
-     * @param vals an initial set of values for this attribute
-     */
-    public DefaultServerAttribute( AttributeType attributeType, Value<?>... vals )
-    {
-        this( null, attributeType, vals );
-    }
-
-
-    /**
-     * Doc me more!
-     *
-     * If the value does not correspond to the same attributeType, then it's
-     * wrapped value is copied into a new Value which uses the specified
-     * attributeType.
-     * 
-     * Otherwise, the value is stored, but as a reference. It's not a copy.
-     *
-     * @param upId the ID of the added attribute
-     * @param attributeType the attribute type according to the schema
-     * @param vals an initial set of values for this attribute
-     */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, Value<?>... vals )
-    {
-        if ( attributeType == null )
-        {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
-        }
         
-        setAttributeType( attributeType );
-        setUpId( upId, attributeType );
-        add( vals );
-    }
-
-
-    /**
-     * Create a new instance of a EntryAttribute, without ID but with some values.
-     * 
-     * @param attributeType The attributeType added on creation
-     * @param vals The added value for this attribute
-     */
-    public DefaultServerAttribute( AttributeType attributeType, String... vals )
-    {
-        this( null, attributeType, vals );
-    }
-
-
-    /**
-     * Create a new instance of a EntryAttribute.
-     * 
-     * @param upId the ID for the added attribute
-     * @param attributeType The attributeType added on creation
-     * @param vals the added values for this attribute
-     */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, String... vals )
-    {
-        if ( attributeType == null )
+        // Read the HR flag, if not null
+        if ( in.readBoolean() )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            isHR = in.readBoolean();
         }
 
-        setAttributeType( attributeType );
-        add( vals );
-        setUpId( upId, attributeType );
-    }
+        // Read the number of values
+        int nbValues = in.readInt();
 
-
-    /**
-     * Create a new instance of a EntryAttribute, with some byte[] values.
-     * 
-     * @param attributeType The attributeType added on creation
-     * @param vals The value for the added attribute
-     */
-    public DefaultServerAttribute( AttributeType attributeType, byte[]... vals )
-    {
-        this( null, attributeType, vals );
-    }
-
-
-    /**
-     * Create a new instance of a EntryAttribute, with some byte[] values.
-     * 
-     * @param upId the ID for the added attribute
-     * @param attributeType the AttributeType to be added
-     * @param vals the values for the added attribute
-     */
-    public DefaultServerAttribute( String upId, AttributeType attributeType, byte[]... vals )
-    {
-        if ( attributeType == null )
+        if ( nbValues > 0 )
         {
-            throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
+            for ( int i = 0; i < nbValues; i++ )
+            {
+                Value<?> value = null;
+                
+                if ( isHR )
+                {
+                    value  = new ServerStringValue( attributeType );
+                    ((ServerStringValue)value).deserialize( in );
+                }
+                else
+                {
+                    value  = new ServerBinaryValue( attributeType );
+                    ((ServerBinaryValue)value).deserialize( in );
+                }
+                
+                try
+                {
+                    value.normalize();
+                }
+                catch ( NamingException ne )
+                {
+                    // Do nothing...
+                }
+                    
+                values.add( value );
+            }
         }
-
-        setAttributeType( attributeType );
-        add( vals );
-        setUpId( upId, attributeType );
     }
     
     
+    //-------------------------------------------------------------------------
+    // Overloaded Object class methods
+    //-------------------------------------------------------------------------
     /**
      * Clone an attribute. All the element are duplicated, so a modification on
      * the original object won't affect the cloned object, as a modification
@@ -534,536 +1316,6 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         
         // We are done !
         return clone;
-    }
-
-
-    /**
-     * <p>
-     * Overload the ClientAttribte isHR method : we can't change this flag
-     * for a ServerAttribute, as the HR is already set using the AttributeType.
-     * Set the attribute to Human Readable or to Binary. 
-     * </p>
-     * 
-     * @param isHR <code>true</code> for a Human Readable attribute, 
-     * <code>false</code> for a Binary attribute.
-     */
-    public void setHR( boolean isHR )
-    {
-        // Do nothing...
-    }
-
-    
-    /**
-     * <p>
-     * Checks to see if this attribute is valid along with the values it contains.
-     * </p>
-     * <p>
-     * An attribute is valid if :
-     * <li>All of its values are valid with respect to the attributeType's syntax checker</li>
-     * <li>If the attributeType is SINGLE-VALUE, then no more than a value should be present</li>
-     *</p>
-     * @return true if the attribute and it's values are valid, false otherwise
-     * @throws NamingException if there is a failure to check syntaxes of values
-     */
-    public boolean isValid() throws NamingException
-    {
-        // First check if the attribute has more than one value
-        // if the attribute is supposed to be SINGLE_VALUE
-        if ( attributeType.isSingleValue() && ( values.size() > 1 ) )
-        {
-            return false;
-        }
-
-        for ( Value<?> value : values )
-        {
-            if ( ! value.isValid() )
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
-     * @see EntryAttribute#add(org.apache.directory.shared.ldap.entry.Value...)
-     * 
-     * @return the number of added values into this attribute
-     */
-    public int add( Value<?>... vals )
-    {
-        int nbAdded = 0;
-        
-        for ( Value<?> val:vals )
-        {
-            try
-            {
-                if ( attributeType.getSyntax().isHumanReadable() )
-                {
-                    if ( val == null )
-                    {
-                        Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
-                        
-                        if ( !values.contains( nullSV ) )
-                        {
-                            values.add( nullSV );
-                            nbAdded++;
-                        }
-                    }
-                    else if ( val instanceof ServerStringValue )
-                    {
-                        if ( !values.contains( val ) )
-                        {
-                            if ( values.add( val ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else if ( val instanceof ClientStringValue )
-                    {
-                        // If we get a Client value, convert it to a Server value first 
-                        Value<String> serverStringValue = new ServerStringValue( attributeType, (String)val.get() ); 
-                        
-                        if ( !values.contains( serverStringValue ) )
-                        {
-                            if ( values.add( serverStringValue ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        String message = "The value must be a String, as its AttributeType is H/R";
-                        LOG.error( message );
-                    }
-                }
-                else
-                {
-                    if ( val == null )
-                    {
-                        Value<byte[]> nullSV = new ServerBinaryValue( attributeType, (byte[])null );
-                        
-                        if ( !values.contains( nullSV ) )
-                        {
-                            values.add( nullSV );
-                            nbAdded++;
-                        }
-                    }
-                    else if ( ( val instanceof ClientBinaryValue ) )
-                    {
-                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, (byte[])val.get() ); 
-                        
-                        if ( !values.contains( serverBinaryValue ) )
-                        {
-                            if ( values.add( serverBinaryValue ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else if ( val instanceof ServerBinaryValue )
-                    {
-                        if ( !values.contains( val ) )
-                        {
-                            if ( values.add( val ) )
-                            {
-                                nbAdded++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        String message = "The value must be a byte[], as its AttributeType is not H/R";
-                        LOG.error( message );
-                    }
-                }
-            }
-            catch ( NamingException ne )
-            {
-                String message = "Error while adding value '" + val.toString() +"' : " + ne.getMessage();
-                LOG.error( message );
-            }
-        }
-        
-        return nbAdded;
-    }
-
-
-    /**
-     * <p>
-     * Adds some values to this attribute. If the new values are already present in
-     * the attribute values, the method has no effect.
-     * </p>
-     * <p>
-     * The new values are added at the end of list of values.
-     * </p>
-     * <p>
-     * This method returns the number of values that were added.
-     * </p>
-     * If the value's type is different from the attribute's type,
-     * the value is not added.
-     *
-     * @param vals some new values to be added which may be null
-     * @return the number of added values, or 0 if none has been added
-     */
-    public int add( String... vals )
-    {
-        if ( isHR )
-        {
-            int nbAdded = 0;
-            
-            for ( String val:vals )
-            {
-                if ( add( new ServerStringValue( attributeType, val ) ) != 0 )
-                {
-                    nbAdded++;
-                }
-                else
-                {
-                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
-                }
-            }
-            
-            return nbAdded;
-        }
-        else
-        {
-            // We can't add String values into a Binary serverAttribute
-            return 0;
-        }
-    }    
-    
-    
-    /**
-     * <p>
-     * Adds some values to this attribute. If the new values are already present in
-     * the attribute values, the method has no effect.
-     * </p>
-     * <p>
-     * The new values are added at the end of list of values.
-     * </p>
-     * <p>
-     * This method returns the number of values that were added.
-     * </p>
-     * <p>
-     * If the value's type is different from the attribute's type,
-     * the value is not added.
-     * </p>
-     * It's the responsibility of the caller to check if the stored
-     * values are consistent with the attribute's type.
-     * <p>
-     *
-     * @param vals some new values to be added which may be null
-     * @return the number of added values, or 0 if none has been added
-     */
-    public int add( byte[]... vals )
-    {
-        if ( !isHR )
-        {
-            int nbAdded = 0;
-            
-            for ( byte[] val:vals )
-            {
-                if ( add( new ServerBinaryValue( attributeType, val ) ) != 0 )
-                {
-                    nbAdded++;
-                }
-                else
-                {
-                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
-                }
-            }
-            
-            return nbAdded;
-        }
-        else
-        {
-            // We can't add Binary values into a String serverAttribute
-            return 0;
-        }
-    }    
-    
-    
-    /**
-     * Remove all the values from this attribute type, including a 
-     * null value. 
-     */
-    public void clear()
-    {
-        values.clear();
-    }
-
-
-    /**
-     * <p>
-     * Indicates whether the specified values are some of the attribute's values.
-     * </p>
-     * <p>
-     * If the Attribute is HR, te metho will only accept String Values. Otherwise, 
-     * it will only accept Binary values.
-     * </p>
-     *
-     * @param vals the values
-     * @return true if this attribute contains all the values, otherwise false
-     */
-    public boolean contains( Value<?>... vals )
-    {
-        // Iterate through all the values, and quit if we 
-        // don't find one in the values. We have to separate the check
-        // depending on the isHR flag value.
-        if ( isHR )
-        {
-            for ( Value<?> val:vals )
-            {
-                if ( val instanceof ServerStringValue )
-                {
-                    if ( !values.contains( val ) )
-                    {
-                        return false;
-                    }
-                }
-                else if ( val instanceof ClientStringValue )
-                {
-                    ServerStringValue serverValue = new ServerStringValue( attributeType, (String)val.get() );
-                    
-                    if ( !values.contains( serverValue ) )
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    // Not a String value
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            for ( Value<?> val:vals )
-            {
-                if ( val instanceof ClientBinaryValue )
-                {
-                    if ( !values.contains( val ) )
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    // Not a Binary value
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-
-
-    /**
-     * <p>
-     * Indicates whether all the specified values are attribute's values. If
-     * at least one value is not an attribute's value, this method will return 
-     * <code>false</code>
-     * </p>
-     * <p>
-     * If the Attribute is not HR, this method will returns <code>false</code>
-     * </p>
-     *
-     * @param vals the values
-     * @return true if this attribute contains all the values, otherwise false
-     */
-    public boolean contains( String... vals )
-    {
-        if ( isHR )
-        {
-            // Iterate through all the values, and quit if we 
-            // don't find one in the values
-            for ( String val:vals )
-            {
-                ServerStringValue value = new ServerStringValue( attributeType, val );
-                
-                if ( !values.contains( value ) )
-                {
-                    return false;
-                }
-            }
-            
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    
-    /**
-     * <p>
-     * Indicates whether all the specified values are attribute's values. If
-     * at least one value is not an attribute's value, this method will return 
-     * <code>false</code>
-     * </p>
-     * <p>
-     * If the Attribute is HR, this method will returns <code>false</code>
-     * </p>
-     *
-     * @param vals the values
-     * @return true if this attribute contains all the values, otherwise false
-     */
-    public boolean contains( byte[]... vals )
-    {
-        if ( !isHR )
-        {
-            // Iterate through all the values, and quit if we 
-            // don't find one in the values
-            for ( byte[] val:vals )
-            {
-                ServerBinaryValue value = new ServerBinaryValue( attributeType, val );
-                
-                if ( !values.contains( value ) )
-                {
-                    return false;
-                }
-            }
-            
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    
-    /**
-     * @see EntryAttribute#remove(org.apache.directory.shared.ldap.entry.Value...)
-     * 
-     * @return <code>true</code> if all the values shave been removed from this attribute
-     */
-    public boolean remove( Value<?>... vals )
-    {
-        boolean removed = true;
-        
-        // Loop through all the values to remove. If one of
-        // them is not present, the method will return false.
-        // As the attribute may be HR or not, we have two separated treatments
-        if ( isHR )
-        {
-            for ( Value<?> val:vals )
-            {
-                if ( val instanceof ClientStringValue )
-                {
-                    ServerStringValue ssv = new ServerStringValue( attributeType, (String)val.get() );
-                    removed &= values.remove( ssv );
-                }
-                else if ( val instanceof ServerStringValue )
-                {
-                    removed &= values.remove( val );
-                }
-                else
-                {
-                    removed = false;
-                }
-            }
-        }
-        else
-        {
-            for ( Value<?> val:vals )
-            {
-                if ( val instanceof ClientBinaryValue )
-                {
-                    ServerBinaryValue sbv = new ServerBinaryValue( attributeType, (byte[])val.get() );
-                    removed &= values.remove( sbv );
-                }
-                else if ( val instanceof ServerBinaryValue )
-                {
-                    removed &= values.remove( val );
-                }
-                else
-                {
-                    removed = false;
-                }
-            }
-        }
-        
-        return removed;
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(byte[]...)
-     * 
-     * @return <code>true</code> if all the values shave been removed from this attribute
-     */
-    public boolean remove( byte[]... vals )
-    {
-        if ( isHR ) 
-        {
-            return false;
-        }
-        
-        boolean removed = true;
-        
-        for ( byte[] val:vals )
-        {
-            ServerBinaryValue value = new ServerBinaryValue( attributeType, val );
-            removed &= values.remove( value );
-        }
-        
-        return removed;
-    }
-
-
-    /**
-     * @see EntryAttribute#remove(String...)
-     * 
-     * @return <code>true</code> if all the values shave been removed from this attribute
-     */
-    public boolean remove( String... vals )
-    {
-        if ( !isHR )
-        {
-            return false;
-        }
-        
-        boolean removed = true;
-        
-        for ( String val:vals )
-        {
-            ServerStringValue value = new ServerStringValue( attributeType, val );
-            removed &= values.remove( value );
-        }
-        
-        return removed;
-    }
-
-
-    //-------------------------------------------------------------------------
-    // Overloaded Object classes
-    //-------------------------------------------------------------------------
-    /**
-     * The hashCode is based on the id, the isHR flag and 
-     * on the internal values.
-     *  
-     * @see Object#hashCode()
-     * 
-     * @return the instance's hash code 
-     */
-    public int hashCode()
-    {
-        int h = super.hashCode();
-        
-        if ( attributeType != null )
-        {
-            h = h*17 + attributeType.hashCode();
-        }
-        
-        return h;
     }
 
 
@@ -1105,6 +1357,27 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
         }
         
         return true;
+    }
+    
+    
+    /**
+     * The hashCode is based on the id, the isHR flag and 
+     * on the internal values.
+     *  
+     * @see Object#hashCode()
+     * 
+     * @return the instance's hash code 
+     */
+    public int hashCode()
+    {
+        int h = super.hashCode();
+        
+        if ( attributeType != null )
+        {
+            h = h*17 + attributeType.hashCode();
+        }
+        
+        return h;
     }
     
     

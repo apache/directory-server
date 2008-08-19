@@ -18,6 +18,20 @@
  */
 package org.apache.directory.server.core.entry;
 
+
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,7 +40,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -43,19 +56,12 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -103,7 +109,7 @@ public class DefaultServerAttributeTest
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
-    public static void setup() throws NamingException
+    public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
         oidRegistry = new DefaultOidRegistry();
@@ -125,7 +131,82 @@ public class DefaultServerAttributeTest
         atPwd = registries.getAttributeTypeRegistry().lookup( "userpassword" );
     }
 
-    @Test public void testAddOneValue() throws NamingException
+    /**
+     * Serialize a DefaultServerAttribute
+     */
+    private ByteArrayOutputStream serializeValue( DefaultServerAttribute value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            value.serialize( oOut );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a DefaultServerAttribute
+     */
+    private DefaultServerAttribute deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            DefaultServerAttribute value = new DefaultServerAttribute( at );
+            value.deserialize( oIn );
+            
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+
+    
+    @Test public void testAddOneValue() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -173,7 +254,7 @@ public class DefaultServerAttributeTest
     }
 
 
-    @Test public void testAddTwoValue() throws NamingException
+    @Test public void testAddTwoValue() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -207,7 +288,7 @@ public class DefaultServerAttributeTest
     }
 
 
-    @Test public void testAddNullValue() throws NamingException
+    @Test public void testAddNullValue() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -226,7 +307,8 @@ public class DefaultServerAttributeTest
         assertNull( ((ServerStringValue)value).get() );
     }
     
-    @Test public void testGetAttribute()
+
+    @Test public void testGetAttribute() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -236,20 +318,18 @@ public class DefaultServerAttributeTest
         attr.add( "Test2" );
         attr.add( "Test3" );
         
-        Attribute attribute = ServerEntryUtils.toBasicAttribute( attr );
-        
-        assertEquals( "1.1",attribute.getID() );
-        assertEquals( 3, attribute.size() );
-        assertTrue( attribute.contains( "Test1" ) );
-        assertTrue( attribute.contains( "Test2" ) );
-        assertTrue( attribute.contains( "Test3" ) );
+        assertEquals( "1.1",attr.getId() );
+        assertEquals( 3, attr.size() );
+        assertTrue( attr.contains( "Test1" ) );
+        assertTrue( attr.contains( "Test2" ) );
+        assertTrue( attr.contains( "Test3" ) );
     }
 
 
     /**
      * Test the contains() method
      */
-    @Test public void testContains()
+    @Test public void testContains() throws Exception
     {
         AttributeType at = TestServerEntryUtils.getIA5StringAttributeType();
         
@@ -489,7 +569,7 @@ public class DefaultServerAttributeTest
      * Test method isValid()
      */
     @Test
-    public void testIsValid() throws NamingException
+    public void testIsValid() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
@@ -1003,7 +1083,7 @@ public class DefaultServerAttributeTest
      * Test method size()
      */
     @Test
-    public void testSize()
+    public void testSize() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1035,7 +1115,7 @@ public class DefaultServerAttributeTest
      * Test method put( byte[]... )
      */
     @Test
-    public void testPutByteArray() throws InvalidAttributeValueException, NamingException
+    public void testPutByteArray() throws InvalidAttributeValueException, Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
         
@@ -1167,7 +1247,7 @@ public class DefaultServerAttributeTest
      * Test method put( Value... )
      */
     @Test
-    public void testPutValueArray()
+    public void testPutValueArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
         
@@ -1300,7 +1380,7 @@ public class DefaultServerAttributeTest
      * Test method remove( Value... )
      */
     @Test
-    public void testRemoveValueArray()
+    public void testRemoveValueArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1370,7 +1450,7 @@ public class DefaultServerAttributeTest
      * Test method remove( byte... )
      */
     @Test
-    public void testRemoveByteArray()
+    public void testRemoveByteArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atPwd );
 
@@ -1400,7 +1480,7 @@ public class DefaultServerAttributeTest
      * Test method remove( String... )
      */
     @Test
-    public void testRemoveStringArray()
+    public void testRemoveStringArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN );
 
@@ -1486,7 +1566,7 @@ public class DefaultServerAttributeTest
      * Test method instanceOf()
      */
     @Test
-    public void testInstanceOf() throws NamingException
+    public void testInstanceOf() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
@@ -1503,7 +1583,7 @@ public class DefaultServerAttributeTest
      * Test method setUpId( String, AttributeType )
      */
     @Test
-    public void testSetUpIdStringAttributeType()
+    public void testSetUpIdStringAttributeType() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atSN );
         
@@ -1559,7 +1639,7 @@ public class DefaultServerAttributeTest
      * Test method setUpId( String ) inherited from ClientAttribute
      */
     @Test
-    public void testSetUpIdString()
+    public void testSetUpIdString() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
@@ -1611,7 +1691,7 @@ public class DefaultServerAttributeTest
      * Test method setAttributeType( AttributeType )
      */
     @Test
-    public void testSetAttributeType() throws NamingException
+    public void testSetAttributeType() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
@@ -1636,10 +1716,9 @@ public class DefaultServerAttributeTest
      * Test method getAttributeType()
      */
     @Test
-    public void testGetAttributeType()
+    public void testGetAttributeType() throws Exception
     {
         ServerAttribute attr = new DefaultServerAttribute( atSN );
-        
         assertEquals( atSN, attr.getAttributeType() );
     }
 
@@ -1696,7 +1775,7 @@ public class DefaultServerAttributeTest
      * Test constructor DefaultServerAttribute( AttributeType, Value... )
      */
     @Test
-    public void testDefaultServerAttributeAttributeTypeValueArray()
+    public void testDefaultServerAttributeAttributeTypeValueArray() throws Exception
     {
         ServerAttribute attr1 = new DefaultServerAttribute( atCN, STR_VALUE1, STR_VALUE2, NULL_STRING_VALUE );
         
@@ -1913,5 +1992,157 @@ public class DefaultServerAttributeTest
         
         clone = attr.clone();
         assertEquals( attr, clone );
+    }
+    
+    
+    /**
+     * Test the copy constructor of a ServerAttribute
+     */
+    @Test 
+    public void testCopyConstructorServerAttribute() throws InvalidAttributeValueException
+    {
+        EntryAttribute attribute = new DefaultServerAttribute( atCN );
+        
+        EntryAttribute copy = new DefaultServerAttribute( atCN, attribute );
+        
+        assertEquals( copy, attribute );
+
+        EntryAttribute attribute2 = new DefaultServerAttribute( atCN, "test" );
+        
+        EntryAttribute copy2 = new DefaultServerAttribute( atCN, attribute2 );
+        
+        assertEquals( copy2, attribute2 );
+        attribute2.add( "test2" );
+        assertNotSame( copy2, attribute2 );
+        assertEquals( "test", copy2.getString() );
+    }
+    
+    
+    /**
+     * Test the copy constructor of a ClientAttribute
+     */
+    @Test 
+    public void testCopyConstructorClientAttribute() throws InvalidAttributeValueException
+    {
+        EntryAttribute attribute = new DefaultClientAttribute( "commonName" );
+        attribute.put( "test" );
+        
+        ServerAttribute copy = new DefaultServerAttribute( atCN, attribute );
+
+        assertEquals( atCN, copy.getAttributeType() );
+        assertEquals( "test", copy.getString() );
+        assertTrue( copy.isHR() );
+        
+        attribute.add( "test2" );
+        assertFalse( copy.contains( "test2" ) );
+    }
+    
+    
+    /**
+     * Test the conversion method 
+     */
+    @Test 
+    public void testToClientAttribute()
+    {
+        ServerAttribute attribute = new DefaultServerAttribute( atCN, "test", "test2" );
+        
+        EntryAttribute clientAttribute = attribute.toClientAttribute();
+        
+        assertTrue( clientAttribute instanceof ClientAttribute );
+        assertFalse( clientAttribute instanceof ServerAttribute );
+        
+        assertTrue( clientAttribute.contains( "test", "test2" ) );
+        assertEquals( "cn", clientAttribute.getId() );
+        
+        attribute.remove( "test", "test2" );
+        assertTrue( clientAttribute.contains( "test", "test2" ) );
+    }
+    
+    
+    /**
+     * Test the serialization of a complete server attribute
+     */
+    @Test
+    public void testSerializeCompleteAttribute() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
+        dsa.setHR( true );
+        dsa.setUpId( "CommonName" );
+        dsa.add( "test1", "test2" );
+
+        DefaultServerAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
+        assertEquals( dsa.toString(), dsaSer.toString() );
+        assertEquals( "commonname", dsaSer.getId() );
+        assertEquals( "CommonName", dsaSer.getUpId() );
+        assertEquals( "test1", dsaSer.getString() );
+        assertTrue( dsaSer.contains( "test2", "test1" ) );
+        assertTrue( dsaSer.isHR() );
+        assertTrue( dsaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a server attribute with no value
+     */
+    @Test
+    public void testSerializeAttributeWithNoValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
+        dsa.setHR( true );
+        dsa.setId( "cn" );
+
+        DefaultServerAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
+        assertEquals( dsa.toString(), dsaSer.toString() );
+        assertEquals( "cn", dsaSer.getId() );
+        assertEquals( "cn", dsaSer.getUpId() );
+        assertEquals( 0, dsaSer.size() );
+        assertTrue( dsaSer.isHR() );
+        assertTrue( dsaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a server attribute with a null value
+     */
+    @Test
+    public void testSerializeAttributeNullValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultServerAttribute dsa = new DefaultServerAttribute( atCN );
+        dsa.setHR( true );
+        dsa.setUpId( "CommonName" );
+        dsa.add( (String)null );
+
+        DefaultServerAttribute dsaSer = deserializeValue( serializeValue( dsa ), atCN );
+        assertEquals( dsa.toString(), dsaSer.toString() );
+        assertEquals( "commonname", dsaSer.getId() );
+        assertEquals( "CommonName", dsaSer.getUpId() );
+        assertNull( dsaSer.getString() );
+        assertEquals( 1, dsaSer.size() );
+        assertTrue( dsaSer.contains( (String)null ) );
+        assertTrue( dsaSer.isHR() );
+        assertFalse( dsaSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a server attribute with a binary value
+     */
+    @Test
+    public void testSerializeAttributeBinaryValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        DefaultServerAttribute dsa = new DefaultServerAttribute( atPwd );
+        dsa.setHR( false );
+        byte[] password = StringTools.getBytesUtf8( "secret" );
+        dsa.add( password );
+
+        DefaultServerAttribute dsaSer = deserializeValue( serializeValue( dsa ), atPwd );
+        assertEquals( dsa.toString(), dsaSer.toString() );
+        assertEquals( "userpassword", dsaSer.getId() );
+        assertEquals( "userPassword", dsaSer.getUpId() );
+        assertTrue( Arrays.equals( dsa.getBytes(), dsaSer.getBytes() ) );
+        assertEquals( 1, dsaSer.size() );
+        assertTrue( dsaSer.contains( password ) );
+        assertFalse( dsaSer.isHR() );
+        assertTrue( dsaSer.isValid() );
     }
 }

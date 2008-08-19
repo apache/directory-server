@@ -19,10 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-
-import javax.naming.NamingException;
 
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
@@ -86,17 +83,11 @@ public class CiRunner extends JUnit4ClassRunner
                 cleanup();
                 destroy();
             }
-            catch ( NamingException e )
+            catch ( Exception e )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
                         + this.getDescription().getDisplayName(), e );
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
-            }
-            catch ( IOException ioe )
-            {
-                LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), ioe );
-                notifier.fireTestFailure( new Failure( getDescription(), ioe ) );
             }
         }
     }
@@ -119,17 +110,11 @@ public class CiRunner extends JUnit4ClassRunner
                 cleanup();
                 destroy();
             }
-            catch ( NamingException ne )
+            catch ( Exception e )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), ne );
-                notifier.fireTestFailure( new Failure( getDescription(), ne ) );
-            }
-            catch ( IOException ioe )
-            {
-                LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), ioe );
-                notifier.fireTestFailure( new Failure( getDescription(), ioe ) );
+                        + this.getDescription().getDisplayName(), e );
+                notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }
         }
     }

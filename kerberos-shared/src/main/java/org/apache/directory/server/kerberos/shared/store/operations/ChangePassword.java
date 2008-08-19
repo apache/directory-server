@@ -20,24 +20,23 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.naming.CompoundName;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -46,7 +45,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePassword implements ContextOperation
+public class ChangePassword implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = -7147685183641418353L;
 
@@ -69,75 +68,29 @@ public class ChangePassword implements ContextOperation
     }
 
 
-    public Object execute( DirContext ctx, Name searchBaseDn ) throws NamingException
+    public Object execute( CoreSession session, LdapDN searchBaseDn ) throws Exception
     {
         if ( principal == null )
         {
             return null;
         }
 
-        ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        Attribute newPasswordAttribute = new AttributeImpl( SchemaConstants.USER_PASSWORD_AT, newPassword );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newPasswordAttribute );
-        Attribute principalAttribute = new AttributeImpl( "krb5PrincipalName", principal.getName() );
-        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, principalAttribute );
+        AttributeTypeRegistry registry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        
+        List<Modification> mods = new ArrayList<Modification>(2);
+        
+        ServerAttribute newPasswordAttribute = new DefaultServerAttribute( 
+            registry.lookup( SchemaConstants.USER_PASSWORD_AT_OID ), newPassword );
+        mods.set( 0, new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
+        
+        ServerAttribute principalAttribute = new DefaultServerAttribute( 
+            registry.lookup( "krb5PrincipalName" ), principal.getName() );
+        mods.set( 1, new ServerModification( DirContext.REPLACE_ATTRIBUTE, principalAttribute ) );
 
-        String dn = null;
+        
+        ServerEntry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
+        session.modify( entry.getDn(), mods );
 
-        dn = search( ctx, principal.getName() );
-        Name rdn = getRelativeName( ctx.getNameInNamespace(), dn );
-        ctx.modifyAttributes( rdn, mods );
-
-        return dn;
-    }
-
-
-    private String search( DirContext ctx, String principal ) throws NamingException
-    {
-        String[] attrIDs =
-            { KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, KerberosAttribute.KRB5_KEY_AT };
-
-        Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal ) );
-
-        NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
-
-        if ( answer.hasMore() )
-        {
-            SearchResult sr = answer.next();
-            if ( sr != null )
-            {
-                return sr.getName();
-            }
-        }
-
-        return null;
-    }
-
-
-    private Name getRelativeName( String nameInNamespace, String baseDn ) throws NamingException
-    {
-        Properties props = new Properties();
-        props.setProperty( "jndi.syntax.direction", "right_to_left" );
-        props.setProperty( "jndi.syntax.separator", "," );
-        props.setProperty( "jndi.syntax.ignorecase", "true" );
-        props.setProperty( "jndi.syntax.trimblanks", "true" );
-
-        Name searchBaseDn = null;
-
-        Name ctxRoot = new CompoundName( nameInNamespace, props );
-        searchBaseDn = new CompoundName( baseDn, props );
-
-        if ( !searchBaseDn.startsWith( ctxRoot ) )
-        {
-            throw new NamingException( "Invalid search base " + baseDn );
-        }
-
-        for ( int ii = 0; ii < ctxRoot.size(); ii++ )
-        {
-            searchBaseDn.remove( 0 );
-        }
-
-        return searchBaseDn;
+        return entry.getDn();
     }
 }

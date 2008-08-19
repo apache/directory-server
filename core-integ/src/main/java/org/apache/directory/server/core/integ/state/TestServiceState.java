@@ -69,17 +69,17 @@ public interface TestServiceState
     /**
      * Action where an attempt is made to start up the service.
      *
-     * @throws NamingException on failures to start the core directory service
+     * @throws Exception on failures to start the core directory service
      */
-    void startup() throws NamingException;
+    void startup() throws Exception;
 
 
     /**
      * Action where an attempt is made to shutdown the service.
      *
-     * @throws NamingException on failures to stop the core directory service
+     * @throws Exception on failures to stop the core directory service
      */
-    void shutdown() throws NamingException;
+    void shutdown() throws Exception;
 
 
     /**
@@ -102,8 +102,8 @@ public interface TestServiceState
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
      *
-     * @throws NamingException on failures to revert the state of the core
+     * @throws Exception on failures to revert the state of the core
      * directory service
      */
-    void revert() throws NamingException;
+    void revert() throws Exception;
 }

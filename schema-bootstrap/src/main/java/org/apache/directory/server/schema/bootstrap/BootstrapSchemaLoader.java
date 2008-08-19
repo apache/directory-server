@@ -107,7 +107,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         this.cl = cl;
     }
 
-    public final void loadWithDependencies( Schema schema, Registries registries ) throws NamingException
+    public final void loadWithDependencies( Schema schema, Registries registries ) throws Exception
     {
         if ( ! ( schema instanceof BootstrapSchema ) )
         {
@@ -130,7 +130,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
      * @param registries the registries to fill with producer created objects
      * @throws NamingException if there are any failures during this process
      */
-    public final void loadWithDependencies( Collection<Schema> bootstrapSchemas, Registries registries ) throws NamingException
+    public final void loadWithDependencies( Collection<Schema> bootstrapSchemas, Registries registries ) throws Exception
     {
         BootstrapSchema[] schemas = new BootstrapSchema[bootstrapSchemas.size()];
         schemas = bootstrapSchemas.toArray( schemas );

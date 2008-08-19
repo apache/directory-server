@@ -23,8 +23,6 @@ package org.apache.directory.server.core.subtree;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import junit.framework.TestCase;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -56,7 +54,7 @@ public class SubtreeEvaluatorTest extends TestCase
     private SubtreeEvaluator evaluator;
 
 
-    private void init() throws NamingException
+    private void init() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );

@@ -63,7 +63,7 @@ public class ObjectClassCreateIT
      * Test that I can create an ObjectClass entry with an invalid
      */
     @Test
-    public void testCreateObjectClassWithInvalidNameAttribute() throws NamingException
+    public void testCreateObjectClassWithInvalidNameAttribute() throws Exception
     {
         Attributes attributes = new BasicAttributes();
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
@@ -97,7 +97,7 @@ public class ObjectClassCreateIT
      * Test that I can create an ObjectClass entry with an invalid
      */
     @Test
-    public void testCreateObjectClassWithNoObjectClass() throws NamingException
+    public void testCreateObjectClassWithNoObjectClass() throws Exception
     {
         Attributes attributes = new BasicAttributes();
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );

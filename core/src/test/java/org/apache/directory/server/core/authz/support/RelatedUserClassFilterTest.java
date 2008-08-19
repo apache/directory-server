@@ -109,6 +109,17 @@ public class RelatedUserClassFilterTest extends TestCase
         Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
             AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null, null ).size() );
     }
+    
+    
+    public void testParentOfEntry() throws Exception
+    {
+        Collection<ACITuple> tuples = getTuples( UserClass.PARENT_OF_ENTRY );
+
+        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
+            AuthenticationLevel.NONE, new LdapDN( "ou=phoneBook, ou=test, ou=users, ou=system" ), null, null, null, null, null ).size() );
+        Assert.assertEquals( 0, filter.filter( null, tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
+            AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null, null ).size() );
+    }
 
 
     public void testName() throws Exception

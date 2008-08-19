@@ -20,12 +20,19 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import java.util.Set;
 
 import javax.naming.directory.SearchControls;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 
 
 /**
@@ -35,44 +42,90 @@ import javax.naming.directory.SearchControls;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SearchOperationContext extends AbstractOperationContext
+public class SearchOperationContext extends SearchingOperationContext
 {
     /** The filter */
     private ExprNode filter;
-    
-    /** The controls */
-    private SearchControls searchControls;
-
-    /** The mode of alias handling */
-    private AliasDerefMode aliasDerefMode;
 
 
     /**
      * Creates a new instance of SearchOperationContext.
      */
-    public SearchOperationContext( Registries registries )
+    public SearchOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
     /**
      * Creates a new instance of SearchOperationContext.
+     * @throws Exception 
+     */
+    public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws Exception
+    {
+        super( session );
+        
+        this.dn = searchRequest.getBase();
+        this.filter = searchRequest.getFilter();
+        this.abandoned = searchRequest.isAbandoned();
+        this.aliasDerefMode = searchRequest.getDerefAliases();
+        
+        this.requestControls = searchRequest.getControls();
+        this.scope = searchRequest.getScope();
+        this.sizeLimit = searchRequest.getSizeLimit();
+        this.timeLimit = searchRequest.getTimeLimit();
+        this.noAttributes = searchRequest.getTypesOnly();
+        setReturningAttributes( searchRequest.getAttributes() );
+    }
+
+
+    /**
+     * Creates a new instance of SearchOperationContext.
+     * 
      * @param aliasDerefMode the alias dereferencing mode
      * @param dn the dn of the search base
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
-                                   SearchControls searchControls )
+    public SearchOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
+                                   SearchControls searchControls ) throws Exception
     {
-        super( registries, dn );
+        super( session, dn, aliasDerefMode, searchControls );
         this.filter = filter;
-        this.aliasDerefMode = aliasDerefMode;
-        this.searchControls = searchControls;
     }
 
 
+    /**
+     * Creates a new instance of SearchOperationContext.
+     * 
+     * @param session the session this operation is associated with
+     * @param dn the search base
+     * @param scope the search scope
+     * @param filter the filter AST to use for the search
+     * @param aliasDerefMode the alias dereferencing mode
+     * @param returningAttributes the attributes to return
+     */
+    public SearchOperationContext( CoreSession session, LdapDN dn, SearchScope scope,
+        ExprNode filter, AliasDerefMode aliasDerefMode, Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, dn, aliasDerefMode, returningAttributes );
+        super.setScope( scope );
+        this.filter = filter;
+    }
+
+
+    /**
+     * Checks whether or not the ManageDsaITControl is present.  If not 
+     * present then the filter is modified to force the return of all referral
+     * entries regardless of whether or not the filter matches the referral
+     * entry.
+     */
+    public boolean hasManageDsaItControl()
+    {
+        return super.hasRequestControl( ManageDsaITControl.CONTROL_OID );
+    }
+    
+    
     /**
      * @return The filter
      */
@@ -94,26 +147,6 @@ public class SearchOperationContext extends AbstractOperationContext
 
 
     /**
-     *  @return The search controls
-     */
-    public SearchControls getSearchControls()
-    {
-        return searchControls;
-    }
-
-
-    /**
-     * Set the search controls
-     *
-     * @param searchControls The search controls
-     */
-    public void setSearchControls( SearchControls searchControls )
-    {
-        this.searchControls = searchControls;
-    }
-
-
-    /**
      * @see Object#toString()
      */
     public String toString()
@@ -124,20 +157,10 @@ public class SearchOperationContext extends AbstractOperationContext
 
 
     /**
-     *  @return The alias handling mode
+     * @return the operation name
      */
-    public AliasDerefMode getAliasDerefMode()
+    public String getName()
     {
-        return aliasDerefMode;
-    }
-
-
-    /**
-     * Set the alias handling mode
-     *  @param aliasDerefMode The alias handling mode
-     */
-    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
-    {
-        this.aliasDerefMode = aliasDerefMode;
+        return MessageTypeEnum.SEARCH_REQUEST.name();
     }
 }

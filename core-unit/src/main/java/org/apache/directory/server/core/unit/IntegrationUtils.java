@@ -20,16 +20,19 @@ package org.apache.directory.server.core.unit;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
 
@@ -71,65 +74,65 @@ public class IntegrationUtils
     }
 
 
-    public static LdifEntry getUserAddLdif() throws InvalidNameException
+    public static LdifEntry getUserAddLdif() throws InvalidNameException, NamingException
     {
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
 
 
 
-    public static void apply( LdapContext root, LdifEntry entry ) throws NamingException
+    public static void apply( CoreSession root, LdifEntry entry ) throws Exception
     {
         LdapDN dn = new LdapDN( entry.getDn() );
 
         switch( entry.getChangeType().getChangeType() )
         {
             case( ChangeType.ADD_ORDINAL ):
-                root.createSubcontext( dn, entry.getAttributes() );
+                root.add( 
+                    new DefaultServerEntry( 
+                        root.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
                 break;
+                
             case( ChangeType.DELETE_ORDINAL ):
-                root.destroySubcontext( entry.getDn() );
+                root.delete( entry.getDn() );
                 break;
+                
             case( ChangeType.MODDN_ORDINAL ):
-                LdapDN target = new LdapDN( entry.getNewSuperior() );
-                if ( entry.getNewRdn() != null )
-                {
-                    target.add( entry.getNewRdn() );
-                }
-                else
-                {
-                    target.add( dn.getRdn().toString() );
-                }
-
-                if ( entry.isDeleteOldRdn() )
-                {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-                }
-                else
-                {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
-                }
-
-                root.rename( dn, target );
-                break;
             case( ChangeType.MODRDN_ORDINAL ):
-                target = ( LdapDN ) dn.clone();
-                target.remove( dn.size() - 1 );
-                target.add( entry.getNewRdn() );
-
-                if ( entry.isDeleteOldRdn() )
+                Rdn newRdn = new Rdn( entry.getNewRdn() );
+                
+                if ( entry.getNewSuperior() != null )
                 {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+                    // It's a move. The superior have changed
+                    // Let's see if it's a rename too
+                    Rdn oldRdn = dn.getRdn();
+                    LdapDN newSuperior = new LdapDN( entry.getNewSuperior() );
+                    
+                    if ( dn.size() == 0 )
+                    {
+                        throw new IllegalStateException( "can't move the root DSE" );
+                    }
+                    else if ( oldRdn.equals( newRdn ) )
+                    {
+                        // Same rdn : it's a move
+                        root.move( dn, newSuperior );
+                    }
+                    else
+                    {
+                        // it's a move and rename 
+                        root.moveAndRename( dn, newSuperior, newRdn, entry.isDeleteOldRdn() );
+                    }
                 }
                 else
                 {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+                    // it's a rename
+                    root.rename( dn, newRdn, entry.isDeleteOldRdn() );
                 }
-
-                root.rename( dn, target );
+                
                 break;
+                
             case( ChangeType.MODIFY_ORDINAL ):
-                root.modifyAttributes( dn, entry.getModificationItemsArray() );
+                root.modify( dn, entry.getModificationItems() );
                 break;
 
             default:
@@ -139,21 +142,19 @@ public class IntegrationUtils
 
 
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
-            throws InvalidNameException
+            throws InvalidNameException, NamingException
     {
         LdapDN dn = new LdapDN( dnstr );
         LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 
-        AttributeImpl attr = new AttributeImpl( "objectClass", "top" );
-        attr.add( "person" );
-        attr.add( "organizationalPerson" );
-        attr.add( "inetOrgPerson" );
+        EntryAttribute attr = new DefaultClientAttribute( "objectClass", 
+            "top", "person", "organizationalPerson", "inetOrgPerson" );
+        
         ldif.addAttribute( attr );
 
-        attr = new AttributeImpl( "ou", "Engineering" );
-        attr.add( "People" );
+        attr = new DefaultClientAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
         String uid = ( String ) dn.getRdn().getValue();

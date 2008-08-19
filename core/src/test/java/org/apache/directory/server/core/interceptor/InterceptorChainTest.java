@@ -21,24 +21,27 @@ package org.apache.directory.server.core.interceptor;
 
 
 import junit.framework.TestCase;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.DeadContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
@@ -91,18 +94,18 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testNoBypass() throws NamingException
+    public void testNoBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup" );
-        InvocationStack.getInstance().push( i );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -116,18 +119,19 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testSingleBypass() throws NamingException
+    public void testSingleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", Collections.singleton( "0" ) );
-        InvocationStack.getInstance().push( i );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        opContext.setByPassed( Collections.singleton( "0" ) );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -141,21 +145,22 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testAdjacentDoubleBypass() throws NamingException
+    public void testAdjacentDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "1" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
-        InvocationStack.getInstance().push( i );
+        opContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -169,21 +174,22 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testFrontAndBackDoubleBypass() throws NamingException
+    public void testFrontAndBackDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "0" );
         bypass.add( "4" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
-        InvocationStack.getInstance().push( i );
+        opContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -196,21 +202,22 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testDoubleBypass() throws NamingException
+    public void testDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
         Set<String> bypass = new HashSet<String>();
         bypass.add( "1" );
         bypass.add( "3" );
-        Invocation i = new Invocation( proxy, ctx, "lookup", bypass );
-        InvocationStack.getInstance().push( i );
+        opContext.setByPassed( bypass );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext( ds.getRegistries(), dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -223,18 +230,19 @@ public class InterceptorChainTest extends TestCase
     }
 
 
-    public void testCompleteBypass() throws NamingException
+    public void testCompleteBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
-        Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
-        PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", PartitionNexusProxy.BYPASS_ALL_COLLECTION );
-        InvocationStack.getInstance().push( i );
+        DefaultCoreSession session = new DefaultCoreSession( 
+            new LdapPrincipal( new LdapDN(), AuthenticationLevel.STRONG ), ds );
+        LookupOperationContext opContext = new LookupOperationContext( session, dn );
+        opContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
+        InvocationStack.getInstance().push( opContext );
 
         try
         {
-            chain.lookup( new LookupOperationContext(ds.getRegistries(),  dn ) );
+            chain.lookup( opContext );
         }
         catch ( Exception e )
         {
@@ -550,6 +558,57 @@ public class InterceptorChainTest extends TestCase
         public ServerEntry newEntry( String ldif, String dn )
         {
             return null;
+        }
+
+
+        public OperationManager getOperationManager()
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession() throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapPrincipal principal ) throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapDN principalDn, byte[] credentials ) throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getSession( LdapDN principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
+            throws Exception
+        {
+            return null;
+        }
+
+
+        public CoreSession getAdminSession() throws Exception
+        {
+            return null;
+        }
+
+
+        public EventService getEventService()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+
+        public void setEventService( EventService eventService )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 }

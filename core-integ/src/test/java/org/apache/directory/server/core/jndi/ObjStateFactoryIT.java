@@ -21,10 +21,10 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -61,10 +61,12 @@ public class ObjStateFactoryIT
 
 
     @Test
-    public void testObjectFactory() throws NamingException
+    public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+
 
         LdapContext sysRoot = getSystemContext( service );
         sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
@@ -82,14 +84,14 @@ public class ObjStateFactoryIT
 
 
     @Test
-    public void testStateFactory() throws NamingException
+    public void testStateFactory() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
         sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
         Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "sn=erodriguez", "committer" );
-        sysRoot.bind( "uid=erodriguez, ou=users", p );
-        Attributes attrs = sysRoot.getAttributes( "uid=erodriguez, ou=users" );
+        sysRoot.bind( "sn=Rodriguez, ou=users", p );
+        Attributes attrs = sysRoot.getAttributes( "sn=Rodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), StringTools.getBytesUtf8( "noices" ) ) );

@@ -43,7 +43,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
@@ -70,7 +69,7 @@ public final class PartitionIT
      */
     public static class Factory implements DirectoryServiceFactory
     {
-		public DirectoryService newInstance() throws NamingException 
+		public DirectoryService newInstance() throws Exception 
 		{
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );

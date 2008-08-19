@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operational;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,15 +27,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -46,26 +48,30 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.InsufficientResourcesException;
 import javax.naming.directory.SearchControls;
-
+ 
 
 /**
  * An {@link Interceptor} that adds or modifies the default attributes
@@ -80,37 +86,33 @@ import javax.naming.directory.SearchControls;
  */
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
-    private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
+
+    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls ) 
-            throws NamingException
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry serverEntry ) 
+            throws Exception
         {
-            ServerEntry serverEntry = result.getServerEntry(); 
-            
-            if ( controls.getReturningAttributes() == null )
+            if ( operation.getSearchControls().getReturningAttributes() == null )
             {
                 return true;
             }
             
-            boolean denormalized = filterDenormalized( serverEntry );
-            
-            result.setServerEntry( serverEntry );
-            
-            return denormalized;
+            return filterDenormalized( serverEntry );
         }
     };
 
     /**
      * the database search result filter to register with filter service
      */
-    private final SearchResultFilter SEARCH_FILTER = new SearchResultFilter()
+    private final EntryFilter SEARCH_FILTER = new EntryFilter()
     {
-        public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-            throws NamingException
+        public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
+            throws Exception
         {
-            ServerEntry serverEntry = result.getServerEntry(); 
-            
-            return controls.getReturningAttributes() != null || filterOperationalAttributes( serverEntry );
+            return operation.getSearchControls().getReturningAttributes() != null 
+                || filterOperationalAttributes( entry );
         }
     };
 
@@ -121,7 +123,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     private LdapDN subschemaSubentryDn;
     
+    /** The registries */
     private Registries registries;
+    
+    private static AttributeType CREATE_TIMESTAMP_ATTRIBUTE_TYPE;
 
 
     /**
@@ -132,7 +137,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         service = directoryService;
         registries = directoryService.getRegistries();
@@ -142,7 +147,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
-        subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        
+        CREATE_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
     }
 
 
@@ -155,21 +162,43 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * Adds extra operational attributes to the entry before it is added.
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         String principal = getPrincipal().getName();
         
         ServerEntry entry = opContext.getEntry();
 
         entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
-        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
+        EntryAttribute createTimeStamp = new DefaultServerAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE );
+        
+        if ( opContext.getEntry().contains( createTimeStamp ) )
+        {
+            // As we already have a CreateTimeStamp value in the context, use it, but only if
+            // the principal is admin
+            if ( opContext.getSession().getAuthenticatedPrincipal().getName().equals( 
+                ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ))
+            {
+                entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            }
+            else
+            {
+                String message = "The CreateTimeStamp attribute cannot be created by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+        }
+        else
+        {
+            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        }
         
         nextInterceptor.add( opContext );
     }
 
 
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.modify( opContext );
         
@@ -208,13 +237,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Make the modify() call happen
         // -------------------------------------------------------------------
 
-        ModifyOperationContext newModify = new ModifyOperationContext( registries, opContext.getDn(), modItemList );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
+            opContext.getDn(), modItemList );
         service.getPartitionNexus().modify( newModify );
     }
 
 
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.rename( opContext );
 
@@ -230,13 +260,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( registries, newDn, items );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), newDn, items );
         
         service.getPartitionNexus().modify( newModify );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
         nextInterceptor.move( opContext );
 
@@ -249,14 +279,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( registries, opContext.getParent(), items );
+            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }
 
 
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
-        throws NamingException
+        throws Exception
     {
         nextInterceptor.moveAndRename( opContext );
 
@@ -268,16 +298,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( registries, 
-                opContext.getParent(), items );
+            new ModifyOperationContext( opContext.getSession(), opContext.getParent(), items );
         
         service.getPartitionNexus().modify( newModify );
     }
 
 
-    public ServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
+    public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
-        ServerEntry result = nextInterceptor.lookup( opContext );
+        ClonedServerEntry result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
@@ -297,32 +326,32 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.list( opContext );
-        Invocation invocation = InvocationStack.getInstance().peek();
-        
-        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
+        EntryFilteringCursor cursor = nextInterceptor.list( opContext );
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<ServerSearchResult> result = nextInterceptor.search( opContext );
+        EntryFilteringCursor cursor = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
-        if ( searchCtls.getReturningAttributes() != null )
+        if ( opContext.isAllOperationalAttributes() || 
+             ( opContext.getReturningAttributes() != null && ! opContext.getReturningAttributes().isEmpty() ) )
         {
             if ( service.isDenormalizeOpAttrsEnabled() )
             {
-                return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
+                cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
             }
                 
-            return result;
+            return cursor;
         }
 
-        return new SearchResultFilteringEnumeration( result, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
+        cursor.addEntryFilter( SEARCH_FILTER );
+        return cursor;
     }
 
 
@@ -332,9 +361,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      *
      * @param attributes the resultant attributes to filter
      * @return true always
-     * @throws NamingException if there are failures in evaluation
+     * @throws Exception if there are failures in evaluation
      */
-    private boolean filterOperationalAttributes( ServerEntry attributes ) throws NamingException
+    private boolean filterOperationalAttributes( ServerEntry attributes ) throws Exception
     {
         Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
 
@@ -357,13 +386,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws NamingException
+    private void filter( LookupOperationContext lookupContext, ServerEntry entry ) throws Exception
     {
         LdapDN dn = lookupContext.getDn();
         List<String> ids = lookupContext.getAttrsId();
         
         // still need to protect against returning op attrs when ids is null
-        if ( ids == null )
+        if ( ids == null || ids.isEmpty() )
         {
             filterOperationalAttributes( entry );
             return;
@@ -390,7 +419,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
     
-    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws NamingException
+    public void denormalizeEntryOpAttrs( ServerEntry entry ) throws Exception
     {
         if ( service.isDenormalizeOpAttrsEnabled() )
         {
@@ -433,9 +462,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * 
      * @param dn the normalized distinguished name
      * @return the distinuished name denormalized
-     * @throws NamingException if there are problems denormalizing
+     * @throws Exception if there are problems denormalizing
      */
-    public LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
+    public LdapDN denormalizeTypes( LdapDN dn ) throws Exception
     {
         LdapDN newDn = new LdapDN();
         
@@ -477,7 +506,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filterDenormalized( ServerEntry entry ) throws NamingException
+    private boolean filterDenormalized( ServerEntry entry ) throws Exception
     {
         denormalizeEntryOpAttrs( entry );
         return true;

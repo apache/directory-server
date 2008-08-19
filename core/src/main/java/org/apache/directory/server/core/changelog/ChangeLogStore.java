@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
-import javax.naming.NamingException;
 
 
 /**
@@ -37,13 +38,13 @@ import javax.naming.NamingException;
  */
 public interface ChangeLogStore 
 {
-    void init( DirectoryService service ) throws NamingException;
+    void init( DirectoryService service ) throws Exception;
 
 
-    void sync() throws NamingException;
+    void sync() throws Exception;
 
 
-    void destroy() throws NamingException;
+    void destroy() throws Exception;
 
 
     /**
@@ -62,9 +63,22 @@ public interface ChangeLogStore
      * @param forward LDIF of the change going to the next state
      * @param reverse LDIF (anti-operation): the change required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws NamingException if there are problems logging the change
+     * @throws Exception if there are problems logging the change
      */
-    long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
+
+    
+    /**
+     * Records a change as a forward LDIF, some reverse changes to revert the change and
+     * the authorized principal triggering the revertable change event.
+     *
+     * @param principal the authorized LDAP principal triggering the change
+     * @param forward LDIF of the change going to the next state
+     * @param reverses LDIF (anti-operation): the changes required to revert this change
+     * @return the new revision reached after having applied the forward LDIF
+     * @throws Exception if there are problems logging the change
+     */
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception;
 
     
     /**
@@ -72,11 +86,11 @@ public interface ChangeLogStore
      *
      * @param revision to get a ChangeLogEvent for
      * @return the ChangeLogEvent associated with the revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    ChangeLogEvent lookup( long revision ) throws NamingException;
+    ChangeLogEvent lookup( long revision ) throws Exception;
 
 
     /**
@@ -88,9 +102,9 @@ public interface ChangeLogStore
      * increasing the revision should not be seen.
      *
      * @return a Cursor over all the ChangeLogEvents
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find() throws NamingException;
+    Cursor<ChangeLogEvent> find() throws Exception;
 
 
     /**
@@ -99,11 +113,11 @@ public interface ChangeLogStore
      *
      * @param revision the revision number to get the ChangeLogEvents before
      * @return a Cursor over the ChangeLogEvents before a revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Cursor<ChangeLogEvent> findBefore( long revision ) throws NamingException;
+    Cursor<ChangeLogEvent> findBefore( long revision ) throws Exception;
 
 
     /**
@@ -115,11 +129,11 @@ public interface ChangeLogStore
      *
      * @param revision the revision number to get the ChangeLogEvents after
      * @return a Cursor of all the ChangeLogEvents after and including the revision
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Cursor<ChangeLogEvent> findAfter( long revision ) throws NamingException;
+    Cursor<ChangeLogEvent> findAfter( long revision ) throws Exception;
 
 
     /**
@@ -128,9 +142,9 @@ public interface ChangeLogStore
      * @param startRevision the revision number to start getting the ChangeLogEvents above
      * @param endRevision the revision number to start getting the ChangeLogEvents below
      * @return an enumeration of all the ChangeLogEvents within some revision range inclusive
-     * @throws NamingException if there are failures accessing the store
+     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the start and end revisions are out of range
      * (less than 0 and greater than the current revision), or if startRevision > endRevision
      */
-    Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws NamingException;
+    Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws Exception;
 }

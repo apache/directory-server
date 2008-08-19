@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.swing.JFileChooser;
@@ -60,12 +59,13 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.schema.registries.Registries;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -127,7 +127,7 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition db, Registries registries ) throws NamingException
+    public PartitionFrame( BTreePartition db, Registries registries ) throws Exception
     {
         partition = db;
         this.registries = registries;
@@ -144,7 +144,7 @@ public class PartitionFrame extends JFrame
      *
      * @throws NamingException on partition access errors
      */
-    private void initialize() throws NamingException
+    private void initialize() throws Exception
     {
         mainPnl.setBorder( null );
         mainPnl.setLayout( new java.awt.BorderLayout() );
@@ -218,7 +218,14 @@ public class PartitionFrame extends JFrame
         {
             public void actionPerformed( ActionEvent e )
             {
-                exitForm();
+                try
+                {
+                    exitForm();
+                }
+                catch ( Exception e1 )
+                {
+                    e1.printStackTrace();
+                }
             }
         } );
 
@@ -257,7 +264,14 @@ public class PartitionFrame extends JFrame
         {
             public void windowClosing( java.awt.event.WindowEvent evt )
             {
-                exitForm();
+                try
+                {
+                    exitForm();
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
+                }
             }
         } );
 
@@ -316,7 +330,7 @@ public class PartitionFrame extends JFrame
                 {
                     doFilterDialog( an_event.getActionCommand() );
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                 }
@@ -401,7 +415,7 @@ public class PartitionFrame extends JFrame
      * nothing has been selected yet.
      * @throws NamingException on partition access errors
      */
-    public String getSelectedDn() throws NamingException
+    public String getSelectedDn() throws Exception
     {
         TreePath path = tree.getSelectionModel().getSelectionPath();
 
@@ -451,11 +465,11 @@ public class PartitionFrame extends JFrame
 
             for ( LdifEntry entry:new LdifReader( in ) )
             {
-                String updn = entry.getDn();
+                String updn = entry.getDn().getUpName();
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
-                ServerEntry attrs = ServerEntryUtils.toServerEntry( entry.getAttributes(), ndn, null );
+                ServerEntry attrs = new DefaultServerEntry( registries, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
@@ -485,7 +499,7 @@ public class PartitionFrame extends JFrame
     /**
      * Exit the Application
      */
-    private void exitForm()
+    private void exitForm() throws Exception
     {
         setEnabled( false );
         setVisible( false );
@@ -548,7 +562,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void doFilterDialog( final String mode ) throws NamingException
+    public void doFilterDialog( final String mode ) throws Exception
     {
         final FilterDialog dialog = new FilterDialog( mode, this, true );
 
@@ -649,18 +663,18 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        NamingEnumeration cursor = partition
-                .getSearchEngine().search( new LdapDN( base ), AliasDerefMode.DEREF_ALWAYS, root, ctls );
+        IndexCursor<Long,ServerEntry> cursor = partition
+                .getSearchEngine().cursor( new LdapDN( base ), AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
         DefaultTableModel tableModel = new DefaultTableModel( cols, 0 );
         Object[] row = new Object[2];
         int count = 0;
-        while ( cursor.hasMore() && count < limitMax )
+        while ( cursor.next() && count < limitMax )
         {
-            IndexRecord rec = ( IndexRecord ) cursor.next();
-            row[0] = rec.getEntryId();
+            IndexEntry rec = ( IndexEntry ) cursor.get();
+            row[0] = rec.getId();
             row[1] = partition.getEntryDn( ( Long ) row[0] );
             tableModel.addRow( row );
             count++;
@@ -859,14 +873,15 @@ public class PartitionFrame extends JFrame
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
         entryTbl.setModel( model );
 
-        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
-        idxTbl.setModel( model );
-
-        validate();
+        // TODO use utility method to getIndices below
+//        model = new AttributesTableModel( partition.getIndices( id ), id, dn, false );
+//        idxTbl.setModel( model );
+//
+//        validate();
     }
 
 
-    private void load() throws NamingException
+    private void load() throws Exception
     {
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();

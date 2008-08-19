@@ -19,8 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A GetRootDSE context used for Interceptors. It contains all the informations
@@ -34,9 +36,9 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of GetRootDSEOperationContext.
      */
-    public GetRootDSEOperationContext( Registries registries )
+    public GetRootDSEOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
     
     /**
@@ -44,10 +46,19 @@ public class GetRootDSEOperationContext extends AbstractOperationContext
      *
      * @param dn The entry DN used to get the rootDSE
      */
-    public GetRootDSEOperationContext( Registries registries, LdapDN dn )
+    public GetRootDSEOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
+    
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "GetRootDSE";
+    }
+
     
     /**
      * @see Object#toString()

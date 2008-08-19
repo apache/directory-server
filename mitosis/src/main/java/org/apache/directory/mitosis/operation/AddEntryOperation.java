@@ -20,16 +20,16 @@
 package org.apache.directory.mitosis.operation;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -71,47 +71,51 @@ public class AddEntryOperation extends Operation
     }
 
 
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, Registries registries )
-        throws NamingException
+    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession )
+        throws Exception
     {
-        if ( !EntryUtil.isEntryUpdatable( registries, nexus, dn, getCSN() ) )
+        Registries registries = coreSession.getDirectoryService().getRegistries();
+        
+        if ( ! EntryUtil.isEntryUpdatable( coreSession, dn, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( registries, nexus, dn, false );
+        EntryUtil.createGlueEntries( coreSession, dn, false );
 
         // Replace the entry if an entry with the same name exists.
-        if ( nexus.lookup( new LookupOperationContext( registries, dn ) ) != null )
+        if ( nexus.lookup( new LookupOperationContext( coreSession, dn ) ) != null )
         {
-            recursiveDelete( nexus, dn, registries );
+            recursiveDelete( nexus, dn, coreSession );
         }
 
-        nexus.add( new AddOperationContext( registries, ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
+        nexus.add( new AddOperationContext( coreSession, 
+            ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
     }
 
 
     @SuppressWarnings("unchecked")
-    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, Registries registries )
-        throws NamingException
+    private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, CoreSession coreSession )
+        throws Exception
     {
-        NamingEnumeration<ServerSearchResult> ne = nexus.list( new ListOperationContext( registries, normalizedName ) );
+        EntryFilteringCursor cursor = nexus.list( new ListOperationContext( coreSession, normalizedName ) );
         
-        if ( !ne.hasMore() )
+        if ( !cursor.available() )
         {
-            nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
+            nexus.delete( new DeleteOperationContext( coreSession, normalizedName ) );
             return;
         }
 
-        while ( ne.hasMore() )
+        Registries registries = coreSession.getDirectoryService().getRegistries();
+        while ( cursor.next() )
         {
-            ServerSearchResult sr = ne.next();
+            ClonedServerEntry sr = cursor.get();
             LdapDN dn = sr.getDn();
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-            recursiveDelete( nexus, dn, registries );
+            recursiveDelete( nexus, dn, coreSession );
         }
         
-        nexus.delete( new DeleteOperationContext( registries, normalizedName ) );
+        nexus.delete( new DeleteOperationContext( coreSession, normalizedName ) );
     }
 
 

@@ -56,7 +56,7 @@ public class PartitionViewer
 
 
     // added return value so expressions in debugger does not freak with void
-    public int execute() throws NamingException
+    public int execute() throws Exception
     {
         Thread t = new Thread( new Runnable() {
             public void run()
@@ -66,7 +66,7 @@ public class PartitionViewer
                 {
                     frame = new PartitionFrame( PartitionViewer.this.partition, registries );
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                     return;

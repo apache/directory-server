@@ -176,7 +176,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         ctx.getSession().close();
     }
 
-
+    
     private synchronized void onLogEntry( ReplicationContext ctx, LogEntryMessage message ) throws Exception
     {
         // Return error if other replica than what is in progress sends
@@ -192,7 +192,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         try
         {
             op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
-                ctx.getDirectoryService().getRegistries() );
+            		ctx.getDirectoryService().getSession() );
+            
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }
         catch ( Exception e )

@@ -21,30 +21,28 @@ package org.apache.directory.server.core.prefs;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
-import javax.naming.Context;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
@@ -61,55 +59,45 @@ import java.util.prefs.Preferences;
  */
 public class ServerSystemPreferences extends AbstractPreferences
 {
-    /** an empty array of ModificationItems used to get array from list */
-    private static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
-
     /** an empty array of Strings used to get array from list */
     private static final String[] EMPTY_STRINGS = new String[0];
 
-    /** the LDAP context representing this preferences object */
-    private LdapContext ctx;
-
-    /** the changes (ModificationItems) representing cached alterations to preferences */
-    private List<ModificationItem> changes = new ArrayList<ModificationItem>( 3 );
+    /** the changes representing cached alterations to preferences */
+    private List<Modification> changes = new ArrayList<Modification>( 3 );
 
     /** maps changes based on key: key->list of mods (on same key) */
-    private HashMap<String, List<ModificationItem>> keyToChange = new HashMap<String, List<ModificationItem>>( 3 );
+    private HashMap<String, List<Modification>> keyToChange = new HashMap<String, List<Modification>>( 3 );
+    
+    private LdapDN dn;
+    
+    private DirectoryService directoryService;
+    
 
 
     /**
      * Creates a preferences object for the system preferences root.
-     * @param service the directory service core
+     * @param directoryService the directory service core
      */
-    public ServerSystemPreferences( DirectoryService service )
+    public ServerSystemPreferences( DirectoryService directoryService )
     {
         super( null, "" );
         super.newNode = false;
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, service );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
-
+        
         try
         {
-            ctx = new InitialLdapContext( env, null );
+            dn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system" );
         }
-        catch ( Exception e )
+        catch ( InvalidNameException e )
         {
-            throw new ServerSystemPreferenceException( "Failed to open.", e );
+            // never happens
         }
+        
+        this.directoryService = directoryService;
     }
 
-
-    public synchronized void close() throws NamingException
+    
+    public void close() throws NamingException
     {
-        if ( this.parent() != null )
-        {
-            throw new ServerSystemPreferenceException( "Cannot close child preferences." );
-        }
-
-        this.ctx.close();
     }
 
 
@@ -122,28 +110,29 @@ public class ServerSystemPreferences extends AbstractPreferences
     public ServerSystemPreferences( ServerSystemPreferences parent, String name )
     {
         super( parent, name );
-        LdapContext parentCtx = parent.getLdapContext();
 
+        this.directoryService = parent.directoryService;
+        LdapDN parentDn = ( ( ServerSystemPreferences ) parent() ).dn;
         try
         {
-            ctx = ( LdapContext ) parentCtx.lookup( "prefNodeName=" + name );
-            super.newNode = false;
-        }
-        catch ( NamingException e )
-        {
-            super.newNode = true;
-        }
-
-        if ( super.newNode )
-        {
-            try
+            dn = new LdapDN( "prefNodeName=" + name + "," + parentDn.getUpName() );
+            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            
+            if ( ! directoryService.getAdminSession().exists( dn ) )
             {
-                setUpNode( name );
+                ServerEntry entry = directoryService.newEntry( dn );
+                entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
+                    ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+                entry.add( "prefNodeName", name );
+    
+                directoryService.getAdminSession().add( entry );
+                
+                super.newNode = false;
             }
-            catch ( Exception e )
-            {
-                throw new ServerSystemPreferenceException( "Failed to set up node.", e );
-            }
+        }
+        catch ( Exception e )
+        {
+            throw new ServerSystemPreferenceException( "Failed to set up node.", e );
         }
     }
 
@@ -153,50 +142,13 @@ public class ServerSystemPreferences extends AbstractPreferences
     // ------------------------------------------------------------------------
 
     /**
-     * Wrapps this ServerPreferences object as a Dictionary.
+     * Wraps this ServerPreferences object as a Dictionary.
      *
      * @return a Dictionary that uses this ServerPreferences object as the underlying backing store
      */
-    public Dictionary wrapAsDictionary()
+    public Dictionary<String, String> wrapAsDictionary()
     {
         return new PreferencesDictionary( this );
-    }
-
-
-    /**
-     * Gets access to the LDAP context associated with this ServerPreferences node.
-     *
-     * @return the LDAP context associate with this ServerPreferences node
-     */
-    LdapContext getLdapContext()
-    {
-        return ctx;
-    }
-
-
-    /**
-     * Sets up a new ServerPreferences node by injecting the required information
-     * such as the node name attribute and the objectClass attribute.
-     *
-     * @param name the name of the new ServerPreferences node
-     * @throws NamingException if we fail to created the new node
-     */
-    private void setUpNode( String name ) throws NamingException
-    {
-        Attributes attrs = new AttributesImpl();
-        Attribute attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        attr.add( SchemaConstants.TOP_OC );
-        attr.add( ApacheSchemaConstants.PREF_NODE_OC );
-        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        attrs.put( attr );
-        attr = new AttributeImpl( "prefNodeName" );
-        attr.add( name );
-        attrs.put( attr );
-
-        LdapContext parent = ( ( ServerSystemPreferences ) parent() ).getLdapContext();
-        parent.bind( "prefNodeName=" + name, null, attrs );
-        ctx = ( LdapContext ) parent.lookup( "prefNodeName=" + name );
-        super.newNode = false;
     }
 
 
@@ -206,11 +158,6 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void flushSpi() throws BackingStoreException
     {
-        if ( ctx == null )
-        {
-            throw new BackingStoreException( "Ldap context not available for " + super.absolutePath() );
-        }
-
         if ( changes.isEmpty() )
         {
             return;
@@ -218,10 +165,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            //noinspection SuspiciousToArrayCall
-            ctx.modifyAttributes( "", changes.toArray( EMPTY_MODS ) );
+            directoryService.getAdminSession().modify( dn, changes );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new BackingStoreException( e );
         }
@@ -235,14 +181,13 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         try
         {
-            ctx.destroySubcontext( "" );
+            directoryService.getAdminSession().delete( dn );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new BackingStoreException( e );
         }
 
-        ctx = null;
         changes.clear();
         keyToChange.clear();
     }
@@ -250,11 +195,6 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected void syncSpi() throws BackingStoreException
     {
-        if ( ctx == null )
-        {
-            throw new BackingStoreException( "Ldap context not available for " + super.absolutePath() );
-        }
-
         if ( changes.isEmpty() )
         {
             return;
@@ -262,10 +202,9 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            //noinspection SuspiciousToArrayCall
-            ctx.modifyAttributes( "", changes.toArray( EMPTY_MODS ) );
+            directoryService.getAdminSession().modify( dn, changes );
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new BackingStoreException( e );
         }
@@ -278,20 +217,19 @@ public class ServerSystemPreferences extends AbstractPreferences
     protected String[] childrenNamesSpi() throws BackingStoreException
     {
         List<String> children = new ArrayList<String>();
-        NamingEnumeration list;
+        EntryFilteringCursor list;
 
         try
         {
-            list = ctx.list( "" );
-            
-            while ( list.hasMore() )
+            list = directoryService.getAdminSession().list( dn, AliasDerefMode.DEREF_ALWAYS, null );
+            list.beforeFirst();
+            while ( list.next() )
             {
-                NameClassPair ncp = ( NameClassPair ) list.next();
-
-                children.add( ncp.getName() );
+                ClonedServerEntry entry = list.get();
+                children.add( ( String ) entry.getDn().getRdn().getValue() );
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new BackingStoreException( e );
         }
@@ -302,27 +240,25 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected String[] keysSpi() throws BackingStoreException
     {
-        Attributes attrs;
         List<String> keys = new ArrayList<String>();
 
         try
         {
-            attrs = ctx.getAttributes( "" );
-            NamingEnumeration ids = attrs.getIDs();
-            
-            while ( ids.hasMore() )
+            ServerEntry entry = directoryService.getAdminSession().lookup( dn );
+            for ( EntryAttribute attr : entry )
             {
-                String id = ( String ) ids.next();
+                ServerAttribute sa = ( ServerAttribute ) attr;
+                String oid = sa.getAttributeType().getOid();
                 
-                if ( id.equals( SchemaConstants.OBJECT_CLASS_AT ) || id.equals( "prefNodeName" ) )
+                if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     continue;
                 }
                 
-                keys.add( id );
+                keys.add( sa.getUpId() );
             }
         }
-        catch ( NamingException e )
+        catch ( Exception e )
         {
             throw new BackingStoreException( e );
         }
@@ -331,18 +267,27 @@ public class ServerSystemPreferences extends AbstractPreferences
     }
 
 
-    protected void removeSpi( String key )
+    protected void removeSpi( String key ) 
     {
-        Attribute attr = new AttributeImpl( key );
-        ModificationItemImpl mi = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
-        addDelta( mi );
+        AttributeType at;
+        try
+        {
+            at = directoryService.getRegistries().getAttributeTypeRegistry().lookup( key );
+            ServerAttribute attr = new DefaultServerAttribute( at );
+            Modification mi = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
+            addDelta( mi );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+        }
     }
 
 
-    private void addDelta( ModificationItemImpl mi )
+    private void addDelta( Modification mi )
     {
-        String key = mi.getAttribute().getID();
-        List<ModificationItem> deltas;
+        String key = mi.getAttribute().getUpId();
+        List<Modification> deltas;
         changes.add( mi );
         
         if ( keyToChange.containsKey( key ) )
@@ -351,7 +296,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         }
         else
         {
-            deltas = new ArrayList<ModificationItem>();
+            deltas = new ArrayList<Modification>();
         }
 
         deltas.add( mi );
@@ -361,17 +306,15 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected String getSpi( String key )
     {
-        String value;
-
         try
         {
-            Attribute attr = ctx.getAttributes( "" ).get( key );
+            EntryAttribute attr = directoryService.getAdminSession().lookup( dn ).get( key );
+            
             if ( keyToChange.containsKey( key ) )
             {
-                List<ModificationItem> mods = keyToChange.get( key );
-                for ( ModificationItem mod : mods )
+                for ( Modification mod : keyToChange.get( key ) )
                 {
-                    if ( mod.getModificationOp() == DirContext.REMOVE_ATTRIBUTE )
+                    if ( mod.getOperation() == ModificationOperation.REMOVE_ATTRIBUTE )
                     {
                         attr = null;
                     }
@@ -386,24 +329,32 @@ public class ServerSystemPreferences extends AbstractPreferences
             {
                 return null;
             }
-
-            value = ( String ) attr.get();
+            else
+            {
+                return attr.getString();
+            }
         }
         catch ( Exception e )
         {
             throw new ServerSystemPreferenceException( "Failed to get SPI.", e );
         }
-
-        return value;
     }
 
 
     protected void putSpi( String key, String value )
     {
-        Attribute attr = new AttributeImpl( key );
-        attr.add( value );
-        ModificationItemImpl mi = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        addDelta( mi );
+        AttributeType at;
+        try
+        {
+            at = directoryService.getRegistries().getAttributeTypeRegistry().lookup( key );
+            ServerAttribute attr = new DefaultServerAttribute( at, value );
+            Modification mi = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
+            addDelta( mi );
+        }
+        catch ( NamingException e )
+        {
+            e.printStackTrace();
+        }
     }
 
 

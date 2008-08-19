@@ -81,7 +81,7 @@ public class CreateContextIT
      * @throws NamingException on error
      */
     @Test
-    public void testMultiValuedRdn() throws NamingException
+    public void testMultiValuedRdn() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -116,7 +116,7 @@ public class CreateContextIT
      * @throws javax.naming.NamingException if there are failures
      */
     @Test
-    public void testCreateContexts() throws NamingException
+    public void testCreateContexts() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -217,7 +217,7 @@ public class CreateContextIT
 
 
     @Test
-    public void testFailCreateExisting() throws NamingException
+    public void testFailCreateExisting() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -298,7 +298,7 @@ public class CreateContextIT
      * @throws javax.naming.NamingException if there are failures
      */
     @Test
-    public void testCreateContextWithBasicAttributesCaseSensitive() throws NamingException
+    public void testCreateContextWithBasicAttributesCaseSensitive() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

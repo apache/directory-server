@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -34,17 +34,17 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,18 +66,18 @@ public abstract class BTreePartition implements Partition
     static
     {
         Set<String> set = new HashSet<String>();
-        set.add( Oid.ALIAS );
-        set.add( Oid.EXISTANCE );
-        set.add( Oid.HIERARCHY );
-        set.add( Oid.NDN );
-        set.add( Oid.ONEALIAS );
-        set.add( Oid.SUBALIAS );
-        set.add( Oid.UPDN );
+        set.add( Store.ALIAS );
+        set.add( Store.PRESENCE );
+        set.add( Store.ONELEVEL );
+        set.add( Store.NDN );
+        set.add( Store.ONEALIAS );
+        set.add( Store.SUBALIAS );
+        set.add( Store.UPDN );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
 
     /** the search engine used to search the database */
-    protected SearchEngine searchEngine;
+    protected SearchEngine<ServerEntry> searchEngine;
     protected Optimizer optimizer;
 
     protected Registries registries;
@@ -142,7 +142,7 @@ public abstract class BTreePartition implements Partition
     {
         if ( contextEntry != null )
         {
-            return ( ServerEntry ) contextEntry.clone();
+            return new ClonedServerEntry( contextEntry );
         }
         else
         {
@@ -207,8 +207,9 @@ public abstract class BTreePartition implements Partition
      * since the registries are used by elements in the search engine.
      * 
      * @param registries the schema entity registries
+     * @throws Exception 
      */
-    public abstract void setRegistries( Registries registries );
+    public abstract void setRegistries( Registries registries ) throws Exception;
 
     
     // ------------------------------------------------------------------------
@@ -221,7 +222,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the search engine
      */
-    public SearchEngine getSearchEngine()
+    public SearchEngine<ServerEntry> getSearchEngine()
     {
         return searchEngine;
     }
@@ -232,7 +233,7 @@ public abstract class BTreePartition implements Partition
     // ------------------------------------------------------------------------
 
 
-    public void delete( DeleteOperationContext opContext ) throws NamingException
+    public void delete( DeleteOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
         
@@ -256,86 +257,81 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void add( AddOperationContext opContext ) throws NamingException;
+    public abstract void add( AddOperationContext opContext ) throws Exception;
 
 
-    public abstract void modify( ModifyOperationContext opContext ) throws NamingException;
+    public abstract void modify( ModifyOperationContext opContext ) throws Exception;
 
 
-    private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
-
-
-    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
-        SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
-            this, registries );
-        return list;
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, 
+            list( getEntryId( opContext.getDn().getNormName() ) ) ), opContext );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
-        throws NamingException
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         SearchControls searchCtls = opContext.getSearchControls();
-        String[] attrIds = searchCtls.getReturningAttributes();
-        NamingEnumeration<IndexRecord> underlying;
+        IndexCursor<Long,ServerEntry> underlying;
 
-        underlying = searchEngine.search( 
+        underlying = searchEngine.cursor( 
             opContext.getDn(),
             opContext.getAliasDerefMode(),
             opContext.getFilter(), 
             searchCtls );
 
-        return new BTreeSearchResultEnumeration( attrIds, underlying, this, registries );
+        return new BaseEntryFilteringCursor( new ServerEntryCursorAdaptor( this, underlying ), opContext );
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
-        ServerEntry entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
+        Long id = getEntryId( opContext.getDn().getNormName() );
+        
+        if ( id == null )
+        {
+            return null;
+        }
+        
+        ClonedServerEntry entry = lookup( id );
 
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
             return entry;
         }
 
-        ServerEntry retval = new DefaultServerEntry( opContext.getRegistries(), opContext.getDn() );
-
-        for ( String attrId:opContext.getAttrsId() )
+        for ( AttributeType attributeType : ((ServerEntry)entry.getOriginalEntry()).getAttributeTypes() )
         {
-            EntryAttribute attr = entry.get( attrId );
-
-            if ( attr != null )
+            if ( ! opContext.getAttrsId().contains( attributeType.getOid() ) )
             {
-                retval.put( attr );
+                entry.removeAttributes( attributeType );
             }
         }
 
-        return retval;
+        return entry;
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
         return null != getEntryId( opContext.getDn().getNormName() );
     }
 
 
-    public abstract void rename( RenameOperationContext opContext ) throws NamingException;
+    public abstract void rename( RenameOperationContext opContext ) throws Exception;
 
 
-    public abstract void move( MoveOperationContext opContext ) throws NamingException;
+    public abstract void move( MoveOperationContext opContext ) throws Exception;
 
 
-    public abstract void moveAndRename( MoveAndRenameOperationContext opContext )
-        throws NamingException;
+    public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
 
 
-    public abstract void sync() throws NamingException;
+    public abstract void sync() throws Exception;
 
 
-    public abstract void destroy();
+    public abstract void destroy() throws Exception;
 
 
     public abstract boolean isInitialized();
@@ -355,25 +351,34 @@ public abstract class BTreePartition implements Partition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( Index index ) throws NamingException;
+    public abstract void addIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
-    public abstract boolean hasUserIndexOn( String attribute ) throws NamingException;
+    public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
 
 
-    public abstract boolean hasSystemIndexOn( String attribute ) throws NamingException;
+    public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
 
 
-    public abstract Index getExistanceIndex();
+    public abstract Index<String,ServerEntry> getPresenceIndex();
 
 
     /**
-     * Gets the Index mapping the BigInteger primary keys of parents to the 
-     * BigInteger primary keys of their children.
+     * Gets the Index mapping the Long primary keys of parents to the 
+     * Long primary keys of their children.
      *
-     * @return the hierarchy Index
+     * @return the one level Index
      */
-    public abstract Index getHierarchyIndex();
+    public abstract Index<Long,ServerEntry> getOneLevelIndex();
+
+
+    /**
+     * Gets the Index mapping the Long primary keys of ancestors to the 
+     * Long primary keys of their descendants.
+     *
+     * @return the sub tree level Index
+     */
+    public abstract Index<Long,ServerEntry> getSubLevelIndex();
 
 
     /**
@@ -382,7 +387,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the user provided distinguished name Index
      */
-    public abstract Index getUpdnIndex();
+    public abstract Index<String,ServerEntry> getUpdnIndex();
 
 
     /**
@@ -391,7 +396,7 @@ public abstract class BTreePartition implements Partition
      *
      * @return the normalized distinguished name Index
      */
-    public abstract Index getNdnIndex();
+    public abstract Index<String,ServerEntry> getNdnIndex();
 
 
     /**
@@ -401,7 +406,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the one alias index
      */
-    public abstract Index getOneAliasIndex();
+    public abstract Index<Long,ServerEntry> getOneAliasIndex();
 
 
     /**
@@ -411,7 +416,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the sub alias index
      */
-    public abstract Index getSubAliasIndex();
+    public abstract Index<Long,ServerEntry> getSubAliasIndex();
 
 
     /**
@@ -420,7 +425,7 @@ public abstract class BTreePartition implements Partition
      * 
      * @return the index on the ALIAS_ATTRIBUTE
      */
-    public abstract Index getAliasIndex();
+    public abstract Index<String,ServerEntry> getAliasIndex();
 
 
     /**
@@ -428,45 +433,46 @@ public abstract class BTreePartition implements Partition
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
      * 
      * @param index the index on the ALIAS_ATTRIBUTE
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setAliasIndexOn( Index index ) throws NamingException;
+    public abstract void setAliasIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
      * Sets the attribute existance Index.
      *
      * @param index the attribute existance Index
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setExistanceIndexOn( Index index ) throws NamingException;
+    public abstract void setPresenceIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
-     * Sets the hierarchy Index.
+     * Sets the one level Index.
      *
-     * @param index the hierarchy Index
-     * @throws NamingException if there is a problem setting up the index
+     * @param index the one level Index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setHierarchyIndexOn( Index index ) throws NamingException;
+    public abstract void setOneLevelIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
+    // TODO - add sub level index setter
 
     /**
      * Sets the user provided distinguished name Index.
      *
      * @param index the updn Index
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setUpdnIndexOn( Index index ) throws NamingException;
+    public abstract void setUpdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
      * Sets the normalized distinguished name Index.
      *
      * @param index the ndn Index
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setNdnIndexOn( Index index ) throws NamingException;
+    public abstract void setNdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -475,9 +481,9 @@ public abstract class BTreePartition implements Partition
      * aliases on one/single level scoped searches.
      * 
      * @param index a one level alias index
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setOneAliasIndexOn( Index index ) throws NamingException;
+    public abstract void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
     /**
@@ -486,27 +492,27 @@ public abstract class BTreePartition implements Partition
      * subtree scoped searches.
      * 
      * @param index a subtree alias index
-     * @throws NamingException if there is a problem setting up the index
+     * @throws Exception if there is a problem setting up the index
      */
-    public abstract void setSubAliasIndexOn( Index index ) throws NamingException;
+    public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
 
-    public abstract Index getUserIndex( String attribute ) throws IndexNotFoundException;
+    public abstract Index<?,ServerEntry> getUserIndex( String attribute ) throws Exception;
 
 
-    public abstract Index getSystemIndex( String attribute ) throws IndexNotFoundException;
+    public abstract Index<?,ServerEntry> getSystemIndex( String attribute ) throws Exception;
 
 
-    public abstract Long getEntryId( String dn ) throws NamingException;
+    public abstract Long getEntryId( String dn ) throws Exception;
 
 
-    public abstract String getEntryDn( Long id ) throws NamingException;
+    public abstract String getEntryDn( Long id ) throws Exception;
 
 
-    public abstract Long getParentId( String dn ) throws NamingException;
+    public abstract Long getParentId( String dn ) throws Exception;
 
 
-    public abstract Long getParentId( Long childId ) throws NamingException;
+    public abstract Long getParentId( Long childId ) throws Exception;
 
 
     /**
@@ -514,9 +520,9 @@ public abstract class BTreePartition implements Partition
      *
      * @param id the entry id
      * @return the user provided distinguished name
-     * @throws NamingException if the updn index cannot be accessed
+     * @throws Exception if the updn index cannot be accessed
      */
-    public abstract String getEntryUpdn( Long id ) throws NamingException;
+    public abstract String getEntryUpdn( Long id ) throws Exception;
 
 
     /**
@@ -524,30 +530,30 @@ public abstract class BTreePartition implements Partition
      *
      * @param dn the normalized distinguished name
      * @return the user provided distinguished name
-     * @throws NamingException if the updn and ndn indices cannot be accessed
+     * @throws Exception if the updn and ndn indices cannot be accessed
      */
-    public abstract String getEntryUpdn( String dn ) throws NamingException;
+    public abstract String getEntryUpdn( String dn ) throws Exception;
 
 
-    public abstract ServerEntry lookup( Long id ) throws NamingException;
+    public abstract ClonedServerEntry lookup( Long id ) throws Exception;
 
 
-    public abstract void delete( Long id ) throws NamingException;
+    public abstract void delete( Long id ) throws Exception;
 
 
-    public abstract NamingEnumeration<IndexRecord> list( Long id ) throws NamingException;
+    public abstract IndexCursor<Long,ServerEntry> list( Long id ) throws Exception;
 
 
-    public abstract int getChildCount( Long id ) throws NamingException;
+    public abstract int getChildCount( Long id ) throws Exception;
 
 
-    public abstract ServerEntry getSuffixEntry() throws NamingException;
+    public abstract ServerEntry getSuffixEntry() throws Exception;
 
 
-    public abstract void setProperty( String key, String value ) throws NamingException;
+    public abstract void setProperty( String key, String value ) throws Exception;
 
 
-    public abstract String getProperty( String key ) throws NamingException;
+    public abstract String getProperty( String key ) throws Exception;
 
 
     public abstract Iterator<String> getUserIndices();
@@ -556,16 +562,13 @@ public abstract class BTreePartition implements Partition
     public abstract Iterator<String> getSystemIndices();
 
 
-    public abstract ServerEntry getIndices( Long id ) throws NamingException;
-
-
     /**
      * Gets the count of the total number of entries in the database.
      *
      * TODO shouldn't this be a BigInteger instead of an int? 
      * 
      * @return the number of entries in the database 
-     * @throws NamingException if there is a failure to read the count
+     * @throws Exception if there is a failure to read the count
      */
-    public abstract int count() throws NamingException;
+    public abstract int count() throws Exception;
 }

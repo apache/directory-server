@@ -38,7 +38,7 @@ import javax.naming.NamingException;
 public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
 {
 
-    protected MetaDitStructureRuleHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    protected MetaDitStructureRuleHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         // TODO Auto-generated constructor stub

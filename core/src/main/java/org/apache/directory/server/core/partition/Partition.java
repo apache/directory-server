@@ -21,8 +21,10 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -38,8 +40,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 
 /**
@@ -119,7 +119,6 @@ public interface Partition
     void setSuffix( String suffix );
 
 
-
     /**
      * Used to specify the entry cache size for a Partition.  Various Partition
      * implementations may interpret this value in different ways: i.e. total cache
@@ -147,15 +146,15 @@ public interface Partition
      * Initializes this partition.
      *
      * @param core the directory core for the server.
-     * @throws NamingException if initialization fails in any way
+     * @throws Exception if initialization fails in any way
      */
-    void init( DirectoryService core ) throws NamingException;
+    void init( DirectoryService core ) throws Exception;
 
 
     /**
      * Deinitialized this partition.
      */
-    void destroy();
+    void destroy() throws Exception;
 
 
     /**
@@ -167,9 +166,9 @@ public interface Partition
 
     /**
      * Flushes any changes made to this partition now.
-     * @throws NamingException if buffers cannot be flushed to disk
+     * @throws Exception if buffers cannot be flushed to disk
      */
-    void sync() throws NamingException;
+    void sync() throws Exception;
 
 
     /**
@@ -178,9 +177,10 @@ public interface Partition
      *
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
-     * @throws NamingException if access or suffix parsing fails
+     * @throws Exception if access or suffix parsing fails
      */
-    LdapDN getSuffixDn() throws NamingException;
+    LdapDN getSuffixDn() throws Exception;
+
 
     /**
      * Gets the distinguished/absolute name of the suffix for all entries
@@ -188,9 +188,10 @@ public interface Partition
      *
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
-     * @throws NamingException if access or suffix parsing fails
+     * @throws Exception if access or suffix parsing fails
      */
-    LdapDN getUpSuffixDn() throws NamingException;
+    LdapDN getUpSuffixDn() throws Exception;
+
 
     /**
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
@@ -198,18 +199,18 @@ public interface Partition
      *
      * @param opContext the context of the entry to
      * delete from this ContextPartition.
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    void delete( DeleteOperationContext opContext ) throws NamingException;
+    void delete( DeleteOperationContext opContext ) throws Exception;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
      * @param opContext the context used  to add and entry to this ContextPartition
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    void add( AddOperationContext opContext ) throws NamingException;
+    void add( AddOperationContext opContext ) throws Exception;
 
 
     /**
@@ -220,13 +221,13 @@ public interface Partition
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
      * 
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      * @see javax.naming.directory.DirContext
      * @see javax.naming.directory.DirContext#ADD_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( ModifyOperationContext opContext ) throws NamingException;
+    void modify( ModifyOperationContext opContext ) throws Exception;
 
 
     /**
@@ -236,10 +237,10 @@ public interface Partition
      * retrieval.
      *
      * @param opContext the context containing the distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type {@link SearchResult}
-     * @throws NamingException if there are any problems
+     * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
+     * @throws Exception if there are any problems
      */
-    NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException;
+    EntryFilteringCursor list( ListOperationContext opContext ) throws Exception;
 
 
     /**
@@ -251,13 +252,10 @@ public interface Partition
      * Controls.
      *
      * @param opContext The context containing the information used by the operation
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type 
-     * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
-     * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
-        throws NamingException;
+    EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception;
 
 
     /**
@@ -270,18 +268,22 @@ public interface Partition
      *
      * @param lookupContext The context containing the parameters
      * @return an Attributes object representing the entry
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException;
+    ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
+    
+    
+    ClonedServerEntry lookup( Long id ) throws Exception;
+    
 
     /**
      * Fast operation to check and see if a particular entry exists.
      *
      * @param opContext The context used to pass informations
      * @return true if the entry exists, false if it does not
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    boolean hasEntry( EntryOperationContext opContext ) throws NamingException;
+    boolean hasEntry( EntryOperationContext opContext ) throws Exception;
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
@@ -290,9 +292,9 @@ public interface Partition
      * if it is irrelavent.
      *
      * @param opContext the modify DN context
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    void rename( RenameOperationContext opContext ) throws NamingException;
+    void rename( RenameOperationContext opContext ) throws Exception;
 
 
     /**
@@ -300,9 +302,9 @@ public interface Partition
      * parent entry.
      *
      * @param opContext The context containing the DNs to move
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    void move( MoveOperationContext opContext ) throws NamingException;
+    void move( MoveOperationContext opContext ) throws Exception;
 
 
     /**
@@ -315,9 +317,9 @@ public interface Partition
      *
      * @param opContext The context contain all the information about
      * the modifyDN operation
-     * @throws NamingException if there are any problems
+     * @throws Exception if there are any problems
      */
-    void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException;
+    void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
 
 
     /**
@@ -326,9 +328,9 @@ public interface Partition
      * interested in implementing virtual directories with ApacheDS.
      * 
      * @param opContext the bind context, containing all the needed informations to bind
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
-    void bind( BindOperationContext opContext ) throws NamingException;
+    void bind( BindOperationContext opContext ) throws Exception;
 
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
@@ -336,7 +338,7 @@ public interface Partition
      * interested in implementing virtual directories with ApacheDS.
      * 
      * @param opContext the context used to unbind
-     * @throws NamingException if something goes wrong
+     * @throws Exception if something goes wrong
      */
-    void unbind( UnbindOperationContext opContext ) throws NamingException;
+    void unbind( UnbindOperationContext opContext ) throws Exception;
 }

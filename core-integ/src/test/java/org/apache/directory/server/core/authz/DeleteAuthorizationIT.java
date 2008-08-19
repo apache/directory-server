@@ -30,7 +30,6 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -77,7 +76,7 @@ public class DeleteAuthorizationIT
      * @return true if the entry can be created by the user at the specified location, false otherwise
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanDeleteEntryAs( String uid, String password, String entryRdn ) throws NamingException
+    public boolean checkCanDeleteEntryAs( String uid, String password, String entryRdn ) throws Exception
     {
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
         Attribute objectClass = new AttributeImpl( "objectClass" );
@@ -112,7 +111,7 @@ public class DeleteAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantDeleteAdministrators() throws NamingException
+    public void testGrantDeleteAdministrators() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -145,7 +144,7 @@ public class DeleteAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantDeleteByName() throws NamingException
+    public void testGrantDeleteByName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -170,7 +169,7 @@ public class DeleteAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantDeleteBySubtree() throws NamingException
+    public void testGrantDeleteBySubtree() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -195,7 +194,7 @@ public class DeleteAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantDeleteAllUsers() throws NamingException
+    public void testGrantDeleteAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );

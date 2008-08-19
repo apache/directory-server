@@ -23,7 +23,6 @@ package org.apache.directory.server.core.authn;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -74,7 +73,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      * @param directoryService the directory core for this authenticator
      * @throws NamingException if there is a problem starting up the authenticator
      */
-    public final void init( DirectoryService directoryService ) throws NamingException
+    public final void init( DirectoryService directoryService ) throws Exception
     {
         this.directoryService = directoryService;
         doInit();
@@ -115,14 +114,10 @@ public abstract class AbstractAuthenticator implements Authenticator
     }
 
 
-    public abstract LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException;
-
-    
     /**
      * Does nothing leaving it so subclasses can override.
      */
     public void invalidateCache( LdapDN bindDn )
     {
     }
-
 }

@@ -65,7 +65,7 @@ public class DefaultChangeLogIT
 //    service.setShutdownHookEnabled( false );
 
     @Test
-    public void testManyTagsPersistenceAcrossRestarts() throws NamingException, InterruptedException
+    public void testManyTagsPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
         LdapContext sysRoot = getSystemContext( service );
         long revision = service.getChangeLog().getCurrentRevision();
@@ -136,7 +136,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testTagPersistenceAcrossRestarts() throws NamingException, InterruptedException
+    public void testTagPersistenceAcrossRestarts() throws Exception, InterruptedException
     {
         LdapContext sysRoot = getSystemContext( service );
         long revision = service.getChangeLog().getCurrentRevision();
@@ -165,7 +165,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testRevertAddOperations() throws NamingException
+    public void testRevertAddOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Tag t0 = service.getChangeLog().tag();
@@ -189,7 +189,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testRevertAddAndDeleteOperations() throws NamingException
+    public void testRevertAddAndDeleteOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Tag t0 = service.getChangeLog().tag();
@@ -213,7 +213,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testRevertDeleteOperations() throws NamingException
+    public void testRevertDeleteOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
@@ -235,7 +235,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testRevertRenameOperations() throws NamingException
+    public void testRevertRenameOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
@@ -259,7 +259,7 @@ public class DefaultChangeLogIT
 
 
     @Test
-    public void testRevertModifyOperations() throws NamingException
+    public void testRevertModifyOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );

@@ -17,19 +17,12 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirStateFactory.Result;
-
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -39,7 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddPrincipal implements ContextOperation
+public class AddPrincipal implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = -1032737167622217786L;
 
@@ -58,27 +51,15 @@ public class AddPrincipal implements ContextOperation
     }
 
 
-    public Object execute( DirContext ctx, Name searchBaseDn )
+    public Object execute( CoreSession session, LdapDN searchBaseDn ) throws Exception
     {
         if ( entry == null )
         {
             return null;
         }
-
-        try
-        {
-            DirStateFactory factory = new PrincipalStateFactory();
-            Result result = factory.getStateToBind( entry, null, null, null, null );
-            Attributes attrs = result.getAttributes();
-            LdapDN name = new LdapDN( "uid=" + entry.getUserId() + ",ou=Users" );
-            ctx.rebind( name, null, attrs );
-            return name.toString();
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-        }
-
-        return null;
+        
+        LdapDN name = new LdapDN( "uid=" + entry.getUserId() + ",ou=Users" );
+        session.add( StoreUtils.toServerEntry( session, name, entry ) );
+        return name.toString();
     }
 }

@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -77,7 +76,7 @@ public class CompareAuthorizationIT
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanCompareTelephoneNumberAs( String uid, String password, String entryRdn, String number )
-        throws NamingException
+        throws Exception
     {
         // create the entry with the telephoneNumber attribute to compare
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
@@ -121,7 +120,7 @@ public class CompareAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantCompareAdministrators() throws NamingException
+    public void testGrantCompareAdministrators() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -168,7 +167,7 @@ public class CompareAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantCompareByName() throws NamingException
+    public void testGrantCompareByName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -215,7 +214,7 @@ public class CompareAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantCompareBySubtree() throws NamingException
+    public void testGrantCompareBySubtree() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -241,7 +240,7 @@ public class CompareAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantCompareAllUsers() throws NamingException
+    public void testGrantCompareAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -262,7 +261,7 @@ public class CompareAuthorizationIT
 
 
     @Test
-    public void testPasswordCompare() throws NamingException
+    public void testPasswordCompare() throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes user = new AttributesImpl( "uid", "bob", true );

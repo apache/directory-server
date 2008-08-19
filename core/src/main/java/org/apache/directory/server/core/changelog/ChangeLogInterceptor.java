@@ -19,27 +19,32 @@
 package org.apache.directory.server.core.changelog;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -49,12 +54,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-
 
 /**
  * An interceptor which intercepts write operations to the directory and
  * logs them with the server's ChangeLog service.
+ * Note: Adding/deleting a tag is not recorded as a change
  */
 public class ChangeLogInterceptor extends BaseInterceptor
 {
@@ -70,12 +74,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /** we need the schema service to deal with special conditions */
     private SchemaService schemaService;
 
+    /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
+    private static final String REV_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
+    
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
 
 
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );
 
@@ -89,31 +96,38 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
+    
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         next.add( opContext );
 
-        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             return;
         }
 
+        ServerEntry addEntry = opContext.getEntry();
+
+        // we don't want to record addition of a tag as a change
+        if( addEntry.get( REV_OID ) != null )
+        {
+           return; 
+        }
+        
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Add );
-        forward.setDn( opContext.getDn().getUpName() );
-        
-        ServerEntry addEntry = opContext.getEntry();
+        forward.setDn( opContext.getDn() );
 
         Set<AttributeType> list = addEntry.getAttributeTypes();
         
         for ( AttributeType attributeType:list )
         {
-            forward.addAttribute( ServerEntryUtils.toAttributeImpl( addEntry.get( attributeType ) ) );
+            forward.addAttribute( ((ServerAttribute)addEntry.get( attributeType) ).toClientAttribute() );
         }
         
         LdifEntry reverse = LdifUtils.reverseAdd( opContext.getDn() );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -121,29 +135,43 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The delete operation has to be stored with a way to restore the deleted element.
      * There is no way to do that but reading the entry and dump it into the LOG.
      */
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
         // must save the entry if change log is enabled
         ServerEntry serverEntry = null;
 
-        if ( changeLog.isEnabled() && ! opContext.isCollateralOperation() )
+        if ( changeLog.isEnabled() && opContext.isFirstOperation() )
         {
             serverEntry = getAttributes( opContext );
         }
 
         next.delete( opContext );
 
-        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opContext.isFirstOperation() )
         {
             return;
         }
 
+        // we don't want to record deleting a tag as a change
+        if( serverEntry.get( REV_OID ) != null )
+        {
+           return; 
+        }
+
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Delete );
-        forward.setDn( opContext.getDn().getUpName() );
-        LdifEntry reverse = LdifUtils.reverseDel( opContext.getDn(), ServerEntryUtils.toAttributesImpl( serverEntry ) );
-        changeLog.log( getPrincipal(), forward, reverse );
+        forward.setDn( opContext.getDn() );
+        
+        Entry reverseEntry = new DefaultClientEntry( serverEntry.getDn() );
+        
+        for ( EntryAttribute attribute:serverEntry )
+        {
+            reverseEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
+        }
+
+        LdifEntry reverse = LdifUtils.reverseDel( opContext.getDn(), reverseEntry );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -152,37 +180,37 @@ public class ChangeLogInterceptor extends BaseInterceptor
      *
      * @param dn the dn of the entry to get
      * @return the entry's attributes (may be immutable if the schema subentry)
-     * @throws NamingException on error accessing the entry's attributes
+     * @throws Exception on error accessing the entry's attributes
      */
-    private ServerEntry getAttributes( OperationContext opContext ) throws NamingException
+    private ServerEntry getAttributes( OperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();
-        ServerEntry serverEntry;
+        ClonedServerEntry serverEntry;
 
         // @todo make sure we're not putting in operational attributes that cannot be user modified
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-
         if ( schemaService.isSchemaSubentry( dn.toNormName() ) )
         {
             return schemaService.getSubschemaEntryCloned();
         }
         else
         {
-            serverEntry = proxy.lookup( new LookupOperationContext( opContext.getRegistries(), dn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            serverEntry = opContext.lookup( dn, ByPassConstants.LOOKUP_BYPASS );
         }
 
         return serverEntry;
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    /**
+     * 
+     */
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         ServerEntry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( opContext.getModItems(), entryDeleted );
         boolean isDelete = ( modification != null );
 
-        if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
+        if ( ! isDelete && ( changeLog.isEnabled() && opContext.isFirstOperation() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( opContext );
@@ -192,30 +220,52 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if ( isDelete || ! changeLog.isEnabled() || opContext.isCollateralOperation() )
+        if ( 
+            isDelete ||   
+            ! changeLog.isEnabled() || 
+            ! opContext.isFirstOperation() ||
+            
+         // if there are no modifications due to stripping out bogus non-
+         // existing attributes then we will have no modification items and
+         // should ignore not this without registerring it with the changelog
+         
+            opContext.getModItems().size() == 0 )  
         {
             if ( isDelete )
             {
                 LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
             }
+            
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.Modify );
-        forward.setDn( opContext.getDn().getUpName() );
+        forward.setDn( opContext.getDn() );
+        
+        List<Modification> mods = new ArrayList<Modification>( opContext.getModItems().size() );
         
         for ( Modification modItem : opContext.getModItems() )
         {
-            forward.addModificationItem( ServerEntryUtils.toModificationItemImpl( modItem ) );
+            Modification mod = ((ServerModification)modItem).toClientModification();
+            mods.add( mod );
+            
+            forward.addModificationItem( mod );
+        }
+        
+        Entry clientEntry = new DefaultClientEntry( serverEntry.getDn() );
+        
+        for ( EntryAttribute attribute:serverEntry )
+        {
+            clientEntry.add( ((ServerAttribute)attribute).toClientAttribute() );
         }
 
         LdifEntry reverse = LdifUtils.reverseModify( 
             opContext.getDn(), 
-            ServerEntryUtils.toModificationItemImpl( opContext.getModItems() ), 
-            ServerEntryUtils.toAttributesImpl( serverEntry ) );
+            mods, 
+            clientEntry );
         
-        changeLog.log( getPrincipal(), forward, reverse );
+        opContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 
 
@@ -224,11 +274,11 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
 
-    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
+    public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
         ServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && ! renameContext.isCollateralOperation() )
+        if ( changeLog.isEnabled() && renameContext.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( renameContext );
@@ -236,72 +286,70 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         next.rename( renameContext );
 
-        if ( ! changeLog.isEnabled() || renameContext.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! renameContext.isFirstOperation() )
         {
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModRdn );
-        forward.setDn( renameContext.getDn().getUpName() );
+        forward.setDn( renameContext.getDn() );
+        forward.setNewRdn( renameContext.getNewRdn().getUpName() );
         forward.setDeleteOldRdn( renameContext.getDelOldDn() );
 
-        LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), null, renameContext.getDn(),
-                new Rdn( renameContext.getNewRdn() ) );
+        List<LdifEntry> reverses = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
+            null, renameContext.getDn(), new Rdn( renameContext.getNewRdn() ) );
         
-        changeLog.log( getPrincipal(), forward, reverse );
+        renameContext.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
-        throws NamingException
+        throws Exception
     {
-        ServerEntry serverEntry = null;
+        ClonedServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && ! opCtx.isCollateralOperation() )
+        if ( changeLog.isEnabled() && opCtx.isFirstOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            Invocation invocation = InvocationStack.getInstance().peek();
-            PartitionNexusProxy proxy = invocation.getProxy();
-            serverEntry = proxy.lookup( new LookupOperationContext( opCtx.getRegistries(), opCtx.getDn() ),
-                    PartitionNexusProxy.LOOKUP_BYPASS );
+            serverEntry = opCtx.lookup( opCtx.getDn(), ByPassConstants.LOOKUP_BYPASS );
         }
 
         next.moveAndRename( opCtx );
 
-        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
         {
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setDn( opCtx.getDn() );
         forward.setDeleteOldRdn( opCtx.getDelOldDn() );
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        LdifEntry reverse = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), opCtx.getParent(), opCtx.getDn(),
-                new Rdn( opCtx.getNewRdn() ) );
-        changeLog.log( getPrincipal(), forward, reverse );
+        List<LdifEntry> reverses = LdifUtils.reverseModifyRdn( ServerEntryUtils.toAttributesImpl( serverEntry ), 
+            opCtx.getParent(), opCtx.getDn(), new Rdn( opCtx.getNewRdn() ) );
+        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
 
-    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws NamingException
+    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws Exception
     {
         next.move( opCtx );
 
-        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
+        if ( ! changeLog.isEnabled() || ! opCtx.isFirstOperation() )
         {
             return;
         }
 
         LdifEntry forward = new LdifEntry();
         forward.setChangeType( ChangeType.ModDn );
-        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setDn( opCtx.getDn() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
         LdifEntry reverse = LdifUtils.reverseModifyDn( opCtx.getParent(), opCtx.getDn() );
-        changeLog.log( getPrincipal(), forward, reverse );
+        opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverse ) );
     }
 }

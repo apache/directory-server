@@ -25,15 +25,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -44,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -109,7 +107,7 @@ public abstract class AbstractTestCase extends TestCase
     protected DirectoryService service;
 
 
-    protected AbstractTestCase( String username, String password ) throws NamingException
+    protected AbstractTestCase( String username, String password ) throws Exception
     {
         if ( username == null || password == null )
         {
@@ -237,7 +235,7 @@ public abstract class AbstractTestCase extends TestCase
      * Restarts the server without loading data when it has been shutdown.
      * @throws NamingException if the restart fails
      */
-    protected void restart() throws NamingException
+    protected void restart() throws Exception
     {
         if ( service == null )
         {
@@ -287,7 +285,7 @@ public abstract class AbstractTestCase extends TestCase
      * @param passwd the password of the user
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContextRoots( String user, String passwd ) throws NamingException
+    protected void setContextRoots( String user, String passwd ) throws Exception
     {
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put(  DirectoryService.JNDI_KEY, service );
@@ -306,7 +304,7 @@ public abstract class AbstractTestCase extends TestCase
      * @param env an environment to use while setting up the system root.
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContextRoots( Hashtable<String,Object> env ) throws NamingException
+    protected void setContextRoots( Hashtable<String,Object> env ) throws Exception
     {
         Hashtable<String,Object> envFinal = new Hashtable<String,Object>( env );
         if ( !envFinal.containsKey( Context.PROVIDER_URL ) )
@@ -349,9 +347,10 @@ public abstract class AbstractTestCase extends TestCase
     }
 
 
-    protected Hashtable getOverriddenEnvironment()
+    @SuppressWarnings("unchecked")
+    protected Hashtable<String,Object> getOverriddenEnvironment()
     {
-        return ( Hashtable ) overrides.clone();
+        return ( Hashtable<String,Object> ) overrides.clone();
     }
 
 
@@ -420,14 +419,15 @@ public abstract class AbstractTestCase extends TestCase
      * @param ldif the ldif containing entries to add to the server.
      * @throws NamingException if there is a problem adding the entries from the LDIF
      */
-    protected void injectEntries( String ldif ) throws NamingException
+    protected void injectEntries( String ldif ) throws Exception
     {
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
 
         for ( LdifEntry entry : entries )
         {
-            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+            service.getAdminSession().add( 
+                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
         }
     }
 }

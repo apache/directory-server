@@ -19,30 +19,44 @@
  */
 package org.apache.directory.server.core.trigger;
 
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * An example of a stored procedures that backs up entries after a delete 
+ * operation.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public class BackupUtilitiesSP
 {
     private static final Logger LOG = LoggerFactory.getLogger( BackupUtilitiesSP.class );
 
 
-    public static void backupDeleted( LdapContext ctx, LdapDN deletedEntryName,
-                                      LdapDN operationPrincipal, ServerEntry deletedEntry ) throws NamingException
+    /**
+     * A stored procedure that backs up a deleted entry somewhere else in the DIT.
+     *
+     * @param session a session to use to perform changes to the DIT
+     * @param deletedEntry the entry that was deleted
+     * @throws Exception if there are failures
+     */
+    public static void backupDeleted( CoreSession session, ClonedServerEntry deletedEntry ) throws Exception
     {
-        LOG.info( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
-        LOG.info( "Entry content was: " + deletedEntry );
-        LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
-        String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );
-        backupCtx.createSubcontext( deletedEntryRdn, ServerEntryUtils.toAttributesImpl( deletedEntry ) );
-        LOG.info( "Backed up deleted entry to \"" +
-                ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
+        LOG.info( "User \"" + session.getEffectivePrincipal() + "\" has deleted entry \"" + deletedEntry + "\"" );
+        LdapDN backupDn = new LdapDN ( "ou=backupContext,ou=system" );
+        String deletedEntryRdn = deletedEntry.getDn().get( deletedEntry.getDn().size() - 1 );
+        ServerEntry entry = ( ServerEntry ) deletedEntry.getOriginalEntry().clone();
+        backupDn.add( deletedEntryRdn );
+        entry.setDn( backupDn );
+        session.add( deletedEntry );
+        LOG.info( "Backed up deleted entry to \"" + backupDn + "\"" );
     }
 }

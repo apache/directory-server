@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.changelog;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,8 +42,6 @@ import org.apache.directory.server.core.cursor.ListCursor;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
-import javax.naming.NamingException;
-
 
 /**
  * A change log store that keeps it's information in memory.
@@ -53,6 +50,7 @@ import javax.naming.NamingException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
+ * TODO remove the NamingException
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {
@@ -67,7 +65,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private File workingDirectory;
 
 
-    public Tag tag( long revision ) throws NamingException
+    public Tag tag( long revision ) throws Exception
     {
         if ( tags.containsKey( revision ) )
         {
@@ -80,7 +78,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public Tag tag() throws NamingException
+    public Tag tag() throws Exception
     {
         if ( latest != null && latest.getRevision() == currentRevision )
         {
@@ -93,7 +91,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public Tag tag( String description ) throws NamingException
+    public Tag tag( String description ) throws Exception
     {
         if ( latest != null && latest.getRevision() == currentRevision )
         {
@@ -106,7 +104,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public void init( DirectoryService service ) throws NamingException
+    public void init( DirectoryService service ) throws Exception
     {
         workingDirectory = service.getWorkingDirectory();
         loadRevision();
@@ -115,7 +113,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void loadRevision() throws NamingException
+    private void loadRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
         if ( revFile.exists() )
@@ -129,7 +127,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
             catch ( IOException e )
             {
-                throw new NamingException( "Failed to open stream to read from revfile: " + revFile.getAbsolutePath() );
+                throw e;
             }
             finally
             {
@@ -149,7 +147,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void saveRevision() throws NamingException
+    private void saveRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
         if ( revFile.exists() )
@@ -166,7 +164,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         }
         catch ( IOException e )
         {
-            throw new NamingException( "Failed to write out revision file." );
+            throw e;
         }
         finally
         {
@@ -178,7 +176,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void saveTags() throws NamingException
+    private void saveTags() throws Exception
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
         if ( tagFile.exists() )
@@ -210,7 +208,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         }
         catch ( IOException e )
         {
-            throw new NamingException( "Failed to write out revision file." );
+            throw e;
         }
         finally
         {
@@ -229,7 +227,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void loadTags() throws NamingException
+    private void loadTags() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
         if ( revFile.exists() )
@@ -272,7 +270,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
             catch ( IOException e )
             {
-                throw new NamingException( "Failed to open stream to read from revfile: " + revFile.getAbsolutePath() );
+                throw e;
             }
             finally
             {
@@ -292,9 +290,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void loadChangeLog() throws NamingException
+    private void loadChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
+        
         if ( file.exists() )
         {
             ObjectInputStream in = null;
@@ -302,19 +301,14 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             try
             {
                 in = new ObjectInputStream( new FileInputStream( file ) );
-                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>();
+                int size = in.readInt();
+                
+                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>( size );
 
-                while ( true )
+                for ( int i = 0; i < size; i++ )
                 {
-                    try
-                    {
-                        ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
-                        changeLogEvents.add( event );
-                    }
-                    catch ( EOFException eofe )
-                    {
-                        break;
-                    }
+                    ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
+                    changeLogEvents.add( event );
                 }
 
                 // @todo man o man we need some synchronization later after getting this to work
@@ -323,10 +317,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
             catch ( Exception e )
             {
-                NamingException ne = new NamingException( "Failed to open stream to read from changelog file: "
-                        + file.getAbsolutePath() );
-                ne.setRootCause( e );
-                throw ne;
+                throw e;
             }
             finally
             {
@@ -346,7 +337,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void saveChangeLog() throws NamingException
+    private void saveChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
         if ( file.exists() )
@@ -360,10 +351,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         }
         catch ( IOException e )
         {
-            NamingException ne = new NamingException( "Failed to create new file for changelog: "
-                    + file.getAbsolutePath() );
-            ne.setRootCause( e );
-            throw ne;
+            throw e;
         }
 
         ObjectOutputStream out = null;
@@ -372,6 +360,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         {
             out = new ObjectOutputStream( new FileOutputStream( file ) );
 
+            out.writeInt( events.size() );
+            
             for ( ChangeLogEvent event : events )
             {
                 out.writeObject( event );
@@ -381,10 +371,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( "Failed to open stream to write to changelog file: "
-                    + file.getAbsolutePath() );
-            ne.setRootCause( e );
-            throw ne;
+            throw e;
         }
         finally
         {
@@ -403,7 +390,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
         saveRevision();
         saveTags();
@@ -411,7 +398,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public void destroy() throws NamingException
+    public void destroy() throws Exception
     {
         saveRevision();
         saveTags();
@@ -425,17 +412,33 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
                 principal, forward, reverse );
         events.add( event );
-        return currentRevision;
+        return event;
     }
 
 
-    public ChangeLogEvent lookup( long revision ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    {
+        currentRevision++;
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
+                principal, forward, reverses );
+        events.add( event );
+        return event;
+    }
+
+
+    public ChangeLogEvent lookup( long revision ) throws Exception
     {
         if ( revision < 0 )
         {
@@ -451,32 +454,87 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    public Cursor<ChangeLogEvent> find() throws NamingException
+    public Cursor<ChangeLogEvent> find() throws Exception
     {
         return new ListCursor<ChangeLogEvent>( events );
     }
 
 
-    public Cursor<ChangeLogEvent> findBefore( long revision ) throws NamingException
+    public Cursor<ChangeLogEvent> findBefore( long revision ) throws Exception
     {
         return new ListCursor<ChangeLogEvent>( events, ( int ) revision );
     }
 
 
-    public Cursor<ChangeLogEvent> findAfter( long revision ) throws NamingException
+    public Cursor<ChangeLogEvent> findAfter( long revision ) throws Exception
     {
         return new ListCursor<ChangeLogEvent>( ( int ) revision, events );
     }
 
 
-    public Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws NamingException
+    public Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws Exception
     {
         return new ListCursor<ChangeLogEvent>( ( int ) startRevision, events, ( int ) ( endRevision + 1 ) );
     }
 
 
-    public Tag getLatest()
+    public Tag getLatest() throws Exception
     {
         return latest;
+    }
+
+
+    /**
+     * @see TaggableChangeLogStore#removeTag(long)
+     */
+    public Tag removeTag( long revision ) throws Exception
+    {
+        return tags.remove( revision );
+    }
+
+
+    /**
+     * @see TaggableChangeLogStore#tag(long, String)
+     */
+    public Tag tag( long revision, String descrition ) throws Exception
+    {
+        if ( tags.containsKey( revision ) )
+        {
+            return tags.get( revision );
+        }
+
+        latest = new Tag( revision, descrition );
+        tags.put( revision, latest );
+        return latest;
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "MemoryChangeLog\n" );
+        sb.append( "latest tag : " ).append( latest ).append( '\n' );
+        
+        if ( events != null )
+        {
+            sb.append( "Nb of events : " ).append( events.size() ).append( '\n' );
+            
+            int i = 0;
+            
+            for ( ChangeLogEvent event:events )
+            {
+                sb.append( "event[" ).append( i++ ).append( "] : " );
+                sb.append( "\n---------------------------------------\n" );
+                sb.append( event );
+                sb.append( "\n---------------------------------------\n" );
+            }
+        }
+        
+        
+        return sb.toString();
     }
 }

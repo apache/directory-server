@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -58,6 +58,8 @@ import java.util.Set;
 
 /**
  * Tests the partition schema loader.
+ * 
+ * TODO move this to core-integ does not belong here and get rid of all the static 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -136,7 +138,7 @@ public class PartitionSchemaLoaderTest
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
 
-        Set<Index> indexedAttributes = new HashSet<Index>();
+        Set<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
@@ -153,7 +155,7 @@ public class PartitionSchemaLoaderTest
     }
     
     
-    @Test public void testGetSchemas() throws NamingException
+    @Test public void testGetSchemas() throws Exception
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Map<String,Schema> schemas = loader.getSchemas();
@@ -272,7 +274,7 @@ public class PartitionSchemaLoaderTest
     }
     
     
-    @Test public void testGetSchemaNames() throws NamingException
+    @Test public void testGetSchemaNames() throws Exception
     {
         PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
         Set<String> schemaNames = loader.getSchemaNames();

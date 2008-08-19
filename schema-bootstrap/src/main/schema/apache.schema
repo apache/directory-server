@@ -5,31 +5,32 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
-# under the License. 
+# under the License.
 
 # =============================================================================
 #                                Apache Schema
 # =============================================================================
 #
-#              +-----------------------------+-----------------+
-#              |  Apache AttributeType OID   |      name       |
-#              +-----------------------------+-----------------+
-#              | 1.3.6.1.4.1.18060.0.4.1.2.1 | apacheNdn       |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.2 | apacheUpdn      |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.3 | apacheExistance |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.4 | apacheHierarchy |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.5 | apacheOneAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.6 | apacheSubAlias  |
-#              | 1.3.6.1.4.1.18060.0.4.1.2.7 | apacheAlias     |
-#              +-----------------------------+-----------------+
+#              +------------------------------+-----------------+
+#              |  Apache AttributeType OID    |      name       |
+#              +------------------------------+-----------------+
+#              | 1.3.6.1.4.1.18060.0.4.1.2.1  | apacheNdn       |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.2  | apacheUpdn      |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.3  | apacheExistance |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.4  | apacheHierarchy |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.5  | apacheOneAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.6  | apacheSubAlias  |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.7  | apacheAlias     |
+#              | 1.3.6.1.4.1.18060.0.4.1.2.43 | apacheSublevel  |
+#              +------------------------------+-----------------+
 # =============================================================================
 
 
@@ -49,7 +50,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.2 NAME 'apacheUpdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apachePresence'
     DESC 'Index attribute used to track the existence of attributes'
     SUP name
     EQUALITY caseIgnoreMatch
@@ -57,7 +58,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheHierarchy'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.4 NAME 'apacheOneLevel'
     DESC 'Index attribute used to track the DIT hierarchy'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -72,6 +73,13 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.5 NAME 'apacheOnealias'
     USAGE dSAOperation )
 
 attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.6 NAME 'apacheSubalias'
+    DESC 'Index attribute used to track single level aliases'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.43 NAME 'apacheSublevel'
     DESC 'Index attribute used to track single level aliases'
     EQUALITY integerMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -480,4 +488,72 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.11
 # =================================================
 # END SSL/TLS Key Management for LDAPS and StartTLS 
 # =================================================
-    
+
+# =================================================
+# Start Schema for ChangeLog
+# =================================================
+
+# a special attributetype to hold the revision numbers
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.44
+    NAME 'revisions'
+    DESC 'Revision numbers used in change log'
+    EQUALITY integerMatch
+    ORDERING integerOrderingMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.45
+    NAME 'changeTime'
+    DESC 'represents the time when the change event occurred'
+    EQUALITY generalizedTimeMatch
+    ORDERING generalizedTimeOrderingMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+    SINGLE-VALUE
+    NO-USER-MODIFICATION 
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.46
+    NAME 'changeType'
+    DESC 'type of change operation'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.44
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.47
+    NAME ( 'rev' 'eventId' )
+    DESC 'the unique sequential id for the event (a.k.a revision number)'
+    EQUALITY integerMatch
+    ORDERING integerOrderingMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.48
+    NAME 'committer'
+    DESC 'the principal committing the change'
+    EQUALITY exactDnAsStringMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+    SINGLE-VALUE
+    NO-USER-MODIFICATION
+    USAGE dSAOperation )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.12
+    NAME 'changeLogEvent'
+    DESC 'represents change events'
+    STRUCTURAL
+    MUST ( changeTime $ changeType $ rev $ committer ) )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.13
+    NAME 'tag'
+    DESC 'represents a Tag in change log'
+    STRUCTURAL
+    MUST ( rev ) 
+    MAY ( description ) )
+
+# =================================================
+# End Schema for ChangeLog
+# =================================================

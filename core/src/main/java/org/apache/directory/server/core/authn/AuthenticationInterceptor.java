@@ -20,27 +20,25 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -52,15 +50,17 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.LdapJndiProperties;
-import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,8 +82,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private Set<Authenticator> authenticators;
-    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = new HashMap<String, Collection<Authenticator>>();
+    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = 
+        new HashMap<String, Collection<Authenticator>>();
 
+    private DirectoryService directoryService;
+    
+    
     /**
      * Creates an authentication service interceptor.
      */
@@ -91,12 +95,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
     }
 
+    
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( DirectoryService directoryService ) throws NamingException
+    public void init( DirectoryService directoryService ) throws Exception
     {
-
+        this.directoryService = directoryService;
+        
         if ( authenticators == null )
         {
             setDefaultAuthenticators();
@@ -108,6 +114,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
+    
     private void setDefaultAuthenticators()
     {
         Set<Authenticator> set = new HashSet<Authenticator>();
@@ -124,6 +131,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         return authenticators;
     }
 
+    
     /**
      * @param authenticators authenticators to be used by this AuthenticationInterceptor
      * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.authn.Authenticator"
@@ -133,6 +141,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         this.authenticators = authenticators;
     }
 
+    
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
@@ -147,15 +156,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
+    
     /**
      * Initializes the specified {@link Authenticator} and registers it to
      * this service.
      *
      * @param authenticator Authenticator to initialize and register by type
      * @param directoryService configuration info to supply to the Authenticator during initialization
-     * @throws javax.naming.NamingException if initialization fails.
+     * @throws javax.naming.Exception if initialization fails.
      */
-    private void register( Authenticator authenticator, DirectoryService directoryService ) throws NamingException
+    private void register( Authenticator authenticator, DirectoryService directoryService ) throws Exception
     {
         authenticator.init( directoryService );
 
@@ -184,132 +194,123 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( ( result != null ) && ( result.size() > 0 ) )
         {
             return result;
-        } else
+        } 
+        else
         {
             return null;
         }
     }
 
 
-    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Adding the entry " +
-                    opContext.getEntry() +
-                    " for DN = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
+        checkAuthenticated( opContext );
         next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
+        checkAuthenticated( opContext );
         next.delete( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "getMatchedName" );
+        checkAuthenticated( opContext );
         return next.getMatchedName( opContext );
     }
 
 
-    public ServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException
+    public ClonedServerEntry getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Getting root DSE" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "getRootDSE" );
+        checkAuthenticated( opContext );
         return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "getSuffix" );
+        checkAuthenticated( opContext );
         return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "hasEntry" );
+        checkAuthenticated( opContext );
         return next.hasEntry( opContext );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor list( NextInterceptor next, ListOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "list" );
+        checkAuthenticated( opContext );
         return next.list( opContext );
     }
 
 
-    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Listing suffixes" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "listSuffixes" );
+        checkAuthenticated( opContext );
         return next.listSuffixes( opContext );
     }
 
 
-    public ServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException
+    public ClonedServerEntry lookup( NextInterceptor next, LookupOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            List<String> attrIds = opContext.getAttrsId();
-
-            if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
-            {
-                String attrs = StringTools.listToString( attrIds );
-                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', attributes = " + attrs );
-            } else
-            {
-                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', no attributes " );
-            }
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( "lookup" );
+        checkAuthenticated( opContext );
         return next.lookup( opContext );
     }
 
+    
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {
         for ( String authMech : authenticatorsMapByType.keySet() )
@@ -325,154 +326,127 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( opContext.toString() );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
+        checkAuthenticated( opContext );
         next.modify( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" +
-                    opContext.getNewRdn() + "', " +
-                    "oldRDN = '" + opContext.getDelOldDn() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
         next.rename( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-            throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" +
-                    opContext.getParent() + "', new RDN = '" +
-                    opContext.getNewRdn() + "', oldRDN = '" +
-                    opContext.getDelOldDn() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
+        boolean result = next.compare( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
+        return result;
+    }
+
+
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
+            throws Exception
+    {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Operation Context: {}", opContext );
+        }
+
+        checkAuthenticated( opContext );
         next.moveAndRename( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" +
-                    opContext.getParent().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        checkAuthenticated( opContext );
         next.move( opContext );
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( NextInterceptor next, SearchOperationContext opContext ) 
-        throws NamingException
+    public EntryFilteringCursor search( NextInterceptor next, SearchOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
+        checkAuthenticated( opContext );
         return next.search( opContext );
     }
 
 
-    private void checkAuthenticated( MessageTypeEnum operation ) throws NamingException
+    /**
+     * Check if the current operation has a valid PrincipalDN or not.
+     *
+     * @param opContext the OperationContext for this operation
+     * @param operation the operation type
+     * @throws Exception
+     */
+    private void checkAuthenticated( OperationContext operation ) throws Exception
     {
-        try
+        if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess() 
+            && !operation.getDn().isEmpty() )
         {
-            checkAuthenticated( operation.toString() );
-        }
-        catch ( IllegalStateException ise )
-        {
-            throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
+            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.getName() );
+            throw new LdapNoPermissionException( "Attempted operation by unauthenticated caller." );
         }
     }
 
-    private void checkAuthenticated( String operation ) throws NamingException
+
+    public void bind( NextInterceptor next, BindOperationContext opContext ) throws Exception
     {
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
-        if ( ctx.getPrincipal() != null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-            }
-
-            return;
-        }
-
-        String principal = (String)ctx.getEnvironment().get( Context.SECURITY_PRINCIPAL ); 
-        String message = "Attempted operation '" + operation + "' by unauthenticated caller '" + principal + "'.";
-        LOG.error( message );
-        throw new IllegalStateException( message );
-    }
-
-
-    public void bind( NextInterceptor next, BindOperationContext opContext )
-            throws NamingException
-    {
-        // The DN is always normalized here
-        LdapDN normBindDn = opContext.getDn();
-        String bindUpDn = normBindDn.getUpName();
-
         if ( IS_DEBUG )
         {
-            LOG.debug( "Bind operation. bindDn: " + bindUpDn );
+            LOG.debug( "Operation Context: {}", opContext );
         }
 
-        // check if we are already authenticated and if so we return making
-        // sure first that the credentials are not exposed within context
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
-        if ( IS_DEBUG )
+        if ( opContext.getSession() != null && opContext.getSession().getEffectivePrincipal() != null )
         {
-            LOG.debug( "bind: principal: " + ctx.getPrincipal() );
+            // null out the credentials
+            opContext.setCredentials( null );
         }
-
-        if ( ctx.getPrincipal() != null )
-        {
-            if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
-            {
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-            }
-
-            return;
-        }
-
+        
         // pick the first matching authenticator type
-        Collection<Authenticator> authenticators = null;
-
-        for ( String mechanism : opContext.getMechanisms() )
+        AuthenticationLevel level = opContext.getAuthenticationLevel();
+        
+        if ( level == AuthenticationLevel.UNAUTHENT )
         {
-            authenticators = getAuthenticators( mechanism );
-
-            if ( authenticators != null )
-            {
-                break;
-            }
+        	// This is a case where the Bind request contains a DN, but no password.
+        	// We don't check the DN, we just return a UnwillingToPerform error
+        	throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
+
+        Collection<Authenticator> authenticators = getAuthenticators( level.getName() );
 
         if ( authenticators == null )
         {
@@ -483,12 +457,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             LOG.debug( "Nexus succeeded on bind operation." );
 
-            // bind succeeded if we got this far 
-            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
-                    .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            // bind succeeded if we got this far
+            // TODO - authentication level not being set
+            LdapPrincipal principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE );
+            CoreSession session = new DefaultCoreSession( principal, directoryService );
+            opContext.setSession( session );
 
             // remove creds so there is no security risk
-            ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+            opContext.setCredentials( null );
             return;
         }
 
@@ -499,13 +475,17 @@ public class AuthenticationInterceptor extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal authorizationId = authenticator.authenticate( normBindDn, ctx );
-
-                // authentication was successful
-                ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
+                LdapPrincipal principal = authenticator.authenticate( opContext );
+                
+                LdapPrincipal clonedPrincipal = (LdapPrincipal)(principal.clone());
 
                 // remove creds so there is no security risk
-                ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+                opContext.setCredentials( null );
+                clonedPrincipal.setUserPassword( StringTools.EMPTY_BYTES );
+
+                // authentication was successful
+                CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
+                opContext.setSession( session );
 
                 return;
             }
@@ -514,7 +494,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // authentication failed, try the next authenticator
                 if ( LOG.isInfoEnabled() )
                 {
-                    LOG.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
+                    LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, opContext );
                 }
             }
             catch ( Exception e )
@@ -522,7 +502,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 // Log other exceptions than LdapAuthenticationException
                 if ( LOG.isWarnEnabled() )
                 {
-                    LOG.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
+                    LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, opContext );
                 }
             }
         }
@@ -532,49 +512,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.info( "Cannot bind to the server " );
         }
 
-        throw new LdapAuthenticationException();
-    }
-
-    /**
-     * FIXME This doesn't secure anything actually.
-     * <p/>
-     * Created this wrapper to pass to ctx.setPrincipal() which is public for added
-     * security.  This adds more security because an instance of this class is not
-     * easily accessible whereas LdapPrincipals can be accessed easily from a context
-     * althought they cannot be instantiated outside of the authn package.  Malicious
-     * code may not be able to set the principal to what they would like but they
-     * could switch existing principals using the now public ServerContext.setPrincipal()
-     * method.  To avoid this we make sure that this metho takes a TrustedPrincipalWrapper
-     * as opposed to the LdapPrincipal.  Only this service can create and call setPrincipal
-     * with a TrustedPrincipalWrapper.
-     */
-    public final class TrustedPrincipalWrapper
-    {
-        /**
-         * the wrapped ldap principal
-         */
-        private final LdapPrincipal principal;
-
-
-        /**
-         * Creates a TrustedPrincipalWrapper around an LdapPrincipal.
-         *
-         * @param principal the LdapPrincipal to wrap
-         */
-        private TrustedPrincipalWrapper( LdapPrincipal principal )
-        {
-            this.principal = principal;
-        }
-
-
-        /**
-         * Gets the LdapPrincipal this TrustedPrincipalWrapper wraps.
-         *
-         * @return the wrapped LdapPrincipal
-         */
-        public LdapPrincipal getPrincipal()
-        {
-            return principal;
-        }
+        LdapDN dn = opContext.getDn();
+        String upDn = ( dn == null ? "" : dn.getUpName() );
+        throw new LdapAuthenticationException( "Cannot authenticate user " + upDn );
     }
 }

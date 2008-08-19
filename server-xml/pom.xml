@@ -61,7 +61,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-ldap</artifactId>
+      <artifactId>apacheds-protocol-newldap</artifactId>
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.NoSuchAttributeException;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -194,7 +195,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
         if ( !byOid.containsKey( oid ) )
         {
-            throw new NamingException( "attributeType w/ OID " + oid + " not registered!" );
+            throw new NoSuchAttributeException( "attributeType w/ OID " + oid + " not registered!" );
         }
 
         AttributeType attributeType = byOid.get( oid );

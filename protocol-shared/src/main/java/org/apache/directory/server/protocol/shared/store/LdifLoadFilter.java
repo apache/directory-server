@@ -20,9 +20,12 @@
 package org.apache.directory.server.protocol.shared.store;
 
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import java.io.File;
 
 
@@ -40,9 +43,9 @@ public interface LdifLoadFilter
      * @param file the file being loaded
      * @param dn the distinguished name of the entry being loaded
      * @param entry the entry attributes within the LDIF file
-     * @param ctx context to be used for loading the entry into the DIT
+     * @param coreSession session to be used for loading the entry into the DIT
      * @return true if the entry will be created in the DIT, false if it is to be skipped
      * @throws NamingException
      */
-    boolean filter( File file, String dn, Attributes entry, DirContext ctx ) throws NamingException;
+    boolean filter( File file, LdapDN dn, Entry entry, CoreSession coreSession ) throws NamingException;
 }

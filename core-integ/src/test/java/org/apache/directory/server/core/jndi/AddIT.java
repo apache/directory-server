@@ -29,11 +29,9 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
@@ -51,54 +49,51 @@ public class AddIT
     public static DirectoryService service;
     
 
-    /**
-     * Test that attribute name case is preserved after adding an entry
-     * in the case the user added them.  This is to test DIRSERVER-832.
-     */
-    public void testAddCasePreservedOnAttributeNames() throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( service );
-
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
-        oc.add( "PERSON" );
-        oc.add( "organizationalPerson" );
-        oc.add( "inetORGperson" );
-        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
-        Attribute dc = new AttributeImpl( "sN", "Spacey" );
-        attrs.put( oc );
-        attrs.put( cn );
-        attrs.put( dc);
-        sysRoot.createSubcontext( "uID=kevin", attrs );
-        Attributes returned = sysRoot.getAttributes( "UID=kevin" );
-        
-        NamingEnumeration<? extends Attribute> attrList = returned.getAll();
-        
-        while( attrList.hasMore() )
-        {
-            Attribute attr = ( Attribute ) attrList.next();
-            
-            if ( attr.getID().equalsIgnoreCase( "uid" ) )
-            {
-                assertEquals( "uID", attr.getID() );
-            }
-            
-            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
-            {
-                assertEquals( "ObjectClass", attr.getID() );
-            }
-            
-            if ( attr.getID().equalsIgnoreCase( "sn" ) )
-            {
-                assertEquals( "sN", attr.getID() );
-            }
-            
-            if ( attr.getID().equalsIgnoreCase( "cn" ) )
-            {
-                assertEquals( "Cn", attr.getID() );
-            }
-        }
-    }
+//    /**
+//     * Test that attribute name case is preserved after adding an entry
+//     * in the case the user added them.  This is to test DIRSERVER-832.
+//     */
+//    public void testAddCasePreservedOnAttributeNames() throws Exception
+//    {
+//        Attributes attrs = new AttributesImpl( true );
+//        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+//        oc.add( "PERSON" );
+//        oc.add( "organizationalPerson" );
+//        oc.add( "inetORGperson" );
+//        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
+//        Attribute dc = new AttributeImpl( "sN", "Spacey" );
+//        attrs.put( oc );
+//        attrs.put( cn );
+//        attrs.put( dc);
+//        sysRoot.createSubcontext( "uID=kevin", attrs );
+//        Attributes returned = sysRoot.getObject( "UID=kevin" );
+//        
+//        NamingEnumeration attrList = returned.getAll();
+//        while( attrList.hasMore() )
+//        {
+//            Attribute attr = ( Attribute ) attrList.next();
+//            
+//            if ( attr.getID().equalsIgnoreCase( "uid" ) )
+//            {
+//                assertEquals( "uID", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
+//            {
+//                assertEquals( "ObjectClass", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "sn" ) )
+//            {
+//                assertEquals( "sN", attr.getID() );
+//            }
+//            
+//            if ( attr.getID().equalsIgnoreCase( "cn" ) )
+//            {
+//                assertEquals( "Cn", attr.getID() );
+//            }
+//        }
+//    }
     
     
     /**

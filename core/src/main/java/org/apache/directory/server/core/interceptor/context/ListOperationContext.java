@@ -19,9 +19,14 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import java.util.Set;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+
 
 /**
  * A ListContext context used for Interceptors. It contains all the informations
@@ -30,17 +35,14 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ListOperationContext extends AbstractOperationContext
+public class ListOperationContext extends SearchingOperationContext
 {
-    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-
-
     /**
      * Creates a new instance of ListOperationContext.
      */
-    public ListOperationContext( Registries registries )
+    public ListOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
@@ -49,9 +51,9 @@ public class ListOperationContext extends AbstractOperationContext
      *
      * @param dn The DN to get the suffix from
      */
-    public ListOperationContext( Registries registries, LdapDN dn )
+    public ListOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn );
+        super( session, dn );
     }
 
 
@@ -61,10 +63,33 @@ public class ListOperationContext extends AbstractOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public ListOperationContext( Registries registries, LdapDN dn, AliasDerefMode aliasDerefMode )
+    public ListOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode )
     {
-        super( registries, dn );
-        this.aliasDerefMode = aliasDerefMode;
+        super( session, dn, aliasDerefMode );
+    }
+
+    
+    /**
+     * Creates a new instance of ListOperationContext with attributes to return.
+     *
+     * @param session the session associated with this {@link OperationContext}
+     * @param dn the base DN 
+     * @param aliasDerefMode the alias dereferencing mode to use
+     * @param returningAttributes the attributes to return
+     */
+    public ListOperationContext( CoreSession session, LdapDN dn, AliasDerefMode aliasDerefMode,
+        Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, dn, aliasDerefMode, returningAttributes );
+    }
+
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return "List";
     }
 
     
@@ -73,12 +98,6 @@ public class ListOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "ListOperationContext with DN '" + getDn().getUpName() + "'";
-    }
-
-
-    public AliasDerefMode getAliasDerefMode()
-    {
-        return aliasDerefMode;
+        return "List with DN '" + getDn().getUpName() + "'";
     }
 }

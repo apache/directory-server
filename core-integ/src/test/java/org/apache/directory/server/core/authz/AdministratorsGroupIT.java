@@ -30,6 +30,7 @@ import org.apache.directory.server.core.integ.annotations.*;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,11 +48,11 @@ import javax.naming.directory.DirContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
 public class AdministratorsGroupIT
 {
     public static DirectoryService service;
-
-
+    
     boolean canReadAdministrators( DirContext ctx ) throws NamingException
     {
         try
@@ -110,7 +111,6 @@ public class AdministratorsGroupIT
      */
     @Test
     @Factory ( AutzIntegUtils.DefaultServiceFactory.class )
-    @Mode ( SetupMode.PRISTINE )
     public void testDefaultNonAdminReadAccessToGroups() throws Exception
     {
         Name billydDn = createUser( "billyd", "s3kr3t" );
@@ -125,7 +125,5 @@ public class AdministratorsGroupIT
 
         // billyd should now be able to read the admin group
         assertTrue( canReadAdministrators( ctx ) );
-
-        service.shutdown();
     }
 }

@@ -41,9 +41,10 @@
       <artifactId>mina-core</artifactId>
     </dependency>
 
+    <!-- TODO remove dependency on JNDI core -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core</artifactId>
+      <artifactId>apacheds-core-jndi</artifactId>
       <version>${pom.version}</version>
     </dependency>
 

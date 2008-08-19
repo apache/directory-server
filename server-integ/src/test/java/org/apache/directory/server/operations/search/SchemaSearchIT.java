@@ -1,0 +1,291 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.server.operations.search;
+
+
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.integ.SiRunner;
+import org.apache.directory.server.newldap.LdapServer;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+
+/**
+ * Test case with different search operations on the cn=schema entry. 
+ * Created to demonstrate DIRSERVER-1055
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev: 569048 $
+ */
+@RunWith ( SiRunner.class ) 
+@CleanupLevel ( Level.SUITE )
+@ApplyLdifs( {
+    
+    // Bogus AD schema (not real)
+    
+    "dn: cn=active-directory, ou=schema\n" +
+    "objectclass: metaSchema\n" +
+    "objectclass: top\n" +
+    "cn: active-directory\n" +
+    "m-dependencies: core\n\n" +
+    
+    "dn: ou=attributeTypes, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: attributeTypes\n\n" +
+    
+    "dn: m-oid=1.1, ou=attributeTypes, cn=active-directory, ou=schema\n" +
+    "objectclass: metaAttributeType\n" +
+    "objectclass: metaTop\n" +
+    "objectclass: top\n" +
+    "m-oid: 1.1\n" +
+    "m-name: sAMAccountName\n" +
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15\n\n" +
+    
+    "dn: m-oid=1.2, ou=attributeTypes, cn=active-directory, ou=schema\n" +
+    "objectclass: metaAttributeType\n" +
+    "objectclass: metaTop\n" +
+    "objectclass: top\n" +
+    "m-oid: 1.2\n" +
+    "m-name: pwdLastSet\n" +
+    "m-equality: integerMatch\n" +
+    "m-ordering: integerMatch\n" +
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n\n" +
+
+    "dn: m-oid=1.4, ou=attributeTypes, cn=active-directory, ou=schema\n" +
+    "objectclass: metaAttributeType\n" +
+    "objectclass: metaTop\n" +
+    "objectclass: top\n" +
+    "m-oid: 1.4\n" +
+    "m-name: useraccountcontrol\n" +
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n\n" +
+
+    "dn: m-oid=1.5, ou=attributeTypes, cn=active-directory, ou=schema\n" +
+    "objectclass: metaAttributeType\n" +
+    "objectclass: metaTop\n" +
+    "objectclass: top\n" +
+    "m-oid: 1.5\n" +
+    "m-name: SourceAD\n" +
+    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15\n" +
+    "m-length: 0\n\n" +
+
+    "dn: ou=comparators, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: comparators\n\n" +
+
+    "dn: ou=ditContentRules, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: ditContentRules\n\n" +
+
+    "dn: ou=ditStructureRules, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: ditStructureRules\n\n" +
+
+    "dn: ou=matchingRules, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: matchingRules\n\n" +
+    
+    "dn: ou=nameForms, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: nameForms\n\n" +
+
+    "dn: ou=normalizers, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: normalizers\n\n" +
+
+    "dn: ou=objectClasses, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: objectClasses\n\n" +
+
+    "dn: m-oid=1.3, ou=objectClasses, cn=active-directory, ou=schema\n" +
+    "objectclass: metaObjectClass\n" +
+    "objectclass: metaTop\n" +
+    "objectclass: top\n" +
+    "m-oid: 1.3\n" +
+    "m-name: personActiveDirectory\n" +
+    "m-supObjectClass: person\n" +
+    "m-must: pwdLastSet\n" +
+    "m-must: sAMAccountName\n" +
+    "m-must: useraccountcontrol\n" +
+    "m-must: SourceAD\n\n" +
+
+    "dn: ou=syntaxCheckers, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: syntaxCheckers\n\n" +
+
+    "dn: ou=syntaxes, cn=active-directory, ou=schema\n" +
+    "objectclass: organizationalUnit\n" +
+    "objectclass: top\n" +
+    "ou: syntaxes\n\n"
+    }
+)
+public class SchemaSearchIT 
+{
+    private static final String DN = "cn=schema";
+    private static final String FILTER = "(objectclass=subschema)";
+
+    
+    public static LdapServer ldapServer;
+    
+
+    protected void checkForAttributes( Attributes attrs, String[] attrNames )
+    {
+        for ( int i = 0; i < attrNames.length; i++ )
+        {
+            String attrName = attrNames[i];
+
+            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
+        }
+    }
+
+
+    /**
+     * Check if modifyTimestamp and createTimestamp are present in the search result,
+     * if they are requested.
+     */
+    @Test
+    public void testRequestOperationalAttributes() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls ctls = new SearchControls();
+
+        String[] attrNames =
+            { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( attrNames );
+
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+
+        result.close();
+    }
+
+
+    /**
+     * Check if modifyTimestamp and createTimestamp are present in the search result,
+     * if + is requested.
+     */
+    @Test
+    public void testRequestAllOperationalAttributes() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "+" } );
+
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            String[] attrNames =
+                { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+
+        result.close();
+    }
+
+    
+    /**
+     * Test case for DIRSERVER-1083: Search on an custom attribute added to 
+     * the dynamic schema fails when no result is found. 
+     */
+    @Test
+    public void testSearchingNewSchemaElements() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapServer );
+        
+        // create an entry with the schema objectClass personActiveDirectory
+        AttributesImpl person = new AttributesImpl( "objectClass", "top", true );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "personActiveDirectory" );
+        person.put( "cn", "foobar" );
+        person.put( "sn", "bar" );
+        person.put( "pwdLastSet", "3" );
+        person.put( "SourceAD", "blah" );
+        person.put( "useraccountcontrol", "7" );
+        person.put( "sAMAccountName", "foobar" );
+        ctx.createSubcontext( "cn=foobar,ou=system", person );
+        
+        // Confirm creation with a lookup
+        Attributes read = ctx.getAttributes( "cn=foobar,ou=system" );
+        assertNotNull( read );
+        assertEquals( "3", read.get( "pwdLastSet" ).get() );
+        
+        // Now search for foobar with pwdLastSet value of 3
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(pwdLastSet=3)", searchControls );
+        assertTrue( results.hasMore() );
+        SearchResult result = results.next();
+        assertNotNull( result );
+        assertEquals( "cn=foobar", result.getName() );
+        Attributes attributes = result.getAttributes();
+        assertEquals( "3", attributes.get( "pwdLastSet" ).get() );
+        results.close();
+        
+        // Now search with bogus value for pwdLastSet
+        results = ctx.search( "ou=system", "(pwdLastSet=300)", searchControls );
+        assertFalse( results.hasMore() );
+        results.close();
+    }
+}

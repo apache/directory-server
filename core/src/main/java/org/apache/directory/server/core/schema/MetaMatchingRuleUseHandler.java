@@ -38,7 +38,7 @@ import javax.naming.NamingException;
 public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
 {
 
-    protected MetaMatchingRuleUseHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    protected MetaMatchingRuleUseHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         // TODO Auto-generated constructor stub

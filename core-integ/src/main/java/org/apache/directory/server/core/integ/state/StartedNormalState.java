@@ -21,8 +21,6 @@ package org.apache.directory.server.core.integ.state;
 
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.integ.InheritableSettings;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.internal.runners.TestClass;
@@ -91,9 +89,9 @@ public class StartedNormalState extends AbstractState
     /**
      * Action where an attempt is made to start up the service.
      *
-     * @throws NamingException on failures to start the core directory service
+     * @throws Exception on failures to start the core directory service
      */
-    public void startup() throws NamingException
+    public void startup() throws Exception
     {
         LOG.debug( "calling startup()" );
         context.getService().startup();
@@ -103,9 +101,9 @@ public class StartedNormalState extends AbstractState
     /**
      * Action where an attempt is made to shutdown the service.
      *
-     * @throws NamingException on failures to stop the core directory service
+     * @throws Exception on failures to stop the core directory service
      */
-    public void shutdown() throws NamingException
+    public void shutdown() throws Exception
     {
         LOG.debug( "calling shutdown()" );
         context.getService().shutdown();
@@ -116,10 +114,10 @@ public class StartedNormalState extends AbstractState
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
      *
-     * @throws NamingException on failures to revert the state of the core
+     * @throws Exception on failures to revert the state of the core
      * directory service
      */
-    public void revert() throws NamingException
+    public void revert() throws Exception
     {
         LOG.debug( "calling revert()" );
         context.getService().revert();
@@ -156,7 +154,7 @@ public class StartedNormalState extends AbstractState
                 {
                     context.getService().getChangeLog().tag();
                 }
-                catch ( NamingException e )
+                catch ( Exception e )
                 {
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
@@ -174,12 +172,12 @@ public class StartedNormalState extends AbstractState
                 {
                     revert();
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
                     // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), ne );
+                    notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
                 
@@ -196,12 +194,12 @@ public class StartedNormalState extends AbstractState
                 {
                     shutdown();
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
                     // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), ne );
+                    notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
                 
@@ -209,10 +207,10 @@ public class StartedNormalState extends AbstractState
                 {
                     startup();
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
-                    LOG.error( "Failed to create and start new server instance: " + ne );
-                    notifier.testAborted( settings.getDescription(), ne );
+                    LOG.error( "Failed to create and start new server instance: " + e );
+                    notifier.testAborted( settings.getDescription(), e );
                     return;
                 }
                 

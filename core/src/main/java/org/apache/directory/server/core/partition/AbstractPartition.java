@@ -21,12 +21,11 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 
 
 /**
@@ -56,7 +55,7 @@ public abstract class AbstractPartition implements Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryService directoryService ) throws NamingException
+    public final void init( DirectoryService directoryService ) throws Exception
     {
         if ( initialized )
         {
@@ -138,7 +137,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * This method does nothing by default.
      */
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
     }
 
@@ -148,11 +147,11 @@ public abstract class AbstractPartition implements Partition
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( EntryOperationContext entryContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext entryContext ) throws Exception
     {
         try
         {
-            return lookup( new LookupOperationContext( entryContext.getRegistries(), entryContext.getDn() ) ) != null;
+            return entryContext.lookup( entryContext.getDn(), ByPassConstants.LOOKUP_BYPASS ) != null; 
         }
         catch ( NameNotFoundException e )
         {
@@ -166,7 +165,7 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public ServerEntry lookup( LookupOperationContext lookupContext ) throws NamingException
+    public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
     {
         return null;
     }

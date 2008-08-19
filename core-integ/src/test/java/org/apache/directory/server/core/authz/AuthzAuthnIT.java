@@ -28,7 +28,6 @@ import org.apache.directory.server.core.integ.annotations.*;
 import org.apache.directory.server.core.DirectoryService;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingException;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
@@ -56,7 +55,7 @@ public class AuthzAuthnIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testAuthnWithRootDSE() throws NamingException
+    public void testAuthnWithRootDSE() throws Exception
     {
         createUser( "billyd", "billyd" );
 
@@ -80,7 +79,7 @@ public class AuthzAuthnIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testAuthnFailsWithSystemPartition() throws NamingException
+    public void testAuthnFailsWithSystemPartition() throws Exception
     {
         createUser( "billyd", "billyd" );
         
@@ -105,7 +104,7 @@ public class AuthzAuthnIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testAuthnPassesWithSystemPartition() throws NamingException
+    public void testAuthnPassesWithSystemPartition() throws Exception
     {
         createUser( "billyd", "billyd" );
         

@@ -30,14 +30,20 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 
 /**
@@ -48,6 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IntegrationUtils
 {
+    /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
 
@@ -85,27 +92,27 @@ public class IntegrationUtils
      * @param ldif the ldif containing entries to add to the server.
      * @throws NamingException if there is a problem adding the entries from the LDIF
      */
-    public static void injectEntries( DirectoryService service, String ldif ) throws NamingException
+    public static void injectEntries( DirectoryService service, String ldif ) throws Exception
     {
-        LdapContext rootDSE = getRootContext( service );
         LdifReader reader = new LdifReader();
         List<LdifEntry> entries = reader.parseLdif( ldif );
 
         for ( LdifEntry entry : entries )
         {
-            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+            service.getAdminSession().add( 
+                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
         }
     }
 
 
-    public static LdifEntry getUserAddLdif() throws InvalidNameException
+    public static LdifEntry getUserAddLdif() throws InvalidNameException, NamingException
     {
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
 
 
     public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
-            throws NamingException
+            throws Exception
     {
         if ( principalDn == null )
         {
@@ -121,80 +128,104 @@ public class IntegrationUtils
             dn = "";
         }
 
-        return service.getJndiContext( principal, dn );
+        CoreSession session = service.getSession( principal );
+        LdapContext ctx = new ServerLdapContext( service, session, new LdapDN( dn ) );
+        return ctx;
     }
 
 
-    public static LdapContext getSystemContext( DirectoryService service ) throws NamingException
+    public static CoreSession getCoreSession( String principalDn, DirectoryService service, String dn )
+        throws Exception
+    {
+        if ( principalDn == null )
+        {
+            principalDn = "";
+        }
+        
+        LdapDN userDn = new LdapDN( principalDn );
+        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
+        
+        if ( dn == null )
+        {
+            dn = "";
+        }
+        
+        CoreSession session = service.getSession( principal );
+        return session;
+    }
+
+
+    public static LdapContext getSystemContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.SYSTEM_DN );
     }
 
 
-    public static LdapContext getSchemaContext( DirectoryService service ) throws NamingException
+    public static LdapContext getSchemaContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
     }
 
 
-    public static LdapContext getRootContext( DirectoryService service ) throws NamingException
+    public static LdapContext getRootContext( DirectoryService service ) throws Exception
     {
         return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, "" );
     }
 
 
-    public static void apply( LdapContext root, LdifEntry entry ) throws NamingException
+    public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
     {
         LdapDN dn = new LdapDN( entry.getDn() );
+        CoreSession session = service.getAdminSession();
 
         switch( entry.getChangeType().getChangeType() )
         {
             case( ChangeType.ADD_ORDINAL ):
-                root.createSubcontext( dn, entry.getAttributes() );
+                session.add( 
+                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
                 break;
+                
             case( ChangeType.DELETE_ORDINAL ):
-                root.destroySubcontext( entry.getDn() );
+                session.delete( dn );
                 break;
+                
             case( ChangeType.MODDN_ORDINAL ):
-                LdapDN target = new LdapDN( entry.getNewSuperior() );
-                if ( entry.getNewRdn() != null )
-                {
-                    target.add( entry.getNewRdn() );
-                }
-                else
-                {
-                    target.add( dn.getRdn().toString() );
-                }
-
-                if ( entry.isDeleteOldRdn() )
-                {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
-                }
-                else
-                {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
-                }
-
-                root.rename( dn, target );
-                break;
             case( ChangeType.MODRDN_ORDINAL ):
-                target = ( LdapDN ) dn.clone();
-                target.remove( dn.size() - 1 );
-                target.add( entry.getNewRdn() );
-
-                if ( entry.isDeleteOldRdn() )
+                Rdn newRdn = new Rdn( entry.getNewRdn() );
+            
+                if ( entry.getNewSuperior() != null )
                 {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+                    // It's a move. The superior have changed
+                    // Let's see if it's a rename too
+                    Rdn oldRdn = dn.getRdn();
+                    LdapDN newSuperior = new LdapDN( entry.getNewSuperior() );
+                    
+                    if ( dn.size() == 0 )
+                    {
+                        throw new IllegalStateException( "can't move the root DSE" );
+                    }
+                    else if ( oldRdn.equals( newRdn ) )
+                    {
+                        // Same rdn : it's a move
+                        session.move( dn, newSuperior );
+                    }
+                    else
+                    {
+                        // it's a move and rename 
+                        session.moveAndRename( dn, newSuperior, newRdn, entry.isDeleteOldRdn() );
+                    }
                 }
                 else
                 {
-                    root.addToEnvironment( "java.naming.ldap.deleteRDN", "false" );
+                    // it's a rename
+                    session.rename( dn, newRdn, entry.isDeleteOldRdn() );
                 }
-
-                root.rename( dn, target );
+                
                 break;
+
             case( ChangeType.MODIFY_ORDINAL ):
-                root.modifyAttributes( dn, entry.getModificationItemsArray() );
+                session.modify( dn, entry.getModificationItems() );
                 break;
 
             default:
@@ -204,21 +235,18 @@ public class IntegrationUtils
 
 
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
-            throws InvalidNameException
+            throws InvalidNameException, NamingException
     {
         LdapDN dn = new LdapDN( dnstr );
         LdifEntry ldif = new LdifEntry();
         ldif.setDn( dnstr );
         ldif.setChangeType( ChangeType.Add );
 
-        AttributeImpl attr = new AttributeImpl( "objectClass", "top" );
-        attr.add( "person" );
-        attr.add( "organizationalPerson" );
-        attr.add( "inetOrgPerson" );
+        EntryAttribute attr = new DefaultClientAttribute( "objectClass", 
+            "top", "person", "organizationalPerson", "inetOrgPerson" );
         ldif.addAttribute( attr );
 
-        attr = new AttributeImpl( "ou", "Engineering" );
-        attr.add( "People" );
+        attr = new DefaultClientAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
         String uid = ( String ) dn.getRdn().getValue();

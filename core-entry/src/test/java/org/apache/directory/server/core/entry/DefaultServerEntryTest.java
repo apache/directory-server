@@ -29,7 +29,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.NoSuchAttributeException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -50,7 +49,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -101,7 +102,7 @@ public class DefaultServerEntryTest
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
-    public static void setup() throws NamingException
+    public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
         oidRegistry = new DefaultOidRegistry();
@@ -138,11 +139,11 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry()
      */
     @Test
-    public void testDefaultServerEntry()
+    public void testDefaultServerEntry() throws Exception
     {
         Entry entry = new DefaultServerEntry();
         assertNotNull( entry );
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
     
@@ -151,11 +152,11 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry( registries )
      */
     @Test
-    public void testDefaultServerEntryRegistries()
+    public void testDefaultServerEntryRegistries() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries );
         assertNotNull( entry );
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
     
@@ -164,7 +165,7 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry( registries, LdapDN )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDN()
+    public void testDefaultServerEntryRegistriesDN() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         assertNotNull( entry );
@@ -177,7 +178,7 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry( registries, LdapDN, AttributeType... )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNAttributeTypeArray()
+    public void testDefaultServerEntryRegistriesDNAttributeTypeArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, atOC, atPwd, atCN );
         assertNotNull( entry );
@@ -193,7 +194,7 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry( registries, LdapDN, AttributeType, upId )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNAttributeTypeUpId()
+    public void testDefaultServerEntryRegistriesDNAttributeTypeUpId() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, atOC, "  OBJECTCLASS  " );
         assertNotNull( entry );
@@ -209,7 +210,7 @@ public class DefaultServerEntryTest
      * Test for method DefaultServerEntry( registries, LdapDN, AttributeType, upId )
      */
     @Test
-    public void testDefaultServerEntryRegistriesDNUpIdArray()
+    public void testDefaultServerEntryRegistriesDNUpIdArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN, "  OBJECTCLASS  ", " Cn " );
         assertNotNull( entry );
@@ -231,7 +232,7 @@ public class DefaultServerEntryTest
      * Test for method add( EntryAttribute...)
      */
     @Test
-    public void testAddEntryAttribute() throws NamingException
+    public void testAddEntryAttribute() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -270,7 +271,7 @@ public class DefaultServerEntryTest
      * Test for method add( String, byte[]...)
      */
     @Test
-    public void testAddStringByteArrayArray() throws NamingException
+    public void testAddStringByteArrayArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -314,7 +315,7 @@ public class DefaultServerEntryTest
      * Test for method add( String, String...)
      */
     @Test
-    public void testAddStringStringArray() throws NamingException
+    public void testAddStringStringArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -359,7 +360,7 @@ public class DefaultServerEntryTest
      * Test for method add( String, Value<?>...)
      */
     @Test
-    public void testAddStringValueArray() throws NamingException
+    public void testAddStringValueArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         Value<String> value = new ServerStringValue( atCN, (String)null );
@@ -412,7 +413,7 @@ public class DefaultServerEntryTest
      * Test method for add( AttributeType, byte[]... )
      */
     @Test
-    public void testAddAttributeTypeByteArrayArray() throws NamingException
+    public void testAddAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -435,7 +436,7 @@ public class DefaultServerEntryTest
      * Test method for add( AttributeType, String... )
      */
     @Test
-    public void testAddAttributeTypeStringArray() throws NamingException
+    public void testAddAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -463,7 +464,7 @@ public class DefaultServerEntryTest
      * Test method for add( AttributeType, Value<?>... )
      */
     @Test
-    public void testAddAttributeTypeValueArray() throws NamingException
+    public void testAddAttributeTypeValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -509,7 +510,7 @@ public class DefaultServerEntryTest
      * Test method for add( String, AttributeType, byte[]... )
      */
     @Test
-    public void testAddStringAttributeTypeByteArrayArray() throws NamingException
+    public void testAddStringAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -546,7 +547,7 @@ public class DefaultServerEntryTest
      * Test method for add( String, AttributeType, String... )
      */
     @Test
-    public void testAddStringAttributeTypeStringArray() throws NamingException
+    public void testAddStringAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -581,7 +582,7 @@ public class DefaultServerEntryTest
      * Test method for add( String, AttributeType, Value<?>... )
      */
     @Test
-    public void testAddStringAttributeTypeValueArray() throws NamingException
+    public void testAddStringAttributeTypeValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -638,7 +639,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( AT, String... ) method
      */
-    @Test public void testAddAtStringElipsis() throws NamingException
+    @Test public void testAddAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -687,7 +688,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( AT, byte[]... ) method
      */
-    @Test public void testAddAtBytesElipsis() throws NamingException
+    @Test public void testAddAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -744,7 +745,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( AT, SV... ) method
      */
-    @Test public void testAddAtServerValueElipsis() throws NamingException
+    @Test public void testAddAtServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -849,7 +850,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( upId, String... ) method
      */
-    @Test public void testAddUpIdStringElipsis() throws NamingException
+    @Test public void testAddUpIdStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -901,7 +902,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( upId, byte[]... ) method
      */
-    @Test public void testAddUpIdBytesElipsis() throws NamingException
+    @Test public void testAddUpIdBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -958,7 +959,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( upId, SV... ) method
      */
-    @Test public void testAddUpIdServerValueElipsis() throws NamingException
+    @Test public void testAddUpIdServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -1069,7 +1070,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( UpId, AT, String... ) method
      */
-    @Test public void testAddUpIdAtStringElipsis() throws NamingException
+    @Test public void testAddUpIdAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -1118,7 +1119,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( upId, AT, byte[]... ) method
      */
-    @Test public void testAddUpIdAtBytesElipsis() throws NamingException
+    @Test public void testAddUpIdAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -1175,7 +1176,7 @@ public class DefaultServerEntryTest
     /**
      * Test the add( upId, AT, SV... ) method
      */
-    @Test public void testAddUpIdAtServerValueElipsis() throws NamingException
+    @Test public void testAddUpIdAtServerValueElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -1287,7 +1288,7 @@ public class DefaultServerEntryTest
      * Test method for clear()
      */
     @Test
-    public void testClear() throws NamingException
+    public void testClear() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
          
@@ -1311,7 +1312,7 @@ public class DefaultServerEntryTest
      * Test method for clone()
      */
     @Test
-    public void testClone() throws NamingException
+    public void testClone() throws Exception
     {
         Entry entry1 = new DefaultServerEntry( registries );
         
@@ -1320,7 +1321,7 @@ public class DefaultServerEntryTest
         assertEquals( entry1, entry2 );
         entry2.setDn( EXAMPLE_DN );
         
-        assertNull( entry1.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN,entry1.getDn() );
         
         entry1.setDn( EXAMPLE_DN );
         entry2 = entry1.clone();
@@ -1348,7 +1349,7 @@ public class DefaultServerEntryTest
      * Test for method contains( AttributeType, byte[]... )
      */
     @Test
-    public void testContainsAttributeTypeByteArrayArray() throws NamingException
+    public void testContainsAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1371,7 +1372,7 @@ public class DefaultServerEntryTest
      * Test for method contains( AttributeType, String... )
      */
     @Test
-    public void testContainsAttributeTypeStringArray() throws NamingException
+    public void testContainsAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1394,7 +1395,7 @@ public class DefaultServerEntryTest
      * Test for method contains( AttributeType, Value<?>... )
      */
     @Test
-    public void testContainsAttributeTypeValuesArray() throws NamingException
+    public void testContainsAttributeTypeValuesArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1429,7 +1430,7 @@ public class DefaultServerEntryTest
      * Test for method contains( EntryAttribute... )
      */
     @Test
-    public void testContainsEntryAttributeArray() throws NamingException
+    public void testContainsEntryAttributeArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1459,7 +1460,7 @@ public class DefaultServerEntryTest
      * Test for method contains( String, byte[]... )
      */
     @Test
-    public void testContainsStringByteArrayArray() throws NamingException
+    public void testContainsStringByteArrayArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1483,7 +1484,7 @@ public class DefaultServerEntryTest
      * Test for method contains( String, String... )
      */
     @Test
-    public void testContainsStringStringArray() throws NamingException
+    public void testContainsStringStringArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1507,7 +1508,7 @@ public class DefaultServerEntryTest
      * Test for method contains( String, Value<?>... )
      */
     @Test
-    public void testContainsStringValueArray() throws NamingException
+    public void testContainsStringValueArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1542,7 +1543,7 @@ public class DefaultServerEntryTest
      * Test method for containsAttribute( AttributeType )
      */
     @Test
-    public void testContainsAttributeAttributeType() throws NamingException
+    public void testContainsAttributeAttributeType() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1573,7 +1574,7 @@ public class DefaultServerEntryTest
      * Test method for containsAttribute( String )
      */
     @Test
-    public void testContainsAttributeString() throws NamingException
+    public void testContainsAttributeString() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1602,7 +1603,7 @@ public class DefaultServerEntryTest
      * Test method for equals()
      */
     @Test
-    public void testEqualsObject() throws NamingException
+    public void testEqualsObject() throws Exception
     {
         Entry entry1 = new DefaultServerEntry( registries );
         Entry entry2 = new DefaultServerEntry( registries );
@@ -1650,7 +1651,7 @@ public class DefaultServerEntryTest
      * Test method for getAttributeTypes()
      */
     @Test
-    public void testGetAttributeTypes() throws NamingException
+    public void testGetAttributeTypes() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1678,7 +1679,7 @@ public class DefaultServerEntryTest
      * Test method for get( AttributeType )
      */
     @Test
-    public void testGetAttributeType() throws NamingException 
+    public void testGetAttributeType() throws Exception 
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -1705,7 +1706,7 @@ public class DefaultServerEntryTest
      * Test method for get( String )
      */
     @Test
-    public void testGetString() throws NamingException 
+    public void testGetString() throws Exception 
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -1751,7 +1752,7 @@ public class DefaultServerEntryTest
      * Test method for hashcode()
      */
     @Test
-    public void testHashCode() throws InvalidNameException, NamingException
+    public void testHashCode() throws InvalidNameException, Exception
     {
         Entry entry1 = new DefaultServerEntry( registries, EXAMPLE_DN );
         Entry entry2 = new DefaultServerEntry( registries, EXAMPLE_DN );
@@ -1786,7 +1787,7 @@ public class DefaultServerEntryTest
      * Test method for hasObjectClass( EntryAttribute )
      */
     @Test
-    public void testHasObjectClassEntryAttribute() throws NamingException
+    public void testHasObjectClassEntryAttribute() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1815,7 +1816,7 @@ public class DefaultServerEntryTest
      * Test method for hasObjectClass( String )
      */
     @Test
-    public void testHasObjectClassString() throws NamingException
+    public void testHasObjectClassString() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1869,7 +1870,7 @@ public class DefaultServerEntryTest
      * Test method for Iterator()
      */
     @Test
-    public void testIterator() throws NamingException
+    public void testIterator() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1910,7 +1911,7 @@ public class DefaultServerEntryTest
      * Test for method put( AttributeType, byte[]... )
      */
     @Test
-    public void testPutAttributeTypeByteArrayArray() throws NamingException
+    public void testPutAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1951,7 +1952,7 @@ public class DefaultServerEntryTest
      * Test for method put( AttributeType, String... )
      */
     @Test
-    public void testPutAttributeTypeStringArray() throws NamingException
+    public void testPutAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -1992,7 +1993,7 @@ public class DefaultServerEntryTest
      * Test for method put( AttributeType, Value<?>... )
      */
     @Test
-    public void testPutAttributeTypeValueArray() throws NamingException
+    public void testPutAttributeTypeValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -2040,7 +2041,7 @@ public class DefaultServerEntryTest
      * Test for method put( EntryAttribute...)
      */
     @Test
-    public void testPutEntryAttribute() throws NamingException
+    public void testPutEntryAttribute() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -2090,7 +2091,7 @@ public class DefaultServerEntryTest
      * Test for method put( String, AttributeType, byte[]... )
      */
     @Test
-    public void testPutStringAttributeTypeByteArrayArray() throws NamingException
+    public void testPutStringAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -2165,7 +2166,7 @@ public class DefaultServerEntryTest
      * Test for method put( String, AttributeType, String... )
      */
     @Test
-    public void testPutStringAttributeTypeStringArray() throws NamingException
+    public void testPutStringAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -2239,7 +2240,7 @@ public class DefaultServerEntryTest
      * Test for method put( String, AttributeType, Value<?>... )
      */
     @Test
-    public void testPutStringAttributeTypeValueArray() throws NamingException
+    public void testPutStringAttributeTypeValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -2538,7 +2539,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( SA... ) method
      */
-    @Test public void tesPutServerAttributeElipsis() throws NamingException
+    @Test public void tesPutServerAttributeElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2618,7 +2619,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( AT, String... ) method
      */
-    @Test public void tesPutAtStringElipsis() throws NamingException
+    @Test public void tesPutAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2675,7 +2676,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( AT, Byte[]... ) method
      */
-    @Test public void tesPutAtByteElipsis() throws NamingException
+    @Test public void tesPutAtByteElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2737,7 +2738,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( AT, Value... ) method
      */
-    @Test public void tesPutAtSVs() throws NamingException
+    @Test public void tesPutAtSVs() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2799,7 +2800,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, String... ) method
      */
-    @Test public void tesPutUpIdStringElipsis() throws NamingException
+    @Test public void tesPutUpIdStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2861,7 +2862,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, byte[]... ) method
      */
-    @Test public void tesPutUpIdBytesElipsis() throws NamingException
+    @Test public void tesPutUpIdBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2924,7 +2925,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, AT, String... ) method
      */
-    @Test public void tesPutUpIDAtStringElipsis() throws NamingException
+    @Test public void tesPutUpIDAtStringElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -2987,7 +2988,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, AT, byte[]... ) method
      */
-    @Test public void tesPutUpIDAtBytesElipsis() throws NamingException
+    @Test public void tesPutUpIDAtBytesElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3070,7 +3071,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, AT, SV... ) method
      */
-    @Test public void tesPutUpIDAtSVElipsis() throws NamingException
+    @Test public void tesPutUpIDAtSVElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3148,7 +3149,7 @@ public class DefaultServerEntryTest
     /**
      * Test the put( upId, SV... ) method
      */
-    @Test public void tesPutUpIDSVElipsis() throws NamingException
+    @Test public void tesPutUpIDSVElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3195,7 +3196,7 @@ public class DefaultServerEntryTest
      * Test method for remove( AttributeType, byte[]... )
      */
     @Test
-    public void testRemoveAttributeTypeByteArrayArray() throws NamingException
+    public void testRemoveAttributeTypeByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3224,7 +3225,7 @@ public class DefaultServerEntryTest
      * Test method for remove( AttributeType, String... )
      */
     @Test
-    public void testRemoveAttributeTypeStringArray() throws NamingException
+    public void testRemoveAttributeTypeStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3253,7 +3254,7 @@ public class DefaultServerEntryTest
      * Test method for remove( AttributeType, Value<?>... )
      */
     @Test
-    public void testRemoveAttributeTypeValueArray() throws NamingException
+    public void testRemoveAttributeTypeValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3289,7 +3290,7 @@ public class DefaultServerEntryTest
      * Test method for remove( EntryAttribute... )
      */
     @Test
-    public void testRemoveEntryAttribute() throws NamingException
+    public void testRemoveEntryAttribute() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3321,7 +3322,7 @@ public class DefaultServerEntryTest
      * Test method for removeAttributes( AttributeType... )
      */
     @Test
-    public void testRemoveAttributesAttributeTypeArray() throws NamingException
+    public void testRemoveAttributesAttributeTypeArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -3349,7 +3350,7 @@ public class DefaultServerEntryTest
      * Test method for removeAttributes( String... )
      */
     @Test
-    public void testRemoveAttributesStringArray() throws NamingException
+    public void testRemoveAttributesStringArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -3380,7 +3381,7 @@ public class DefaultServerEntryTest
      * Test method for remove( String, byte[]... )
      */
     @Test
-    public void testRemoveStringByteArrayArray() throws NamingException
+    public void testRemoveStringByteArrayArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3413,7 +3414,7 @@ public class DefaultServerEntryTest
      * Test method for remove( String, String... )
      */
     @Test
-    public void testRemoveStringStringArray() throws NamingException
+    public void testRemoveStringStringArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3446,7 +3447,7 @@ public class DefaultServerEntryTest
      * Test method for remove( String, Value<?>... )
      */
     @Test
-    public void testRemoveStringValueArray() throws NamingException
+    public void testRemoveStringValueArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
@@ -3481,7 +3482,7 @@ public class DefaultServerEntryTest
     /**
      * Test the remove( upId...) method
      */
-    @Test public void testRemoveUpIdElipsis() throws NamingException
+    @Test public void testRemoveUpIdElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3540,7 +3541,7 @@ public class DefaultServerEntryTest
     /**
      * Test the set(AT...) method
      */
-    @Test public void testSetATElipsis() throws NamingException
+    @Test public void testSetATElipsis() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3619,7 +3620,7 @@ public class DefaultServerEntryTest
     /**
      * Test the set( upId ) method
      */
-    @Test public void testSetUpID() throws NamingException
+    @Test public void testSetUpID() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3699,7 +3700,7 @@ public class DefaultServerEntryTest
      * Test method for set( AttributeType... )
      */
     @Test
-    public void testSetAttributeTypeArray() throws NamingException
+    public void testSetAttributeTypeArray() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -3729,7 +3730,7 @@ public class DefaultServerEntryTest
      * Test method for set( String... )
      */
     @Test
-    public void testSetStringArray() throws NamingException
+    public void testSetStringArray() throws Exception
     {
         Entry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
 
@@ -3763,7 +3764,7 @@ public class DefaultServerEntryTest
     {
         Entry entry = new DefaultServerEntry( registries );
          
-        assertNull( entry.getDn() );
+        assertEquals( LdapDN.EMPTY_LDAPDN, entry.getDn() );
          
         entry.setDn( EXAMPLE_DN );
         assertEquals( EXAMPLE_DN, entry.getDn() );
@@ -3774,7 +3775,7 @@ public class DefaultServerEntryTest
      * Test for method size()
      */
      @Test
-     public void testSize() throws NamingException
+     public void testSize() throws Exception
      {
          ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
           
@@ -3802,7 +3803,7 @@ public class DefaultServerEntryTest
     /**
      * Test a conversion from a ServerEntry to an AttributesImpl
      */
-    @Test public void testToAttributesImpl() throws InvalidNameException, NamingException
+    @Test public void testToAttributesImpl() throws InvalidNameException, Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3836,49 +3837,14 @@ public class DefaultServerEntryTest
 
 
     /**
-     * Test a conversion from a ServerEntry to an BasicAttributes
-     */
-    @Test public void testToBasicAttributes() throws InvalidNameException, NamingException
-    {
-        LdapDN dn = new LdapDN( "cn=test" );
-        DefaultServerEntry entry = new DefaultServerEntry( registries,dn );
-        
-        AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
-        
-        entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
-        
-        Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
-        
-        assertNotNull( attributes );
-        assertTrue( attributes instanceof BasicAttributes );
-        
-        Set<String> expected = new HashSet<String>();
-        expected.add( "objectClass" );
-        expected.add( "cn" );
-     
-        for ( NamingEnumeration<String> ids = attributes.getIDs(); ids.hasMoreElements();)
-        {
-            String id = ids.nextElement();
-            
-            assertTrue( expected.contains( id ) );
-            expected.remove( id );
-            
-        }
-
-        // We should still have the ObjectClass Attribute
-        assertEquals( 1, expected.size() );
-    }
-    
-    
-    /**
      * Test method for toString().
      */
     @Test
-    public void testToString() throws NamingException
+    public void testToString() throws Exception
     {
         ServerEntry entry = new DefaultServerEntry( registries, EXAMPLE_DN );
         
-        assertEquals( "ServerEntry\n    dn: dc=example,dc=com\n", entry.toString() );
+        assertEquals( "ServerEntry\n    dn[]: dc=example,dc=com\n", entry.toString() );
         
         Value<String> strValueTop = new ClientStringValue( "top" );
         Value<String> strValuePerson = new ClientStringValue( "person" );
@@ -3893,7 +3859,7 @@ public class DefaultServerEntryTest
 
         String expected = 
             "ServerEntry\n" +
-            "    dn: dc=example,dc=com\n" +
+            "    dn[]: dc=example,dc=com\n" +
             "    ObjectClass: top\n" +
             "    ObjectClass: person\n" +
             "    ObjectClass: ''\n" +
@@ -3902,6 +3868,85 @@ public class DefaultServerEntryTest
             "    UserPassword: ''\n";
 
         assertEquals( expected, entry.toString() );
+    }
+
+    
+    
+    /**
+     * Test the copy constructor of a ServerEntry
+     */
+    @Test 
+    public void testCopyConstructorServerEntry() throws NamingException
+    {
+        Entry serverEntry = new DefaultServerEntry( registries );
+        serverEntry.add( "cn", "test1", "test2" );
+        serverEntry.add( "objectClass", "top", "person" );
+        
+        Entry copyEntry = new DefaultServerEntry( registries, serverEntry );
+        
+        assertEquals( copyEntry, serverEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+        
+        serverEntry.removeAttributes( "cn" );
+
+        assertNotSame( copyEntry, serverEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+    }
+    
+    
+    /**
+     * Test the copy constructor of a ClientEntry
+     */
+    @Test 
+    public void testCopyConstructorClientEntry() throws NamingException
+    {
+        Entry clientEntry = new DefaultClientEntry();
+        clientEntry.setDn( new LdapDN( "ou=system" ) );
+        clientEntry.add( "cn", "test1", "test2" );
+        clientEntry.add( "objectClass", "top", "person" );
+        
+        Entry copyEntry = new DefaultServerEntry( registries, clientEntry );
+        
+        assertTrue( copyEntry instanceof ServerEntry );
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+        
+        clientEntry.removeAttributes( "cn" );
+
+        assertTrue( copyEntry.contains( "objectClass", "top", "person" ) );
+        assertTrue( copyEntry.contains( "cn", "test1", "test2" ) );
+    }
+    
+    
+    /**
+     * Test the conversion method 
+     */
+    @Test 
+    public void testToClientEntry() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "ou=system" );
+        ServerEntry serverEntry = new DefaultServerEntry( registries );
+        serverEntry.setDn( dn );
+        serverEntry.add( "cn", "test1", "test2" );
+        serverEntry.add( "objectClass", "top", "person" );
+        
+        Entry clientEntry = serverEntry.toClientEntry();
+        
+        assertTrue( clientEntry instanceof ClientEntry );
+        assertFalse( clientEntry instanceof ServerEntry );
+        
+        assertTrue( clientEntry.containsAttribute( "cn", "objectClass" ) );
+        assertEquals( dn, clientEntry.getDn() );
+        
+        serverEntry.removeAttributes( "cn" );
+        assertTrue( clientEntry
+            .contains( "cn", "test1", "test2" ) );
+        
+        serverEntry.remove(  "objectClass", "person" );
+        assertTrue( clientEntry
+            .contains( "objectClass", "top", "person" ) );
     }
 }
 

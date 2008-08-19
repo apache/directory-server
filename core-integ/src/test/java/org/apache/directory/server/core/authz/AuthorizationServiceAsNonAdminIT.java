@@ -20,28 +20,40 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
 
 
 /**
@@ -64,14 +76,16 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoDeleteOnAdminByNonAdmin() throws NamingException
+    public void testNoDeleteOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
         try
         {
-            getContext( akarasulu.getDn(), service, "ou=system" ).destroySubcontext( "uid=admin" );
+            service.getAdminSession().delete( new LdapDN( "uid=admin,ou=system") ); 
             fail( "User 'admin' should not be able to delete his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -87,15 +101,19 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException if there are problems
      */
     @Test
-    public void testNoRdnChangesOnAdminByNonAdmin() throws NamingException
+    public void testNoRdnChangesOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
         try
         {
-            sysRoot.rename( "uid=admin", "uid=alex" );
+            service.getAdminSession().rename( 
+                new LdapDN( "uid=admin,ou=system" ), 
+                new Rdn( "uid=alex" ),
+                false );
             fail( "admin should not be able to rename his account" );
         }
         catch ( LdapNoPermissionException e )
@@ -111,19 +129,34 @@ public class AuthorizationServiceAsNonAdminIT
      * @throws NamingException on error
      */
     @Test
-    public void testModifyOnAdminByNonAdmin() throws NamingException
+    public void testModifyOnAdminByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+        
+        // Read the entry we just created using the akarasuluSession
+        Entry readEntry = service.getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
+        
+        assertTrue( Arrays.equals( akarasulu.get( "userPassword" ).getBytes(), readEntry.get( "userPassword" ).getBytes() ) );
 
-        Attributes attributes = new AttributesImpl();
-        attributes.put( "userPassword", "replaced" );
+        EntryAttribute attribute = new DefaultClientAttribute( "userPassword", "replaced" );
 
-        //noinspection EmptyCatchBlock
+        List<Modification> mods = new ArrayList<Modification>();
+        
+        Modification mod = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+        mods.add( mod );
+      
+        LdapDN userDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
+        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
+        CoreSession akarasuluSession = service.getSession( principal );
+
         try
         {
-            sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
+            akarasuluSession.modify( 
+                new LdapDN( "uid=admin,ou=system" ), mods ); 
             fail( "User 'uid=admin,ou=system' should not be able to modify attributes on admin" );
         }
         catch ( Exception e )
@@ -133,35 +166,26 @@ public class AuthorizationServiceAsNonAdminIT
 
 
     /**
-     * Makes sure the admin can see all entries we know of on a subtree search.
+     * Makes sure non-admin cannot search under ou=system.
      *
      * @throws NamingException if there are problems
      */
     @Test
-    public void testSearchSubtreeByNonAdmin() throws NamingException
+    public void testNoSearchByNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
-
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        HashSet<String> set = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=*)", controls );
         
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            set.add( result.getName() );
-        }
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
-        // @todo this assertion fails now - is this the expected behavoir?
-//        assertTrue( set.contains( "ou=system" ) );
-//        assertTrue( set.contains( "ou=groups,ou=system" ) );
-//        assertFalse( set.contains( "cn=administrators,ou=groups,ou=system" ) );
-//        assertTrue( set.contains( "ou=users,ou=system" ) );
-//        assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
-//        assertFalse( set.contains( "uid=admin,ou=system" ) );
+        try
+        {
+            ExprNode filter = FilterParser.parse( "(objectClass=*)" );
+            service.getAdminSession().search( new LdapDN( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
+        }
+        catch ( LdapNoPermissionException e )
+        {
+            assertNotNull( e );
+        }
     }
 }

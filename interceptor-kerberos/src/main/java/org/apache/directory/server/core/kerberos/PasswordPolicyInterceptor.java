@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +65,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      * Check added attributes for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws Exception
     {
         LdapDN normName = addContext.getDn();
 
@@ -110,7 +109,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
      * Check modification items for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws Exception
     {
         LdapDN name = modContext.getDn();
 
@@ -190,7 +189,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
     }
 
 
-    void check( String username, String password ) throws NamingException
+    void check( String username, String password ) throws Exception
     {
         int passwordLength = 6;
         int categoryCount = 2;
@@ -201,7 +200,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
             String explanation = buildErrorMessage( username, password, passwordLength, categoryCount, tokenSize );
             log.error( explanation );
 
-            throw new NamingException( explanation );
+            throw new Exception( explanation );
         }
     }
 

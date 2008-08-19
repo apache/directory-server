@@ -97,7 +97,7 @@ public class SubentryServiceObjectClassChangeHandlingIT
     }
 
 
-    public void addAdministrativeRoles() throws NamingException
+    public void addAdministrativeRoles() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new AttributeImpl( "administrativeRole" );
@@ -109,7 +109,7 @@ public class SubentryServiceObjectClassChangeHandlingIT
     }
 
 
-    public Map<String, Attributes> getAllEntries() throws NamingException
+    public Map<String, Attributes> getAllEntries() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();

@@ -41,18 +41,13 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -106,18 +101,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
-
+    
     /**
      * Define the interceptors we should *not* go through when we will have to request the backend
      * about a userPassword.
      */
     private static final Collection<String> USERLOOKUP_BYPASS;
+    
+    
     static
     {
         Set<String> c = new HashSet<String>();
         c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
@@ -141,6 +137,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
+    
     /**
      * Creates a new instance, with an initial cache size
      * @param cacheSize the size of the credential cache
@@ -152,6 +149,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
 
+    
     /**
      * A private class to store all informations about the existing
      * password found in the cache or get from the backend.
@@ -182,20 +180,20 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    
     /**
      * Get the password either from cache or from backend.
      * @param principalDN The DN from which we want the password
      * @return A byte array which can be empty if the password was not found
      * @throws NamingException If we have a problem during the lookup operation
      */
-    private LdapPrincipal getStoredPassword( Registries registries, LdapDN principalDN ) throws NamingException
+    private LdapPrincipal getStoredPassword( BindOperationContext opContext ) throws Exception
     {
-        LdapPrincipal principal;
-        String principalNorm = principalDN.getNormName();
+        LdapPrincipal principal = null;
         
         synchronized( credentialCache )
         {
-            principal = (LdapPrincipal)credentialCache.get( principalNorm );
+            principal = ( LdapPrincipal ) credentialCache.get( opContext.getDn().getNormName() );
         }
         
         byte[] storedPassword;
@@ -204,7 +202,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             // Not found in the cache
             // Get the user password from the backend
-            storedPassword = lookupUserPassword( registries, principalDN );
+            storedPassword = lookupUserPassword( opContext );
             
             
             // Deal with the special case where the user didn't enter a password
@@ -217,53 +215,16 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             // Create the new principal before storing it in the cache
-            principal = new LdapPrincipal( principalDN, AuthenticationLevel.SIMPLE, storedPassword );
+            principal = new LdapPrincipal( opContext.getDn(), AuthenticationLevel.SIMPLE, storedPassword );
             
             // Now, update the local cache.
             synchronized( credentialCache )
             {
-                credentialCache.put( principalDN.getNormName(), principal );
+                credentialCache.put( opContext.getDn().getNormName(), principal );
             }
         }
         
         return principal;
-    }
-
-    /**
-     * Get the user credentials from the environment. It is stored into the
-     * ServcerContext.
-     *
-     * @param ctx the naming context to get the credentials from
-     * @return the credentials
-     * @throws LdapAuthenticationException if the there are probelms with security
-     * credentials provided
-     */
-    private byte[] getCredentials( ServerContext ctx ) throws LdapAuthenticationException
-    {
-        Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
-        byte[] credentials;
-
-        if ( creds == null )
-        {
-            credentials = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
-        else if ( creds instanceof String )
-        {
-            credentials = StringTools.getBytesUtf8( ( String ) creds );
-        }
-        else if ( creds instanceof byte[] )
-        {
-            // This is the general case. When dealing with a BindRequest operation,
-            // received by the server, the credentials are always stored into a byte array
-            credentials = (byte[])creds;
-        }
-        else
-        {
-            LOG.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
-            throw new LdapAuthenticationException();
-        }
-        
-        return credentials;
     }
 
 
@@ -297,17 +258,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      *  
      *  The stored password is always using the unsalted form, and is stored as a bytes array.
      */
-    public LdapPrincipal authenticate( LdapDN principalDn, ServerContext ctx ) throws NamingException
+    public LdapPrincipal authenticate( BindOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Authenticating {}", principalDn );
+            LOG.debug( "Authenticating {}", opContext.getDn() );
         }
         
         // ---- extract password from JNDI environment
-        byte[] credentials = getCredentials( ctx );
+        byte[] credentials = opContext.getCredentials();
         
-        LdapPrincipal principal = getStoredPassword( getDirectoryService().getRegistries(), principalDn );
+        LdapPrincipal principal = getStoredPassword( opContext );
         
         // Get the stored password, either from cache or from backend
         byte[] storedPassword = principal.getUserPassword();
@@ -318,7 +279,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( IS_DEBUG )
             {
-                LOG.debug( "{} Authenticated", principalDn );
+                LOG.debug( "{} Authenticated", opContext.getDn() );
             }
             
             return principal;
@@ -347,7 +308,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 if ( IS_DEBUG )
                 {
-                    LOG.debug( "{} Authenticated", principalDn );
+                    LOG.debug( "{} Authenticated", opContext.getDn() );
                 }
 
                 return principal;
@@ -355,7 +316,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             else
             {
                 // Bad password ...
-                String message = "Password not correct for user '" + principalDn.getUpName() + "'";
+                String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
                 LOG.info( message );
                 throw new LdapAuthenticationException(message);
             }
@@ -363,11 +324,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         else
         {
             // Bad password ...
-            String message = "Password not correct for user '" + principalDn.getUpName() + "'";
+            String message = "Password not correct for user '" + opContext.getDn().getUpName() + "'";
             LOG.info( message );
             throw new LdapAuthenticationException(message);
         }
     }
+    
     
     private static void split( byte[] all, int offset, byte[] left, byte[] right )
     {
@@ -375,6 +337,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         System.arraycopy( all, offset + left.length, right, 0, right.length );
     }
 
+    
     /**
      * Decopose the stored password in an algorithm, an eventual salt
      * and the password itself.
@@ -446,6 +409,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    
     /**
      * Get the algorithm from the stored password. 
      * It can be found on the beginning of the stored password, between 
@@ -501,6 +465,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Compute the hashed password given an algorithm, the credentials and 
      * an optional salt.
@@ -535,6 +500,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     private byte[] encryptPassword( byte[] credentials, EncryptionMethod encryptionMethod )
     {
         byte[] salt = encryptionMethod.salt;
@@ -572,36 +538,45 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Local function which request the password from the backend
      * @param principalDn the principal to lookup
      * @return the credentials from the backend
      * @throws NamingException if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( Registries registries, LdapDN principalDn ) throws NamingException
+    private byte[] lookupUserPassword( BindOperationContext opContext ) throws Exception
     {
         // ---- lookup the principal entry's userPassword attribute
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
         ServerEntry userEntry;
 
         try
         {
-            LookupOperationContext lookupContex  = new LookupOperationContext( registries, 
-                new String[] { SchemaConstants.USER_PASSWORD_AT } );
-            lookupContex.setDn( principalDn );
-            
-            userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS ); 
+            /*
+             * NOTE: at this point the BindOperationContext does not has a 
+             * null session since the user has not yet authenticated so we
+             * cannot use opContext.lookup() yet.  This is a very special
+             * case where we cannot rely on the opContext to perform a new
+             * sub operation.
+             */
+            LookupOperationContext lookupContext = 
+                new LookupOperationContext( getDirectoryService().getAdminSession(), opContext.getDn() );
+            lookupContext.setByPassed( USERLOOKUP_BYPASS );
+            userEntry = getDirectoryService().getOperationManager().lookup( lookupContext );
 
             if ( userEntry == null )
             {
-                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principalDn );
+            	LdapDN dn = opContext.getDn();
+            	String upDn = ( dn == null ? "" : dn.getUpName() );
+            	
+                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " 
+                    + upDn );
             }
         }
         catch ( Exception cause )
         {
             LOG.error( "Authentication error : " + cause.getMessage() );
-            LdapAuthenticationException e = new LdapAuthenticationException();
+            LdapAuthenticationException e = new LdapAuthenticationException( cause.getMessage() );
             e.setRootCause( e );
             throw e;
         }
@@ -630,6 +605,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Get the algorithm of a password, which is stored in the form "{XYZ}...".
      * The method returns null, if the argument is not in this form. It returns
@@ -724,6 +700,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
+    
     /**
      * Remove the principal form the cache. This is used when the user changes
      * his password.

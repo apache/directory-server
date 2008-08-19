@@ -20,8 +20,7 @@
 package org.apache.directory.server.core.changelog;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**
@@ -58,18 +57,18 @@ public interface TagSearchEngine
      *
      * @param revision the revision number to use to check for a snapshot
      * @return the snapshot at the revision if one exists, otherwise null
-     * @throws NamingException if there is a problem accessing the store
+     * @throws Exception if there is a problem accessing the store
      */
-    Tag lookup( long revision ) throws NamingException;
+    Tag lookup( long revision ) throws Exception;
     
     /**
      * Checks to see if a snapshot exists for a specific revision. 
      *
      * @param revision the revision number to use to check for a snapshot
      * @return true if a snapshot exists at the revision, false otherwise
-     * @throws NamingException if there is a problem accessing the store
+     * @throws Exception if there is a problem accessing the store
      */
-    boolean has( long revision ) throws NamingException;
+    boolean has( long revision ) throws Exception;
 
 
     // -----------------------------------------------------------------------
@@ -82,10 +81,10 @@ public interface TagSearchEngine
      * revision.
      *
      * @param order the revision order in which to return snapshot tags 
-     * @return an enumeration over the tags of all snapshots taken since revision 0
-     * @throws NamingException if there is a problem accessing the store
+     * @return a cursor containing the tags of all snapshots taken since revision 1
+     * @throws Exception if there is a problem accessing the store
      */
-    NamingEnumeration<Tag> find( RevisionOrder order ) throws NamingException;
+    Cursor<Tag> find( RevisionOrder order ) throws Exception;
     
     /**
      * Finds all the snapshot tags taken before a specific revision.  If a tag 
@@ -94,11 +93,11 @@ public interface TagSearchEngine
      * @param revision the revision number to get snapshots before 
      * @param order the revision order in which to return snapshot tags 
      * @return an enumeration over the tags of all snapshots taken before a revision inclusive
-     * @throws NamingException if there is a problem accessing the store
+     * @throws Exception if there is a problem accessing the store
      * @throws IllegalArgumentException if the revision is greater than the current revision
      * or less than 0.
      */
-    NamingEnumeration<Tag> findBefore( long revision, RevisionOrder order ) throws NamingException;
+    Cursor<Tag> findBefore( long revision, RevisionOrder order ) throws Exception;
     
     /**
      * Finds all the snapshot tags taken after a specific revision.  If a tag 
@@ -107,11 +106,11 @@ public interface TagSearchEngine
      * @param revision the revision number to get snapshots after
      * @param order the revision order in which to return snapshot tags 
      * @return an enumeration over the tags of all snapshots taken after a revision inclusive
-     * @throws NamingException if there is a problem accessing the store
+     * @throws Exception if there is a problem accessing the store
      * @throws IllegalArgumentException if the revision is greater than the current revision
      * or less than 0.
      */
-    NamingEnumeration<Tag> findAfter( long revision, RevisionOrder order ) throws NamingException;
+    Cursor<Tag> findAfter( long revision, RevisionOrder order ) throws Exception;
     
     /**
      * Enumerates over the tags of all snapshots taken between a specific revision 
@@ -122,10 +121,10 @@ public interface TagSearchEngine
      * @param endRevision the revision to end on inclusive
      * @param order the revision order in which to return snapshot tags
      * @return enumeration over all the snapshots taken in a revision range inclusive
-     * @throws NamingException if there is a problem accessing the store
+     * @throws Exception if there is a problem accessing the store
      * @throws IllegalArgumentException if the revision range is not constructed properly
      * or if either revision number is greater than the current revision or less than 0.
      */
-    NamingEnumeration<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
-        throws NamingException;
+    Cursor<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
+        throws Exception;
 }

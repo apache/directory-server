@@ -101,21 +101,7 @@ public class NormalizingVisitor implements FilterVisitor
             false, false, false, false, false, false, false, false, // 70 -> 77
             false, false, false, false, false, false, false, false  // 78 -> 7F
         };
-
-    /**
-     * 
-     * Creates a new instance of NormalizingVisitor.
-     *
-     * @param ncn The name component normalizer to use
-     * @param registries The global registries
-     */
-    public NormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
-    {
-        this.ncn = ncn;
-        this.registries = registries;
-    }
-
-
+    
     /**
      * Check if the given char is a filter escaped char
      * &lt;filterEscapedChars&gt; ::= '\0' | '(' | ')' | '*' | '\'
@@ -201,7 +187,7 @@ public class NormalizingVisitor implements FilterVisitor
 
 
     /**
-     * Un escape the escaped chars in the value
+     * Un-escape the escaped chars in the value
      */
     private void unescapeValue( Value<?> value )
     {
@@ -227,6 +213,21 @@ public class NormalizingVisitor implements FilterVisitor
             }
         }
     }
+
+
+    /**
+     * 
+     * Creates a new instance of NormalizingVisitor.
+     *
+     * @param ncn The name component normalizer to use
+     * @param registries The global registries
+     */
+    public NormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
+    {
+        this.ncn = ncn;
+        this.registries = registries;
+    }
+
 
     /**
      * A private method used to normalize a value

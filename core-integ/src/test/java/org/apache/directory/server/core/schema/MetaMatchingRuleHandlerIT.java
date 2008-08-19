@@ -80,9 +80,9 @@ public class MetaMatchingRuleHandlerIT
      * 
      * @param schemaName the name of the schema
      * @return  the dn of the container of matchingRules for a schema
-     * @throws NamingException on error
+     * @throws Exception on error
      */
-    private LdapDN getMatchingRuleContainer( String schemaName ) throws NamingException
+    private LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=matchingRules,cn=" + schemaName );
     }
@@ -94,7 +94,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testAddMatchingRule() throws NamingException
+    public void testAddMatchingRule() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -115,7 +115,7 @@ public class MetaMatchingRuleHandlerIT
     
 
     @Test
-    public void testDeleteMatchingRule() throws NamingException
+    public void testDeleteMatchingRule() throws Exception
     {
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -138,7 +138,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testRenameMatchingRule() throws NamingException
+    public void testRenameMatchingRule() throws Exception
     {
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -165,7 +165,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRule() throws NamingException
+    public void testMoveMatchingRule() throws Exception
     {
         testAddMatchingRule();
         
@@ -186,7 +186,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleAndChangeRdn() throws NamingException
+    public void testMoveMatchingRuleAndChangeRdn() throws Exception
     {
         testAddMatchingRule();
         
@@ -210,7 +210,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testModifyMatchingRuleWithModificationItems() throws NamingException
+    public void testModifyMatchingRuleWithModificationItems() throws Exception
     {
         testAddMatchingRule();
         
@@ -241,7 +241,7 @@ public class MetaMatchingRuleHandlerIT
 
     
     @Test
-    public void testModifyMatchingRuleWithAttributes() throws NamingException
+    public void testModifyMatchingRuleWithAttributes() throws Exception
     {
         testAddMatchingRule();
         
@@ -328,7 +328,7 @@ public class MetaMatchingRuleHandlerIT
 //        addDependeeMatchingRule()
 //        
 //        LdapDN dn = getSyntaxContainer( "apachemeta" );
-//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+//        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );s
 //
 //        LdapDN newdn = getSyntaxContainer( "apache" );
 //        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
@@ -388,7 +388,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleToTop() throws NamingException
+    public void testMoveMatchingRuleToTop() throws Exception
     {
         testAddMatchingRule();
         
@@ -414,7 +414,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleToComparatorContainer() throws NamingException
+    public void testMoveMatchingRuleToComparatorContainer() throws Exception
     {
         testAddMatchingRule();
         
@@ -440,7 +440,7 @@ public class MetaMatchingRuleHandlerIT
     
     
     @Test
-    public void testAddMatchingRuleToDisabledSchema() throws NamingException
+    public void testAddMatchingRuleToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -461,7 +461,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleToDisabledSchema() throws NamingException
+    public void testMoveMatchingRuleToDisabledSchema() throws Exception
     {
         testAddMatchingRule();
         
@@ -480,7 +480,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleToEnabledSchema() throws NamingException
+    public void testMoveMatchingRuleToEnabledSchema() throws Exception
     {
         testAddMatchingRuleToDisabledSchema();
         

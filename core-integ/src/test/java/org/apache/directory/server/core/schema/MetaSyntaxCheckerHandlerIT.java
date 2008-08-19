@@ -93,9 +93,9 @@ public class MetaSyntaxCheckerHandlerIT
      *
      * @param schemaName the name of the schema
      * @return the dn of the container holding syntax checkers for the schema
-     * @throws NamingException on dn parse errors
+     * @throws Exception on dn parse errors
      */
-    private LdapDN getSyntaxCheckerContainer( String schemaName ) throws NamingException
+    private LdapDN getSyntaxCheckerContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=syntaxCheckers,cn=" + schemaName );
     }
@@ -107,7 +107,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testAddSyntaxChecker() throws NamingException
+    public void testAddSyntaxChecker() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -161,7 +161,7 @@ public class MetaSyntaxCheckerHandlerIT
     
     
     @Test
-    public void testDeleteSyntaxChecker() throws NamingException
+    public void testDeleteSyntaxChecker() throws Exception
     {
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -185,7 +185,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testRenameSyntaxChecker() throws NamingException
+    public void testRenameSyntaxChecker() throws Exception
     {
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -215,7 +215,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxChecker() throws NamingException
+    public void testMoveSyntaxChecker() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -239,7 +239,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerAndChangeRdn() throws NamingException
+    public void testMoveSyntaxCheckerAndChangeRdn() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -266,7 +266,7 @@ public class MetaSyntaxCheckerHandlerIT
 
     
     @Test
-    public void testModifySyntaxCheckerWithModificationItems() throws NamingException
+    public void testModifySyntaxCheckerWithModificationItems() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -290,7 +290,7 @@ public class MetaSyntaxCheckerHandlerIT
 
     
     @Test
-    public void testModifySyntaxCheckerWithAttributes() throws NamingException
+    public void testModifySyntaxCheckerWithAttributes() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -318,7 +318,7 @@ public class MetaSyntaxCheckerHandlerIT
 
     
     @Test
-    public void testDeleteSyntaxCheckerWhenInUse() throws NamingException
+    public void testDeleteSyntaxCheckerWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -343,7 +343,7 @@ public class MetaSyntaxCheckerHandlerIT
     
     
     @Test
-    public void testMoveSyntaxCheckerWhenInUse() throws NamingException
+    public void testMoveSyntaxCheckerWhenInUse() throws Exception
     {
         testAddSyntaxChecker();
         getSyntaxRegistry().register( new DummySyntax() );
@@ -372,7 +372,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveSyntaxCheckerAndChangeRdnWhenInUse() throws Exception
     {
         testAddSyntaxChecker();
         getSyntaxRegistry().register( new DummySyntax() );
@@ -401,7 +401,7 @@ public class MetaSyntaxCheckerHandlerIT
 
     
     @Test
-    public void testRenameSyntaxCheckerWhenInUse() throws NamingException
+    public void testRenameSyntaxCheckerWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxCheckerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -434,7 +434,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerToTop() throws NamingException
+    public void testMoveSyntaxCheckerToTop() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -460,7 +460,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerToComparatorContainer() throws NamingException
+    public void testMoveSyntaxCheckerToComparatorContainer() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -486,7 +486,7 @@ public class MetaSyntaxCheckerHandlerIT
     
     
     @Test
-    public void testAddSyntaxCheckerToDisabledSchema() throws NamingException
+    public void testAddSyntaxCheckerToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -508,7 +508,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerToDisabledSchema() throws NamingException
+    public void testMoveSyntaxCheckerToDisabledSchema() throws Exception
     {
         testAddSyntaxChecker();
         
@@ -527,7 +527,7 @@ public class MetaSyntaxCheckerHandlerIT
 
 
     @Test
-    public void testMoveSyntaxCheckerToEnabledSchema() throws NamingException
+    public void testMoveSyntaxCheckerToEnabledSchema() throws Exception
     {
         testAddSyntaxCheckerToDisabledSchema();
         
@@ -588,7 +588,7 @@ public class MetaSyntaxCheckerHandlerIT
             return "dummy";
         }
 
-        public String[] getNamesRef()
+        public String[] getNames()
         {
             return new String[] { "dummy" };
         }
@@ -620,6 +620,12 @@ public class MetaSyntaxCheckerHandlerIT
 
         public void setSchema( String schemaName )
         {
+        }
+
+        public String[] getNamesRef()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 }

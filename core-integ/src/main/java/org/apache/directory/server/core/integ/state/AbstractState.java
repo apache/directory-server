@@ -25,11 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.internal.runners.TestClass;
@@ -116,9 +115,9 @@ public abstract class AbstractState implements TestServiceState
     /**
      * Action where an attempt is made to start up the service.
      *
-     * @throws NamingException on failures to start the core directory service
+     * @throws Exception on failures to start the core directory service
      */
-    public void startup() throws NamingException
+    public void startup() throws Exception
     {
         LOG.error( STARTUP_ERR );
         throw new IllegalStateException( STARTUP_ERR );
@@ -128,9 +127,9 @@ public abstract class AbstractState implements TestServiceState
     /**
      * Action where an attempt is made to shutdown the service.
      *
-     * @throws NamingException on failures to stop the core directory service
+     * @throws Exception on failures to stop the core directory service
      */
-    public void shutdown() throws NamingException
+    public void shutdown() throws Exception
     {
         LOG.error( SHUTDOWN_ERR );
         throw new IllegalStateException( SHUTDOWN_ERR );
@@ -159,10 +158,10 @@ public abstract class AbstractState implements TestServiceState
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
      *
-     * @throws NamingException on failures to revert the state of the core
+     * @throws Exception on failures to revert the state of the core
      * directory service
      */
-    public void revert() throws NamingException
+    public void revert() throws Exception
     {
         LOG.error( REVERT_ERROR );
         throw new IllegalStateException( REVERT_ERROR );
@@ -191,12 +190,12 @@ public abstract class AbstractState implements TestServiceState
                     LdifReader ldifReader = new LdifReader( in );
                     LdifEntry entry = ldifReader.next();
                     
-                    LdapContext root = IntegrationUtils.getRootContext( service );
-                    root.createSubcontext( entry.getDn(), entry.getAttributes() );
+                    service.getAdminSession().add( 
+                        new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
                 }
-                catch ( NamingException ne )
+                catch ( Exception e )
                 {
-                    LOG.error( "Cannot inject the following entry : {}. Skipped.", ldif );
+                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldif, e.getMessage() );
                 }
             }
         }

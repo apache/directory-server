@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.core.unit;
 
-import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 
@@ -32,7 +31,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
  */
 public abstract class AbstractAdminTestCase extends AbstractTestCase
 {
-    protected AbstractAdminTestCase() throws NamingException
+    protected AbstractAdminTestCase() throws Exception
     {
         super( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }

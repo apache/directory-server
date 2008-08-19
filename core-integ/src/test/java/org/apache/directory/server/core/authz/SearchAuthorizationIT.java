@@ -20,30 +20,24 @@
 package org.apache.directory.server.core.authz;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addEntryACI;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addPrescriptiveACI;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.addSubentryACI;
-import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGroup;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.getContextAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -54,8 +48,17 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -109,7 +112,7 @@ public class SearchAuthorizationIT
 
 
     private void recursivelyAddSearchData( Name parent, Attributes[] children, final int sizeLimit, int[] count )
-        throws NamingException
+        throws Exception
     {
         Name[] childRdns = new Name[children.length];
         for ( int ii = 0; ii < children.length && count[0] < sizeLimit; ii++ )
@@ -146,7 +149,7 @@ public class SearchAuthorizationIT
      * @return the immediate child node created under parent which contains the subtree
      * @throws NamingException on error
      */
-    private Name addSearchData( Name parent, int branchingFactor, int sizelimit ) throws NamingException
+    private Name addSearchData( Name parent, int branchingFactor, int sizelimit ) throws Exception
     {
         parent = ( Name ) parent.clone();
         parent.add( "ou=tests" );
@@ -163,7 +166,7 @@ public class SearchAuthorizationIT
      * @param rdn the relative dn from ou=system of the entry to delete recursively
      * @throws NamingException if there are problems deleting entries
      */
-    private void recursivelyDelete( Name rdn ) throws NamingException
+    private void recursivelyDelete( Name rdn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         NamingEnumeration<SearchResult> results = sysRoot.search( rdn, "(objectClass=*)", new SearchControls() );
@@ -188,7 +191,7 @@ public class SearchAuthorizationIT
      * @return true if the search succeeds as expected, false otherwise
      * @throws NamingException if there are problems conducting the search
      */
-    private boolean checkCanSearchAs( String uid, String password ) throws NamingException
+    private boolean checkCanSearchAs( String uid, String password ) throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", null, 3 );
     }
@@ -205,7 +208,7 @@ public class SearchAuthorizationIT
      * @return true if the search succeeds as expected, false otherwise
      * @throws NamingException if there are problems conducting the search
      */
-    private boolean checkCanSearchAs( String uid, String password, int resultSetSz ) throws NamingException
+    private boolean checkCanSearchAs( String uid, String password, int resultSetSz ) throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", null, resultSetSz );
     }
@@ -224,7 +227,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkCanSearchAs( String uid, String password, SearchControls cons, int resultSetSz )
-        throws NamingException
+        throws Exception
     {
         return checkCanSearchAs( uid, password, "(objectClass=*)", cons, resultSetSz );
     }
@@ -243,7 +246,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkCanSearchAs( String uid, String password, String filter, SearchControls cons, int resultSetSz )
-        throws NamingException
+        throws Exception
     {
         if ( cons == null )
         {
@@ -292,7 +295,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if there are problems conducting the search
      */
     private boolean checkSearchAsWithEntryACI( String uid, String password, SearchControls cons, Name rdn, String aci,
-        int resultSetSz ) throws NamingException
+        int resultSetSz ) throws Exception
     {
         if ( cons == null )
         {
@@ -336,7 +339,7 @@ public class SearchAuthorizationIT
      * these utility functions
      */
     @Test
-    public void testAddSearchData() throws NamingException
+    public void testAddSearchData() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Name base = addSearchData( new LdapDN(), 3, 10 );
@@ -375,7 +378,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantAdministrators() throws NamingException
+    public void testGrantAdministrators() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -409,7 +412,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchByName() throws NamingException
+    public void testGrantSearchByName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -436,7 +439,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchByNameUserDnCase() throws NamingException
+    public void testGrantSearchByNameUserDnCase() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -462,7 +465,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchBySubtree() throws NamingException
+    public void testGrantSearchBySubtree() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -488,7 +491,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantSearchAllUsers() throws NamingException
+    public void testGrantSearchAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -519,7 +522,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testSelectiveGrantsAllUsers() throws NamingException
+    public void testSelectiveGrantsAllUsers() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -550,7 +553,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testHidingAttributes() throws NamingException
+    public void testHidingAttributes() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -608,7 +611,7 @@ public class SearchAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testHidingAttributeValues() throws NamingException
+    public void testHidingAttributeValues() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -672,7 +675,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if the test is broken
      */
     @Test
-    public void testPerscriptiveGrantWithEntryDenial() throws NamingException
+    public void testPerscriptiveGrantWithEntryDenial() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -716,7 +719,7 @@ public class SearchAuthorizationIT
      * @throws NamingException if the test is broken
      */
     @Test
-    public void testPerscriptiveGrantWithEntryDenialWithPrecidence() throws NamingException
+    public void testPerscriptiveGrantWithEntryDenialWithPrecidence() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -773,7 +776,7 @@ public class SearchAuthorizationIT
      * @return the single search result if access is allowed or null
      * @throws NamingException if the search fails w/ exception other than no permission
      */
-    private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws NamingException
+    private SearchResult checkCanSearhSubentryAs( String uid, String password, Name rdn ) throws Exception
     {
         DirContext userCtx = getContextAs( new LdapDN( "uid=" + uid + ",ou=users,ou=system" ), password );
         SearchControls cons = new SearchControls();
@@ -794,6 +797,7 @@ public class SearchAuthorizationIT
         }
         catch ( LdapNoPermissionException e )
         {
+            return null;
         }
         finally
         {
@@ -808,7 +812,7 @@ public class SearchAuthorizationIT
 
 
     @Test
-    public void testSubentryAccess() throws NamingException
+    public void testSubentryAccess() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -834,7 +838,7 @@ public class SearchAuthorizationIT
 
 
     @Test
-    public void testGetMatchedName() throws NamingException
+    public void testGetMatchedName() throws Exception
     {
         // create the non-admin user
         createUser( "billyd", "billyd" );
@@ -881,5 +885,39 @@ public class SearchAuthorizationIT
             // we should not see ou=groups,ou=system for the remaining name
             assertEquals( matched.toString(), "ou=groups,ou=system" );
         }
+    }
+    
+    @Test
+    public void testUserClassParentOfEntry() throws Exception
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+        
+        // create an entry subordinate to the user
+        DirContext billydCtx = AutzIntegUtils.getContextAsAdmin("uid=billyd,ou=users,ou=system");
+        Attributes phoneBook = new AttributesImpl( "ou", "phoneBook", true );
+        Attribute objectClass = new AttributeImpl( "objectClass" );
+        phoneBook.put( objectClass );
+        objectClass.add( "top" );
+        objectClass.add( "organizationalUnit" );
+        billydCtx.createSubcontext( "ou=phoneBook", phoneBook );
+
+        // now add a subentry that enables anyone to search below their own entries
+        createAccessControlSubentry( "anybodySearchTheirSubordinates", "{ " + "identificationTag \"searchAci\", " + "precedence 14, "
+            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
+            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }" );
+
+        // check and see if we can access the subentry now
+        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
+
+        // now add a denial to prevent all users except the admin from accessing the subentry
+        addPrescriptiveACI( "anybodySearchTheirSubordinates", "{ " + "identificationTag \"anybodyDontSearchTheirSubordinates\", " + "precedence 14, " + "authenticationLevel none, "
+            + "itemOrUserFirst userFirst: { " + "userClasses { parentOfEntry }, " + "userPermissions { { "
+            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { denyRead, denyReturnDN, denyBrowse } } } } }" );
+
+        // now we should not be able to access the subentry with a search
+        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new LdapDN( "ou=phoneBook,uid=billyd,ou=users" ) ) );
     }
 }

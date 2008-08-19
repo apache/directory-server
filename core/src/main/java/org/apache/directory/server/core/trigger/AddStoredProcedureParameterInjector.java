@@ -17,46 +17,50 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.core.trigger;
+
 
 import java.util.Map;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
+
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN addedEntryName;
     private ServerEntry addedEntry;
     
-    public AddStoredProcedureParameterInjector( Invocation invocation, LdapDN addedEntryName, ServerEntry addedEntry )
+    
+    public AddStoredProcedureParameterInjector( OperationContext opContext, LdapDN addedEntryName, 
+        ServerEntry addedEntry )
     {
-        super( invocation );
+        super( opContext );
         this.addedEntryName = addedEntryName;
         this.addedEntry = addedEntry;
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Add_ENTRY.class, $entryInjector );
         injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, $attributesInjector );
     }
+
     
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( addedEntryName.getUpName() );
         }
     };
     
+    
     MicroInjector $attributesInjector = new MicroInjector()
     {
-        public Object inject( Registries registries, StoredProcedureParameter param ) throws NamingException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws NamingException
         {
             return addedEntry.clone();
         }

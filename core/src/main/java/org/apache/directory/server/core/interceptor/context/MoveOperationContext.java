@@ -19,8 +19,12 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import org.apache.directory.server.schema.registries.Registries;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A Move context used for Interceptors. It contains all the informations
@@ -29,31 +33,48 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveOperationContext extends AbstractOperationContext
+public class MoveOperationContext extends AbstractChangeOperationContext
 {
     /** The parent DN */
     private LdapDN parent;
     
-    /**
-     * 
-     * Creates a new instance of MoveOperationContext.
-     *
-     */
-    public MoveOperationContext( Registries registries )
-    {
-        super( registries );
-    }
 
     /**
-     * 
      * Creates a new instance of MoveOperationContext.
-     *
      */
-    public MoveOperationContext( Registries registries, LdapDN oldDn, LdapDN parent )
+    public MoveOperationContext( CoreSession session )
     {
-        super( registries, oldDn );
+    	super( session );
+    }
+    
+
+    /**
+     * Creates a new instance of MoveOperationContext.
+     */
+    public MoveOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent )
+    {
+        super( session, oldDn );
         this.parent = parent;
     }
+
+    
+    public MoveOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        super( session, modifyDnRequest.getName() );
+        this.parent = modifyDnRequest.getNewSuperior();
+        
+        if ( parent == null )
+        {
+            throw new IllegalArgumentException( "The new superior cannot be null for " + modifyDnRequest );
+        }
+        
+        this.requestControls = modifyDnRequest.getControls();
+        if ( modifyDnRequest.getNewRdn() != null )
+        {
+            throw new IllegalArgumentException( modifyDnRequest + " represents a move and rename operation." );
+        }
+    }
+
 
     /**
      *  @return The parent DN
@@ -62,6 +83,7 @@ public class MoveOperationContext extends AbstractOperationContext
     {
         return parent;
     }
+    
 
     /**
      * Set the parent DN
@@ -73,6 +95,16 @@ public class MoveOperationContext extends AbstractOperationContext
         this.parent = parent;
     }
 
+
+    /**
+     * @return the operation name
+     */
+    public String getName()
+    {
+        return MessageTypeEnum.MOD_DN_REQUEST.name();
+    }
+
+    
     /**
      * @see Object#toString()
      */
@@ -81,5 +113,4 @@ public class MoveOperationContext extends AbstractOperationContext
         return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
         ", parent '" + parent + "'";
     }
-
 }

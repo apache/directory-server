@@ -249,9 +249,9 @@ public class KerberosProtocolHandler implements IoHandler
             sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
             sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
             sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
-            sb.append( "\n\t" + "client time:           " + error.getServerTime() );
+            sb.append( "\n\t" + "client time:           " + error.getClientTime() );
             sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
-            sb.append( "\n\t" + "server time:           " + error.getClientTime() );
+            sb.append( "\n\t" + "server time:           " + error.getServerTime() );
 
             log.debug( sb.toString() );
         }

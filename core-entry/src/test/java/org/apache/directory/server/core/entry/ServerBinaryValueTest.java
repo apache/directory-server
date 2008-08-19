@@ -110,7 +110,82 @@ public class ServerBinaryValueTest
         at.setSyntax( s );
     }
     
+    
+    /**
+     * Serialize a ServerBinaryValue
+     */
+    private ByteArrayOutputStream serializeValue( ServerBinaryValue value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            value.serialize( oOut );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a ServerBinaryValue
+     */
+    private ServerBinaryValue deserializeValue( ByteArrayOutputStream out, AttributeType at ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ServerBinaryValue value = new ServerBinaryValue( at );
+            value.deserialize( oIn );
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+    
+    
     /**
      * Test the constructor with bad AttributeType
      */
@@ -472,28 +547,34 @@ public class ServerBinaryValueTest
         byte[] v1Norm = StringTools.getBytesUtf8( "Test   Test" );
         
         // First check with a value which will be normalized
-        ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
+        ServerBinaryValue sbv = new ServerBinaryValue( at, v1 );
         
-        sv.normalize();
-        byte[] normalized = sv.getNormalizedValueReference();
+        sbv.normalize();
+        byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
-        assertTrue( Arrays.equals( v1, sv.getReference() ) );
+        assertTrue( Arrays.equals( v1, sbv.getReference() ) );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
+        assertEquals( sbv, sbvSer );
+    }
 
-        byte[] data = baos.toByteArray();
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+
+    /**
+     * Test serialization of a BinaryValue which normalized value is the same
+     * than the value
+     */
+    @Test public void testNormalizedBinarySameValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] v1 = StringTools.getBytesUtf8( "Test   Test" );
         
-        ServerBinaryValue sv2 = new ServerBinaryValue( at );
-        sv2.readExternal( in );
+        // First check with a value which will be normalized
+        ServerBinaryValue sbv = new ServerBinaryValue( at, v1 );
         
-        assertEquals( sv, sv2 );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
+        
+        assertEquals( sbv, sbvSer );
     }
 
 
@@ -506,29 +587,17 @@ public class ServerBinaryValueTest
         byte[] v1Norm = StringTools.getBytesUtf8( "test" );
 
         // First check with a value which will be normalized
-        ServerBinaryValue sv = new ServerBinaryValue( at, v1 );
+        ServerBinaryValue sbv = new ServerBinaryValue( at, v1 );
         
-        sv.normalize();
-        byte[] normalized = sv.getNormalizedValueReference();
+        sbv.normalize();
+        byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
-        assertTrue( Arrays.equals( v1, sv.get() ) );
+        assertTrue( Arrays.equals( v1, sbv.get() ) );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
-
-        byte[] data = baos.toByteArray();
-        
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerBinaryValue sv2 = new ServerBinaryValue( at );
-        sv2.readExternal( in );
-        
-        assertEquals( sv, sv2 );
+        assertEquals( sbv, sbvSer );
    }
 
 
@@ -538,29 +607,17 @@ public class ServerBinaryValueTest
     @Test public void testNullBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerBinaryValue sv = new ServerBinaryValue( at );
+        ServerBinaryValue sbv = new ServerBinaryValue( at );
         
-        sv.normalize();
-        byte[] normalized = sv.getNormalizedValueReference();
+        sbv.normalize();
+        byte[] normalized = sbv.getNormalizedValueReference();
         
         assertEquals( null, normalized );
-        assertEquals( null, sv.get() );
+        assertEquals( null, sbv.get() );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
-
-        byte[] data = baos.toByteArray();
-        
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ServerBinaryValue sv2 = new ServerBinaryValue( at );
-        sv2.readExternal( in );
-        
-        assertEquals( sv, sv2 );
+        assertEquals( sbv, sbvSer );
    }
 
 
@@ -570,28 +627,39 @@ public class ServerBinaryValueTest
     @Test public void testEmptyBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
     {
         // First check with a value which will be normalized
-        ServerBinaryValue sv = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
+        ServerBinaryValue sbv = new ServerBinaryValue( at, StringTools.EMPTY_BYTES );
         
-        sv.normalize();
-        byte[] normalized = sv.getNormalizedValueReference();
+        sbv.normalize();
+        byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, normalized ) );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.get() ) );
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
-        sv.writeExternal( out );
-        
-        ObjectInputStream in = null;
+        assertEquals( sbv, sbvSer );
+   }
 
-        byte[] data = baos.toByteArray();
+
+    /**
+     * Test serialization of a BinaryValue which is the same than the value
+     */
+    @Test public void testSameNormalizedBinaryValueSerialization() throws NamingException, IOException, ClassNotFoundException
+    {
+        byte[] v1 = StringTools.getBytesUtf8( "test" );
+        byte[] v1Norm = StringTools.getBytesUtf8( "test" );
+
+        // First check with a value which will be normalized
+        ServerBinaryValue sbv = new ServerBinaryValue( at, v1 );
         
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        sbv.normalize();
+        byte[] normalized = sbv.getNormalizedValueReference();
         
-        ServerBinaryValue sv2 = new ServerBinaryValue( at );
-        sv2.readExternal( in );
+        assertTrue( Arrays.equals( v1Norm, normalized ) );
+        assertTrue( Arrays.equals( v1, sbv.get() ) );
         
-        assertEquals( sv, sv2 );
+        ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
+        
+        assertEquals( sbv, sbvSer );
    }
 }

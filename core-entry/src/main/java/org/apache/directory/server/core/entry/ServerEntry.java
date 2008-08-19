@@ -551,4 +551,12 @@ public interface ServerEntry extends Entry, Cloneable
      * A clone method to produce a clone of the current object
      */
     Entry clone();
+    
+    
+    /**
+     * Convert the ServerEntry to a ClientEntry
+     *
+     * @return An instance of ClientEntry
+     */
+    Entry toClientEntry() throws NamingException;
 }

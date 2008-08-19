@@ -20,7 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -37,13 +38,15 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /** The parent DN */
     private LdapDN parent;
 
+    /** Cached calculated new DN after move and rename */
+    private LdapDN newDn;
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
      */
-    public MoveAndRenameOperationContext( Registries registries )
+    public MoveAndRenameOperationContext( CoreSession session )
     {
-        super( registries );
+    	super( session );
     }
 
 
@@ -55,10 +58,23 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( Registries registries, LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldRdn )
+    public MoveAndRenameOperationContext( CoreSession session, LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldRdn )
     {
-        super( registries, oldDn, newRdn, delOldRdn );
+        super( session, oldDn, newRdn, delOldRdn );
         this.parent = parent;
+    }
+
+
+    public MoveAndRenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    {
+        // super sets the newRdn and the delOldRdn members and tests
+        super( session, modifyDnRequest );
+        this.parent = modifyDnRequest.getNewSuperior();
+        
+        if ( parent == null )
+        {
+            throw new IllegalStateException( "NewSuperior must not be null: " + modifyDnRequest );
+        }
     }
 
 
@@ -81,6 +97,26 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         this.parent = parent;
     }
 
+    
+    /**
+     * Gets cached copy of already computed new name or creates it if not 
+     *
+     * @return the normalized new name after move and rename
+     * @throws Exception if the name cannot be normalized
+     */
+    public LdapDN getNewDn() throws Exception
+    {
+        if ( newDn == null )
+        {
+            newDn = new LdapDN( getParent().getUpName() );
+            newDn.add( getNewRdn().getUpName() );
+            newDn.normalize( session.getDirectoryService()
+                .getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        
+        return newDn;
+    }
+    
 
     /**
      * @see Object#toString()

@@ -77,9 +77,9 @@ public class MetaAttributeTypeHandlerIT
      *
      * @param schemaName the name of the schema
      * @return the dn of the a schema's attributeType entity container
-     * @throws NamingException on failure
+     * @throws Exception on failure
      */
-    private LdapDN getAttributeTypeContainer( String schemaName ) throws NamingException
+    private LdapDN getAttributeTypeContainer( String schemaName ) throws Exception
     {
         return new LdapDN( "ou=attributeTypes,cn=" + schemaName );
     }
@@ -97,7 +97,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    public void testAddAttributeType() throws NamingException
+    public void testAddAttributeType() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -121,7 +121,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    public void testDeleteAttributeType() throws NamingException
+    public void testDeleteAttributeType() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -144,7 +144,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testRenameAttributeType() throws NamingException
+    public void testRenameAttributeType() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -172,7 +172,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeType() throws NamingException
+    public void testMoveAttributeType() throws Exception
     {
         testAddAttributeType();
         
@@ -193,7 +193,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeTypeAndChangeRdn() throws NamingException
+    public void testMoveAttributeTypeAndChangeRdn() throws Exception
     {
         testAddAttributeType();
         
@@ -217,7 +217,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithModificationItems() throws NamingException
+    public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
         testAddAttributeType();
         
@@ -248,7 +248,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithAttributes() throws NamingException
+    public void testModifyAttributeTypeWithAttributes() throws Exception
     {
         testAddAttributeType();
         
@@ -281,7 +281,7 @@ public class MetaAttributeTypeHandlerIT
     // ----------------------------------------------------------------------
 
     
-    private void addDependeeAttributeType() throws NamingException
+    private void addDependeeAttributeType() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -306,7 +306,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testDeleteAttributeTypeWhenInUse() throws NamingException
+    public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -329,7 +329,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    public void testMoveAttributeTypeWhenInUse() throws NamingException
+    public void testMoveAttributeTypeWhenInUse() throws Exception
     {
         testAddAttributeType();
         addDependeeAttributeType();
@@ -356,7 +356,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws NamingException
+    public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
     {
         testAddAttributeType();
         addDependeeAttributeType();
@@ -383,7 +383,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    public void testRenameAttributeTypeWhenInUse() throws NamingException
+    public void testRenameAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -414,7 +414,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeTypeToTop() throws NamingException
+    public void testMoveAttributeTypeToTop() throws Exception
     {
         testAddAttributeType();
         
@@ -440,7 +440,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeTypeToComparatorContainer() throws NamingException
+    public void testMoveAttributeTypeToComparatorContainer() throws Exception
     {
         testAddAttributeType();
         
@@ -466,7 +466,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    public void testAddAttributeTypeToDisabledSchema() throws NamingException
+    public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
         Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
@@ -490,7 +490,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveAttributeTypeToDisabledSchema() throws NamingException
+    public void testMoveAttributeTypeToDisabledSchema() throws Exception
     {
         testAddAttributeType();
         
@@ -509,7 +509,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    public void testMoveMatchingRuleToEnabledSchema() throws NamingException
+    public void testMoveMatchingRuleToEnabledSchema() throws Exception
     {
         testAddAttributeTypeToDisabledSchema();
         

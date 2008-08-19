@@ -89,7 +89,7 @@ public class AutzIntegUtils
      * @return the admin context at ou=system
      * @throws NamingException if there are problems creating the context
      */
-    public static DirContext getContextAsAdmin() throws NamingException
+    public static DirContext getContextAsAdmin() throws Exception
     {
         return getSystemContext( service );
     }
@@ -105,7 +105,7 @@ public class AutzIntegUtils
      * @throws NamingException if is a problem initializing or getting the context
      */
     @SuppressWarnings("unchecked")
-    public static DirContext getContextAsAdmin( String dn ) throws NamingException
+    public static DirContext getContextAsAdmin( String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
@@ -129,7 +129,7 @@ public class AutzIntegUtils
      * @throws NamingException if there are problems creating the new group like
      * it exists already
      */
-    public static Name createGroup( String cn, String firstMemberDn ) throws NamingException
+    public static Name createGroup( String cn, String firstMemberDn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes group = new AttributesImpl( "cn", cn, true );
@@ -150,7 +150,7 @@ public class AutzIntegUtils
      * @throws NamingException if there are problems removing the user
      * i.e. user does not exist
      */
-    public static void deleteUser( String uid ) throws NamingException
+    public static void deleteUser( String uid ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         adminCtx.destroySubcontext( "uid=" + uid + ",ou=users" );
@@ -167,7 +167,7 @@ public class AutzIntegUtils
      * @return the dn of the newly created user entry
      * @throws NamingException if there are problems creating the user entry
      */
-    public static Name createUser( String uid, String password ) throws NamingException
+    public static Name createUser( String uid, String password ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes user = new AttributesImpl( "uid", uid, true );
@@ -194,7 +194,7 @@ public class AutzIntegUtils
      * @return the DN of the group as a Name object
      * @throws NamingException if the group cannot be created
      */
-    public static Name createGroup( String groupName ) throws NamingException
+    public static Name createGroup( String groupName ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes group = new AttributesImpl( true );
@@ -218,7 +218,7 @@ public class AutzIntegUtils
      * @param groupCn the cn of the group to add the user to
      * @throws NamingException if the group does not exist
      */
-    public static void addUserToGroup( String userUid, String groupCn ) throws NamingException
+    public static void addUserToGroup( String userUid, String groupCn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
@@ -233,7 +233,7 @@ public class AutzIntegUtils
      * @param groupCn the RDN attribute value of the group to have user removed from
      * @throws NamingException if there are problems accessing the group
      */
-    public static void removeUserFromGroup( String userUid, String groupCn ) throws NamingException
+    public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
@@ -249,7 +249,7 @@ public class AutzIntegUtils
      * @return the context as the user
      * @throws NamingException if the user does not exist or authx fails
      */
-    public static DirContext getContextAs( Name user, String password ) throws NamingException
+    public static DirContext getContextAs( Name user, String password ) throws Exception
     {
         return getContextAs( user, password, ServerDNConstants.SYSTEM_DN );
     }
@@ -265,7 +265,7 @@ public class AutzIntegUtils
      * @throws NamingException if the does not exist or authx fails
      */
     @SuppressWarnings("unchecked")
-    public static DirContext getContextAs( Name user, String password, String dn ) throws NamingException
+    public static DirContext getContextAs( Name user, String password, String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
@@ -279,7 +279,7 @@ public class AutzIntegUtils
     }
 
 
-    public static void deleteAccessControlSubentry( String cn ) throws NamingException
+    public static void deleteAccessControlSubentry( String cn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         adminCtx.destroySubcontext( "cn=" + cn );
@@ -294,7 +294,7 @@ public class AutzIntegUtils
      * @param aciItem the prescriptive ACI attribute value
      * @throws NamingException if there is a problem creating the subentry
      */
-    public static void createAccessControlSubentry( String cn, String aciItem ) throws NamingException
+    public static void createAccessControlSubentry( String cn, String aciItem ) throws Exception
     {
         createAccessControlSubentry( cn, "{}", aciItem );
     }
@@ -309,7 +309,7 @@ public class AutzIntegUtils
      * @param aciItem the prescriptive ACI attribute value
      * @throws NamingException if there is a problem creating the subentry
      */
-    public static void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    public static void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
 
@@ -344,7 +344,7 @@ public class AutzIntegUtils
      * @param aciItem the entryACI attribute value
      * @throws NamingException if there is a problem adding the attribute
      */
-    public static void addEntryACI( Name rdn, String aciItem ) throws NamingException
+    public static void addEntryACI( Name rdn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
 
@@ -360,7 +360,7 @@ public class AutzIntegUtils
      * @param aciItem the subentryACI attribute value
      * @throws NamingException if there is a problem adding the attribute
      */
-    public static void addSubentryACI( String aciItem ) throws NamingException
+    public static void addSubentryACI( String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
 
@@ -378,10 +378,17 @@ public class AutzIntegUtils
      * @param aciItem the new value for the ACI item
      * @throws NamingException if the modify fails
      */
-    public static void changePresciptiveACI( String cn, String aciItem ) throws NamingException
+    public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
         Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
+    }
+    
+    public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
+        adminCtx.modifyAttributes( "cn=" + cn, DirContext.ADD_ATTRIBUTE, changes );
     }
 }

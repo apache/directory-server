@@ -62,7 +62,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     private final AttributeType fqcnAT;
     
 
-    public MetaSyntaxCheckerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    public MetaSyntaxCheckerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         this.syntaxCheckerRegistry = targetRegistries.getSyntaxCheckerRegistry();
@@ -75,7 +75,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
 
     private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry ) 
-        throws NamingException
+        throws Exception
     {
         SyntaxCheckerDescription description = new SyntaxCheckerDescription();
         description.setNumericOid( getOid( entry ) );
@@ -103,7 +103,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
@@ -120,7 +120,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -144,7 +144,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
+    public void add( SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( syntaxCheckerDescription, targetRegistries );
         String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
@@ -164,7 +164,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         delete( getOid( entry ), cascade );
     }
@@ -187,7 +187,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -222,7 +222,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -265,7 +265,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );

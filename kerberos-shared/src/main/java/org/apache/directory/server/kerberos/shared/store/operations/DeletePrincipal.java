@@ -17,25 +17,15 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
-import java.util.Properties;
-
-import javax.naming.CompoundName;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -44,7 +34,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeletePrincipal implements ContextOperation
+public class DeletePrincipal implements DirectoryServiceOperation
 {
     private static final long serialVersionUID = -6970986279811261983L;
 
@@ -63,85 +53,15 @@ public class DeletePrincipal implements ContextOperation
     }
 
 
-    public Object execute( DirContext ctx, Name searchBaseDn )
+    public Object execute( CoreSession session, LdapDN searchBaseDn ) throws Exception
     {
         if ( principal == null )
         {
             return null;
         }
 
-        String dn = null;
-
-        try
-        {
-            dn = search( ctx, searchBaseDn, principal.getName() );
-            Name rdn = getRelativeName( ctx, dn );
-            ctx.destroySubcontext( rdn );
-        }
-        catch ( NamingException e )
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-        return dn;
-    }
-
-
-    private String search( DirContext ctx, Name searchBaseDn, String principal ) throws NamingException
-    {
-        String[] attrIDs =
-            { KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, KerberosAttribute.KRB5_KEY_AT };
-
-        Attributes matchAttrs = new AttributesImpl( true );
-        matchAttrs.put( new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal ) );
-
-        // Search for objects that have those matching attributes
-        NamingEnumeration<SearchResult> answer = ctx.search( searchBaseDn, matchAttrs, attrIDs );
-
-        if ( answer.hasMore() )
-        {
-            SearchResult sr = answer.next();
-            if ( sr != null )
-            {
-                return sr.getName();
-            }
-        }
-
-        return null;
-    }
-
-
-    private Name getRelativeName( DirContext ctx, String baseDn ) throws NamingException
-    {
-        Properties props = new Properties();
-        props.setProperty( "jndi.syntax.direction", "right_to_left" );
-        props.setProperty( "jndi.syntax.separator", "," );
-        props.setProperty( "jndi.syntax.ignorecase", "true" );
-        props.setProperty( "jndi.syntax.trimblanks", "true" );
-
-        Name searchBaseDn;
-
-        try
-        {
-            Name ctxRoot = new CompoundName( ctx.getNameInNamespace(), props );
-            searchBaseDn = new CompoundName( baseDn, props );
-
-            if ( !searchBaseDn.startsWith( ctxRoot ) )
-            {
-                throw new NamingException( "Invalid search base " + baseDn );
-            }
-
-            for ( int ii = 0; ii < ctxRoot.size(); ii++ )
-            {
-                searchBaseDn.remove( 0 );
-            }
-        }
-        catch ( NamingException e )
-        {
-            throw new NamingException( "Failed to initialize search base " + baseDn );
-        }
-
-        return searchBaseDn;
+        ServerEntry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
+        session.delete( entry.getDn() );
+        return entry.getDn();
     }
 }

@@ -62,7 +62,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     private final AttributeType fqcnAT;
     
 
-    public MetaNormalizerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    public MetaNormalizerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         super( targetRegistries, loader );
         this.normalizerRegistry = targetRegistries.getNormalizerRegistry();
@@ -76,7 +76,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
     
     
-    private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws NamingException
+    private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws Exception
     {
         NormalizerDescription description = new NormalizerDescription();
         description.setNumericOid( getOid( entry ) );
@@ -104,7 +104,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
     
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, targetRegistries );
@@ -120,7 +120,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( LdapDN name, ServerEntry entry ) throws Exception
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
@@ -138,7 +138,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void add( NormalizerDescription normalizerDescription ) throws NamingException
+    public void add( NormalizerDescription normalizerDescription ) throws Exception
     {
         Normalizer normalizer = factory.getNormalizer( normalizerDescription, targetRegistries );
         String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
@@ -157,7 +157,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         delete( getOid( entry ), cascade );
     }
@@ -180,7 +180,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
     
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -210,7 +210,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
 
     public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
-        ServerEntry entry, boolean cascade ) throws NamingException
+        ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -246,7 +246,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
 
     public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
-        throws NamingException
+        throws Exception
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
@@ -287,7 +287,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    private void checkOidIsUniqueForNormalizer( ServerEntry entry ) throws NamingException
+    private void checkOidIsUniqueForNormalizer( ServerEntry entry ) throws Exception
     {
         String oid = getOid( entry );
         

@@ -21,33 +21,20 @@ package org.apache.directory.server.core.partition;
 
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
-import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
-import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
-import org.apache.directory.server.core.enumeration.SearchResultFilter;
-import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
-import org.apache.directory.server.core.event.EventInterceptor;
-import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.filtering.EntryFilter;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -64,23 +51,19 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.normalization.NormalizationInterceptor;
-import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.core.trigger.TriggerInterceptor;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * A decorator that wraps other {@link PartitionNexus} to enable
@@ -94,32 +77,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class PartitionNexusProxy extends PartitionNexus
 {
-    /**
-     * safe to use set of bypass instructions to lookup raw entries
-     */
-    public static final Collection<String> LOOKUP_BYPASS;
-
-    /**
-     * safe to use set of bypass instructions to getMatchedDn
-     */
-    public static final Collection<String> GETMATCHEDDN_BYPASS;
-
-    /**
-     * safe to use set of bypass instructions to lookup raw entries excluding operational attributes
-     */
-    public static final Collection<String> LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
-    
-    public static final Collection<String> GET_ROOT_DSE_BYPASS;
-
-    /**
-     * Bypass String to use when ALL interceptors should be skipped
-     */
-    public static final String BYPASS_ALL = "*";
-
-    /**
-     * Bypass String to use when ALL interceptors should be skipped
-     */
-    public static final Collection<String> BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
 
     /**
      * A static object to store the rootDSE entry with all the attributes
@@ -141,74 +98,7 @@ public class PartitionNexusProxy extends PartitionNexus
      */
     private static final Object ROOT_DSE_NOOP_MUTEX = new Object();
 
-    private final Context caller;
     private final DirectoryService service;
-
-    static
-    {
-        Collection<String> c = new HashSet<String>();
-        c.add( NormalizationInterceptor.class.getName() );
-        c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
-        c.add( AciAuthorizationInterceptor.class.getName() );
-        c.add( DefaultAuthorizationInterceptor.class.getName() );
-//        c.add( ExceptionInterceptor.class.getName() );
-        c.add( OperationalAttributeInterceptor.class.getName() );
-        c.add( SchemaInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
-//        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( EventInterceptor.class.getName() );
-//        c.add( TriggerInterceptor.class.getName() );
-        LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-//        c.add( NormalizationInterceptor.class.getName() );
-        c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
-        c.add( AciAuthorizationInterceptor.class.getName() );
-        c.add( DefaultAuthorizationInterceptor.class.getName() );
-//        c.add( ExceptionInterceptor.class.getName() );
-        c.add( SchemaInterceptor.class.getName() );
-        c.add( OperationalAttributeInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
-//        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( EventInterceptor.class.getName() );
-//        c.add( TriggerInterceptor.class.getName() );
-        GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
-
-        c = new HashSet<String>();
-        c.add( NormalizationInterceptor.class.getName() );
-        c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
-        c.add( AciAuthorizationInterceptor.class.getName() );
-        c.add( DefaultAuthorizationInterceptor.class.getName() );
-//        c.add( ExceptionInterceptor.class.getName() );
-//        c.add( OperationalAttributeInterceptor.class.getName() );
-        c.add( SchemaInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
-//        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( EventInterceptor.class.getName() );
-        c.add( TriggerInterceptor.class.getName() );
-        LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
-        
-        
-        c = new HashSet<String>();
-        c.add( NormalizationInterceptor.class.getName() );
-        //c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ChangeLogInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
-        c.add( AciAuthorizationInterceptor.class.getName() );
-        c.add( DefaultAuthorizationInterceptor.class.getName() );
-        c.add( ExceptionInterceptor.class.getName() );
-        c.add( OperationalAttributeInterceptor.class.getName() );
-        c.add( SchemaInterceptor.class.getName() );
-        c.add( SubentryInterceptor.class.getName() );
-        c.add( CollectiveAttributeInterceptor.class.getName() );
-        c.add( EventInterceptor.class.getName() );
-        c.add( TriggerInterceptor.class.getName() );
-        GET_ROOT_DSE_BYPASS = Collections.unmodifiableCollection( c );
-
-    }
 
 
     /**
@@ -217,9 +107,8 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param caller  a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    public PartitionNexusProxy( Context caller, DirectoryService service ) throws NamingException
+    public PartitionNexusProxy( DirectoryService service ) throws Exception
     {
-        this.caller = caller;
         this.service = service;
     }
 
@@ -242,7 +131,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry getContextEntry()
+    public ClonedServerEntry getContextEntry()
     {
         throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }
@@ -278,7 +167,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void init( DirectoryService core ) throws NamingException
+    public void init( DirectoryService core ) throws Exception
     {
     }
 
@@ -294,30 +183,30 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Partition getPartition( LdapDN dn ) throws NamingException
+    public Partition getPartition( LdapDN dn ) throws Exception
     {
         return service.getPartitionNexus().getPartition( dn );
     }
 
 
-    public LdapDN getSuffixDn() throws NamingException
+    public LdapDN getSuffixDn() throws Exception
     {
         return service.getPartitionNexus().getSuffixDn();
     }
 
-    public LdapDN getUpSuffixDn() throws NamingException
+    public LdapDN getUpSuffixDn() throws Exception
     {
         return service.getPartitionNexus().getUpSuffixDn();
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
         this.service.sync();
     }
 
 
-    public void close() throws NamingException
+    public void close() throws Exception
     {
         this.service.shutdown();
     }
@@ -329,16 +218,29 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
         return getMatchedName( opContext, null );
     }
+    
+    
+    private void push( OperationContext opContext )
+    {
+        InvocationStack.getInstance().push( opContext );
+    }
+    
+    
+    private OperationContext pop()
+    {
+        return InvocationStack.getInstance().pop();
+    }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "getMatchedName", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -346,21 +248,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
         return getSuffix( opContext, null );
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "getSuffixDn", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -368,21 +271,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
         return listSuffixes( opContext, null );
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "listSuffices", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -390,21 +294,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public boolean compare( CompareOperationContext opContext ) throws NamingException
+    public boolean compare( CompareOperationContext opContext ) throws Exception
     {
         return compare( opContext, null );
     }
 
 
-    public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public boolean compare( CompareOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "compare", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -412,21 +317,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws NamingException
+    public void delete( DeleteOperationContext opContext ) throws Exception
     {
         delete( opContext, null );
     }
 
 
-    public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void delete( DeleteOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "delete", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -434,21 +340,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void add( AddOperationContext opContext ) throws NamingException
+    public void add( AddOperationContext opContext ) throws Exception
     {
         add( opContext, null );
     }
 
 
-    public void add( AddOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void add( AddOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "add", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -456,21 +363,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void modify( ModifyOperationContext opContext ) throws NamingException
+    public void modify( ModifyOperationContext opContext ) throws Exception
     {
         modify( opContext, null );
     }
 
 
-    public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void modify( ModifyOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "modify", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -478,22 +386,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext ) throws NamingException
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         return list( opContext, null );
     }
 
 
-    public NamingEnumeration<ServerSearchResult> list( ListOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "list", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -501,68 +409,62 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext )
-            throws NamingException
+    public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        NamingEnumeration<ServerSearchResult> ne = search( opContext, null );
+        EntryFilteringCursor cursor = search( opContext, null );
+        final SearchControls searchCtls = opContext.getSearchControls();
 
-        if ( ne instanceof SearchResultFilteringEnumeration )
+        if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
         {
-            SearchResultFilteringEnumeration results = ( SearchResultFilteringEnumeration ) ne;
-            SearchControls searchCtls = opContext.getSearchControls();
-
-            if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
+            // this will be the last filter added so other filters before it must
+            // have passed/approved of the entry to be returned back to the client
+            // so the candidate we have is going to be returned for sure
+            cursor.addEntryFilter( new EntryFilter()
             {
-                // this will be the last filter added so other filters before it must
-                // have passed/approved of the entry to be returned back to the client
-                // so the candidate we have is going to be returned for sure
-                results.addResultFilter( new SearchResultFilter()
+                final long startTime = System.currentTimeMillis();
+                int count = 0; // with prefetch we've missed one which is ok since 1 is the minimum
+
+                public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
+                        throws Exception
                 {
-                    final long startTime = System.currentTimeMillis();
-                    int count = 1; // with prefetch we've missed one which is ok since 1 is the minimum
-
-
-                    public boolean accept( Invocation invocation, ServerSearchResult result, SearchControls controls )
-                            throws NamingException
+                    if ( searchCtls.getTimeLimit() > 0 )
                     {
-                        if ( controls.getTimeLimit() > 0 )
+                        long runtime = System.currentTimeMillis() - startTime;
+                        if ( runtime > searchCtls.getTimeLimit() )
                         {
-                            long runtime = System.currentTimeMillis() - startTime;
-                            if ( runtime > controls.getTimeLimit() )
-                            {
-                                throw new LdapTimeLimitExceededException();
-                            }
+                            throw new LdapTimeLimitExceededException();
                         }
-
-                        if ( controls.getCountLimit() > 0 )
-                        {
-                            if ( count > controls.getCountLimit() )
-                            {
-                                throw new LdapSizeLimitExceededException();
-                            }
-                        }
-
-                        count++;
-                        return true;
                     }
-                } );
-            }
+
+                    if ( searchCtls.getCountLimit() > 0 )
+                    {
+                        if ( count > searchCtls.getCountLimit() )
+                        {
+                            throw new LdapSizeLimitExceededException();
+                        }
+                    }
+
+                    count++;
+                    return true;
+                }
+            } );
         }
 
-        return ne;
+        return cursor;
     }
 
 
-    public NamingEnumeration<ServerSearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public EntryFilteringCursor search( SearchOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "search", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -570,12 +472,12 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext ) throws NamingException
+    public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -591,7 +493,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     }
                 }
 
-                return ROOT_DSE_NO_OPERATIONNAL;
+                return new ClonedServerEntry( ROOT_DSE_NO_OPERATIONNAL );
             } 
             else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
             {
@@ -603,7 +505,7 @@ public class PartitionNexusProxy extends PartitionNexus
                     }
                 }
 
-                return ROOT_DSE_ALL;
+                return new ClonedServerEntry( ROOT_DSE_ALL );
             }
 
         }
@@ -612,10 +514,11 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public ServerEntry lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public ClonedServerEntry lookup( LookupOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "lookup", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -623,20 +526,21 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
-    public boolean hasEntry( EntryOperationContext opContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
         return hasEntry( opContext, null );
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "hasEntry", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -644,21 +548,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void rename( RenameOperationContext opContext ) throws NamingException
+    public void rename( RenameOperationContext opContext ) throws Exception
     {
         rename( opContext, null );
     }
 
 
-    public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void rename( RenameOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "rename", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -666,21 +571,22 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void move( MoveOperationContext opContext ) throws NamingException
+    public void move( MoveOperationContext opContext ) throws Exception
     {
         move( opContext, null );
     }
 
 
-    public void move( MoveOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void move( MoveOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "move", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -688,22 +594,23 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
         moveAndRename( opContext, null );
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "moveAndRename", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -711,22 +618,23 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
     /**
-     * TODO : check if we can find another way to procect ourselves from recursion.
+     * TODO : check if we can find another way to protect ourselves from recursion.
      *
      * @param opContext The operation context
-     * @param bypass bypass instructions to skip interceptors
-     * @throws NamingException if bind fails
+     * @param byPassed bypass instructions to skip interceptors
+     * @throws Exception if bind fails
      */
-    public void bind( BindOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public void bind( BindOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "bind", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -734,15 +642,16 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws NamingException
+    public void unbind( UnbindOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "unbind", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -750,24 +659,24 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void bind( BindOperationContext opContext ) throws NamingException
+    public void bind( BindOperationContext opContext ) throws Exception
     {
         bind( opContext, null );
     }
 
 
-    public void unbind( UnbindOperationContext opContext ) throws NamingException
+    public void unbind( UnbindOperationContext opContext ) throws Exception
     {
         unbind( opContext, null );
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) throws Exception
     {
         if ( opContext.getDn().size() == 0 )
         {
@@ -779,18 +688,19 @@ public class PartitionNexusProxy extends PartitionNexus
                 }
             }
 
-            return ROOT_DSE_ALL;
+            return new ClonedServerEntry( ROOT_DSE_ALL );
         }
 
         return getRootDSE( opContext, null );
     }
 
 
-    public ServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "getRootDSE", GET_ROOT_DSE_BYPASS ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -798,22 +708,23 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException
+    public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
     {
         addContextPartition( opContext, null );
     }
 
 
-    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "addContextPartition", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -821,22 +732,23 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws NamingException
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         removeContextPartition( opContext, null );
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> bypass )
-            throws NamingException
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
         ensureStarted();
-        opContext.push( new Invocation( this, caller, "removeContextPartition", bypass ) );
+        opContext.setByPassed( byPassed );
+        push( opContext );
         
         try
         {
@@ -844,7 +756,7 @@ public class PartitionNexusProxy extends PartitionNexus
         }
         finally
         {
-            opContext.pop();
+            pop();
         }
     }
 
@@ -858,46 +770,22 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws NamingException
+    public void registerSupportedExtensions( Set<String> extensionOids ) throws Exception
     {
         service.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }
 
 
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws NamingException
+    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws Exception
     {
         service.getPartitionNexus().registerSupportedSaslMechanisms( supportedSaslMechanisms );
     }
 
 
-    // -----------------------------------------------------------------------
-    // EventContext and EventDirContext notification methods
-    // -----------------------------------------------------------------------
-
-    /*
-     * All listener registration/deregistration methods can be reduced down to
-     * the following methods.  Rather then make these actual intercepted methods
-     * we use them as out of band methods to interface with the notification
-     * interceptor.
-     */
-
-    public void addNamingListener( EventContext ctx, LdapDN name, ExprNode filter, SearchControls searchControls,
-            NamingListener namingListener ) throws NamingException
+    public ClonedServerEntry lookup( Long id ) throws Exception
     {
-        InterceptorChain chain = service.getInterceptorChain();
-        EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
-        interceptor.addNamingListener( ctx, name, filter, searchControls, namingListener );
-    }
-
-
-    public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws NamingException
-    {
-        InterceptorChain chain = service.getInterceptorChain();
-        if ( chain == null )
-        {
-            return;
-        }
-        EventInterceptor interceptor = ( EventInterceptor ) chain.get( EventInterceptor.class.getName() );
-        interceptor.removeNamingListener( ctx, namingListener );
+        // TODO not implemented until we can lookup partition using the 
+        // partition id component of the 64 bit identifier
+        throw new NotImplementedException();
     }
 }

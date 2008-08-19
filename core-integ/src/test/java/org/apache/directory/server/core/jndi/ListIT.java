@@ -21,9 +21,9 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -35,7 +35,6 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 
@@ -55,12 +54,13 @@ public class ListIT
 
 
     @Test
-    public void testListSystemAsNonAdmin() throws NamingException
+    public void testListSystemAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getUpName(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
@@ -77,12 +77,13 @@ public class ListIT
 
 
     @Test
-    public void testListUsersAsNonAdmin() throws NamingException
+    public void testListUsersAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
 
-        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        LdapContext sysRoot = getContext( akarasulu.getDn().getUpName(), service, "ou=system" );
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
 
@@ -98,7 +99,7 @@ public class ListIT
 
 
     @Test
-    public void testListSystemAsAdmin() throws NamingException
+    public void testListSystemAsAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
@@ -117,12 +118,14 @@ public class ListIT
 
 
     @Test
-    public void testListUsersAsAdmin() throws NamingException
+    public void testListUsersAsAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
         LdifEntry akarasulu = getUserAddLdif();
-        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+        service.getAdminSession().add( 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+                
 
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
         

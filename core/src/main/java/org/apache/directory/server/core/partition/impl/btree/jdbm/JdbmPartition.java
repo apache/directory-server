@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -29,22 +30,22 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.DefaultOptimizer;
-import org.apache.directory.server.core.partition.impl.btree.DefaultSearchEngine;
-import org.apache.directory.server.core.partition.impl.btree.ExpressionEnumerator;
-import org.apache.directory.server.core.partition.impl.btree.ExpressionEvaluator;
-import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
-import org.apache.directory.server.core.partition.impl.btree.NoOpOptimizer;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
+import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
+import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
+import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
+import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import java.io.File;
@@ -64,9 +65,9 @@ import java.util.Set;
  */
 public class JdbmPartition extends BTreePartition
 {
-    private JdbmStore store;
+    private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
-    private Set<Index> indexedAttributes;
+    private Set<Index<?,ServerEntry>> indexedAttributes;
 
     
     // ------------------------------------------------------------------------
@@ -79,8 +80,8 @@ public class JdbmPartition extends BTreePartition
      */
     public JdbmPartition()
     {
-        store = new JdbmStore();
-        indexedAttributes = new HashSet<Index>();
+        store = new JdbmStore<ServerEntry>();
+        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
     }
 
 
@@ -101,13 +102,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setIndexedAttributes( Set<Index> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public Set<Index> getIndexedAttributes()
+    public Set<Index<?,ServerEntry>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -142,24 +143,27 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    public void setRegistries( Registries registries )
+    public void setRegistries( Registries registries ) throws Exception
     {
         initRegistries( registries );
     }
 
 
-    protected void initRegistries( Registries registries )
+    protected void initRegistries( Registries registries ) throws Exception
     {
         this.registries = registries;
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, registries );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, registries.getAttributeTypeRegistry(), evaluator );
-        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
         store.initRegistries( registries );
     }
 
 
-    public final void init( DirectoryService directoryService ) throws NamingException
+    @SuppressWarnings("unchecked")
+    public final void init( DirectoryService directoryService ) throws Exception
     {
+        initRegistries( directoryService.getRegistries() );
+
+        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+
         // setup optimizer and registries for parent
         if ( ! optimizerEnabled )
         {
@@ -167,10 +171,10 @@ public class JdbmPartition extends BTreePartition
         }
         else
         {
-            optimizer = new DefaultOptimizer( this );
+            optimizer = new DefaultOptimizer<ServerEntry>( store );
         }
 
-        initRegistries( directoryService.getRegistries() );
+        searchEngine = new DefaultSearchEngine( store, cursorBuilder, evaluatorBuilder, optimizer );
         
         // initialize the store
         store.setCacheSize( cacheSize );
@@ -179,53 +183,55 @@ public class JdbmPartition extends BTreePartition
         store.setSuffixDn( suffix );
         store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
 
-        Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
-        for ( Index obj : indexedAttributes )
+        Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
+        
+        for ( Index<?,ServerEntry> obj : indexedAttributes )
         {
-            JdbmIndex index;
+            Index<?,ServerEntry> index;
 
             if ( obj instanceof JdbmIndex )
             {
-                index = ( JdbmIndex ) obj;
+                index = ( JdbmIndex<?,ServerEntry> ) obj;
             }
             else
             {
-                index = new JdbmIndex();
+                index = new JdbmIndex<Object,ServerEntry>();
                 index.setAttributeId( obj.getAttributeId() );
                 index.setCacheSize( obj.getCacheSize() );
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
             String oid = registries.getOidRegistry().getOid( index.getAttributeId() );
+            
             if ( SYS_INDEX_OIDS.contains( registries.getOidRegistry().getOid( index.getAttributeId() ) ) )
             {
-                if ( oid.equals( Oid.ALIAS ) )
+                if ( oid.equals( Store.ALIAS ) )
                 {
-                    store.setAliasIndex( index );
+                    store.setAliasIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.EXISTANCE ) )
+                else if ( oid.equals( Store.PRESENCE ) )
                 {
-                    store.setExistanceIndex( index );
+                    store.setPresenceIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.HIERARCHY ) )
+                else if ( oid.equals( Store.ONELEVEL ) )
                 {
-                    store.setHierarchyIndex( index );
+                    store.setOneLevelIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.NDN ) )
+                else if ( oid.equals( Store.NDN ) )
                 {
-                    store.setNdnIndex( index );
+                    store.setNdnIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.ONEALIAS ) )
+                else if ( oid.equals( Store.ONEALIAS ) )
                 {
-                    store.setOneAliasIndex( index );
+                    store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.SUBALIAS ) )
+                else if ( oid.equals( Store.SUBALIAS ) )
                 {
-                    store.setSubAliasIndex( index );
+                    store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Oid.UPDN ) )
+                else if ( oid.equals( Store.UPDN ) )
                 {
-                    store.setUpdnIndex( index );
+                    store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
                 }
                 else
                 {
@@ -236,15 +242,15 @@ public class JdbmPartition extends BTreePartition
             {
                 userIndices.add( index );
             }
+            
             store.setUserIndices( userIndices );
-            store.setEnableOptimizer( isOptimizerEnabled() );
         }
 
         store.init( registries );
     }
 
 
-    public final void destroy()
+    public final void destroy() throws Exception
     {
         store.destroy();
     }
@@ -256,7 +262,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void sync() throws NamingException
+    public final void sync() throws Exception
     {
         store.sync();
     }
@@ -267,117 +273,93 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    public final void addIndexOn( Index index ) throws NamingException
+    public final void addIndexOn( Index<Long, ServerEntry> index ) throws Exception
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.addIndex( ( JdbmIndex ) index );
-        }
+        store.addIndex( index );
     }
 
 
-    public final Index getExistanceIndex()
+    public final Index<String, ServerEntry> getExistanceIndex()
     {
-        return store.getExistanceIndex();
+        return store.getPresenceIndex();
     }
 
 
-    public final void setExistanceIndexOn( Index index ) throws NamingException
+    public final void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setExistanceIndex( ( JdbmIndex ) index );
-        }
+        store.setPresenceIndex( index );
     }
 
 
-    public final Index getHierarchyIndex()
+    public final Index<Long, ServerEntry> getOneLevelIndex()
     {
-        return store.getHierarchyIndex();
+        return store.getOneLevelIndex();
     }
 
 
-    public final void setHierarchyIndexOn( Index index ) throws NamingException
+    public final void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setHierarchyIndex( ( JdbmIndex ) index );
-        }
+        store.setOneLevelIndex( index );
     }
 
 
-    public final Index getAliasIndex()
+    public final Index<String, ServerEntry> getAliasIndex()
     {
         return store.getAliasIndex();
     }
 
 
-    public final void setAliasIndexOn( Index index ) throws NamingException
+    public final void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setAliasIndex( ( JdbmIndex ) index );
-        }
+        store.setAliasIndex( index );
     }
 
 
-    public final Index getOneAliasIndex()
+    public final Index<Long,ServerEntry> getOneAliasIndex()
     {
         return store.getOneAliasIndex();
     }
 
 
-    public final void setOneAliasIndexOn( Index index ) throws NamingException
+    public final void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws NamingException
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setOneAliasIndex( ( JdbmIndex ) index );
-        }
+        store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
     }
 
 
-    public final Index getSubAliasIndex()
+    public final Index<Long,ServerEntry> getSubAliasIndex()
     {
         return store.getSubAliasIndex();
     }
 
 
-    public final void setSubAliasIndexOn( Index index ) throws NamingException
+    public final void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws NamingException
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setSubAliasIndex( ( JdbmIndex ) index );
-        }
+            store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
     }
 
 
-    public final Index getUpdnIndex()
+    public final Index<String,ServerEntry> getUpdnIndex()
     {
         return store.getUpdnIndex();
     }
 
 
-    public final void setUpdnIndexOn( Index index ) throws NamingException
+    public final void setUpdnIndexOn( Index<String,ServerEntry> index ) throws NamingException
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setUpdnIndex( ( JdbmIndex ) index );
-        }
+        store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
     }
 
 
-    public final Index getNdnIndex()
+    public final Index<String,ServerEntry> getNdnIndex()
     {
         return store.getNdnIndex();
     }
 
 
-    public final void setNdnIndexOn( Index index ) throws NamingException
+    public final void setNdnIndexOn( Index<String,ServerEntry> index ) throws NamingException
     {
-        if ( index instanceof JdbmIndex )
-        {
-            store.setNdnIndex( ( JdbmIndex ) index );
-        }
+        store.setNdnIndex( ( Index<String,ServerEntry> ) index );
     }
 
 
@@ -408,7 +390,7 @@ public class JdbmPartition extends BTreePartition
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
      */
-    public final Index getUserIndex( String id ) throws IndexNotFoundException
+    public final Index<?,ServerEntry> getUserIndex( String id ) throws IndexNotFoundException
     {
         return store.getUserIndex( id );
     }
@@ -417,79 +399,79 @@ public class JdbmPartition extends BTreePartition
     /**
      * @see BTreePartition#getEntryId(String)
      */
-    public final Index getSystemIndex( String id ) throws IndexNotFoundException
+    public final Index<?,ServerEntry> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return store.getSystemIndex( id );
     }
 
 
-    public final Long getEntryId( String dn ) throws NamingException
+    public final Long getEntryId( String dn ) throws Exception
     {
         return store.getEntryId( dn );
     }
 
 
-    public final String getEntryDn( Long id ) throws NamingException
+    public final String getEntryDn( Long id ) throws Exception
     {
         return store.getEntryDn( id );
     }
 
 
-    public final Long getParentId( String dn ) throws NamingException
+    public final Long getParentId( String dn ) throws Exception
     {
         return store.getParentId( dn );
     }
 
 
-    public final Long getParentId( Long childId ) throws NamingException
+    public final Long getParentId( Long childId ) throws Exception
     {
         return store.getParentId( childId );
     }
 
 
-    public final String getEntryUpdn( Long id ) throws NamingException
+    public final String getEntryUpdn( Long id ) throws Exception
     {
         return store.getEntryUpdn( id );
     }
 
 
-    public final String getEntryUpdn( String dn ) throws NamingException
+    public final String getEntryUpdn( String dn ) throws Exception
     {
         return store.getEntryUpdn( dn );
     }
 
 
-    public final int count() throws NamingException
+    public final int count() throws Exception
     {
         return store.count();
     }
 
     
-    public final void add( AddOperationContext addContext ) throws NamingException
+    public final void add( AddOperationContext addContext ) throws Exception
     {
-        store.add( addContext.getDn(), addContext.getEntry() );
+        store.add( addContext.getDn(), (ServerEntry)((ClonedServerEntry)addContext.getEntry()).getClonedEntry() );
     }
 
 
-    public final ServerEntry lookup( Long id ) throws NamingException
+    public final ClonedServerEntry lookup( Long id ) throws Exception
     {
-        return store.lookup( id );
+        return new ClonedServerEntry( store.lookup( id ) );
     }
 
 
-    public final void delete( Long id ) throws NamingException
+    public final void delete( Long id ) throws Exception
     {
         store.delete( id );
     }
 
 
-    public final NamingEnumeration list( Long id ) throws NamingException
+    public final IndexCursor<Long, ServerEntry> list( Long id ) throws Exception
     {
         return store.list( id );
     }
 
 
-    public final int getChildCount( Long id ) throws NamingException
+    public final int getChildCount( Long id ) throws Exception
     {
         return store.getChildCount( id );
     }
@@ -506,42 +488,36 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final ServerEntry getSuffixEntry() throws NamingException
+    public final ServerEntry getSuffixEntry() throws Exception
     {
         return store.getSuffixEntry();
     }
 
 
-    public final void setProperty( String propertyName, String propertyValue ) throws NamingException
+    public final void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         store.setProperty( propertyName, propertyValue );
     }
 
 
-    public final String getProperty( String propertyName ) throws NamingException
+    public final String getProperty( String propertyName ) throws Exception
     {
         return store.getProperty( propertyName );
     }
 
-
-    public final ServerEntry getIndices( Long id ) throws NamingException
-    {
-        return store.getIndices( id );
-    }
-
     
-    public final void modify( ModifyOperationContext modifyContext ) throws NamingException
+    public final void modify( ModifyOperationContext modifyContext ) throws Exception
     {
         store.modify( modifyContext.getDn(), modifyContext.getModItems() );
     }
 
-    public final void rename( RenameOperationContext renameContext ) throws NamingException
+    public final void rename( RenameOperationContext renameContext ) throws Exception
     {
         store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
     }
 
 
-    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws NamingException
+    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
         store.move( moveAndRenameContext.getDn(), 
             moveAndRenameContext.getParent(), 
@@ -550,13 +526,13 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void move( MoveOperationContext moveContext ) throws NamingException
+    public final void move( MoveOperationContext moveContext ) throws Exception
     {
         store.move( moveContext.getDn(), moveContext.getParent() );
     }
 
 
-    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
+    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws Exception
     {
         if ( bindDn == null || credentials == null || mechanisms == null ||  saslAuthId == null )
         {
@@ -571,7 +547,7 @@ public class JdbmPartition extends BTreePartition
     }
     
 
-    public final void bind( BindOperationContext bindContext ) throws NamingException
+    public final void bind( BindOperationContext bindContext ) throws Exception
     {
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
@@ -581,7 +557,28 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void unbind( UnbindOperationContext unbindContext ) throws NamingException
+    public final void unbind( UnbindOperationContext unbindContext ) throws Exception
     {
+    }
+
+
+    public Index<String, ServerEntry> getPresenceIndex()
+    {
+        return store.getPresenceIndex();
+    }
+
+
+    public Index<Long, ServerEntry> getSubLevelIndex()
+    {
+        return store.getSubLevelIndex();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Partition<" + id + ">"; 
     }
 }

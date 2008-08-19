@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,13 +35,8 @@ import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -77,7 +73,6 @@ public class SchemaSubentryModifier
         Set<String> c = new HashSet<String>();
 //        c.add( NormalizationInterceptor.class.getName() );
         c.add( AuthenticationInterceptor.class.getName() );
-        c.add( ReferralInterceptor.class.getName() );
         c.add( AciAuthorizationInterceptor.class.getName() );
         c.add( DefaultAuthorizationInterceptor.class.getName() );
         c.add( ExceptionInterceptor.class.getName() );
@@ -143,69 +138,90 @@ public class SchemaSubentryModifier
     }
     
 
-    public void addSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
-    {
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        Schema schema = dao.getSchema( obj.getSchema() );
-        LdapDN dn = getDn( obj );
-        ServerEntry entry = factory.getAttributes( obj, schema, registries );
-        entry.setDn( dn );
-
-        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
-    }
-
-
-    public void deleteSchemaObject( Registries registries, SchemaObject obj ) throws NamingException
-    {
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = getDn( obj );
-        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
-    }
-
-    
-    public void delete( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
-    {
-        String schemaName = getSchema( normalizerDescription );
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
-            + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
-    }
-
-
-    public void delete( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
-    {
-        String schemaName = getSchema( syntaxCheckerDescription );
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
-            + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
-    }
-
-
-    public void delete( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
-    {
-        String schemaName = getSchema( comparatorDescription );
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
-            + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( registries, dn, true ), BYPASS );
-    }
-
-
-    public void add( Registries registries, ComparatorDescription comparatorDescription ) throws NamingException
+    public void add( OperationContext opContext, ComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );   
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
+            opContext.getSession().getDirectoryService().getRegistries() );
 
-        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
+        opContext.add( entry, BYPASS );
     }
     
     
+    public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
+    {
+        String schemaName = getSchema( normalizerDescription );
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+            + schemaName + ",ou=schema" );
+        Attributes attrs = getAttributes( normalizerDescription );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
+            opContext.getSession().getDirectoryService().getRegistries() );
+
+        opContext.add( entry, BYPASS );
+    }
+    
+    
+    public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
+    {
+        String schemaName = getSchema( syntaxCheckerDescription );
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+            + schemaName + ",ou=schema" );
+        Attributes attrs = getAttributes( syntaxCheckerDescription );
+        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
+            opContext.getSession().getDirectoryService().getRegistries() );
+        opContext.add( entry, BYPASS );
+    }
+    
+    
+    public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
+    {
+        Schema schema = dao.getSchema( obj.getSchema() );
+        LdapDN dn = getDn( obj );
+        ServerEntry entry = factory.getAttributes( obj, schema, 
+            opContext.getSession().getDirectoryService().getRegistries() );
+        entry.setDn( dn );
+
+        opContext.add( entry, BYPASS );
+    }
+
+
+    public void deleteSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
+    {
+        LdapDN dn = getDn( obj );
+        opContext.delete( dn, BYPASS );
+    }
+
+    
+    public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
+    {
+        String schemaName = getSchema( normalizerDescription );
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+            + schemaName + ",ou=schema" );
+        opContext.delete( dn, BYPASS );
+    }
+
+
+    public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
+    {
+        String schemaName = getSchema( syntaxCheckerDescription );
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+            + schemaName + ",ou=schema" );
+        opContext.delete( dn, BYPASS );
+    }
+
+
+    public void delete( OperationContext opContext, ComparatorDescription comparatorDescription ) throws Exception
+    {
+        String schemaName = getSchema( comparatorDescription );
+        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
+            + schemaName + ",ou=schema" );
+        opContext.delete( dn, BYPASS );
+    }
+
+
     private Attributes getAttributes( ComparatorDescription comparatorDescription )
     {
         AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
@@ -229,19 +245,6 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( Registries registries, NormalizerDescription normalizerDescription ) throws NamingException
-    {
-        String schemaName = getSchema( normalizerDescription );
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
-            + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( normalizerDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
-
-        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
-    }
-    
-    
     private Attributes getAttributes( NormalizerDescription normalizerDescription )
     {
         AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
@@ -265,18 +268,6 @@ public class SchemaSubentryModifier
     }
 
 
-    public void add( Registries registries, SyntaxCheckerDescription syntaxCheckerDescription ) throws NamingException
-    {
-        String schemaName = getSchema( syntaxCheckerDescription );
-        PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
-            + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( syntaxCheckerDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, registries );
-        proxy.add( new AddOperationContext( registries, dn, entry, true ), BYPASS );
-    }
-    
-    
     private String getSchema( AbstractSchemaDescription desc ) 
     {
         if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )

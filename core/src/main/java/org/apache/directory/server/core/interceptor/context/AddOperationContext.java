@@ -20,8 +20,12 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -32,96 +36,77 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddOperationContext extends AbstractOperationContext
+public class AddOperationContext extends AbstractChangeOperationContext
 {
-    /** The added entry  */
-    private ServerEntry entry;
-
-
     /**
      * Creates a new instance of AddOperationContext.
+     * 
+     * @param session the current Session 
      */
-    public AddOperationContext( Registries registries )
+    public AddOperationContext( CoreSession session )
     {
-        super( registries );
+        super( session );
     }
 
 
     /**
      * Creates a new instance of AddOperationContext.
-     */
-    public AddOperationContext( Registries registries, LdapDN dn )
-    {
-        super( registries, dn );
-    }
-
-
-    /**
-     * Creates a new instance of ModifyOperationContext.
-     */
-    public AddOperationContext( Registries registries, ServerEntry entry )
-    {
-        super( registries, entry.getDn() );
-        this.entry = entry;
-    }
-
-
-    /**
-     * Creates a new instance of AddOperationContext.
-     *
-     * @param collateralOperation whether or not this is a side-effect
-     */
-    public AddOperationContext( Registries registries, boolean collateralOperation )
-    {
-        super( registries, collateralOperation );
-    }
-
-
-    /**
-     * Creates a new instance of AddOperationContext.
-     *
+     * 
+     * @param session the current Session 
      * @param dn the name of the entry being added
-     * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( Registries registries, LdapDN dn, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, LdapDN dn )
     {
-        super( registries, dn, collateralOperation );
+        super( session, dn );
+    }
+
+
+    /**
+     * Creates a new instance of AddOperationContext.
+     * 
+     * @param session the current Session 
+     * @param entry the entry being added
+     */
+    public AddOperationContext( CoreSession session, ServerEntry entry )
+    {
+        super( session, entry.getDn() );
+        this.entry = new ClonedServerEntry( entry );
     }
 
 
     /**
      * Creates a new instance of ModifyOperationContext.
      *
+     * @param session the current Session 
      * @param dn the name of the entry being added
      * @param entry the entry being added
-     * @param collateralOperation whether or not this is a side-effect
      */
-    public AddOperationContext( Registries registries, LdapDN dn, ServerEntry entry, boolean collateralOperation )
+    public AddOperationContext( CoreSession session, LdapDN dn, ServerEntry entry )
     {
-        super( registries, dn, collateralOperation );
-        this.entry = entry;
+        super( session, dn );
+        this.entry = new ClonedServerEntry( entry );
+    }
+
+
+    public AddOperationContext( CoreSession session, AddRequest addRequest ) throws Exception
+    {
+        super( session );
+        this.entry = new ClonedServerEntry( ServerEntryUtils.toServerEntry( addRequest.getAttributes(), addRequest.getEntry(), 
+            session.getDirectoryService().getRegistries() ) );
+        this.dn = addRequest.getEntry();
+        this.requestControls = addRequest.getControls();
     }
 
 
     /**
-     * @return The added attributes
+     * @return the operation name
      */
-    public ServerEntry getEntry()
+    public String getName()
     {
-        return entry;
+        return MessageTypeEnum.ADD_REQUEST.name();
     }
 
-
-    /**
-     * Set the added attributes
-     * @param entry The added attributes
-     */
-    public void setEntry( ServerEntry entry )
-    {
-        this.entry = entry;
-    }
-
-
+    
     /**
      * @see Object#toString()
      */

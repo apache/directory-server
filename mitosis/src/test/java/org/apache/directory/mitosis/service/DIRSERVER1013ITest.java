@@ -59,7 +59,7 @@ public class DIRSERVER1013ITest extends AbstractReplicationServiceTestCase
         
         // We add the 'room' OC to have at least a STRUCTURAL OC
         entry.put( "objectClass", "top" ).add( "room" );
-        ctxA.bind( "cn=test,ou=system", null, entry );
+        ctxA.createSubcontext( "cn=test,ou=system", entry );
         
         Attributes attributes = ctxA.getAttributes( "cn=test,ou=system" );
         assertNull( attributes.get( SchemaConstants.CN_AT_OID ) );

@@ -19,11 +19,12 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import java.util.List;
 
-import javax.naming.NamingException;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
 
 
 /**
@@ -40,6 +41,13 @@ public class DefaultChangeLog implements ChangeLog
     private Tag latest;
     private ChangeLogStore store = new MemoryChangeLogStore();
 
+    private boolean exposeChangeLog;
+
+    // default values for ChangeLogStorePartition containers
+    private String partitionSuffix = "ou=changelog";
+    private String revContainerName = "ou=revisions";
+    private String tagContainerName = "ou=tags";
+
 
     public ChangeLogStore getChangeLogStore()
     {
@@ -53,20 +61,37 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public long getCurrentRevision() throws NamingException
+    public long getCurrentRevision() throws Exception
     {
         return store.getCurrentRevision();
     }
 
 
-    public long log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
-        if ( ! enabled )
+        if ( !enabled )
         {
             throw new IllegalStateException( "The ChangeLog has not been enabled." );
         }
 
         return store.log( principal, forward, reverse );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    {
+        if ( !enabled )
+        {
+            throw new IllegalStateException( "The ChangeLog has not been enabled." );
+        }
+
+        return store.log( principal, forward, reverses );
     }
 
 
@@ -96,7 +121,7 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         throw new UnsupportedOperationException(
-                "The underlying changelog store does not support searching through it's logs" );
+            "The underlying changelog store does not support searching through it's logs" );
     }
 
 
@@ -108,11 +133,11 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         throw new UnsupportedOperationException(
-                "The underlying changelog store does not support searching through it's tags" );
+            "The underlying changelog store does not support searching through it's tags" );
     }
 
 
-    public Tag tag( long revision, String description ) throws NamingException
+    public Tag tag( long revision, String description ) throws Exception
     {
         if ( revision < 0 )
         {
@@ -133,19 +158,19 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public Tag tag( long revision ) throws NamingException
+    public Tag tag( long revision ) throws Exception
     {
         return tag( revision, null );
     }
 
 
-    public Tag tag( String description ) throws NamingException
+    public Tag tag( String description ) throws Exception
     {
         return tag( store.getCurrentRevision(), description );
     }
 
 
-    public Tag tag() throws NamingException
+    public Tag tag() throws Exception
     {
         return tag( store.getCurrentRevision(), null );
     }
@@ -163,13 +188,13 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public Tag getLatest() throws NamingException
+    public Tag getLatest() throws Exception
     {
         if ( latest != null )
         {
             return latest;
         }
-        
+
         if ( store instanceof TaggableChangeLogStore )
         {
             return latest = ( ( TaggableChangeLogStore ) store ).getLatest();
@@ -179,16 +204,24 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public void init( DirectoryService service ) throws NamingException
+    public void init( DirectoryService service ) throws Exception
     {
         if ( enabled )
         {
             store.init( service );
+
+            if ( exposeChangeLog && isTagSearchSupported() )
+            {
+                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition( partitionSuffix, revContainerName, tagContainerName );
+                partition.init( service );
+
+                service.addPartition( partition );
+            }
         }
     }
 
 
-    public void sync() throws NamingException
+    public void sync() throws Exception
     {
         if ( enabled )
         {
@@ -197,11 +230,70 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
-    public void destroy() throws NamingException
+    public void destroy() throws Exception
     {
         if ( enabled )
         {
             store.destroy();
         }
+    }
+
+
+    /**
+     * @see ChangeLog#isExposeChangeLog()
+     */
+    public boolean isExposeChangeLog()
+    {
+        return exposeChangeLog;
+    }
+
+
+    /**
+     * @see ChangeLog#setExposeChangeLog(boolean)
+     */
+    public void setExposeChangeLog( boolean exposeChangeLog )
+    {
+        this.exposeChangeLog = exposeChangeLog;
+    }
+
+
+    /**
+     * @see ChangeLog#setPartitionSuffix(String)
+     */
+    public void setPartitionSuffix( String suffix )
+    {
+        this.partitionSuffix = suffix;
+    }
+
+
+    /**
+     * @see ChangeLog#setRevisionsContainerName(String)
+     */
+    public void setRevisionsContainerName( String revContainerName )
+    {
+        this.revContainerName = revContainerName;
+    }
+
+
+    /**
+     * @see ChangeLog#setTagsContainerName(String)
+     */
+    public void setTagsContainerName( String tagContainerName )
+    {
+        this.tagContainerName = tagContainerName;
+    }
+
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ChangeLog tag[" ).append( latest ).append( "]\n" );
+        sb.append( "    store : \n" ).append( store );
+        
+        return sb.toString();
     }
 }

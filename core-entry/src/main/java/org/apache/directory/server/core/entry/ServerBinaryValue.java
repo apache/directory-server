@@ -57,6 +57,10 @@ public class ServerBinaryValue extends ClientBinaryValue
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
+    /** used to dynamically lookup the attributeType when/if deserializing */
+    //@SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
+    //private final String oid;
+
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
@@ -172,6 +176,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         this.normalizedValue = normalizedValue;
         this.valid = valid;
         this.same = same;
+        //this.oid = attributeType.getOid();
     }
 
 
@@ -636,106 +641,176 @@ public class ServerBinaryValue extends ClientBinaryValue
     /**
      * @see Externalizable#writeExternal(ObjectOutput)
      * 
+     * We can't use this method for a ServerBinaryValue, as we have to feed the value
+     * with an AttributeType object
+     */ 
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+    }
+    
+    
+    /**
      * We will write the value and the normalized value, only
      * if the normalized value is different.
      * 
-     * The data will be stored following this structure :
+     * If the value is empty, a flag is written at the beginning with 
+     * the value true, otherwise, a false is written.
      * 
-     *  [UP value]
-     *  [Norm value] (will be null if normValue == upValue)
+     * The data will be stored following this structure :
+     *  [length] the wrapped length. Can be -1, if wrapped is null
+     *  [value length]
+     *  [UP value] if not empty
+     *  [normalized] (will be false if the value can't be normalized)
+     *  [same] (a flag set to true if the normalized value equals the UP value)
+     *  [Norm value] (the normalized value if different from the UP value, and not empty)
+     *  
+     *  @param out the buffer in which we will stored the serialized form of the value
+     *  @throws IOException if we can't write into the buffer
      */
-    public void writeExternal( ObjectOutput out ) throws IOException
+    public void serialize( ObjectOutput out ) throws IOException
     {
-        if ( getReference() != null )
+        if ( wrapped != null )
         {
-            out.writeInt( getReference().length );
-            out.write( getReference() );
+            // write a the wrapped length
+            out.writeInt( wrapped.length );
             
-            if ( same )
+            // Write the data if not empty
+            if ( wrapped.length > 0 )
             {
-                // If the normalized value is equal to the UP value,
-                // don't save it
-                out.writeInt( 0 );
-            }
-            else
-            {
-                out.writeInt( normalizedValue.length );
-                out.write( normalizedValue );
+                // The data
+                out.write( wrapped );
+                
+                // Normalize the data
+                try
+                {
+                    normalize();
+                    
+                    if ( !normalized )
+                    {
+                        // We may not have a normalizer. Just get out
+                        // after having writen the flag
+                        out.writeBoolean( false );
+                    }
+                    else
+                    {
+                        // Write a flag indicating that the data has been normalized
+                        out.writeBoolean( true );
+                        
+                        if ( Arrays.equals( getReference(), normalizedValue ) )
+                        {
+                            // Write the 'same = true' flag
+                            out.writeBoolean( true );
+                        }
+                        else
+                        {
+                            // Write the 'same = false' flag
+                            out.writeBoolean( false );
+                            
+                            // Write the normalized value length
+                            out.write( normalizedValue.length );
+                            
+                            if ( normalizedValue.length > 0 )
+                            {
+                                // Write the normalized value if not empty
+                                out.write( normalizedValue );
+                            }
+                        }
+                    }
+                }
+                catch ( NamingException ne )
+                {
+                    // The value can't be normalized, we don't write the 
+                    // normalized value.
+                    normalizedValue = null;
+                    out.writeBoolean( false );
+                }
             }
         }
         else
         {
+            // Write -1 indicating that the value is null
             out.writeInt( -1 );
         }
-        
-        out.flush();
     }
 
     
     /**
      * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * We can't use this method for a ServerBinaryValue, as we have to feed the value
+     * with an AttributeType object
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        if ( in.available() == 0 )
+        throw new IllegalStateException( "Cannot use standard serialization for a ServerStringValue" );
+    }
+    
+
+    /**
+     * 
+     * Deserialize a ServerBinaryValue. 
+     *
+     * @param in the buffer containing the bytes with the serialized value
+     * @throws IOException 
+     * @throws ClassNotFoundException
+     */
+    public void deserialize( ObjectInput in ) throws IOException, ClassNotFoundException
+    {
+        // The UP value length
+        int wrappedLength = in.readInt();
+        
+        if ( wrappedLength == -1 )
         {
-            set( null );
-            normalizedValue = null;
+            // If the value is null, the length will be set to -1
+            same = true;
+            wrapped = null;
+        }
+        else if ( wrappedLength == 0 )
+        {
+             wrapped = StringTools.EMPTY_BYTES;
+             same = true;
+             normalized = true;
+             normalizedValue = wrapped;
         }
         else
         {
-            int wrappedLength = in.readInt();
-            byte[] wrappedBytes = null;
+            wrapped = new byte[wrappedLength];
             
-            switch ( wrappedLength )
+            // Read the data
+            in.readFully( wrapped );
+            
+            // Check if we have a normalized value
+            normalized = in.readBoolean();
+            
+            if ( normalized )
             {
-                case -1 :
-                    // No value, no normalized value
-                    same = true;
-                    setNormalized( false );
-                    break;
-                    
-                case 0 :
-                    // Empty value, so is the normalized value
-                    wrappedBytes = StringTools.EMPTY_BYTES;
-                    normalizedValue = wrappedBytes;
-                    setNormalized( true );
-                    same = true;
-                    break;
-                    
-                default :
-                    wrappedBytes = new byte[wrappedLength];
-                    in.readFully( wrappedBytes );
-                    
+                // Read the 'same' flag
+                same = in.readBoolean();
+                
+                if ( !same )
+                {
+                    // Read the normalizedvalue length
                     int normalizedLength = in.readInt();
-                    
-                    // The normalized length should be either 0 or N, 
-                    // but it can't be -1
-                    switch ( normalizedLength )
+                
+                    if ( normalizedLength > 0 )
                     {
-                        case -1 :
-                            String message = "The normalized value cannot be null when the User Provide value is not";
-                            LOG.error(  message  );
-                            throw new IOException( message );
-                            
-                        case 0 :
-                            normalizedValue = StringTools.EMPTY_BYTES;
-                            same = true;
-                            setNormalized( false );
-                            break;
-                            
-                        default :
-                            same = false;
-                            normalizedValue = new byte[normalizedLength];
-                            in.readFully( normalizedValue );
-                            setNormalized( true );
-                            break;
+                        normalizedValue = new byte[normalizedLength];
+                        
+                        // Read the normalized value
+                        in.read( normalizedValue, 0, normalizedLength );
                     }
-                    
-                    break;
+                    else
+                    {
+                        normalizedValue = StringTools.EMPTY_BYTES;
+                    }
+                }
+                else
+                {
+                    normalizedValue = new byte[wrappedLength];
+                    System.arraycopy( wrapped, 0, normalizedValue, 0, wrappedLength );
+                }
             }
-            
-            set( wrappedBytes );
         }
     }
 }

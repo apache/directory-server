@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -34,7 +33,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 
-import javax.naming.NamingException;
+//import javax.naming.NamingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +53,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     protected final SchemaEntityFactory factory;
 
     
-    protected AbstractSchemaChangeHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
+    protected AbstractSchemaChangeHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         this.targetRegistries = targetRegistries;
         this.loader = loader;
@@ -63,7 +62,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected void checkOidIsUnique( ServerEntry entry ) throws NamingException
+    protected void checkOidIsUnique( ServerEntry entry ) throws Exception
     {
         String oid = getOid( entry );
 
@@ -75,7 +74,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
 
 
-    protected void checkOidIsUnique( SchemaObject schemaObject ) throws NamingException
+    protected void checkOidIsUnique( SchemaObject schemaObject ) throws Exception
     {
         String oid = schemaObject.getOid();
 
@@ -87,7 +86,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
 
 
-    protected void checkOidIsUnique( String oid ) throws NamingException
+    protected void checkOidIsUnique( String oid ) throws Exception
     {
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
@@ -98,28 +97,28 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     
     protected abstract void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
-        throws NamingException;
+        throws Exception;
     
     
     public final void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
-        boolean cascade ) throws NamingException
+        boolean cascade ) throws Exception
     {
         modify( name, entry, targetEntry, cascade );
     }
 
 
     public final void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
-        ServerEntry targetEntry, boolean cascade ) throws NamingException
+        ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         modify( name, entry, targetEntry, cascade );
     }
 
     
-    protected Set<String> getOids( Set<ServerSearchResult> results ) throws NamingException
+    protected Set<String> getOids( Set<ServerEntry> results ) throws Exception
     {
         Set<String> oids = new HashSet<String>( results.size() );
         
-        for ( ServerSearchResult result : results )
+        for ( ServerEntry result : results )
         {
             LdapDN dn = result.getDn();
             dn.normalize( this.targetRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -130,7 +129,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected String getOid( ServerEntry entry ) throws NamingException
+    protected String getOid( ServerEntry entry ) throws Exception
     {
         EntryAttribute oid = entry.get( m_oidAT );
         
@@ -143,25 +142,25 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected String getSchemaName( LdapDN name ) throws NamingException
+    protected String getSchemaName( LdapDN name ) throws Exception
     {
         return MetaSchemaUtils.getSchemaName( name );
     }
     
     
-    protected Schema getSchema( LdapDN name ) throws NamingException
+    protected Schema getSchema( LdapDN name ) throws Exception
     {
         return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
     }
     
     
-    protected void unregisterOids( String oid ) throws NamingException
+    protected void unregisterOids( String oid ) throws Exception
     {
         targetRegistries.getOidRegistry().unregister( oid );
     }
     
     
-    protected void registerOids( SchemaObject obj ) throws NamingException
+    protected void registerOids( SchemaObject obj ) throws Exception
     {
         String[] names = obj.getNamesRef();
         

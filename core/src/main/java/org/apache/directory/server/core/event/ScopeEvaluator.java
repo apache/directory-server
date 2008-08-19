@@ -21,7 +21,6 @@ package org.apache.directory.server.core.event;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -30,7 +29,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Evaluates ScopeNode assertions on candidates using a database.
+ * Evaluates ScopeNode assertions on candidates.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -51,10 +50,10 @@ public class ScopeEvaluator implements Evaluator
 
         switch ( snode.getScope() )
         {
-            case ( SearchControls.OBJECT_SCOPE  ):
+            case OBJECT:
                 return dn.equals( snode.getBaseDn() );
             
-            case ( SearchControls.ONELEVEL_SCOPE  ):
+            case ONELEVEL:
                 if ( dn.endsWith( snode.getBaseDn() ) )
                 {
                     LdapDN candidateDn = new LdapDN( dn );
@@ -62,7 +61,7 @@ public class ScopeEvaluator implements Evaluator
                     return ( scopeDn.size() + 1 ) == candidateDn.size();
                 }
             
-            case ( SearchControls.SUBTREE_SCOPE  ):
+            case SUBTREE:
                 return dn.endsWith( snode.getBaseDn() );
             
             default:

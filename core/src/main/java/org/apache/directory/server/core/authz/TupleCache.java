@@ -20,29 +20,15 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.directory.SearchControls;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
-import java.text.ParseException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerSearchResult;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -62,6 +48,16 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -101,16 +97,18 @@ public class TupleCache
      * @param directoryService the context factory configuration for the server
      * @throws NamingException if initialization fails
      */
-    public TupleCache( DirectoryService directoryService ) throws NamingException
+    public TupleCache( CoreSession session ) throws Exception
     {
-        normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        this.nexus = directoryService.getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
+        normalizerMap = session.getDirectoryService().getRegistries()
+            .getAttributeTypeRegistry().getNormalizerMapping();
+        this.nexus = session.getDirectoryService().getPartitionNexus();
+        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
+            .getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = session.getDirectoryService().getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
-        initialize( directoryService.getRegistries() );
+        initialize( session );
     }
 
 
@@ -122,7 +120,7 @@ public class TupleCache
     }
 
 
-    private void initialize( Registries registries ) throws NamingException
+    private void initialize( CoreSession session ) throws Exception
     {
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
@@ -133,19 +131,18 @@ public class TupleCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
-                SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+            ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+                new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<ServerSearchResult> results = nexus.search( new SearchOperationContext( registries,
+            EntryFilteringCursor results = nexus.search( new SearchOperationContext( session,
                 baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
 
-            while ( results.hasMore() )
+            while ( results.next() )
             {
-                ServerSearchResult result = results.next();
+                ServerEntry result = results.get();
                 LdapDN subentryDn = result.getDn().normalize( normalizerMap );
-                ServerEntry serverEntry = result.getServerEntry();
-                EntryAttribute aci = serverEntry.get( prescriptiveAciAT );
+                EntryAttribute aci = result.get( prescriptiveAciAT );
 
                 if ( aci == null )
                 {
@@ -154,7 +151,7 @@ public class TupleCache
                     continue;
                 }
 
-                subentryAdded( subentryDn, serverEntry );
+                subentryAdded( subentryDn, result );
             }
 
             results.close();

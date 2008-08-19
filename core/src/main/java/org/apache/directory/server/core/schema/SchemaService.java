@@ -380,15 +380,15 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public ServerEntry getSubschemaEntryImmutable() throws NamingException
+    public ServerEntry getSubschemaEntryImmutable() throws Exception
     {
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
         }
 
-        return (ServerEntry)schemaSubentry.clone();
+        return ( ServerEntry ) schemaSubentry.clone();
     }
 
 
@@ -398,12 +398,12 @@ public class SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public ServerEntry getSubschemaEntryCloned() throws NamingException
+    public ServerEntry getSubschemaEntryCloned() throws Exception
     {
         if ( schemaSubentry == null )
         {
             generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( registries, schemaModificationAttributesDN ) ) );
+                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
         }
 
         return ( ServerEntry ) schemaSubentry.clone();
@@ -418,7 +418,7 @@ public class SchemaService
      * @return the subschema entry with the ids provided
      * @throws NamingException if there are failures during schema info access
      */
-    public ServerEntry getSubschemaEntry( String[] ids ) throws NamingException
+    public ServerEntry getSubschemaEntry( String[] ids ) throws Exception
     {
         if ( ids == null )
         {
@@ -435,7 +435,8 @@ public class SchemaService
             // Check if we need an update by looking at timestamps on disk
             // ---------------------------------------------------------------
 
-            ServerEntry mods = schemaPartition.lookup( new LookupOperationContext( registries, schemaModificationAttributesDN ) );
+            ServerEntry mods = 
+                schemaPartition.lookup( new LookupOperationContext( null, schemaModificationAttributesDN ) );
 // @todo enable this optimization at some point but for now it
 // is causing some problems so I will just turn it off
 //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );

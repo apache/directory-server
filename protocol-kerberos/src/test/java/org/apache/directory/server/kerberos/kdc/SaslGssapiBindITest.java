@@ -26,7 +26,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -83,7 +83,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
     {
         super.setUp();
 
-        setAllowAnonymousAccess( false );
         ldapServer.setSaslHost( "localhost" );
         ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
@@ -150,6 +149,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
     protected void configureDirectoryService() throws NamingException
     {
+        directoryService.setAllowAnonymousAccess( false );
         Set<Partition> partitions = new HashSet<Partition>();
 
         // Add partition 'example'
@@ -157,10 +157,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         partition.setId( "example" );
         partition.setSuffix( "dc=example,dc=com" );
 
-        Set<Index> indexedAttrs = new HashSet<Index>();
-        indexedAttrs.add( new JdbmIndex( "ou" ) );
-        indexedAttrs.add( new JdbmIndex( "dc" ) );
-        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
+        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
         ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), new LdapDN( "dc=example, dc=com" ) );

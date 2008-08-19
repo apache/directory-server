@@ -19,9 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import java.io.IOException;
 import java.util.List;
-import javax.naming.NamingException;
 
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
@@ -122,11 +120,7 @@ public class CiSuite extends Suite
                 cleanup();
                 destroy();
             }
-            catch ( NamingException e )
-            {
-                notifier.fireTestFailure( new Failure( getDescription(), e ) );
-            }
-            catch ( IOException e )
+            catch ( Exception e )
             {
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }

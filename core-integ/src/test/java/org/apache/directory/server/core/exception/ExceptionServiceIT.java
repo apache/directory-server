@@ -62,7 +62,7 @@ public class ExceptionServiceIT
     public static DirectoryService service;
 
 
-    private DirContext createSubContext( String type, String value ) throws NamingException
+    private DirContext createSubContext( String type, String value ) throws Exception
     {
         return createSubContext( getSystemContext( service ), type, value );
     }
@@ -95,7 +95,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFailSearchNoSuchObject() throws NamingException
+    public void testFailSearchNoSuchObject() throws Exception
     {
         SearchControls ctls = new SearchControls();
         try
@@ -118,7 +118,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testSearchControl() throws NamingException
+    public void testSearchControl() throws Exception
     {
         SearchControls ctls = new SearchControls();
         NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "ou=users", "(objectClass=*)", ctls );
@@ -144,7 +144,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFailMoveEntryAlreadyExists() throws NamingException
+    public void testFailMoveEntryAlreadyExists() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -194,7 +194,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFailMoveNoSuchObject() throws NamingException
+    public void testFailMoveNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -231,7 +231,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testMoveControl() throws NamingException
+    public void testMoveControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -262,7 +262,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFailModifyRdnEntryAlreadyExists() throws NamingException
+    public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -285,7 +285,7 @@ public class ExceptionServiceIT
      * @throws NamingException on error
      */
     @Test
-    public void testFailModifyRdnNoSuchObject() throws NamingException
+    public void testFailModifyRdnNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -306,10 +306,10 @@ public class ExceptionServiceIT
      * Modify operation control to test if normal modify operations occur
      * correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testModifyRdnControl() throws NamingException
+    public void testModifyRdnControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -337,10 +337,10 @@ public class ExceptionServiceIT
     /**
      * Test modify operation failure when the object modified is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailModifyNoSuchObject() throws NamingException
+    public void testFailModifyNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -381,10 +381,10 @@ public class ExceptionServiceIT
      * Modify operation control to test if normal modify operations occur
      * correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testModifyControl() throws NamingException
+    public void testModifyControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -418,10 +418,10 @@ public class ExceptionServiceIT
     /**
      * Test lookup operation failure when the object looked up is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailLookupNoSuchObject() throws NamingException
+    public void testFailLookupNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -442,10 +442,10 @@ public class ExceptionServiceIT
      * Lookup operation control to test if normal lookup operations occur
      * correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testLookupControl() throws NamingException
+    public void testLookupControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -463,10 +463,10 @@ public class ExceptionServiceIT
     /**
      * Test list operation failure when the base searched is non-existant.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailListNoSuchObject() throws NamingException
+    public void testFailListNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -486,10 +486,10 @@ public class ExceptionServiceIT
     /**
      * List operation control to test if normal list operations occur correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testListControl() throws NamingException
+    public void testListControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -515,10 +515,10 @@ public class ExceptionServiceIT
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailAddOnAlias() throws NamingException
+    public void testFailAddOnAlias() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -548,10 +548,10 @@ public class ExceptionServiceIT
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailAddNoSuchEntry() throws NamingException
+    public void testFailAddNoSuchEntry() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -570,10 +570,10 @@ public class ExceptionServiceIT
     /**
      * Tests for add operation failure when the entry to add already exists.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailAddEntryAlreadyExists() throws NamingException
+    public void testFailAddEntryAlreadyExists() throws Exception
     {
         createSubContext( "ou", "blah");
 
@@ -593,10 +593,10 @@ public class ExceptionServiceIT
     /**
      * Add operation control to test if normal add operations occur correctly.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testAddControl() throws NamingException
+    public void testAddControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -615,10 +615,10 @@ public class ExceptionServiceIT
     /**
      * Tests for delete failure when the entry to be deleted has child entires.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailDeleteNotAllowedOnNonLeaf() throws NamingException
+    public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -642,10 +642,10 @@ public class ExceptionServiceIT
      * Tests delete to make sure it fails when we try to delete an entry that
      * does not exist.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testFailDeleteNoSuchObject() throws NamingException
+    public void testFailDeleteNoSuchObject() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
@@ -665,10 +665,10 @@ public class ExceptionServiceIT
     /**
      * Delete operation control to test if normal delete operations occur.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
-    public void testDeleteControl() throws NamingException
+    public void testDeleteControl() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 

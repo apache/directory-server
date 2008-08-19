@@ -86,7 +86,7 @@ public class ModifyAuthorizationIT
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationItemImpl[] mods )
-        throws NamingException
+        throws Exception
     {
         // create the entry with the telephoneNumber attribute to modify
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
@@ -144,7 +144,7 @@ public class ModifyAuthorizationIT
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, int modOp, Attributes mods )
-        throws NamingException
+        throws Exception
     {
         // create the entry with the telephoneNumber attribute to modify
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
@@ -193,7 +193,7 @@ public class ModifyAuthorizationIT
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, int modOp, Attributes mods ) throws NamingException
+    public boolean checkCanSelfModify( String uid, String password, int modOp, Attributes mods ) throws Exception
     {
         try
         {
@@ -222,7 +222,7 @@ public class ModifyAuthorizationIT
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, ModificationItemImpl[] mods ) throws NamingException
+    public boolean checkCanSelfModify( String uid, String password, ModificationItemImpl[] mods ) throws Exception
     {
         try
         {
@@ -262,7 +262,7 @@ public class ModifyAuthorizationIT
 
 
     @Test
-    public void testSelfModification() throws NamingException
+    public void testSelfModification() throws Exception
     {
         // ----------------------------------------------------------------------------------
         // Modify with Attribute Addition
@@ -299,7 +299,7 @@ public class ModifyAuthorizationIT
      * @throws javax.naming.NamingException if the test encounters an error
      */
     @Test
-    public void testGrantModifyByTestGroup() throws NamingException
+    public void testGrantModifyByTestGroup() throws Exception
     {
         // ----------------------------------------------------------------------------------
         // Modify with Attribute Addition
@@ -542,7 +542,7 @@ public class ModifyAuthorizationIT
     
     
     @Test
-    public void testPresciptiveACIModification() throws NamingException
+    public void testPresciptiveACIModification() throws Exception
     {
         
         ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
@@ -573,7 +573,7 @@ public class ModifyAuthorizationIT
     
 
     @Test
-    public void testMaxValueCountProtectedItem() throws NamingException
+    public void testMaxValueCountProtectedItem() throws Exception
     {
         createUser( "billyd", "billyd" );
         createAccessControlSubentry( "mvcACI",
