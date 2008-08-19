@@ -84,7 +84,7 @@ public class ListCursor<E> extends AbstractCursor<E>
         else
         {
             //noinspection unchecked
-            this.list = Collections.EMPTY_LIST;
+            this.list = Collections.emptyList();
         }
 
         this.start = start;
@@ -171,16 +171,16 @@ public class ListCursor<E> extends AbstractCursor<E>
     /**
      * Creates a new ListCursor without any elements.
      */
+    @SuppressWarnings("unchecked")
     public ListCursor()
     {
-        //noinspection unchecked
         this( null, 0, Collections.EMPTY_LIST, 0 );
     }
 
 
+    @SuppressWarnings("unchecked")
     public ListCursor( Comparator<E> comparator )
     {
-        //noinspection unchecked
         this( comparator, 0, Collections.EMPTY_LIST, 0 );
     }
 

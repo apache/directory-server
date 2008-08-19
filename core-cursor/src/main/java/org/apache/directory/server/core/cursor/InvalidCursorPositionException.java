@@ -28,6 +28,9 @@ package org.apache.directory.server.core.cursor;
  */
 public class InvalidCursorPositionException extends Exception
 {
+    private static final long serialVersionUID = 5730037129071653272L;
+
+
     public InvalidCursorPositionException ()
     {
     }

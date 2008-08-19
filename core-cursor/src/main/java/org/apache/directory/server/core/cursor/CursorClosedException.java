@@ -28,6 +28,9 @@ package org.apache.directory.server.core.cursor;
  */
 public class CursorClosedException extends Exception
 {
+    private static final long serialVersionUID = -5723233489761854394L;
+
+
     public CursorClosedException()
     {
     }

@@ -36,7 +36,7 @@ public class CursorIterator<E> implements Iterator<E>
     private boolean available;
 
 
-    public CursorIterator( Cursor cursor )
+    public CursorIterator( Cursor<E> cursor )
     {
         this.cursor = cursor;
         this.available = cursor.available();

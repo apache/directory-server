@@ -29,6 +29,9 @@ package org.apache.directory.server.core.cursor;
  */
 public class InconsistentCursorStateException extends Exception
 {
+    private static final long serialVersionUID = 6222645005251534704L;
+
+
     public InconsistentCursorStateException()
     {
     }
