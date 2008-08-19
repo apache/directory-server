@@ -352,21 +352,15 @@ public class ModifyRemoveIT
         // Inject the new attribute
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
 
-        // Now try to remove a bad value
-        try
-        {
-            Attribute attr2 = new AttributeImpl( "telephoneNumber", "7890" );
-            Attributes attrs2 = new AttributesImpl();
-            attrs2.put( attr2 );
-        	
-            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
-            fail( "Deletion of attribute, which is not present in the entry, should fail." );
-        }
-        catch ( NoSuchAttributeException e )
-        {
-        	assertTrue( true );
-            // expected behaviour
-        }
+        // Now try to remove a value which is not present
+        Attribute attr2 = new AttributeImpl( "telephoneNumber", "7890" );
+        Attributes attrs2 = new AttributesImpl();
+        attrs2.put( attr2 );
+    	
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
+        
+        // We shopuld not get an exception
+        assertTrue( true );
     }
 
 
