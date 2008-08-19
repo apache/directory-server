@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
+import org.junit.Ignore;
 
 
 /**
@@ -40,6 +41,7 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Ignore
 public class LdapUrlTest extends TestCase
 {
     // ~ Methods
