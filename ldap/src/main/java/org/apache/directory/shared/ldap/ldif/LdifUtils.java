@@ -24,15 +24,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -84,6 +88,7 @@ public class LdifUtils
         LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
     }
 
+    
     /**
      * Checks if the input String contains only safe values, that is, the data
      * does not need to be encoded for use with LDIF. The rules for checking safety
@@ -112,6 +117,12 @@ public class LdifUtils
      */
     public static boolean isLDIFSafe( String str )
     {
+        if ( str == null )
+        {
+            // A null string is LDIF safe
+            return true;
+        }
+        
         // Checking the first char
         char currentChar = str.charAt(0);
         
@@ -135,6 +146,7 @@ public class LdifUtils
         return ( currentChar != ' ' );
     }
     
+    
     /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
@@ -142,6 +154,54 @@ public class LdifUtils
      * @throws NamingException If a naming exception is encountered.
      */
     public static String convertToLdif( Attributes attrs ) throws NamingException
+    {
+        return convertToLdif( AttributeUtils.toClientEntry( attrs, null ), DEFAULT_LINE_LENGTH );
+    }
+    
+    
+    /**
+     * Convert an Attributes as LDIF
+     * @param attrs the Attributes to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Attributes attrs, int length ) throws NamingException
+    {
+        return convertToLdif( AttributeUtils.toClientEntry( attrs, null ), length );
+    }
+    
+    
+    /**
+     * Convert an Attributes as LDIF
+     * @param attrs the Attributes to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Attributes attrs, LdapDN dn, int length ) throws NamingException
+    {
+        return convertToLdif( AttributeUtils.toClientEntry( attrs, dn ), length );
+    }
+    
+    
+    /**
+     * Convert an Attributes as LDIF
+     * @param attrs the Attributes to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Attributes attrs, LdapDN dn ) throws NamingException
+    {
+        return convertToLdif( AttributeUtils.toClientEntry( attrs, dn ), DEFAULT_LINE_LENGTH );
+    }
+    
+    
+    /**
+     * Convert an Entry as LDIF
+     * @param attrs the Entry to convert
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Entry attrs ) throws NamingException
     {
         return convertToLdif( attrs, DEFAULT_LINE_LENGTH );
     }
@@ -161,31 +221,26 @@ public class LdifUtils
         return reader.parseAttributes( ldif );
     }
     
+    
     /**
-     * Convert an Attributes as LDIF
-     * @param attrs the Attributes to convert
+     * Convert an Entry as LDIF
+     * @param entry the Entry to convert
      * @param length the expected line length
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-    public static String convertToLdif( Attributes attrs, int length ) throws NamingException
+    public static String convertToLdif( Entry entry, int length ) throws NamingException
     {
         StringBuilder sb = new StringBuilder();
         
-        NamingEnumeration<? extends Attribute> ne = attrs.getAll();
-        
-        while ( ne.hasMore() )
+        for ( EntryAttribute attribute:entry )
         {
-            Object attribute = ne.next();
-            
-            if ( attribute instanceof Attribute ) 
-            {
-                sb.append( convertToLdif( (Attribute) attribute, length ) );
-            }            
+            sb.append( convertToLdif( attribute, length ) );
         }
         
         return sb.toString();
     }
+    
     
     /**
      * Convert an Entry to LDIF
@@ -210,13 +265,13 @@ public class LdifUtils
         StringBuilder sb = new StringBuilder();
         
         // First, dump the DN
-        if ( isLDIFSafe( entry.getDn() ) )
+        if ( isLDIFSafe( entry.getDn().getUpName() ) )
         {
             sb.append( stripLineToNChars( "dn: " + entry.getDn(), length ) );
         }
         else
         {
-            sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn() ), length ) );
+            sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn().getUpName() ), length ) );
         }
         
         sb.append( '\n' );
@@ -229,7 +284,7 @@ public class LdifUtils
         switch ( entry.getChangeType() )
         {
             case Delete :
-                if ( entry.getAttributes() != null )
+                if ( entry.getEntry() != null )
                 {
                     throw new NamingException( "Invalid Entry : a deleted entry should not contain attributes" );
                 }
@@ -237,18 +292,14 @@ public class LdifUtils
                 break;
                 
             case Add :
-                if ( ( entry.getAttributes() == null ) )
+                if ( ( entry.getEntry() == null ) )
                 {
                     throw new NamingException( "Invalid Entry : a added or modified entry should contain attributes" );
                 }
 
                 // Now, iterate through all the attributes
-                NamingEnumeration<? extends Attribute> ne = entry.getAttributes().getAll();
-                
-                while ( ne.hasMore() )
+                for ( EntryAttribute attribute:entry.getEntry() )
                 {
-                    Attribute attribute = ne.next();
-                    
                     sb.append( convertToLdif( attribute, length ) );
                 }
                 
@@ -256,7 +307,7 @@ public class LdifUtils
                 
             case ModDn :
             case ModRdn :
-                if ( entry.getAttributes() != null )
+                if ( entry.getEntry() != null )
                 {
                     throw new NamingException( "Invalid Entry : a modifyDN operation entry should not contain attributes" );
                 }
@@ -278,30 +329,30 @@ public class LdifUtils
                 // Stores the optional newSuperior
                 if ( ! StringTools.isEmpty( entry.getNewSuperior() ) )
                 {
-                    Attribute newSuperior = new AttributeImpl( "newsuperior", entry.getNewSuperior() );
+                    EntryAttribute newSuperior = new DefaultClientAttribute( "newsuperior", entry.getNewSuperior() );
                     sb.append( convertToLdif( newSuperior, length ) );
                 }
                 
                 // Stores the new RDN
-                Attribute newRdn = new AttributeImpl( "newrdn", entry.getNewRdn() );
+                EntryAttribute newRdn = new DefaultClientAttribute( "newrdn", entry.getNewRdn() );
                 sb.append( convertToLdif( newRdn, length ) );
                 
                 break;
                 
             case Modify :
-                for ( ModificationItem modification:entry.getModificationItems() )
+                for ( Modification modification:entry.getModificationItems() )
                 {
-                    switch ( modification.getModificationOp() )
+                    switch ( modification.getOperation() )
                     {
-                        case DirContext.ADD_ATTRIBUTE :
+                        case ADD_ATTRIBUTE :
                             sb.append( "add: " );
                             break;
                             
-                        case DirContext.REMOVE_ATTRIBUTE :
+                        case REMOVE_ATTRIBUTE :
                             sb.append( "delete: " );
                             break;
                             
-                        case DirContext.REPLACE_ATTRIBUTE :
+                        case REPLACE_ATTRIBUTE :
                             sb.append( "replace: " );
                             break;
                             
@@ -310,7 +361,7 @@ public class LdifUtils
                             
                     }
                     
-                    sb.append( modification.getAttribute().getID() );
+                    sb.append( modification.getAttribute().getId() );
                     sb.append( '\n' );
                     
                     sb.append( convertToLdif( modification.getAttribute() ) );
@@ -352,61 +403,63 @@ public class LdifUtils
     
 
     /**
-     * Converts an Attribute as LDIF
-     * @param attr the Attribute to convert
+     * Converts an EntryAttribute to LDIF
+     * @param attr the >EntryAttribute to convert
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-    public static String convertToLdif( Attribute attr ) throws NamingException
+    public static String convertToLdif( EntryAttribute attr ) throws NamingException
     {
         return convertToLdif( attr, DEFAULT_LINE_LENGTH );
     }
     
     
     /**
-     * Converts an Attribute as LDIF
-     * @param attr the Attribute to convert
+     * Converts an EntryAttribute as LDIF
+     * @param attr the EntryAttribute to convert
      * @param length the expected line length
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-    public static String convertToLdif( Attribute attr, int length ) throws NamingException
+    public static String convertToLdif( EntryAttribute attr, int length ) throws NamingException
     {
         StringBuilder sb = new StringBuilder();
         
-        // iterating on the attribute's values
-        for ( int i = 0; i < attr.size(); i++ )
+        for ( Value<?> value:attr )
         {
             StringBuilder lineBuffer = new StringBuilder();
             
-            lineBuffer.append( attr.getID() );
-            
-            Object value = attr.get( i );
+            lineBuffer.append( attr.getId() );
             
             // First, deal with null value (which is valid)
             if ( value == null )
             {
                 lineBuffer.append( ':' );
             }
-            else if ( value instanceof byte[] )
+            else if ( value instanceof ClientBinaryValue )
             {
                 // It is binary, so we have to encode it using Base64 before adding it
-                char[] encoded = Base64.encode( ( byte[] ) value );
+                char[] encoded = Base64.encode( ( byte[] ) value.get() );
                 
                 lineBuffer.append( ":: " + new String( encoded ) );                            
             }
-            else if ( value instanceof String )
+            else if ( value instanceof ClientStringValue )
             {
                 // It's a String but, we have to check if encoding isn't required
-                String str = (String) value;
+                String str = (String) value.get();
                 
                 if ( !LdifUtils.isLDIFSafe( str ) )
                 {
-                    lineBuffer.append( ":: " + encodeBase64( (String)value ) );
+                    lineBuffer.append( ":: " + encodeBase64( str ) );
                 }
                 else
                 {
-                    lineBuffer.append( ": " + value );
+                    lineBuffer.append( ":" );
+                    
+                    if ( str != null) 
+                    {
+                        lineBuffer.append( " " ).append( str );
+                    }
                 }
             }
             
@@ -488,7 +541,7 @@ public class LdifUtils
     {
         LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Delete );
-        entry.setDn( dn.getUpName() );
+        entry.setDn( dn );
         return entry;
     }
 
@@ -501,17 +554,16 @@ public class LdifUtils
      * @param deletedEntry The entry which has been deleted
      * @return A reverse LDIF
      */
-    public static LdifEntry reverseDel( LdapDN dn, Attributes deletedEntry )
+    public static LdifEntry reverseDel( LdapDN dn, Entry deletedEntry ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
         
-        entry.setDn( dn.getUpName() );
+        entry.setDn( dn );
         entry.setChangeType( ChangeType.Add );
-        NamingEnumeration<? extends Attribute> attributes = deletedEntry.getAll();
         
-        while ( attributes.hasMoreElements() )
+        for ( EntryAttribute attribute:deletedEntry )
         {
-            entry.addAttribute( attributes.nextElement() );
+            entry.addAttribute( attribute );
         }       
 
         return entry;
@@ -556,7 +608,7 @@ public class LdifUtils
         newDn.add( modifiedDn.getRdn() );
 
         entry.setChangeType( ChangeType.ModDn );
-        entry.setDn( newDn.getUpName() );
+        entry.setDn( newDn );
         entry.setNewSuperior( currentParent.getUpName() );
         entry.setDeleteOldRdn( false );
         return entry;
@@ -572,7 +624,7 @@ public class LdifUtils
      * @return A new LDIF entry with a reverted DN
      * @throws NamingException If the name reverting failed
      */
-    public static LdifEntry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
+    public static List<LdifEntry> reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
     {
         LdifEntry entry = new LdifEntry();
         LdapDN parent = null;
@@ -599,11 +651,15 @@ public class LdifUtils
         newDn = ( LdapDN ) parent.clone();
         newDn.add( t1_rdn );
 
+        List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+        
         entry.setChangeType( ChangeType.ModRdn );
         entry.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
-        entry.setDn( newDn.getUpName() );
+        entry.setDn( newDn );
         entry.setNewRdn( t0_dn.getRdn().getUpName() );
-        return entry;
+        
+        entries.add( entry );
+        return entries;
     }
 
 
@@ -616,10 +672,10 @@ public class LdifUtils
      * @param t1_parentDn the new superior dn if this is a move, otherwise null
      * @param t0_dn the dn of the entry being modified
      * @param t1_rdn the new rdn to use
-     * @return A reverse LDIF
+     * @return A reverse LDIF, with potentially more than one reverse operation 
      * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
+    public static List<LdifEntry> reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
             throws NamingException
     {
         if ( t0_dn == null )
@@ -634,6 +690,8 @@ public class LdifUtils
 
         // if there is no new superior in the picture then this is a rename
         // operation where the parent is retained and only the rdn is changed
+        // We still have to take care that the entry attributes are correctly
+        // restored if the new RDN has more than one AVAs
         if ( t1_parentDn == null )
         {
             return reverseRename( t0, t0_dn, t1_rdn );
@@ -643,7 +701,11 @@ public class LdifUtils
         // a name change, we can delegate this to a simpler method
         if ( t1_rdn == null )
         {
-            return reverseModifyDn( t1_parentDn, t0_dn );
+            List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+            LdifEntry entry = reverseModifyDn( t1_parentDn, t0_dn );
+            entries.add( entry );
+            
+            return entries;
         }
 
         // -------------------------------------------------------------------
@@ -670,13 +732,15 @@ public class LdifUtils
         LdapDN reverseDn = ( LdapDN ) t1_parentDn.clone();
         reverseDn.add( t1_rdn );
 
-        reverse.setDn( reverseDn.getUpName() );
+        reverse.setDn( reverseDn );
         reverse.setNewSuperior( reverseNewSuperiorDn.getUpName() );
         reverse.setNewRdn( reverseNewRdn.getUpName() );
         reverse.setChangeType( ChangeType.ModRdn );
         reverse.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
 
-        return reverse;
+        List<LdifEntry> entries = new ArrayList<LdifEntry>(1);
+        entries.add( reverse );
+        return entries;
     }
 
 
@@ -730,46 +794,46 @@ public class LdifUtils
      * @return A reversed LDIF
      * @throws NamingException If something went wrong
      */
-    public static LdifEntry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
-                                       Attributes modifiedEntry ) throws NamingException
+    public static LdifEntry reverseModify( LdapDN dn, List<Modification> forwardModifications,
+                                       Entry modifiedEntry ) throws NamingException
     {
         // First, protect the original entry by cloning it : we will modify it
-        Attributes clonedEntry = ( Attributes ) modifiedEntry.clone();
+        Entry clonedEntry = ( Entry ) modifiedEntry.clone();
 
         LdifEntry entry = new LdifEntry();
         entry.setChangeType( ChangeType.Modify );
 
-        entry.setDn( dn.getUpName() );
+        entry.setDn( dn );
 
         // As the reversed modifications should be pushed in reversed order,
         // we create a list to temporarily store the modifications.
-        List<ModificationItemImpl> reverseModifications = new ArrayList<ModificationItemImpl>();
+        List<Modification> reverseModifications = new ArrayList<Modification>();
 
         // Loop through all the modifications. For each modification, we will
         // have to apply it to the modified entry in order to be able to generate
         // the reversed modification
-        for ( ModificationItem modification : forwardModifications )
+        for ( Modification modification : forwardModifications )
         {
-            switch ( modification.getModificationOp() )
+            switch ( modification.getOperation() )
             {
-                case DirContext.ADD_ATTRIBUTE :
-                    Attribute mod = modification.getAttribute();
+                case ADD_ATTRIBUTE :
+                    EntryAttribute mod = modification.getAttribute();
 
-                    Attribute previous = modifiedEntry.get( mod.getID() );
+                    EntryAttribute previous = modifiedEntry.get( mod.getId() );
 
                     if ( mod.equals( previous ) )
                     {
                         continue;
                     }
 
-                    ModificationItemImpl reverseModification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, mod );
+                    Modification reverseModification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, mod );
                     reverseModifications.add( 0, reverseModification );
                     break;
 
-                case DirContext.REMOVE_ATTRIBUTE :
+                case REMOVE_ATTRIBUTE :
                     mod = modification.getAttribute();
 
-                    previous = modifiedEntry.get( mod.getID() );
+                    previous = modifiedEntry.get( mod.getId() );
 
                     if ( previous == null )
                     {
@@ -779,36 +843,53 @@ public class LdifUtils
 
                     if ( mod.get() == null )
                     {
-                        reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, previous );
+                        reverseModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, previous );
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
 
-                    reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, mod );
+                    reverseModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, mod );
                     reverseModifications.add( 0, reverseModification );
                     break;
 
-                case DirContext.REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE :
                     mod = modification.getAttribute();
 
-                    previous = modifiedEntry.get( mod.getID() );
+                    previous = modifiedEntry.get( mod.getId() );
 
+                    /*
+                     * The server accepts without complaint replace 
+                     * modifications to non-existing attributes in the 
+                     * entry.  When this occurs nothing really happens
+                     * but this method freaks out.  To prevent that we
+                     * make such no-op modifications produce the same
+                     * modification for the reverse direction which should
+                     * do nothing as well.  
+                     */
+                    if ( mod.get() == null && previous == null )
+                    {
+                        reverseModification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, 
+                            new DefaultClientAttribute( mod.getId() ) );
+                        reverseModifications.add( 0, reverseModification );
+                        continue;
+                    }
+                    
                     if ( mod.get() == null )
                     {
-                        reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
+                        reverseModification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, previous );
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
 
                     if ( previous == null )
                     {
-                        Attribute emptyAttribute = new AttributeImpl( mod.getID() );
-                        reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, emptyAttribute );
+                        EntryAttribute emptyAttribute = new DefaultClientAttribute( mod.getId() );
+                        reverseModification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, emptyAttribute );
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
 
-                    reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
+                    reverseModification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, previous );
                     reverseModifications.add( 0, reverseModification );
                     break;
                     
@@ -829,7 +910,7 @@ public class LdifUtils
         }
 
         // Now, push the reversed list into the entry
-        for ( ModificationItemImpl modification:reverseModifications )
+        for ( Modification modification:reverseModifications )
         {
             entry.addModificationItem( modification );
         }

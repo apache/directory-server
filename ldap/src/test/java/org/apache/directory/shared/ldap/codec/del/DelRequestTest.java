@@ -240,7 +240,7 @@ public class DelRequestTest extends TestCase
         assertEquals( 0x44, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

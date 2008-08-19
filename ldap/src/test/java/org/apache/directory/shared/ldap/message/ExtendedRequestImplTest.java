@@ -236,6 +236,12 @@ public class ExtendedRequestImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         ExtendedRequestImpl req1 = new ExtendedRequestImpl( 5 );

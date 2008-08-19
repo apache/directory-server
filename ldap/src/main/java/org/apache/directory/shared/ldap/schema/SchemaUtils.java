@@ -20,20 +20,26 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -53,48 +59,48 @@ public class SchemaUtils
      * @return the resultant entry after the modifications have taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static Attributes getTargetEntry( List<? extends ModificationItem> mods, Attributes entry )
+    public static Entry getTargetEntry( List<? extends Modification> mods, Entry entry )
         throws NamingException
     {
-        Attributes targetEntry = ( Attributes ) entry.clone();
+        Entry targetEntry = entry.clone();
 
-        for ( ModificationItem mod : mods )
+        for ( Modification mod : mods )
         {
-            String id = mod.getAttribute().getID();
+            String id = mod.getAttribute().getId();
 
-            switch ( mod.getModificationOp() )
+            switch ( mod.getOperation() )
             {
-                case ( DirContext.REPLACE_ATTRIBUTE  ):
+                case REPLACE_ATTRIBUTE :
                     targetEntry.put( mod.getAttribute() );
                     break;
 
-                case ( DirContext.ADD_ATTRIBUTE  ):
-                    Attribute combined = new AttributeImpl( id );
-                    Attribute toBeAdded = mod.getAttribute();
-                    Attribute existing = entry.get( id );
+                case ADD_ATTRIBUTE :
+                    EntryAttribute combined = mod.getAttribute().clone();
+                    EntryAttribute toBeAdded = mod.getAttribute();
+                    EntryAttribute existing = entry.get( id );
 
                     if ( existing != null )
                     {
-                        for ( int jj = 0; jj < existing.size(); jj++ )
+                        for ( Value<?> value:existing )
                         {
-                            combined.add( existing.get( jj ) );
+                            combined.add( value );
                         }
                     }
 
-                    for ( int jj = 0; jj < toBeAdded.size(); jj++ )
+                    for ( Value<?> value:toBeAdded )
                     {
-                        combined.add( toBeAdded.get( jj ) );
+                        combined.add( value );
                     }
 
                     targetEntry.put( combined );
                     break;
 
-                case ( DirContext.REMOVE_ATTRIBUTE  ):
-                    Attribute toBeRemoved = mod.getAttribute();
+                case REMOVE_ATTRIBUTE :
+                    EntryAttribute toBeRemoved = mod.getAttribute();
 
                     if ( toBeRemoved.size() == 0 )
                     {
-                        targetEntry.remove( id );
+                        targetEntry.removeAttributes( id );
                     }
                     else
                     {
@@ -102,9 +108,9 @@ public class SchemaUtils
 
                         if ( existing != null )
                         {
-                            for ( int jj = 0; jj < toBeRemoved.size(); jj++ )
+                            for ( Value<?> value:toBeRemoved )
                             {
-                                existing.remove( toBeRemoved.get( jj ) );
+                                existing.remove( value );
                             }
                         }
                     }
@@ -112,7 +118,7 @@ public class SchemaUtils
                     break;
 
                 default:
-                    throw new IllegalStateException( "undefined modification type: " + mod.getModificationOp() );
+                    throw new IllegalStateException( "undefined modification type: " + mod.getOperation() );
             }
         }
 
@@ -1087,5 +1093,63 @@ public class SchemaUtils
         }
 
         return values.get( 0 );
+    }
+
+
+    /**
+     * Remove the options from the attributeType, and returns the ID.
+     * 
+     * RFC 4512 :
+     * attributedescription = attributetype options
+     * attributetype = oid
+     * options = *( SEMI option )
+     * option = 1*keychar
+     */
+    public static String stripOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+        
+        if ( optionsPos != -1 )
+        {
+            return attributeId.substring( 0, optionsPos );
+        }
+        else
+        {
+            return attributeId;
+        }
+    }
+    
+    /**
+     * Get the options from the attributeType.
+     * 
+     * For instance, given :
+     * jpegphoto;binary;lang=jp
+     * 
+     * your get back a set containing { "binary", "lang=jp" }
+     */
+    public static Set<String> getOptions( String attributeId )
+    {
+        int optionsPos = attributeId.indexOf( ";" ); 
+
+        if ( optionsPos != -1 )
+        {
+            Set<String> options = new HashSet<String>();
+            
+            String[] res = attributeId.substring( optionsPos + 1 ).split( ";" );
+            
+            for ( String option:res )
+            {
+                if ( !StringTools.isEmpty( option ) )
+                {
+                    options.add( option );
+                }
+            }
+            
+            return options;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

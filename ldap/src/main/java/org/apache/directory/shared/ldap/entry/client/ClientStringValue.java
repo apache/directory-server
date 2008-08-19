@@ -309,8 +309,23 @@ public class ClientStringValue extends AbstractValue<String>
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        // TODO implement this method
-        return;
+        // Read the wrapped value, if it's not null
+        if ( in.readBoolean() )
+        {
+            wrapped = in.readUTF();
+        }
+        
+        // Read the isNormalized flag
+        normalized = in.readBoolean();
+        
+        if ( normalized )
+        {
+            // Read the normalized value, if not null
+            if ( in.readBoolean() )
+            {
+                normalizedValue = in.readUTF();
+            }
+        }
     }
 
     
@@ -319,7 +334,40 @@ public class ClientStringValue extends AbstractValue<String>
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        // TODO Implement this method
+        // Write the wrapped value, if it's not null
+        if ( wrapped != null )
+        {
+            out.writeBoolean( true );
+            out.writeUTF( wrapped );
+        }
+        else
+        {
+            out.writeBoolean( false );
+        }
+        
+        // Write the isNormalized flag
+        if ( normalized )
+        {
+            out.writeBoolean( true );
+            
+            // Write the normalized value, if not null
+            if ( normalizedValue != null )
+            {
+                out.writeBoolean( true );
+                out.writeUTF( normalizedValue );
+            }
+            else
+            {
+                out.writeBoolean( false );
+            }
+        }
+        else
+        {
+            out.writeBoolean( false );
+        }
+        
+        // and flush the data
+        out.flush();
     }
     
     

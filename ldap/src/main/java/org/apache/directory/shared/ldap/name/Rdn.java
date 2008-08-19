@@ -24,7 +24,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Rdn implements Cloneable, Comparable, Serializable, Iterable<AttributeTypeAndValue>
+public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<AttributeTypeAndValue>
 {
     /** The LoggerFactory used by this class */
     protected static final Logger LOG = LoggerFactory.getLogger( Rdn.class );
@@ -875,7 +874,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
        }
    }
 
-
    /**
     * Return the normalized type, or the first one of we have more than one (the lowest)
     *
@@ -895,28 +893,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormType();
        }
    }
-
-   
-   /**
-    * Return the normalized value, or the first one of we have more than one (the lowest)
-    *
-    * @return The first normalized value of this RDN
-    */
-   public String getNormValue()
-   {
-       switch ( nbAtavs )
-       {
-           case 0:
-               return null;
-
-           case 1:
-               return (String)atav.getNormValue();
-
-           default:
-               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormalizedValue();
-       }
-   }
-
 
    /**
     * Return the value, or the first one of we have more than one (the lowest)
@@ -958,6 +934,28 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getUpValue();
        }
    }
+
+      
+    /**
+     * Return the normalized value, or the first one of we have more than one (the lowest)
+     *
+     * @return The first normalized value of this RDN
+     */
+    public String getNormValue()
+    {
+        switch ( nbAtavs )
+        {
+            case 0:
+                return null;
+                
+            case 1:
+                return (String)atav.getNormValue();
+                
+            default:
+                return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormalizedValue();
+        }
+    }
+   
    
    /**
     * Compares the specified Object with this Rdn for equality. Returns true if
@@ -1164,14 +1162,37 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
                            case '<':
                            case '>':
                            case '#':
+                               if ( i != 0)
+                               {
+                                   // '#' are allowed if not in first position
+                                   bytes[pos++] = '#';
+                                   break;
+                               }
                            case '=':
-                           case ' ':
                                throw new IllegalArgumentException( "Unescaped special characters are not allowed" );
 
+                           case ' ':
+                               if ( ( i == 0 ) || ( i == chars.length - 1) )
+                               {
+                                   throw new IllegalArgumentException( "Unescaped special characters are not allowed" );
+                               }
+                               else
+                               {
+                                   bytes[pos++] = ' ';
+                                   break;
+                               }
+
                            default:
-                               byte[] result = StringTools.charToBytes( chars[i] );
-                               System.arraycopy( result, 0, bytes, pos, result.length );
-                               pos += result.length;
+                               if ( ( chars[i] >= 0 ) && ( chars[i] < 128 ) )
+                               {
+                                   bytes[pos++] = (byte)chars[i];
+                               }
+                               else
+                               {
+                                   byte[] result = StringTools.charToBytes( chars[i] );
+                                   System.arraycopy( result, 0, bytes, pos, result.length );
+                                   pos += result.length;
+                               }
                                
                                break;
                        }
@@ -1411,8 +1432,6 @@ public class Rdn implements Cloneable, Comparable, Serializable, Iterable<Attrib
            
                break;
        }
-       
-       out.flush();
    }
 
 

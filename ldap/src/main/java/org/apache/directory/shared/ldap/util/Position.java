@@ -21,16 +21,20 @@ package org.apache.directory.shared.ldap.util;
 
 /**
  *
- * This class is used to store the position of a token in a string. It's very
- * usefull while parsing a DN. 
+ * This class is used to store the position of a token in a string.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
 public class Position
 {
+	/** The starting position in the string */
     public int start = 0;
-    public int length =0;
+    
+    /** The current token length */  
+    public int length = 0;
+    
+    /** The token end position in the string */ 
     public int end = 0;
     
     public String toString()

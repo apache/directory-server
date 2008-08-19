@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.Control;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
@@ -141,7 +142,7 @@ public class CompareRequestImplTest extends TestCase
     {
         CompareRequest req0 = new CompareRequest()
         {
-            public byte[] getAssertionValue()
+            public Value<?> getAssertionValue()
             {
                 return null;
             }
@@ -258,6 +259,12 @@ public class CompareRequestImplTest extends TestCase
 
             public void addAll( Control[] controls ) throws MessageException
             {
+            }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
             }
         };
 

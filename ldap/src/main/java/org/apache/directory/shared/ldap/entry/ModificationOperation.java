@@ -56,6 +56,35 @@ public enum ModificationOperation
     }
     
     
+    /**
+     * Get the ModificationOperation from an int value
+     *
+     * @param value the ModificationOperation int value
+     * @return the associated ModifciationOperation instance
+     */
+    public static ModificationOperation getOperation( int value )
+    {
+        if ( value == ADD_ATTRIBUTE.value )
+        {
+            return ADD_ATTRIBUTE;
+        }
+        else if ( value == REMOVE_ATTRIBUTE.value )
+        {
+            return REMOVE_ATTRIBUTE;
+        }
+        else if ( value == REPLACE_ATTRIBUTE.value )
+        {
+            return REPLACE_ATTRIBUTE;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         switch ( this )

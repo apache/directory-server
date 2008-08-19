@@ -23,11 +23,9 @@ package org.apache.directory.shared.ldap.message;
 
 /**
  * Super interface used as a marker for all protocol response type messages.
- * Note that only 4 response interfaces directly extend this interfaces. They
+ * Note that only 2 response interfaces directly extend this interfaces. They
  * are listed below:
  * <ul>
- * <li> UnbindResponse </li>
- * <li> AbandonResponse </li>
  * <li> SearchResponseEntry </li>
  * <li> SearchResponseReference </li>
  * </ul>

@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.filter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.naming.NamingException;
 
@@ -70,7 +69,6 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object without any value
      * 
      * @param attribute the name of the attribute to substring assert
-     * @param attribute The attribute's ID
      */
     public SubstringNode( String attribute )
     {
@@ -175,10 +173,9 @@ public class SubstringNode extends LeafNode
     /**
      * Gets the compiled regular expression for the substring expression.
      * 
+     * @param normalizer the normalizer to use for pattern component normalization
      * @return the equivalent compiled regular expression
-     * @param normalizer The normalizer to use for the substring expressions
-     * @exception NamingException If the substring can't be normalized
-     * @exception PatternSyntaxException If the regexp is invalid
+     * @throws NamingException if there are problems while normalizing
      */
     public final Pattern getRegex( Normalizer normalizer ) throws NamingException
     {

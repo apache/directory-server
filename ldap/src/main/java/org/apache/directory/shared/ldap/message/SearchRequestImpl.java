@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.message;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.List;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -49,7 +49,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
     private ExprNode filter;
 
     /** Search scope enumeration value */
-    private ScopeEnum scope;
+    private SearchScope scope;
 
     /** Types only return flag */
     private boolean typesOnly;
@@ -113,9 +113,9 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the collection of attributes to return for each entry
      */
-    public Collection<String> getAttributes()
+    public List<String> getAttributes()
     {
-        return Collections.unmodifiableCollection( attributes );
+        return Collections.unmodifiableList( attributes );
     }
 
 
@@ -206,7 +206,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the scope enumeration parameter.
      */
-    public ScopeEnum getScope()
+    public SearchScope getScope()
     {
         return scope;
     }
@@ -218,7 +218,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * @param scope
      *            the scope enumeration parameter.
      */
-    public void setScope( ScopeEnum scope )
+    public void setScope( SearchScope scope )
     {
         this.scope = scope;
     }
@@ -471,15 +471,15 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         
         switch ( scope )
         {
-            case BASE_OBJECT:
+            case OBJECT:
                 sb.append( "base object" );
                 break;
 
-            case SINGLE_LEVEL:
+            case ONELEVEL:
                 sb.append( "single level" );
                 break;
 
-            case WHOLE_SUBTREE:
+            case SUBTREE:
                 sb.append( "whole subtree" );
                 break;
         }

@@ -85,8 +85,6 @@ public class RdnSerializer
             
                 break;
         }
-        
-        out.flush();
     }
     
     

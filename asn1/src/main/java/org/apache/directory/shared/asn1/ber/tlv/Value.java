@@ -77,6 +77,22 @@ public class Value implements Serializable
 
     private static final int THREE_BYTE_MIN = -( 1 << 23 );
 
+    private static final long FOUR_BYTE_MAX = ( 1L << 31 ) - 1L; // 0x7FFFFFFF
+
+    private static final long FOUR_BYTE_MIN = -( 1L << 31 ); 
+
+    private static final long FIVE_BYTE_MAX = ( 1L << 39 ) - 1L; // 0x7FFFFFFFFF
+
+    private static final long FIVE_BYTE_MIN = -( 1L << 39 ); 
+
+    private static final long SIX_BYTE_MAX = ( 1L << 47 ) - 1L; // 0x7FFFFFFFFFFF
+
+    private static final long SIX_BYTE_MIN = -( 1L << 47 ); 
+
+    private static final long SEVEN_BYTE_MAX = ( 1L << 55 ) - 1L; // 0x7FFFFFFFFFFFFF
+
+    private static final long SEVEN_BYTE_MIN = -( 1L << 55 ); 
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
 
@@ -226,6 +242,51 @@ public class Value implements Serializable
 
 
     /**
+     * Utility function that return the number of bytes necessary to store a
+     * long value. Note that this value must be in [Long.MIN_VALUE,
+     * Long.MAX_VALUE].
+     * 
+     * @param value The value to store in a byte array
+     * @return The number of bytes necessary to store the value.
+     */
+    public static int getNbBytes( long value )
+    {
+        if ( value >= ONE_BYTE_MIN && value <= ONE_BYTE_MAX )
+        {
+            return 1;
+        }
+        else if ( value >= TWO_BYTE_MIN && value <= TWO_BYTE_MAX )
+        {
+            return 2;
+        }
+        else if ( value >= THREE_BYTE_MIN && value <= THREE_BYTE_MAX )
+        {
+            return 3;
+        }
+        else if ( value >= FOUR_BYTE_MIN && value <= FOUR_BYTE_MAX )
+        {
+            return 4;
+        }
+        else if ( value >= FIVE_BYTE_MIN && value <= FIVE_BYTE_MAX )
+        {
+            return 5;
+        }
+        else if ( value >= SIX_BYTE_MIN && value <= SIX_BYTE_MAX )
+        {
+            return 6;
+        }
+        else if ( value >= SEVEN_BYTE_MIN && value <= SEVEN_BYTE_MAX )
+        {
+            return 7;
+        }
+        else
+        {
+            return 8;
+        }
+    }
+
+
+    /**
      * Utility function that return a byte array representing the Value We must
      * respect the ASN.1 BER encoding scheme : 
      * 1) positive integer 
@@ -298,7 +359,7 @@ public class Value implements Serializable
                 else if ( value >= 0xFFFF8000 )
                 {
                     bytes = new byte[2];
-                    bytes[1] = ( byte ) ( value & 0x000000FF );
+                    bytes[1] = ( byte ) ( value );
                     bytes[0] = ( byte ) ( value >> 8 );
                 }
                 else if ( value >= 0xFF800000 )
@@ -315,6 +376,241 @@ public class Value implements Serializable
                     bytes[2] = ( byte ) ( value >> 8 );
                     bytes[1] = ( byte ) ( value >> 16 );
                     bytes[0] = ( byte ) ( value >> 24 );
+                }
+            }
+        }
+
+        return bytes;
+    }
+
+
+    /**
+     * Utility function that return a byte array representing the Value.
+     * We must respect the ASN.1 BER encoding scheme : <br>
+     * 1) positive integer <br>
+     * - [0 - 0x7F] : 0xVV <br>
+     * - [0x80 - 0xFF] : 0x00 0xVV <br>
+     * - [0x0100 - 0x7FFF] : 0xVV 0xVV <br>
+     * - [0x8000 - 0xFFFF] : 0x00 0xVV 0xVV <br>
+     * - [0x010000 - 0x7FFFFF] : 0xVV 0xVV 0xVV <br>
+     * - [0x800000 - 0xFFFFFF] : 0x00 0xVV 0xVV 0xVV <br>
+     * - [0x01000000 - 0x7FFFFFFF] : 0xVV 0xVV 0xVV 0xVV <br>
+     * 2) Negative number - (~value) + 1 <br>
+     * They are encoded following the table (the <br>
+     * encode bytes are those enclosed by squared braquets) :<br>
+     * <br>
+     *   -1                      -> FF FF FF FF FF FF FF [FF]<br>
+     *   -127                    -> FF FF FF FF FF FF FF [81]<br>
+     *   -128                    -> FF FF FF FF FF FF FF [80]<br>
+     *   -129                    -> FF FF FF FF FF FF [FF 7F]<br>
+     *   -255                    -> FF FF FF FF FF FF [FF 01]<br>
+     *   -256                    -> FF FF FF FF FF FF [FF 00]<br>
+     *   -257                    -> FF FF FF FF FF FF [FE FF]<br>
+     *   -32767                  -> FF FF FF FF FF FF [80 01]<br>
+     *   -32768                  -> FF FF FF FF FF FF [80 00]<br>
+     *   -32769                  -> FF FF FF FF FF [FF 7F FF]<br>
+     *   -65535                  -> FF FF FF FF FF [FF 00 01]<br>
+     *   -65536                  -> FF FF FF FF FF [FF 00 00]<br>
+     *   -65537                  -> FF FF FF FF FF [FE FF FF]<br>
+     *   -8388607                -> FF FF FF FF FF [80 00 01]<br>
+     *   -8388608                -> FF FF FF FF FF [80 00 00]<br>
+     *   -8388609                -> FF FF FF FF [FF 7F FF FF]<br>
+     *   -16777215               -> FF FF FF FF [FF 00 00 01]<br>
+     *   -16777216               -> FF FF FF FF [FF 00 00 00]<br>
+     *   -16777217               -> FF FF FF FF [FE FF FF FF]<br>
+     *   -2147483647             -> FF FF FF FF [80 00 00 01]<br>
+     *   -2147483648             -> FF FF FF FF [80 00 00 00]<br>
+     *   -2147483649             -> FF FF FF [FF 7F FF FF FF]<br>
+     *   -4294967295             -> FF FF FF [FF 00 00 00 01]<br>
+     *   -4294967296             -> FF FF FF [FF 00 00 00 00]<br>
+     *   -4294967297             -> FF FF FF [FE FF FF FF FF]<br>
+     *   -549755813887           -> FF FF FF [80 00 00 00 01]<br>
+     *   -549755813888           -> FF FF FF [80 00 00 00 00]<br>
+     *   -549755813889           -> FF FF [FF 7F FF FF FF FF]<br>
+     *   -1099511627775          -> FF FF [FF 00 00 00 00 01]<br>
+     *   -1099511627776          -> FF FF [FF 00 00 00 00 00]<br>
+     *   -1099511627777          -> FF FF [FE FF FF FF FF FF]<br>
+     *   -140737488355327        -> FF FF [80 00 00 00 00 01]<br>
+     *   -140737488355328        -> FF FF [80 00 00 00 00 00]<br>
+     *   -140737488355329        -> FF [FF 7F FF FF FF FF FF]<br>
+     *   -281474976710655        -> FF [FF 00 00 00 00 00 01]<br>
+     *   -281474976710656        -> FF [FF 00 00 00 00 00 00]<br>
+     *   -281474976710657        -> FF [FE FF FF FF FF FF FF]<br>
+     *   -36028797018963967      -> FF [80 00 00 00 00 00 01]<br>
+     *   -36028797018963968      -> FF [80 00 00 00 00 00 00]<br>
+     *   -36028797018963969      -> [FF 7F FF FF FF FF FF FF]<br>
+     *   -72057594037927935      -> [FF 00 00 00 00 00 00 01]<br>
+     *   -72057594037927936      -> [FF 00 00 00 00 00 00 00]<br>
+     *   -72057594037927937      -> [FE FF FF FF FF FF FF FF]<br>
+     *   -9223372036854775807    -> [80 00 00 00 00 00 00 01]<br>
+     *   -9223372036854775808    -> [80 00 00 00 00 00 00 00]<br>
+     * 
+     * 
+     * @param value The value to store in a byte array
+     * @return The byte array representing the value.
+     */
+    public static byte[] getBytes( long value )
+    {
+        byte[] bytes = null;
+
+        if ( value >= 0 )
+        {
+            if ( ( value >= 0 ) && ( value <= ONE_BYTE_MAX ) )
+            {
+                bytes = new byte[1];
+                bytes[0] = ( byte ) value;
+            }
+            else if ( ( value > ONE_BYTE_MAX ) && ( value <= TWO_BYTE_MAX ) )
+            {
+                bytes = new byte[2];
+                bytes[1] = ( byte ) value;
+                bytes[0] = ( byte ) ( value >> 8 );
+            }
+            else if ( ( value > TWO_BYTE_MAX ) && ( value <= THREE_BYTE_MAX ) )
+            {
+                bytes = new byte[3];
+                bytes[2] = ( byte ) value;
+                bytes[1] = ( byte ) ( value >> 8 );
+                bytes[0] = ( byte ) ( value >> 16 );
+            }
+            else if ( ( value > THREE_BYTE_MAX ) && ( value <= FOUR_BYTE_MAX ) )
+            {
+                bytes = new byte[4];
+                bytes[3] = ( byte ) value;
+                bytes[2] = ( byte ) ( value >> 8 );
+                bytes[1] = ( byte ) ( value >> 16 );
+                bytes[0] = ( byte ) ( value >> 24 );
+            }
+            else if ( ( value > FOUR_BYTE_MAX ) && ( value <= FIVE_BYTE_MAX ) )
+            {
+                bytes = new byte[5];
+                bytes[4] = ( byte ) value;
+                bytes[3] = ( byte ) ( value >> 8 );
+                bytes[2] = ( byte ) ( value >> 16 );
+                bytes[1] = ( byte ) ( value >> 24 );
+                bytes[0] = ( byte ) ( value >> 32 );
+            }
+            else if ( ( value > FIVE_BYTE_MAX ) && ( value <= SIX_BYTE_MAX ) )
+            {
+                bytes = new byte[6];
+                bytes[5] = ( byte ) value;
+                bytes[4] = ( byte ) ( value >> 8 );
+                bytes[3] = ( byte ) ( value >> 16 );
+                bytes[2] = ( byte ) ( value >> 24 );
+                bytes[1] = ( byte ) ( value >> 32 );
+                bytes[0] = ( byte ) ( value >> 40 );
+            }
+            else if ( ( value > SIX_BYTE_MAX ) && ( value <= SEVEN_BYTE_MAX ) )
+            {
+                bytes = new byte[7];
+                bytes[6] = ( byte ) value;
+                bytes[5] = ( byte ) ( value >> 8 );
+                bytes[4] = ( byte ) ( value >> 16 );
+                bytes[3] = ( byte ) ( value >> 24 );
+                bytes[2] = ( byte ) ( value >> 32 );
+                bytes[1] = ( byte ) ( value >> 40 );
+                bytes[0] = ( byte ) ( value >> 48 );
+            }
+            else
+            {
+                bytes = new byte[8];
+                bytes[7] = ( byte ) value;
+                bytes[6] = ( byte ) ( value >> 8 );
+                bytes[5] = ( byte ) ( value >> 16 );
+                bytes[4] = ( byte ) ( value >> 24 );
+                bytes[3] = ( byte ) ( value >> 32 );
+                bytes[2] = ( byte ) ( value >> 40 );
+                bytes[1] = ( byte ) ( value >> 48 );
+                bytes[0] = ( byte ) ( value >> 56 );
+            }
+        }
+        else
+        {
+            // On special case : 0x80000000
+            if ( value == 0x8000000000000000L )
+            {
+                bytes = new byte[8];
+                bytes[7] = ( byte ) 0x00;
+                bytes[6] = ( byte ) 0x00;
+                bytes[5] = ( byte ) 0x00;
+                bytes[4] = ( byte ) 0x00;
+                bytes[3] = ( byte ) 0x00;
+                bytes[2] = ( byte ) 0x00;
+                bytes[1] = ( byte ) 0x00;
+                bytes[0] = ( byte ) 0x80;
+            }
+            else 
+            {
+                // We have to compute the complement, and add 1
+                // value = ( ~value ) + 1;
+                
+                if ( value >= 0xFFFFFFFFFFFFFF80L )
+                {
+                    bytes = new byte[1];
+                    bytes[0] = ( byte ) value;
+                }
+                else if ( value >= 0xFFFFFFFFFFFF8000L )
+                {
+                    bytes = new byte[2];
+                    bytes[1] = ( byte ) ( value );
+                    bytes[0] = ( byte ) ( value >> 8 );
+                }
+                else if ( value >= 0xFFFFFFFFFF800000L )
+                {
+                    bytes = new byte[3];
+                    bytes[2] = ( byte ) value ;
+                    bytes[1] = ( byte ) ( value >> 8 );
+                    bytes[0] = ( byte ) ( value >> 16 );
+                }
+                else if ( value >= 0xFFFFFFFF80000000L )
+                {
+                    bytes = new byte[4];
+                    bytes[3] = ( byte ) value;
+                    bytes[2] = ( byte ) ( value >> 8 );
+                    bytes[1] = ( byte ) ( value >> 16 );
+                    bytes[0] = ( byte ) ( value >> 24 );
+                }
+                else if ( value >= 0xFFFFFF8000000000L )
+                {
+                    bytes = new byte[5];
+                    bytes[4] = ( byte ) value;
+                    bytes[3] = ( byte ) ( value >> 8 );
+                    bytes[2] = ( byte ) ( value >> 16 );
+                    bytes[1] = ( byte ) ( value >> 24 );
+                    bytes[0] = ( byte ) ( value >> 32 );
+                }
+                else if ( value >= 0xFFFF800000000000L )
+                {
+                    bytes = new byte[6];
+                    bytes[5] = ( byte ) value;
+                    bytes[4] = ( byte ) ( value >> 8 );
+                    bytes[3] = ( byte ) ( value >> 16 );
+                    bytes[2] = ( byte ) ( value >> 24 );
+                    bytes[1] = ( byte ) ( value >> 32 );
+                    bytes[0] = ( byte ) ( value >> 40 );
+                }
+                else if ( value >= 0xFF80000000000000L )
+                {
+                    bytes = new byte[7];
+                    bytes[6] = ( byte ) value;
+                    bytes[5] = ( byte ) ( value >> 8 );
+                    bytes[4] = ( byte ) ( value >> 16 );
+                    bytes[3] = ( byte ) ( value >> 24 );
+                    bytes[2] = ( byte ) ( value >> 32 );
+                    bytes[1] = ( byte ) ( value >> 40 );
+                    bytes[0] = ( byte ) ( value >> 48 );
+                }
+                else
+                {
+                    bytes = new byte[8];
+                    bytes[7] = ( byte ) value;
+                    bytes[6] = ( byte ) ( value >> 8 );
+                    bytes[5] = ( byte ) ( value >> 16 );
+                    bytes[4] = ( byte ) ( value >> 24 );
+                    bytes[3] = ( byte ) ( value >> 32 );
+                    bytes[2] = ( byte ) ( value >> 40 );
+                    bytes[1] = ( byte ) ( value >> 48 );
+                    bytes[0] = ( byte ) ( value >> 56 );
                 }
             }
         }
@@ -476,6 +772,36 @@ public class Value implements Serializable
      * two small
      */
     public static void encode( ByteBuffer buffer, int value ) throws EncoderException
+    {
+        if ( buffer == null )
+        {
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
+        }
+
+        try
+        {
+            buffer.put( UniversalTag.INTEGER_TAG );
+            buffer.put( ( byte ) getNbBytes( value ) );
+            buffer.put( getBytes( value ) );
+        }
+        catch ( BufferOverflowException boe )
+        {
+            throw new EncoderException( "The PDU buffer size is too small !" );
+        }
+
+        return;
+    }
+
+
+    /**
+     * Encode a long value
+     * 
+     * @param buffer The PDU in which the value will be put
+     * @param value The long to be encoded
+     * @throws EncoderException if the PDU in which the value should be encoded is
+     * two small
+     */
+    public static void encode( ByteBuffer buffer, long value ) throws EncoderException
     {
         if ( buffer == null )
         {

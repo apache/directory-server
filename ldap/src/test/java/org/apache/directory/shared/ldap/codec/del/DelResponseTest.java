@@ -212,7 +212,7 @@ public class DelResponseTest extends TestCase
         assertEquals( 0x4A, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

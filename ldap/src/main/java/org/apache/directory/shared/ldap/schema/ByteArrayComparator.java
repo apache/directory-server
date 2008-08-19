@@ -71,7 +71,6 @@ public class ByteArrayComparator implements Comparator<byte[]>
         }
         
         int minLength = Math.min( b1.length, b2.length );
-        
         for ( int ii = 0; ii < minLength; ii++ )
         {
             if ( b1[ii] > b2[ii] )

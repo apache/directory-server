@@ -30,14 +30,16 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class SimpleNode extends LeafNode
+public abstract class SimpleNode<T> extends LeafNode
 {
     /** the value */
-    protected Value<?> value;
+    protected Value<T> value;
 
+    /* TODO - why are these here if not used? */
     /** Constants for comparisons : > */
     public static final boolean EVAL_GREATER = true;
     
+    /* TODO - why are these here if not used? */
     /** Constants for comparisons : < */
     public static final boolean EVAL_LESSER = false;
 
@@ -47,9 +49,9 @@ public class SimpleNode extends LeafNode
      * 
      * @param attribute the attribute name
      * @param value the value to test for
-     * @param assertionType the node's type
+     * @param assertionType the type of assertion represented by this ExprNode
      */
-    protected SimpleNode( String attribute, Value<?> value, AssertionType assertionType )
+    protected SimpleNode( String attribute, Value<T> value, AssertionType assertionType )
     {
         super( attribute, assertionType );
         this.value = value;
@@ -61,7 +63,7 @@ public class SimpleNode extends LeafNode
      * 
      * @return the value
      */
-    public final Value<?> getValue()
+    public final Value<T> getValue()
     {
         return value;
     }
@@ -72,9 +74,32 @@ public class SimpleNode extends LeafNode
      * 
      * @param value the value for this node
      */
-    public void setValue( Value<?> value )
+    public void setValue( Value<T> value )
     {
         this.value = value;
+    }
+
+
+    /**
+     * Pretty prints this expression node along with annotation information.
+     *
+     * TODO - perhaps this belong in some utility class?
+     *
+     * @param buf the buffer to print into
+     * @return the same buf argument returned for call chaining
+     */
+    public StringBuilder printToBuffer( StringBuilder buf )
+    {
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
+        {
+            buf.append( ":[" );
+            buf.append( getAnnotations().get( "count" ).toString() );
+            buf.append( "] " );
+        }
+
+        buf.append( ')' );
+
+        return buf;
     }
 
 
@@ -138,7 +163,7 @@ public class SimpleNode extends LeafNode
             return false;
         }
 
-        SimpleNode otherNode = ( SimpleNode ) other;
+        SimpleNode<?> otherNode = ( SimpleNode<?> ) other;
 
         if ( value == null )
         {

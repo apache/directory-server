@@ -400,7 +400,8 @@ userClasses
 userClass
     :
     allUsers
-    | thisEntry 
+    | thisEntry
+    | parentOfEntry
     | name
     | userGroup
     | subtree
@@ -414,6 +415,11 @@ allUsers
 thisEntry
     :
     ID_thisEntry
+    ;
+
+parentOfEntry
+    :
+    ID_parentOfEntry
     ;
 
 name
@@ -656,6 +662,7 @@ tokens
     ID_userPermissions = "userPermissions";
     ID_allUsers = "allUsers";
     ID_thisEntry = "thisEntry";
+    ID_parentOfEntry = "parentOfEntry";
     ID_subtree = "subtree";
     ID_name = "name";
     ID_userGroup = "userGroup";

@@ -203,7 +203,7 @@ public class AddResponseTest extends TestCase
         assertEquals( 0x2B, message.computeLength() );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

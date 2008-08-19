@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -143,7 +143,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -259,7 +259,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -281,7 +281,7 @@ public class SearchRequestSubstringTest extends TestCase
         }
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -382,7 +382,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -499,7 +499,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -617,7 +617,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -734,7 +734,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -845,7 +845,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -963,7 +963,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -1080,7 +1080,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );
@@ -1199,7 +1199,7 @@ public class SearchRequestSubstringTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
-        assertEquals( ScopeEnum.SINGLE_LEVEL, sr.getScope() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
         assertEquals( 1000, sr.getSizeLimit() );
         assertEquals( 1000, sr.getTimeLimit() );

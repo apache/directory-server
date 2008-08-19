@@ -181,7 +181,6 @@ public class SchemaUtilsTest extends TestCase
 
     static class SyntaxImpl extends AbstractSyntax
     {
-        @SuppressWarnings ( { "AnalyzingVariableNaming" } )
         private static final long serialVersionUID = 1L;
         
         protected SyntaxImpl(String oid)
@@ -297,7 +296,7 @@ public class SchemaUtilsTest extends TestCase
         }
 
 
-        public Comparator getComparator() throws NamingException
+        public Comparator<String> getComparator() throws NamingException
         {
             throw new NotImplementedException(
                 "getComparator in org.apache.ldap.common.schema.SchemaUtilsTest.MatchingRuleImpl not implemented!" );

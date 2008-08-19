@@ -149,7 +149,7 @@ public class LdapDN implements Name, Externalizable
      * @param list of String name components.
      * @throws InvalidNameException If the nameComponent is incorrect
      */
-    LdapDN( List<String> list ) throws InvalidNameException
+    public LdapDN( List<String> list ) throws InvalidNameException
     {
         if ( ( list != null ) && ( list.size() != 0 ) )
         {
@@ -170,7 +170,7 @@ public class LdapDN implements Name, Externalizable
      * @param nameComponents List of String name components.
      * @throws InvalidNameException If the nameComponent is incorrect
      */
-    LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
+    public LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
     {
         if ( nameComponents != null )
         {
@@ -215,6 +215,8 @@ public class LdapDN implements Name, Externalizable
 
     /**
      * Create a DN when deserializing it.
+     * 
+     * Note : this constructor is used only by the deserialization method.
      * @param upName The user provided name
      * @param normName the normalized name
      * @param bytes the name as a byte[]
@@ -539,9 +541,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Get the number of NameComponent contained in this LdapDN
-     *
-     * @return The number of NameComponent contained in this LdapDN
+     * {@inheritDoc}
      */
     public int size()
     {
@@ -575,18 +575,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Determines whether this name starts with a specified prefix. A name
-     * <tt>name</tt> is a prefix if it is equal to
-     * <tt>getPrefix(name.size())</tt>.
-     *
-     * Be aware that for a specific DN like :
-     * cn=xxx, ou=yyy
-     * the startsWith method will return true with ou=yyy, and
-     * false with cn=xxx
-     *
-     * @param name
-     *            the name to check
-     * @return true if <tt>name</tt> is a prefix of this name, false otherwise
+     * {@inheritDoc}
      */
     public boolean startsWith( Name name )
     {
@@ -667,7 +656,7 @@ public class LdapDN implements Name, Externalizable
     }
 
 
-    /**
+    /*
      * Determines whether this name ends with a specified suffix. A name
      * <tt>name</tt> is a suffix if it is equal to
      * <tt>getSuffix(size()-name.size())</tt>.
@@ -679,6 +668,9 @@ public class LdapDN implements Name, Externalizable
      * @param name
      *            the name to check
      * @return true if <tt>name</tt> is a suffix of this name, false otherwise
+     */
+    /**
+     * {@inheritDoc}
      */
     public boolean endsWith( Name name )
     {
@@ -720,10 +712,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Determines whether this name is empty. An empty name is one with zero
-     * components.
-     *
-     * @return true if this name is empty, false otherwise
+     * {@inheritDoc}
      */
     public boolean isEmpty()
     {
@@ -732,14 +721,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Retrieves a component of this name.
-     *
-     * @param posn
-     *            the 0-based index of the component to retrieve. Must be in the
-     *            range [0,size()).
-     * @return the component at index posn
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
+     * {@inheritDoc}
      */
     public String get( int posn )
     {
@@ -819,12 +801,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Retrieves the components of this name as an enumeration of strings. The
-     * effect on the enumeration of updates to this name is undefined. If the
-     * name has zero components, an empty (non-null) enumeration is returned.
-     * This starts at the root (rightmost) rdn.
-     *
-     * @return an enumeration of the components of this name, each as string
+     * {@inheritDoc}
      */
     public Enumeration<String> getAll()
     {
@@ -905,18 +882,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Creates a name whose components consist of a prefix of the components of
-     * this name. Subsequent changes to this name will not affect the name that
-     * is returned and vice versa. Note this includes the original root (rightmost rdn)
-     * and not the original leaf (leftmost rdn).
-     *
-     * @param posn
-     *            the 0-based index of the component at which to stop. Must be
-     *            in the range [0,size()].
-     * @return a name consisting of the components at indexes in the range
-     *         [0,posn].
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
+     * {@inheritDoc}
      */
     public Name getPrefix( int posn )
     {
@@ -948,19 +914,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Creates a name whose components consist of a suffix of the components in
-     * this name. Subsequent changes to this name do not affect the name that is
-     * returned and vice versa.   This includes the original leaf (leftmost rdn)
-     * and not the orginal root (rightmost rdn)
-     *
-     * @param posn
-     *            the 0-based index of the component at which to start. Must be
-     *            in the range [0,size()].
-     * @return a name consisting of the components at indexes in the range
-     *         [posn,size()]. If posn is equal to size(), an empty name is
-     *         returned.
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
+     * {@inheritDoc}
      */
     public Name getSuffix( int posn )
     {
@@ -1055,14 +1009,7 @@ public class LdapDN implements Name, Externalizable
     }
 
     /**
-     * Adds the components of a name -- in order -- to the (leaf) end of this name.
-     *
-     * @param suffix
-     *            the components to add
-     * @return the updated name (not a new one)
-     * @throws InvalidNameException
-     *             if <tt>suffix</tt> is not a valid name, or if the addition
-     *             of the components would violate the syntax rules of this name
+     * {@inheritDoc}
      */
     public Name addAll( Name suffix ) throws InvalidNameException
     {
@@ -1075,20 +1022,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Adds the components of a name -- in order -- at a specified position
-     * within this name. Components of this name at or after the index of the
-     * first new component are shifted up (away from 0) to accommodate the new
-     * components.
-     *
-     * @param posn the index in this name at which to add the new components.
-     *            Must be in the range [0,size()].  Note this is the from the opposite end as rdns.get(posn).
-     * @param name the components to add
-     * @return the updated name (not a new one)
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
-     * @throws InvalidNameException
-     *             if <tt>n</tt> is not a valid name, or if the addition of
-     *             the components would violate the syntax rules of this name
+     * {@inheritDoc}
      */
     public Name addAll( int posn, Name name ) throws InvalidNameException
     {
@@ -1142,14 +1076,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Adds a single component to the (leaf) end of this name.
-     *
-     * @param comp
-     *            the component to add
-     * @return the updated name (not a new one)
-     * @throws InvalidNameException
-     *             if adding <tt>comp</tt> would violate the syntax rules of
-     *             this name
+     * {@inheritDoc}
      */
     public Name add( String comp ) throws InvalidNameException
     {
@@ -1236,21 +1163,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Adds a single component at a specified position within this name.
-     * Components of this name at or after the index of the new component are
-     * shifted up by one (away from index 0) to accommodate the new component.
-     *
-     * @param comp
-     *            the component to add
-     * @param posn
-     *            the index at which to add the new component. Must be in the
-     *            range [0,size()].
-     * @return the updated name (not a new one)
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
-     * @throws InvalidNameException
-     *             if adding <tt>comp</tt> would violate the syntax rules of
-     *             this name
+     * {@inheritDoc}
      */
     public Name add( int posn, String comp ) throws InvalidNameException
     {
@@ -1275,19 +1188,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Removes a component from this name. The component of this name at the
-     * specified position is removed. Components with indexes greater than this
-     * position are shifted down (toward index 0) by one.
-     *
-     * @param posn
-     *            the index of the component to remove. Must be in the range
-     *            [0,size()).
-     * @return the component removed (a String)
-     * @throws ArrayIndexOutOfBoundsException
-     *             if posn is outside the specified range
-     * @throws InvalidNameException
-     *             if deleting the component would violate the syntax rules of
-     *             the name
+     * {@inheritDoc}
      */
     public Object remove( int posn ) throws InvalidNameException
     {
@@ -1314,11 +1215,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Generates a new copy of this name. Subsequent changes to the components
-     * of this name will not affect the new copy, and vice versa.
-     *
-     * @return a copy of this name
-     * @see Object#clone()
+     * {@inheritDoc}
      */
     public Object clone()
     {
@@ -1380,25 +1277,7 @@ public class LdapDN implements Name, Externalizable
 
 
     /**
-     * Compares this name with another name for order. Returns a negative
-     * integer, zero, or a positive integer as this name is less than, equal to,
-     * or greater than the given name.
-     * <p>
-     * As with <tt>Object.equals()</tt>, the notion of ordering for names
-     * depends on the class that implements this interface. For example, the
-     * ordering may be based on lexicographical ordering of the name components.
-     * Specific attributes of the name, such as how it treats case, may affect
-     * the ordering. In general, two names of different classes may not be
-     * compared.
-     *
-     * @param obj
-     *            the non-null object to compare against.
-     * @return a negative integer, zero, or a positive integer as this name is
-     *         less than, equal to, or greater than the given name
-     * @throws ClassCastException
-     *             if obj is not a <tt>Name</tt> of a type that may be
-     *             compared with this name
-     * @see Comparable#compareTo(Object)
+     * {@inheritDoc}
      */
     public int compareTo( Object obj )
     {
@@ -1477,6 +1356,7 @@ public class LdapDN implements Name, Externalizable
 
     /**
      * This private method is used to normalize the value, when we have found a normalizer.
+     * This method deals with RDN having one single ATAV.
      * 
      * @param rdn the RDN we want to normalize. It will contain the resulting normalized RDN
      * @param oidNormalizer the normalizer to use for the RDN
@@ -1487,7 +1367,7 @@ public class LdapDN implements Name, Externalizable
         Object upValue = rdn.getUpValue();
         String upType = rdn.getUpType();
         rdn.clear();
-        Object normStringValue = DefaultStringNormalizer.normalizeString( (String)upValue );
+        Object normStringValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
         Object normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
 
         rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, normValue );
@@ -1644,6 +1524,7 @@ public class LdapDN implements Name, Externalizable
 
         if ( size() == 0 )
         {
+            normalized = true;
             return this;
         }
 
@@ -1745,8 +1626,6 @@ public class LdapDN implements Name, Externalizable
         {
             out.writeObject( rdn );
         }
-        
-        out.flush();
     }
 
 

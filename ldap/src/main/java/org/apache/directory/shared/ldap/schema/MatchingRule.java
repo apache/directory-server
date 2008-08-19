@@ -95,7 +95,7 @@ public interface MatchingRule extends SchemaObject
      * @throws NamingException
      *             if there is a failure resolving the object
      */
-    Comparator<?> getComparator() throws NamingException;
+    Comparator getComparator() throws NamingException;
 
 
     /**

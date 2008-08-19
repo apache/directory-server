@@ -20,9 +20,10 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -77,7 +78,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the scope enumeration parameter.
      */
-    ScopeEnum getScope();
+    SearchScope getScope();
 
 
     /**
@@ -85,7 +86,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @param scope the scope enumeration parameter.
      */
-    void setScope( ScopeEnum scope );
+    void setScope( SearchScope scope );
 
 
     /**
@@ -212,7 +213,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the attributes to return for this request
      */
-    Collection<String> getAttributes();
+    List<String> getAttributes();
 
 
     /**

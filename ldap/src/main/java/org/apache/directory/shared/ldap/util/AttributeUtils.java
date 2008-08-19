@@ -30,12 +30,19 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -1046,15 +1053,15 @@ public class AttributeUtils
      * @param modification the Modification to be applied
      * @throws NamingException if some operation fails.
      */
-    public static void applyModification( Attributes entry, ModificationItem modification ) throws NamingException
+    public static void applyModification( Entry entry, Modification modification ) throws NamingException
     {
-        Attribute modAttr = modification.getAttribute(); 
-        String modificationId = modAttr.getID();
+        EntryAttribute modAttr = modification.getAttribute(); 
+        String modificationId = modAttr.getId();
         
-        switch ( modification.getModificationOp() )
+        switch ( modification.getOperation() )
         {
-            case DirContext.ADD_ATTRIBUTE :
-                Attribute modifiedAttr = entry.get( modificationId ) ;
+            case ADD_ATTRIBUTE :
+                EntryAttribute modifiedAttr = entry.get( modificationId ) ;
                 
                 if ( modifiedAttr == null )
                 {
@@ -1065,26 +1072,24 @@ public class AttributeUtils
                 {
                     // The attribute exists : the values can be different,
                     // so we will just add the new values to the existing ones.
-                    NamingEnumeration<?> values = modAttr.getAll();
-                    
-                    while ( values.hasMoreElements() )
+                    for ( Value<?> value:modAttr )
                     {
                         // If the value already exist, nothing is done.
                         // Note that the attribute *must* have been
                         // normalized before.
-                        modifiedAttr.add( values.nextElement() );
+                        modifiedAttr.add( value );
                     }
                 }
                 
                 break;
                 
-            case DirContext.REMOVE_ATTRIBUTE :
+            case REMOVE_ATTRIBUTE :
                 if ( modAttr.get() == null )
                 {
                     // We have no value in the ModificationItem attribute :
                     // we have to remove the whole attribute from the initial
                     // entry
-                    entry.remove( modificationId );
+                    entry.removeAttributes( modificationId );
                 }
                 else
                 {
@@ -1097,31 +1102,29 @@ public class AttributeUtils
                         break;
                     }
 
-                    NamingEnumeration<?> values = modAttr.getAll();
-                    
-                    while ( values.hasMoreElements() )
+                    for ( Value<?> value:modAttr )
                     {
                         // If the value does not exist, nothing is done.
                         // Note that the attribute *must* have been
                         // normalized before.
-                        modifiedAttr.remove( values.nextElement() );
+                        modifiedAttr.remove( value );
                     }
                     
                     if ( modifiedAttr.size() == 0 )
                     {
                         // If this was the last value, remove the attribute
-                        entry.remove( modifiedAttr.getID() );
+                        entry.removeAttributes( modifiedAttr.getId() );
                     }
                 }
 
                 break;
                 
-            case DirContext.REPLACE_ATTRIBUTE :
+            case REPLACE_ATTRIBUTE :
                 if ( modAttr.get() == null )
                 {
                     // If the modification does not have any value, we have
                     // to delete the attribute from the entry.
-                    entry.remove( modificationId );
+                    entry.removeAttributes( modificationId );
                 }
                 else
                 {
@@ -1255,5 +1258,99 @@ public class AttributeUtils
         }
 
         return null;
+    }
+
+
+
+
+    /**
+     * Convert a BasicAttributes or a AttributesImpl to a ServerEntry
+     *
+     * @param attributes the BasicAttributes or AttributesImpl instance to convert
+     * @param registries The registries, needed ro build a ServerEntry
+     * @param dn The DN which is needed by the ServerEntry 
+     * @return An instance of a ServerEntry object
+     * 
+     * @throws InvalidAttributeIdentifierException If we get an invalid attribute
+     */
+    public static Entry toClientEntry( Attributes attributes, LdapDN dn ) 
+            throws InvalidAttributeIdentifierException
+    {
+        if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
+        {
+            try 
+            {
+                Entry entry = new DefaultClientEntry( dn );
+    
+                for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+                {
+                    Attribute attr = attrs.nextElement();
+
+                    EntryAttribute entryAttribute = toClientAttribute( attr );
+                    
+                    if ( entryAttribute != null )
+                    {
+                        entry.put( entryAttribute );
+                    }
+                }
+                
+                return entry;
+            }
+            catch ( NamingException ne )
+            {
+                throw new InvalidAttributeIdentifierException( ne.getMessage() );
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    /**
+     * Convert a BasicAttribute or a AttributeImpl to a EntryAttribute
+     *
+     * @param attribute the BasicAttributes or AttributesImpl instance to convert
+     * @param attributeType
+     * @return An instance of a ClientEntry object
+     * 
+     * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
+     */
+    public static EntryAttribute toClientAttribute( Attribute attribute )
+    {
+        if ( attribute == null )
+        {
+            return null;
+        }
+        
+        try 
+        {
+            EntryAttribute clientAttribute = new DefaultClientAttribute( attribute.getID() );
+        
+            for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
+            {
+                Object value = values.nextElement();
+                
+                if ( value instanceof String )
+                {
+                    clientAttribute.add( (String)value );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    clientAttribute.add( (byte[])value );
+                }
+                else
+                {
+                    clientAttribute.add( (String)null );
+                }
+            }
+            
+            return clientAttribute;
+        }
+        catch ( NamingException ne )
+        {
+            return null;
+        }
     }
 }

@@ -162,7 +162,7 @@ public class ExtendedRequestTest extends TestCase
         assertEquals( "value", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
@@ -243,7 +243,7 @@ public class ExtendedRequestTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

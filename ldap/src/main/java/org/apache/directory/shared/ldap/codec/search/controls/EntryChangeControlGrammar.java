@@ -32,6 +32,8 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
+import org.apache.directory.shared.asn1.util.LongDecoder;
+import org.apache.directory.shared.asn1.util.LongDecoderException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -211,7 +213,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar
 
                 try
                 {
-                    int changeNumber = IntegerDecoder.parse( value );
+                    long changeNumber = LongDecoder.parse( value );
 
                     if ( IS_DEBUG )
                     {
@@ -223,7 +225,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar
                     // We can have an END transition
                     entryChangeContainer.grammarEndAllowed( true );
                 }
-                catch ( IntegerDecoderException e )
+                catch ( LongDecoderException e )
                 {
                     String msg = "failed to decode the changeNumber for EntryChangeControl";
                     log.error( msg, e );

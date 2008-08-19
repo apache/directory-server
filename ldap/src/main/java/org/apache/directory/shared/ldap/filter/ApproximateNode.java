@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 519266 $
  */
-public class ApproximateNode extends EqualityNode
+public class ApproximateNode<T> extends SimpleNode<T>
 {
     /**
      * Creates a new ApproximateNode object.
@@ -35,7 +35,7 @@ public class ApproximateNode extends EqualityNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public ApproximateNode( String attribute, Value<?> value )
+    public ApproximateNode( String attribute, Value<T> value )
     {
         super( attribute, value, AssertionType.APPROXIMATE );
     }

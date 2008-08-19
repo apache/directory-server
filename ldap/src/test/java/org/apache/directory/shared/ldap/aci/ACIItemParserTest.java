@@ -496,6 +496,19 @@ public class ACIItemParserTest extends TestCase
         }
     }
     
+    public void testUserClassParentOfEntry() throws Exception
+    {
+        String spec = "{ identificationTag \"id\"   , precedence 10, authenticationLevel none  , "
+            + "itemOrUserFirst userFirst:  { userClasses {  parentOfEntry  , name { \"cn=ersin,ou=people\" }, "
+            + "subtree {{ base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
+            + "minimum  1, maximum   2 } } }  , "
+            + "userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue {x=y,m=n,k=l} , "
+            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } } }  }   ";
+
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
+    }
+    
     
     /**
      * Test case for DIRSERVER-891

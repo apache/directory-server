@@ -42,7 +42,7 @@ public class DirectoryClassUtilsTest extends TestCase
             
         }
         
-        public static void methodB( Collection c )
+        public static void methodB( Collection<?> c )
         {
             
         }

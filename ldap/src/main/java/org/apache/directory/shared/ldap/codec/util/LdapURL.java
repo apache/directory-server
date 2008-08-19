@@ -114,6 +114,10 @@ public class LdapURL
     /** Stores the LdapURL as a byte array */
     private byte[] bytes;
     
+    /** modal parameter that forces explicit scope rendering in toString */
+    private boolean forceScopeRendering;
+    
+    
     // ~ Constructors
     // -------------------------------------------------------------------------------
 
@@ -563,7 +567,8 @@ public class LdapURL
      */
     private int parseHostPort( char[] chars, int pos )
     {
-
+        int hostPos = pos;
+        
         if ( ( pos = parseHost( chars, pos ) ) == -1 )
         {
             return -1;
@@ -572,6 +577,12 @@ public class LdapURL
         // We may have a port.
         if ( StringTools.isCharASCII( chars, pos, ':' ) )
         {
+            if ( pos == hostPos )
+            {
+                // We should not have a port if we have no host
+                return -1;
+            }
+            
             pos++;
         }
         else
@@ -995,8 +1006,12 @@ public class LdapURL
         }
         else if ( StringTools.isCharASCII( chars, pos, '?' ) )
         {
-
             // An empty scope. This is valid
+            return pos;
+        }
+        else if ( pos == chars.length )
+        {
+            // An empty scope at the end of the URL. This is valid
             return pos;
         }
 
@@ -1200,6 +1215,7 @@ public class LdapURL
      * Get a string representation of a LdapURL.
      * 
      * @return A LdapURL string
+     * @see LdapURL#forceScopeRendering
      */
     public String toString()
     {
@@ -1218,7 +1234,7 @@ public class LdapURL
         {
             sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
 
-            if ( ( attributes.size() != 0 )
+            if ( attributes.size() != 0 || forceScopeRendering
                 || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || 
                     ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
             {
@@ -1240,9 +1256,8 @@ public class LdapURL
                     sb.append( urlEncode( attribute, false ) );
                 }
             }
-
-            if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 )
-                || ( criticalExtensions.size() != 0 ) )
+            
+            if ( forceScopeRendering )
             {
                 sb.append( '?' );
 
@@ -1250,8 +1265,7 @@ public class LdapURL
                 {
 
                     case SearchControls.OBJECT_SCOPE:
-
-                        // This is the default value.
+                        sb.append( "base" );
                         break;
 
                     case SearchControls.ONELEVEL_SCOPE:
@@ -1266,60 +1280,97 @@ public class LdapURL
                     default :
                         break;
                 }
+            }
 
-                if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
+            else
+            {
+                if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 )
+                    || ( criticalExtensions.size() != 0 ) )
                 {
-                    sb.append( "?" );
-
-                    if ( filter != null )
+                    sb.append( '?' );
+    
+                    switch ( scope )
                     {
-                        sb.append( urlEncode( filter, false ) );
+    
+                        case SearchControls.OBJECT_SCOPE:
+    
+                            // This is the default value.
+                            break;
+    
+                        case SearchControls.ONELEVEL_SCOPE:
+                            sb.append( "one" );
+                            break;
+    
+                        case SearchControls.SUBTREE_SCOPE:
+                            sb.append( "sub" );
+                            break;
+                            
+                            
+                        default :
+                            break;
                     }
-
-                    if ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) )
+    
+                    if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
                     {
-                        sb.append( '?' );
-
-                        boolean isFirst = true;
-
-                        if ( extensions.size() != 0 )
+                        sb.append( "?" );
+    
+                        if ( filter != null )
                         {
-                            for ( String key:extensions.keySet() )
-                            {
-
-                                if ( !isFirst )
-                                {
-                                    sb.append( ',' );
-                                }
-                                else
-                                {
-                                    isFirst = false;
-                                }
-
-                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                    urlEncode( extensions.get( key ), true ) );
-                            }
+                            sb.append( urlEncode( filter, false ) );
                         }
-
-                        isFirst = true;
-
-                        if ( criticalExtensions.size() != 0 )
+    
+                        if ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) )
                         {
-                            for ( String key:criticalExtensions.keySet() )
+                            sb.append( '?' );
+    
+                            boolean isFirst = true;
+    
+                            if ( extensions.size() != 0 )
                             {
-
-                                if ( !isFirst )
+                                for ( String key:extensions.keySet() )
                                 {
-                                    sb.append( ",!" );
+    
+                                    if ( !isFirst )
+                                    {
+                                        sb.append( ',' );
+                                    }
+                                    else
+                                    {
+                                        isFirst = false;
+                                    }
+    
+                                    sb.append( urlEncode( key, false ) ).append( '=' ).append(
+                                        urlEncode( extensions.get( key ), true ) );
                                 }
-                                else
+                            }
+    
+                            isFirst = true;
+    
+                            if ( criticalExtensions.size() != 0 )
+                            {
+                                for ( String key:criticalExtensions.keySet() )
                                 {
-                                    sb.append( '!' );
-                                    isFirst = false;
+    
+                                    if ( !isFirst )
+                                    {
+                                        sb.append( ",!" );
+                                    }
+                                    else
+                                    {
+                                        sb.append( '!' );
+                                        isFirst = false;
+                                    }
+    
+                                    sb.append( urlEncode( key, false ) );
+                                    
+                                    String value = criticalExtensions.get( key );
+                                    
+                                    if ( value != null )
+                                    {
+                                        sb.append( '=' ).append(
+                                        urlEncode( value, true ) );
+                                    }
                                 }
-
-                                sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                    urlEncode( criticalExtensions.get( key ), true ) );
                             }
                         }
                     }
@@ -1333,7 +1384,6 @@ public class LdapURL
 
         return sb.toString();
     }
-
 
     /**
      * @return Returns the attributes.
@@ -1629,6 +1679,32 @@ public class LdapURL
         {
             this.criticalExtensions = criticalExtensions;
         }
+    }
+
+    
+    /**
+     * If set to true forces the toString method to render the scope 
+     * regardless of optional nature.  Use this when you want explicit
+     * search URL scope rendering.
+     * 
+     * @param forceScopeRendering the forceScopeRendering to set
+     */
+    public void setForceScopeRendering( boolean forceScopeRendering )
+    {
+        this.forceScopeRendering = forceScopeRendering;
+    }
+
+    
+    /**
+     * If set to true forces the toString method to render the scope 
+     * regardless of optional nature.  Use this when you want explicit
+     * search URL scope rendering.
+     * 
+     * @return the forceScopeRendering
+     */
+    public boolean isForceScopeRendering()
+    {
+        return forceScopeRendering;
     }
 
 }

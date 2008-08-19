@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.entry;
 
+
 import java.io.Externalizable;
 
 import javax.naming.NamingException;
@@ -51,15 +52,15 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     /**
      * Sets the wrapped value.
      *
-     * @param wrapped the value to set. Should be either a String, URI, or a byte[]
+     * @param wrapped the value to set: either a String, URI, or a byte[]
      */
     void set( T wrapped );
     
 
     /**
-     * Get the stored value.
+     * Get the wrapped value.
      *
-     * @return The stored value
+     * @return the wrapped value
      */
     T get();
     
@@ -67,7 +68,7 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     /**
      * Get a reference on the stored value.
      *
-     * @return A reference on the stored value.
+     * @return a reference on the wrapped value.
      */
     T getReference();
     
@@ -75,7 +76,7 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     /**
      * Get a copy of the stored value.
      *
-     * @return A copy of the stored value.
+     * @return a copy of the stored value.
      */
     T getCopy();
     
@@ -106,7 +107,7 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     /**
      * Tells if the value is valid wrt a Syntax checker
      * 
-     * @param SyntaxChecker the Syntax checker to use to validate the value
+     * @param checker the SyntaxChecker to use to validate the value
      * @return <code>true</code> if the value is valid
      * @exception NamingException if the value cannot be validated
      */
@@ -116,7 +117,7 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     /**
      * Set the normalized flag.
      * 
-     * @param the value : true or false
+     * @param normalized the value : true or false
      */
     void setNormalized( boolean normalized );
 
@@ -156,7 +157,7 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
      * Normalize the value. In order to use this method, the Value
      * must be schema aware.
      * 
-     * @exception NamingException If the value cannot be normalized
+     * @exception NamingException if the value cannot be normalized
      */
     void normalize() throws NamingException;
 
@@ -167,8 +168,8 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
      * It supposes that the client has access to the schema in order to select the
      * appropriate normalizer.
      * 
-     * @param Normalizer The normalizer to apply to the value
-     * @exception NamingException If the value cannot be normalized
+     * @param normalizer the normalizer to apply to the value
+     * @exception NamingException if the value cannot be normalized
      */
     void normalize( Normalizer normalizer ) throws NamingException;
     

@@ -32,7 +32,7 @@ import java.util.prefs.BackingStoreException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PreferencesDictionary extends Dictionary
+public class PreferencesDictionary extends Dictionary<String,String>
 {
     /** the underlying wrapped preferences object */
     private final Preferences prefs;
@@ -93,13 +93,14 @@ public class PreferencesDictionary extends Dictionary
     }
 
 
-    public Enumeration elements()
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> elements()
     {
         try
         {
             return new ArrayEnumeration( prefs.keys() )
             {
-                public Object nextElement()
+                public String nextElement()
                 {
                     String key = ( String ) super.nextElement();
 
@@ -114,7 +115,8 @@ public class PreferencesDictionary extends Dictionary
     }
 
 
-    public Enumeration keys()
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> keys()
     {
         try
         {
@@ -127,7 +129,7 @@ public class PreferencesDictionary extends Dictionary
     }
 
 
-    public Object get( Object key )
+    public String get( Object key )
     {
         if ( key instanceof String )
         {
@@ -138,9 +140,9 @@ public class PreferencesDictionary extends Dictionary
     }
 
 
-    public Object remove( Object key )
+    public String remove( Object key )
     {
-        Object retval = get( key );
+        String retval = get( key );
 
         if ( key instanceof String )
         {
@@ -155,33 +157,11 @@ public class PreferencesDictionary extends Dictionary
     }
 
 
-    public Object put( Object key, Object value )
+    public String put( String key, String value )
     {
-        Object retval = get( key );
+        String retval = get( key );
 
-        String skey = null;
-
-        String svalue = null;
-
-        if ( key instanceof String )
-        {
-            skey = ( String ) key;
-        }
-        else
-        {
-            skey = key.toString();
-        }
-
-        if ( value instanceof String )
-        {
-            svalue = ( String ) value;
-        }
-        else
-        {
-            svalue = value.toString();
-        }
-
-        prefs.put( skey, svalue );
+        prefs.put( key, value );
 
         return retval;
     }

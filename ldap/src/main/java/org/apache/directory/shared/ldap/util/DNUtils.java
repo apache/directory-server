@@ -145,6 +145,55 @@ public class DNUtils
             false, false, false, false, false, false, false, false  // 78 -> 7F
         };
 
+
+    /**
+     * [0x01-0x1F] | 0x21 | [0x24-0x2A] | [0x2D-0x3A] | 0x3D | [0x3F-0x5B] | [0x5D-0x7F]
+     */
+    private static final boolean[] LUTF1 =
+        { 
+            false, true,  true,  true,  true,  true,  true,  true, // 00 -> 07 '\0'
+            true,  true,  true,  true,  true,  true,  true,  true, // 08 -> 0F
+            true,  true,  true,  true,  true,  true,  true,  true, // 10 -> 17
+            true,  true,  true,  true,  true,  true,  true,  true, // 18 -> 1F
+            false, true,  false, false, true,  true,  true,  true, // 20 -> 27 ( ' ', '"', '#' )
+            true,  true,  true,  false, false, true,  true,  true, // 28 -> 2F ( '+', ',' )
+            true,  true,  true,  true,  true,  true,  true,  true, // 30 -> 37 
+            true,  true,  true,  false, false, true,  false, true, // 38 -> 3F ( ';', '<', '>' ) 
+            true,  true,  true,  true,  true,  true,  true,  true, // 40 -> 47 
+            true,  true,  true,  true,  true,  true,  true,  true, // 48 -> 4F
+            true,  true,  true,  true,  true,  true,  true,  true, // 50 -> 57
+            true,  true,  true,  true,  false, true,  true,  true, // 58 -> 5F ( '\' )
+            true,  true,  true,  true,  true,  true,  true,  true, // 60 -> 67 
+            true,  true,  true,  true,  true,  true,  true,  true, // 68 -> 6F
+            true,  true,  true,  true,  true,  true,  true,  true, // 70 -> 77
+            true,  true,  true,  true,  true,  true,  true,  true  // 78 -> 7F
+        };
+
+
+    /**
+     * [0x01-0x21] | [0x23-0x2A] | [0x2D-0x3A] | 0x3D | [0x3F-0x5B] | [0x5D-0x7F]
+     */
+    private static final boolean[] SUTF1 =
+        { 
+            false, true,  true,  true,  true,  true,  true,  true, // 00 -> 07 '\0'
+            true,  true,  true,  true,  true,  true,  true,  true, // 08 -> 0F
+            true,  true,  true,  true,  true,  true,  true,  true, // 10 -> 17
+            true,  true,  true,  true,  true,  true,  true,  true, // 18 -> 1F
+            true,  true,  false, true,  true,  true,  true,  true, // 20 -> 27 ( '"' )
+            true,  true,  true,  false, false, true,  true,  true, // 28 -> 2F ( '+', ',' )
+            true,  true,  true,  true,  true,  true,  true,  true, // 30 -> 37 
+            true,  true,  true,  false, false, true,  false, true, // 38 -> 3F ( ';', '<', '>' ) 
+            true,  true,  true,  true,  true,  true,  true,  true, // 40 -> 47 
+            true,  true,  true,  true,  true,  true,  true,  true, // 48 -> 4F
+            true,  true,  true,  true,  true,  true,  true,  true, // 50 -> 57
+            true,  true,  true,  true,  false, true,  true,  true, // 58 -> 5F ( '\' )
+            true,  true,  true,  true,  true,  true,  true,  true, // 60 -> 67 
+            true,  true,  true,  true,  true,  true,  true,  true, // 68 -> 6F
+            true,  true,  true,  true,  true,  true,  true,  true, // 70 -> 77
+            true,  true,  true,  true,  true,  true,  true,  true  // 78 -> 7F
+        };
+
+
     /**
      * ' ' | '"' | '#' | '+' | ',' | ';' | '<' | '=' | '>' | '\' |
      * 0x22 | 0x23 | 0x2B | 0x2C | 0x3B | 0x3C | 0x3D | 0x3E | 0x5C
@@ -276,8 +325,48 @@ public class DNUtils
             }
         }
     }
+    
+    
+    /**
+     * Check if the current character is a LUTF1 (Lead UTF ascii char)<br/> 
+     * &lt;LUTF1&gt; ::= 0x01-1F | 0x21 | 0x24-2A | 0x2D-3A | 0x3D | 0x3F-5B | 0x5D-7F
+     * 
+     * @param bytes The buffer containing the data
+     * @param index Current position in the buffer
+     * @return <code>true</code> if the current character is a LUTF1
+     */
+    public static boolean isLUTF1( byte[] bytes, int index )
+    {
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
+        {
+            return false;
+        }
 
+        byte c = bytes[index];
+        return ( ( ( c | 0x7F ) == 0x7F ) && LUTF1[c & 0x7f] );
+    }
 
+    
+    /**
+     * Check if the current character is a SUTF1 (Stringchar UTF ascii char)<br/> 
+     * &lt;LUTF1&gt; ::= 0x01-20 | 0x23-2A | 0x2D-3A | 0x3D | 0x3F-5B | 0x5D-7F
+     * 
+     * @param bytes The buffer containing the data
+     * @param index Current position in the buffer
+     * @return <code>true</code> if the current character is a SUTF1
+     */
+    public static boolean isSUTF1( byte[] bytes, int index )
+    {
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
+        {
+            return false;
+        }
+
+        byte c = bytes[index];
+        return ( ( ( c | 0x7F ) == 0x7F ) && SUTF1[c & 0x7f] );
+    }
+
+    
     /**
      * Check if the given char is a pair char only
      * &lt;pairCharOnly&gt; ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | '\' | '"'
@@ -392,6 +481,39 @@ public class DNUtils
      *         than throwing an exception :)
      */
     public static int isStringChar( byte[] bytes, int index )
+    {
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
+        {
+            return -1;
+        }
+        else
+        {
+            byte c = bytes[index];
+
+            if ( ( c | 0x3F ) == 0x3F )
+            {
+                return STRING_CHAR[ c ];
+            }
+            else
+            {
+                return StringTools.countBytesPerChar( bytes, index );
+            }
+        }
+    }
+
+
+    /**
+     * Check if the current character is an ascii String Char.<br/>
+     * <p> 
+     * &lt;asciistringchar&gt; ::= [0x00-0x7F] - [,=+<>#;\"\n\r]
+     * </p>
+     * 
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
+     * @return The current char if it is a String Char, or '#' (this is simpler
+     *         than throwing an exception :)
+     */
+    public static int isAciiStringChar( byte[] bytes, int index )
     {
         if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {

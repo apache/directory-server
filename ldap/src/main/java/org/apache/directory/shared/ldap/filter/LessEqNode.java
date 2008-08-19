@@ -29,15 +29,15 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 519266 $
  */
-public class LessEqNode extends SimpleNode
+public class LessEqNode<T> extends SimpleNode<T>
 {
     /**
      * Creates a new LessEqNode object.
-     * 
+     *
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public LessEqNode( String attribute, Value<?> value )
+    public LessEqNode( String attribute, Value<T> value )
     {
         super( attribute, value, AssertionType.LESSEQ );
     }

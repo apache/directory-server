@@ -22,6 +22,7 @@ package org.apache.directory.shared.asn1.ber.tlv;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -30,6 +31,8 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
+import org.apache.directory.shared.asn1.util.LongDecoder;
+import org.junit.Test;
 
 
 
@@ -43,9 +46,10 @@ public class ValueTest extends TestCase
 {
 
     /**
-     * Test the getNbBytes method
+     * Test the getNbBytes method for an int value
      */
-    public void testValueGetNbBytes()
+    @Test
+    public void testValueIntGetNbBytes()
     {
         assertEquals( 1, Value.getNbBytes( 0x00000000 ) );
         assertEquals( 1, Value.getNbBytes( 0x00000001 ) );
@@ -60,8 +64,140 @@ public class ValueTest extends TestCase
         assertEquals( 1, Value.getNbBytes( 0xFFFFFFFF ) );
     }
 
-    public void testGetBytes()
+
+    /**
+     * Test the getNbBytes method for a long value
+     */
+    @Test
+    public void testValueLongGetNbBytes()
     {
+        assertEquals( 1, Value.getNbBytes( 0x0000000000000000L ) );
+        assertEquals( 1, Value.getNbBytes( 0x0000000000000001L ) );
+        assertEquals( 2, Value.getNbBytes( 0x00000000000000FFL ) );
+        assertEquals( 2, Value.getNbBytes( 0x0000000000000100L ) );
+        assertEquals( 3, Value.getNbBytes( 0x000000000000FFFFL ) );
+        assertEquals( 3, Value.getNbBytes( 0x0000000000010000L ) );
+        assertEquals( 4, Value.getNbBytes( 0x0000000000FFFFFFL ) );
+        assertEquals( 4, Value.getNbBytes( 0x0000000001000000L ) );
+        assertEquals( 5, Value.getNbBytes( 0x00000000FFFFFFFFL ) );
+        assertEquals( 5, Value.getNbBytes( 0x0000000100000000L ) );
+        assertEquals( 6, Value.getNbBytes( 0x000000FFFFFFFFFFL ) );
+        assertEquals( 6, Value.getNbBytes( 0x0000010000000000L ) );
+        assertEquals( 7, Value.getNbBytes( 0x0000FFFFFFFFFFFFL ) );
+        assertEquals( 7, Value.getNbBytes( 0x0001000000000000L ) );
+        assertEquals( 8, Value.getNbBytes( 0x00FFFFFFFFFFFFFFL ) );
+        assertEquals( 8, Value.getNbBytes( 0x0100000000000000L ) );
+        assertEquals( 1, Value.getNbBytes( -1L ) );
+        assertEquals( 8, Value.getNbBytes( 0x7FFFFFFFFFFFFFFFL ) );
+        assertEquals( 1, Value.getNbBytes( 0xFFFFFFFFFFFFFFFFL ) );
+    }
+
+
+    /**
+     * Test the generation of an Integer Value
+     *
+     */
+    @Test
+    public void testGetBytesInt()
+    {
+        int[] positiveValues = new int[]
+             {
+                 0x00, 0x01, 0x7F,
+                 0x0080, 0x0081, 0x7FFF,
+                 0x008000, 0x008001, 0x7FFFFF,
+                 0x00800000, 0x00800001, 0x7FFFFFFF
+             };
+
+         byte[][] expectedPositiveBytes = new byte[][]
+             {
+                 // 1 byte
+                 { 0x00 }, 
+                 { 0x01 }, 
+                 { 0x7F },
+                 
+                 // 2 bytes
+                 { 0x00, (byte)0x80 }, 
+                 { 0x00, (byte)0x81 }, 
+                 { 0x7F, (byte)0xFF },
+
+                 // 3 bytes
+                 { 0x00, (byte)0x80, 0x00 },
+                 { 0x00, (byte)0x80, 0x01 },
+                 { 0x7F, (byte)0xFF, (byte)0xFF },
+
+                 // 4 bytes
+                 { 0x00, (byte)0x80, 0x00, 0x00 },
+                 { 0x00, (byte)0x80, 0x00, 0x01 },
+                 { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+             };
+
+         int[] negativeValues = new int[]
+             {
+                 // 1 byte
+                 -1, -127, -128,  
+                             
+                 // 2 bytes
+                 -129, -255, -256, -257, -32767, -32768,
+
+                 // 3 bytes
+                 -32769, -65535, -65536, -65537, -8388607, -8388608,
+
+                 // 4 bytes
+                 -8388609, -16777215, -16777216, -16777217, -2147483647, -2147483648,
+             };
+
+         byte[][] expectedNegativeBytes = new byte[][]
+             {
+                 // 1 byte
+                 { (byte)0xFF },
+                 { (byte)0x81 }, 
+                 { (byte)0x80 }, 
+     
+                 // 2 bytes
+                 { (byte)0xFF, 0x7F }, 
+                 { (byte)0xFF, 0x01 }, 
+                 { (byte)0xFF, 0x00 }, 
+                 { (byte)0xFE, (byte)0xFF }, 
+                 { (byte)0x80, 0x01 }, 
+                 { (byte)0x80, 0x00 }, 
+     
+                 // 3 bytes
+                 { (byte)0xFF, 0x7F, (byte)0xFF }, 
+                 { (byte)0xFF, 0x00, 0x01 },
+                 { (byte)0xFF, 0x00, 0x00 },
+                 { (byte)0xFE, (byte)0xFF, (byte)0xFF },
+                 { (byte)0x80, 0x00, 0x01 },
+                 { (byte)0x80, 0x00, 0x00 },
+     
+                 // 4 bytes
+                 { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF },
+                 { (byte)0xFF, 0x00, 0x00, 0x01 },
+                 { (byte)0xFF, 0x00, 0x00, 0x00 },
+                 { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                 { (byte)0x80, 0x00, 0x00, 0x01 },
+                 { (byte)0x80, 0x00, 0x00, 0x00 },
+             };
+
+         int i = 0;
+         
+         for ( int value:positiveValues )
+         {
+             byte[] bb = Value.getBytes( value );
+             assertEquals( expectedPositiveBytes[i].length, bb.length );
+             assertTrue( Arrays.equals( expectedPositiveBytes[i], bb ) );
+             i++;
+         }
+         
+         i=0;
+         
+         for ( int value:negativeValues )
+         {
+             byte[] bb = Value.getBytes( value );
+             assertEquals( expectedNegativeBytes[i].length, bb.length );
+             assertTrue( Arrays.equals( expectedNegativeBytes[i], bb ) );
+             i++;
+         }
+
         byte[] bb = Value.getBytes( 0x00000000 );
         assertEquals( 1, bb.length );
         assertEquals( 0, bb[0] );
@@ -211,6 +347,186 @@ public class ValueTest extends TestCase
         assertEquals( 0x00, bb[3] );
     }
 
+
+    /**
+     * Test the generation of a Long Value
+     *
+     */
+    @Test
+    public void testGetBytesLong()
+    {
+        long[] positiveValues = new long[]
+            {
+                0x00L, 0x01L, 0x7FL,
+                0x0080L, 0x0081L, 0x7FFFL,
+                0x008000L, 0x008001L, 0x7FFFFFL,
+                0x00800000L, 0x00800001L, 0x7FFFFFFFL,
+                0x0080000000L, 0x0080000001L, 0x7FFFFFFFFFL,
+                0x008000000000L, 0x008000000001L, 0x7FFFFFFFFFFFL,
+                0x00800000000000L, 0x00800000000001L, 0x7FFFFFFFFFFFFFL,
+                0x0080000000000000L, 0x0080000000000001L, 0x7FFFFFFFFFFFFFFFL
+            };
+        
+        byte[][] expectedPositiveBytes = new byte[][]
+            {
+                // 1 byte
+                { 0x00 }, 
+                { 0x01 }, 
+                { 0x7F },
+                
+                // 2 bytes
+                { 0x00, (byte)0x80 }, 
+                { 0x00, (byte)0x81 }, 
+                { 0x7F, (byte)0xFF },
+
+                // 3 bytes
+                { 0x00, (byte)0x80, 0x00 },
+                { 0x00, (byte)0x80, 0x01 },
+                { 0x7F, (byte)0xFF, (byte)0xFF },
+
+                // 4 bytes
+                { 0x00, (byte)0x80, 0x00, 0x00 },
+                { 0x00, (byte)0x80, 0x00, 0x01 },
+                { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+
+                // 5 bytes
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00 },
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x01 },
+                { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+
+                // 6 bytes
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x00 },
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x01 },
+                { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+
+                // 7 bytes
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00 },
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+
+                // 8 bytes
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 
+                { 0x00, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }, 
+                { 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF }
+            };
+
+        long[] negativeValues = new long[]
+            {
+                // 1 byte
+                -1L, -127L, -128L,  
+                            
+                // 2 bytes
+                -129L, -255L, -256L, -257L, -32767L, -32768L,
+
+                // 3 bytes
+                -32769L, -65535L, -65536L, -65537L, -8388607L, -8388608L,
+
+                // 4 bytes
+                -8388609L, -16777215L, -16777216L, -16777217L, -2147483647L, -2147483648L,
+
+                // 5 bytes
+                -2147483649L, -4294967295L, -4294967296L, -4294967297L, -549755813887L, -549755813888L,
+
+                // 6 bytes
+                -549755813889L, -1099511627775L, -1099511627776L, 
+                -1099511627777L, -140737488355327L, -140737488355328L,
+
+                // 7 bytes
+                -140737488355329L, -281474976710655L, -281474976710656L,
+                -281474976710657L, -36028797018963967L, -36028797018963968L,
+                
+                // 8 bytes
+                -36028797018963969L, -72057594037927935L, -72057594037927936L,
+                -72057594037927937L, -9223372036854775807L, -9223372036854775808L
+            };
+        
+        byte[][] expectedNegativeBytes = new byte[][]
+            {
+                // 1 byte
+                { (byte)0xFF },
+                { (byte)0x81 }, 
+                { (byte)0x80 }, 
+    
+                // 2 bytes
+                { (byte)0xFF, 0x7F }, 
+                { (byte)0xFF, 0x01 }, 
+                { (byte)0xFF, 0x00 }, 
+                { (byte)0xFE, (byte)0xFF }, 
+                { (byte)0x80, 0x01 }, 
+                { (byte)0x80, 0x00 }, 
+    
+                // 3 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF }, 
+                { (byte)0xFF, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00 },
+    
+                // 4 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF },
+                { (byte)0xFF, 0x00, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00, 0x00 },
+    
+                // 5 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00 },
+    
+                // 6 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    
+                // 7 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    
+                // 8 bytes
+                { (byte)0xFF, 0x7F, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+                { (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 },
+                { (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+            };
+                                                    
+        int i = 0;
+        
+        for ( long value:positiveValues )
+        {
+            byte[] bb = Value.getBytes( value );
+            assertEquals( expectedPositiveBytes[i].length, bb.length );
+            assertTrue( Arrays.equals( expectedPositiveBytes[i], bb ) );
+            i++;
+        }
+        
+        i=0;
+        
+        for ( long value:negativeValues )
+        {
+            byte[] bb = Value.getBytes( value );
+            assertEquals( expectedNegativeBytes[i].length, bb.length );
+            assertTrue( Arrays.equals( expectedNegativeBytes[i], bb ) );
+            i++;
+        }
+    }
+
+
+    @Test
     public void testEncodeInt2Bytes()
     {
         byte[] encoded = Value.getBytes( 128 );
@@ -226,6 +542,7 @@ public class ValueTest extends TestCase
     }
 
 
+    @Test
     public void testEncodeInt3Bytes()
     {
 
@@ -237,13 +554,42 @@ public class ValueTest extends TestCase
     }
 
 
+    @Test
     public void testEncodeInt()
     {
         byte[] encoded = null;
         int[] testedInt = new int[]
-            { Integer.MIN_VALUE, -2147483647, -16777216, -16777215, -8388608, -8388607, -65536, -65535, -32768, -32767,
-                -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
-                16777215, 16777216, Integer.MAX_VALUE };
+            { 
+                Integer.MIN_VALUE, 
+                -2147483647, 
+                -16777216, 
+                -16777215, 
+                -8388608, 
+                -8388607, 
+                -65536, 
+                -65535, 
+                -32768, 
+                -32767,
+                -256, 
+                -255, 
+                -128, 
+                -127, 
+                -1, 
+                0, 
+                1, 
+                127, 
+                128, 
+                255, 
+                256, 
+                32767, 
+                32768, 
+                65535, 
+                65536, 
+                8388607, 
+                8388608,
+                16777215, 
+                16777216, 
+                Integer.MAX_VALUE };
 
         for ( int i:testedInt )
         {
@@ -256,13 +602,44 @@ public class ValueTest extends TestCase
     }
 
 
+    /**
+     * Test the decoding of integer values
+     */
+    @Test
     public void testDecodeInt() throws Exception
     {
         byte[] encoded = null;
         int[] testedInt = new int[]
-            { Integer.MIN_VALUE, -2147483647, -16777216, -16777215, -8388608, -8388607, -65536, -65535, -32768, -32767,
-                -256, -255, -128, -127, -1, 0, 1, 127, 128, 255, 256, 32767, 32768, 65535, 65536, 8388607, 8388608,
-                16777215, 16777216, Integer.MAX_VALUE };
+            { 
+                Integer.MIN_VALUE, 
+                -2147483647, 
+                -16777216, 
+                -16777215, 
+                -8388608, 
+                -8388607, 
+                -65536, 
+                -65535, 
+                -32768, 
+                -32767,
+                -256, 
+                -255, 
+                -128, 
+                -127, 
+                -1, 0, 
+                1, 
+                127, 
+                128, 
+                255, 
+                256, 
+                32767, 
+                32768, 
+                65535, 
+                65536, 
+                8388607, 
+                8388608,
+                16777215, 
+                16777216, 
+                Integer.MAX_VALUE };
 
         for ( int i:testedInt )
         {
@@ -274,6 +651,101 @@ public class ValueTest extends TestCase
         }
     }
     
+
+
+    /**
+     * Test the decoding of long values
+     */
+    @Test
+    public void testDecodeLong() throws Exception
+    {
+        byte[] encoded = null;
+        long[] testedLong = new long[]
+            { 
+                Long.MIN_VALUE, 
+                -9223372036854775808L,
+                -9223372036854775807L,
+                -72057594037927937L,
+                -72057594037927936L,
+                -72057594037927935L,
+                -36028797018963969L,
+                -36028797018963968L,
+                -36028797018963967L,
+                -281474976710657L,
+                -281474976710656L,
+                -281474976710655L,
+                -140737488355329L,
+                -140737488355328L,
+                -140737488355327L,
+                -1099511627777L,
+                -1099511627776L,
+                -1099511627775L,
+                -549755813889L,
+                -549755813888L,
+                -549755813887L,
+                -4294967297L,
+                -4294967296L,
+                -4294967295L,
+                -2147483649L,
+                -2147483648L,
+                -2147483647L, 
+                -16777216L, 
+                -16777215L, 
+                -8388608L, 
+                -8388607L, 
+                -65536L, 
+                -65535L, 
+                -32769L,
+                -32768L, 
+                -32767L,
+                -257L,
+                -256L, 
+                -255L, 
+                -129L,
+                -128L, 
+                -127L, 
+                -1L, 
+                0L, 
+                1L, 
+                127L, 
+                128L, 
+                255L, 
+                256L, 
+                32767L, 
+                32768L, 
+                32769L, 
+                65535L, 
+                65536L, 
+                8388607L, 
+                8388608L,
+                8388609L,
+                2147483647L,
+                2147483648L,
+                2147483649L,
+                549755813887L,
+                549755813888L,
+                549755813889L,
+                140737488355327L,
+                140737488355328L,
+                140737488355329L,
+                36028797018963967L,
+                36028797018963967L,
+                36028797018963967L,
+                Long.MAX_VALUE };
+
+        for ( long i:testedLong )
+        {
+            encoded = new BigInteger( Long.toString( i ) ).toByteArray();
+
+            long value = LongDecoder.parse( new Value( encoded ) );
+
+            Assert.assertEquals( i, value );
+        }
+    }
+    
+
+
+    @Test
     public void testNewByteArrayValue()
     {
         byte[] bb = new byte[]{0x01, (byte)0xFF};
@@ -289,6 +761,7 @@ public class ValueTest extends TestCase
     }
 
     
+    @Test
     public void testEncodeBitString()
     {
         BitString bs = new BitString( 10 );

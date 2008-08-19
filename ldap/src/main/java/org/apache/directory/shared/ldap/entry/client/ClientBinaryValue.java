@@ -355,8 +355,36 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
      */
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        // TODO implement this method
-        return;
+        // Read the wrapped value, if it's not null
+        int wrappedLength = in.readInt();
+        
+        if ( wrappedLength >= 0 )
+        {
+            wrapped = new byte[wrappedLength];
+            
+            if ( wrappedLength > 0 )
+            {
+                in.read( wrapped );
+            }
+        }
+        
+        // Read the isNormalized flag
+        normalized = in.readBoolean();
+        
+        if ( normalized )
+        {
+            int normalizedLength = in.readInt();
+            
+            if ( normalizedLength >= 0 )
+            {
+                normalizedValue = new byte[normalizedLength];
+                
+                if ( normalizedLength > 0 )
+                {
+                    in.read( normalizedValue );
+                }
+            }
+        }
     }
 
     
@@ -365,7 +393,45 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
      */
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        // TODO Implement this method
+        // Write the wrapped value, if it's not null
+        if ( wrapped != null )
+        {
+            out.writeInt( wrapped.length );
+            
+            if ( wrapped.length > 0 )
+            {
+                out.write( wrapped, 0, wrapped.length );
+            }
+        }
+        else
+        {
+            out.writeInt( -1 );
+        }
+        
+        // Write the isNormalized flag
+        if ( normalized )
+        {
+            out.writeBoolean( true );
+            
+            // Write the normalized value, if not null
+            if ( normalizedValue != null )
+            {
+                out.writeInt( normalizedValue.length );
+                
+                if ( normalizedValue.length > 0 )
+                {
+                    out.write( normalizedValue, 0, normalizedValue.length );
+                }
+            }
+            else
+            {
+                out.writeInt( -1 );
+            }
+        }
+        else
+        {
+            out.writeBoolean( false );
+        }
     }
     
     

@@ -67,10 +67,13 @@ public interface ExprNode
     /**
      * Recursively appends the refinement string representation of this node and its
      * descendants in prefix notation to a buffer.
+     *
+     * TODO - Why is this here? Why not put it in some utility class?
      * 
      * @param buf the buffer to append to.
      * @return The buffer in which the refinement has been appended
      * @throws UnsupportedOperationException if this node isn't a part of a refinement.
+     * @return the refinement buffer
      */
     StringBuilder printRefinementToBuffer( StringBuilder buf );
     
@@ -79,7 +82,8 @@ public interface ExprNode
      * Element/node accept method for visitor pattern.
      * 
      * @param visitor the filter expression tree structure visitor
-     * @return The modified element
+     * TODO - what is this modified element ?
+     * @return the modified element
      */
     Object accept( FilterVisitor visitor );
 }

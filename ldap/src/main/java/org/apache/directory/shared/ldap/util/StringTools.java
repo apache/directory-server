@@ -3413,7 +3413,6 @@ public class StringTools
                     continue;
                 }
             }
-
             
             if ( escaped )
             {
@@ -3435,7 +3434,7 @@ public class StringTools
                 buf.append( str.charAt( ii ) );
             }
         }
-
+        
         if ( escaped )
         {
             // We should not have a '\' at the end of the string

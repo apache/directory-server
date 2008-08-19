@@ -1,0 +1,13 @@
+$Rev$
+$Date$
+
+This file shows the last time we merged from the trunk to this branch here :
+
+
+   https://svn.apache.org/repos/asf/directory/shared/branches/bigbang/
+
+
+Sat Jun  7 02:02:39 EDT 2008
+----------------------------
+svn merge -r 654376:664287 https://svn.apache.org/repos/asf/directory/shared/trunk .
+

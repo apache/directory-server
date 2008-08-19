@@ -78,10 +78,11 @@ public class FilterParserTest
         assertTrue( checkWrongFilter( "(&(cn=abc)" ) );
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testItemFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou~=people)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou~=people)" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people", node.getValue().get() );
         assertTrue( node instanceof ApproximateNode );
@@ -133,28 +134,31 @@ public class FilterParserTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOptionAndEscapesFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou;lang-de>=\\23\\42asdl fkajsd)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou;lang-de>=\\23\\42asdl fkajsd)" );
         assertEquals( "ou;lang-de", node.getAttribute() );
         assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOptionsAndEscapesFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou;lang-de;version-124>=\\23\\42asdl fkajsd)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou;lang-de;version-124>=\\23\\42asdl fkajsd)" );
         assertEquals( "ou;lang-de;version-124", node.getAttribute() );
         assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNumericoidOptionsAndEscapesFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(1.3.4.2;lang-de;version-124>=\\23\\42asdl fkajsd)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(1.3.4.2;lang-de;version-124>=\\23\\42asdl fkajsd)" );
         assertEquals( "1.3.4.2;lang-de;version-124", node.getAttribute() );
         assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
     }
@@ -178,10 +182,11 @@ public class FilterParserTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEqualsFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=people)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou=people)" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
@@ -205,10 +210,11 @@ public class FilterParserTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEqualsWithForwardSlashFilter() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=people/in/my/company)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou=people/in/my/company)" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people/in/my/company", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
@@ -633,16 +639,17 @@ public class FilterParserTest
     }
     
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testEqualsFilterNullValue() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(ou=)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(ou=)" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 
-
+    
     /**
      * test a filter with a # in value
      */
@@ -650,13 +657,13 @@ public class FilterParserTest
     @Test
     public void testEqualsFilterWithPoundInValue() throws ParseException
     {
-        SimpleNode node = ( SimpleNode ) FilterParser.parse( "(uid=#f1)" );
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( "(uid=#f1)" );
         assertEquals( "uid", node.getAttribute() );
         assertEquals( "#f1", node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 
-
+    
     /**
      * Test that special and non allowed chars into an assertionValue are not
      * accepted. ((cf DIRSERVER-1196)

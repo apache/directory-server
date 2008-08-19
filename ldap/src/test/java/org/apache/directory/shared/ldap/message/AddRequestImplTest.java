@@ -276,6 +276,12 @@ public class AddRequestImplTest extends TestCase
             public void addAll( javax.naming.ldap.Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );

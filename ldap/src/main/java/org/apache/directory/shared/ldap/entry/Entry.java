@@ -19,6 +19,7 @@
 package org.apache.directory.shared.ldap.entry;
 
 
+import java.io.Externalizable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +43,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry extends Cloneable, Iterable<EntryAttribute>
+public interface Entry extends Cloneable, Iterable<EntryAttribute>, Externalizable
 {
     /**
      * Remove all the attributes for this entry. The DN is not reset

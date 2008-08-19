@@ -20,24 +20,28 @@
 
 package org.apache.directory.shared.ldap.ldif;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientEntry;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -56,23 +60,20 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdifEntry implements Cloneable, Serializable
+public class LdifEntry implements Cloneable, Externalizable
 {
     private static final long serialVersionUID = 2L;
     
     /** Used in toArray() */
-    public static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
+    public static final Modification[] EMPTY_MODS = new Modification[0];
 
     /** the change type */
     private ChangeType changeType;
 
     /** the modification item list */
-    private List<ModificationItemImpl> modificationList;
+    private List<Modification> modificationList;
 
-    private Map<String, ModificationItemImpl> modificationItems;
-
-    /** the dn of the ldif entry */
-    private String dn;
+    private Map<String, Modification> modificationItems;
 
     /** The new superior */
     private String newSuperior;
@@ -83,8 +84,8 @@ public class LdifEntry implements Cloneable, Serializable
     /** The delete old rdn flag */
     private boolean deleteOldRdn;
 
-    /** attributes of the entry */
-    private Attributes attributes;
+    /** the entry */
+    private ClientEntry entry;
 
     
     /** The control */
@@ -96,23 +97,37 @@ public class LdifEntry implements Cloneable, Serializable
     public LdifEntry()
     {
         changeType = ChangeType.Add; // Default LDIF content
-        modificationList = new LinkedList<ModificationItemImpl>();
-        modificationItems = new HashMap<String, ModificationItemImpl>();
-        dn = null;
-        attributes = new AttributesImpl( true );
+        modificationList = new LinkedList<Modification>();
+        modificationItems = new HashMap<String, Modification>();
+        entry = new DefaultClientEntry( null );
         control = null;
     }
 
+    
     /**
      * Set the Distinguished Name
      * 
      * @param dn
      *            The Distinguished Name
      */
-    public void setDn( String dn )
+    public void setDn( LdapDN dn )
     {
-        this.dn = dn;
+        entry.setDn( (LdapDN)dn.clone() );
     }
+
+    
+    /**
+     * Set the Distinguished Name
+     * 
+     * @param dn
+     *            The Distinguished Name
+     */
+    public void setDn( String dn ) throws InvalidNameException
+    {
+        LdapDN ldapDn = new LdapDN( dn );
+        entry.setDn( ldapDn );
+    }
+
 
     /**
      * Set the modification type
@@ -161,12 +176,12 @@ public class LdifEntry implements Cloneable, Serializable
      * 
      * @param modification The modification to be added
      */
-    public void addModificationItem( ModificationItemImpl modification )
+    public void addModificationItem( Modification modification )
     {
         if ( changeType == ChangeType.Modify )
         {
             modificationList.add( modification );
-            modificationItems.put( modification.getAttribute().getID(), modification );
+            modificationItems.put( modification.getAttribute().getId(), modification );
         }
     }
 
@@ -178,13 +193,13 @@ public class LdifEntry implements Cloneable, Serializable
      * 
      * @param attr The attribute to be added
      */
-    public void addModificationItem( int modOp, Attribute attr )
+    public void addModificationItem( int modOp, EntryAttribute attr )
     {
         if ( changeType == ChangeType.Modify )
         {
-            ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
+            Modification item = new ClientModification( modOp, attr );
             modificationList.add( item );
-            modificationItems.put( attr.getID(), item );
+            modificationItems.put( attr.getId(), item );
         }
     }
 
@@ -203,9 +218,19 @@ public class LdifEntry implements Cloneable, Serializable
     {
         if ( changeType == ChangeType.Modify )
         {
-            Attribute attr = new AttributeImpl( id, value );
+            EntryAttribute attr =  null;
+            
+            if ( value == null )
+            {
+                value = new ClientStringValue( null );
+                attr = new DefaultClientAttribute( id, (Value<?>)value );
+            }
+            else
+            {
+                attr = (EntryAttribute)value;
+            }
 
-            ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
+            Modification item = new ClientModification( modOp, attr );
             modificationList.add( item );
             modificationItems.put( id, item );
         }
@@ -217,9 +242,9 @@ public class LdifEntry implements Cloneable, Serializable
      * @param attr
      *            The attribute to be added
      */
-    public void addAttribute( Attribute attr )
+    public void addAttribute( EntryAttribute attr ) throws NamingException
     {
-        attributes.put( attr );
+        entry.put( attr );
     }
 
     /**
@@ -232,17 +257,15 @@ public class LdifEntry implements Cloneable, Serializable
      *            The attribute value
      * 
      */
-    public void addAttribute( String id, Object value )
+    public void addAttribute( String id, Object value ) throws NamingException
     {
-        Attribute attr = get( id );
-
-        if ( attr != null )
+        if ( value instanceof String )
         {
-            attr.add( value );
+            entry.add( id, (String)value );
         }
         else
         {
-            attributes.put( id, value );
+            entry.add( id, (byte[])value );
         }
     }
 
@@ -256,17 +279,15 @@ public class LdifEntry implements Cloneable, Serializable
      *            The attribute value
      * 
      */
-    public void putAttribute( String id, Object value )
+    public void putAttribute( String id, Object value ) throws NamingException
     {
-        Attribute attribute = attributes.get( id );
-
-        if ( attribute != null )
+        if ( value instanceof String )
         {
-            attribute.add( value );
+            entry.add( id, (String)value );
         }
         else
         {
-            attributes.put( id, value );
+            entry.add( id, (byte[])value );
         }
     }
 
@@ -284,7 +305,7 @@ public class LdifEntry implements Cloneable, Serializable
     /**
      * @return The list of modification items
      */
-    public List<ModificationItemImpl> getModificationItems()
+    public List<Modification> getModificationItems()
     {
         return modificationList;
     }
@@ -295,7 +316,7 @@ public class LdifEntry implements Cloneable, Serializable
      *
      * @return modification items as an array.
      */
-    public ModificationItemImpl[] getModificationItemsArray()
+    public Modification[] getModificationItemsArray()
     {
         return modificationList.toArray( EMPTY_MODS );
     }
@@ -304,9 +325,9 @@ public class LdifEntry implements Cloneable, Serializable
     /**
      * @return The entry Distinguished name
      */
-    public String getDn()
+    public LdapDN getDn()
     {
-        return dn;
+        return entry.getDn();
     }
 
     /**
@@ -324,26 +345,26 @@ public class LdifEntry implements Cloneable, Serializable
      *            The attribute Id
      * @return The attribute if it exists
      */
-    public Attribute get( String attributeId )
+    public EntryAttribute get( String attributeId )
     {
         if ( "dn".equalsIgnoreCase( attributeId ) )
         {
-            return new AttributeImpl( "dn", dn );
+            return new DefaultClientAttribute( "dn", entry.getDn().getUpName() );
         }
 
-        return attributes.get( attributeId );
+        return entry.get( attributeId );
     }
 
     /**
-     * Get the entry's attributes
+     * Get the entry's entry
      * 
-     * @return An Attributes
+     * @return the stored Entry
      */
-    public Attributes getAttributes()
+    public Entry getEntry()
     {
         if ( isEntry() )
         {
-            return attributes;
+            return entry;
         }
         else
         {
@@ -488,10 +509,10 @@ public class LdifEntry implements Cloneable, Serializable
 
         if ( modificationList != null )
         {
-            for ( ModificationItemImpl modif:modificationList )
+            for ( Modification modif:modificationList )
             {
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
-                    (Attribute) modif.getAttribute().clone() );
+                Modification modifClone = new ClientModification( modif.getOperation(), 
+                    (EntryAttribute) modif.getAttribute().clone() );
                 clone.modificationList.add( modifClone );
             }
         }
@@ -500,17 +521,17 @@ public class LdifEntry implements Cloneable, Serializable
         {
             for ( String key:modificationItems.keySet() )
             {
-                ModificationItemImpl modif = modificationItems.get( key );
-                ModificationItemImpl modifClone = new ModificationItemImpl( modif.getModificationOp(), 
-                    (Attribute) modif.getAttribute().clone() );
+                Modification modif = modificationItems.get( key );
+                Modification modifClone = new ClientModification( modif.getOperation(), 
+                    (EntryAttribute) modif.getAttribute().clone() );
                 clone.modificationItems.put( key, modifClone );
             }
 
         }
 
-        if ( attributes != null )
+        if ( entry != null )
         {
-            clone.attributes = (Attributes)attributes.clone();
+            clone.entry = (ClientEntry)entry.clone();
         }
 
         return clone;
@@ -523,41 +544,28 @@ public class LdifEntry implements Cloneable, Serializable
     private String dumpAttributes()
     {
         StringBuffer sb = new StringBuffer();
-        Attribute attribute = null;
         
-        try
+        for ( EntryAttribute attribute:entry )
         {
-            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); 
-                  attrs.hasMoreElements(); 
-                  attribute = attrs.nextElement())
+            if ( attribute == null )
             {
-                if ( attribute == null )
+                sb.append( "        Null attribute\n" );
+                continue;
+            }
+            
+            sb.append( "        ").append( attribute.getId() ).append( ":\n" );
+            
+            for ( Value<?> value:attribute )
+            {
+                if ( value instanceof ClientStringValue )
                 {
-                    sb.append( "        Null attribute\n" );
-                    continue;
+                    sb.append(  "            " ).append( value.get() ).append('\n' );
                 }
-                
-                sb.append( "        ").append( attribute.getID() ).append( ":\n" );
-                Object value = null;
-                
-                for ( NamingEnumeration<?> values = attribute.getAll(); 
-                      values.hasMoreElements(); 
-                      value = values.nextElement())
+                else
                 {
-                    if ( value instanceof String )
-                    {
-                        sb.append(  "            " ).append( (String)value ).append('\n' );
-                    }
-                    else
-                    {
-                        sb.append(  "            " ).append( StringTools.dumpBytes( (byte[]) value ) ).append('\n' );
-                    }
+                    sb.append(  "            " ).append( StringTools.dumpBytes( (byte[])value.get() ) ).append('\n' );
                 }
             }
-        }
-        catch ( NamingException ne )
-        {
-            return "";
         }
         
         return sb.toString();
@@ -571,21 +579,21 @@ public class LdifEntry implements Cloneable, Serializable
     {
         StringBuffer sb = new StringBuffer();
         
-        for ( ModificationItemImpl modif:modificationList )
+        for ( Modification modif:modificationList )
         {
             sb.append( "            Operation: " );
             
-            switch ( modif.getModificationOp() )
+            switch ( modif.getOperation() )
             {
-                case DirContext.ADD_ATTRIBUTE :
+                case ADD_ATTRIBUTE :
                     sb.append( "ADD\n" );
                     break;
                     
-                case DirContext.REMOVE_ATTRIBUTE :
+                case REMOVE_ATTRIBUTE :
                     sb.append( "REMOVE\n" );
                     break;
                     
-                case DirContext.REPLACE_ATTRIBUTE :
+                case REPLACE_ATTRIBUTE :
                     sb.append( "REPLACE \n" );
                     break;
                     
@@ -593,32 +601,22 @@ public class LdifEntry implements Cloneable, Serializable
                     break; // Do nothing
             }
             
-            Attribute attribute = modif.getAttribute();
+            EntryAttribute attribute = modif.getAttribute();
             
-            sb.append( "                Attribute: " ).append( attribute.getID() ).append( '\n' );
+            sb.append( "                Attribute: " ).append( attribute.getId() ).append( '\n' );
             
             if ( attribute.size() != 0 )
             {
-                try
+                for ( Value<?> value:attribute )
                 {
-                    Object value = null;
-                    for ( NamingEnumeration<?> values = attribute.getAll(); 
-                          values.hasMoreElements(); 
-                          value = values.nextElement() )
+                    if ( value instanceof ClientStringValue )
                     {
-                        if ( value instanceof String )
-                        {
-                            sb.append(  "                " ).append( (String)value ).append('\n' );
-                        }
-                        else
-                        {
-                            sb.append(  "                " ).append( StringTools.dumpBytes( (byte[]) value ) ).append('\n' );
-                        }
+                        sb.append(  "                " ).append( (String)value.get() ).append('\n' );
                     }
-                }
-                catch ( NamingException ne )
-                {
-                    return "";
+                    else
+                    {
+                        sb.append(  "                " ).append( StringTools.dumpBytes( (byte[]) value.get() ) ).append('\n' );
+                    }
                 }
             }
         }
@@ -633,7 +631,18 @@ public class LdifEntry implements Cloneable, Serializable
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append( "Entry : " ).append( dn ).append( '\n' );
+        sb.append( "Entry : " );
+        
+        if ( entry.getDn() == null )
+        {
+            sb.append( "" );
+        }
+        else
+        {
+            sb.append( entry.getDn().getUpName() ).append( '\n' );
+        }
+        
+        sb.append( '\n' );
 
         if ( control != null )
         {
@@ -688,9 +697,9 @@ public class LdifEntry implements Cloneable, Serializable
     {
         int result = 37;
 
-        if ( dn != null )
+        if ( entry.getDn() != null )
         {
-            result = result*17 + dn.hashCode();
+            result = result*17 + entry.getDn().hashCode();
         }
         
         if ( changeType != null )
@@ -702,9 +711,9 @@ public class LdifEntry implements Cloneable, Serializable
             {
                 case Add :
                     // Checks the attributes
-                    if ( attributes != null )
+                    if ( entry != null )
                     {
-                        result = result * 17 + attributes.hashCode();
+                        result = result * 17 + entry.hashCode();
                     }
                     
                     break;
@@ -718,7 +727,7 @@ public class LdifEntry implements Cloneable, Serializable
                     {
                         result = result * 17 + modificationList.hashCode();
                         
-                        for ( ModificationItem modification:modificationList )
+                        for ( Modification modification:modificationList )
                         {
                             result = result * 17 + modification.hashCode();
                         }
@@ -777,26 +786,20 @@ public class LdifEntry implements Cloneable, Serializable
             return false;
         }
         
-        LdifEntry entry = (LdifEntry)o;
+        LdifEntry otherEntry = (LdifEntry)o;
         
         // Check the DN
-        try
-        {
-            LdapDN thisDn = new LdapDN( dn );
-            LdapDN dnEntry = new LdapDN( entry.dn );
-            
-            if ( !thisDn.equals( dnEntry ) )
-            {
-                return false;
-            }
-        }
-        catch ( InvalidNameException ine )
+        LdapDN thisDn = entry.getDn();
+        LdapDN dnEntry = otherEntry.getDn();
+        
+        if ( !thisDn.equals( dnEntry ) )
         {
             return false;
         }
+
         
         // Check the changeType
-        if ( changeType != entry.changeType )
+        if ( changeType != otherEntry.changeType )
         {
             return false;
         }
@@ -806,9 +809,9 @@ public class LdifEntry implements Cloneable, Serializable
         {
             case Add :
                 // Checks the attributes
-                if ( attributes == null )
+                if ( entry == null )
                 {
-                    if ( entry.attributes != null )
+                    if ( otherEntry.entry != null )
                     {
                         return false;
                     }
@@ -818,17 +821,17 @@ public class LdifEntry implements Cloneable, Serializable
                     }
                 }
                 
-                if ( entry.attributes == null )
+                if ( otherEntry.entry == null )
                 {
                     return false;
                 }
                 
-                if ( attributes.size() != entry.attributes.size() )
+                if ( entry.size() != otherEntry.entry.size() )
                 {
                     return false;
                 }
                 
-                if ( !attributes.equals( entry.attributes ) )
+                if ( !entry.equals( otherEntry.entry ) )
                 {
                     return false;
                 }
@@ -836,7 +839,7 @@ public class LdifEntry implements Cloneable, Serializable
                 break;
 
             case Delete :
-                // Nothing to do, is the DNs are equals
+                // Nothing to do, if the DNs are equals
                 break;
                 
             case Modify :
@@ -845,7 +848,7 @@ public class LdifEntry implements Cloneable, Serializable
                 // First, deal with special cases
                 if ( modificationList == null )
                 {
-                    if ( entry.modificationList != null )
+                    if ( otherEntry.modificationList != null )
                     {
                         return false;
                     }
@@ -855,12 +858,12 @@ public class LdifEntry implements Cloneable, Serializable
                     }
                 }
                 
-                if ( entry.modificationList == null )
+                if ( otherEntry.modificationList == null )
                 {
                     return false;
                 }
                 
-                if ( modificationList.size() != entry.modificationList.size() )
+                if ( modificationList.size() != otherEntry.modificationList.size() )
                 {
                     return false;
                 }
@@ -868,9 +871,9 @@ public class LdifEntry implements Cloneable, Serializable
                 // Now, compares the contents
                 int i = 0;
                 
-                for ( ModificationItemImpl modification:modificationList )
+                for ( Modification modification:modificationList )
                 {
-                    if ( ! modification.equals( entry.modificationList.get( i ) ) )
+                    if ( ! modification.equals( otherEntry.modificationList.get( i ) ) )
                     {
                         return false;
                     }
@@ -883,7 +886,7 @@ public class LdifEntry implements Cloneable, Serializable
             case ModDn :
             case ModRdn :
                 // Check the deleteOldRdn flag
-                if ( deleteOldRdn != entry.deleteOldRdn )
+                if ( deleteOldRdn != otherEntry.deleteOldRdn )
                 {
                     return false;
                 }
@@ -892,7 +895,7 @@ public class LdifEntry implements Cloneable, Serializable
                 try
                 {
                     Rdn thisNewRdn = new Rdn( newRdn );
-                    Rdn entryNewRdn = new Rdn( entry.newRdn );
+                    Rdn entryNewRdn = new Rdn( otherEntry.newRdn );
 
                     if ( !thisNewRdn.equals( entryNewRdn ) )
                     {
@@ -908,7 +911,7 @@ public class LdifEntry implements Cloneable, Serializable
                 try
                 {
                     LdapDN thisNewSuperior = new LdapDN( newSuperior );
-                    LdapDN entryNewSuperior = new LdapDN( entry.newSuperior );
+                    LdapDN entryNewSuperior = new LdapDN( otherEntry.newSuperior );
                     
                     if ( ! thisNewSuperior.equals(  entryNewSuperior ) )
                     {
@@ -928,11 +931,153 @@ public class LdifEntry implements Cloneable, Serializable
         
         if ( control != null )
         {
-            return control.equals(  entry.control );
+            return control.equals( otherEntry.control );
         }
         else 
         {
-            return entry.control == null;
+            return otherEntry.control == null;
         }
+    }
+
+
+    /**
+     * @see Externalizable#readExternal(ObjectInput)
+     * 
+     * @param in The stream from which the LdifEntry is read
+     * @throws IOException If the stream can't be read
+     * @throws ClassNotFoundException If the LdifEntry can't be created 
+     */
+    public void readExternal( ObjectInput in ) throws IOException , ClassNotFoundException
+    {
+        // Read the changeType
+        int type = in.readInt();
+        changeType = ChangeType.getChangeType( type );
+        entry = (ClientEntry)in.readObject();
+        
+        switch ( changeType )
+        {
+            case Add :
+                // Fallback
+            case Delete :
+                // we don't have anything to read, but the control
+                break;
+
+            case ModDn :
+                // Fallback
+            case ModRdn :
+                deleteOldRdn = in.readBoolean();
+                
+                if ( in.readBoolean() )
+                {
+                    newRdn = in.readUTF();
+                }
+                
+                if ( in.readBoolean() )
+                {
+                    newSuperior = in.readUTF();
+                }
+                
+                break;
+                
+            case Modify :
+                // Read the modification
+                int nbModifs = in.readInt();
+                
+                
+                for ( int i = 0; i < nbModifs; i++ )
+                {
+                    int operation = in.readInt();
+                    String modStr = in.readUTF();
+                    DefaultClientAttribute value = (DefaultClientAttribute)in.readObject();
+                    
+                    addModificationItem( operation, modStr, value );
+                }
+                
+                break;
+        }
+        
+        if ( in.available() > 0 )
+        {
+            // We have a control
+            control = (Control)in.readObject();
+        }
+    }
+
+
+    /**
+     * @see Externalizable#readExternal(ObjectInput)<p>
+     *
+     *@param out The stream in which the ChangeLogEvent will be serialized. 
+     *
+     *@throws IOException If the serialization fail
+     */
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        // Write the changeType
+        out.writeInt( changeType.getChangeType() );
+        
+        // Write the entry
+        out.writeObject( entry );
+        
+        // Write the data
+        switch ( changeType )
+        {
+            case Add :
+                // Fallback
+            case Delete :
+                // we don't have anything to write, but the control
+                break;
+
+            case ModDn :
+                // Fallback
+            case ModRdn :
+                out.writeBoolean( deleteOldRdn );
+                
+                if ( newRdn != null )
+                {
+                    out.writeBoolean( true );
+                    out.writeUTF( newRdn );
+                }
+                else
+                {
+                    out.writeBoolean( false );
+                }
+                
+                if ( newSuperior != null )
+                {
+                    out.writeBoolean( true );
+                    out.writeUTF( newSuperior );
+                }
+                else
+                {
+                    out.writeBoolean( false );
+                }
+                break;
+                
+            case Modify :
+                // Read the modification
+                out.writeInt( modificationList.size() );
+                
+                for ( Modification modification:modificationList )
+                {
+                    out.writeInt( modification.getOperation().getValue() );
+                    out.writeUTF( modification.getAttribute().getId() );
+                    
+                    EntryAttribute attribute = modification.getAttribute();
+                    out.writeObject( attribute );
+                }
+                
+                break;
+        }
+        
+        if ( control != null )
+        {
+            // Write the control
+            out.writeObject( control );
+            
+        }
+        
+        // and flush the result
+        out.flush();
     }
 }

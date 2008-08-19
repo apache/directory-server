@@ -130,11 +130,12 @@ public class LeafNode extends AbstractExprNode
             return false;
         }
 
+        //noinspection SimplifiableIfStatement
         if ( other.getClass() != this.getClass() )
         {
             return false;
         }
-            
+
         return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
     }
 }

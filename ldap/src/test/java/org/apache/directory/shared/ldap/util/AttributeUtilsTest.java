@@ -22,16 +22,16 @@ package org.apache.directory.shared.ldap.util;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -53,9 +53,9 @@ public class AttributeUtilsTest
     @Test
     public void testApplyAddModificationToEmptyEntry() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr );
+        Entry entry = new DefaultClientEntry();
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+        Modification modification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
         assertNotNull( entry.get(  "cn" ) );
         assertEquals( 1, entry.size() );
@@ -69,12 +69,13 @@ public class AttributeUtilsTest
     @Test
     public void testApplyAddModificationToEntry() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        entry.put( "dc", "apache" );
+        Entry entry = new DefaultClientEntry();
+        entry.add( "dc", "apache" );
         assertEquals( 1, entry.size() );
 
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+        Modification modification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
+
         AttributeUtils.applyModification( entry, modification );
         assertNotNull( entry.get(  "cn" ) );
         assertEquals( 2, entry.size() );
@@ -89,31 +90,31 @@ public class AttributeUtilsTest
     @Test
     public void testApplyAddModificationToEntryWithValues() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
+        Entry entry = new DefaultClientEntry();
         entry.put( "cn", "apache" );
         assertEquals( 1, entry.size() );
 
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+        Modification modification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
         assertNotNull( entry.get(  "cn" ) );
         assertEquals( 1, entry.size() );
         
-        NamingEnumeration<?> values = entry.get( "cn" ).getAll();
+        EntryAttribute attribute = entry.get( "cn" );
         
-        assertTrue( values.hasMoreElements() );
+        assertTrue( attribute.size() != 0 );
         
         Set<String> expectedValues = new HashSet<String>();
         expectedValues.add( "apache" );
         expectedValues.add( "test" );
         
-        while ( values.hasMoreElements() )
+        for ( Value<?> value:attribute )
         {
-            String value = (String)values.nextElement();
+            String valueStr = (String)value.get();
             
-            assertTrue( expectedValues.contains( value ) );
+            assertTrue( expectedValues.contains( valueStr ) );
             
-            expectedValues.remove( value );
+            expectedValues.remove( valueStr );
         }
         
         assertEquals( 0, expectedValues.size() );
@@ -127,35 +128,31 @@ public class AttributeUtilsTest
     @Test
     public void testApplyAddModificationToEntryWithSameValue() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn" );
-        cn.add( "test" );
-        cn.add( "apache" );
-        entry.put( cn );
-        
+        Entry entry = new DefaultClientEntry();
+        entry.put( "cn", "test", "apache" );
         assertEquals( 1, entry.size() );
 
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, attr );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+        Modification modification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
-        assertNotNull( entry.get(  "cn" ) );
+        assertNotNull( entry.get( "cn" ) );
         assertEquals( 1, entry.size() );
         
-        NamingEnumeration<?> values = entry.get( "cn" ).getAll();
+        EntryAttribute cnAttr = entry.get( "cn" );
         
-        assertTrue( values.hasMoreElements() );
+        assertTrue( cnAttr.size() != 0 );
         
         Set<String> expectedValues = new HashSet<String>();
         expectedValues.add( "apache" );
         expectedValues.add( "test" );
         
-        while ( values.hasMoreElements() )
+        for ( Value<?> value:cnAttr )
         {
-            String value = (String)values.nextElement();
+            String valueStr = (String)value.get();
             
-            assertTrue( expectedValues.contains( value ) );
+            assertTrue( expectedValues.contains( valueStr ) );
             
-            expectedValues.remove( value );
+            expectedValues.remove( valueStr );
         }
         
         assertEquals( 0, expectedValues.size() );
@@ -168,9 +165,11 @@ public class AttributeUtilsTest
     @Test
     public void testApplyRemoveModificationFromEmptyEntry() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, attr );
+        Entry entry = new DefaultClientEntry();
+
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+
+        Modification modification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
         assertNull( entry.get( "cn" ) );
         assertEquals( 0, entry.size() );
@@ -183,13 +182,14 @@ public class AttributeUtilsTest
     @Test
     public void testApplyRemoveModificationFromEntryAttributeNotPresent() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute dc = new AttributeImpl( "dc", "apache" );
+        Entry entry = new DefaultClientEntry();
+
+        EntryAttribute dc = new DefaultClientAttribute( "dc", "apache" );
         entry.put( dc );
         
-        Attribute attr = new AttributeImpl( "cn", "test" );
+        EntryAttribute cn = new DefaultClientAttribute( "cn", "test" );
         
-        ModificationItem modification = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, attr );
+        Modification modification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, cn );
         
         AttributeUtils.applyModification( entry, modification );
         
@@ -207,13 +207,14 @@ public class AttributeUtilsTest
     @Test
     public void testApplyRemoveModificationFromEntryAttributeNotSameValue() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn", "apache" );
+        Entry entry = new DefaultClientEntry();
+
+        EntryAttribute cn = new DefaultClientAttribute( "cn", "apache" );
         entry.put( cn );
         
-        Attribute attr = new AttributeImpl( "cn", "test" );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
         
-        ModificationItem modification = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, attr );
+        Modification modification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         
         AttributeUtils.applyModification( entry, modification );
         
@@ -231,13 +232,12 @@ public class AttributeUtilsTest
     @Test
     public void testApplyRemoveModificationFromEntrySameAttributeSameValue() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn", "test" );
-        entry.put( cn );
+        Entry entry = new DefaultClientEntry();
+        entry.put( "cn", "test" );
         
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        
-        ModificationItem modification = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, attr );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+
+        Modification modification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         
         AttributeUtils.applyModification( entry, modification );
         
@@ -255,34 +255,30 @@ public class AttributeUtilsTest
     @Test
     public void testApplyRemoveModificationFromEntrySameAttributeValues() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn", "test" );
-        cn.add( "apache" );
-        entry.put( cn );
+        Entry entry = new DefaultClientEntry();
+        entry.put( "cn", "test", "apache" );
         
-        Attribute attr = new AttributeImpl( "cn", "test" );
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
         
-        ModificationItem modification = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, attr );
+        Modification modification = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         
         AttributeUtils.applyModification( entry, modification );
         
         assertNotNull( entry.get( "cn" ) );
         assertEquals( 1, entry.size() );
         
-        Attribute modifiedAttr = entry.get( "cn" );
+        EntryAttribute modifiedAttr = entry.get( "cn" );
         
-        NamingEnumeration<?> values = modifiedAttr.getAll();
-        
-        assertTrue( values.hasMoreElements() );
+        assertTrue( modifiedAttr.size() != 0 );
         
         boolean isFirst = true;
         
-        while ( values.hasMoreElements() )
+        for ( Value<?> value:modifiedAttr )
         {
             assertTrue( isFirst );
             
             isFirst = false;
-            assertEquals( "apache", values.nextElement() );
+            assertEquals( "apache", value.get() );
         }
     }
     
@@ -296,9 +292,12 @@ public class AttributeUtilsTest
     @Test
     public void testApplyModifyModificationFromEmptyEntry() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "cn", "test" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr );
+        Entry entry = new DefaultClientEntry();
+        
+        EntryAttribute attr = new DefaultClientAttribute( "cn", "test" );
+
+        
+        Modification modification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
         assertNotNull( entry.get( "cn" ) );
         assertEquals( 1, entry.size() );
@@ -315,9 +314,11 @@ public class AttributeUtilsTest
     @Test
     public void testApplyModifyEmptyModificationFromEmptyEntry() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute attr = new AttributeImpl( "cn" );
-        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr );
+        Entry entry = new DefaultClientEntry();
+        
+        EntryAttribute attr = new DefaultClientAttribute( "cn" );
+
+        Modification modification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
         AttributeUtils.applyModification( entry, modification );
         assertNull( entry.get( "cn" ) );
         assertEquals( 0, entry.size() );
@@ -334,22 +335,13 @@ public class AttributeUtilsTest
     @Test
     public void testApplyModifyAttributeModification() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn", "test" );
+        Entry entry = new DefaultClientEntry();
+        entry.put( "cn", "test" );
+        entry.put( "ou", "apache", "acme corp" );
         
-        entry.put( cn );
-
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute newOu = new DefaultClientAttribute( "ou", "Big Company", "directory" );
         
-        entry.put( ou );
-        
-        Attribute newOu = new AttributeImpl( "ou" );
-        newOu.add( "Big Company" );
-        newOu.add( "directory" );
-        
-        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, newOu );
+        Modification modification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, newOu );
         
         AttributeUtils.applyModification( entry, modification );
         
@@ -358,23 +350,21 @@ public class AttributeUtilsTest
         assertNotNull( entry.get( "cn" ) );
         assertNotNull( entry.get( "ou" ) );
         
-        Attribute modifiedAttr = entry.get( "ou" );
+        EntryAttribute modifiedAttr = entry.get( "ou" );
         
-        NamingEnumeration<?> values = modifiedAttr.getAll();
-        
-        assertTrue( values.hasMoreElements() );
+        assertTrue( modifiedAttr.size() != 0 );
         
         Set<String> expectedValues = new HashSet<String>();
         expectedValues.add( "Big Company" );
         expectedValues.add( "directory" );
-        
-        while ( values.hasMoreElements() )
+
+        for ( Value<?> value:modifiedAttr )
         {
-            String value = (String)values.nextElement();
+            String valueStr = (String)value.get();
             
-            assertTrue( expectedValues.contains( value ) );
+            assertTrue( expectedValues.contains( valueStr ) );
             
-            expectedValues.remove( value );
+            expectedValues.remove( valueStr );
         }
         
         assertEquals( 0, expectedValues.size() );
@@ -389,20 +379,13 @@ public class AttributeUtilsTest
     @Test
     public void testApplyModifyModificationRemoveAttribute() throws NamingException
     {
-        Attributes entry = new AttributesImpl();
-        Attribute cn = new AttributeImpl( "cn", "test" );
+        Entry entry = new DefaultClientEntry();
+        entry.put(  "cn", "test" );
+        entry.put( "ou", "apache", "acme corp" );
         
-        entry.put( cn );
-
-        Attribute ou = new AttributeImpl( "ou" );
-        ou.add( "apache" );
-        ou.add( "acme corp" );
+        EntryAttribute newOu = new DefaultClientAttribute( "ou" );
         
-        entry.put( ou );
-        
-        Attribute newOu = new AttributeImpl( "ou" );
-        
-        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, newOu );
+        Modification modification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, newOu );
         
         AttributeUtils.applyModification( entry, modification );
         

@@ -128,7 +128,11 @@ public interface SchemaConstants
     // AliasedObjectName
     String ALIASED_OBJECT_NAME_AT = "aliasedObjectName";
     String ALIASED_OBJECT_NAME_AT_OID = "2.5.4.1";
-    
+
+    // Name
+    String NAME_AT = "name";
+    String NAME_AT_OID = "2.5.4.41";
+
     // Cn
     String CN_AT = "cn";
     String COMMON_NAME_AT = "commonName";
@@ -138,12 +142,43 @@ public interface SchemaConstants
     String SN_AT = "sn";
     String SURNAME_AT = "surname";
     String SN_AT_OID = "2.5.4.4";
-    
+
+    // St
+    String ST_AT = "st";
+    String STATEORPROVINCE_NAME_AT = "stateOrProvinceName";
+    String ST_AT_OID = "2.5.4.8";
+
+    // Street
+    String STREET_AT = "street";
+    String STREET_ADDRESS_AT = "streetAddress";
+    String STREET_AT_OID = "2.5.4.9";
+
+    // PostalCode
+    String POSTALCODE_AT = "postalCode";
+    String POSTALCODE_AT_OID = "2.5.4.17";
+
+    // PostalCode
+    String C_POSTALCODE_AT = "c-postalCode";
+    String C_POSTALCODE_AT_OID = "2.5.4.17.1";
+
+    // PostOfficeBox
+    String POSTOFFICEBOX_AT = "postOfficeBox";
+    String POSTOFFICEBOX_AT_OID = "2.5.4.18";
+
+    // SearchGuide
+    String SEARCHGUIDE_AT = "searchguide";
+    String SEARCHGUIDE_AT_OID = "2.5.4.14";
+
+    // Ou
+    String O_AT = "o";
+    String ORGANIZATION_NAME_AT = "organizationName";
+    String O_AT_OID = "2.5.4.10";
+
     // Ou
     String OU_AT = "ou";
     String ORGANIZATIONAL_UNIT_NAME_AT = "organizationalUnitName";
     String OU_AT_OID = "2.5.4.11";
-    
+
     // Member
     String MEMBER_AT = "member";
     String MEMBER_AT_OID = "2.5.4.31";

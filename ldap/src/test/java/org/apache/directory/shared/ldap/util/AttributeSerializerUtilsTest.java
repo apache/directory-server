@@ -224,7 +224,7 @@ public class AttributeSerializerUtilsTest extends TestCase
     
     public void doSerializerSpeedTest() throws IOException
     {
-        final int limit = 1000000;
+        final int limit = 1;
         long start = System.currentTimeMillis();
         for ( int ii = 0; ii < limit; ii++ )
         {
@@ -237,7 +237,7 @@ public class AttributeSerializerUtilsTest extends TestCase
             AttributeSerializerUtils.deserialize( serialized );
         }
         
-        System.out.println( limit + " attributes with 3 values each were serialized and deserialized in " 
-            + ( System.currentTimeMillis() - start ) + " (ms)" );
+        //System.out.println( limit + " attributes with 3 values each were serialized and deserialized in " 
+        //    + ( System.currentTimeMillis() - start ) + " (ms)" );
     }
 }

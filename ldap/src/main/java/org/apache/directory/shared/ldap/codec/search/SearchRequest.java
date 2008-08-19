@@ -38,9 +38,9 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ScopeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -60,7 +60,7 @@ public class SearchRequest extends LdapMessage
     private LdapDN baseObject;
 
     /** The scope. It could be baseObject, singleLevel or wholeSubtree. */
-    private ScopeEnum scope;
+    private SearchScope scope;
 
     /**
      * The deref alias could be neverDerefAliases, derefInSearching,
@@ -223,7 +223,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @return Returns the scope.
      */
-    public ScopeEnum getScope()
+    public SearchScope getScope()
     {
         return scope;
     }
@@ -234,7 +234,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @param scope The scope to set.
      */
-    public void setScope( ScopeEnum scope )
+    public void setScope( SearchScope scope )
     {
         this.scope = scope;
     }
@@ -564,7 +564,7 @@ public class SearchRequest extends LdapMessage
             Value.encode( buffer, LdapDN.getBytes( baseObject ) );
 
             // The scope
-            Value.encodeEnumerated( buffer, scope.getValue() );
+            Value.encodeEnumerated( buffer, scope.getJndiScope() );
 
             // The derefAliases
             Value.encodeEnumerated( buffer, derefAliases );
@@ -674,15 +674,15 @@ public class SearchRequest extends LdapMessage
 
         switch ( scope )
         {
-            case BASE_OBJECT:
+            case OBJECT:
                 sb.append( "base object" );
                 break;
 
-            case SINGLE_LEVEL:
+            case ONELEVEL:
                 sb.append( "single level" );
                 break;
 
-            case WHOLE_SUBTREE:
+            case SUBTREE:
                 sb.append( "whole subtree" );
                 break;
         }

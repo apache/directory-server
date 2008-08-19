@@ -417,6 +417,7 @@ public class RdnParser
         else if ( c == '"' )
         {
             pos.start++;
+            pos.length = 0;
             pos.end = pos.start;
             int nbBytes = 0;
             int length = 0;
@@ -474,7 +475,6 @@ public class RdnParser
                 pos.end++;
                 pos.length = length + 2;
                 return StringTools.utf8ToString( buffer, length );
-                //return StringTools.utf8ToString( bytes, pos.start, pos.length );
             }
             else
             {
@@ -979,7 +979,7 @@ public class RdnParser
 
         String upValue = StringTools.utf8ToString( dn, start2, pos.length );
         rdn.addAttributeTypeAndValue( type, type, upValue, value );
-
+        
         rdn.normalize();
 
         pos.start = pos.end;

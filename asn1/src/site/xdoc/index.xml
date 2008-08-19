@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <properties>
+    <author email="akarasulu@apache.org">Alex Karasulu</author>
+    <title>ASN.1 Subproject</title>
+  </properties> 
+
+  <body>
+    <section name="Overview">
+      <p>
+        The Apache ASN.1 runtime is a high performance non-blocking replacement for 
+        the Snacc4J runtime and eventually its Java stub compiler for ASN.1.  It 
+        is designed from the ground up to work with NIO constructs like Channels and 
+        ByteBuffers.  There are currently three sub subprojects associated with the 
+        asn1 project.  They are described below:
+      </p>
+
+      <table>
+        <tr><th>Subproject</th><th>Description</th></tr>
+        
+        <tr>
+          <td><a href="asn1-codec/index.html">ASN.1 Codecs</a></td>
+          <td>
+            Extensions to commons-codec interfaces for non-blocking stateful encode
+            and decode operations for chunking. 
+          </td>
+        </tr>
+
+        <tr>
+          <td><a href="asn1-ber/index.html">ASN.1 BER Runtime</a></td>
+          <td>
+            Library used for ASN.1 data structures encoded onto and decoded off of the
+            wire using Basic Encoding Rules (BER).  By dealing only with BER TLV tuples
+            this library remains independent of any ASN.1 based protocol.
+          </td>
+        </tr>
+
+        <tr>
+          <td><a href="asn1-der/index.html">ASN.1 DER Runtime</a></td>
+          <td>
+            Library used for ASN.1 data structures encoded onto and decoded off of the
+            wire using Distinguished Encoding Rules (DER).  By dealing only with DER TLV tuples
+            this library remains independent of any ASN.1 based protocol.
+          </td>
+        </tr>
+
+        <tr>
+          <td><a href="stub-compiler/index.html">Java Stub Compiler</a></td>
+          <td>
+            The Apache ASN.1 Java Stub Compiler generates interfaces and 
+            classes for complex ASN.1 data types.  These classes are used with
+            the BER codec runtime API to marshal and demarshal protocol data
+            units (PDU).
+          </td>
+        </tr>
+      </table>
+ 
+      <subsection name="Refactoring in 0.3 Branch">
+        <p>
+          For the next dev cycle we're radically refactoring the structure of
+          these modules.  For more information you can take a look 
+          <a href="./refactor.html">here</a>.
+        </p>
+      </subsection>
+    </section>
+
+    <section name="Motivation">
+      <p>
+        Non-blocking IO in stateful protocol servers imposes stricter performance
+        requirements on codecs.  In the Eve Directory Server, the BER codec 
+        must be fast, efficient, and take a very small relatively fixed 
+        size memory footprint while actively encoding or decoding variable sized
+        messages.
+      </p>
+
+      <p>
+        ASN.1 BER codecs for Java are few and far between.  No BSD license
+        compatible open source API is currently available for Java.  Initially
+        the Snacc4J runtime from IBM was used however it has mysteriously
+        disappeared and is no longer available.  Furthermore Snacc4J is completely
+        incompatible with any licence we know of: it's practically not even Open 
+        Source.  Even with license issues Snacc4J is terribly inefficient and
+        imposes security threats especially where decodes are concerned.  Snacc4J
+        decoders block until an entire message is read and decoded.  They hence 
+        require approximately twice the transfer footprint of a message to 
+        decode it and there is no limit to the accepted transfer footprint size.
+        DoS attacks could easily be mounted using a single large request to bring
+        the server to its knees making it totally unresponsive.
+      </p>
+
+      <p>
+        The ASN.1 BER runtime is a high performance codec optimized for use with
+        selectable channels and non blocking IO: it's processes the substrate
+        in small chunks rather than in a single massive peice.  The runtime is
+        destined to replace stateless BER codecs like Snacc4J, and keep ASN.1
+        based high performance protocol server implementors satisfied.  A user
+        definable parameter will be used to set the fixed in memory footprint of
+        the decoder while actively decoding ASN.1 data structures encoded using
+        Basic Encoding Rules.  Furthermore, when large indivisible parts of messages
+        like byte[] fields are encountered, they are streamed to disk and referred
+        to using a URL rather than allocating primary memory to store such an object.
+        Note: this experimental feature is being added as we speak.  Access to the
+        object is provided to the application via a URL.  The handling of the
+        large streamable data is left to the discretion of the application.
+      </p>
+    </section>
+  </body>
+</document>

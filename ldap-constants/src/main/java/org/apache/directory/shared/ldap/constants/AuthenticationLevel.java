@@ -28,6 +28,11 @@ package org.apache.directory.shared.ldap.constants;
  */
 public enum AuthenticationLevel
 {
+	/**
+	 * Invalid authentication type
+	 */
+	INVALID(-1, "invalid" ),
+	
     /**
      * No authentication (anonymous access)
      */
@@ -39,9 +44,14 @@ public enum AuthenticationLevel
     SIMPLE( 1, "simple" ),
 
     /**
-     * Strong authentication (bound with encrypted cerdentials)
+     * Strong authentication (bound with encrypted credentials)
      */
-    STRONG( 2, "string" );
+    STRONG( 2, "strong" ),
+	
+	/**
+	 * Unauthentication, if the BIND contains a DN but no credentials
+	 */
+    UNAUTHENT( 3, "unauthent" );
     
     private int level;
     
@@ -74,5 +84,23 @@ public enum AuthenticationLevel
     public String toString()
     {
         return name;
+    }
+    
+    
+    public static AuthenticationLevel getLevel( int val )
+    {
+        switch( val )
+        {
+            case 0: return NONE;
+            
+            case 1: return SIMPLE;
+            
+            case 2: return STRONG;
+            
+            case 3: return UNAUTHENT;
+            
+            default:
+                throw new IllegalArgumentException( "Unknown AuthenticationLevel " + val );
+        }
     }
 }

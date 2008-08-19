@@ -188,6 +188,12 @@ public class SearchResponseEntryImplTest extends TestCase
             public void addAll( Control[] controls ) throws MessageException
             {
             }
+
+
+            public boolean hasControl( String oid )
+            {
+                return false;
+            }
         };
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );

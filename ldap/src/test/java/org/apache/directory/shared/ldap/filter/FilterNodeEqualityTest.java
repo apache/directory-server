@@ -35,22 +35,22 @@ public class FilterNodeEqualityTest extends TestCase
 {
     public void testEqualityEquals()
     {
-        EqualityNode eqNode1 = new EqualityNode( "attr1", new ClientStringValue( "test" ) );
-        EqualityNode eqNode2 = new EqualityNode( "attr1", new ClientStringValue( "test" ) );
+        EqualityNode<String> eqNode1 = new EqualityNode<String>( "attr1", new ClientStringValue( "test" ) );
+        EqualityNode<String> eqNode2 = new EqualityNode<String>( "attr1", new ClientStringValue( "test" ) );
 
         assertEquals( "two exact nodes should be equal", eqNode1, eqNode2 );
 
-        eqNode2 = new EqualityNode( "attr2", new ClientStringValue( "test" ) );
+        eqNode2 = new EqualityNode<String>( "attr2", new ClientStringValue( "test" ) );
         assertFalse( "different attribute in node should return false on equals()", eqNode1.equals( eqNode2 ) );
 
-        eqNode2 = new EqualityNode( "attr2", new ClientStringValue( "foobar" ) );
+        eqNode2 = new EqualityNode<String>( "attr2", new ClientStringValue( "foobar" ) );
         assertFalse( "different value in node should return false on equals()", eqNode1.equals( eqNode2 ) );
 
         PresenceNode presenceNode = new PresenceNode( "attr1" );
         assertFalse( "two different leaf nodes should not be equal", eqNode1.equals( presenceNode ) );
         assertFalse( "two different leaf nodes should not be equal", presenceNode.equals( eqNode1 ) );
 
-        GreaterEqNode greaterEqNode = new GreaterEqNode( "attr1", new ClientStringValue( "test" ) );
+        GreaterEqNode<String> greaterEqNode = new GreaterEqNode<String>( "attr1", new ClientStringValue( "test" ) );
         assertFalse( "two different simple nodes should not be equal", eqNode1.equals( greaterEqNode ) );
         assertFalse( "two different simple nodes should not be equal", greaterEqNode.equals( eqNode1 ) );
     }
@@ -58,47 +58,47 @@ public class FilterNodeEqualityTest extends TestCase
 
     public void testGreaterEqEquals()
     {
-        GreaterEqNode greaterEqNode1 = new GreaterEqNode( "attr1", new ClientStringValue( "test" ) );
-        GreaterEqNode greaterEqNode2 = new GreaterEqNode( "attr1", new ClientStringValue( "test" ) );
+        GreaterEqNode<String> greaterEqNode1 = new GreaterEqNode<String>( "attr1", new ClientStringValue( "test" ) );
+        GreaterEqNode<String> greaterEqNode2 = new GreaterEqNode<String>( "attr1", new ClientStringValue( "test" ) );
 
         assertEquals( "two exact nodes should be equal", greaterEqNode1, greaterEqNode2 );
 
-        greaterEqNode2 = new GreaterEqNode( "attr2", new ClientStringValue( "test" ) );
+        greaterEqNode2 = new GreaterEqNode<String>( "attr2", new ClientStringValue( "test" ) );
         assertFalse( "different attribute in node should return false on equals()", greaterEqNode1
             .equals( greaterEqNode2 ) );
 
-        greaterEqNode2 = new GreaterEqNode( "attr2", new ClientStringValue( "foobar" ) );
+        greaterEqNode2 = new GreaterEqNode<String>( "attr2", new ClientStringValue( "foobar" ) );
         assertFalse( "different value in node should return false on equals()", greaterEqNode1.equals( greaterEqNode2 ) );
     }
 
 
     public void testLessEqEquals()
     {
-        LessEqNode lessEqNode1 = new LessEqNode( "attr1", new ClientStringValue( "test" ) );
-        LessEqNode lessEqNode2 = new LessEqNode( "attr1", new ClientStringValue( "test" ) );
+        LessEqNode<String> lessEqNode1 = new LessEqNode<String>( "attr1", new ClientStringValue( "test" ) );
+        LessEqNode<String> lessEqNode2 = new LessEqNode<String>( "attr1", new ClientStringValue( "test" ) );
 
         assertEquals( "two exact nodes should be equal", lessEqNode1, lessEqNode2 );
 
-        lessEqNode2 = new LessEqNode( "attr2", new ClientStringValue( "test" ) );
+        lessEqNode2 = new LessEqNode<String>( "attr2", new ClientStringValue( "test" ) );
         assertFalse( "different attribute in node should return false on equals()", lessEqNode1.equals( lessEqNode2 ) );
 
-        lessEqNode2 = new LessEqNode( "attr2", new ClientStringValue( "foobar" ) );
+        lessEqNode2 = new LessEqNode<String>( "attr2", new ClientStringValue( "foobar" ) );
         assertFalse( "different value in node should return false on equals()", lessEqNode1.equals( lessEqNode2 ) );
     }
 
 
     public void testApproximateEqEquals()
     {
-        ApproximateNode approximateNode1 = new ApproximateNode( "attr1", new ClientStringValue( "test" ) );
-        ApproximateNode approximateNode2 = new ApproximateNode( "attr1", new ClientStringValue( "test" ) );
+        ApproximateNode<String> approximateNode1 = new ApproximateNode<String>( "attr1", new ClientStringValue( "test" ) );
+        ApproximateNode<String> approximateNode2 = new ApproximateNode<String>( "attr1", new ClientStringValue( "test" ) );
 
         assertEquals( "two exact nodes should be equal", approximateNode1, approximateNode2 );
 
-        approximateNode2 = new ApproximateNode( "attr2", new ClientStringValue( "test" ) );
+        approximateNode2 = new ApproximateNode<String>( "attr2", new ClientStringValue( "test" ) );
         assertFalse( "different attribute in node should return false on equals()", approximateNode1
             .equals( approximateNode2 ) );
 
-        approximateNode2 = new ApproximateNode( "attr2", new ClientStringValue( "foobar" ) );
+        approximateNode2 = new ApproximateNode<String>( "attr2", new ClientStringValue( "foobar" ) );
         assertFalse( "different value in node should return false on equals()", approximateNode1
             .equals( approximateNode2 ) );
     }

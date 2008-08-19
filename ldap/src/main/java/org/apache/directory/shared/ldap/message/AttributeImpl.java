@@ -124,7 +124,7 @@ public class AttributeImpl implements Attribute
      * instance of a BasicAttribute instance
      * 
      * @param attribute the Attribute instace to copy
-     * @throws
+     * @throws NamingException if attribute values cannot be accessed
      */
     public AttributeImpl( Attribute attribute ) throws NamingException
     {
@@ -263,11 +263,10 @@ public class AttributeImpl implements Attribute
                 return AttributeUtils.equals( value, attrVal );
 
             default:
-                Iterator<Object> values = list.iterator();
 
-                while ( values.hasNext() )
+                for ( Object candidate : list )
                 {
-                    if ( AttributeUtils.equals( values.next(), attrVal ) )
+                    if ( AttributeUtils.equals( candidate, attrVal ) )
                     {
                         return true;
                     }
@@ -289,7 +288,7 @@ public class AttributeImpl implements Attribute
      */
     public boolean add( Object attrVal )
     {
-        boolean exists = false;
+        boolean exists;
 
         if ( contains( attrVal ) )
         {
@@ -451,7 +450,6 @@ public class AttributeImpl implements Attribute
             default:
                 list = null;
                 size = 0;
-                return;
         }
     }
 
@@ -637,7 +635,6 @@ public class AttributeImpl implements Attribute
             default:
                 list.add( index, attrVal );
                 size++;
-                return;
         }
     }
 
@@ -786,7 +783,7 @@ public class AttributeImpl implements Attribute
 
             for ( Object v : list )
             {
-                int h = 0;
+                int h;
 
                 if ( v instanceof String )
                 {
@@ -802,7 +799,7 @@ public class AttributeImpl implements Attribute
                     return false;
                 }
 
-                hash.put( Integer.valueOf( h ), v );
+                hash.put( h, v );
             }
 
             try
@@ -815,7 +812,7 @@ public class AttributeImpl implements Attribute
 
                     if ( val instanceof String )
                     {
-                        Integer h = Integer.valueOf( val.hashCode() );
+                        Integer h = val.hashCode();
 
                         if ( !hash.containsKey( h ) )
                         {
@@ -833,7 +830,7 @@ public class AttributeImpl implements Attribute
                     }
                     else if ( val instanceof byte[] )
                     {
-                        Integer h = Integer.valueOf( Arrays.hashCode( ( byte[] ) val ) );
+                        Integer h = Arrays.hashCode( ( byte[] ) val );
 
                         if ( !hash.containsKey( h ) )
                         {
@@ -855,14 +852,7 @@ public class AttributeImpl implements Attribute
                     }
                 }
 
-                if ( hash.size() != 0 )
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                return hash.size() == 0;
             }
             catch ( NamingException ne )
             {
@@ -894,9 +884,13 @@ public class AttributeImpl implements Attribute
                 {
                     sb.append( '\'' ).append( value ).append( '\'' );
                 }
-                else
+                else if ( value instanceof byte[] )
                 {
                     sb.append( StringTools.dumpBytes( ( byte[] ) value ) );
+                }
+                else
+                {
+                    sb.append( value.toString() );
                 }
 
                 sb.append( "]\n" );
@@ -905,13 +899,9 @@ public class AttributeImpl implements Attribute
             default:
                 boolean isFirst = true;
 
-                Iterator<Object> values = list.iterator();
-
-                while ( values.hasNext() )
+                for ( Object v : list )
                 {
-                    Object v = values.next();
-
-                    if ( isFirst == false )
+                    if ( !isFirst )
                     {
                         sb.append( ", " );
                     }

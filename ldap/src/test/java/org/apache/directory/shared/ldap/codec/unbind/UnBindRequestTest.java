@@ -138,7 +138,7 @@ public class UnBindRequestTest extends TestCase
         assertEquals( 1, ldapMessage.getMessageId() );
 
         // Check the Control
-        List controls = ldapMessage.getControls();
+        List<Control> controls = ldapMessage.getControls();
 
         assertEquals( 1, controls.size() );
 

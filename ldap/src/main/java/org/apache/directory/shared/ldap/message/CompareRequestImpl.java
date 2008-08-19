@@ -20,14 +20,15 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.util.Arrays;
-
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * Lockable comparison request implementation.
+ * Comparison request implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -43,7 +44,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     private String attrId;
 
     /** The value of the attribute used in the comparison */
-    private byte[] attrVal;
+    private Value<?> attrVal;
 
     private CompareResponse response;
 
@@ -59,7 +60,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      * @param id
      *            the sequence identifier of the CompareRequest message.
      */
-    public CompareRequestImpl(final int id)
+    public CompareRequestImpl( final int id )
     {
         super( id, TYPE );
     }
@@ -99,7 +100,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      * 
      * @return the attribute value to used in comparison.
      */
-    public byte[] getAssertionValue()
+    public Value<?> getAssertionValue()
     {
         return attrVal;
     }
@@ -113,7 +114,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      */
     public void setAssertionValue( String attrVal )
     {
-        this.attrVal = StringTools.getBytesUtf8( attrVal );
+        this.attrVal = new ClientStringValue( attrVal );
     }
 
 
@@ -127,9 +128,10 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     {
         if ( attrVal != null )
         {
-            this.attrVal = new byte[ attrVal.length ];
-            System.arraycopy( attrVal, 0, this.attrVal, 0, attrVal.length );
-        } else {
+            this.attrVal = new ClientBinaryValue( attrVal );
+        }
+        else
+        {
             this.attrVal = null;
         }
     }
@@ -193,8 +195,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     /**
      * Checks to see if an object is equivalent to this CompareRequest.
      * 
-     * @param obj
-     *            the obj to compare with this CompareRequest
+     * @param obj the obj to compare with this CompareRequest
      * @return true if the obj is equal to this request, false otherwise
      */
     public boolean equals( Object obj )
@@ -210,18 +211,19 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
         }
 
         CompareRequest req = ( CompareRequest ) obj;
+        LdapDN reqName = req.getName();
 
-        if ( name != null && req.getName() == null )
+        if ( ( name != null ) && ( reqName == null ) )
         {
             return false;
         }
 
-        if ( name == null && req.getName() != null )
+        if ( ( name == null ) && ( reqName != null ) )
         {
             return false;
         }
 
-        if ( name != null && req.getName() != null )
+        if ( ( name != null ) && ( reqName != null ) )
         {
             if ( !name.equals( req.getName() ) )
             {
@@ -229,43 +231,43 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
             }
         }
 
-        if ( attrId != null && req.getAttributeId() == null )
+        String reqId = req.getAttributeId();
+
+        if ( ( attrId != null ) && ( reqId == null ) )
         {
             return false;
         }
 
-        if ( attrId == null && req.getAttributeId() != null )
+        if ( ( attrId == null ) && ( reqId != null ) )
         {
             return false;
         }
 
-        if ( attrId != null && req.getAttributeId() != null )
+        if ( ( attrId != null ) && ( reqId != null ) )
         {
-            if ( !attrId.equals( req.getAttributeId() ) )
+            if ( !attrId.equals( reqId ) )
             {
                 return false;
             }
         }
 
-        if ( attrVal != null && req.getAssertionValue() == null )
-        {
-            return false;
-        }
+        Value<?> reqVal = req.getAssertionValue();
 
-        if ( attrVal == null && req.getAssertionValue() != null )
+        if ( attrVal != null )
         {
-            return false;
-        }
-
-        if ( attrVal != null && req.getAssertionValue() != null )
-        {
-            if ( !Arrays.equals( attrVal, req.getAssertionValue() ) )
+            if ( reqVal != null )
+            {
+                return attrVal.equals( reqVal );
+            }
+            else
             {
                 return false;
             }
         }
-
-        return true;
+        else
+        {
+            return reqVal == null;
+        }
     }
 
 
@@ -276,13 +278,23 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append( "    Compare request\n" );
         sb.append( "        Entry : '" ).append( name.toString() ).append( "'\n" );
         sb.append( "        Attribute description : '" ).append( attrId ).append( "'\n" );
-        sb.append( "        Attribute value : '" ).append( StringTools.utf8ToString( attrVal ) ).append( '/' ).append(
-            StringTools.dumpBytes( attrVal ) ).append( "'\n" );
+        sb.append( "        Attribute value : '" );
+        
+        if ( attrVal instanceof ClientStringValue )
+        {
+            sb.append( attrVal.get() );
+        }
+        else
+        {
+            byte[] binVal = (byte[])attrVal.get();
+            sb.append( StringTools.utf8ToString( binVal ) ).append( '/' ).append(
+                StringTools.dumpBytes( binVal ) ).append( "'\n" );
+        }
 
         return sb.toString();
     }

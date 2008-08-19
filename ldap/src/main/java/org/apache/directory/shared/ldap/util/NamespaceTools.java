@@ -75,11 +75,13 @@ public class NamespaceTools
      * @param name2 the second name
      * @return true if the names are siblings, false otherwise.
      */
-    public static boolean isSibling( Name name1, Name name2 )
+    public static boolean isSibling( Name name1, Name name2 ) throws NamingException
     {
         if ( name1.size() == name2.size() )
         {
-            return name2.startsWith( name1.getPrefix( 1 ) );
+            LdapDN parentDn = ( LdapDN ) name1.clone();
+            parentDn.remove( name1.size() - 1 );
+            return name2.startsWith( parentDn );
         }
 
         return false;

@@ -21,12 +21,12 @@ package org.apache.directory.shared.converter.schema;
 
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
@@ -423,11 +423,11 @@ public class AttributeTypeHolder extends SchemaElementImpl
         String dn = "m-oid=" + oid + ", ou=attributeTypes" + ", cn=" + Rdn.escapeValue( schemaName ) + ", ou=schema";
 
         // First dump the DN only
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "dn", dn );
+        Entry entry = new DefaultClientEntry();
+        EntryAttribute attribute = new DefaultClientAttribute( "dn", dn );
 
-        attributes.put( attribute );
-        sb.append( LdifUtils.convertToLdif( attributes ) );
+        entry.put( attribute );
+        sb.append( LdifUtils.convertToLdif( entry ) );
 
         return sb.toString();
     }

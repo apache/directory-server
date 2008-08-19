@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.codec.search;
 
 import java.nio.ByteBuffer;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -134,12 +133,8 @@ public class SearchResultReferenceTest extends TestCase
             fail();
         }
 
-        Iterator iter = searchResultReference.getSearchResultReferences().iterator();
-
-        while ( iter.hasNext() )
+        for ( LdapURL ldapUrl:searchResultReference.getSearchResultReferences() )
         {
-            LdapURL ldapUrl = ( LdapURL ) iter.next();
-
             if ( ldapUrlsSet.contains( ldapUrl.toString() ) )
             {
                 ldapUrlsSet.remove( ldapUrl.toString() );
@@ -270,12 +265,8 @@ public class SearchResultReferenceTest extends TestCase
             fail();
         }
 
-        Iterator iter = searchResultReference.getSearchResultReferences().iterator();
-
-        while ( iter.hasNext() )
+        for ( LdapURL ldapUrl:searchResultReference.getSearchResultReferences() )
         {
-            LdapURL ldapUrl = ( LdapURL ) iter.next();
-
             if ( ldapUrlsSet.contains( ldapUrl.toString() ) )
             {
                 ldapUrlsSet.remove( ldapUrl.toString() );
@@ -289,7 +280,7 @@ public class SearchResultReferenceTest extends TestCase
         assertTrue( ldapUrlsSet.size() == 0 );
 
         // Check the Control
-        List controls = message.getControls();
+        List<Control> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 

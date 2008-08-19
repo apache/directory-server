@@ -92,7 +92,6 @@ public class LdapDNTest
             new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25",
             new DeepTrimToLowerNormalizer() ) );
-
         oidOids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
         oidOids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
@@ -3103,6 +3102,7 @@ public class LdapDNTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         LdapDNSerializer.serialize( dn, out );
+        out.flush();
 
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
@@ -3169,6 +3169,7 @@ public class LdapDNTest
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         LdapDNSerializer.serialize( dn, out );
+        out.flush();
 
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );

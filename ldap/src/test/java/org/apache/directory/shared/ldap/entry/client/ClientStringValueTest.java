@@ -25,6 +25,12 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
@@ -41,6 +47,80 @@ import org.junit.Test;
  */
 public class ClientStringValueTest
 {
+    /**
+     * Serialize a ClientStringValue
+     */
+    private ByteArrayOutputStream serializeValue( ClientStringValue value ) throws IOException
+    {
+        ObjectOutputStream oOut = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try
+        {
+            oOut = new ObjectOutputStream( out );
+            oOut.writeObject( value );
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oOut != null )
+                {
+                    oOut.flush();
+                    oOut.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    /**
+     * Deserialize a ClientStringValue
+     */
+    private ClientStringValue deserializeValue( ByteArrayOutputStream out ) throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            ClientStringValue value = ( ClientStringValue ) oIn.readObject();
+
+            return value;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
+        finally
+        {
+            try
+            {
+                if ( oIn != null )
+                {
+                    oIn.close();
+                }
+            }
+            catch ( IOException ioe )
+            {
+                throw ioe;
+            }
+        }
+    }
+    
+    
     /**
      * Test method for {@link org.apache.directory.shared.ldap.entry.client.ClientStringValue#hashCode()}.
      */
@@ -459,5 +539,123 @@ public class ClientStringValueTest
         
         csv.clear();
         assertEquals( "null", csv.toString() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with a value and a normalized value
+     */
+    @Test
+    public void testSerializeStandard() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( "TEST");
+        csv.setNormalized( true );
+        csv.normalize( new DeepTrimToLowerNormalizer() );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.getNormalizedValue(), csvSer.getNormalizedValue() );
+         assertTrue( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with a value and no normalized value
+     */
+    @Test
+    public void testSerializeNotNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( "Test" );
+        csv.setNormalized( false );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.get(), csvSer.getNormalizedValue() );
+         assertFalse( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with a value and an empty normalized value
+     */
+    @Test
+    public void testSerializeEmptyNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( "  " );
+        csv.setNormalized( true );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+        csv.normalize( new DeepTrimToLowerNormalizer() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.getNormalizedValue(), csvSer.getNormalizedValue() );
+         assertTrue( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with a null value
+     */
+    @Test
+    public void testSerializeNullValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( null );
+        csv.setNormalized( true );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+        csv.normalize( new DeepTrimToLowerNormalizer() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.getNormalizedValue(), csvSer.getNormalizedValue() );
+         assertTrue( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with an empty value
+     */
+    @Test
+    public void testSerializeEmptyValue() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( "" );
+        csv.setNormalized( true );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+        csv.normalize( new DeepTrimToLowerNormalizer() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.getNormalizedValue(), csvSer.getNormalizedValue() );
+         assertTrue( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
+    }
+    
+    
+    /**
+     * Test the serialization of a CSV with an empty value not normalized
+     */
+    @Test
+    public void testSerializeEmptyValueNotNormalized() throws NamingException, IOException, ClassNotFoundException
+    {
+        ClientStringValue csv = new ClientStringValue( "" );
+        csv.setNormalized( false );
+        csv.isValid( new Ia5StringSyntaxChecker() );
+
+        ClientStringValue csvSer = deserializeValue( serializeValue( csv ) );
+         assertNotSame( csv, csvSer );
+         assertEquals( csv.get(), csvSer.get() );
+         assertEquals( csv.getNormalizedValue(), csvSer.getNormalizedValue() );
+         assertFalse( csvSer.isNormalized() );
+         assertFalse( csvSer.isValid() );
     }
 }

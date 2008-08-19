@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
+
 import org.apache.directory.shared.ldap.entry.Value;
 
 
@@ -28,7 +29,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 519266 $
  */
-public class EqualityNode extends SimpleNode
+public class EqualityNode<T> extends SimpleNode<T>
 {
     /**
      * Creates a new Equality object.
@@ -36,7 +37,7 @@ public class EqualityNode extends SimpleNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public EqualityNode( String attribute, Value<?> value )
+    public EqualityNode( String attribute, Value<T> value )
     {
         super( attribute, value, AssertionType.EQUALITY );
     }
@@ -49,7 +50,7 @@ public class EqualityNode extends SimpleNode
      * @param value the value to test for
      * @param assertionType The node's type
      */
-    protected EqualityNode( String attribute, Value<?> value, AssertionType assertionType )
+    protected EqualityNode( String attribute, Value<T> value, AssertionType assertionType )
     {
         super( attribute, value, assertionType );
     }

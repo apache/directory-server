@@ -33,6 +33,9 @@ public abstract class AbstractSchemaObject implements SchemaObject
 {
     /** a numeric object identifier */
     protected final String oid;
+    
+    /** The object hash code compiled only once to avoid doing it at every call */
+    private int hash;
 
     /** whether or not this SchemaObject is active */
     protected boolean isObsolete;
@@ -63,6 +66,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected AbstractSchemaObject( String oid )
     {
         this( oid, ArrayUtils.EMPTY_STRING_ARRAY, false, null );
+        
+        hash = oid.hashCode();
     }
 
 
@@ -76,6 +81,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected AbstractSchemaObject( String oid, String[] names )
     {
         this( oid, names, false, null );
+
+        hash = oid.hashCode();
     }
 
 
@@ -90,6 +97,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected AbstractSchemaObject( String oid, String[] names, boolean isObsolete )
     {
         this( oid, names, isObsolete, null );
+
+        hash = oid.hashCode();
     }
 
 
@@ -105,6 +114,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     {
         this( oid, new String[]
             { name }, isObsolete, null );
+
+        hash = oid.hashCode();
     }
 
 
@@ -118,6 +129,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected AbstractSchemaObject( String oid, boolean isObsolete )
     {
         this( oid, null, isObsolete, null );
+
+        hash = oid.hashCode();
     }
 
 
@@ -131,6 +144,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected AbstractSchemaObject( String oid, String description )
     {
         this( oid, null, false, description );
+
+        hash = oid.hashCode();
     }
 
 
@@ -159,6 +174,8 @@ public abstract class AbstractSchemaObject implements SchemaObject
             this.names = new String[names.length];
             System.arraycopy( names, 0, this.names, 0, names.length );
         }
+
+        hash = oid.hashCode();
     }
 
 
@@ -287,13 +304,14 @@ public abstract class AbstractSchemaObject implements SchemaObject
 
 
     /**
-     * Based on the hashCode of the oid property.
+     * Based on the hashCode of the oid property. It's bre-computed, as this
+     * value won't change once the instance is created.
      * 
      * @return the hashCode of the oid String
      */
     public int hashCode()
     {
-        return oid.hashCode();
+        return hash;
     }
 
 

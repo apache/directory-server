@@ -82,11 +82,11 @@ public class EntryChangeControl extends AbstractMutableControlImpl
 
     public static final String CONTROL_OID = "2.16.840.1.113730.3.4.7";
 
-    public static final int UNDEFINED_CHANGE_NUMBER = org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec.UNDEFINED_CHANGE_NUMBER;
+    public static final long UNDEFINED_CHANGE_NUMBER = org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec.UNDEFINED_CHANGE_NUMBER;
 
     private ChangeType changeType = ChangeType.ADD;
 
-    private int changeNumber = UNDEFINED_CHANGE_NUMBER;
+    private long changeNumber = UNDEFINED_CHANGE_NUMBER;
 
     private LdapDN previousDn = null;
 
@@ -122,13 +122,13 @@ public class EntryChangeControl extends AbstractMutableControlImpl
     }
 
 
-    public int getChangeNumber()
+    public long getChangeNumber()
     {
         return changeNumber;
     }
 
 
-    public void setChangeNumber( int changeNumber )
+    public void setChangeNumber( long changeNumber )
     {
         this.changeNumber = changeNumber;
     }

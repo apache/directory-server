@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
@@ -35,7 +33,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 public class ScopeNode extends AbstractExprNode
 {
     /** the scope of this node */
-    private final int scope;
+    private final SearchScope scope;
 
     /** the search base */
     private final String baseDn;
@@ -51,7 +49,7 @@ public class ScopeNode extends AbstractExprNode
      * @param baseDn the search base
      * @param scope the search scope
      */
-    public ScopeNode( AliasDerefMode aliasDerefAliases, String baseDn, int scope )
+    public ScopeNode( AliasDerefMode aliasDerefAliases, String baseDn, SearchScope scope )
     {
         super( AssertionType.SCOPE );
         this.scope = scope;
@@ -73,14 +71,11 @@ public class ScopeNode extends AbstractExprNode
 
 
     /**
-     * Gets the scope constant for this node.
+     * Gets the search scope.
      * 
-     * @return the scope constant
-     * @see javax.naming.directory.SearchControls#OBJECT_SCOPE
-     * @see javax.naming.directory.SearchControls#ONELEVEL_SCOPE
-     * @see javax.naming.directory.SearchControls#SUBTREE_SCOPE
+     * @return the search scope 
      */
-    public int getScope()
+    public SearchScope getScope()
     {
         return scope;
     }
@@ -139,7 +134,7 @@ public class ScopeNode extends AbstractExprNode
         h = h*17 + super.hashCode();
         h = h*17 + ( aliasDerefAliases != null ? aliasDerefAliases.hashCode() : 0 );
         h = h*17 + ( baseDn != null ? baseDn.hashCode() : 0 );
-        h = h*17 + scope;
+        h = h*17 + scope.getJndiScope();
         
         return h;
     }
@@ -157,17 +152,17 @@ public class ScopeNode extends AbstractExprNode
 
         switch ( scope )
         {
-            case ( SearchControls.OBJECT_SCOPE  ):
+            case OBJECT:
                 buf.append( "OBJECT_SCOPE" );
 
                 break;
 
-            case ( SearchControls.ONELEVEL_SCOPE  ):
+            case ONELEVEL:
                 buf.append( "ONE_LEVEL_SCOPE" );
 
                 break;
 
-            case ( SearchControls.SUBTREE_SCOPE  ):
+            case SUBTREE:
                 buf.append( "SUBTREE_SCOPE (Estimated)" );
 
                 break;

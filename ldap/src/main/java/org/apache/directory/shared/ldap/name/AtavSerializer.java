@@ -132,8 +132,6 @@ public class AtavSerializer
             out.writeInt( ((byte[])atav.getNormValue()).length );
             out.write( (byte[])atav.getNormValue() );
         }
-        
-        out.flush();
     }
     
     

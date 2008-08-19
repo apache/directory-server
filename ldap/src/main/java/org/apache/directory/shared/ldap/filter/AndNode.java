@@ -38,7 +38,18 @@ public class AndNode extends BranchNode
      */
     public AndNode( List<ExprNode> childList )
     {
-        super( childList, AssertionType.AND );
+        super( AssertionType.AND, childList );
+    }
+
+
+    /**
+     * Creates a AndNode using a logical operator and a list of children.
+     * 
+     * @param childList the child nodes under this branch node.
+     */
+    public AndNode( ExprNode... childList )
+    {
+        super( AssertionType.AND, childList );
     }
 
 
@@ -47,7 +58,7 @@ public class AndNode extends BranchNode
      */
     public AndNode()
     {
-        this( null );
+        super( AssertionType.AND );
     }
 
 
