@@ -119,6 +119,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             {
                 ecControl.setChangeNumber( opContext.getChangeLogEvent().getRevision() );
             }
+         
+            if ( opContext instanceof RenameOperationContext || opContext instanceof MoveOperationContext )
+            {
+                ecControl.setPreviousDn( opContext.getDn() ); 
+            }
             
             response.add( ecControl );
         }
@@ -136,6 +141,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         respEntry.setObjectName( opContext.getDn() );
         respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
         setECResponseControl( respEntry, opContext, ChangeType.ADD );
+        session.getIoSession().write( respEntry );
     }
 
 
@@ -150,6 +156,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         respEntry.setObjectName( opContext.getDn() );
         respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
         setECResponseControl( respEntry, opContext, ChangeType.DELETE );
+        session.getIoSession().write( respEntry );
     }
 
 
@@ -164,6 +171,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         respEntry.setObjectName( opContext.getDn() );
         respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
         setECResponseControl( respEntry, opContext, ChangeType.MODIFY );
+        session.getIoSession().write( respEntry );
     }
 
 
@@ -178,6 +186,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         respEntry.setObjectName( opContext.getDn() );
         respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
         setECResponseControl( respEntry, opContext, ChangeType.MODDN );
+        session.getIoSession().write( respEntry );
     }
 
 
@@ -198,5 +207,6 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         respEntry.setObjectName( opContext.getAlteredEntry().getDn() );
         respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getAlteredEntry() ) );
         setECResponseControl( respEntry, opContext, ChangeType.MODDN );
+        session.getIoSession().write( respEntry );
     }
 }

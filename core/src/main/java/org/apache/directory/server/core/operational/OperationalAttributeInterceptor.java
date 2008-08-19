@@ -49,10 +49,8 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -68,9 +66,6 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.InsufficientResourcesException;
-import javax.naming.directory.SearchControls;
  
 
 /**
@@ -337,7 +332,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         EntryFilteringCursor cursor = nextInterceptor.search( opContext );
-        SearchControls searchCtls = opContext.getSearchControls();
         
         if ( opContext.isAllOperationalAttributes() || 
              ( opContext.getReturningAttributes() != null && ! opContext.getReturningAttributes().isEmpty() ) )

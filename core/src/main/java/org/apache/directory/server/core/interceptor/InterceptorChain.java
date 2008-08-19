@@ -431,6 +431,7 @@ public class InterceptorChain
         return entry.getName();
     }
 
+    
     private void register0( Interceptor interceptor, Entry nextEntry ) throws Exception
     {
         String name = interceptor.getName();
@@ -687,13 +688,41 @@ public class InterceptorChain
         }
     }
 
+    
+    /**
+     * Eagerly populates fields of operation contexts so multiple Interceptors 
+     * in the processing pathway can reuse this value without performing a 
+     * redundant lookup operation.
+     *
+     * @param opContext the operation context to populate with cached fields
+     */
+    private void eagerlyPopulateFields( OperationContext opContext )
+    {
+        // If the entry field is not set for ops other than add for example 
+        // then we set the entry but don't freak if we fail to do so since it
+        // may not exist in the first place
+        
+        if ( opContext.getEntry() == null )
+        {
+            try
+            {
+                opContext.setEntry( opContext.getSession().lookup( opContext.getDn() ) );
+            }
+            catch ( Exception e )
+            {
+                // might not exist
+            }
+        }
+    }
+    
 
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-
+        eagerlyPopulateFields( opContext );
+        
         try
         {
             head.delete( next, opContext );
@@ -735,6 +764,7 @@ public class InterceptorChain
         Entry node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -777,6 +807,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -798,6 +829,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -821,6 +853,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -887,6 +920,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -908,6 +942,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {
@@ -929,6 +964,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
+        eagerlyPopulateFields( opContext );
 
         try
         {

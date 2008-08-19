@@ -41,6 +41,7 @@ import org.apache.directory.server.operations.modifydn.ModifyDnReferralIT;
 import org.apache.directory.server.operations.modifydn.ModifyRdnIT;
 import org.apache.directory.server.operations.modifydn.MoveIT;
 import org.apache.directory.server.operations.search.NegationSearchIT;
+import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
 import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
@@ -76,7 +77,8 @@ import org.junit.runners.Suite;
         SchemaSearchIT.class,
         ReferralSearchIT.class,
         StartTlsIT.class,
-        ModifyDnReferralIT.class
+        ModifyDnReferralIT.class,
+        PersistentSearchIT.class
         } )
 @CleanupLevel ( Level.SUITE )
 @Mode ( SetupMode.ROLLBACK )

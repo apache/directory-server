@@ -61,7 +61,6 @@ import static org.junit.Assert.assertNotNull;
 
 
 /**
- * TODO - enable me - not executed (not in suite yet)
  * Test case which tests the correct operation of the persistent search control.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -79,7 +78,7 @@ import static org.junit.Assert.assertNotNull;
     "sn: Amos\n\n"
     }
 )
-public class PersistentSearchTest
+public class PersistentSearchIT
 {
     private static final String BASE = "ou=system";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
@@ -620,6 +619,7 @@ public class PersistentSearchTest
         //assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }*/
 
+    
     class JndiNotificationListener implements NamespaceChangeListener, ObjectChangeListener
     {
         boolean hasError = false;
@@ -658,6 +658,7 @@ public class PersistentSearchTest
         }
     }
 
+    
     class PSearchListener implements Runnable
     {
         boolean isReady = false;
@@ -739,6 +740,7 @@ public class PersistentSearchTest
         }
     }
 
+    
     class PSearchNotification extends SearchResult
     {
         private static final long serialVersionUID = 1L;
