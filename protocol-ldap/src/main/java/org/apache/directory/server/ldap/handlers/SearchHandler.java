@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
@@ -110,11 +111,16 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         // now we process entries for ever as they change
         PersistentSearchListener handler = new PersistentSearchListener( session, req );
         
-        // TODO what about notification criteria ?????????????????? TODO add it 
+        // compose notification criteria and add the listener to the event 
+        // service using that notification criteria to determine which events 
+        // are to be delivered to the persistent search issuing client
         NotificationCriteria criteria = new NotificationCriteria();
         criteria.setAliasDerefMode( req.getDerefAliases() );
         criteria.setBase( req.getBase() );
-        getLdapServer().getDirectoryService().getEventService().addListener( handler );
+        criteria.setFilter( req.getFilter() );
+        criteria.setScope( req.getScope() );
+        criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
+        getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
         return;
     }
     

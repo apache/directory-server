@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server.core.event;
 
+import java.util.ArrayList;
+
+import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+
 
 /**
  * The different kinds of events a {@link DirectoryListener} may register for 
@@ -36,7 +40,7 @@ public enum EventType
     
     public static final int ALL_EVENT_TYPES_MASK = getAllEventTypesMask();
     public static final int MOVE_OR_RENAME_MASK = MOVE.mask | RENAME.mask;
-    
+    private static final EventType[] EMPTY_EVENT_ARRAY = new EventType[0];
     
     private int mask;
     
@@ -50,6 +54,53 @@ public enum EventType
     public int getMask()
     {
         return mask;
+    }
+
+    
+    /**
+     * Gets an array of EventTypes from the PSearchControl changeTypes 
+     * parameter value.  According to the documentation of the changeTypes 
+     * field of the Persistent Search Control:
+     * 
+     * <code>
+     * The changeTypes field is the logical OR of one or more of these values:
+     * add (1), delete (2), modify (4), modDN (8). By default this is set to 1 |
+     * 2 | 4 | 8 which is the integer value 0x0F or 15.
+     * </code>
+     * 
+     * NOTE: When the changeTypes mask includes a modDN(8) we include both the 
+     * RENAME and MOVE EventType objects in the array.
+     * 
+     * @see PersistentSearchControl
+     * @param psearchChangeTypes the value of the changeTypes parameter
+     * @return array of EventType objects
+     */
+    public static EventType[] getEventTypes( int psearchChangeTypes )
+    {
+        ArrayList<EventType> types = new ArrayList<EventType>();
+        
+        if ( isAdd( psearchChangeTypes ) )
+        {
+            types.add( ADD );
+        }
+        
+        if ( isDelete( psearchChangeTypes ) )
+        {
+            types.add( DELETE );
+        }
+        
+        if ( isModify( psearchChangeTypes ) )
+        {
+            types.add( MODIFY );
+        }
+        
+        if ( ( psearchChangeTypes & 8 ) > 0 )
+        {
+            types.add( MOVE );
+            types.add( RENAME );
+        }
+        
+        return types.toArray( EMPTY_EVENT_ARRAY );
     }
     
     
