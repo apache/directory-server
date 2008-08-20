@@ -144,8 +144,25 @@ import static org.junit.Assert.assertNotNull;
     " NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABA\n" +
     " wEiAAIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/E\n" +
     " ABUBAQEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8\n" +
-    " AigC14//Z\n\n" 
+    " AigC14//Z\n\n" +
     
+    // Entry #5
+    "dn: cn=Janis Joplin,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: organizationalPerson\n" +
+    "objectClass: inetOrgPerson\n" +
+    "objectClass: top\n" +
+    "objectClass: strongAuthenticationUser\n" +
+    "cn: Janis Joplin\n" +
+    "sn: Joplin\n" +
+    "userCertificate:: \n\n" +
+    
+    // Entry #6
+    "dn: cn=Kim Wilde,ou=system\n" +
+    "objectClass: person\n" +
+    "objectClass: top\n" +
+    "cn: Kim Wilde\n" +
+    "sn: Wilde\n\n"
     }
 )
 public class SearchIT 
@@ -664,24 +681,15 @@ public class SearchIT
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
-        // Create entry
-        Attributes wilde = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        wilde.put( ocls );
-        wilde.put( "cn", "Kim Wilde" );
-        wilde.put( "sn", "Wilde" );
-        String rdn = "cn=Kim Wilde";
-        ctx.createSubcontext( rdn, wilde );
-
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "objectclass" } );
         String filter = "(objectclass=*)";
+        String rdn = "cn=Kim Wilde";
 
         NamingEnumeration<SearchResult> result = ctx.search( rdn, filter, ctls );
+        
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
@@ -1368,28 +1376,7 @@ public class SearchIT
 
         result.close();
     }
-    
-    
-    /**
-     * Test for DIRSERVER-1183.
-     * 
-     * @see https://issues.apache.org/jira/browse/DIRSERVER-1183
-     * @throws Exception
-     */
-    @Test
-    public void testDIRSERVER_1183() throws Exception
-    {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
-    	Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
-    	attrs.get( "objectClass" ).add( "organizationalPerson" );
-    	attrs.get( "objectClass" ).add( "person" );
-    	attrs.put( "givenName", "Jim" );
-    	attrs.put( "sn", "Bean" );
-    	attrs.put( "cn", "\"Jim, Bean\"" );
-    	
-    	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
-    }
-    
+   
     
     /**
      * Test for DIRSERVER-1180 where search hangs when an invalid a substring 
