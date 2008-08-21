@@ -197,7 +197,7 @@ public class ListCursor<E> extends AbstractCursor<E>
      */
     public void before( E element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
 
         if ( comparator == null )
         {
@@ -228,7 +228,7 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public void after( E element ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
 
         if ( comparator == null )
         {
@@ -259,21 +259,21 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         this.index = -1;
     }
 
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         this.index = end;
     }
 
 
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
 
         if ( list.size() > 0 )
         {
@@ -287,7 +287,7 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
 
         if ( list.size() > 0 )
         {
@@ -301,35 +301,35 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public boolean isFirst() throws Exception
     {
-        checkClosed( "isFirst()" );
+        checkNotClosed( "isFirst()" );
         return list.size() > 0 && index == start;
     }
 
 
     public boolean isLast() throws Exception
     {
-        checkClosed( "isLast()" );
+        checkNotClosed( "isLast()" );
         return list.size() > 0 && index == end - 1;
     }
 
 
     public boolean isAfterLast() throws Exception
     {
-        checkClosed( "isAfterLast()" );
+        checkNotClosed( "isAfterLast()" );
         return index == end;
     }
 
 
     public boolean isBeforeFirst() throws Exception
     {
-        checkClosed( "isBeforeFirst()" );
+        checkNotClosed( "isBeforeFirst()" );
         return index == -1;
     }
 
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
 
         // if parked at -1 we cannot go backwards
         if ( index == -1 )
@@ -362,7 +362,7 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
 
         // if parked at -1 we advance to the start index and return true
         if ( list.size() > 0 && index == -1 )
@@ -396,7 +396,7 @@ public class ListCursor<E> extends AbstractCursor<E>
 
     public E get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( index < start || index >= end )
         {
             throw new IOException( "Cursor not positioned at an element" );

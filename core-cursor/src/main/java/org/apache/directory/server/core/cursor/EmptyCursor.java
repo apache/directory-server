@@ -34,59 +34,59 @@ public class EmptyCursor<E> extends AbstractCursor<E>
 
     public void before( E element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
     }
 
 
     public void after( E element ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
     }
 
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
     }
 
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
     }
 
 
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
         return false;
     }
 
 
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
         return false;
     }
 
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         return false;
     }
 
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         return false;
     }
 
 
     public E get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( "This cursor is empty and cannot return elements!" );
     }
 

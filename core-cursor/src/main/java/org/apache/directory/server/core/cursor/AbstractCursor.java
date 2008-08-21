@@ -30,40 +30,41 @@ import java.util.Iterator;
  */
 public abstract class AbstractCursor<E> implements Cursor<E>
 {
-    private boolean closed;
-    private Exception reason;
+    private ClosureMonitor monitor = new DefaultClosureMonitor();
 
-
-    protected void checkClosed( String operation ) throws Exception
+    
+    public final void setClosureMonitor( ClosureMonitor monitor )
     {
-        if ( isClosed() )
+        if ( monitor == null )
         {
-            if ( reason != null )
-            {
-                throw reason;
-            }
-            
-            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
+            throw new NullPointerException( "monitor" );
         }
+        
+        this.monitor = monitor;
+    }
+    
+
+    protected final void checkNotClosed( String operation ) throws Exception
+    {
+        monitor.checkNotClosed();
     }
 
 
-    public boolean isClosed()
+    public final boolean isClosed()
     {
-        return closed;
+        return monitor.isClosed();
     }
 
 
-    public void close( Exception reason ) throws Exception
+    public void close( Exception cause ) throws Exception
     {
-        this.reason = reason;
-        closed = true;
+        monitor.close( cause );
     }
 
 
     public void close() throws Exception
     {
-        closed = true;
+        monitor.close();
     }
 
 

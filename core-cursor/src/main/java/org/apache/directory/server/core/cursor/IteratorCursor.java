@@ -90,7 +90,7 @@ public class IteratorCursor<E> extends AbstractCursor<E>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( values.hasNext() )
         {
             current = values.next();
@@ -103,7 +103,7 @@ public class IteratorCursor<E> extends AbstractCursor<E>
 
     public E get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         return current;
     }
 

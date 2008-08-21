@@ -214,4 +214,12 @@ public interface Cursor<E> extends Iterable<E>
      * @throws Exception if for some reason this Cursor could not be closed
      */
     void close( Exception reason ) throws Exception;
+    
+    
+    /**
+     * Sets a non-null closure monitor to associate with this Cursor.
+     *
+     * @param monitor the monitor to use for detecting Cursor close events
+     */
+    void setClosureMonitor( ClosureMonitor monitor );
 }
