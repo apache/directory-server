@@ -55,9 +55,6 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
             case SECONDS:
                 this.millisToLive = timeToLive * 1000;
                 break;
-            case MINUTES:
-                this.millisToLive = timeToLive * 60000;
-                break;
             default:
                 throw new IllegalStateException( "TimeUnit not supported: " + unit );
         }

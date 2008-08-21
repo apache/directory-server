@@ -20,6 +20,9 @@
 package org.apache.directory.mitosis.service.protocol.codec;
 
 
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import junit.framework.Assert;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
@@ -30,8 +33,6 @@ import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
 import org.junit.Test;
-
-import sun.misc.Queue;
 
 
 public abstract class AbstractMessageCodecTest
@@ -82,7 +83,7 @@ public abstract class AbstractMessageCodecTest
         ProtocolDecoderOutputImpl decoderOut = new ProtocolDecoderOutputImpl();
         decoder.decode( null, buf, decoderOut );
 
-        Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.dequeue() ) );
+        Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.poll() ) );
     }
 
 
@@ -93,7 +94,7 @@ public abstract class AbstractMessageCodecTest
 
     private class ProtocolDecoderOutputImpl implements ProtocolDecoderOutput
     {
-        private final Queue messages = new Queue();
+        private final Queue<Object> messages = new LinkedBlockingQueue<Object>();
 
 
         public void flush()
@@ -103,7 +104,7 @@ public abstract class AbstractMessageCodecTest
 
         public void write( Object message )
         {
-            messages.enqueue( message );
+            messages.add( message );
         }
     }
 }
