@@ -57,6 +57,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
+import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
+
 import javax.naming.NamingException;
 
 
@@ -222,7 +225,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session, final EntryFilteringCursor cursor )
     {
         // Don't bother setting time limits for administrators
-        if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == 0 )
+        if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == NO_TIME_LIMIT )
         {
             return;
         }
@@ -232,7 +235,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          * has been configured with unlimited time and the request specifies 
          * unlimited search time
          */
-        if ( ldapServer.getMaxTimeLimit() == LdapServer.NO_TIME_LIMIT && req.getTimeLimit() == 0 )
+        if ( ldapServer.getMaxTimeLimit() == NO_TIME_LIMIT && req.getTimeLimit() == NO_TIME_LIMIT )
         {
             return;
         }
@@ -253,7 +256,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          * less than the maximum limit configured in the server then we 
          * constrain search by the amount specified in the request
          */
-        if ( ldapServer.getMaxSizeLimit() >= req.getTimeLimit() )
+        if ( ldapServer.getMaxTimeLimit() >= req.getTimeLimit() )
         {
             cursor.setClosureMonitor( new SearchTimeLimitingMonitor( req.getTimeLimit(), TimeUnit.SECONDS ) );
             return;
@@ -265,6 +268,53 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          * the search to the configured limit
          */
         cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapServer.getMaxTimeLimit(), TimeUnit.SECONDS ) );
+    }
+    
+    
+    private int getSearchSizeLimits( SearchRequest req, LdapSession session )
+    {
+        // Don't bother setting size limits for administrators that don't ask for it
+        if ( session.getCoreSession().isAnAdministrator() && req.getSizeLimit() == NO_SIZE_LIMIT )
+        {
+            return NO_SIZE_LIMIT;
+        }
+        
+        /*
+         * Non administrator based searches are limited by size if the server 
+         * has been configured with unlimited size and the request specifies 
+         * unlimited search size
+         */
+        if ( ldapServer.getMaxSizeLimit() == NO_SIZE_LIMIT && req.getSizeLimit() == NO_SIZE_LIMIT )
+        {
+            return NO_SIZE_LIMIT;
+        }
+        
+        /*
+         * If the non-administrator user specifies unlimited size but the server 
+         * is configured to limit the search size then we limit by the max size
+         * allowed by the configuration 
+         */
+        if ( req.getSizeLimit() == 0 )
+        {
+            return ldapServer.getMaxSizeLimit();
+        }
+        
+        /*
+         * If the non-administrative user specifies a size limit equal to or 
+         * less than the maximum limit configured in the server then we 
+         * constrain search by the amount specified in the request
+         */
+        if ( ldapServer.getMaxSizeLimit() >= req.getTimeLimit() )
+        {
+            return req.getSizeLimit();
+        }
+        
+        /*
+         * Here the non-administrative user's requested size limit is greater 
+         * than what the server's configured maximum limit allows so we limit
+         * the search to the configured limit
+         */
+        return ldapServer.getMaxSizeLimit();
     }
     
     
@@ -290,24 +340,42 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         
         try
         {
+            LdapResult ldapResult = req.getResultResponse().getLdapResult();
             cursor = session.getCoreSession().search( req );
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
+            final int sizeLimit = getSearchSizeLimits( req, session );
             
             // Position the cursor at the beginning
             cursor.beforeFirst();
-            
-            while ( cursor.next() )
+
+            if ( sizeLimit == NO_SIZE_LIMIT )
             {
-                ClonedServerEntry entry = cursor.get();
-                session.getIoSession().write( generateResponse( session, req, entry ) );
+                while ( cursor.next() )
+                {
+                    ClonedServerEntry entry = cursor.get();
+                    session.getIoSession().write( generateResponse( session, req, entry ) );
+                }
+            }
+            else
+            {
+                int count = 0;
+                while ( cursor.next() && count < sizeLimit )
+                {
+                    ClonedServerEntry entry = cursor.get();
+                    session.getIoSession().write( generateResponse( session, req, entry ) );
+                }
+                
+                if ( count >= sizeLimit )
+                {
+                    // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+                    ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+                    return ( SearchResponseDone ) req.getResultResponse();
+                }
             }
     
-            LdapResult ldapResult = req.getResultResponse().getLdapResult();
-            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-            
             // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-            
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
             return ( SearchResponseDone ) req.getResultResponse();
         }
         finally
