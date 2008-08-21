@@ -931,6 +931,7 @@ public class SearchIT
         assertFalse( res.hasMore() );
     }
 
+    
     @Test
     public void testSearchAttrCN() throws Exception
     {

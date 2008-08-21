@@ -45,6 +45,7 @@ import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
 import org.apache.directory.server.operations.search.SchemaSearchIT;
 import org.apache.directory.server.operations.search.SearchIT;
+import org.apache.directory.server.operations.search.SearchLimitsIT;
 import org.apache.directory.server.ssl.StartTlsIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -78,7 +79,8 @@ import org.junit.runners.Suite;
         ReferralSearchIT.class,
         StartTlsIT.class,
         ModifyDnReferralIT.class,
-        PersistentSearchIT.class
+        PersistentSearchIT.class,
+        SearchLimitsIT.class
         } )
 @CleanupLevel ( Level.SUITE )
 @Mode ( SetupMode.ROLLBACK )
