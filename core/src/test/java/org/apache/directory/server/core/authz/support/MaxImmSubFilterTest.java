@@ -28,6 +28,7 @@ import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.cursor.ClosureMonitor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -222,70 +223,57 @@ public class MaxImmSubFilterTest
 
         public void addRequestControl( Control requestControl )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void addRequestControls( Control[] requestControls )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void addResponseControl( Control responseControl )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public Collection<String> getByPassed()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public LdapDN getDn()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public String getName()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public Control getRequestControl( String numericOid )
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public Control getResponseControl( String numericOid )
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public int getResponseControlCount()
         {
-            // TODO Auto-generated method stub
             return 0;
         }
 
 
         public Control[] getResponseControls()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
@@ -298,190 +286,155 @@ public class MaxImmSubFilterTest
 
         public boolean hasBypass()
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean hasRequestControl( String numericOid )
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean hasRequestControls()
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean hasResponseControl( String numericOid )
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean hasResponseControls()
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean isBypassed( String interceptorName )
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public boolean isCollateralOperation()
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public ClonedServerEntry lookup( LdapDN dn, Collection<String> bypass ) throws Exception
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public LookupOperationContext newLookupContext( LdapDN dn )
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public void setByPassed( Collection<String> byPassed )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void setCollateralOperation( boolean collateralOperation )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void setDn( LdapDN dn )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public LdapPrincipal getEffectivePrincipal()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public OperationContext getFirstOperation()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public OperationContext getLastOperation()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public OperationContext getNextOperation()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public OperationContext getPreviousOperation()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public boolean isFirstOperation()
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public void add( ServerEntry entry, Collection<String> bypass ) throws Exception
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void delete( LdapDN dn, Collection<String> bypass ) throws Exception
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public void modify( LdapDN dn, List<Modification> mods, Collection<String> bypass ) throws Exception
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
 
         public ReferralHandlingMode getReferralHandlingMode()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public void setReferralHandlingMode( ReferralHandlingMode referralHandlingMode )
         {
-            // TODO Auto-generated method stub
-            
         }
 
 
         public ClonedServerEntry getEntry()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public void setEntry( ClonedServerEntry entry )
         {
-            // TODO Auto-generated method stub
-            
         }
     }
 
@@ -817,20 +770,16 @@ public class MaxImmSubFilterTest
 
         public CoreSession getAdminSession() throws Exception
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public EventService getEventService()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public void setEventService( EventService eventService )
         {
-            // TODO Auto-generated method stub
-            
         }
     }
 
@@ -1057,8 +1006,11 @@ public class MaxImmSubFilterTest
 
         public void close( Exception reason ) throws Exception
         {
-            // TODO Auto-generated method stub
-            
+        }
+
+
+        public void setClosureMonitor( ClosureMonitor monitor )
+        {
         }
     }
 }

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.Iterator;
 
+import org.apache.directory.server.core.cursor.ClosureMonitor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -93,6 +94,12 @@ public class ServerEntryCursorAdaptor implements Cursor<ServerEntry>
         indexCursor.beforeFirst();
     }
 
+    
+    public final void setClosureMonitor( ClosureMonitor monitor )
+    {
+        indexCursor.setClosureMonitor( monitor );
+    }
+    
 
     /* 
      * @see Cursor#close()
