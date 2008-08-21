@@ -117,6 +117,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     public final void messageReceived( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSession( session );
+        
+        // TODO - session you get from LdapServer should have the ldapServer 
+        // member already set no?  Should remove these lines where ever they
+        // may be if that's the case.
         ldapSession.setLdapServer( ldapServer );
         
         // protect against insecure conns when confidentiality is required 

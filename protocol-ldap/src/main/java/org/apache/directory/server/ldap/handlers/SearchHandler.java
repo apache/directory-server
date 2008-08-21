@@ -20,12 +20,15 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
@@ -36,7 +39,6 @@ import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
@@ -70,10 +72,20 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
+    /** cached to save redundant lookups into registries */ 
+    private AttributeType objectClassAttributeType;
     
-    AttributeType objectClassAttributeType;
     
-    private EqualityNode<String> getOcIsReferralAssertion( LdapSession session ) throws Exception
+    /**
+     * Constructs a new filter EqualityNode asserting that a candidate 
+     * objectClass is a referral.
+     *
+     * @param session the {@link LdapSession} to construct the node for
+     * @return the {@link EqualityNode} (objectClass=referral) non-normalized
+     * @throws Exception in the highly unlikely event of schema related failures
+     */
+    private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
         if ( objectClassAttributeType == null )
         {
@@ -81,14 +93,23 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 .getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
         }
         
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( 
-            SchemaConstants.OBJECT_CLASS_AT,
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT,
             new ServerStringValue( objectClassAttributeType, SchemaConstants.REFERRAL_OC ) );
         
         return ocIsReferral;
     }
     
     
+    /**
+     * Handles search requests containing the persistent search control but 
+     * delegates to doSimpleSearch() if the changesOnly parameter of the 
+     * control is set to false.
+     *
+     * @param session the LdapSession for which this search is conducted 
+     * @param req the search request containing the persistent search control
+     * @param psearchControl the persistent search control extracted
+     * @throws Exception if failures are encountered while searching
+     */
     private void handlePersistentSearch( LdapSession session, SearchRequest req, 
         PersistentSearchControl psearchControl ) throws Exception 
     {
@@ -108,7 +129,12 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             }
         }
 
-        // now we process entries for ever as they change
+        if ( req.isAbandoned() )
+        {
+            return;
+        }
+        
+        // now we process entries forever as they change
         PersistentSearchListener handler = new PersistentSearchListener( session, req );
         
         // compose notification criteria and add the listener to the event 
@@ -121,15 +147,17 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         criteria.setScope( req.getScope() );
         criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
+        req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
         return;
     }
     
     
     /**
-     * Deal with RootDE search. 
-     * @param session
-     * @param req
-     * @throws Exception
+     * Handles search requests on the RootDSE. 
+     * 
+     * @param session the LdapSession for which this search is conducted 
+     * @param req the search request on the RootDSE
+     * @throws Exception if failures are encountered while searching
      */
     private void handleRootDseSearch( LdapSession session, SearchRequest req ) throws Exception
     {
@@ -147,9 +175,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             {
             	if ( hasRootDSE )
             	{
-            		// This is an error ! We should never find more
-            		// than one rootDSE !
-            		// TODO : handle this error
+            		// This is an error ! We should never find more than one rootDSE !
+            	    LOG.error( "Got back more than one entry for search on RootDSE which means " +
+            	    		"Cursor is not functioning properly!" );
             	}
             	else
             	{
@@ -181,6 +209,66 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     
     
     /**
+     * Based on the server maximum time limits configured for search and the 
+     * requested time limits this method determines if at all to replace the 
+     * default ClosureMonitor of the result set Cursor with one that closes
+     * the Cursor when either server mandated or request mandated time limits 
+     * are reached.
+     *
+     * @param req the {@link SearchRequest} issued
+     * @param session the {@link LdapSession} on which search was requested
+     * @param cursor the {@link EntryFilteringCursor} over the search results
+     */
+    private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session, final EntryFilteringCursor cursor )
+    {
+        // Don't bother setting time limits for administrators
+        if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == 0 )
+        {
+            return;
+        }
+        
+        /*
+         * Non administrator based searches are limited by time if the server 
+         * has been configured with unlimited time and the request specifies 
+         * unlimited search time
+         */
+        if ( ldapServer.getMaxTimeLimit() == LdapServer.NO_TIME_LIMIT && req.getTimeLimit() == 0 )
+        {
+            return;
+        }
+        
+        /*
+         * If the non-administrator user specifies unlimited time but the server 
+         * is configured to limit the search time then we limit by the max time 
+         * allowed by the configuration 
+         */
+        if ( req.getTimeLimit() == 0 )
+        {
+            cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapServer.getMaxTimeLimit(), TimeUnit.SECONDS ) );
+            return;
+        }
+        
+        /*
+         * If the non-administrative user specifies a time limit equal to or 
+         * less than the maximum limit configured in the server then we 
+         * constrain search by the amount specified in the request
+         */
+        if ( ldapServer.getMaxSizeLimit() >= req.getTimeLimit() )
+        {
+            cursor.setClosureMonitor( new SearchTimeLimitingMonitor( req.getTimeLimit(), TimeUnit.SECONDS ) );
+            return;
+        }
+
+        /*
+         * Here the non-administrative user's requested time limit is greater 
+         * than what the server's configured maximum limit allows so we limit
+         * the search to the configured limit
+         */
+        cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapServer.getMaxTimeLimit(), TimeUnit.SECONDS ) );
+    }
+    
+    
+    /**
      * Conducts a simple search across the result set returning each entry 
      * back except for the search response done.  This is calculated but not
      * returned so the persistent search mechanism can leverage this method
@@ -191,7 +279,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @return the result done 
      * @throws Exception if there are failures while processing the request
      */
-    private SearchResponseDone doSimpleSearch( LdapSession session, SearchRequest req ) throws Exception
+    private SearchResponseDone doSimpleSearch( LdapSession session, SearchRequest req ) 
+        throws Exception
     {
         /*
          * Iterate through all search results building and sending back responses
@@ -202,13 +291,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         try
         {
             cursor = session.getCoreSession().search( req );
+            req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
+            setTimeLimitsOnCursor( req, session, cursor );
             
-            // TODO - fix this (need to make Cursors abandonable)
-            if ( cursor instanceof AbandonListener )
-            {
-                req.addAbandonListener( ( AbandonListener ) cursor );
-            }
-    
             // Position the cursor at the beginning
             cursor.beforeFirst();
             
@@ -361,7 +446,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         }
 
         // using varags to add two expressions to an OR node 
-        req.setFilter( new OrNode( req.getFilter(), getOcIsReferralAssertion( session ) ) );
+        req.setFilter( new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) ) );
     }
     
     

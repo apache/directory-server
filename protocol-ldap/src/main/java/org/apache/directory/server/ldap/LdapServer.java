@@ -120,6 +120,12 @@ public class LdapServer extends DirectoryBackedService
     /** The default maximum time limit. */
     private static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
+    /** Value (0) for configuration where size limit is unlimited. */
+    public static final int NO_SIZE_LIMIT = 0;
+
+    /** Value (0) for configuration where time limit is unlimited. */
+    public static final int NO_TIME_LIMIT = 0;
+
     /** The default service pid. */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ldap";
 
