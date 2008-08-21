@@ -105,6 +105,7 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
         return true;
     }
 
+    
     /**
      * @see Object#hashCode()
      * @return the instance's hash code 
@@ -118,6 +119,7 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
         return hash;
     }
 
+    
     /**
      * RFC 2251 [Section 4.11]: Abandon, Bind, Unbind, and StartTLS operations
      * cannot be abandoned.

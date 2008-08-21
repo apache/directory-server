@@ -49,7 +49,7 @@ public class AbstractAbandonableRequest extends AbstractRequest implements Aband
      * @param type
      *            the request type enum
      */
-    protected AbstractAbandonableRequest(final int id, final MessageTypeEnum type)
+    protected AbstractAbandonableRequest( final int id, final MessageTypeEnum type )
     {
         super( id, type, true );
     }
@@ -82,7 +82,10 @@ public class AbstractAbandonableRequest extends AbstractRequest implements Aband
     public void addAbandonListener( final AbandonListener listener )
     {
         if ( o == null )
+        {
             o = new RequestObservable();
+        }
+        
         o.addObserver( new Observer()
         {
             public void update( Observable o, Object arg )
@@ -92,6 +95,7 @@ public class AbstractAbandonableRequest extends AbstractRequest implements Aband
         } );
     }
 
+    
     class RequestObservable extends Observable
     {
         public void setChanged()

@@ -60,7 +60,7 @@ public class PersistentSearchControl extends AbstractMutableControlImpl
 
     /**
      * As changes are made to the server, the effected entries MUST be returned
-     * to the client if they match the standard search cri- teria and if the
+     * to the client if they match the standard search criteria and if the
      * operation that caused the change is included in the changeTypes field.
      * The changeTypes field is the logical OR of one or more of these values:
      * add (1), delete (2), modify (4), modDN (8). By default this is set to 1 |
