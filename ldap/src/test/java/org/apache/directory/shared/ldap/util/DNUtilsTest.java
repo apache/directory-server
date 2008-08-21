@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.util;
+package org.apache.directory.shared.ldap.util;
 
 
 import org.apache.directory.shared.ldap.util.StringTools;

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.util;
+package org.apache.directory.shared.ldap.util;
 
 
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ import javax.naming.directory.SearchControls;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.LdapURL;
 import org.junit.Test;
 import org.junit.Ignore;
 

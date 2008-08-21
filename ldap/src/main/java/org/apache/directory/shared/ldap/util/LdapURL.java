@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.util;
+package org.apache.directory.shared.ldap.util;
 
 
 import java.io.ByteArrayOutputStream;
@@ -35,9 +35,12 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.shared.ldap.codec.util.HttpClientError;
+import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.codec.util.URIException;
+import org.apache.directory.shared.ldap.codec.util.UrlDecoderException;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
