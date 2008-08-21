@@ -94,7 +94,7 @@ public class ObjectClassCreateIT
     }
 
     /*
-     * Test that I can create an ObjectClass entry with an invalid
+     * Test that I can create an ObjectClass entry with an invalid name
      */
     @Test
     public void testCreateObjectClassWithNoObjectClass() throws Exception

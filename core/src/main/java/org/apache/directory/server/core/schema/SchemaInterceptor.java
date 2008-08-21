@@ -34,6 +34,7 @@ import javax.naming.NoPermissionException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.cursor.EmptyCursor;
@@ -99,6 +100,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
@@ -1708,6 +1710,71 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
     }
+    
+    
+    private void checkOcSuperior( ServerEntry entry ) throws Exception
+    {
+    	ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
+    	
+        // handle the m-supObjectClass meta attribute
+        EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        
+        if ( supOC != null )
+        {
+        	ObjectClassTypeEnum ocType = ObjectClassTypeEnum.STRUCTURAL;
+        	
+            if ( entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ) != null )
+            {
+                String type = entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ).getString();
+                ocType = ObjectClassTypeEnum.getClassType( type );
+            }
+        	
+        	// First check that the inheritence scheme is correct.
+        	// 1) If the ocType is ABSTRACT, it should not have any other SUP not ABSTRACT
+        	for ( Value<?> sup:supOC )
+        	{
+        		try
+        		{
+        			String supName = (String)sup.get();
+        			
+            		ObjectClass superior = ocRegistry.lookup( supName );
+
+            		switch ( ocType )
+            		{
+	            		case ABSTRACT :
+	                		if ( !superior.isAbstract() )
+	                		{
+	                			String message = "An ABSTRACT ObjectClass cannot inherit from an objectClass which is not ABSTRACT";
+	                			LOG.error( message );
+	                			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+	                		}
+	                		
+	                		break;
+	
+	            		case AUXILIARY :
+	                		if ( !superior.isAbstract() && ! superior.isAuxiliary() )
+	                		{
+	                			String message = "An AUXILiARY ObjectClass cannot inherit from an objectClass which is not ABSTRACT or AUXILIARY";
+	                			LOG.error( message );
+	                			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+	                		}
+	                		
+	                		break;
+
+	            		case STRUCTURAL :
+	                		break;
+            		}
+        		}
+        		catch ( NamingException ne )
+        		{
+        			// The superior OC does not exist : this is an error
+        			String message = "Cannot have a superior which does not exist";
+        			LOG.error( message );
+        			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        		}
+        	}
+        }
+    }
 
 
     /**
@@ -1720,9 +1787,12 @@ public class SchemaInterceptor extends BaseInterceptor
 
         check( name, entry );
 
+        // Special checks for the MetaSchema branch
         if ( name.startsWith( schemaBaseDN ) )
         {
             schemaManager.add( addContext );
+            
+            checkOcSuperior( addContext.getEntry() );
         }
 
         next.add( addContext );

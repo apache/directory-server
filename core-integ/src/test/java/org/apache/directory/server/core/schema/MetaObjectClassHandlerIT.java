@@ -20,12 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -89,6 +87,26 @@ public class MetaObjectClassHandlerIT
     {
         return service.getRegistries().getObjectClassRegistry();
     }
+    
+    
+    private void addObjectClass() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", NAME);
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-typeObjectClass", "AUXILIARY" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+    }
 
     
     // ----------------------------------------------------------------------
@@ -99,21 +117,7 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddObjectClass() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
-        attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_NAME_AT, NAME);
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, "AUXILIARY" );
-        attrs.put( MetaSchemaConstants.M_MUST_AT, "cn" );
-        attrs.put( MetaSchemaConstants.M_MAY_AT, "ou" );
-        
-        LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
+        addObjectClass();
         
         assertTrue( getObjectClassRegistry().hasObjectClass( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -124,8 +128,8 @@ public class MetaObjectClassHandlerIT
     public void testDeleteAttributeType() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddObjectClass();
+        dn.add( "m-oid" + "=" + OID );
+        addObjectClass();
         
         getSchemaContext( service ).destroySubcontext( dn );
 
@@ -148,11 +152,11 @@ public class MetaObjectClassHandlerIT
     public void testRenameAttributeType() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddObjectClass();
+        dn.add( "m-oid" + "=" + OID );
+        addObjectClass();
         
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed", 
@@ -175,13 +179,13 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveAttributeType() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getObjectClassContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -196,13 +200,13 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassAndChangeRdn() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getObjectClassContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -220,19 +224,19 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         ObjectClass oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        Attribute attr = new AttributeImpl( "m-description", DESCRIPTION1 );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new AttributeImpl( MetaSchemaConstants.M_NAME_AT, NEW_NAME );
+        attr = new AttributeImpl( "m-name", NEW_NAME );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -251,18 +255,18 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         ObjectClass oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new AttributesImpl();
-        mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
-        mods.put( MetaSchemaConstants.M_NAME_AT, NEW_NAME );
+        mods.put( "m-description", DESCRIPTION1 );
+        mods.put( "m-name", NEW_NAME );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "objectClass OID should still be present", 
@@ -280,25 +284,23 @@ public class MetaObjectClassHandlerIT
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a OC exists and uses the OC as sup
     // ----------------------------------------------------------------------
-
-    
     private void addDependeeObjectClass() throws Exception
     {
         Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, DEPENDEE_OID );
-        attrs.put( MetaSchemaConstants.M_NAME_AT, DEPENDEE_NAME );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, "AUXILIARY" );
-        attrs.put( MetaSchemaConstants.M_MUST_AT, "cn" );
-        attrs.put( MetaSchemaConstants.M_MAY_AT, "ou" );
-        attrs.put( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT, OID );
+        attrs.put( "m-oid", DEPENDEE_OID );
+        attrs.put( "m-name", DEPENDEE_NAME );
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-typeObjectClass", "AUXILIARY" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        attrs.put( "m-supObjectClass", OID );
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
+        dn.add( "m-oid" + "=" + DEPENDEE_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( getObjectClassRegistry().hasObjectClass( DEPENDEE_OID ) );
@@ -310,8 +312,8 @@ public class MetaObjectClassHandlerIT
     public void testDeleteObjectClassWhenInUse() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddObjectClass();
+        dn.add( "m-oid" + "=" + OID );
+        addObjectClass();
         addDependeeObjectClass();
         
         try
@@ -332,14 +334,14 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassWhenInUse() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         addDependeeObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getObjectClassContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -359,14 +361,14 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassAndChangeRdnWhenInUse() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         addDependeeObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getObjectClassContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -387,12 +389,12 @@ public class MetaObjectClassHandlerIT
     public void testRenameObjectClassWhenInUse() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddObjectClass();
+        dn.add( "m-oid" + "=" + OID );
+        addObjectClass();
         addDependeeObjectClass();
         
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -412,18 +414,16 @@ public class MetaObjectClassHandlerIT
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
-
-
     @Test
     public void testMoveObjectClassToTop() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN top = new LdapDN();
-        top.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        top.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -443,13 +443,13 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassToComparatorContainer() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -464,26 +464,31 @@ public class MetaObjectClassHandlerIT
         assertTrue( "objectClass should still be in the registry after move failure", 
             getObjectClassRegistry().hasObjectClass( OID ) );
     }
+
     
-    
-    @Test
-    public void testAddObjectClassToDisabledSchema() throws Exception
+    private void addObjectClassToDisabledSchema() throws Exception
     {
         Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_OBJECT_CLASS_OC );
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_NAME_AT, NAME);
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, "AUXILIARY" );
-        attrs.put( MetaSchemaConstants.M_MUST_AT, "cn" );
-        attrs.put( MetaSchemaConstants.M_MAY_AT, "ou" );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", NAME);
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-typeObjectClass", "AUXILIARY" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
         
         LdapDN dn = getObjectClassContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
+    }
+    
+    @Test
+    public void testAddObjectClassToDisabledSchema1() throws Exception
+    {
+        addObjectClassToDisabledSchema();
         
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
             getObjectClassRegistry().hasObjectClass( OID ) );
@@ -493,14 +498,14 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassToDisabledSchema() throws Exception
     {
-        testAddObjectClass();
+        addObjectClass();
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         LdapDN newdn = getObjectClassContainer( "nis" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -512,17 +517,17 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testMoveObjectClassToEnabledSchema() throws Exception
     {
-        testAddObjectClassToDisabledSchema();
+        addObjectClassToDisabledSchema();
         
         // nis is inactive by default
         LdapDN dn = getObjectClassContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "objectClass OID should NOT be present when added to disabled nis schema", 
             getObjectClassRegistry().hasObjectClass( OID ) );
 
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -531,5 +536,311 @@ public class MetaObjectClassHandlerIT
         
         assertEquals( "objectClass should be in apachemeta schema after move", 
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+    }
+    
+    // ----------------------------------------------------------------------
+    // Let's test the Abstract, Auiliary and Structural inheritence enforcement
+    // ----------------------------------------------------------------------
+    /**
+     * Check that we can create an ABSTRACT OC which inherit from an ABSTRACT OC
+     */
+    @Test
+    public void testAddAbstractOCinheritingFromAbstractOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "ABSTRACT" );
+        attrs.put( "m-supObjectClass", "top" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+    }
+
+    
+    /**
+     * Check that we can't create an ABSTRACT OC which inherit from an AUXILIARY OC
+     */
+    @Test
+    public void testAddAbstractOCinheritingFromAuxiliaryOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "ABSTRACT" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "javaSerializedObject");
+        attrs.put( sup );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+        	getSchemaContext( service ).createSubcontext( dn, attrs );
+        	fail();
+        }
+        catch ( NamingException ne )
+        {
+        	assertTrue( true );
+        }
+    }
+    
+    
+    /**
+     * Check that we can't create an ABSTRACT OC which inherit from an STRUCTURAL OC
+     */
+    @Test
+    public void testAddAbstractOCinheritingFromStructuralOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "ABSTRACT" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "person");
+        attrs.put( sup );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+        	getSchemaContext( service ).createSubcontext( dn, attrs );
+        	fail();
+        }
+        catch ( NamingException ne )
+        {
+        	assertTrue( true );
+        }
+    }
+    
+    
+    /**
+     * Check that we can create an AUXILIARY OC which inherit from an ABSTRACT OC
+     */
+    @Test
+    public void testAddAuxiliaryOCinheritingFromAbstractOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", NEW_OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "AUXILIARY" );
+        attrs.put( "m-supObjectClass", "top" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+    }
+
+    
+    /**
+     * Check that we can create an AUXILIARY OC which inherit from an AUXILIARY OC
+     */
+    @Test
+    public void testAddAuxiliaryOCinheritingFromAuxiliaryOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", NEW_OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "AUXILIARY" );
+        attrs.put( "m-supObjectClass", "javaNamingReference" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "javaNamingReference");
+        attrs.put( sup );
+
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+    }
+
+    
+    /**
+     * Check that we can't create an Auxiliary OC which inherit from an STRUCTURAL OC
+     */
+    @Test
+    public void testAddAuxiliaryOCinheritingFromStructuralOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "ABSTRACT" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "person");
+        attrs.put( sup );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+        	getSchemaContext( service ).createSubcontext( dn, attrs );
+        	fail();
+        }
+        catch ( NamingException ne )
+        {
+        	assertTrue( true );
+        }
+    }
+
+    
+    /**
+     * Check that we can create a STRUCTURAL OC which inherit from an ABSTRACT OC
+     */
+    @Test
+    public void testAddStructuralOCinheritingFromAbstractOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", NEW_OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
+        attrs.put( "m-supObjectClass", "top" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+    }
+
+    
+    /**
+     * Check that we can create a STRUCTURAL OC which inherit from an AUXILIARY OC
+     */
+    @Test
+    public void testAddStructuralOCinheritingFromAuxiliaryOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", NEW_OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "javaNamingReference");
+        attrs.put( sup );
+
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+    }
+
+    
+    /**
+     * Check that we can create a STRUCTURAL OC which inherit from an STRUCTURAL OC
+     */
+    @Test
+    public void testAddStructuralOCinheritingFromStructuralOC() throws Exception
+    {
+        Attributes attrs = new AttributesImpl();
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaObjectClass" );
+        attrs.put( oc );
+        
+        attrs.put( "m-oid", NEW_OID );
+        attrs.put( "m-name", "abstractOCtest");
+        attrs.put( "m-description", "An abstract oC inheriting from top" );
+        attrs.put( "m-typeObjectClass", "STRUCTURAL" );
+        attrs.put( "m-must", "cn" );
+        attrs.put( "m-may", "ou" );
+        
+        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        sup.add( "top" );
+        sup.add( "person");
+        attrs.put( sup );
+
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 }
