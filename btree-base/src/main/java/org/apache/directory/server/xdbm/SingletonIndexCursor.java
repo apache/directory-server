@@ -74,7 +74,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         beforeFirst = true;
         afterLast = false;
         onSingleton = false;
@@ -83,7 +83,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         beforeFirst = false;
         afterLast = true;
         onSingleton = false;
@@ -92,7 +92,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public boolean first() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         beforeFirst = false;
         onSingleton = true;
         afterLast = false;
@@ -102,7 +102,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public boolean last() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         beforeFirst = false;
         onSingleton = true;
         afterLast = false;
@@ -112,35 +112,35 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public boolean isFirst() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         return onSingleton;
     }
 
 
     public boolean isLast() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         return onSingleton;
     }
 
 
     public boolean isAfterLast() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         return afterLast;
     }
 
 
     public boolean isBeforeFirst() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         return beforeFirst;
     }
 
 
     public boolean previous() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         if ( beforeFirst )
         {
             return false;
@@ -164,7 +164,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public boolean next() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         if ( beforeFirst )
         {
             beforeFirst = false;
@@ -188,7 +188,7 @@ public class SingletonIndexCursor<K, E> extends AbstractIndexCursor<K, E>
 
     public IndexEntry<K,E> get() throws Exception
     {
-        checkClosed( "()" );
+        checkNotClosed( "()" );
         if ( onSingleton )
         {
             return singleton;

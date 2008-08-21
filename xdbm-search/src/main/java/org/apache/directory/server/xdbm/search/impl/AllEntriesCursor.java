@@ -52,7 +52,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void afterValue( Long key, Long value ) throws Exception
     {
-        checkClosed( "afterValue()" );
+        checkNotClosed( "afterValue()" );
         wrapped.afterValue( key, null );
     }
 
@@ -62,7 +62,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void beforeValue( Long id, Long value ) throws Exception
     {
-        checkClosed( "beforeValue()" );
+        checkNotClosed( "beforeValue()" );
         wrapped.beforeValue( id, null );
     }
 
@@ -72,7 +72,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void after( IndexEntry<Long,ServerEntry> indexEntry ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
         wrapped.afterValue( indexEntry.getId(), null );
     }
 
@@ -82,7 +82,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         wrapped.afterLast();
     }
 
@@ -101,7 +101,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void before( IndexEntry<Long,ServerEntry> indexEntry ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
         wrapped.beforeValue( indexEntry.getId(), null );
     }
 
@@ -111,7 +111,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
     }
 
@@ -121,7 +121,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
         return wrapped.first();
     }
 
@@ -131,7 +131,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public IndexEntry<Long,ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         IndexEntry<String,ServerEntry> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
@@ -154,7 +154,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
         return wrapped.last();
     }
 
@@ -164,7 +164,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         return wrapped.next();
     }
 
@@ -174,7 +174,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<Long,ServerEntry>
      */
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         return wrapped.previous();
     }
 }

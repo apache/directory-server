@@ -86,7 +86,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
         available = false;
     }
@@ -94,7 +94,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         wrapped.afterLast();
         available = false;
     }
@@ -118,7 +118,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( wrapped.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
 
             IndexEntry<?,ServerEntry> candidate = wrapped.get();
             if ( matches( candidate ) )
@@ -135,7 +135,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( wrapped.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = wrapped.get();
             if ( matches( candidate ) )
             {
@@ -149,7 +149,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( available )
         {
             return wrapped.get();

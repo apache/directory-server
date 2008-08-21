@@ -102,7 +102,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         cursorIndex = 0;
         cursors.get( cursorIndex ).beforeFirst();
         available = false;
@@ -111,7 +111,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         cursorIndex = cursors.size() - 1;
         cursors.get( cursorIndex ).afterLast();
         available = false;
@@ -166,7 +166,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( cursors.get( cursorIndex ).previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
@@ -177,13 +177,13 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while ( cursorIndex > 0 )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             cursorIndex--;
             cursors.get( cursorIndex ).afterLast();
 
             while ( cursors.get( cursorIndex ).previous() )
             {
-                checkClosed( "previous()" );
+                checkNotClosed( "previous()" );
                 IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
@@ -201,7 +201,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( cursors.get( cursorIndex ).next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
             if ( ! isBlackListed( candidate.getId() ) )
             {
@@ -212,13 +212,13 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while ( cursorIndex < cursors.size() - 1 )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             cursorIndex++;
             cursors.get( cursorIndex ).beforeFirst();
 
             while ( cursors.get( cursorIndex ).next() )
             {
-                checkClosed( "previous()" );
+                checkNotClosed( "previous()" );
                 IndexEntry<?,ServerEntry> candidate = cursors.get( cursorIndex ).get();
                 if ( ! isBlackListed( candidate.getId() ) )
                 {
@@ -234,7 +234,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( available )
         {
             return cursors.get( cursorIndex ).get();

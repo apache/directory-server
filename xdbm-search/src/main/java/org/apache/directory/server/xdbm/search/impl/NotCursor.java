@@ -86,7 +86,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         ndnCursor.beforeFirst();
         available = false;
     }
@@ -94,7 +94,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         ndnCursor.afterLast();
         available = false;
     }
@@ -118,7 +118,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( ndnCursor.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( ! childEvaluator.evaluate( candidate ) )
             {
@@ -134,7 +134,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     {
         while ( ndnCursor.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( ! childEvaluator.evaluate( candidate ) )
             {
@@ -148,7 +148,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( available )
         {
             return ndnCursor.get();

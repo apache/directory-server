@@ -20,8 +20,9 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.core.cursor.CursorClosedException;
+import org.apache.directory.server.core.cursor.ClosureMonitor;
 import org.apache.directory.server.core.cursor.CursorIterator;
+import org.apache.directory.server.core.cursor.DefaultClosureMonitor;
 
 import java.util.Iterator;
 
@@ -34,40 +35,41 @@ import java.util.Iterator;
  */
 public abstract class AbstractIndexCursor<K, E> implements IndexCursor<K, E>
 {
-    private boolean closed;
-    private Exception reason;
+    private ClosureMonitor monitor = new DefaultClosureMonitor();
+
+    
+    public final void setClosureMonitor( ClosureMonitor monitor )
+    {
+        if ( monitor == null )
+        {
+            throw new NullPointerException( "monitor" );
+        }
+        
+        this.monitor = monitor;
+    }
     
 
-    protected void checkClosed( String operation ) throws Exception
+    protected final void checkNotClosed( String operation ) throws Exception
     {
-        if ( isClosed() )
-        {
-            if ( reason != null )
-            {
-                throw reason;
-            }
-            
-            throw new CursorClosedException( "Attempting " + operation + " operation on a closed Cursor." );
-        }
+        monitor.checkNotClosed();
     }
 
 
-    public boolean isClosed()
+    public final boolean isClosed()
     {
-        return closed;
+        return monitor.isClosed();
     }
 
 
     public void close() throws Exception
     {
-        closed = true;
+        monitor.close();
     }
 
 
-    public void close( Exception reason ) throws Exception
+    public void close( Exception cause ) throws Exception
     {
-        this.reason = reason;
-        closed = true;
+        monitor.close( cause );
     }
 
 

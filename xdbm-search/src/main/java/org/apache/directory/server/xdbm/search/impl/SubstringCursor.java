@@ -105,7 +105,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
             ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
@@ -132,7 +132,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
 
         // to keep the cursor always *after* the last matched tuple
         // This fixes an issue if the last matched tuple is also the last record present in the 
@@ -173,7 +173,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     {
         while ( wrapped.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
@@ -194,7 +194,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
     {
         while ( wrapped.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<String,ServerEntry> entry = wrapped.get();
             if ( evaluateCandidate( entry ) )
             {
@@ -213,7 +213,7 @@ public class SubstringCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public IndexEntry<String, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( available )
         {
             return indexEntry;

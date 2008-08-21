@@ -77,7 +77,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeKey( K key ) throws Exception
     {
-        checkClosed( "beforeKey()" );
+        checkNotClosed( "beforeKey()" );
         browser = table.getBTree().browse( key );
         clearValue();
     }
@@ -97,7 +97,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
          */
         while ( browser.getNext( jdbmTuple ) )
         {
-            checkClosed( "afterKey()" );
+            checkNotClosed( "afterKey()" );
             K next = ( K ) jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
@@ -146,7 +146,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         browser = table.getBTree().browse();
         clearValue();
     }
@@ -154,7 +154,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         browser = table.getBTree().browse( null );
         clearValue();
     }
@@ -177,7 +177,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( browser == null )
         {
             afterLast();
@@ -209,7 +209,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( browser == null )
         {
             beforeFirst();
@@ -240,7 +240,7 @@ class NoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public Tuple<K,V> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( valueAvailable )
         {
             return returnedTuple;

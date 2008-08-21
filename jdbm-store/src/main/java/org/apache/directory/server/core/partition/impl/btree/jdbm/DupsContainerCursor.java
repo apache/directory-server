@@ -82,7 +82,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void beforeKey( K key ) throws Exception
     {
-        checkClosed( "beforeKey()" );
+        checkNotClosed( "beforeKey()" );
         browser = table.getBTree().browse( key );
         forwardDirection = null;
         clearValue();
@@ -104,7 +104,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
          */
         while ( browser.getNext( jdbmTuple ) )
         {
-            checkClosed( "afterKey()" );
+            checkNotClosed( "afterKey()" );
             K next = ( K ) jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
@@ -159,7 +159,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "afterKey()" );
+        checkNotClosed( "afterKey()" );
         browser = table.getBTree().browse();
         forwardDirection = null;
         clearValue();
@@ -168,7 +168,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterKey()" );
+        checkNotClosed( "afterKey()" );
         browser = table.getBTree().browse( null );
         forwardDirection = null;
         clearValue();
@@ -192,7 +192,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( browser == null )
         {
             afterLast();
@@ -230,7 +230,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( browser == null )
         {
             beforeFirst();
@@ -267,7 +267,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
     public Tuple<K,DupsContainer<V>> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( valueAvailable )
         {
             return returnedTuple;

@@ -123,7 +123,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         cursor = scopeCursor;
         cursor.beforeFirst();
         available = false;
@@ -132,7 +132,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         if ( evaluator.isDereferencing() )
         {
             cursor = dereferencedCursor;
@@ -163,7 +163,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         // if the cursor has not been set - position it after last element
         if ( cursor == null )
         {
@@ -182,7 +182,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
                 // advance until nothing is available or until we find a non-alias
                 do
                 {
-                    checkClosed( "previous()" );
+                    checkNotClosed( "previous()" );
                     available = cursor.previous();
                     if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
@@ -214,7 +214,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
             // advance until nothing is available or until we find a non-alias
             do
             {
-                checkClosed( "previous()" );
+                checkNotClosed( "previous()" );
                 available = cursor.previous();
 
                 if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
@@ -233,7 +233,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         // if the cursor hasn't been set position it before the first element
         if ( cursor == null )
         {
@@ -249,7 +249,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
             // advance until nothing is available or until we find a non-alias
             do
             {
-                checkClosed( "next()" );
+                checkNotClosed( "next()" );
                 available = cursor.next();
 
                 if ( available && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
@@ -294,7 +294,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
 
     public IndexEntry<Long, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( available )
         {
             return cursor.get();

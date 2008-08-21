@@ -47,7 +47,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
     
     public void after( K element ) throws Exception 
     {
-        checkClosed( "after" );
+        checkNotClosed( "after" );
 
         if ( element == null )
         {
@@ -75,7 +75,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public void afterLast() throws Exception 
     {
-        checkClosed( "afterLast" );
+        checkNotClosed( "afterLast" );
         node = tree.getLast();
         isBeforeFirst = false;
         isAfterLast = true;
@@ -91,7 +91,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public void before( K element ) throws Exception 
     {
-        checkClosed( "before" );
+        checkNotClosed( "before" );
 
         if ( element == null )
         {
@@ -118,7 +118,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public void beforeFirst() throws Exception 
     {
-        checkClosed( "beforeFirst" );
+        checkNotClosed( "beforeFirst" );
         node = tree.getFirst();
         isBeforeFirst = true;
         isAfterLast = false;
@@ -128,7 +128,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public boolean first() throws Exception 
     {
-        checkClosed( "first" );
+        checkNotClosed( "first" );
         node = tree.getFirst();
         isBeforeFirst = false;
         isAfterLast = false;
@@ -138,7 +138,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public K get() throws Exception 
     {
-        checkClosed( "get" );
+        checkNotClosed( "get" );
         if ( onNode )
         {
             return node.getKey();
@@ -156,7 +156,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public boolean last() throws Exception 
     {
-        checkClosed( "last" );
+        checkNotClosed( "last" );
         node = tree.getLast();
         isBeforeFirst = false;
         isAfterLast = false;
@@ -166,7 +166,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public boolean next() throws Exception 
     {
-        checkClosed( "next" );
+        checkNotClosed( "next" );
         
         if ( isBeforeFirst )
         {
@@ -206,7 +206,7 @@ public class AvlTreeCursor<K> extends AbstractCursor<K>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous" );
+        checkNotClosed( "previous" );
 
         if ( isBeforeFirst )
         {

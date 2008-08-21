@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.core.cursor.ClosureMonitor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;
 
@@ -168,6 +169,12 @@ public class IndexCursorAdaptor<K,O> implements IndexCursor<K,O>
     public boolean isElementReused()
     {
         return true;
+    }
+    
+    
+    public final void setClosureMonitor( ClosureMonitor monitor )
+    {
+        wrappedCursor.setClosureMonitor( monitor );
     }
 
 

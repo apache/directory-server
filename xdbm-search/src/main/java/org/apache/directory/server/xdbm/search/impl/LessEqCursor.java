@@ -87,7 +87,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeValue( Long id, V value ) throws Exception
     {
-        checkClosed( "beforeValue()" );
+        checkNotClosed( "beforeValue()" );
         if ( userIdxCursor != null )
         {
             /*
@@ -133,7 +133,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     @SuppressWarnings("unchecked")
     public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
         if ( userIdxCursor != null )
         {
             /*
@@ -178,7 +178,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     @SuppressWarnings("unchecked")
     public void afterValue( Long id, V value ) throws Exception
     {
-        checkClosed( "afterValue()" );
+        checkNotClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
@@ -215,7 +215,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     @SuppressWarnings("unchecked")
     public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
@@ -251,7 +251,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -268,7 +268,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
             IndexEntry<V,ServerEntry> advanceTo = new ForwardIndexEntry<V,ServerEntry>();
@@ -302,7 +302,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
 
         if ( userIdxCursor != null )
         {
@@ -316,7 +316,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
@@ -335,7 +335,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( userIdxCursor != null )
         {
             /*
@@ -346,7 +346,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              */
             while ( userIdxCursor.next() )
             {
-                checkClosed( "next()" );
+                checkNotClosed( "next()" );
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                      lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
@@ -360,7 +360,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             ndnCandidate = ndnIdxCursor.get();
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
@@ -378,7 +378,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( userIdxCursor != null )
         {
             if ( available )

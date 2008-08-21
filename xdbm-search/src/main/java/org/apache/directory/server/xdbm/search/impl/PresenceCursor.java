@@ -76,7 +76,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void beforeValue( Long id, String value ) throws Exception
     {
-        checkClosed( "beforeValue()" );
+        checkNotClosed( "beforeValue()" );
         if ( presenceCursor != null )
         {
             presenceCursor.beforeValue( id, value );
@@ -89,7 +89,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void before( IndexEntry<String, ServerEntry> element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
         if ( presenceCursor != null )
         {
             presenceCursor.before( element );
@@ -102,7 +102,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void afterValue( Long id, String value ) throws Exception
     {
-        checkClosed( "afterValue()" );
+        checkNotClosed( "afterValue()" );
         if ( presenceCursor != null )
         {
             presenceCursor.afterValue( id, value );
@@ -115,7 +115,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void after( IndexEntry<String, ServerEntry> element ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
         if ( presenceCursor != null )
         {
             presenceCursor.after( element );
@@ -128,7 +128,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         if ( presenceCursor != null )
         {
             presenceCursor.beforeFirst();
@@ -142,7 +142,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         if ( presenceCursor != null )
         {
             presenceCursor.afterLast();
@@ -156,7 +156,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
         if ( presenceCursor != null )
         {
             return presenceCursor.first();
@@ -169,7 +169,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
         if ( presenceCursor != null )
         {
             return presenceCursor.last();
@@ -182,7 +182,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( presenceCursor != null )
         {
             return presenceCursor.previous();
@@ -190,7 +190,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
         while ( ndnCursor.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -204,7 +204,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( presenceCursor != null )
         {
             return presenceCursor.next();
@@ -212,7 +212,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
         while ( ndnCursor.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = ndnCursor.get();
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -226,7 +226,7 @@ public class PresenceCursor extends AbstractIndexCursor<String, ServerEntry>
 
     public IndexEntry<String, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( presenceCursor != null )
         {
             if ( presenceCursor.available() )

@@ -94,7 +94,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeValue( Long id, V value ) throws Exception
     {
-        checkClosed( "beforeValue()" );
+        checkNotClosed( "beforeValue()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -108,7 +108,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterValue( Long id, V value ) throws Exception
     {
-        checkClosed( "afterValue()" );
+        checkNotClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, value );
@@ -122,7 +122,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void before( IndexEntry<V, ServerEntry> element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -136,7 +136,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void after( IndexEntry<V, ServerEntry> element ) throws Exception
     {
-        checkClosed( "after()" );
+        checkNotClosed( "after()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -150,7 +150,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -165,7 +165,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -201,7 +201,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.previous() )
         {
-            checkClosed( "previous()" );
+            checkNotClosed( "previous()" );
             IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
@@ -222,7 +222,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
 
         while( ndnIdxCursor.next() )
         {
-            checkClosed( "next()" );
+            checkNotClosed( "next()" );
             IndexEntry<?,ServerEntry> candidate = ndnIdxCursor.get();
             if ( approximateEvaluator.evaluate( candidate ) )
             {
@@ -237,7 +237,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V, ServerEntry>
     @SuppressWarnings("unchecked")
     public IndexEntry<V, ServerEntry> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();

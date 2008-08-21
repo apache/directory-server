@@ -85,7 +85,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeValue( K key, V value ) throws Exception
     {
-        checkClosed( "beforeValue()" );
+        checkNotClosed( "beforeValue()" );
         containerCursor.before( new Tuple<K,DupsContainer<V>>( key, null ) );
 
         if ( containerCursor.next() )
@@ -132,7 +132,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void afterValue( K key, V value ) throws Exception
     {
-        checkClosed( "afterValue()" );
+        checkNotClosed( "afterValue()" );
         /*
          * There is a subtle difference between after and before handling
          * with dupicate key values.  Say we have the following tuples:
@@ -213,7 +213,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         clearValue();
         containerCursor.beforeFirst();
         containerTuple.setKey( null );
@@ -224,7 +224,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         clearValue();
         containerCursor.afterLast();
         containerTuple.setKey( null );
@@ -235,7 +235,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
         clearValue();
         dupsCursor = null;
 
@@ -272,7 +272,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
         clearValue();
         dupsCursor = null;
 
@@ -319,7 +319,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         /*
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.
@@ -371,7 +371,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         /*
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the next key.
@@ -429,7 +429,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
     public Tuple<K,V> get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
 
         if ( ! valueAvailable )
         {

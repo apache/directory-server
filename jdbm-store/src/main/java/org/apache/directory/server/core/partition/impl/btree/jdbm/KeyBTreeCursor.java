@@ -76,7 +76,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public void before( E element ) throws Exception
     {
-        checkClosed( "before()" );
+        checkNotClosed( "before()" );
         browser = btree.browse( element );
         clearValue();
     }
@@ -95,7 +95,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
          */
         while ( browser.getNext( tuple ) )
         {
-            checkClosed( "after()" );
+            checkNotClosed( "after()" );
             //noinspection unchecked
             E next = ( E ) tuple.getKey();
             int nextCompared = comparator.compare( next, element );
@@ -125,7 +125,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         browser = btree.browse();
         clearValue();
     }
@@ -133,7 +133,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         browser = btree.browse( null );
     }
 
@@ -154,7 +154,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( browser == null )
         {
             browser = btree.browse( null );
@@ -174,7 +174,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( browser == null )
         {
             browser = btree.browse();
@@ -194,7 +194,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
     public E get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( valueAvailable )
         {
             //noinspection unchecked

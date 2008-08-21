@@ -81,21 +81,21 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public void beforeFirst() throws Exception
     {
-        checkClosed( "beforeFirst()" );
+        checkNotClosed( "beforeFirst()" );
         pos = BEFORE_FIRST;
     }
 
 
     public void afterLast() throws Exception
     {
-        checkClosed( "afterLast()" );
+        checkNotClosed( "afterLast()" );
         pos = values.size();
     }
 
 
     public boolean absolute( int absolutePosition ) throws Exception
     {
-        checkClosed( "absolute()" );
+        checkNotClosed( "absolute()" );
         if ( absolutePosition >= values.size() )
         {
             pos = values.size();
@@ -115,7 +115,7 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public boolean first() throws Exception
     {
-        checkClosed( "first()" );
+        checkNotClosed( "first()" );
         pos = 0;
         return true;
     }
@@ -123,7 +123,7 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public boolean last() throws Exception
     {
-        checkClosed( "last()" );
+        checkNotClosed( "last()" );
         pos = values.size() - 1;
         return true;
     }
@@ -131,35 +131,35 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public boolean isFirst() throws Exception
     {
-        checkClosed( "isFirst()" );
+        checkNotClosed( "isFirst()" );
         return pos == 0;
     }
 
 
     public boolean isLast() throws Exception
     {
-        checkClosed( "isLast()" );
+        checkNotClosed( "isLast()" );
         return pos == values.size() - 1;
     }
 
 
     public boolean isAfterLast() throws Exception
     {
-        checkClosed( "isAfterLast()" );
+        checkNotClosed( "isAfterLast()" );
         return pos == values.size();
     }
 
 
     public boolean isBeforeFirst() throws Exception
     {
-        checkClosed( "isBeforeFirst()" );
+        checkNotClosed( "isBeforeFirst()" );
         return pos == BEFORE_FIRST;
     }
 
 
     public boolean previous() throws Exception
     {
-        checkClosed( "previous()" );
+        checkNotClosed( "previous()" );
         if ( pos <= BEFORE_FIRST )
         {
             return false;
@@ -178,7 +178,7 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public boolean next() throws Exception
     {
-        checkClosed( "next()" );
+        checkNotClosed( "next()" );
         if ( pos >= values.size() )
         {
             return false;
@@ -191,7 +191,7 @@ public class ValueArrayCursor<K,V> extends AbstractCursor<Tuple>
 
     public Tuple get() throws Exception
     {
-        checkClosed( "get()" );
+        checkNotClosed( "get()" );
         if ( inRangeOnValue() )
         {
             return tuple.setBoth( key, values.get( pos ) );
