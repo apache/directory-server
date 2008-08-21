@@ -28,7 +28,6 @@ import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
@@ -299,12 +298,17 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             return ldapServer.getMaxSizeLimit();
         }
         
+        if ( ldapServer.getMaxSizeLimit() == NO_SIZE_LIMIT )
+        {
+            return req.getSizeLimit();
+        }
+        
         /*
          * If the non-administrative user specifies a size limit equal to or 
          * less than the maximum limit configured in the server then we 
          * constrain search by the amount specified in the request
          */
-        if ( ldapServer.getMaxSizeLimit() >= req.getTimeLimit() )
+        if ( ldapServer.getMaxSizeLimit() >= req.getSizeLimit() )
         {
             return req.getSizeLimit();
         }
@@ -364,6 +368,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 {
                     ClonedServerEntry entry = cursor.get();
                     session.getIoSession().write( generateResponse( session, req, entry ) );
+                    count++;
                 }
                 
                 if ( count >= sizeLimit )
