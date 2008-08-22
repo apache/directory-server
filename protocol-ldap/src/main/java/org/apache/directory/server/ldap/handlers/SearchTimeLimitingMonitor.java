@@ -42,6 +42,13 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     private Exception cause;
     
     
+    /**
+     * Creates a new instance of SearchTimeLimitingMonitor.
+     *
+     * @param timeToLive the time before changing state to closed.
+     * @param unit the time units for the timeToLive parameter
+     * @see {@link TimeUnit}
+     */
     public SearchTimeLimitingMonitor( long timeToLive, TimeUnit unit )
     {
         switch ( unit )
@@ -61,6 +68,10 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     }
 
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#checkNotClosed()
+     */
     public void checkNotClosed() throws Exception
     {
         if ( System.currentTimeMillis() > startTime + millisToLive )
@@ -85,6 +96,10 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     }
 
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#close()
+     */
     public void close()
     {
         if ( ! closed )
@@ -98,6 +113,10 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     }
 
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#close(java.lang.String)
+     */
     public void close( String cause )
     {
         if ( ! closed )
@@ -110,7 +129,11 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
         }
     }
 
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#close(java.lang.Exception)
+     */
     public void close( Exception cause )
     {
         if ( ! closed )
@@ -124,12 +147,20 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     }
 
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#getCause()
+     */
     public Exception getCause()
     {
         return cause;
     }
 
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.directory.server.core.cursor.ClosureMonitor#isClosed()
+     */
     public boolean isClosed()
     {
         if ( System.currentTimeMillis() > startTime + millisToLive )
