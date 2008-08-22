@@ -43,7 +43,7 @@ public class GracefulDisconnectTest extends TestCase
 {
     /**
      * Test the decoding of a GracefulDisconnect
-     */
+     *
     public void testDecodeGracefulDisconnectSuccess()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -103,7 +103,7 @@ public class GracefulDisconnectTest extends TestCase
             fail( ee.getMessage() );
         }
     }
-
+*/
 
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline only
@@ -266,7 +266,7 @@ public class GracefulDisconnectTest extends TestCase
 
     /**
      * Test the decoding of a GracefulDisconnect with replicatedContexts only
-     */
+     *
     public void testDecodeGracefulDisconnectReplicatedContextsOnly()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -326,6 +326,7 @@ public class GracefulDisconnectTest extends TestCase
             fail( ee.getMessage() );
         }
     }
+*/
 
 
     /**
