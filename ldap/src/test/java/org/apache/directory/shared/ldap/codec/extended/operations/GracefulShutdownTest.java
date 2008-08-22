@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdown;
 import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdownContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -44,6 +45,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown
      */
+	@Test
     public void testDecodeGracefulShutdownSuccess()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -98,6 +100,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a timeOffline only
      */
+	@Test
     public void testDecodeGracefulShutdownTimeOffline()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -149,6 +152,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay only
      */
+	@Test
     public void testDecodeGracefulShutdownDelay()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -201,6 +205,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a empty GracefulShutdown
      */
+	@Test
     public void testDecodeGracefulShutdownEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -251,6 +256,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay above 128
      */
+	@Test
     public void testDecodeGracefulShutdownDelayHigh()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -304,6 +310,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay equals 32767
      */
+	@Test
     public void testDecodeGracefulShutdownDelay32767()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -357,6 +364,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay above 32768
      */
+	@Test
     public void testDecodeGracefulShutdownDelay32768()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -414,6 +422,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a timeOffline off limit
      */
+	@Test
     public void testDecodeGracefulShutdownTimeOfflineOffLimit()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -444,6 +453,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay off limit
      */
+	@Test
     public void testDecodeGracefulShutdownDelayOffLimit()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -477,6 +487,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with an empty TimeOffline
      */
+	@Test
     public void testDecodeGracefulShutdownTimeOfflineEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();
@@ -506,6 +517,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with an empty delay
      */
+	@Test
     public void testDecodeGracefulShutdownDelayEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();

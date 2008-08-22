@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDiscon
 import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -43,7 +44,8 @@ public class GracefulDisconnectTest extends TestCase
 {
     /**
      * Test the decoding of a GracefulDisconnect
-     *
+     */
+	@Test
     public void testDecodeGracefulDisconnectSuccess()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -103,11 +105,12 @@ public class GracefulDisconnectTest extends TestCase
             fail( ee.getMessage() );
         }
     }
-*/
+    
 
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline only
      */
+	@Test
     public void testDecodeGracefulDisconnectTimeOffline()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -160,6 +163,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a delay only
      */
+	@Test
     public void testDecodeGracefulDisconnectDelay()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -213,6 +217,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline and a delay
      */
+	@Test
     public void testDecodeGracefulDisconnectTimeOfflineDelay()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -266,7 +271,8 @@ public class GracefulDisconnectTest extends TestCase
 
     /**
      * Test the decoding of a GracefulDisconnect with replicatedContexts only
-     *
+     */
+	@Test
     public void testDecodeGracefulDisconnectReplicatedContextsOnly()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -326,12 +332,12 @@ public class GracefulDisconnectTest extends TestCase
             fail( ee.getMessage() );
         }
     }
-*/
 
 
     /**
      * Test the decoding of a empty GracefulDisconnect
      */
+	@Test
     public void testDecodeGracefulDisconnectEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -385,6 +391,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline off limit
      */
+	@Test
     public void testDecodeGracefulDisconnectTimeOfflineOffLimit()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -415,6 +422,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a delay off limit
      */
+	@Test
     public void testDecodeGracefulDisconnectDelayOffLimit()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -448,6 +456,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with an empty TimeOffline
      */
+	@Test
     public void testDecodeGracefulDisconnectTimeOfflineEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -477,6 +486,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with an empty delay
      */
+	@Test
     public void testDecodeGracefulDisconnectDelayEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -507,6 +517,7 @@ public class GracefulDisconnectTest extends TestCase
      * Test the decoding of a GracefulDisconnect with an empty replicated
      * contexts
      */
+	@Test
     public void testDecodeGracefulDisconnectReplicatedContextsEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
@@ -537,6 +548,7 @@ public class GracefulDisconnectTest extends TestCase
      * Test the decoding of a GracefulDisconnect with an invalid replicated
      * context
      */
+	@Test
     public void testDecodeGracefulDisconnectReplicatedContextsInvalid()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
