@@ -22,12 +22,14 @@ package org.apache.directory.server.ldap.handlers;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -501,6 +503,16 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         }
         
         /*
+         * Do not add the OR'd (objectClass=referral) expression if the user 
+         * searches for the subSchemaSubEntry as the SchemaIntercepter can't 
+         * handle an OR'd filter.
+         */
+        if ( isSubSchemaSubEntrySearch( session, req ) )
+        {
+            return;
+        }
+        
+        /*
          * Most of the time the search filter is just (objectClass=*) and if 
          * this is the case then there's no reason at all to OR this with an
          * (objectClass=referral).  If we detect this case then we leave it 
@@ -631,5 +643,44 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         }
         
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
+    }
+    
+    
+    /**
+     * <p>
+     * Determines if a search request is a subSchemaSubEntry search.
+     * </p>
+     * <p>
+     * It is a schema search if:
+     * - the base DN is the DN of the subSchemaSubEntry of the root DSE
+     * - and the scope is BASE OBJECT
+     * - and the filter is (objectClass=subschema)
+     * (RFC 4512, 4.4,)
+     * </p>
+     * <p>
+     * However in this method we only check the first condition to avoid
+     * performance issues.
+     * </p>
+     * 
+     * @param session the LDAP session
+     * @param req the request issued
+     * 
+     * @return true if the search is on the subSchemaSubEntry, false otherwise
+     * 
+     * @throws Exception the exception
+     */
+    private static boolean isSubSchemaSubEntrySearch( LdapSession session, SearchRequest req ) throws Exception
+    {
+        LdapDN base = req.getBase();
+        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
+
+        DirectoryService ds = session.getCoreSession().getDirectoryService();
+        PartitionNexus nexus = ds.getPartitionNexus();
+        Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        LdapDN subschemaSubentryDn = new LdapDN( ( String ) ( subschemaSubentry.get() ) );
+        subschemaSubentryDn.normalize( ds.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
+        
+        return subschemaSubentryDnNorm.equals( baseNormForm );
     }
 }

@@ -288,4 +288,39 @@ public class SchemaSearchIT
         assertFalse( results.hasMore() );
         results.close();
     }
+    
+    
+    /**
+     * Test case for DIRSERVER-: Ensure that schema entry is returned, 
+     * even if no ManageDsaIT control is present in the search request.
+     */
+    @Test
+    public void testRequestWithoutManageDsaITControl() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapServer );
+
+        // this removes the ManageDsaIT control from the search request
+        ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
+
+        SearchControls ctls = new SearchControls();
+        String[] attrNames =
+            { "objectClasses", "attributeTypes", "ldapSyntaxes", "matchingRules", "matchingRuleUse", "createTimestamp",
+                "modifyTimestamp" };
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( attrNames );
+
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+
+        result.close();
+    }
 }
