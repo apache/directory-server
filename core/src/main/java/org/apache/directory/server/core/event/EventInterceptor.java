@@ -343,43 +343,11 @@ public class EventInterceptor extends BaseInterceptor
                 }
             }
         }
-    }
-    
-    
-    class RegistrationEntry
-    {
-        private final DirectoryListener listener;
-        private final NotificationCriteria criteria;
 
-        
-        RegistrationEntry( DirectoryListener listener )
+
+        public List<RegistrationEntry> getRegistrationEntries()
         {
-            this( listener, new NotificationCriteria() );
-        }
-
-        
-        RegistrationEntry( DirectoryListener listener, NotificationCriteria criteria )
-        {
-            this.listener = listener;
-            this.criteria = criteria;
-        }
-
-
-        /**
-         * @return the criteria
-         */
-        NotificationCriteria getCriteria()
-        {
-            return criteria;
-        }
-
-
-        /**
-         * @return the listener
-         */
-        DirectoryListener getListener()
-        {
-            return listener;
+            return Collections.unmodifiableList( registrations );
         }
     }
 }

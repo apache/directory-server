@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.event;
 
 
+import java.util.List;
+
+
+
+
 /**
  * Interface used by the DirectoryService to manage subscriptions for DIT 
  * change notifications.
@@ -56,4 +61,10 @@ public interface EventService
      * @param listener the DirectoryListener to stop delivering notifications to
      */
     void removeListener( DirectoryListener listener );
+    
+    
+    /**
+     * Lists the listeners registered with this EventService.
+     */
+    List<RegistrationEntry> getRegistrationEntries();
 }
