@@ -26,9 +26,7 @@ import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -47,9 +45,6 @@ import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.server.ldap.handlers.bind.*;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
-import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
 import org.apache.directory.shared.ldap.constants.SaslQoP;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
@@ -60,41 +55,23 @@ import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.MessageDecoder;
-import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.ThreadModel;
 import org.apache.mina.common.WriteFuture;
-import org.apache.mina.filter.SSLFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-import org.apache.mina.util.SessionLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +86,17 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapServer extends DirectoryBackedService
 {
+    /** Value (0) for configuration where size limit is unlimited. */
+    public static final int NO_SIZE_LIMIT = 0;
+
+    /** Value (0) for configuration where time limit is unlimited. */
+    public static final int NO_TIME_LIMIT = 0;
+
+    /** the constant service name of this ldap protocol provider **/
+    public static final String SERVICE_NAME = "ldap";
+
+    
+    
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
@@ -120,12 +108,6 @@ public class LdapServer extends DirectoryBackedService
     /** The default maximum time limit. */
     private static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
-    /** Value (0) for configuration where size limit is unlimited. */
-    public static final int NO_SIZE_LIMIT = 0;
-
-    /** Value (0) for configuration where time limit is unlimited. */
-    public static final int NO_TIME_LIMIT = 0;
-
     /** The default service pid. */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ldap";
 
@@ -135,10 +117,8 @@ public class LdapServer extends DirectoryBackedService
     /** The default IP port. */
     private static final int IP_PORT_DEFAULT = 389;
 
-    /** the constant service name of this ldap protocol provider **/
-    public static final String SERVICE_NAME = "ldap";
-
-    
+    /** the session manager for this LdapServer */
+    private LdapSessionManager ldapSessionManager = new LdapSessionManager();
     
     /** a set of supported controls */
     private Set<String> supportedControls;
@@ -198,7 +178,7 @@ public class LdapServer extends DirectoryBackedService
     private ProtocolCodecFactory codecFactory;
 
     /** the MINA protocol handler */
-    private final LdapProtocolHandler handler = new LdapProtocolHandler();
+    private final LdapProtocolHandler handler = new LdapProtocolHandler(this);
 
     /** tracks start state of the server */
     private boolean started;
@@ -453,18 +433,24 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public ProtocolCodecFactory getCodecFactory()
-    {
-        return codecFactory;
-    }
-
-
     public IoHandler getHandler()
     {
         return handler;
     }
+    
+    
+    public LdapSessionManager getLdapSessionManager()
+    {
+        return ldapSessionManager;
+    }
+    
+    
+    public ProtocolCodecFactory getProtocolCodecFactory()
+    {
+        return codecFactory;
+    }
 
-
+    
     // ------------------------------------------------------------------------
     // Configuration Methods
     // ------------------------------------------------------------------------
@@ -842,7 +828,7 @@ public class LdapServer extends DirectoryBackedService
     public void setDirectoryService( DirectoryService directoryService )
     {
         super.setDirectoryService( directoryService );
-        this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
+        this.codecFactory = new LdapProtocolCodecFactory( directoryService );
     }
 
 
@@ -1017,185 +1003,5 @@ public class LdapServer extends DirectoryBackedService
     public void setStarted( boolean started )
     {
         this.started = started;
-    }
-
-
-    /**
-     * A snickers based BER Decoder factory.
-     */
-    private static final class ProtocolCodecFactoryImpl implements ProtocolCodecFactory
-    {
-        final DirectoryService directoryService;
-
-
-        public ProtocolCodecFactoryImpl( DirectoryService directoryService )
-        {
-            this.directoryService = directoryService;
-        }
-
-
-        public ProtocolEncoder getEncoder()
-        {
-            return new Asn1CodecEncoder( new MessageEncoder() );
-        }
-
-
-        public ProtocolDecoder getDecoder()
-        {
-            return new Asn1CodecDecoder( new MessageDecoder( new BinaryAttributeDetector()
-            {
-                public boolean isBinary( String id )
-                {
-                    AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-                    try
-                    {
-                        AttributeType type = attrRegistry.lookup( id );
-                        return ! type.getSyntax().isHumanReadable();
-                    }
-                    catch ( Exception e )
-                    {
-                        return false;
-                    }
-                }
-            }) );
-        }
-    }
-    
-    
-    Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<IoSession, LdapSession>( 100 );
-
-    
-    public LdapSession[] getSessions()
-    {
-        return ldapSessions.values().toArray( new LdapSession[0] );
-    }
-    
-    
-    public LdapSession removeLdapSession( IoSession session )
-    {
-        LdapSession ldapSession = null; 
-        
-        synchronized ( ldapSessions )
-        {
-            ldapSession = ldapSessions.remove( session );
-        }
-        
-        if ( ldapSession != null )
-        {
-            ldapSession.abandonAllOutstandingRequests();
-        }
-        
-        if ( ! session.isClosing() || session.isConnected() )
-        {
-            try
-            {
-                session.close();
-            }
-            catch ( Throwable t )
-            {
-                LOG.warn( "Failed to close IoSession for LdapSession." );
-            }
-        }
-        
-        return ldapSession;
-    }
-    
-    
-    public LdapSession getLdapSession( IoSession session )
-    {
-        return ldapSessions.get( session );
-    }
-    
-    
-    private class LdapProtocolHandler extends DemuxingIoHandler
-    {
-        public void sessionCreated( IoSession session ) throws Exception
-        {
-            LdapSession ldapSession = new LdapSession( session );
-            IoFilterChain filters = session.getFilterChain();
-            filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
-            
-            synchronized( ldapSessions )
-            {
-                ldapSessions.put( session, ldapSession );
-            }
-        }
-
-
-        public void sessionClosed( IoSession session )
-        {
-            removeLdapSession( session );
-        }
-
-
-        public void messageReceived( IoSession session, Object message ) throws Exception
-        {
-            // Translate SSLFilter messages into LDAP extended request
-            // defined in RFC #2830, 'Lightweight Directory Access Protocol (v3):
-            // Extension for Transport Layer Security'.
-            // 
-            // The RFC specifies the payload should be empty, but we use
-            // it to notify the TLS state changes.  This hack should be
-            // OK from the viewpointd of security because StartTLS
-            // handler should react to only SESSION_UNSECURED message
-            // and degrade authentication level to 'anonymous' as specified
-            // in the RFC, and this is no threat.
-
-            if ( message == SSLFilter.SESSION_SECURED )
-            {
-                ExtendedRequest req = new ExtendedRequestImpl( 0 );
-                req.setOid( "1.3.6.1.4.1.1466.20037" );
-                req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
-                message = req;
-            }
-            else if ( message == SSLFilter.SESSION_UNSECURED )
-            {
-                ExtendedRequest req = new ExtendedRequestImpl( 0 );
-                req.setOid( "1.3.6.1.4.1.1466.20037" );
-                req.setPayload( "UNSECURED".getBytes( "ISO-8859-1" ) );
-                message = req;
-            }
-
-            if ( ( ( Request ) message ).getControls().size() > 0 && message instanceof ResultResponseRequest )
-            {
-                ResultResponseRequest req = ( ResultResponseRequest ) message;
-                for ( Control control1 : req.getControls().values() )
-                {
-                    MutableControl control = ( MutableControl ) control1;
-                    if ( control.isCritical() && !supportedControls.contains( control.getID() ) )
-                    {
-                        ResultResponse resp = req.getResultResponse();
-                        resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
-                        resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
-                        session.write( resp );
-                        return;
-                    }
-                }
-            }
-
-            super.messageReceived( session, message );
-        }
-
-
-        public void exceptionCaught( IoSession session, Throwable cause )
-        {
-            if ( cause.getCause() instanceof ResponseCarryingMessageException )
-            {
-                ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
-
-                if ( rcme.getResponse() != null )
-                {
-                    session.write( rcme.getResponse() );
-                    return;
-                }                
-            }
-            
-            SessionLog.warn( session,
-                "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
-
-            session.write( NoticeOfDisconnect.PROTOCOLERROR );
-            removeLdapSession( session );
-            session.close();
-        }
     }
 }

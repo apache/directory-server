@@ -45,7 +45,7 @@ public class UnbindHandler extends LdapRequestHandler<UnbindRequest>
         {
             session.getCoreSession().unbind( request );
             session.getIoSession().close();
-            ldapServer.removeLdapSession( session.getIoSession() );
+            ldapServer.getLdapSessionManager().removeLdapSession( session.getIoSession() );
         }
         catch ( Throwable t )
         {

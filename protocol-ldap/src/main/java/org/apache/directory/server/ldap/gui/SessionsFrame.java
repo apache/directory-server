@@ -191,7 +191,7 @@ public class SessionsFrame extends JFrame
         {
             sessionsTable = new JTable();
             sessionsTable.setSelectionMode( javax.swing.ListSelectionModel.SINGLE_SELECTION );
-            sessionsTable.setModel( new SessionsModel( ldapServer.getSessions() ) );
+            sessionsTable.setModel( new SessionsModel( ldapServer.getLdapSessionManager().getSessions() ) );
             sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
             {
                 public void valueChanged( ListSelectionEvent e )
@@ -363,7 +363,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    ldapServer.removeLdapSession( selected.getIoSession() );
+                    ldapServer.getLdapSessionManager().removeLdapSession( selected.getIoSession() );
                     try
                     {
                         Thread.sleep( 250 );
@@ -691,7 +691,7 @@ public class SessionsFrame extends JFrame
     private void refresh()
     {
         LOG.info( "Refreshing Sessions UI" );
-        sessionsTable.setModel( new SessionsModel( ldapServer.getSessions() ) );
+        sessionsTable.setModel( new SessionsModel( ldapServer.getLdapSessionManager().getSessions() ) );
         closeItem.setEnabled( false );
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );
