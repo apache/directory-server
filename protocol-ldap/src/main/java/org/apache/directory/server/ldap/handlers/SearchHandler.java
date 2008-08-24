@@ -364,18 +364,20 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             else
             {
                 int count = 0;
-                while ( cursor.next() && count < sizeLimit )
+                while ( cursor.next() )
                 {
-                    ClonedServerEntry entry = cursor.get();
-                    session.getIoSession().write( generateResponse( session, req, entry ) );
-                    count++;
-                }
-                
-                if ( count >= sizeLimit )
-                {
-                    // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-                    ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
-                    return ( SearchResponseDone ) req.getResultResponse();
+                    if ( count < sizeLimit )
+                    {
+                        ClonedServerEntry entry = cursor.get();
+                        session.getIoSession().write( generateResponse( session, req, entry ) );
+                        count++;
+                    }
+                    else
+                    {
+                        // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+                        ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
+                        return ( SearchResponseDone ) req.getResultResponse();
+                    }  
                 }
             }
     

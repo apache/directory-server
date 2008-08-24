@@ -330,7 +330,75 @@ public class SearchLimitsIT
         getActorsWithLimitNonAdmin( "(objectClass=*)", 0, 0 );
     }
 
-    
+
+    /**
+     * Test for DIRSERVER-1235.
+     * Sets up the server with unlimited search size limit but constrains size
+     * by request size limit value. The request size limit is less than the
+     * expected number of result entries, so exception expected.
+     */
+    @Test(expected = SizeLimitExceededException.class)
+    public void testRequestConstraintedLessThanExpectedSize() throws Exception
+    {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        getActorsWithLimit( "(objectClass=*)", 0, 3 );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1235.
+     * Sets up the server with unlimited search size limit but constrains size
+     * by request size limit value. The request size limit is equal to the
+     * expected number of result entries so no exception expected.
+     */
+    @Test
+    public void testRequestConstraintedEqualToExpectedSize() throws Exception
+    {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        Set<String> set = getActorsWithLimit( "(objectClass=*)", 0, 4 );
+        assertEquals( 4, set.size() );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1235.
+     * Sets up the server with unlimited search size limit but constrains size
+     * by request size limit value. The request size limit is greater than the
+     * expected number of result entries so no exception expected.
+     */
+    @Test
+    public void testRequestConstraintedGreaterThanExpectedSize() throws Exception
+    {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+        Set<String> set = getActorsWithLimit( "(objectClass=*)", 0, 5 );
+        assertEquals( 4, set.size() );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1235.
+     * Reads an entry using object scope and size limit 1, no exception
+     * expected.
+     */
+    @Test
+    public void testRequestObjectScopeAndSizeLimit() throws Exception
+    {
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
+
+        DirContext ctx = getWiredContext( ldapServer );
+        String filter = "(objectClass=*)";
+        SearchControls controls = new SearchControls();
+        controls.setTimeLimit( 0 );
+        controls.setCountLimit( 1 );
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        NamingEnumeration<SearchResult> namingEnumeration = ctx.search( "ou=actors,ou=system", filter, controls );
+        assertTrue( namingEnumeration.hasMore() );
+        namingEnumeration.next();
+        assertFalse( namingEnumeration.hasMore() );
+    }
+
+
     // -----------------------------------------------------------------------
     // Utility Methods
     // -----------------------------------------------------------------------
