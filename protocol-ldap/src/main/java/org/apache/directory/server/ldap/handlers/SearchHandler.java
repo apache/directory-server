@@ -582,6 +582,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             if ( psearchControl != null )
             {
                 handlePersistentSearch( session, req, psearchControl );
+                
+                // do not unregister the outstanding request unlike below
                 return;
             }
 
@@ -591,6 +593,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
 
             SearchResponseDone done = doSimpleSearch( session, req );
             session.getIoSession().write( done );
+            session.unregisterOutstandingRequest( req );
         }
         catch ( Exception e )
         {
