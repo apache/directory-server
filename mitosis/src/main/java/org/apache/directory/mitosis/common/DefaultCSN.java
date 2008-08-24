@@ -30,7 +30,7 @@ import org.apache.directory.mitosis.util.OctetString;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultCSN implements CSN, Serializable, Comparable
+public class DefaultCSN implements CSN, Serializable, Comparable<CSN>
 {
     /**
      * Declares the Serial Version Uid.
@@ -45,7 +45,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
     private final long timestamp;
 
     /** The server identification */
-    private final ReplicaId replicaId;
+    private final String replicaId;
 
     /** The operation number in the same timestamp */
     private final int operationSequence;
@@ -64,7 +64,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
      * @param replicaId Replica ID where modification occurred (<tt>[-_A-Za-z0-9]{1,16}</tt>)
      * @param operationSequence Operation sequence
      */
-    public DefaultCSN( long timestamp, ReplicaId replicaId, int operationSequence )
+    public DefaultCSN( long timestamp, String replicaId, int operationSequence )
     {
         this.timestamp = timestamp;
         this.replicaId = replicaId;
@@ -106,7 +106,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
 
         try
         {
-            replicaId = new ReplicaId( value.substring( sepTS + 1, sepID ) );
+            replicaId = value.substring( sepTS + 1, sepID );
         }
         catch ( IllegalArgumentException iae )
         {
@@ -146,7 +146,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
             chars[i - 12] = ( char ) ( value[i] & 0x00FF );
         }
 
-        replicaId = new ReplicaId( new String( chars ) );
+        replicaId = new String( chars );
         bytes = value;
     }
 
@@ -186,7 +186,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
     {
         if ( bytes == null )
         {
-            String id = replicaId.getId();
+            String id = replicaId;
             byte[] bb = new byte[8 + id.length() + 4];
 
             bb[0] = ( byte ) ( timestamp >> 56 );
@@ -226,7 +226,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
     /**
      * @return The replicaId
      */
-    public ReplicaId getReplicaId()
+    public String getReplicaId()
     {
         return replicaId;
     }
@@ -301,7 +301,7 @@ public class DefaultCSN implements CSN, Serializable, Comparable
      * @return  a negative integer, zero, or a positive integer as this object
      *      is less than, equal to, or greater than the specified object.
      */
-    public int compareTo( Object o )
+    public int compareTo( CSN o )
     {
         CSN that = ( CSN ) o;
         long thatTimestamp = that.getTimestamp();

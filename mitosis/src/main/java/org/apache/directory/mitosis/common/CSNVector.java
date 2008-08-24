@@ -33,8 +33,8 @@ import org.apache.directory.shared.ldap.util.HashCodeBuilder;
 /**
  * Creates a set of {@link CSN}s, which is defined in LDUP specification.
  * Each {@link CSN} in the same {@link CSNVector} has different
- * {@link ReplicaId} component from each other.  Its data structure is 
- * similar to a {@link Map} whose key is {@link ReplicaId}.
+ * Replica Id from each other.  Its data structure is 
+ * similar to a {@link Map} whose key is the Replica Id.
  * <p>
  * {@link CSNVector} is usually used to represent 'Update Vector (UV)' and
  * 'Purge Vector (PV)'.  Please refer to the LDUP specification and other 
@@ -53,7 +53,7 @@ public class CSNVector
      */
     private static final long serialVersionUID = 1L;
 
-    private final Map<ReplicaId,CSN> csns = new HashMap<ReplicaId,CSN>();
+    private final Map<String,CSN> csns = new HashMap<String,CSN>();
 
     /**
      * Creates a new empty instance.
@@ -64,7 +64,7 @@ public class CSNVector
 
     /**
      * Adds the specified <tt>csn</tt> to this vector.  If there's a
-     * {@link CSN} with the same {@link ReplicaId}, it is replaced by
+     * {@link CSN} with the same Replica Id, it is replaced by
      * the specified <tt>csn</tt>.
      */
     public void setCSN( CSN csn )
@@ -75,7 +75,7 @@ public class CSNVector
 
     /**
      * Adds all {@link CSN}s that the specified <tt>vector</tt> contains to
-     * this vector.  If there's a {@link CSN} with the same {@link ReplicaId}
+     * this vector.  If there's a {@link CSN} with the same Replica Id
      * in this vector, it is replaced by the {@link CSN} in the specified
      * <tt>vector</tt>.
      */
@@ -94,29 +94,29 @@ public class CSNVector
      * 
      * @return <tt>null</tt> if there's no match
      */
-    public CSN getCSN( ReplicaId replicaId )
+    public CSN getCSN( String replicaId )
     {
         return csns.get( replicaId );
     }
 
 
     /**
-     * Removed the {@link CSN} whith the specified <tt>replicaId</tt> from
+     * Removed the {@link CSN} whith the specified <tt>replica Id</tt> from
      * this vector and returns the removed {@link CSN}.
      * 
      * @return <tt>null</tt> if there's no match
      */
-    public CSN removeCSN( ReplicaId replicaId )
+    public CSN removeCSN( String replicaId )
     {
         return csns.remove( replicaId );
     }
 
 
     /**
-     * Returns the {@link Set} of the {@link ReplicaId}s extracted from
+     * Returns the {@link Set} of the Replica Ids extracted from
      * the {@link CSN}s in this vector.
      */
-    public Set<ReplicaId> getReplicaIds()
+    public Set<String> getReplicaIds()
     {
         return csns.keySet();
     }

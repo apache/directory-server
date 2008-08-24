@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.operation.AddAttributeOperation;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecoder;
@@ -70,7 +69,7 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
                 1234, 
                 new AddAttributeOperation( 
                     new DefaultCSN( System.currentTimeMillis(),
-                        new ReplicaId( "testReplica0" ), 1234 ), 
+                        "testReplica0", 1234 ), 
                     new LdapDN( "ou=system" ).normalize( oids ),
                     new DefaultServerAttribute( "ou", 
                         service.getRegistries().getAttributeTypeRegistry().lookup( "ou" ), "Test" ) ) ), 

@@ -29,13 +29,25 @@ import java.io.Serializable;
  * A CSN is a composition of a timestamp, a replica ID and a 
  * operation sequence number.
  * 
+ * It's described in http://tools.ietf.org/html/draft-sermersheim-ldap-csn-02.
+ * 
+ * The syntax is :
+ * <pre>
+ * ChangeSequenceNumber ::= SEQUENCE {
+ *     time GeneralizedTime,
+ *     timeCount INTEGER (0 ..  MaxInt),
+ *     replicaID UTF8String,
+ *     changeCount INTEGER (0 ..  MaxInt)}
+ * }
+ * </pre>
+ * 
  * It distinguishes a change made on an object on a server,
  * and if two operations take place during the same timeStamp,
  * the operation sequence number makes those operations distinct.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface CSN extends Serializable, Comparable
+public interface CSN extends Serializable, Comparable<CSN>
 {
     /**
      * Returns GMT timestamp of modification.
@@ -46,7 +58,7 @@ public interface CSN extends Serializable, Comparable
     /**
      * Returns replica ID.
      */
-    ReplicaId getReplicaId();
+    String getReplicaId();
 
 
     /**

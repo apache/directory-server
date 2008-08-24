@@ -22,7 +22,6 @@ package org.apache.directory.mitosis.service;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -86,7 +85,7 @@ public abstract class AbstractReplicationServiceTestCase
             int replicationPort = AvailablePortFinder.getNextAvailable( lastAvailablePort );
             lastAvailablePort = replicationPort + 1;
 
-            replicas[ i ] = new Replica( new ReplicaId( names[ i ] ),
+            replicas[ i ] = new Replica( names[ i ],
                     new InetSocketAddress( "127.0.0.1", replicationPort ) );
         }
 
@@ -97,7 +96,7 @@ public abstract class AbstractReplicationServiceTestCase
 
         for ( Replica replica : replicas )
         {
-            String replicaId = replica.getId().getId();
+            String replicaId = replica.getId();
             DirectoryService service = new DefaultDirectoryService();
             service.setInstanceId( replicaId );
             File workDir = new File( homeDirectory + File.separator + service.getInstanceId() );

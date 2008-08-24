@@ -22,7 +22,6 @@ package org.apache.directory.mitosis.store;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
@@ -47,24 +46,27 @@ public interface ReplicationStore
      * Opens this storage.
      */
     void open( DirectoryService directoryService, ReplicationConfiguration cfg );
+    
 
     /**
      * Closes this storage and releases the resources allocated when it's
      * opened.
      */
     void close();
+    
 
     /**
-     * Returns the {@link ReplicaId} of the {@link ReplicaId} that this storage
+     * Returns the ReplicaId of the ReplicaId that this storage
      * is associated with.
      */
-    ReplicaId getReplicaId();
+    String getReplicaId();
+    
 
     /**
-     * Returns the set of {@link ReplicaId}s of the {@link ReplicaId}s that
+     * Returns the set of ReplicaIds of the ReplicaIds that
      * belongs to the same cluster.
      */
-    Set<ReplicaId> getKnownReplicaIds();
+    Set<String> getKnownReplicaIds();
 
 
     // UUID to DN table operations
@@ -73,12 +75,14 @@ public interface ReplicationStore
      * Finds the {@link Name} of an entry with the specified {@link UUID}.
      */
     Name getDN( UUID uuid );
+    
 
     /**
      * Associates the specified name and UUID so a user can
      * find an entry's name from a UUID.
      */
     boolean putUUID( UUID uuid, Name dn );
+    
 
     /**
      * Removed the specified UUID mapping from this storage.
@@ -93,6 +97,7 @@ public interface ReplicationStore
      * Puts the specified operation into this storage.
      */
     void putLog( Operation operation );
+    
 
     /**
      * Queries all operations that is greater than the specified {@link CSN}.
@@ -101,6 +106,7 @@ public interface ReplicationStore
      *                  itself in the result set.
      */
     ReplicationLogIterator getLogs( CSN fromCSN, boolean inclusive );
+    
 
     /**
      * Queries all operations that is greater than the specified
@@ -110,6 +116,7 @@ public interface ReplicationStore
      *                  <tt>updateVector</tt> itself in the result set.
      */
     ReplicationLogIterator getLogs( CSNVector updateVector, boolean inclusive );
+    
 
     /**
      * Removes all operations that is less than the specified {@link CSN}.
@@ -119,23 +126,27 @@ public interface ReplicationStore
      * @return the number of deleted {@link Operation}s
      */
     int removeLogs( CSN toCSN, boolean inclusive );
+    
 
     /**
      * Returns the number of {@link Operation}s logged in this storage.
      */
     int getLogSize();
+    
 
     /**
      * Returns the number of {@link Operation}s logged by
-     * the {@link ReplicaId} with the specified {@link ReplicaId}
+     * the ReplicaId with the specified ReplicaId
      * in this storage .
      */
-    int getLogSize( ReplicaId replicaId );
+    int getLogSize( String replicaId );
+    
 
     /**
      * Calculates the Update Vector (UV) from this storage. 
      */
     CSNVector getUpdateVector();
+    
 
     /**
      * Calculates the Purge Vector (PV) from this storage. 

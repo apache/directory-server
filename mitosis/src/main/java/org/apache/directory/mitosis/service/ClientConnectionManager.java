@@ -29,7 +29,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationClientProtocolCodecFactory;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
@@ -73,7 +72,7 @@ class ClientConnectionManager
     private final ReplicationInterceptor interceptor;
     private final IoConnector connector = new SocketConnector();
     private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
-    private final Map<ReplicaId,Connection> sessions = new HashMap<ReplicaId,Connection>();
+    private final Map<String,Connection> sessions = new HashMap<String,Connection>();
     private ReplicationConfiguration configuration;
     private ConnectionMonitor monitor;
 
@@ -170,6 +169,7 @@ class ClientConnectionManager
             for ( Replica replica : configuration.getPeerReplicas() )
             {
                 Connection con = sessions.get( replica.getId() );
+                
                 if ( con == null )
                 {
                     con = new Connection();
@@ -284,10 +284,11 @@ class ClientConnectionManager
             LOG.info( "[Replica-{}] Closing all connections...", configuration.getReplicaId() );
             for ( ;; )
             {
-                Iterator i = sessions.values().iterator();
+                Iterator<Connection> i = sessions.values().iterator();
+                
                 while ( i.hasNext() )
                 {
-                    Connection con = ( Connection ) i.next();
+                    Connection con = i.next();
                     synchronized ( con )
                     {
                         if ( con.inProgress )
@@ -404,7 +405,7 @@ class ClientConnectionManager
         private int delay = -1;
         private boolean inProgress;
         private Connector connector;
-        private ReplicaId replicaId;
+        private String replicaId;
 
 
         public Connection()

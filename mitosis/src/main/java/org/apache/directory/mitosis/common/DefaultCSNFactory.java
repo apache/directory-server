@@ -43,17 +43,13 @@ public class DefaultCSNFactory implements CSNFactory
      * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
      *        string.
      */
-    public CSN newInstance( String replicaId )
-    {
-        return newInstance( new ReplicaId( replicaId ) );
-    }
-
-
-    public synchronized CSN newInstance( ReplicaId replicaId )
+    public synchronized CSN newInstance( String replicaId )
     {
         long newTimestamp = System.currentTimeMillis();
+        
         if ( operationSequence == Integer.MAX_VALUE )
         {
+            // Roll over when reaching the limit.
             operationSequence = 0;
         }
 

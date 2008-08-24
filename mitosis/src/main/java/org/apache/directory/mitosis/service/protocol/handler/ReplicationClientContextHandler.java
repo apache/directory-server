@@ -24,7 +24,6 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
@@ -266,8 +265,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             // Initiate replication process asking update vector.
             if ( SessionLog.isDebugEnabled( ctx.getSession() ) )
             {
-                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId().getId() + "->"
-                    + ( ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null" ) + ") Beginning replication. " );
+                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId() + "->"
+                    + ( ctx.getPeer() != null ? ctx.getPeer().getId() : "null" ) + ") Beginning replication. " );
             }
             ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
             return true;
@@ -276,8 +275,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             if ( SessionLog.isDebugEnabled( ctx.getSession() ) )
             {
-                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId().getId() + "->"
-                    + ( ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null" )
+                SessionLog.debug( ctx.getSession(), "(" + ctx.getConfiguration().getReplicaId() + "->"
+                    + ( ctx.getPeer() != null ? ctx.getPeer().getId() : "null" )
                     + ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:"
                     + ctx.getScheduledExpirations() + ", scheduledWriteRequests:"
                     + ctx.getSession().getScheduledWriteRequests() );
@@ -450,10 +449,11 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     @SuppressWarnings("unchecked")
     private void sendReplicationLogs( ReplicationContext ctx, CSNVector myPV, CSNVector yourUV )
     {
-        for ( ReplicaId replicaId : myPV.getReplicaIds() )
+        for ( String replicaId : myPV.getReplicaIds() )
         {
             CSN myCSN = myPV.getCSN( replicaId );
             CSN yourCSN = yourUV.getCSN( replicaId );
+            
             if ( yourCSN != null && ( myCSN == null || yourCSN.compareTo( myCSN ) < 0 ) )
             {
                 SessionLog.warn( ctx.getSession(), "Remote update vector (" + yourUV

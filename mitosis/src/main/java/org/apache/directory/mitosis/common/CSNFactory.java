@@ -36,15 +36,4 @@ public interface CSNFactory
      *        string.
      */
     CSN newInstance( String replicaId );
-
-
-    /**
-     * Returns a new {@link CSN}.
-     * Generated CSN can be duplicate if user generates CSNs more than 2G 
-     * times a milliseconds.
-     * 
-     * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
-     *        string.
-     */
-    CSN newInstance( ReplicaId replicaId );
 }

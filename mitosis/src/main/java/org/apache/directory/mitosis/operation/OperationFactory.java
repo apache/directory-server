@@ -23,7 +23,6 @@ package org.apache.directory.mitosis.operation;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -86,7 +85,7 @@ import java.util.List;
  */
 public class OperationFactory
 {
-    private final ReplicaId replicaId;
+    private final String replicaId;
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
