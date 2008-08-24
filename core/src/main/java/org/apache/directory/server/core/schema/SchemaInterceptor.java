@@ -701,7 +701,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         // The user was searching into the subSchemaSubEntry
-        // Thgis kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
+        // This kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
         // does not have any sub level)
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
