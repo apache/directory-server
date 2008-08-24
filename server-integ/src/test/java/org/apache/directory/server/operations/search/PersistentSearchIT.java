@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.search;
 
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -38,6 +39,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.event.RegistrationEntry;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -52,12 +55,17 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -80,6 +88,8 @@ import static org.junit.Assert.assertNotNull;
 )
 public class PersistentSearchIT
 {
+    private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchIT.class );
+    
     private static final String BASE = "ou=system";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN = "cn=Tori Amos";
@@ -104,39 +114,105 @@ public class PersistentSearchIT
     }
 
     
+    EventDirContext ctx;
+    EventService eventService; 
+    PSearchListener listener;
+    Thread t;
+    
+
+    public void setUpListenerReturnECs() throws Exception
+    {
+        setUpListener( true, new PersistentSearchControl(), false );
+    }
+    
+    
+    public void setUpListener( boolean returnECs, PersistentSearchControl control, boolean ignoreEmptyRegistryCheck ) 
+        throws Exception
+    {
+        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
+        eventService = ldapServer.getDirectoryService().getEventService();
+        List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
+        
+        if ( ! ignoreEmptyRegistryCheck )
+        {
+            assertTrue( registrationEntryList.isEmpty() );
+        }
+        
+        control.setReturnECs( returnECs );
+        listener = new PSearchListener( control );
+        t = new Thread( listener, "PSearchListener" );
+        t.start();
+
+        // let's wait until the listener thread started
+        while ( eventService.getRegistrationEntries().isEmpty() )
+        {
+            Thread.sleep( 100 );
+        }
+        // Now we wait until the listener is registered (timing dependent crap)
+        Thread.sleep( 250 );
+    }
+    
+    
+    public void setUpListener() throws Exception
+    {
+        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
+        eventService = ldapServer.getDirectoryService().getEventService();
+        List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
+        assertTrue( registrationEntryList.isEmpty() );
+        
+        listener = new PSearchListener();
+        t = new Thread( listener, "PSearchListener" );
+        t.start();
+
+        // let's wait until the listener thread started
+        while ( eventService.getRegistrationEntries().isEmpty() )
+        {
+            Thread.sleep( 100 );
+        }
+        // Now we wait until the listener is registered (timing dependent crap)
+        Thread.sleep( 250 );
+    }
+    
+    
+    public void tearDownListener() throws Exception
+    {
+        listener.close();
+        ctx.close();
+
+        while ( ! eventService.getRegistrationEntries().isEmpty() )
+        {
+            Thread.sleep( 100 );
+        }
+    }
+
+    
+    private void waitForThreadToDie( Thread t ) throws Exception
+    {
+        long start = System.currentTimeMillis();
+        while ( t.isAlive() )
+        {
+            Thread.sleep( 200 );
+            if ( System.currentTimeMillis() - start > 1000 )
+            {
+                break;
+            }
+        }
+    }
+
+    
     /**
      * Shows correct notifications for modify(4) changes.
      */
     @Test
     public void testPsearchModify() throws Exception
     {
-        EventDirContext ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PSearchListener listener = new PSearchListener();
-        Thread t = new Thread( listener, "PSearchListener" );
-        t.start();
-
-        // let's wait until the listener thread started
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        // Now we wait until the listener is registered (timing dependent crap)
-        Thread.sleep( 250 );
-
+        setUpListener();
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
             new AttributesImpl( "description", PERSON_DESCRIPTION, true ) );
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 200 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
+        tearDownListener();
     }
 
 
@@ -146,31 +222,12 @@ public class PersistentSearchIT
     @Test
     public void testPsearchModifyDn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PSearchListener listener = new PSearchListener();
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListener();
         ctx.rename( RDN, "cn=Jack Black" );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
+        tearDownListener();
     }
 
 
@@ -180,31 +237,12 @@ public class PersistentSearchIT
     @Test
     public void testPsearchDelete() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PSearchListener listener = new PSearchListener();
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListener();
         ctx.destroySubcontext( RDN );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
+        tearDownListener();
     }
 
 
@@ -214,31 +252,12 @@ public class PersistentSearchIT
     @Test
     public void testPsearchAdd() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PSearchListener listener = new PSearchListener();
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListener();
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
+        tearDownListener();
     }
 
 
@@ -249,34 +268,14 @@ public class PersistentSearchIT
     @Test
     public void testPsearchModifyWithEC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        PSearchListener listener = new PSearchListener( control );
-        Thread t = new Thread( listener, "PSearchListener" );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListenerReturnECs();
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 200 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        tearDownListener();
     }
 
 
@@ -287,35 +286,14 @@ public class PersistentSearchIT
     @Test
     public void testPsearchModifyDnWithEC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        PSearchListener listener = new PSearchListener( control );
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListenerReturnECs();
         ctx.rename( RDN, "cn=Jack Black" );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
         assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getUpName() );
+        tearDownListener();
     }
 
 
@@ -326,34 +304,13 @@ public class PersistentSearchIT
     @Test
     public void testPsearchDeleteWithEC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        PSearchListener listener = new PSearchListener( control );
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListenerReturnECs();
         ctx.destroySubcontext( RDN );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
+        tearDownListener();
     }
 
 
@@ -364,108 +321,51 @@ public class PersistentSearchIT
     @Test
     public void testPsearchAddWithEC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        PersistentSearchControl control = new PersistentSearchControl();
-        control.setReturnECs( true );
-        PSearchListener listener = new PSearchListener( control );
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListenerReturnECs();
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        tearDownListener();
     }
 
 
     /**
      * Shows correct notifications for only add(1) and modify(4) registered changes with returned 
-     * EntryChangeControl.
+     * EntryChangeControl but not deletes.
      */
     @Test
     public void testPsearchAddModifyEnabledWithEC() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
         PersistentSearchControl control = new PersistentSearchControl();
         control.setReturnECs( true );
         control.setChangeTypes( ChangeType.ADD_VALUE );
         control.enableNotification( ChangeType.MODIFY );
-        PSearchListener listener = new PSearchListener( control );
-        Thread t = new Thread( listener );
-        t.start();
-
-        while ( !listener.isReady )
-        {
-            Thread.sleep( 100 );
-        }
-        Thread.sleep( 250 );
-
+        setUpListener( true, control, false );
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-
-        long start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
+        waitForThreadToDie( t );
 
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
-        listener.result = null;
-        t = new Thread( listener );
-        t.start();
+        tearDownListener();
 
+        setUpListener( true, control, true );
         ctx.destroySubcontext( "cn=Jack Black" );
-
-        start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 100 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
         assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
-        start = System.currentTimeMillis();
-        while ( t.isAlive() )
-        {
-            Thread.sleep( 200 );
-            if ( System.currentTimeMillis() - start > 3000 )
-            {
-                break;
-            }
-        }
-
+        waitForThreadToDie( t );
+        
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        
+        tearDownListener();
     }
 
 
@@ -508,39 +408,6 @@ public class PersistentSearchIT
     //        assertEquals( "cn=Jack Black", listener.result.getName() );
     //        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
     //    }
-
-    /**
-     * Shows notifications functioning with the JNDI notification API of the SUN
-     * provider.
-     */
-    @Test
-    public void testPsearchUsingJndiNotifications() throws Exception
-    {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer).lookup( BASE );
-        JndiNotificationListener listener = new JndiNotificationListener();
-        EventDirContext edc = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
-        edc.addNamingListener( "", EventContext.ONELEVEL_SCOPE, listener );
-
-        while ( listener.list.isEmpty() )
-        {
-            Thread.sleep( 250 );
-            String rdn = "cn=Jack Black";
-            ctx.createSubcontext( rdn, getPersonAttributes( "Black", "Jack Black" ) );
-            ctx.destroySubcontext( rdn );
-        }
-
-        if ( ! listener.hasError )
-        {
-            EventObject event = listener.list.get( 0 );
-            assertEquals( edc, event.getSource() );
-        }
-        else
-        {
-            throw new RuntimeException( "got naming exception while processing events", 
-                listener.exceptionEvent.getException() );
-        }
-    }
-
 
     /**
      * Shows notifications functioning with the JNDI notification API of the SUN
@@ -663,10 +530,10 @@ public class PersistentSearchIT
     {
         boolean isReady = false;
         PSearchNotification result;
-        int count = 0;
         final PersistentSearchControl control;
-
-
+        LdapContext ctx;
+        NamingEnumeration<SearchResult> list;
+        
         PSearchListener()
         {
             control = new PersistentSearchControl();
@@ -678,27 +545,59 @@ public class PersistentSearchIT
             this.control = control;
         }
 
+        
+        void close()
+        {
+            if ( list != null )
+            {
+                try
+                {
+                    list.close();
+                    LOG.debug( "PSearchListener: search naming enumeration closed()" );
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Error closing NamingEnumeration on PSearchListener", e );
+                }
+            }
+            
+            if ( ctx != null )
+            {
+                try
+                {
+                    ctx.close();
+                    LOG.debug( "PSearchListener: search context closed()" );
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Error closing connection on PSearchListener", e );
+                }
+            }
+        }
 
+        
         public void run()
         {
-            NamingEnumeration<SearchResult> list = null;
+            LOG.debug( "PSearchListener.run() called." );
             control.setCritical( true );
             Control[] ctxCtls = new Control[]
                 { control };
 
             try
             {
-                LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
+                ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
                 ctx.setRequestControls( ctxCtls );
                 isReady = true;
+                LOG.debug( "PSearchListener is ready and about to issue persistent search request." );
                 list = ctx.search( "", "objectClass=*", null );
+                LOG.debug( "PSearchListener search request returned." );
                 EntryChangeControlCodec ecControl = null;
 
                 while ( list.hasMore() )
                 {
+                    LOG.debug( "PSearchListener search request got an item." );
                     Control[] controls = null;
                     SearchResult sresult = list.next();
-                    count++;
                     if ( sresult instanceof HasControls )
                     {
                         controls = ( ( HasControls ) sresult ).getControls();
@@ -718,24 +617,14 @@ public class PersistentSearchIT
                     result = new PSearchNotification( sresult, ecControl );
                     break;
                 }
+                LOG.debug( "PSearchListener broke out of while loop." );
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                LOG.error( "PSearchListener encountered error", e );
             }
             finally
             {
-                if ( list != null )
-                {
-                    try
-                    {
-                        list.close();
-                    }
-                    catch ( Exception e )
-                    {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }
