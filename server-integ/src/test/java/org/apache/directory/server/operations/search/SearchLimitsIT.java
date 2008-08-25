@@ -292,17 +292,31 @@ public class SearchLimitsIT
         getActorsWithLimit( "(objectClass=*)", 0, 1 );
     }
 
-    
+
+    /**
+     * Sets up the server with shorter search size limit than the request's 
+     * which constrains size by using server max limit value. Should work 
+     * just fine for the administrative user.
+     */
+    @Test
+    public void testRequestConstrainedGreaterThanConfigurationSize() throws Exception
+    {
+        ldapServer.setMaxSizeLimit( 1 ); 
+        Set<String> set = getActorsWithLimit( "(objectClass=*)", 0, 100000 );
+        assertEquals( 4, set.size() );
+    }
+
+
     /**
      * Sets up the server with shorter search size limit than the request's 
      * which constrains size by using server max limit value to cause a size 
      * limit exceeded exception on the client.
      */
     @Test ( expected = SizeLimitExceededException.class )
-    public void testRequestConstrainedGreaterThanConfigurationSize() throws Exception
+    public void testNonAdminRequestConstrainedGreaterThanConfigurationSize() throws Exception
     {
         ldapServer.setMaxSizeLimit( 1 ); 
-        getActorsWithLimit( "(objectClass=*)", 0, 100000 );
+        getActorsWithLimitNonAdmin( "(objectClass=*)", 0, 100000 );
     }
 
     
