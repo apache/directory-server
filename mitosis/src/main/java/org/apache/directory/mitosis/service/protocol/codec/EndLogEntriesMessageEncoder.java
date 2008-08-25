@@ -40,9 +40,9 @@ public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
     }
 
 
-    public Set getMessageTypes()
+    public Set<Class<?>> getMessageTypes()
     {
-        Set<Class> set = new HashSet<Class>();
+        Set<Class<?>> set = new HashSet<Class<?>>();
         set.add( EndLogEntriesMessage.class );
         return set;
     }
