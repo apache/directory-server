@@ -55,6 +55,9 @@ import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.LdapURL;
+import org.apache.mina.common.IoService;
+import org.apache.mina.common.TrafficMask;
+import org.apache.mina.common.WriteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -369,6 +372,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             {
                 while ( cursor.next() )
                 {
+                    if ( session.getIoSession().isClosing() )
+                    {
+                        break;
+                    }
                     ClonedServerEntry entry = cursor.get();
                     session.getIoSession().write( generateResponse( session, req, entry ) );
                 }
@@ -378,6 +385,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 int count = 0;
                 while ( cursor.next() )
                 {
+                    if ( session.getIoSession().isClosing() )
+                    {
+                        break;
+                    }
                     if ( count < sizeLimit )
                     {
                         ClonedServerEntry entry = cursor.get();
