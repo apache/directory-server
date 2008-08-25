@@ -274,10 +274,19 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     
     private int getSearchSizeLimits( SearchRequest req, LdapSession session )
     {
+        LOG.debug( "req size limit = {}, configured size limit = {}", req.getSizeLimit(), 
+            ldapServer.getMaxSizeLimit() );
+        
         // Don't bother setting size limits for administrators that don't ask for it
         if ( session.getCoreSession().isAnAdministrator() && req.getSizeLimit() == NO_SIZE_LIMIT )
         {
             return NO_SIZE_LIMIT;
+        }
+        
+        // Don't bother setting size limits for administrators that don't ask for it
+        if ( session.getCoreSession().isAnAdministrator() )
+        {
+            return req.getSizeLimit();
         }
         
         /*
@@ -351,6 +360,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
             final int sizeLimit = getSearchSizeLimits( req, session );
+            LOG.debug( "using {} for size limit", sizeLimit );
             
             // Position the cursor at the beginning
             cursor.beforeFirst();
