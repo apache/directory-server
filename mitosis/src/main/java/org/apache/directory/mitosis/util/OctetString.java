@@ -116,62 +116,6 @@ public class OctetString
         destination.append( highDigits[v] );
         destination.append( lowDigits[v] );
     }
-
-    /**
-     * Converts the specified binary data into an octet string and returns it.
-     */
-    public static String toString( byte[] src )
-    {
-        final int end = src.length;
-        StringBuffer dst = new StringBuffer( src.length << 1 );
-        for ( int i = 0; i < end; i++ )
-        {
-            dst.append( highDigits[src[i] & 0xff] );
-            dst.append( lowDigits[src[i] & 0xff] );
-        }
-
-        return dst.toString();
-    }
-
-    /**
-     * Converts the specified value into an octet string and returns it.
-     */
-    public static String toString( long value )
-    {
-        StringBuffer dst = new StringBuffer( 16 );
-        append( dst, value );
-        return dst.toString();
-    }
-
-    /**
-     * Converts the specified value into an octet string and returns it.
-     */
-    public static String toString( int value )
-    {
-        StringBuffer dst = new StringBuffer( 8 );
-        append( dst, value );
-        return dst.toString();
-    }
-
-    /**
-     * Converts the specified octet string value into an integer and returns
-     * it.
-     */
-    public static int parseInt( String value )
-    {
-        return Integer.parseInt( value, 16 );
-    }
-
-    /**
-     * Converts the specified octet string value into a long integer and
-     * returns it.
-     */
-    public static long parseLong( String value )
-    {
-        return Long.parseLong( value, 16 );
-    }
-
-
     private OctetString()
     {
     }

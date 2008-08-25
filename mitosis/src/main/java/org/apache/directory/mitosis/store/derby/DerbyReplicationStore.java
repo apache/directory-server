@@ -24,7 +24,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
@@ -46,6 +45,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 
 public class DerbyReplicationStore implements ReplicationStore
@@ -316,7 +316,7 @@ public class DerbyReplicationStore implements ReplicationStore
             con.setTransactionIsolation( Connection.TRANSACTION_READ_COMMITTED );
             con.setReadOnly( true );
             ps = con.prepareStatement( "SELECT DN FROM " + uuidTableName + " WHERE UUID=?" );
-            ps.setString( 1, uuid.toOctetString() );
+            ps.setString( 1, uuid.toString() );
             rs = ps.executeQuery();
             if ( rs.next() )
             {
@@ -340,7 +340,7 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public boolean putUUID( UUID uuid, Name dn )
     {
-        String uuidString = uuid.toOctetString();
+        String uuidString = uuid.toString();
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -396,7 +396,7 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public boolean removeUUID( UUID uuid )
     {
-        String uuidString = uuid.toOctetString();
+        String uuidString = uuid.toString();
         Connection con = null;
         PreparedStatement ps = null;
 

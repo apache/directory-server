@@ -32,9 +32,6 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.DefaultCSNFactory;
-import org.apache.directory.mitosis.common.DefaultUUIDFactory;
-import org.apache.directory.mitosis.common.UUID;
-import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
@@ -72,7 +69,6 @@ public class ReplicationConfiguration
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
     /** Factories */
-    private UUIDFactory uuidFactory = new DefaultUUIDFactory();
     private CSNFactory csnFactory = new DefaultCSNFactory();
     private ReplicationStore store = new DerbyReplicationStore();
     
@@ -278,26 +274,6 @@ public class ReplicationConfiguration
     }
 
     /**
-     * Returns the {@link UUIDFactory} which generates {@link UUID}s for
-     * new directory entries.  The default implementation is
-     * {@link DefaultUUIDFactory}.
-     */
-    public UUIDFactory getUuidFactory()
-    {
-        return uuidFactory;
-    }
-
-    /**
-     * Sets the {@link UUIDFactory} which generates {@link UUID}s for
-     * new directory entries.  The default implementation is
-     * {@link DefaultUUIDFactory}.
-     */
-    public void setUuidFactory( UUIDFactory uuidFactory )
-    {
-        this.uuidFactory = uuidFactory;
-    }
-
-    /**
      * Returns the maximum age (days) of change logs stored in
      * {@link ReplicationStore}.  Any change logs and deleted entries
      * older than this value will be purged periodically.  The default value
@@ -359,12 +335,6 @@ public class ReplicationConfiguration
         {
             log.error( "The replica responsetimeout is negative" );
             throw new ReplicationConfigurationException( "Invalid response timeout: " + responseTimeout );
-        }
-
-        if ( uuidFactory == null )
-        {
-            log.error( "The UUID factory has not been declared" );
-            throw new ReplicationConfigurationException( "UUID factory is not specified." );
         }
 
         if ( csnFactory == null )

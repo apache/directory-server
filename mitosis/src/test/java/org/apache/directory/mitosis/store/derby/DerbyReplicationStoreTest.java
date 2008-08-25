@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.Name;
 import javax.naming.ldap.LdapName;
@@ -49,9 +50,6 @@ import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.DefaultCSNFactory;
-import org.apache.directory.mitosis.common.DefaultUUIDFactory;
-import org.apache.directory.mitosis.common.UUID;
-import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddAttributeOperation;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
@@ -70,7 +68,6 @@ public class DerbyReplicationStoreTest extends TestCase
     private static final String OTHER_REPLICA_ID_2 = "OTHER_REPLICA_2";
     private static final File DB_PATH = new File( "target/testDB" );
 
-    private final UUIDFactory uuidFactory = new DefaultUUIDFactory();
     private final CSNFactory csnFactory = new DefaultCSNFactory();
     private DerbyReplicationStore store;
     private int testCount;
@@ -153,7 +150,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestUUID() throws Exception
     {
-        UUID uuid = uuidFactory.newInstance();
+        UUID uuid = UUID.randomUUID();
         Name name = new LdapName( "ou=a, ou=b" );
         Assert.assertTrue( store.putUUID( uuid, name ) );
         Assert.assertEquals( name, store.getDN( uuid ) );

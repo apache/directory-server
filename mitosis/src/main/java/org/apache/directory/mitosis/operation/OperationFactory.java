@@ -23,7 +23,6 @@ package org.apache.directory.mitosis.operation;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -57,6 +56,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -87,7 +87,6 @@ public class OperationFactory
 {
     private final String replicaId;
     private final PartitionNexus nexus;
-    private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
     
     /** The attributeType registry */
@@ -104,7 +103,6 @@ public class OperationFactory
     {
         replicaId = cfg.getReplicaId();
         nexus = directoryService.getPartitionNexus();
-        uuidFactory = cfg.getUuidFactory();
         csnFactory = cfg.getCsnFactory();
         registries = directoryService.getRegistries();
         attributeRegistry = registries.getAttributeTypeRegistry();
@@ -137,7 +135,7 @@ public class OperationFactory
         ServerEntry cloneEntry = ( ServerEntry ) entry.clone();
         cloneEntry.removeAttributes( Constants.ENTRY_UUID );
         cloneEntry.removeAttributes( Constants.ENTRY_DELETED );
-        cloneEntry.put( Constants.ENTRY_UUID, uuidFactory.newInstance().toOctetString() );
+        cloneEntry.put( Constants.ENTRY_UUID, UUID.randomUUID().toString() );
         cloneEntry.put( Constants.ENTRY_DELETED, "FALSE" );
 
         // NOTE: We inlined addDefaultOperations() because ApacheDS currently
