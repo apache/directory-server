@@ -1067,15 +1067,15 @@ public class StringTools
             return "";
         }
 
-        StringBuffer sb = new StringBuffer();
+        char[] str = new char[buffer.length << 1];
 
-        for ( int i = 0; i < buffer.length; i++ )
+        for ( int i = 0, pos = 0; i < buffer.length; i++ )
         {
-            sb.append( ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] ) ).append(
-                ( char ) ( HEX_CHAR[buffer[i] & 0x000F] ) );
+            str[pos++] = ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] );
+            str[pos++] = ( char ) ( HEX_CHAR[buffer[i] & 0x000F] );
         }
 
-        return sb.toString();
+        return new String( str );
     }
 
     /**
