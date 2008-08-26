@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,11 +31,7 @@ import java.util.TreeSet;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSNFactory;
-import org.apache.directory.mitosis.common.DefaultUUIDFactory;
-import org.apache.directory.mitosis.common.UUID;
-import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
@@ -63,7 +58,7 @@ public class ReplicationConfiguration
     private static Logger log = LoggerFactory.getLogger( ReplicationConfiguration.class );
 
     /** The server identifier */ 
-    private ReplicaId replicaId;
+    private String replicaId;
     
     /** Default values for the communication part */
     private int serverPort = DEFAULT_SERVER_PORT;
@@ -74,7 +69,6 @@ public class ReplicationConfiguration
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
     /** Factories */
-    private UUIDFactory uuidFactory = new DefaultUUIDFactory();
     private CSNFactory csnFactory = new DefaultCSNFactory();
     private ReplicationStore store = new DerbyReplicationStore();
     
@@ -157,6 +151,7 @@ public class ReplicationConfiguration
         {
             replicationInterval = 0;
         }
+        
         this.replicationInterval = replicationInterval;
     }
 
@@ -171,7 +166,7 @@ public class ReplicationConfiguration
     }
 
 
-    /**
+    /**                +
      * Sets the {@link CSNFactory} for generating {@link CSN}s.
      * The default factory is {@link DefaultCSNFactory}.
      */
@@ -220,24 +215,21 @@ public class ReplicationConfiguration
     /**
      * Sets the remote peer replica list.
      */
-    public void setPeerReplicas( Set replicas )
+    public void setPeerReplicas( Set<Object> replicas )
     {
         assert replicas != null;
 
         Set<Replica> normalizedReplicas = new HashSet<Replica>();
-        Iterator i = replicas.iterator();
         
-        while ( i.hasNext() )
+        for ( Object replica:replicas )
         {
-            Object o = i.next();
-            
-            if ( o instanceof Replica )
+            if ( replica instanceof Replica )
             {
-                normalizedReplicas.add( ( Replica ) o );
+                normalizedReplicas.add( (Replica)replica );
             }
             else
             {
-                normalizedReplicas.add( new Replica( o.toString() ) );
+                normalizedReplicas.add( new Replica( replica.toString() ) );
             }
         }
         
@@ -248,7 +240,7 @@ public class ReplicationConfiguration
     /**
      * Returns the ID of the replica this configuration is configuring.
      */
-    public ReplicaId getReplicaId()
+    public String getReplicaId()
     {
         return replicaId;
     }
@@ -256,7 +248,7 @@ public class ReplicationConfiguration
     /**
      * Sets the ID of the replica this configuration is configuring.
      */
-    public void setReplicaId( ReplicaId replicaId )
+    public void setReplicaId( String replicaId )
     {
         assert replicaId != null;
         this.replicaId = replicaId;
@@ -280,26 +272,6 @@ public class ReplicationConfiguration
     public void setStore( ReplicationStore store )
     {
         this.store = store;
-    }
-
-    /**
-     * Returns the {@link UUIDFactory} which generates {@link UUID}s for
-     * new directory entries.  The default implementation is
-     * {@link DefaultUUIDFactory}.
-     */
-    public UUIDFactory getUuidFactory()
-    {
-        return uuidFactory;
-    }
-
-    /**
-     * Sets the {@link UUIDFactory} which generates {@link UUID}s for
-     * new directory entries.  The default implementation is
-     * {@link DefaultUUIDFactory}.
-     */
-    public void setUuidFactory( UUIDFactory uuidFactory )
-    {
-        this.uuidFactory = uuidFactory;
     }
 
     /**
@@ -366,12 +338,6 @@ public class ReplicationConfiguration
             throw new ReplicationConfigurationException( "Invalid response timeout: " + responseTimeout );
         }
 
-        if ( uuidFactory == null )
-        {
-            log.error( "The UUID factory has not been declared" );
-            throw new ReplicationConfigurationException( "UUID factory is not specified." );
-        }
-
         if ( csnFactory == null )
         {
             log.error( "The CSN factory has not been declared" );
@@ -397,7 +363,7 @@ public class ReplicationConfiguration
         Map<String, Integer> servers = new HashMap<String, Integer>();
 
         // Initialize the set with this server replicaId
-        ids.add( replicaId.getId() );
+        ids.add( replicaId );
 
         // And store the local inetadress
         servers.put( "localhost", serverPort );
@@ -415,7 +381,7 @@ public class ReplicationConfiguration
 
         for ( Replica peer:peerReplicas )
         {
-            if ( ids.contains( peer.getId().getId() ) )
+            if ( ids.contains( peer.getId() ) )
             {
                 log.error( "Peer replica ID '{}' has already been declared.", peer.getId() );
                 throw new ReplicationConfigurationException( "Peer replica ID '" + peer.getId()

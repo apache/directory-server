@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
@@ -68,6 +67,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
     private void readCSNVector( ByteBuffer in, CSNVector updateVector ) throws Exception
     {
         int nReplicas = in.getInt();
+        
         if ( nReplicas < 0 )
         {
             throw new ProtocolDecoderException( "Wrong nReplicas: " + nReplicas );
@@ -75,10 +75,11 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
 
         for ( ; nReplicas > 0; nReplicas-- )
         {
-            ReplicaId replicaId;
+            String replicaId;
+            
             try
             {
-                replicaId = new ReplicaId( in.getString( utf8decoder ) );
+                replicaId = in.getString( utf8decoder );
             }
             catch ( CharacterCodingException e )
             {

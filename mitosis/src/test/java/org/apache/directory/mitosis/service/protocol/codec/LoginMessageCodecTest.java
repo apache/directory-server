@@ -20,7 +20,6 @@
 package org.apache.directory.mitosis.service.protocol.codec;
 
 
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.codec.LoginMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.LoginMessageEncoder;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
@@ -31,7 +30,7 @@ public class LoginMessageCodecTest extends AbstractMessageCodecTest
 
     public LoginMessageCodecTest()
     {
-        super( new LoginMessage( 1234, new ReplicaId( "myReplica0" ) ), new LoginMessageEncoder(),
+        super( new LoginMessage( 1234, "myReplica0" ), new LoginMessageEncoder(),
             new LoginMessageDecoder() );
     }
 }

@@ -24,13 +24,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
@@ -65,18 +63,18 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
 
     private void writeCSNVector( ByteBuffer out, CSNVector csns )
     {
-        Set replicaIds = csns.getReplicaIds();
+        Set<String> replicaIds = csns.getReplicaIds();
 
         int nReplicas = replicaIds.size();
         out.putInt( nReplicas );
-        Iterator it = replicaIds.iterator();
-        while ( it.hasNext() )
+
+        for ( String replicaId:replicaIds )
         {
-            ReplicaId replicaId = ( ReplicaId ) it.next();
             CSN csn = csns.getCSN( replicaId );
+            
             try
             {
-                out.putString( replicaId.getId(), utf8encoder );
+                out.putString( replicaId, utf8encoder );
                 out.put( ( byte ) 0x00 );
                 out.putLong( csn.getTimestamp() );
                 out.putInt( csn.getOperationSequence() );
@@ -89,9 +87,9 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set getMessageTypes()
+    public Set<Class<?>> getMessageTypes()
     {
-        Set<Class> set = new HashSet<Class>();
+        Set<Class<?>> set = new HashSet<Class<?>>();
         set.add( BeginLogEntriesAckMessage.class );
         return set;
     }

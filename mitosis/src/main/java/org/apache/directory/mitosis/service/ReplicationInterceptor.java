@@ -23,7 +23,6 @@ package org.apache.directory.mitosis.service;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -149,7 +148,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( ReplicationInterceptor.class );
 
     /** The service name */
-    public static final String NAME = "replicationService";
+    public static final String DEFAULT_SERVICE_NAME = "replicationService";
 
 
     private static final String ENTRY_CSN_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
@@ -158,7 +157,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     /**
      * default name is the service name?
      */
-    private String name = NAME;
+    private String name = DEFAULT_SERVICE_NAME;
 
     private DirectoryService directoryService;
     private ReplicationConfiguration configuration;
@@ -170,21 +169,34 @@ public class ReplicationInterceptor extends BaseInterceptor
     private Registries registries;
 
 
+    /**
+     * Creates a new instance of ReplicationInterceptor.
+     */    
     public ReplicationInterceptor()
     {
     }
 
     /**
-     * this interceptor has configuration so it might be useful to allow several instances in a chain.
+     * This interceptor has configuration so it might be useful to allow several instances in a chain.
+     * 
      * @return configured name for this interceptor.
      */
-    public String getName() {
+    public String getName() 
+    {
         return name;
     }
 
-    public void setName(String name) {
+        
+    /**
+     * Set the name for this service instance
+     *
+     * @param name The new name
+     */
+    public void setName(String name) 
+    {
         this.name = name;
     }
+    
 
     public ReplicationConfiguration getConfiguration()
     {
@@ -192,11 +204,19 @@ public class ReplicationInterceptor extends BaseInterceptor
     }
 
 
-    public void setConfiguration(ReplicationConfiguration configuration) {
+    public void setConfiguration(ReplicationConfiguration configuration) 
+    {
         this.configuration = configuration;
     }
 
-
+    
+    /**
+     * Initialize the Replication service. We have to check that the configuration
+     * is valid, initialize a store for pending operations, and start the communication
+     * with the other LDAP servers.
+     * 
+     * @param directoryService the DirectoryService instance 
+     */
     public void init( DirectoryService directoryService ) throws Exception
     {
         configuration.validate();
@@ -283,6 +303,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         this.clientConnectionManager.replicate();
     }
 
+    
     /**
      * Wake the sleeping (unconnected) replicas.
      */
@@ -315,7 +336,7 @@ public class ReplicationInterceptor extends BaseInterceptor
 
         CSN purgeCSN = new DefaultCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
             * 24L, // convert days to millis
-            new ReplicaId( "ZZZZZZZZZZZZZZZZ" ), Integer.MAX_VALUE );
+            "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
         ExprNode filter;
 
         try

@@ -40,9 +40,9 @@ public class LoginAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set getMessageTypes()
+    public Set<Class<?>> getMessageTypes()
     {
-        Set<Class> set = new HashSet<Class>();
+        Set<Class<?>> set = new HashSet<Class<?>>();
         set.add( LoginAckMessage.class );
         return set;
     }
@@ -52,7 +52,7 @@ public class LoginAckMessageEncoder extends ResponseMessageEncoder
     {
         LoginAckMessage m = ( LoginAckMessage ) in;
         super.encodeBody( in, out );
-        out.putString( m.getReplicaId().getId(), utf8encoder );
+        out.putString( m.getReplicaId(), utf8encoder );
     }
 
 }

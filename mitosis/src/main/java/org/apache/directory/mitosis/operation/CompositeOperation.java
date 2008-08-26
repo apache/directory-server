@@ -22,8 +22,6 @@ package org.apache.directory.mitosis.operation;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
@@ -35,6 +33,7 @@ import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 
 /**
@@ -59,13 +58,13 @@ public class CompositeOperation extends Operation
         }
 
 
-        public ReplicaId getReplicaId()
+        public String getReplicaId()
         {
             return null;
         }
 
 
-        public Set<ReplicaId> getKnownReplicaIds()
+        public Set<String> getKnownReplicaIds()
         {
             return null;
         }
@@ -118,7 +117,7 @@ public class CompositeOperation extends Operation
         }
 
 
-        public int getLogSize( ReplicaId replicaId )
+        public int getLogSize( String replicaId )
         {
             return 0;
         }
