@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.naming.Name;
 import javax.naming.ldap.LdapName;
@@ -48,8 +47,12 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.DefaultCSNFactory;
+import org.apache.directory.mitosis.common.DefaultUUIDFactory;
+import org.apache.directory.mitosis.common.UUID;
+import org.apache.directory.mitosis.common.UUIDFactory;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddAttributeOperation;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
@@ -63,11 +66,12 @@ import org.apache.directory.mitosis.store.ReplicationStoreException;
 
 public class DerbyReplicationStoreTest extends TestCase
 {
-    private static final String REPLICA_ID = "TEST_REPLICA";
-    private static final String OTHER_REPLICA_ID = "OTHER_REPLICA";
-    private static final String OTHER_REPLICA_ID_2 = "OTHER_REPLICA_2";
+    private static final ReplicaId REPLICA_ID = new ReplicaId( "TEST_REPLICA" );
+    private static final ReplicaId OTHER_REPLICA_ID = new ReplicaId( "OTHER_REPLICA" );
+    private static final ReplicaId OTHER_REPLICA_ID_2 = new ReplicaId( "OTHER_REPLICA_2" );
     private static final File DB_PATH = new File( "target/testDB" );
 
+    private final UUIDFactory uuidFactory = new DefaultUUIDFactory();
     private final CSNFactory csnFactory = new DefaultCSNFactory();
     private DerbyReplicationStore store;
     private int testCount;
@@ -83,7 +87,7 @@ public class DerbyReplicationStoreTest extends TestCase
     }
 
 
-    private void startupDatabase( String replicaId ) throws Exception
+    private void startupDatabase( ReplicaId replicaId ) throws Exception
     {
         // Prepare configuration
         ReplicationConfiguration cfg = new ReplicationConfiguration();
@@ -150,7 +154,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestUUID() throws Exception
     {
-        UUID uuid = UUID.randomUUID();
+        UUID uuid = uuidFactory.newInstance();
         Name name = new LdapName( "ou=a, ou=b" );
         Assert.assertTrue( store.putUUID( uuid, name ) );
         Assert.assertEquals( name, store.getDN( uuid ) );
@@ -312,7 +316,7 @@ public class DerbyReplicationStoreTest extends TestCase
         store.putLog( new Operation( csnC ) );
         store.putLog( new Operation( csnD ) );
 
-        Set<String> expectedKnownReplicaIds = new HashSet<String>();
+        Set<ReplicaId> expectedKnownReplicaIds = new HashSet<ReplicaId>();
         expectedKnownReplicaIds.add( REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID_2 );

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
@@ -73,7 +74,7 @@ class DerbyReplicationLogIterator implements ReplicationLogIterator
     {
         try
         {
-            String replicaId = rs.getString( 1 );
+            ReplicaId replicaId = new ReplicaId( rs.getString( 1 ) );
             long timestamp = rs.getLong( 2 );
             int operationSequence = rs.getInt( 3 );
             return new DefaultCSN( timestamp, replicaId, operationSequence );

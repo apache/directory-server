@@ -22,13 +22,12 @@ package org.apache.directory.mitosis.configuration;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
-import java.util.regex.Pattern;
 
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.mitosis.common.ReplicaId;
 
 
 /**
- * A {@link PropertyEditor} that converts strings into Replica Ids
+ * A {@link PropertyEditor} that converts strings into {@link ReplicaId}s
  * and vice versa.
  *
  * @author The Apache Directory Project (dev@directory.apache.org)
@@ -36,9 +35,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class ReplicaIdPropertyEditor extends PropertyEditorSupport
 {
-    /** The replica pattern. */
-    private static final Pattern REPLICA_ID_PATTERN = Pattern.compile( "[-_A-Z0-9]{1,16}" );
-
     public ReplicaIdPropertyEditor()
     {
         super();
@@ -51,39 +47,9 @@ public class ReplicaIdPropertyEditor extends PropertyEditorSupport
     }
 
 
-    /**
-     * Check a new instance of ReplicaId. The id must be a String 
-     * which respect the pattern :
-     * 
-     * [-_a-zA-Z0-9]*
-     * 
-     * and must be between 1 and 16 chars length
-     *
-     * @param id The replica to check
-     * @return true if the replicaId is well formed
-     */
-    public static boolean check( String id )
-    {
-        if ( StringTools.isEmpty( id ) )
-        {
-            throw new IllegalArgumentException( "Empty ID: " + id );
-        }
-
-        String tmpId = id.trim().toUpperCase();
-
-        if ( !REPLICA_ID_PATTERN.matcher( tmpId ).matches() )
-        {
-            return false;
-        }
-
-        return true;
-    }
-    
-    
     public String getAsText()
     {
         Object val = getValue();
-        
         if ( val == null )
         {
             return "";
@@ -98,21 +64,13 @@ public class ReplicaIdPropertyEditor extends PropertyEditorSupport
     public void setAsText( String text ) throws IllegalArgumentException
     {
         text = text.trim();
-        
         if ( text.length() == 0 )
         {
             setValue( null );
         }
         else
         {
-            if ( check( text ) )
-            {
-                setValue( text );
-            }
-            else
-            {
-                setValue( null );
-            }
+            setValue( new ReplicaId( text ) );
         }
     }
 }

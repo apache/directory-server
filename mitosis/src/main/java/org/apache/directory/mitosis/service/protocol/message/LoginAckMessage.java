@@ -22,15 +22,16 @@ package org.apache.directory.mitosis.service.protocol.message;
 
 import org.apache.directory.shared.ldap.util.EqualsBuilder;
 import org.apache.directory.shared.ldap.util.HashCodeBuilder;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.Constants;
 
 
 public class LoginAckMessage extends ResponseMessage
 {
-    private String replicaId;
+    private ReplicaId replicaId;
 
 
-    public LoginAckMessage( int sequence, int responseCode, String replicaId )
+    public LoginAckMessage( int sequence, int responseCode, ReplicaId replicaId )
     {
         super( sequence, responseCode );
         this.replicaId = replicaId;
@@ -43,7 +44,7 @@ public class LoginAckMessage extends ResponseMessage
     }
 
 
-    public String getReplicaId()
+    public ReplicaId getReplicaId()
     {
         return replicaId;
     }

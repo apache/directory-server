@@ -17,33 +17,21 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.mitosis.service.protocol.codec;
+package org.apache.directory.mitosis.common;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.mina.common.ByteBuffer;
+import java.io.Serializable;
 
 
-public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
+/**
+ * Represents UUID (Unversally Unique IDentifier).
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+public interface UUID extends Serializable, Comparable
 {
-    public EndLogEntriesMessageEncoder()
-    {
-    }
-
-
-    protected void encodeBody( BaseMessage in, ByteBuffer out )
-    {
-    }
-
-
-    public Set getMessageTypes()
-    {
-        Set<Class> set = new HashSet<Class>();
-        set.add( EndLogEntriesMessage.class );
-        return set;
-    }
+    /**
+     * Returns octet-string representation of this UUID.
+     */
+    String toOctetString();
 }

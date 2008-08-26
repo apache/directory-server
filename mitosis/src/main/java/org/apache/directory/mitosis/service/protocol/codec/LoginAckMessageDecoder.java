@@ -26,6 +26,7 @@ import java.nio.charset.CharsetDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
@@ -44,7 +45,7 @@ public class LoginAckMessageDecoder extends ResponseMessageDecoder
 
     protected BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
-        return new LoginAckMessage( sequence, responseCode, in.getString( utf8decoder ) );
+        return new LoginAckMessage( sequence, responseCode, new ReplicaId( in.getString( utf8decoder ) ) );
     }
 
 

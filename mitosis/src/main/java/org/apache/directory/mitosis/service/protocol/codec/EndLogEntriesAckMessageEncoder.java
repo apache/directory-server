@@ -35,9 +35,9 @@ public class EndLogEntriesAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set<Class<?>> getMessageTypes()
+    public Set getMessageTypes()
     {
-        Set<Class<?>> set = new HashSet<Class<?>>();
+        Set<Class> set = new HashSet<Class>();
         set.add( EndLogEntriesAckMessage.class );
         return set;
     }

@@ -24,6 +24,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
@@ -44,8 +46,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
 
 public class DerbyReplicationStore implements ReplicationStore
@@ -60,12 +62,12 @@ public class DerbyReplicationStore implements ReplicationStore
 
     private String dbURI;
     private BasicDataSource dataSource;
-    private String replicaId;
+    private ReplicaId replicaId;
     private String tablePrefix = DEFAULT_TABLE_PREFIX;
     private String metadataTableName;
     private String uuidTableName;
     private String logTableName;
-    private Set<String> knownReplicaIds;
+    private Set<ReplicaId> knownReplicaIds;
     private final Object knownReplicaIdsLock = new Object();
     private final OperationCodec operationCodec = new OperationCodec();
 
@@ -214,7 +216,7 @@ public class DerbyReplicationStore implements ReplicationStore
             {
                 // If already registered, match it with what user specified.
                 String actualReplicaId = rs.getString( 1 );
-                if ( !replicaId.equalsIgnoreCase( actualReplicaId ) )
+                if ( !replicaId.getId().equalsIgnoreCase( actualReplicaId ) )
                 {
                     throw new ReplicationStoreException( "Replica ID mismatches: " + actualReplicaId + " (expected: "
                         + replicaId + ")" );
@@ -231,7 +233,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 // If not registered yet, register with what user specified.
                 ps = con.prepareStatement( "INSERT INTO " + metadataTableName + " (M_KEY, M_VALUE) VALUES (?,?)" );
                 ps.setString( 1, KEY_REPLICA_ID );
-                ps.setString( 2, replicaId );
+                ps.setString( 2, replicaId.getId() );
                 ps.executeUpdate();
             }
 
@@ -246,11 +248,10 @@ public class DerbyReplicationStore implements ReplicationStore
             // Get known replica IDs.
             ps = con.prepareStatement( "SELECT DISTINCT CSN_REPLICA_ID FROM " + logTableName );
             rs = ps.executeQuery();
-            knownReplicaIds = new HashSet<String>();
-            
+            knownReplicaIds = new HashSet<ReplicaId>();
             while ( rs.next() )
             {
-                knownReplicaIds.add( rs.getString( 1 ) );
+                knownReplicaIds.add( new ReplicaId( rs.getString( 1 ) ) );
             }
         }
         catch ( Exception e )
@@ -292,15 +293,15 @@ public class DerbyReplicationStore implements ReplicationStore
     }
 
 
-    public String getReplicaId()
+    public ReplicaId getReplicaId()
     {
         return replicaId;
     }
 
 
-    public Set<String> getKnownReplicaIds()
+    public Set<ReplicaId> getKnownReplicaIds()
     {
-        return new HashSet<String>( knownReplicaIds );
+        return new HashSet<ReplicaId>( knownReplicaIds );
     }
 
 
@@ -316,7 +317,7 @@ public class DerbyReplicationStore implements ReplicationStore
             con.setTransactionIsolation( Connection.TRANSACTION_READ_COMMITTED );
             con.setReadOnly( true );
             ps = con.prepareStatement( "SELECT DN FROM " + uuidTableName + " WHERE UUID=?" );
-            ps.setString( 1, uuid.toString() );
+            ps.setString( 1, uuid.toOctetString() );
             rs = ps.executeQuery();
             if ( rs.next() )
             {
@@ -340,7 +341,7 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public boolean putUUID( UUID uuid, Name dn )
     {
-        String uuidString = uuid.toString();
+        String uuidString = uuid.toOctetString();
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -396,7 +397,7 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public boolean removeUUID( UUID uuid )
     {
-        String uuidString = uuid.toString();
+        String uuidString = uuid.toOctetString();
         Connection con = null;
         PreparedStatement ps = null;
 
@@ -440,7 +441,7 @@ public class DerbyReplicationStore implements ReplicationStore
             // Check if the specified uuid already exists
             ps = con.prepareStatement( "INSERT INTO " + logTableName
                 + " (CSN_REPLICA_ID, CSN_TIMESTAMP, CSN_OP_SEQ, OPERATION) VALUES(?,?,?,?)" );
-            ps.setString( 1, csn.getReplicaId() );
+            ps.setString( 1, csn.getReplicaId().getId() );
             ps.setLong( 2, csn.getTimestamp() );
             ps.setInt( 3, csn.getOperationSequence() );
             ps.setBytes( 4, encodedOp );
@@ -467,7 +468,7 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             synchronized ( knownReplicaIdsLock )
             {
-                Set<String> newKnownReplicaIds = new HashSet<String>( knownReplicaIds );
+                Set<ReplicaId> newKnownReplicaIds = new HashSet<ReplicaId>( knownReplicaIds );
                 newKnownReplicaIds.add( csn.getReplicaId() );
                 knownReplicaIds = newKnownReplicaIds;
             }
@@ -519,17 +520,18 @@ public class DerbyReplicationStore implements ReplicationStore
             // Check if the specified uuid already exists
             ps = con.prepareStatement( query );
 
+            Iterator<ReplicaId> i = updateVector.getReplicaIds().iterator();
             int paramIdx = 1;
             
-            for ( String replicaId:updateVector.getReplicaIds() )
+            while ( i.hasNext() )
             {
+                ReplicaId replicaId = i.next();
                 CSN csn = updateVector.getCSN( replicaId );
-                ps.setString( paramIdx++, replicaId );
+                ps.setString( paramIdx++, replicaId.getId() );
                 ps.setLong( paramIdx++, csn.getTimestamp() );
                 ps.setInt( paramIdx++, csn.getOperationSequence() );
                 ps.setLong( paramIdx++, csn.getTimestamp() );
             }
-            
             rs = ps.executeQuery();
 
             return new DerbyReplicationLogIterator( operationCodec, con, ps, rs );
@@ -546,7 +548,7 @@ public class DerbyReplicationStore implements ReplicationStore
         CSNVector newUV = new CSNVector();
         synchronized ( knownReplicaIds )
         {
-            for ( String knownReplicaId : knownReplicaIds )
+            for ( ReplicaId knownReplicaId : knownReplicaIds )
             {
                 newUV.setCSN( new DefaultCSN( 0, knownReplicaId, 0 ) );
             }
@@ -576,7 +578,7 @@ public class DerbyReplicationStore implements ReplicationStore
                     + " " + "WHERE CSN_REPLICA_ID = ? AND (CSN_TIMESTAMP = ? AND CSN_OP_SEQ >"
                     + ( inclusive ? "=" : "" ) + " ? OR CSN_TIMESTAMP > ?) "
                     + "ORDER BY CSN_TIMESTAMP ASC, CSN_OP_SEQ ASC" );
-            ps.setString( 1, fromCSN.getReplicaId() );
+            ps.setString( 1, fromCSN.getReplicaId().getId() );
             ps.setLong( 2, fromCSN.getTimestamp() );
             ps.setInt( 3, fromCSN.getOperationSequence() );
             ps.setLong( 4, fromCSN.getTimestamp() );
@@ -607,7 +609,7 @@ public class DerbyReplicationStore implements ReplicationStore
             ps = con.prepareStatement( "DELETE FROM " + logTableName + " WHERE "
                 + "CSN_REPLICA_ID = ? AND (CSN_TIMESTAMP = ? AND CSN_OP_SEQ <" + ( inclusive ? "=" : "" )
                 + " ? OR CSN_TIMESTAMP < ?)" );
-            ps.setString( 1, toCSN.getReplicaId() );
+            ps.setString( 1, toCSN.getReplicaId().getId() );
             ps.setLong( 2, toCSN.getTimestamp() );
             ps.setInt( 3, toCSN.getOperationSequence() );
             ps.setLong( 4, toCSN.getTimestamp() );
@@ -651,7 +653,7 @@ public class DerbyReplicationStore implements ReplicationStore
     }
 
 
-    public int getLogSize( String replicaId )
+    public int getLogSize( ReplicaId replicaId )
     {
         Connection con = null;
         PreparedStatement ps = null;
@@ -663,7 +665,7 @@ public class DerbyReplicationStore implements ReplicationStore
             con.setTransactionIsolation( Connection.TRANSACTION_READ_COMMITTED );
             con.setReadOnly( true );
             ps = con.prepareStatement( "SELECT COUNT(*) FROM " + logTableName + " WHERE CSN_REPLICA_ID=?" );
-            ps.setString( 1, replicaId );
+            ps.setString( 1, replicaId.getId() );
             rs = ps.executeQuery();
             rs.next();
             return rs.getInt( 1 );
@@ -708,16 +710,16 @@ public class DerbyReplicationStore implements ReplicationStore
             ps = con.prepareStatement( "SELECT CSN_TIMESTAMP, CSN_OP_SEQ FROM " + logTableName
                 + " WHERE CSN_REPLICA_ID=? ORDER BY CSN_TIMESTAMP " + ORDER + ", CSN_OP_SEQ " + ORDER );
 
-            for ( String replicaId:knownReplicaIds )
+            Iterator<ReplicaId> it = knownReplicaIds.iterator();
+            while ( it.hasNext() )
             {
-                ps.setString( 1, replicaId );
+                ReplicaId replicaId = it.next();
+                ps.setString( 1, replicaId.getId() );
                 rs = ps.executeQuery();
-                
                 if ( rs.next() )
                 {
                     result.setCSN( new DefaultCSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
                 }
-                
                 rs.close();
                 rs = null;
                 ps.clearParameters();

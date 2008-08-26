@@ -40,9 +40,9 @@ public class BeginLogEntriesMessageEncoder extends BaseMessageEncoder
     }
 
 
-    public Set<Class<?>> getMessageTypes()
+    public Set getMessageTypes()
     {
-        Set<Class<?>> set = new HashSet<Class<?>>();
+        Set<Class> set = new HashSet<Class>();
         set.add( BeginLogEntriesMessage.class );
         return set;
     }

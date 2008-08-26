@@ -17,33 +17,33 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.mitosis.service.protocol.codec;
+package org.apache.directory.mitosis.common;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.mina.common.ByteBuffer;
+import org.safehaus.uuid.UUIDGenerator;
 
 
-public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
+/**
+ * A default {@link UUIDFactory} implementation.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+public class DefaultUUIDFactory implements UUIDFactory
 {
-    public EndLogEntriesMessageEncoder()
+    private static final UUIDGenerator generator = UUIDGenerator.getInstance();
+
+
+    public DefaultUUIDFactory()
     {
     }
 
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out )
+    /**
+     * Generates a new type-1 (time-based) {@link UUID}.
+     */
+    public UUID newInstance()
     {
-    }
-
-
-    public Set getMessageTypes()
-    {
-        Set<Class> set = new HashSet<Class>();
-        set.add( EndLogEntriesMessage.class );
-        return set;
+        org.safehaus.uuid.UUID uuid = generator.generateTimeBasedUUID();
+        return new DefaultUUID( uuid.asByteArray() );
     }
 }

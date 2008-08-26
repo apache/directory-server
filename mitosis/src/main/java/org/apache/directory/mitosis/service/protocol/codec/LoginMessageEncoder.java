@@ -48,7 +48,7 @@ public class LoginMessageEncoder extends BaseMessageEncoder
 
         try
         {
-            out.putString( m.getReplicaId(), utf8encoder );
+            out.putString( m.getReplicaId().getId(), utf8encoder );
         }
         catch ( CharacterCodingException e )
         {
@@ -57,9 +57,9 @@ public class LoginMessageEncoder extends BaseMessageEncoder
     }
 
 
-    public Set<Class<?>> getMessageTypes()
+    public Set getMessageTypes()
     {
-        Set<Class<?>> set = new HashSet<Class<?>>();
+        Set<Class> set = new HashSet<Class>();
         set.add( LoginMessage.class );
 
         return set;

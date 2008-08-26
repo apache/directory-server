@@ -41,7 +41,7 @@ public class Replica
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /** The replicaId */
-    private final String id;
+    private final ReplicaId id;
 
     /** The server address */
     private final InetSocketAddress address;
@@ -82,7 +82,7 @@ public class Replica
             throw new IllegalArgumentException( "Port number not found in replica : " + replica );
         }
 
-        id = replica.substring( 0, atPos );
+        id = new ReplicaId( replica.substring( 0, atPos ) );
         String server = replica.substring( atPos + 1, colonPos );
         int port = -1;
 
@@ -120,7 +120,7 @@ public class Replica
      * @param id The Replica Id
      * @param address The server address.
      */
-    public Replica( String id, InetSocketAddress address )
+    public Replica( ReplicaId id, InetSocketAddress address )
     {
         assert id != null;
         assert address != null;
@@ -142,7 +142,7 @@ public class Replica
     /**
      * @return the replica Id
      */
-    public String getId()
+    public ReplicaId getId()
     {
         return id;
     }
@@ -150,7 +150,7 @@ public class Replica
 
     /**
      * Compute the instance's hash code
-     * @return the instance's hash code 
+     * @return the instance's hashcode 
      */
     public int hashCode()
     {
