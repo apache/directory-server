@@ -1315,13 +1315,6 @@ public class DefaultDirectoryService implements DirectoryService
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-        
-        ServerEntry entry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.OU_SCHEMA_DN ) );
-        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
-                SchemaConstants.TOP_OC, 
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        entry.put( SchemaConstants.OU_AT, "schema" );
-        schemaPartition.setContextEntry( entry );
         schemaPartition.init( this );
 
         // --------------------------------------------------------------------
@@ -1475,8 +1468,10 @@ public class DefaultDirectoryService implements DirectoryService
         try
         {
             Attributes entry = readEntry( ldif );
+            LdapDN ldapDn = new LdapDN( dn );
             
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( entry, new LdapDN( dn ), registries );
+            // TODO Let's get rid of this Attributes crap
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( entry, ldapDn, registries );
             return serverEntry;
         }
         catch ( Exception e )

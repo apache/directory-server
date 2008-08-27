@@ -47,6 +47,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
@@ -222,6 +223,7 @@ public class IndexDialog<K,O> extends JDialog
         scanBut.setText( "Scan" );
         scanBut.addActionListener( new ActionListener()
         {
+            @SuppressWarnings("unchecked")
             public void actionPerformed( ActionEvent e )
             {
                 //noinspection unchecked
@@ -402,10 +404,10 @@ public class IndexDialog<K,O> extends JDialog
     }
     
     
-    public static void show( Index index )
+    @SuppressWarnings("unchecked")
+    public static void show( Index<?,ServerEntry> index )
     {
-        //noinspection unchecked
-        IndexDialog dialog = new IndexDialog( index );
+        IndexDialog<?,ServerEntry> dialog = new IndexDialog( index );
         dialog.setVisible( true );
     }
 }

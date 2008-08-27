@@ -134,46 +134,6 @@ public abstract class BTreePartition implements Partition
 
 
     /**
-     * Returns root entry for this BTreePartition.
-     *
-     * @return the root suffix entry for this BTreePartition
-     */
-    public ServerEntry getContextEntry()
-    {
-        if ( contextEntry != null )
-        {
-            return new ClonedServerEntry( contextEntry );
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-
-    /**
-     * Sets root entry for this BTreePartition.
-     *
-     * @param rootEntry the root suffix entry of this BTreePartition
-     */
-    public void setContextEntry( ServerEntry rootEntry )
-    {
-        this.contextEntry = ( ServerEntry ) rootEntry.clone();
-    }
-
-    
-    /**
-     * Sets root entry for this BTreePartition.
-     *
-     * @param rootEntry the root suffix entry of this BTreePartition
-     */
-    public void setContextEntry( String rootEntry )
-    {
-        System.out.println( rootEntry );
-    }
-
-    
-    /**
      * Gets the unique identifier for this partition.
      *
      * @return the unique identifier for this partition
@@ -545,9 +505,6 @@ public abstract class BTreePartition implements Partition
 
 
     public abstract int getChildCount( Long id ) throws Exception;
-
-
-    public abstract ServerEntry getSuffixEntry() throws Exception;
 
 
     public abstract void setProperty( String key, String value ) throws Exception;

@@ -25,6 +25,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -57,15 +58,17 @@ public class PartitionConfigurationIT
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
         
-        ServerEntry ctxEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( "ou=removable" ) );
+        // Test AddContextPartition
+        service.addPartition( partition );
+        
+        LdapDN suffixDn = new LdapDN( "ou=removable" );
+        suffixDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        ServerEntry ctxEntry = new DefaultServerEntry( service.getRegistries(), suffixDn );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );
-        partition.setContextEntry( ctxEntry );
-
-        // Test AddContextPartition
-        service.addPartition( partition );
-
+        partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
+        
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( DirectoryService.JNDI_KEY, service );

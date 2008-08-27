@@ -82,6 +82,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
+    @SuppressWarnings("unchecked")
     public void after( E element ) throws Exception
     {
         browser = btree.browse( element );
@@ -96,7 +97,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         while ( browser.getNext( tuple ) )
         {
             checkNotClosed( "after()" );
-            //noinspection unchecked
             E next = ( E ) tuple.getKey();
             int nextCompared = comparator.compare( next, element );
 
@@ -192,12 +192,12 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
+    @SuppressWarnings("unchecked")
     public E get() throws Exception
     {
         checkNotClosed( "get()" );
         if ( valueAvailable )
         {
-            //noinspection unchecked
             return ( E ) tuple.getKey();
         }
 

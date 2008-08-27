@@ -40,7 +40,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
@@ -61,11 +60,9 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
@@ -88,6 +85,7 @@ public class IndexCommand extends ToolCommand
     }
 
 
+    @SuppressWarnings("unchecked")
     private Registries loadRegistries() throws Exception
     {
         // --------------------------------------------------------------------
@@ -160,12 +158,6 @@ public class IndexCommand extends ToolCommand
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
 
-        ServerEntry systemEntry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
-        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-            SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        systemEntry.put( SchemaConstants.OU_AT, "schema" );
-        schemaPartition.setContextEntry( systemEntry );
-
         DirectoryService directoryService = new DefaultDirectoryService();
         schemaPartition.init( directoryService );
 
@@ -197,6 +189,7 @@ public class IndexCommand extends ToolCommand
     }
 
 
+    @SuppressWarnings("unchecked")
     private void buildIndex( File partitionDirectory, AttributeType attributeType ) throws Exception
     {
         if ( !partitionDirectory.exists() )

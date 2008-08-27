@@ -99,13 +99,13 @@ public class JdbmTable<K,V> implements Table<K,V>
      * using default Java serialization which could be very expensive
      * @throws IOException if the table's file cannot be created
      */
+    @SuppressWarnings("unchecked")
     public JdbmTable( String name, int numDupLimit, RecordManager manager,
         Comparator<K> keyComparator, Comparator<V> valueComparator,
         Serializer keySerializer, Serializer valueSerializer )
         throws IOException
     {
         // TODO make the size of the duplicate btree cache configurable via constructor
-        //noinspection unchecked
         duplicateBtrees = new SynchronizedLRUMap( 100 );
 
         if ( valueSerializer != null )
@@ -350,6 +350,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     // ------------------------------------------------------------------------
 
 
+    @SuppressWarnings("unchecked")
     public V get( K key ) throws Exception
     {
         if ( key == null )
@@ -359,14 +360,12 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            //noinspection unchecked
             return ( V ) bt.find( key );
         }                         
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            //noinspection unchecked
             AvlTree<V> set = values.getAvlTree();
 
             if ( set.getFirst() == null )
@@ -451,6 +450,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see org.apache.directory.server.xdbm.Table#hasGreaterOrEqual(Object)
      */
+    @SuppressWarnings("unchecked")
     public boolean hasGreaterOrEqual( K key ) throws IOException
     {
         // See if we can find the border between keys greater than and less
@@ -458,7 +458,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
 
         // Test for equality first since it satisfies both greater/less than
-        //noinspection unchecked
         if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
         {
             return true;
@@ -479,6 +478,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see Table#hasLessOrEqual(Object)
      */
+    @SuppressWarnings("unchecked")
     public boolean hasLessOrEqual( K key ) throws IOException
     {
         // Can only find greater than or equal to with JDBM so we find that
@@ -486,7 +486,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
 
         // Test for equality first since it satisfies equal to condition
-        //noinspection unchecked
         if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
         {
             return true;
@@ -526,6 +525,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      * @see org.apache.directory.server.xdbm.Table#has(java.lang.Object,
      * java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public boolean has( K key, V value ) throws IOException
     {
         if ( key == null )
@@ -535,7 +535,6 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            //noinspection unchecked
             V stored = ( V ) bt.find( key );
             return null != stored && stored.equals( value );
         }
@@ -625,6 +624,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      * @see org.apache.directory.server.xdbm.Table#remove(java.lang.Object,
      * java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public void remove( K key, V value ) throws IOException
     {
         if ( key == null )
@@ -634,7 +634,6 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            //noinspection unchecked
             V oldValue = ( V ) bt.find( key );
         
             // Remove the value only if it is the same as value.
@@ -743,6 +742,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     public Cursor<org.apache.directory.server.xdbm.Tuple<K,V>> cursor( K key ) throws Exception
     {
         if ( key == null )
@@ -759,7 +759,6 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            //noinspection unchecked
             return new SingletonCursor<org.apache.directory.server.xdbm.Tuple<K,V>>( new org.apache.directory.server.xdbm.Tuple<K,V>( key, ( V ) raw ) );
         }
 
@@ -775,6 +774,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     public Cursor<V> valueCursor( K key ) throws Exception
     {
         if ( key == null )
@@ -791,7 +791,6 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         if ( ! allowsDuplicates )
         {
-            //noinspection unchecked
             return new SingletonCursor<V>( ( V ) raw );
         }
 
@@ -883,6 +882,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     private boolean btreeHas( BTree tree, V key, boolean isGreaterThan ) throws IOException
     {
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
@@ -912,7 +912,6 @@ public class JdbmTable<K,V> implements Table<K,V>
                  * smallest key we just need to check if it equals this key
                  * which is the only chance for returning true.
                  */
-                //noinspection unchecked
                 V firstKey = ( V ) tuple.getKey();
                 return valueComparator.compare( key, firstKey ) == 0;
             }
@@ -931,6 +930,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     private AvlTree<V> convertToAvlTree( BTree bTree ) throws IOException
     {
         AvlTree<V> avlTree = new AvlTree<V>( valueComparator );
@@ -938,7 +938,6 @@ public class JdbmTable<K,V> implements Table<K,V>
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         while ( browser.getNext( tuple ) )
         {
-            //noinspection unchecked
             avlTree.insert( ( V ) tuple.getKey() );
         }
 
@@ -966,25 +965,5 @@ public class JdbmTable<K,V> implements Table<K,V>
             bTree.insert( keys.get(), EMPTY_BYTES, true );
         }
         return bTree;
-    }
-    
-    
-    private V removeAll( BTree tree ) throws IOException
-    {
-        V first = null;
-        jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
-        TupleBrowser browser = tree.browse();
-
-        while( browser.getNext( jdbmTuple ) )
-        {
-            tree.remove( jdbmTuple.getKey() );
-            if ( first == null )
-            {
-                //noinspection unchecked
-                first = ( V ) jdbmTuple.getKey();
-            }
-        }
-
-        return first;
     }
 }

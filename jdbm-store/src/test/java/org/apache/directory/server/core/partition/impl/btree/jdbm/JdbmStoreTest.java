@@ -75,7 +75,7 @@ public class JdbmStoreTest
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class.getSimpleName() );
 
     File wkdir;
-    JdbmStore<Attributes> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -111,7 +111,7 @@ public class JdbmStoreTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new JdbmStore<Attributes>();
+        store = new JdbmStore<ServerEntry>();
         store.setName( "example" );
         store.setCacheSize( 10 );
         store.setWorkingDirectory( wkdir );
@@ -156,10 +156,6 @@ public class JdbmStoreTest
         assertEquals( JdbmStore.DEFAULT_CACHE_SIZE, store.getCacheSize() );
         store.setCacheSize( 24 );
         assertEquals( 24, store.getCacheSize() );
-
-        assertNull( store.getContextEntry() );
-        store.setContextEntry( new DefaultServerEntry( registries, new LdapDN() ) );
-        assertNotNull( store.getContextEntry() );
 
         assertNull( store.getPresenceIndex() );
         store.setPresenceIndex( new JdbmIndex<String,Attributes>( "existence" ) );
@@ -224,27 +220,23 @@ public class JdbmStoreTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( store.getAliasIndex() );
-        try { store.setAliasIndex( new JdbmIndex<String,Attributes>( "alias" ) ); fail(); }
+        try { store.setAliasIndex( new JdbmIndex<String,ServerEntry>( "alias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertEquals( 10, store.getCacheSize() );
         try { store.setCacheSize( 24 ); }
         catch( IllegalStateException e ) {}
 
-        assertNotNull( store.getContextEntry() );
-        try { store.setContextEntry( new DefaultServerEntry( registries, new LdapDN() ) ); fail(); }
-        catch( IllegalStateException e ) {}
-
         assertNotNull( store.getPresenceIndex() );
-        try { store.setPresenceIndex( new JdbmIndex<String,Attributes>( "existence" ) ); fail(); }
+        try { store.setPresenceIndex( new JdbmIndex<String,ServerEntry>( "existence" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getOneLevelIndex() );
-        try { store.setOneLevelIndex( new JdbmIndex<Long,Attributes>( "hierarchy" ) ); fail(); }
+        try { store.setOneLevelIndex( new JdbmIndex<Long,ServerEntry>( "hierarchy" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getSubLevelIndex() );
-        try { store.setSubLevelIndex( new JdbmIndex<Long,Attributes>( "sublevel" ) ); fail(); }
+        try { store.setSubLevelIndex( new JdbmIndex<Long,ServerEntry>( "sublevel" ) ); fail(); }
         catch( IllegalStateException e ) {}
         
         assertNotNull( store.getName() );
@@ -252,15 +244,15 @@ public class JdbmStoreTest
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getNdnIndex() );
-        try { store.setNdnIndex( new JdbmIndex<String,Attributes>( "ndn" ) ); fail(); }
+        try { store.setNdnIndex( new JdbmIndex<String,ServerEntry>( "ndn" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getOneAliasIndex() );
-        try { store.setOneAliasIndex( new JdbmIndex<Long,Attributes>( "oneAlias" ) ); fail(); }
+        try { store.setOneAliasIndex( new JdbmIndex<Long,ServerEntry>( "oneAlias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getSubAliasIndex() );
-        try { store.setSubAliasIndex( new JdbmIndex<Long,Attributes>( "subAlias" ) ); fail(); }
+        try { store.setSubAliasIndex( new JdbmIndex<Long,ServerEntry>( "subAlias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getSuffixDn() );
@@ -268,7 +260,7 @@ public class JdbmStoreTest
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getUpdnIndex() );
-        try { store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) ); fail(); }
+        try { store.setUpdnIndex( new JdbmIndex<String,ServerEntry>( "updn" ) ); fail(); }
         catch( IllegalStateException e ) {}
         Iterator<String> systemIndices = store.systemIndices();
         for ( int ii = 0; ii < 8; ii++ )
@@ -332,17 +324,13 @@ public class JdbmStoreTest
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
         assertEquals( dn.toNormName(), store.getEntryDn( 1L ) );
         assertEquals( dn.getUpName(), store.getEntryUpdn( 1L ) );
-        assertNotNull( store.getSuffixEntry() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
         assertEquals( 0L, ( long ) store.getParentId( dn.toNormName() ) );
         assertNull( store.getParentId( 0L ) );
 
-        // should not be allowed
-        try { store.delete( 1L ); fail(); } catch( LdapOperationNotSupportedException e )
-        {
-            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
-        }
+        // should NOW be allowed
+        store.delete( 1L ); 
     }
 
 
@@ -351,7 +339,7 @@ public class JdbmStoreTest
     {
         assertEquals( 3, store.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long,Attributes>> cursor = store.list( 1L );
+        Cursor<IndexEntry<Long,ServerEntry>> cursor = store.list( 1L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );

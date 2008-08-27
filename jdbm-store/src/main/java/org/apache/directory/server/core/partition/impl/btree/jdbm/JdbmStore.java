@@ -145,8 +145,6 @@ public class JdbmStore<E> implements Store<E>
     // -----------------------------------------------------------------------
 
 
-    private ServerEntry contextEntry;
-    private Long contextEntryId;
     private String suffixDn;
     private int cacheSize = DEFAULT_CACHE_SIZE;
     private String name;
@@ -171,30 +169,6 @@ public class JdbmStore<E> implements Store<E>
     public File getWorkingDirectory()
     {
         return workingDirectory;
-    }
-
-
-    public void setContextEntry( ServerEntry contextEntry )
-    {
-        protect( "contextEntry" );
-        this.contextEntry = contextEntry;
-    }
-
-
-    public ServerEntry getContextEntry()
-    {
-        return contextEntry;
-    }
-    
-    
-    public Long getContextEntryId()
-    {
-        if ( contextEntryId == null )
-        {
-            return 1L;
-        }
-        
-        return contextEntryId;
     }
 
 
@@ -300,14 +274,13 @@ public class JdbmStore<E> implements Store<E>
 
         setupSystemIndices();
         setupUserIndices();
-
-        initSuffixEntry3( suffixDn, contextEntry );
         
         // We are done !
         initialized = true;
     }
 
 
+    @SuppressWarnings("unchecked")
     private void setupSystemIndices() throws Exception
     {
         if ( systemIndices.size() > 0 )
@@ -389,6 +362,7 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
+    @SuppressWarnings("unchecked")
     private void setupUserIndices() throws Exception
     {
         if ( userIndices != null && userIndices.size() > 0 )
@@ -407,32 +381,6 @@ public class JdbmStore<E> implements Store<E>
         {
             userIndices = new HashMap<String, Index<?,E>>();
         }
-    }
-
-
-    /**
-     * Called last (4th) to check if the suffix entry has been created on disk,
-     * and if not it is created.
-     *  
-     * @param suffix the suffix for the store
-     * @param entry the root entry of the store
-     * @throws NamingException on failure to add the root entry
-     * @throws Exception failure to access btrees
-     */
-    protected void initSuffixEntry3( String suffix, ServerEntry entry ) throws Exception
-    {
-        // normalize then add entry for context, if it does not exist
-        contextEntry.getDn().normalize( attributeTypeRegistry.getNormalizerMapping() );
-        ServerEntry suffixOnDisk = getSuffixEntry();
-
-        if ( suffixOnDisk == null )
-        {
-            LdapDN dn = new LdapDN( suffix );
-            LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, entry );
-        }
-        
-        contextEntryId = ndnIdx.forwardLookup( contextEntry.getDn().getNormName() );
     }
 
 
@@ -1007,6 +955,9 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
+    // TODO Change signature to not require the DN parameter since it is now
+    // in the ServerEntry  !!!
+    @SuppressWarnings("unchecked")
     public void add( LdapDN normName, ServerEntry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
@@ -1027,7 +978,7 @@ public class JdbmStore<E> implements Store<E>
 
         LdapDN parentDn = null;
 
-        if ( normName.equals( normSuffix ) )
+        if ( normName.getNormName().equals( normSuffix.getNormName() ) )
         {
             parentId = 0L;
         }
@@ -1115,14 +1066,9 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
+    @SuppressWarnings("unchecked")
     public void delete( Long id ) throws Exception
     {
-        if ( id == 1 )
-        {
-            throw new LdapOperationNotSupportedException(
-                "Deletion of the suffix entry is not permitted.", ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
         ServerEntry entry = lookup( id );
         Long parentId = getParentId( id );
 
@@ -1209,17 +1155,6 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public ServerEntry getSuffixEntry() throws Exception
-    {
-        if ( null == contextEntryId )
-        {
-            return null;
-        }
-
-        return lookup( contextEntryId );
-    }
-
-
     public void setProperty( String propertyName, String propertyValue ) throws Exception
     {
         master.setProperty( propertyName, propertyValue );
@@ -1242,6 +1177,7 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and values to add 
      * @throws Exception if index alteration or attribute addition fails
      */
+    @SuppressWarnings("unchecked")
     private void add( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
@@ -1296,6 +1232,7 @@ public class JdbmStore<E> implements Store<E>
      * @param mods the attribute and its values to delete
      * @throws Exception if index alteration or attribute modification fails.
      */
+    @SuppressWarnings("unchecked")
     private void remove( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
@@ -1378,6 +1315,7 @@ public class JdbmStore<E> implements Store<E>
      * @throws Exception if index alteration or attribute modification 
      * fails.
      */
+    @SuppressWarnings("unchecked")
     private void replace( Long id, ServerEntry entry, EntryAttribute mods ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
@@ -1534,6 +1472,7 @@ public class JdbmStore<E> implements Store<E>
      * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @throws Exception if there are any errors propagating the name changes
      */
+    @SuppressWarnings("unchecked")
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
         Long id = getEntryId( dn.getNormName() );

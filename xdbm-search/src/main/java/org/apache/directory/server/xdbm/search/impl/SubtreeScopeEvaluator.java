@@ -79,9 +79,36 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode,E>
         }
 
         baseId = db.getEntryId( node.getBaseDn() );
-        baseIsContextEntry = db.getContextEntryId().longValue() == baseId.longValue();
+        baseIsContextEntry = getContextEntryId() == baseId;
         dereferencing = node.getDerefAliases().isDerefInSearching() ||
             node.getDerefAliases().isDerefAlways();
+    }
+
+    
+    private Long contextEntryId;
+
+
+    private Long getContextEntryId()
+    {
+        if ( contextEntryId == null )
+        {
+            try
+            {
+                this.contextEntryId = db.getEntryId( db.getSuffix().getNormName() );
+            }
+            catch ( Exception e )
+            {
+                // might not have been created
+                // might not have been created
+            }
+        }
+        
+        if ( contextEntryId == null )
+        {
+            return 1L;
+        }
+        
+        return contextEntryId;
     }
 
     

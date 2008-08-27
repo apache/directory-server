@@ -147,6 +147,11 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
             entry = db.lookup( indexEntry.getId() );
             indexEntry.setObject( entry );
         }
+        
+        if ( null == entry )
+        {
+            return false;
+        }
 
         // get the attribute
         ServerAttribute attr = ( ServerAttribute ) entry.get( type );

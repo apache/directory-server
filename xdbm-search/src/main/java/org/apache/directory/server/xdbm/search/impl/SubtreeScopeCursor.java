@@ -58,7 +58,9 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     /** Whether or not this Cursor is positioned so an entry is available */
     private boolean available = false;
 
+    private Long contextEntryId;
 
+    
     /**
      * Creates a Cursor over entries satisfying subtree level scope criteria.
      *
@@ -71,7 +73,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
         this.db = db;
         this.evaluator = evaluator;
         
-        if ( evaluator.getBaseId().longValue() == db.getContextEntryId().longValue() )
+        if ( evaluator.getBaseId() == getContextEntryId() )
         {
             scopeCursor = new AllEntriesCursor( db );
         }
@@ -91,6 +93,30 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<Long, ServerEntry>
     }
 
 
+    private Long getContextEntryId()
+    {
+        if ( contextEntryId == null )
+        {
+            try
+            {
+                this.contextEntryId = db.getEntryId( db.getSuffix().getNormName() );
+            }
+            catch ( Exception e )
+            {
+                // might not have been created
+                // might not have been created
+            }
+        }
+        
+        if ( contextEntryId == null )
+        {
+            return 1L;
+        }
+        
+        return contextEntryId;
+    }
+
+    
     public boolean available()
     {
         return available;

@@ -53,7 +53,7 @@ public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
     private final Store<E> db;
-    private final Long contextEntryId;
+    private Long contextEntryId;
     
 
     /**
@@ -61,12 +61,34 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E> db )
+    public DefaultOptimizer( Store<E> db ) throws Exception
     {
         this.db = db;
-        this.contextEntryId = db.getContextEntryId();
     }
 
+    
+    private Long getContextEntryId()
+    {
+        if ( contextEntryId == null )
+        {
+            try
+            {
+                this.contextEntryId = db.getEntryId( db.getSuffix().getNormName() );
+            }
+            catch ( Exception e )
+            {
+                // might not have been created
+            }
+        }
+        
+        if ( contextEntryId == null )
+        {
+            return 1L;
+        }
+        
+        return contextEntryId;
+    }
+    
 
     /**
      * Annotates the expression tree to determine optimal evaluation order based
@@ -76,6 +98,7 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @see org.apache.directory.server.xdbm.search.Optimizer#annotate(ExprNode)
      */
+    @SuppressWarnings("unchecked")
     public Long annotate( ExprNode node ) throws Exception
     {
         // Start off with the worst case unless scan count says otherwise.
@@ -246,11 +269,11 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the worst case
      * @throws Exception if there is an error accessing an index
      */
+    @SuppressWarnings("unchecked")
     private<V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
             Index<V,E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
             return idx.count( node.getValue().get() );
         }
@@ -269,11 +292,11 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count of all nodes satisfying the AVA
      * @throws Exception if there is an error accessing an index
      */
+    @SuppressWarnings("unchecked")
     private<V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
-            //noinspection unchecked
             Index<V, E> idx = ( Index<V, E> ) db.getUserIndex( node.getAttribute() );
             if ( isGreaterThan )
             {
@@ -299,6 +322,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the worst case full scan count
      * @throws Exception if there is an error access database indices
      */
+    @SuppressWarnings("unchecked")
     private long getFullScan( LeafNode node ) throws Exception
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
@@ -350,7 +374,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 return db.getChildCount( id );
                 
             case SUBTREE:
-                if ( id.longValue() == contextEntryId.longValue() )
+                if ( id == getContextEntryId() )
                 {
                     return db.count();
                 }

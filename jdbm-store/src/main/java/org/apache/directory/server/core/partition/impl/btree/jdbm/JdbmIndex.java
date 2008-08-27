@@ -461,30 +461,30 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
 
 
+    @SuppressWarnings("unchecked")
     public IndexCursor<K, O> reverseCursor() throws Exception
     {
-        //noinspection unchecked
         return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor(), false );
     }
 
 
+    @SuppressWarnings("unchecked")
     public IndexCursor<K, O> forwardCursor() throws Exception
     {
-        //noinspection unchecked
         return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor(), true );
     }
 
 
+    @SuppressWarnings("unchecked")
     public IndexCursor<K, O> reverseCursor( Long id ) throws Exception
     {
-        //noinspection unchecked
         return new IndexCursorAdaptor<K, O>( ( Cursor ) reverse.cursor( id ), false );
     }
 
 
+    @SuppressWarnings("unchecked")
     public IndexCursor<K, O> forwardCursor( K key ) throws Exception
     {
-        //noinspection unchecked
         return new IndexCursorAdaptor<K, O>( ( Cursor ) forward.cursor( key ), true );
     }
 
@@ -643,6 +643,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * TODO I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
+    @SuppressWarnings("unchecked")
     public K getNormalized( K attrVal ) throws Exception
     {
         if ( attrVal instanceof Long )
@@ -650,12 +651,10 @@ public class JdbmIndex<K,O> implements Index<K,O>
             return attrVal;
         }
 
-        //noinspection unchecked
         K normalized = ( K ) keyCache.get( attrVal );
 
         if ( null == normalized )
         {
-            //noinspection unchecked
             normalized = ( K ) attribute.getEquality().getNormalizer().normalize( attrVal );
 
             // Double map it so if we use an already normalized

@@ -30,7 +30,6 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,8 +37,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 
 /**

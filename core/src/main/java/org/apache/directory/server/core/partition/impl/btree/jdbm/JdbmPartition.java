@@ -178,7 +178,6 @@ public class JdbmPartition extends BTreePartition
         
         // initialize the store
         store.setCacheSize( cacheSize );
-        store.setContextEntry( contextEntry );
         store.setName( id );
         store.setSuffixDn( suffix );
         store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
@@ -485,12 +484,6 @@ public class JdbmPartition extends BTreePartition
     public final LdapDN getUpSuffixDn()
     {
         return store.getUpSuffix();
-    }
-
-
-    public final ServerEntry getSuffixEntry() throws Exception
-    {
-        return store.getSuffixEntry();
     }
 
 

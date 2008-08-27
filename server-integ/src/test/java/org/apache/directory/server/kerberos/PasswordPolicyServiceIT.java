@@ -22,10 +22,10 @@ package org.apache.directory.server.kerberos;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -48,7 +48,6 @@ import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
@@ -81,6 +80,14 @@ import java.util.Set;
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.CLASS )
 @Factory ( PasswordPolicyServiceIT.Factory.class )
+@ApplyLdifs( {
+    // Entry #0
+    "dn: dc=example,dc=com\n" +
+    "dc: example\n" +
+    "objectClass: top\n" +
+    "objectClass: domain\n\n"
+    }
+)
 public class PasswordPolicyServiceIT 
 {
     private DirContext ctx;
@@ -111,11 +118,6 @@ public class PasswordPolicyServiceIT
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
             partition.setIndexedAttributes( indexedAttrs );
 
-            LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), exampleDn );
-            serverEntry.put( "objectClass", "top", "domain" );
-            serverEntry.put( "dc", "example" );
-            partition.setContextEntry( serverEntry );
             partitions.add( partition );
             service.setPartitions( partitions );
 

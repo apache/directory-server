@@ -22,12 +22,12 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.partition.Partition;
@@ -45,6 +45,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -88,16 +90,10 @@ public class MixedCaseITest
             partition.setSuffix( SUFFIX_DN );
 
             HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex( "objectClass" ) );
-            indexedAttributes.add( new JdbmIndex( "ou" ) );
-            indexedAttributes.add( new JdbmIndex( "uid" ) );
+            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
+            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
+            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "uid" ) );
             partition.setIndexedAttributes( indexedAttributes );
-
-            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( SUFFIX_DN ) );
-            serverEntry.put( "objectClass", "top", "domain", "extensibleObject" );
-            serverEntry.put( "dc", "Apache" );
-
-            partition.setContextEntry( serverEntry );
 
             Set<Partition> partitions = new HashSet<Partition>();
             partitions.add( partition );
@@ -107,6 +103,17 @@ public class MixedCaseITest
         }
     }
 
+    
+    @Before
+    public void setUp() throws Exception
+    {
+        LdapDN dn = new LdapDN( "dc=Apache,dc=Org" );
+        ServerEntry entry = service.newEntry( dn );
+        entry.add( "objectClass", "top", "domain", "extensibleObject" );
+        entry.add( "dc", "Apache" );
+        service.getAdminSession().add( entry );
+    }
+    
     
     @Test
     public void testSearch() throws Exception

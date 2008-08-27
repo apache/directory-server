@@ -39,7 +39,6 @@ import javax.naming.directory.InitialDirContext;
 import org.apache.commons.net.SocketClient;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
@@ -94,6 +93,12 @@ import static org.junit.Assert.assertEquals;
 @CleanupLevel ( Level.CLASS )
 @Factory ( SaslBindIT.Factory.class )
 @ApplyLdifs( {
+    // Entry #0
+    "dn: dc=example,dc=com\n" +
+    "dc: example\n" +
+    "objectClass: top\n" +
+    "objectClass: domain\n\n" +
+    
     // Entry # 1
     "dn: ou=users,dc=example,dc=com\n" +
     "objectClass: organizationalUnit\n" +
@@ -137,13 +142,6 @@ public class SaslBindIT
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
              partition.setIndexedAttributes( indexedAttrs );
-
-             LdapDN exampleDn = new LdapDN( "dc=example,dc=com" );
-             ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), exampleDn );
-             serverEntry.put( "objectClass", "top", "domain" );
-             serverEntry.put( "dc", "example" );
-
-             partition.setContextEntry( serverEntry );
 
              partitions.add( partition );
              service.setPartitions( partitions );

@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
@@ -94,12 +93,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
         Attributes attrs;
 
-//        doDelete( directoryService.getWorkingDirectory() );
-//        port = AvailablePortFinder.getNextAvailable( 1024 );
-//        ldapServer.setIpPort( port );
-//        directoryService.setShutdownHookEnabled( false );
-
-
         setContexts( "uid=admin,ou=system", "secret" );
 
         // -------------------------------------------------------------------
@@ -122,6 +115,12 @@ public class SaslGssapiBindITest extends AbstractServerTest
                     {new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled )};
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
+        
+        LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
+        ServerEntry entry = ldapServer.getDirectoryService().newEntry( contextDn );
+        entry.add( "objectClass", "top", "domain", "extensibleObject" );
+        entry.add( "dc", "example" );
+        ldapServer.getDirectoryService().getAdminSession().add( entry );
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -147,6 +146,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         users.createSubcontext( "uid=ldap", attrs );
     }
 
+    
     protected void configureDirectoryService() throws NamingException
     {
         directoryService.setAllowAnonymousAccess( false );
@@ -162,11 +162,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
-
-        ServerEntry serverEntry = new DefaultServerEntry( directoryService.getRegistries(), new LdapDN( "dc=example, dc=com" ) );
-        serverEntry.put( "objectClass", "top", "domain" );
-        serverEntry.put( "dc", "example" );
-        partition.setContextEntry( serverEntry );
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );

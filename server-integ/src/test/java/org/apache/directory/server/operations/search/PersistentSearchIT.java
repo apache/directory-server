@@ -29,7 +29,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
-import javax.naming.event.EventContext;
 import javax.naming.event.EventDirContext;
 import javax.naming.event.NamespaceChangeListener;
 import javax.naming.event.NamingEvent;
@@ -55,8 +54,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;

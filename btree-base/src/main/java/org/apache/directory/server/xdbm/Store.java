@@ -117,15 +117,6 @@ public interface Store<E>
     Set<Index<?,E>> getUserIndices();
 
 
-    void setContextEntry( ServerEntry contextEntry );
-
-
-    ServerEntry getContextEntry();
-
-    
-    Long getContextEntryId();
-
-    
     void setSuffixDn( String suffixDn );
 
 
@@ -312,9 +303,6 @@ public interface Store<E>
 
 
     LdapDN getUpSuffix();
-
-
-    ServerEntry getSuffixEntry() throws Exception;
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;

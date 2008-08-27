@@ -26,13 +26,14 @@ import java.io.IOException;
 
 
 /**
- * A serializer for Longs
+ * A {@link Serializer} for Longs
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class LongSerializer implements Serializer
 {
+    private static final long serialVersionUID = 237756689544852128L;
     public static final LongSerializer INSTANCE = new LongSerializer();
 
 

@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -38,7 +37,6 @@ import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExt
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -141,16 +139,11 @@ public class PartitionSchemaLoaderTest
         Set<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
         {
-            indexedAttributes.add( new JdbmIndex( attributeId ) );
+            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( attributeId ) );
         }
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( "ou=schema" );
-        
-        ServerEntry entry = new DefaultServerEntry( registries, new LdapDN( "ou=schema" ) );
-        entry.put( "objectClass", "top", "organizationalUnit" );
-        entry.put( "ou", "schema" );
-        schemaPartition.setContextEntry( entry );
         schemaPartition.init( directoryService );
     }
     

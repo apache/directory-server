@@ -26,7 +26,9 @@ import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -131,6 +133,11 @@ public abstract class AbstractReplicationServiceTestCase
             }
 
             service.startup();
+            
+//            LdapDN dn = new LdapDN()
+//            ServerEntry entry = service.newEntry( dn )
+//            service.getPartitionNexus().add( new AddOperationContext( service.getAdminSession(), entry ) );
+//            
             
             Hashtable<String,Object> env = new Hashtable<String,Object>();
             env.put( DirectoryService.JNDI_KEY, service );

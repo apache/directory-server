@@ -886,7 +886,7 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        ServerEntry suffix = partition.getSuffixEntry();
+        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn().toNormName() ) );
         Long id = partition.getEntryId( partition.getSuffixDn().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 

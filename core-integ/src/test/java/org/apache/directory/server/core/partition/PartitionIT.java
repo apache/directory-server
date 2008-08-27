@@ -24,16 +24,14 @@ import java.util.HashMap;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -57,6 +55,19 @@ import javax.naming.ldap.LdapContext;
  */
 @RunWith ( CiRunner.class )
 @Factory ( PartitionIT.Factory.class )
+@ApplyLdifs (
+    {
+        "dn: dc=foo,dc=com\n" +
+        "objectClass: top\n" +
+        "objectClass: domain\n" +
+        "dc: foo\n\n" +
+
+        "dn: dc=bar,dc=com\n" +
+        "objectClass: top\n" +
+        "objectClass: domain\n" +
+        "dc: bar\n\n"
+    }
+)
 public final class PartitionIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
@@ -77,23 +88,11 @@ public final class PartitionIT
             Partition foo = new JdbmPartition();
             foo.setId( "foo" );
             foo.setSuffix( "dc=foo,dc=com" );
-            LdapDN contextDn = new LdapDN( "dc=foo,dc=com" );
-            contextDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            ServerEntry contextEntry = new DefaultServerEntry( service.getRegistries(), contextDn );
-            contextEntry.add( "objectClass", "top", "domain" );
-            contextEntry.add( "dc", "foo" );
-            foo.setContextEntry( contextEntry );
             service.addPartition( foo );
             
             Partition bar = new JdbmPartition();
             bar.setId( "bar" );
             bar.setSuffix( "dc=bar,dc=com" );
-            contextDn = new LdapDN( "dc=bar,dc=com" );
-            contextDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-            contextEntry = new DefaultServerEntry( service.getRegistries(), contextDn );
-            contextEntry.add( "objectClass", "top", "domain" );
-            contextEntry.add( "dc", "bar" );
-            bar.setContextEntry( contextEntry );
             service.addPartition( bar );
             
             return service;

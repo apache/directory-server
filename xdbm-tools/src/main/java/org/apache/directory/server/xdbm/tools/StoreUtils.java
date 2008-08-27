@@ -27,6 +27,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -59,28 +60,30 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
-    public static void loadExampleData( Store store, Registries registries ) throws Exception
+    public static void loadExampleData( Store<ServerEntry> store, Registries registries ) throws Exception
     {
         store.setSuffixDn( "o=Good Times Co." );
 
         LdapDN suffixDn = new LdapDN( "o=Good Times Co." );
         suffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
-        DefaultServerEntry contextEntry = new DefaultServerEntry( registries, suffixDn );
-        contextEntry.add( "objectClass", "organization" );
-        contextEntry.add( "o", "Good Times Co." );
-        contextEntry.add( "postalCode", "1" );
-        contextEntry.add( "postOfficeBox", "1" );
-        store.setContextEntry( contextEntry );
-        
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
 
         store.init( registries );
 
+        // Entry #1
+        DefaultServerEntry entry = new DefaultServerEntry( registries, suffixDn );
+        entry.add( "objectClass", "organization" );
+        entry.add( "o", "Good Times Co." );
+        entry.add( "postalCode", "1" );
+        entry.add( "postOfficeBox", "1" );
+        store.add( suffixDn, entry );
+
+        
         // Entry #2
         LdapDN dn = new LdapDN( "ou=Sales,o=Good Times Co." );
         dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "organizationalUnit" );
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );

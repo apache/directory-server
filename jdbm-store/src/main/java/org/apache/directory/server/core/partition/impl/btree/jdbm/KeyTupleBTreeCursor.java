@@ -105,6 +105,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     public void afterValue( K key, V value ) throws Exception
     {
         if ( key != null && ! key.equals( this.key ) )
@@ -125,10 +126,8 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
         {
             checkNotClosed( "afterValue" );
 
-            //noinspection unchecked
             V next = ( V ) valueTuple.getKey();
 
-            //noinspection unchecked
             int nextCompared = comparator.compare( next, value );
 
             if ( nextCompared <= 0 )
@@ -211,20 +210,19 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
         if ( browser.getPrevious( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
-            //noinspection unchecked
             if ( returnedTuple.getValue() != null &&
                 comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
             {
                 browser.getPrevious( valueTuple ) ;
             }
             returnedTuple.setKey( key );
-            //noinspection unchecked
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;
         }
@@ -236,20 +234,19 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
+    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
         if ( browser.getNext( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
-            //noinspection unchecked
             if ( returnedTuple.getValue() != null &&
                  comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
             {
                 browser.getNext( valueTuple ) ;
             }
             returnedTuple.setKey( key );
-            //noinspection unchecked
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
             return valueAvailable = true;
         }
@@ -266,7 +263,6 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "get()" );
         if ( valueAvailable )
         {
-            //noinspection unchecked
             return returnedTuple;
         }
 

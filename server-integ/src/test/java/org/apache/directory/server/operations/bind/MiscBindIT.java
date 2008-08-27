@@ -39,10 +39,9 @@ import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.integ.LdapServerFactory;
@@ -62,7 +61,6 @@ import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
@@ -86,6 +84,14 @@ import static org.junit.Assert.assertNotNull;
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.CLASS )
 @Factory ( MiscBindIT.Factory.class )
+@ApplyLdifs( {
+    // Entry #0
+    "dn: dc=aPache,dc=org\n" +
+    "dc: aPache\n" +
+    "objectClass: top\n" +
+    "objectClass: domain\n\n"
+    }
+)
 public class MiscBindIT
 {
     public static LdapServer ldapServer;
@@ -106,18 +112,8 @@ public class MiscBindIT
 
             // @TODO need to make this configurable for the system partition
             apache.setCacheSize( 500 );
-
             apache.setSuffix( "dc=aPache,dc=org" );
-
-
             apache.setId( "apache" );
-            
-            // Add context entry for system partition
-            LdapDN apacheDn = new LdapDN( "dc=aPache,dc=org" );
-            ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), apacheDn );
-            serverEntry.put( "dc", "aPache" );
-            serverEntry.put( "objectClass", "top", "domain" );
-            apache.setContextEntry( serverEntry );
             service.addPartition( apache );
 
             // change the working directory to something that is unique

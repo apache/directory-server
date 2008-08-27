@@ -35,7 +35,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
@@ -61,8 +60,6 @@ import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,13 +77,14 @@ import static org.junit.Assert.assertNotNull;
 @CleanupLevel ( Level.SUITE )
 @Factory ( ModifyReplaceIT.Factory.class )
 @ApplyLdifs( {
-    // Entry # 0
+    // Entry # 1
     "dn: cn=Kate Bush,ou=system\n" +
     "objectClass: top\n" +
     "objectClass: person\n" +
     "sn: Bush\n" +
     "cn: Kate Bush\n\n" +
-    // Entry # 1
+
+    // Entry # 2
     "dn: cn=Kim Wilde,ou=system\n" +
     "objectClass: top\n" +
     "objectClass: person\n" +
@@ -125,16 +123,6 @@ public class ModifyReplaceIT
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT ) );
             system.setIndexedAttributes( indexedAttrs );
-
-            // Add context entry for system partition
-            LdapDN systemDn = new LdapDN( "ou=system" );
-            ServerEntry systemEntry = new DefaultServerEntry( service.getRegistries(), systemDn );
-            systemEntry.put( "objectClass", "top", "organizationalUnit", "extensibleObject", "account" ); 
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, "uid=admin, ou=system" );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( "ou", "system" );
-            systemEntry.put( "uid", "testUid" );
-            system.setContextEntry( systemEntry );
             service.setSystemPartition( system );
 
             // change the working directory to something that is unique

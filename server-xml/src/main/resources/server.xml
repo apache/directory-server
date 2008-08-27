@@ -45,15 +45,6 @@
           <jdbmIndex attributeId="uid" cacheSize="100"/>
           <jdbmIndex attributeId="objectClass" cacheSize="100"/>
         </indexedAttributes>
-        <contextEntry>#systemContextEntry</contextEntry>
-        <!-- contextEntry>
-          <s:value>
-            objectClass: top
-            objectClass: organizationalUnit
-            objectClass: extensibleObject
-            ou: system
-          </s:value>
-        </contextEntry -->
       </jdbmPartition>
     </systemPartition>
 
@@ -77,15 +68,6 @@
           <jdbmIndex attributeId="uid" cacheSize="100"/>
           <jdbmIndex attributeId="objectClass" cacheSize="100"/>
         </indexedAttributes>
-        <contextEntry>#exampleContextEntry</contextEntry>
-        <!-- contextEntry>
-          <s:value>
-            objectClass: top
-            objectClass: domain
-            objectClass: extensibleObject
-            dc: example
-          </s:value>
-        </contextEntry -->
       </jdbmPartition>
     </partitions>
 
@@ -215,40 +197,6 @@
     <ldapServer>#ldapServer</ldapServer>
     <ldapsServer>#ldapsServer</ldapsServer>
   </apacheDS>
-
-  <spring:bean id="systemContextEntry" 
-	class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <spring:property name="targetObject"><spring:ref local='directoryService'/></spring:property>
-    <spring:property name="targetMethod"><spring:value>newEntry</spring:value></spring:property>
-    <spring:property name="arguments">
-      <spring:list>
-        <spring:value xmlns="http://www.springframework.org/schema/beans">
-          objectClass: top
-          objectClass: organizationalUnit
-          objectClass: extensibleObject
-          ou: system
-        </spring:value>
-        <spring:value>ou=system</spring:value>
-      </spring:list>
-    </spring:property>
-  </spring:bean>
-  
-  <spring:bean id="exampleContextEntry" 
-	class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <spring:property name="targetObject"><spring:ref local='directoryService'/></spring:property>
-    <spring:property name="targetMethod"><spring:value>newEntry</spring:value></spring:property>
-    <spring:property name="arguments">
-      <spring:list>
-        <spring:value xmlns="http://www.springframework.org/schema/beans">
-          objectClass: top
-          objectClass: domain
-          objectClass: extensibleObject
-          dc: example
-        </spring:value>
-        <spring:value>dc=example,dc=com</spring:value>
-      </spring:list>
-    </spring:property>
-  </spring:bean>
 
   <!-- another bean I didn't convert -->
   <spring:bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">

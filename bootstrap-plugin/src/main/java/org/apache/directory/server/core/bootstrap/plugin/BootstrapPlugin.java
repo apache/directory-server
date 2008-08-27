@@ -661,14 +661,16 @@ public class BootstrapPlugin extends AbstractMojo
 
         store.setUserIndices( userIndices );
 
-        ServerEntry rootEntry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.OU_SCHEMA_DN ) );
-        rootEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        rootEntry.put( SchemaConstants.OU_AT, "schema" );
-        store.setContextEntry( rootEntry );
-
         try
         {
             store.init( this.registries );
+            LdapDN dn = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+            dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            ServerEntry rootEntry = new DefaultServerEntry( registries, dn );
+            rootEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
+                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+            rootEntry.put( SchemaConstants.OU_AT, "schema" );
+            store.add( dn, rootEntry );
         }
         catch ( Exception e )
         {

@@ -34,6 +34,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -78,7 +79,9 @@ import java.util.Map;
 public class ExceptionInterceptor extends BaseInterceptor
 {
     private PartitionNexus nexus;
+    private DirectoryService directoryService;
     private LdapDN subschemSubentryDn;
+
     
     /**
      * The OIDs normalizer map
@@ -119,6 +122,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws Exception
     {
+        this.directoryService = directoryService;
         nexus = directoryService.getPartitionNexus();
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
@@ -153,10 +157,20 @@ public class ExceptionInterceptor extends BaseInterceptor
             ne.setResolvedName( new LdapDN( name.getUpName() ) );
             throw ne;
         }
-
+        
+        LdapDN suffix = nexus.getSuffix( new GetSuffixOperationContext( this.directoryService.getAdminSession(), 
+            name ) );
+        
+        // we're adding the suffix entry so just ignore stuff to mess with the parent
+        if ( suffix.getNormName().equals( name.getNormName() ) )
+        {
+            nextInterceptor.add( opContext );
+            return;
+        }
+        
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( name.size() - 1 );
-
+        
         // check if we're trying to add to a parent that is an alias
         boolean notAnAlias;
         

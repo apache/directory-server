@@ -230,28 +230,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * Returns root the rootDSE.
-     *
-     * @return the root entry for the DSA
-     */
-    public ClonedServerEntry getContextEntry()
-    {
-        return new ClonedServerEntry( rootDSE );
-    }
-
-
-    /**
-     * Sets root entry for this BTreePartition.
-     *
-     * @throws UnsupportedOperationException everytime
-     */
-    public void setContextEntry( ServerEntry rootEntry )
-    {
-        throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
-    }
-
-
-    /**
      * Always returns the empty String "".
      * @return the empty String ""
      */
@@ -363,41 +341,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         if ( override != null )
         {
-            ServerEntry systemEntry = override.getContextEntry();
-            EntryAttribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
-            
-            if ( objectClassAttr == null )
-            {
-                systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
-                    SchemaConstants.TOP_OC,
-                    SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-                    SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            }
-            else
-            {
-                // Feed the contextEntry with the mandatory ObjectClass values, if they are missing.
-                if ( !objectClassAttr.contains( SchemaConstants.TOP_OC ) )
-                {
-                    objectClassAttr.add( SchemaConstants.TOP_OC );
-                }
-                
-                if ( !objectClassAttr.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
-                {
-                    objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-                }
-
-                if ( !objectClassAttr.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
-                {
-                    objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-                }
-            }
-            
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
-                NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-            
-            override.setContextEntry( systemEntry );
             
             // ---------------------------------------------------------------
             // check a few things to make sure users configured it properly
@@ -447,27 +390,35 @@ public class DefaultPartitionNexus extends PartitionNexus
             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
-    
-            // Add context entry for system partition
-            ServerEntry systemEntry = new DefaultServerEntry( registries, new LdapDN( ServerDNConstants.SYSTEM_DN ) );
-
-            // Add the ObjectClasses
-            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-                SchemaConstants.EXTENSIBLE_OBJECT_OC
-                );
-            
-            // Add some operational attributes
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
-                NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-
-            system.setContextEntry( systemEntry );
         }
 
         system.init( directoryService );
+        
+        
+        // Add root context entry for system partition
+        LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
+        systemSuffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        ServerEntry systemEntry = new DefaultServerEntry( registries, systemSuffixDn );
+
+        // Add the ObjectClasses
+        systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+            SchemaConstants.TOP_OC,
+            SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+            SchemaConstants.EXTENSIBLE_OBJECT_OC
+            );
+        
+        // Add some operational attributes
+        systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
+        systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
+            NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession adminSession = new DefaultCoreSession( 
+            new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
+        AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
+        system.add( addOperationContext );
+        
         String key = system.getSuffixDn().toString();
         
         if ( partitions.containsKey( key ) )
@@ -655,8 +606,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         if ( ! partition.isInitialized() )
         {
-            partition.setContextEntry( partition.getContextEntry() );
-            
             partition.init( directoryService );
         }
         

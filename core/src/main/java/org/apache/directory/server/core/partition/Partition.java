@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -87,22 +86,6 @@ public interface Partition
     void setId( String id );
 
 
-    /**
-     * Gets the root entry of the partition, the entry for the suffix.
-     *
-     * @return the entry for the suffix of this Partition.
-     */
-    ServerEntry getContextEntry();
-
-
-    /**
-     * Sets the root entry of the partition, the entry for the suffix.
-     *
-     * @param contextEntry the entry for the suffix of this Partition.
-     */
-    void setContextEntry( ServerEntry contextEntry );
-
-    
     /**
      * Gets the non-normalized suffix for this Partition as a string.
      *

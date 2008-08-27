@@ -22,7 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
@@ -37,7 +36,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -130,24 +128,11 @@ public class SearchWithIndicesITest
 
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "system" );
-            
-            try
-            {
-                ServerEntry serverEntry = new DefaultServerEntry( service.getRegistries(), new LdapDN( "ou=system" ) );
-                serverEntry.put( "objectClass", "top", "organizationalUnit" );
-                serverEntry.put( "ou", "system" );
-                partition.setContextEntry( serverEntry );
-                partition.setSuffix( "ou=system" );
-
-            }
-            catch ( NamingException ne )
-            {
-                // Do nothing
-            }
+            partition.setSuffix( "ou=system" );
 
             Set<Index<?, ServerEntry>> indices = new HashSet<Index<?, ServerEntry>>();
             indices.addAll( partition.getIndexedAttributes() );
-            indices.add( new JdbmIndex( "gidNumber" ) );
+            indices.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
             partition.setIndexedAttributes( indices );
             service.setSystemPartition( partition );
 
