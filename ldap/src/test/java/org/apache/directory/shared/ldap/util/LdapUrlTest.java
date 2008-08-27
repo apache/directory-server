@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.LdapURL.Extension;
 import org.junit.Test;
 
 
@@ -2018,6 +2019,32 @@ public class LdapUrlTest extends TestCase
             LdapURL url = new LdapURL( "ldap://localhost:123/????!a=b,!c,!x,d=e,f=g,!h=i" );
 
             assertEquals( "ldap://localhost:123/????!a=b,!c,!x,d=e,f=g,!h=i", url.toString() );
+
+            List<Extension> extensions = url.getExtensions();
+
+            assertTrue( extensions.get( 0 ).isCritical() );
+            assertEquals( "a", extensions.get( 0 ).getType() );
+            assertEquals( "b", extensions.get( 0 ).getValue() );
+
+            assertTrue( extensions.get( 1 ).isCritical() );
+            assertEquals( "c", extensions.get( 1 ).getType() );
+            assertNull( extensions.get( 1 ).getValue() );
+
+            assertTrue( extensions.get( 2 ).isCritical() );
+            assertEquals( "x", extensions.get( 2 ).getType() );
+            assertNull( extensions.get( 2 ).getValue() );
+
+            assertFalse( extensions.get( 3 ).isCritical() );
+            assertEquals( "d", extensions.get( 3 ).getType() );
+            assertEquals( "e", extensions.get( 3 ).getValue() );
+
+            assertFalse( extensions.get( 4 ).isCritical() );
+            assertEquals( "f", extensions.get( 4 ).getType() );
+            assertEquals( "g", extensions.get( 4 ).getValue() );
+
+            assertTrue( extensions.get( 5 ).isCritical() );
+            assertEquals( "h", extensions.get( 5 ).getType() );
+            assertEquals( "i", extensions.get( 5 ).getValue() );
         }
         catch ( LdapURLEncodingException luee )
         {

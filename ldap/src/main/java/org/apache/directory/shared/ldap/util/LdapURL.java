@@ -22,15 +22,11 @@ package org.apache.directory.shared.ldap.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-
+import java.net.URI;
 import java.text.ParseException;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
@@ -108,12 +104,6 @@ public class LdapURL
 
     /** The extensions. */
     private List<Extension> extensionList;
-    //
-    //    /** The extensions */
-    //    private Map<String, String> extensions;
-    //
-    //    /** The criticals extensions */
-    //    private Map<String, String> criticalExtensions;
 
     /** Stores the LdapURL as a String */
     private String string;
@@ -141,8 +131,6 @@ public class LdapURL
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
         extensionList = new ArrayList<Extension>( 2 );
-        //        extensions = new HashMap<String, String>();
-        //        criticalExtensions = new HashMap<String, String>();
     }
 
 
@@ -161,8 +149,6 @@ public class LdapURL
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
         extensionList = new ArrayList<Extension>( 2 );
-        //        extensions = new HashMap<String, String>();
-        //        criticalExtensions = new HashMap<String, String>();
 
         if ( ( chars == null ) || ( chars.length == 0 ) )
         {
@@ -1364,25 +1350,6 @@ public class LdapURL
 
 
     /**
-     * @return Returns the criticalExtensions.
-     */
-    public Map<String, String> getCriticalExtensions()
-    {
-        Map<String, String> criticalExtensions = new HashMap<String, String>();
-
-        for ( Extension extension : extensionList )
-        {
-            if ( extension.isCritical )
-            {
-                criticalExtensions.put( extension.type, extension.value );
-            }
-        }
-
-        return criticalExtensions;
-    }
-
-
-    /**
      * @return Returns the dn.
      */
     public LdapDN getDn()
@@ -1394,19 +1361,51 @@ public class LdapURL
     /**
      * @return Returns the extensions.
      */
-    public Map<String, String> getExtensions()
+    public List<Extension> getExtensions()
     {
-        Map<String, String> extensions = new HashMap<String, String>();
+        return extensionList;
+    }
 
-        for ( Extension extension : extensionList )
+
+    /**
+     * Gets the extension.
+     * 
+     * @param type the extension type, case-insensitive
+     * 
+     * @return Returns the extension, null if this URL does not contain 
+     *         such an extension.
+     */
+    public Extension getExtension( String type )
+    {
+        for ( Extension extension : getExtensions() )
         {
-            if ( extension.isCritical )
+            if ( extension.getType().equalsIgnoreCase( type ) )
             {
-                extensions.put( extension.type, extension.value );
+                return extension;
             }
         }
+        return null;
+    }
 
-        return extensions;
+
+    /**
+     * Gets the extension value.
+     * 
+     * @param type the extension type, case-insensitive
+     * 
+     * @return Returns the extension value, null if this URL does not  
+     *         contain such an extension or if the extension value is null.
+     */
+    public String getExtensionValue( String type )
+    {
+        for ( Extension extension : getExtensions() )
+        {
+            if ( extension.getType().equalsIgnoreCase( type ) )
+            {
+                return extension.getValue();
+            }
+        }
+        return null;
     }
 
 
@@ -1642,62 +1641,6 @@ public class LdapURL
 
 
     /**
-     * Sets the extensions, null removes all existing extensions.
-     * 
-     * @param extensions the extensions
-     */
-    public void setExtensions( Map<String, String> extensions )
-    {
-        // remove all old non-critical extensions
-        for ( Iterator<Extension> it = extensionList.iterator(); it.hasNext(); )
-        {
-            if ( !it.next().isCritical )
-            {
-                it.remove();
-            }
-        }
-
-        // add new non-critical extensions 
-        if ( extensions != null )
-        {
-            for ( String key : extensions.keySet() )
-            {
-                Extension extension = new Extension( false, key, extensions.get( key ) );
-                extensionList.add( extension );
-            }
-        }
-    }
-
-
-    /**
-     * Sets the critical extensions, null removes all existing critical extensions.
-     * 
-     * @param criticalExtensions the critical extensions
-     */
-    public void setCriticalExtensions( Map<String, String> criticalExtensions )
-    {
-        // remove all old critical extensions
-        for ( Iterator<Extension> it = extensionList.iterator(); it.hasNext(); )
-        {
-            if ( it.next().isCritical )
-            {
-                it.remove();
-            }
-        }
-
-        // add new critical extensions 
-        if ( criticalExtensions != null )
-        {
-            for ( String key : criticalExtensions.keySet() )
-            {
-                Extension extension = new Extension( true, key, criticalExtensions.get( key ) );
-                extensionList.add( extension );
-            }
-        }
-    }
-
-
-    /**
      * If set to true forces the toString method to render the scope 
      * regardless of optional nature.  Use this when you want explicit
      * search URL scope rendering.
@@ -1722,19 +1665,98 @@ public class LdapURL
         return forceScopeRendering;
     }
 
-    private class Extension
+    /**
+     * An inner bean to hold extension information.
+     *
+     * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+     * @version $Rev$, $Date$
+     */
+    public static class Extension
     {
         private boolean isCritical;
         private String type;
         private String value;
 
 
-        private Extension( boolean isCritical, String extype, String exvalue )
+        /**
+         * Creates a new instance of Extension.
+         *
+         * @param isCritical true for critical extension
+         * @param type the extension type
+         * @param value the extension value
+         */
+        public Extension( boolean isCritical, String type, String value )
         {
             super();
             this.isCritical = isCritical;
-            this.type = extype;
-            this.value = exvalue;
+            this.type = type;
+            this.value = value;
+        }
+
+
+        /**
+         * Checks if is critical.
+         * 
+         * @return true, if is critical
+         */
+        public boolean isCritical()
+        {
+            return isCritical;
+        }
+
+
+        /**
+         * Sets the critical.
+         * 
+         * @param isCritical the new critical
+         */
+        public void setCritical( boolean isCritical )
+        {
+            this.isCritical = isCritical;
+        }
+
+
+        /**
+         * Gets the type.
+         * 
+         * @return the type
+         */
+        public String getType()
+        {
+            return type;
+        }
+
+
+        /**
+         * Sets the type.
+         * 
+         * @param type the new type
+         */
+        public void setType( String type )
+        {
+            this.type = type;
+        }
+
+
+        /**
+         * Gets the value.
+         * 
+         * @return the value
+         */
+        public String getValue()
+        {
+            return value;
+        }
+
+
+        /**
+         * Sets the value.
+         * 
+         * @param value the new value
+         */
+        public void setValue( String value )
+        {
+            this.value = value;
         }
     }
 
