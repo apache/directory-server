@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,22 +106,25 @@ public class LdapURL
     /** The filter as a string */
     private String filter;
 
-    /** The extensions */
-    private Map<String, String> extensions;
-
-    /** The criticals extensions */
-    private Map<String, String> criticalExtensions;
+    /** The extensions. */
+    private List<Extension> extensionList;
+    //
+    //    /** The extensions */
+    //    private Map<String, String> extensions;
+    //
+    //    /** The criticals extensions */
+    //    private Map<String, String> criticalExtensions;
 
     /** Stores the LdapURL as a String */
     private String string;
 
     /** Stores the LdapURL as a byte array */
     private byte[] bytes;
-    
+
     /** modal parameter that forces explicit scope rendering in toString */
     private boolean forceScopeRendering;
-    
-    
+
+
     // ~ Constructors
     // -------------------------------------------------------------------------------
 
@@ -136,9 +140,11 @@ public class LdapURL
         attributes = new ArrayList<String>();
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
-        extensions = new HashMap<String, String>();
-        criticalExtensions = new HashMap<String, String>();
+        extensionList = new ArrayList<Extension>( 2 );
+        //        extensions = new HashMap<String, String>();
+        //        criticalExtensions = new HashMap<String, String>();
     }
+
 
     /**
      * Parse a LdapURL
@@ -154,8 +160,9 @@ public class LdapURL
         attributes = new ArrayList<String>();
         scope = SearchControls.OBJECT_SCOPE;
         filter = null;
-        extensions = new HashMap<String, String>();
-        criticalExtensions = new HashMap<String, String>();
+        extensionList = new ArrayList<Extension>( 2 );
+        //        extensions = new HashMap<String, String>();
+        //        criticalExtensions = new HashMap<String, String>();
 
         if ( ( chars == null ) || ( chars.length == 0 ) )
         {
@@ -336,7 +343,7 @@ public class LdapURL
      * @param bytes The byte buffer that contains the LDAPURL
      * @throws LdapURLEncodingException If the byte array does not comply with RFC 2255
      */
-    public LdapURL(byte[] bytes) throws LdapURLEncodingException
+    public LdapURL( byte[] bytes ) throws LdapURLEncodingException
     {
         if ( ( bytes == null ) || ( bytes.length == 0 ) )
         {
@@ -345,7 +352,7 @@ public class LdapURL
 
         string = StringTools.utf8ToString( bytes );
 
-        this.bytes = new byte[ bytes.length ];
+        this.bytes = new byte[bytes.length];
         System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
 
         parse( string.toCharArray() );
@@ -571,7 +578,7 @@ public class LdapURL
     private int parseHostPort( char[] chars, int pos )
     {
         int hostPos = pos;
-        
+
         if ( ( pos = parseHost( chars, pos ) ) == -1 )
         {
             return -1;
@@ -585,7 +592,7 @@ public class LdapURL
                 // We should not have a port if we have no host
                 return -1;
             }
-            
+
             pos++;
         }
         else
@@ -923,7 +930,7 @@ public class LdapURL
             // We have no filter
             return end;
         }
-        
+
         try
         {
             filter = decode( new String( chars, pos, end - pos ) );
@@ -1037,7 +1044,6 @@ public class LdapURL
      */
     private int parseExtensions( char[] chars, int pos )
     {
-
         int start = pos;
         boolean isCritical = false;
         boolean isNewExtension = true;
@@ -1052,37 +1058,29 @@ public class LdapURL
 
         try
         {
-
             for ( int i = pos; ( i < chars.length ); i++ )
             {
-
                 if ( StringTools.isCharASCII( chars, i, ',' ) )
                 {
-
                     if ( isNewExtension )
                     {
-
                         // a ',' is not allowed when we have already had one
                         // or if we just started to parse the extensions.
                         return -1;
                     }
                     else
                     {
-                        value = decode( new String( chars, start, i - start ) ).trim();
-
-                        if ( value.length() == 0 )
+                        if ( extension == null )
                         {
-                            return -1;
-                        }
-
-                        if ( isCritical )
-                        {
-                            criticalExtensions.put( extension, value );
+                            extension = decode( new String( chars, start, i - start ) ).trim();
                         }
                         else
                         {
-                            extensions.put( extension, value );
+                            value = decode( new String( chars, start, i - start ) ).trim();
                         }
+
+                        Extension ext = new Extension( isCritical, extension, value );
+                        extensionList.add( ext );
 
                         isNewExtension = true;
                         hasValue = false;
@@ -1094,10 +1092,8 @@ public class LdapURL
                 }
                 else if ( StringTools.isCharASCII( chars, i, '=' ) )
                 {
-
                     if ( hasValue )
                     {
-
                         // We may have two '=' for the same extension
                         continue;
                     }
@@ -1107,27 +1103,27 @@ public class LdapURL
 
                     if ( extension.length() == 0 )
                     {
-
                         // We must have an extension
                         return -1;
                     }
 
-                    isNewExtension = false;
                     hasValue = true;
                     start = i + 1;
                 }
                 else if ( StringTools.isCharASCII( chars, i, '!' ) )
                 {
-
                     if ( !isNewExtension )
                     {
-
                         // '!' must appears first
                         return -1;
                     }
 
                     isCritical = true;
                     start++;
+                }
+                else
+                {
+                    isNewExtension = false;
                 }
             }
 
@@ -1140,14 +1136,8 @@ public class LdapURL
                 value = decode( new String( chars, start, chars.length - start ) ).trim();
             }
 
-            if ( isCritical )
-            {
-                criticalExtensions.put( extension, value );
-            }
-            else
-            {
-                extensions.put( extension, value );
-            }
+            Extension ext = new Extension( isCritical, extension, value );
+            extensionList.add( ext );
 
             return chars.length;
         }
@@ -1206,7 +1196,7 @@ public class LdapURL
 
                 default:
                     sb.append( c );
-                break;
+                    break;
             }
         }
 
@@ -1238,14 +1228,13 @@ public class LdapURL
             sb.append( '/' ).append( urlEncode( dn.toString(), false ) );
 
             if ( attributes.size() != 0 || forceScopeRendering
-                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || 
-                    ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
+                || ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensionList.size() != 0 ) ) )
             {
                 sb.append( '?' );
 
                 boolean isFirst = true;
-                
-                for ( String attribute:attributes )
+
+                for ( String attribute : attributes )
                 {
                     if ( isFirst )
                     {
@@ -1259,7 +1248,7 @@ public class LdapURL
                     sb.append( urlEncode( attribute, false ) );
                 }
             }
-            
+
             if ( forceScopeRendering )
             {
                 sb.append( '?' );
@@ -1278,61 +1267,57 @@ public class LdapURL
                     case SearchControls.SUBTREE_SCOPE:
                         sb.append( "sub" );
                         break;
-                        
-                        
-                    default :
+
+                    default:
                         break;
                 }
             }
 
             else
             {
-                if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensions.size() != 0 )
-                    || ( criticalExtensions.size() != 0 ) )
+                if ( ( scope != SearchControls.OBJECT_SCOPE ) || ( filter != null ) || ( extensionList.size() != 0 ) )
                 {
                     sb.append( '?' );
-    
+
                     switch ( scope )
                     {
-    
+
                         case SearchControls.OBJECT_SCOPE:
-    
+
                             // This is the default value.
                             break;
-    
+
                         case SearchControls.ONELEVEL_SCOPE:
                             sb.append( "one" );
                             break;
-    
+
                         case SearchControls.SUBTREE_SCOPE:
                             sb.append( "sub" );
                             break;
-                            
-                            
-                        default :
+
+                        default:
                             break;
                     }
-    
-                    if ( ( filter != null ) || ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) ) )
+
+                    if ( ( filter != null ) || ( ( extensionList.size() != 0 ) ) )
                     {
                         sb.append( "?" );
-    
+
                         if ( filter != null )
                         {
                             sb.append( urlEncode( filter, false ) );
                         }
-    
-                        if ( ( extensions.size() != 0 ) || ( criticalExtensions.size() != 0 ) )
+
+                        if ( ( extensionList.size() != 0 ) )
                         {
                             sb.append( '?' );
-    
+
                             boolean isFirst = true;
-    
-                            if ( extensions.size() != 0 )
+
+                            if ( extensionList.size() != 0 )
                             {
-                                for ( String key:extensions.keySet() )
+                                for ( Extension extension : extensionList )
                                 {
-    
                                     if ( !isFirst )
                                     {
                                         sb.append( ',' );
@@ -1341,37 +1326,17 @@ public class LdapURL
                                     {
                                         isFirst = false;
                                     }
-    
-                                    sb.append( urlEncode( key, false ) ).append( '=' ).append(
-                                        urlEncode( extensions.get( key ), true ) );
-                                }
-                            }
-    
-                            isFirst = true;
-    
-                            if ( criticalExtensions.size() != 0 )
-                            {
-                                for ( String key:criticalExtensions.keySet() )
-                                {
-    
-                                    if ( !isFirst )
-                                    {
-                                        sb.append( ",!" );
-                                    }
-                                    else
+
+                                    if ( extension.isCritical )
                                     {
                                         sb.append( '!' );
-                                        isFirst = false;
                                     }
-    
-                                    sb.append( urlEncode( key, false ) );
-                                    
-                                    String value = criticalExtensions.get( key );
-                                    
-                                    if ( value != null )
+                                    sb.append( urlEncode( extension.type, false ) );
+
+                                    if ( extension.value != null )
                                     {
-                                        sb.append( '=' ).append(
-                                        urlEncode( value, true ) );
+                                        sb.append( '=' );
+                                        sb.append( urlEncode( extension.value, true ) );
                                     }
                                 }
                             }
@@ -1388,6 +1353,7 @@ public class LdapURL
         return sb.toString();
     }
 
+
     /**
      * @return Returns the attributes.
      */
@@ -1402,6 +1368,16 @@ public class LdapURL
      */
     public Map<String, String> getCriticalExtensions()
     {
+        Map<String, String> criticalExtensions = new HashMap<String, String>();
+
+        for ( Extension extension : extensionList )
+        {
+            if ( extension.isCritical )
+            {
+                criticalExtensions.put( extension.type, extension.value );
+            }
+        }
+
         return criticalExtensions;
     }
 
@@ -1420,6 +1396,16 @@ public class LdapURL
      */
     public Map<String, String> getExtensions()
     {
+        Map<String, String> extensions = new HashMap<String, String>();
+
+        for ( Extension extension : extensionList )
+        {
+            if ( extension.isCritical )
+            {
+                extensions.put( extension.type, extension.value );
+            }
+        }
+
         return extensions;
     }
 
@@ -1470,7 +1456,8 @@ public class LdapURL
     {
         return scheme;
     }
-    
+
+
     /**
      * @return the number of bytes for this LdapURL
      */
@@ -1478,7 +1465,8 @@ public class LdapURL
     {
         return ( bytes != null ? bytes.length : 0 );
     }
-    
+
+
     /**
      * @return a reference on the interned bytes representing this LdapURL
      */
@@ -1486,7 +1474,8 @@ public class LdapURL
     {
         return bytes;
     }
-    
+
+
     /**
      * @return a copy of the bytes representing this LdapURL
      */
@@ -1503,7 +1492,8 @@ public class LdapURL
             return null;
         }
     }
-    
+
+
     /**
      * @return the LdapURL as a String
      */
@@ -1511,6 +1501,7 @@ public class LdapURL
     {
         return string;
     }
+
 
     /**
      * Compute the instance's hash code
@@ -1520,6 +1511,7 @@ public class LdapURL
     {
         return this.toString().hashCode();
     }
+
 
     public boolean equals( Object obj )
     {
@@ -1535,12 +1527,12 @@ public class LdapURL
         {
             return false;
         }
-        
+
         final LdapURL other = ( LdapURL ) obj;
         return this.toString().equals( other.toString() );
     }
 
-    
+
     /**
      * Sets the scheme. Must be "ldap://" or "ldaps://", otherwise "ldap://" is assumed as default.
      * 
@@ -1656,13 +1648,23 @@ public class LdapURL
      */
     public void setExtensions( Map<String, String> extensions )
     {
-        if ( extensions == null )
+        // remove all old non-critical extensions
+        for ( Iterator<Extension> it = extensionList.iterator(); it.hasNext(); )
         {
-            this.extensions.clear();
+            if ( !it.next().isCritical )
+            {
+                it.remove();
+            }
         }
-        else
+
+        // add new non-critical extensions 
+        if ( extensions != null )
         {
-            this.extensions = extensions;
+            for ( String key : extensions.keySet() )
+            {
+                Extension extension = new Extension( false, key, extensions.get( key ) );
+                extensionList.add( extension );
+            }
         }
     }
 
@@ -1674,17 +1676,27 @@ public class LdapURL
      */
     public void setCriticalExtensions( Map<String, String> criticalExtensions )
     {
-        if ( criticalExtensions == null )
+        // remove all old critical extensions
+        for ( Iterator<Extension> it = extensionList.iterator(); it.hasNext(); )
         {
-            this.criticalExtensions.clear();
+            if ( it.next().isCritical )
+            {
+                it.remove();
+            }
         }
-        else
+
+        // add new critical extensions 
+        if ( criticalExtensions != null )
         {
-            this.criticalExtensions = criticalExtensions;
+            for ( String key : criticalExtensions.keySet() )
+            {
+                Extension extension = new Extension( true, key, criticalExtensions.get( key ) );
+                extensionList.add( extension );
+            }
         }
     }
 
-    
+
     /**
      * If set to true forces the toString method to render the scope 
      * regardless of optional nature.  Use this when you want explicit
@@ -1697,7 +1709,7 @@ public class LdapURL
         this.forceScopeRendering = forceScopeRendering;
     }
 
-    
+
     /**
      * If set to true forces the toString method to render the scope 
      * regardless of optional nature.  Use this when you want explicit
@@ -1708,6 +1720,22 @@ public class LdapURL
     public boolean isForceScopeRendering()
     {
         return forceScopeRendering;
+    }
+
+    private class Extension
+    {
+        private boolean isCritical;
+        private String type;
+        private String value;
+
+
+        private Extension( boolean isCritical, String extype, String exvalue )
+        {
+            super();
+            this.isCritical = isCritical;
+            this.type = extype;
+            this.value = exvalue;
+        }
     }
 
 }
