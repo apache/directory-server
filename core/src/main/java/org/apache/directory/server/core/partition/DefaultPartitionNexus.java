@@ -375,9 +375,9 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
 
                 ( ( JdbmPartition ) override ).setIndexedAttributes( indices );
-
-                system = override;
             }
+
+            system = override;
         }
         else
         {
