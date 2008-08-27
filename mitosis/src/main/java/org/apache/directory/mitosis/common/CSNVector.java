@@ -53,6 +53,7 @@ public class CSNVector
      */
     private static final long serialVersionUID = 1L;
 
+    /** The internal structure holding the CSNs */
     private final Map<String,CSN> csns = new HashMap<String,CSN>();
 
     /**
@@ -89,7 +90,7 @@ public class CSNVector
     }
 
     /**
-     * Returns the {@link CSN} whith the specified <tt>replicaId</tt> from
+     * Returns the {@link CSN} with the specified <tt>replicaId</tt> from
      * this vector.
      * 
      * @return <tt>null</tt> if there's no match
@@ -139,10 +140,12 @@ public class CSNVector
         {
             return true;
         }
+        
         if ( !( object instanceof CSNVector ) )
         {
             return false;
         }
+        
         CSNVector rhs = ( CSNVector ) object;
         return new EqualsBuilder().append( this.csns, rhs.csns ).isEquals();
     }
@@ -156,6 +159,7 @@ public class CSNVector
     {
         return new HashCodeBuilder( -33446267, -459427867 ).append( this.csns ).toHashCode();
     }
+    
 
     /**
      * Creates a deep copy of this vector and returns it.
@@ -166,6 +170,7 @@ public class CSNVector
         result.csns.putAll( this.csns );
         return result;
     }
+    
 
     public String toString()
     {
