@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.shared.asn1.codec.binary.Hex;
 import org.apache.directory.shared.ldap.codec.util.HttpClientError;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.codec.util.URIException;
@@ -695,11 +696,7 @@ public class LdapURL
         {
             int b = bytes[i];
 
-            if ( b == '+' )
-            {
-                buffer.write( ' ' );
-            }
-            else if ( b == '%' )
+            if ( b == '%' )
             {
                 try
                 {
@@ -1098,6 +1095,12 @@ public class LdapURL
                 }
                 else if ( StringTools.isCharASCII( chars, i, '!' ) )
                 {
+                    if ( hasValue )
+                    {
+                        // We may have two '!' in the value
+                        continue;
+                    }
+
                     if ( !isNewExtension )
                     {
                         // '!' must appears first
@@ -1135,13 +1138,45 @@ public class LdapURL
 
 
     /**
-     * Encode a String to avoid special characters 
+     * Encode a String to avoid special characters.
+     *
      * 
-     * *NOTE* : this is an ugly function, just needed because the RFC 2255 
-     * is VERY unclear about the way LDAP searches are to be encoded. 
+     * RFC 4516, section 2.1. (Percent-Encoding)
+     *
+     * A generated LDAP URL MUST consist only of the restricted set of
+     * characters included in one of the following three productions defined
+     * in [RFC3986]:
+     *
+     *   <reserved>
+     *   <unreserved>
+     *   <pct-encoded>
+     *
+     * Implementations SHOULD accept other valid UTF-8 strings [RFC3629] as
+     * input.  An octet MUST be encoded using the percent-encoding mechanism
+     * described in section 2.1 of [RFC3986] in any of these situations:
      * 
-     * Some references to RFC 1738 are made, but they are really useless 
-     * and inadequat.
+     *  The octet is not in the reserved set defined in section 2.2 of
+     *  [RFC3986] or in the unreserved set defined in section 2.3 of
+     *  [RFC3986].
+     *
+     *  It is the single Reserved character '?' and occurs inside a <dn>,
+     *  <filter>, or other element of an LDAP URL.
+     *
+     *  It is a comma character ',' that occurs inside an <exvalue>.
+     *
+     *
+     * RFC 3986, section 2.2 (Reserved Characters)
+     * 
+     * reserved    = gen-delims / sub-delims
+     * gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+     * sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+     *              / "*" / "+" / "," / ";" / "="
+     *             
+     *             
+     * RFC 3986, section 2.3 (Unreserved Characters)
+     * 
+     * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+     *
      * 
      * @param url The String to encode
      * @param doubleEncode Set if we need to encode the comma
@@ -1156,20 +1191,112 @@ public class LdapURL
             char c = url.charAt( i );
 
             switch ( c )
+
             {
-                case ' ':
-                    sb.append( "%20" );
-                    break;
+                // reserved and unreserved characters:
+                // just append to the buffer
 
-                case '?':
-                    sb.append( "%3f" );
-                    break;
+                // reserved gen-delims, excluding '?'
+                // gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+                case ':':
+                case '/':
+                case '#':
+                case '[':
+                case ']':
+                case '@':
 
-                case '\\':
-                    sb.append( "%5c" );
+                    // reserved sub-delims, excluding ','
+                    // sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+                    //               / "*" / "+" / "," / ";" / "="
+                case '!':
+                case '$':
+                case '&':
+                case '\'':
+                case '(':
+                case ')':
+                case '*':
+                case '+':
+                case ';':
+                case '=':
+
+                    // unreserved
+                    // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'g':
+                case 'h':
+                case 'i':
+                case 'j':
+                case 'k':
+                case 'l':
+                case 'm':
+                case 'n':
+                case 'o':
+                case 'p':
+                case 'q':
+                case 'r':
+                case 's':
+                case 't':
+                case 'u':
+                case 'v':
+                case 'w':
+                case 'x':
+                case 'y':
+                case 'z':
+
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'I':
+                case 'J':
+                case 'K':
+                case 'L':
+                case 'M':
+                case 'N':
+                case 'O':
+                case 'P':
+                case 'Q':
+                case 'R':
+                case 'S':
+                case 'T':
+                case 'U':
+                case 'V':
+                case 'W':
+                case 'X':
+                case 'Y':
+                case 'Z':
+
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+
+                case '-':
+                case '.':
+                case '_':
+                case '~':
+
+                    sb.append( c );
                     break;
 
                 case ',':
+
+                    // special case for comma
                     if ( doubleEncode )
                     {
                         sb.append( "%2c" );
@@ -1181,7 +1308,20 @@ public class LdapURL
                     break;
 
                 default:
-                    sb.append( c );
+
+                    // percent encoding
+                    byte[] bytes = StringTools.charToBytes( c );
+                    char[] hex = Hex.encodeHex( bytes );
+                    for ( int j = 0; j < hex.length; j++ )
+                    {
+                        if ( j % 2 == 0 )
+                        {
+                            sb.append( '%' );
+                        }
+                        sb.append( hex[j] );
+
+                    }
+
                     break;
             }
         }

@@ -2052,4 +2052,107 @@ public class LdapUrlTest extends TestCase
         }
     }
 
+
+    /**
+     * Test UTF-8 values in extension values.
+     */
+    @Test
+    public void testLdapURLExtensionWithUtf8Values() throws Exception
+    {
+        String germanChars = new String(
+            new byte[]
+                { ( byte ) 0xC3, ( byte ) 0x84, ( byte ) 0xC3, ( byte ) 0x96, ( byte ) 0xC3, ( byte ) 0x9C,
+                    ( byte ) 0xC3, ( byte ) 0x9F, ( byte ) 0xC3, ( byte ) 0xA4, ( byte ) 0xC3, ( byte ) 0xB6,
+                    ( byte ) 0xC3, ( byte ) 0xBC }, "UTF-8" );
+
+        LdapURL url1 = new LdapURL();
+        url1.setHost( "localhost" );
+        url1.setPort( 123 );
+        url1.setDn( LdapDN.EMPTY_LDAPDN );
+        url1.getExtensions().add( new Extension( false, "X-CONNECTION-NAME", germanChars ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=%c3%84%c3%96%c3%9c%c3%9f%c3%a4%c3%b6%c3%bc", url1
+            .toString() );
+
+        LdapURL url2 = new LdapURL(
+            "ldap://localhost:123/????X-CONNECTION-NAME=%c3%84%c3%96%c3%9c%c3%9f%c3%a4%c3%b6%c3%bc" );
+        assertEquals( germanChars, url1.getExtensionValue( "X-CONNECTION-NAME" ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=%c3%84%c3%96%c3%9c%c3%9f%c3%a4%c3%b6%c3%bc", url2
+            .toString() );
+    }
+
+
+    /**
+     * Test comma in extension value.
+     */
+    @Test
+    public void testLdapURLExtensionWithCommaValue() throws Exception
+    {
+        LdapURL url1 = new LdapURL();
+        url1.setHost( "localhost" );
+        url1.setPort( 123 );
+        url1.setDn( LdapDN.EMPTY_LDAPDN );
+        url1.getExtensions().add( new Extension( false, "X-CONNECTION-NAME", "," ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=%2c", url1.toString() );
+
+        LdapURL url2 = new LdapURL( "ldap://localhost:123/????X-CONNECTION-NAME=%2c" );
+        assertEquals( ",", url1.getExtensionValue( "X-CONNECTION-NAME" ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=%2c", url2.toString() );
+    }
+
+
+    /**
+     * Test with RFC 3986 reserved characters in extension value.
+     * 
+     *   reserved    = gen-delims / sub-delims
+     *   gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+     *   sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+     *                 / "*" / "+" / "," / ";" / "="
+     *              
+     * RFC 4516 specifies that '?' and a ',' must be percent encoded.
+     * 
+     */
+    @Test
+    public void testLdapURLExtensionWithRFC3986ReservedCharsAndRFC4616Exception() throws Exception
+    {
+        LdapURL url1 = new LdapURL();
+        url1.setHost( "localhost" );
+        url1.setPort( 123 );
+        url1.setDn( LdapDN.EMPTY_LDAPDN );
+        url1.getExtensions().add( new Extension( false, "X-CONNECTION-NAME", ":/?#[]@!$&'()*+,;=" ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=:/%3f#[]@!$&'()*+%2c;=", url1.toString() );
+
+        LdapURL url2 = new LdapURL( "ldap://localhost:123/????X-CONNECTION-NAME=:/%3f#[]@!$&'()*+%2c;=" );
+        assertEquals( ":/?#[]@!$&'()*+,;=", url1.getExtensionValue( "X-CONNECTION-NAME" ) );
+        assertEquals( "ldap://localhost:123/????X-CONNECTION-NAME=:/%3f#[]@!$&'()*+%2c;=", url2.toString() );
+    }
+
+
+    /**
+     * Test with RFC 3986 unreserved characters in extension value.
+     * 
+     *   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+     */
+    @Test
+    public void testLdapURLExtensionWithRFC3986UnreservedChars() throws Exception
+    {
+        LdapURL url1 = new LdapURL();
+        url1.setHost( "localhost" );
+        url1.setPort( 123 );
+        url1.setDn( LdapDN.EMPTY_LDAPDN );
+        url1.getExtensions().add(
+            new Extension( false, "X-CONNECTION-NAME",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~" ) );
+        assertEquals(
+            "ldap://localhost:123/????X-CONNECTION-NAME=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~",
+            url1.toString() );
+
+        LdapURL url2 = new LdapURL(
+            "ldap://localhost:123/????X-CONNECTION-NAME=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~" );
+        assertEquals( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~", url1
+            .getExtensionValue( "X-CONNECTION-NAME" ) );
+        assertEquals(
+            "ldap://localhost:123/????X-CONNECTION-NAME=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~",
+            url2.toString() );
+    }
+
 }
