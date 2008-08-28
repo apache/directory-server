@@ -21,10 +21,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-//import javax.naming.directory.Attributes;
-
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
