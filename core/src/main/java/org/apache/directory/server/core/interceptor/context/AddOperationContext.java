@@ -22,8 +22,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -91,9 +91,9 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws Exception
     {
         super( session );
-        this.entry = new ClonedServerEntry( ServerEntryUtils.toServerEntry( addRequest.getAttributes(), addRequest.getEntry(), 
-            session.getDirectoryService().getRegistries() ) );
-        this.dn = addRequest.getEntry();
+        this.entry = new ClonedServerEntry( 
+            new DefaultServerEntry( session.getDirectoryService().getRegistries(), addRequest.getEntry() ) );
+        this.dn = addRequest.getEntry().getDn();
         this.requestControls = addRequest.getControls();
     }
 

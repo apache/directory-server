@@ -1699,14 +1699,39 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( AttributeTypeAndValue ava : rdn )
         {
             String value = ( String ) ava.getNormValue();
+            String upValue = ( String ) ava.getUpValue();
             String upId = ava.getUpType();
 
             // Check that the entry contains this AVA
             if ( !entry.contains( upId, value ) )
             {
-                String message = "The RDN '" + upId + "=" + value + "' is not present in the entry";
-                LOG.error( message );
-                throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                String message = "The RDN '" + upId + "=" + upValue + "' is not present in the entry";
+                LOG.warn( message );
+                
+                // We don't have this attribute : add it.
+                // Two cases : 
+                // 1) The attribute does not exist
+                if ( !entry.containsAttribute( upId ) )
+                {
+                    entry.add( upId, upValue );
+                }
+                // 2) The attribute exists
+                else
+                {
+                    AttributeType at = atRegistry.lookup( upId );
+                    
+                    // 2.1 if the attribute is single valued, replace the value
+                    if ( at.isSingleValue() )
+                    {
+                        entry.removeAttributes( upId );
+                        entry.put( upId, upValue );
+                    }
+                    // 2.2 the attribute is multi-valued : add the missing value
+                    else
+                    {
+                        entry.add( upId, upValue );
+                    }
+                }
             }
         }
     }

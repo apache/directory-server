@@ -232,11 +232,9 @@ public class ImportCommand extends ToolCommand
 
         Entry entry = ldifEntry.getEntry();
 
-        addRequest.setEntry( new LdapDN( dn ) );
+        addRequest.setEntryDn( new LdapDN( dn ) );
 
         // Copy the attributes
-        addRequest.initAttributes();
-
         for ( EntryAttribute attribute:entry )
         {
             addRequest.addAttributeType( attribute.getId() );

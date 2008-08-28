@@ -148,6 +148,7 @@ public class AddIT
         Attribute newOcls = attributes.get( "objectClass" );
 
         String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+
         for ( String name : expectedOcls )
         {
             assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
@@ -690,5 +691,175 @@ public class AddIT
     	attrs.put( "cn", "\"Jim, Bean\"" );
     	
     	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
+    }
+
+
+    /**
+     * Create an entry a RDN which is not present in the entry
+     */
+    @Test
+    public void testAddEntryNoRDNInEntry() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
+        // Create a person
+        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        person.get( "objectClass" ).add( "top" );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "organizationalperson" );
+        person.put( "sn", "Michael Jackson" );
+        person.put( "cn", "Jackson" );
+
+        DirContext michaelCtx = ctx.createSubcontext( "givenname=Michael", person );
+        
+        assertNotNull( michaelCtx );
+        
+        DirContext jackson = ( DirContext ) ctx.lookup( "givenname=Michael" );
+        person = jackson.getAttributes( "" );
+        Attribute newOcls = person.get( "objectClass" );
+
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+
+        for ( String name : expectedOcls )
+        {
+            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+        }
+        
+        Attribute givenName = person.get( "givenname" );
+        
+        assertEquals( "Michael", givenName.get() );
+    }
+
+
+    /**
+     * Create an entry a RDN which is not present in the entry, but
+     * with another attribute's value
+     */
+    @Test
+    public void testAddEntryDifferentRDNInEntry() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
+        // Create a person
+        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        person.get( "objectClass" ).add( "top" );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "organizationalperson" );
+        person.put( "givenName", "Michael" );
+        person.put( "sn", "Michael Jackson" );
+        person.put( "cn", "Jackson" );
+
+        DirContext michaelCtx = ctx.createSubcontext( "cn=Michael", person );
+        
+        assertNotNull( michaelCtx );
+        
+        DirContext jackson = ( DirContext ) ctx.lookup( "cn=Michael" );
+        person = jackson.getAttributes( "" );
+        Attribute newOcls = person.get( "objectClass" );
+
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+
+        for ( String name : expectedOcls )
+        {
+            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+        }
+        
+        Attribute cn = person.get( "cn" );
+        
+        assertEquals( 2, cn.size() );
+        String[] expectedCns = { "Jackson", "Michael" };
+
+        for ( String name : expectedCns )
+        {
+            assertTrue( "CN " + name + " is present", cn.contains( name ) );
+        }
+    }
+
+
+    /**
+     * Create an entry a RDN which is not present in the entry, 
+     * with another attribute's value, and on a SingleValued attribute
+     */
+    @Test
+    public void testAddEntryDifferentRDNSingleValuedInEntry() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
+        // Create a person
+        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        person.get( "objectClass" ).add( "top" );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "organizationalperson" );
+        person.put( "displayName", "Michael" );
+        person.put( "sn", "Michael Jackson" );
+        person.put( "cn", "Jackson" );
+
+        DirContext michaelCtx = ctx.createSubcontext( "displayName=test", person );
+        
+        assertNotNull( michaelCtx );
+        
+        DirContext jackson = ( DirContext ) ctx.lookup( "displayName=test" );
+        person = jackson.getAttributes( "" );
+        Attribute newOcls = person.get( "objectClass" );
+
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+
+        for ( String name : expectedOcls )
+        {
+            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+        }
+        
+        // Check that the displayName attribute has been replaced
+        Attribute displayName = person.get( "displayName" );
+        
+        assertEquals( 1, displayName.size() );
+        assertTrue( displayName.contains( "test" ) );
+    }
+
+
+    /**
+     * Create an entry a composed RDN which is not present in the entry, 
+     * with another attribute's value, and on a SingleValued attribute
+     */
+    @Test
+    public void testAddEntryComposedRDN() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        
+        // Create a person
+        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        person.get( "objectClass" ).add( "top" );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "organizationalperson" );
+        person.put( "sn", "Michael Jackson" );
+        person.put( "cn", "Jackson" );
+
+        DirContext michaelCtx = ctx.createSubcontext( "displayName=test+cn=Michael", person );
+        
+        assertNotNull( michaelCtx );
+        
+        DirContext jackson = ( DirContext ) ctx.lookup( "displayName=test+cn=Michael" );
+        person = jackson.getAttributes( "" );
+        Attribute newOcls = person.get( "objectClass" );
+
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+
+        for ( String name : expectedOcls )
+        {
+            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+        }
+        
+        // Check that the DIsplayName attribute has been added
+        Attribute displayName = person.get( "displayName" );
+        
+        assertEquals( 1, displayName.size() );
+        assertTrue( displayName.contains( "test" ) );
+
+        // Check that the cn attribute value has been added
+        Attribute cn = person.get( "cn" );
+        
+        assertEquals( 2, cn.size() );
+        assertTrue( cn.contains( "Jackson" ) );
+        assertTrue( cn.contains( "Michael" ) );
     }
 }

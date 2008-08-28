@@ -84,7 +84,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
         switch ( req.getType() )
         {
             case ADD_REQUEST:
-                reqTargetDn = ( ( AddRequest ) req ).getEntry();
+                reqTargetDn = ( ( AddRequest ) req ).getEntryDn();
                 break;
             case BIND_REQUEST:
                 // not used for bind but may be in future

@@ -31,7 +31,6 @@ import javax.naming.directory.AttributeModificationException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
@@ -369,32 +368,6 @@ public class ModifyAddIT
         // Check, whether attribute description is still not present
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         assertEquals( 1, attrs.get( "description" ).size() );
-    }
-
-
-    /**
-     * Create an entry with a bad attribute : this should fail.
-     */
-    @Test
-    public void testAddUnexistingAttribute() throws Exception
-    {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
-        
-        // Create a third person with a voice attribute
-        Attributes attributes = this.getPersonAttributes( "Jackson", "Michael Jackson" );
-        attributes.put( "voice", "He is bad ..." );
-
-        try
-        {
-            ctx.createSubcontext( "cn=Mickael Jackson", attributes );
-        }
-        catch ( InvalidAttributeIdentifierException iaie )
-        {
-            assertTrue( true );
-            return;
-        }
-
-        fail( "Should never reach this point" );
     }
 
 
