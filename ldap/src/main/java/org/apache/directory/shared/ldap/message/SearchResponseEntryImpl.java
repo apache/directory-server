@@ -20,10 +20,8 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes;
-
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -36,11 +34,8 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
 {
     static final long serialVersionUID = -8357316233060886637L;
 
-    /** Distinguished name of the search result entry returned */
-    private LdapDN objectName;
-
-    /** Partial set of attributes returned in response to search */
-    private Attributes attributes;
+    /** Entry returned in response to search */
+    private Entry entry;
 
 
     // ------------------------------------------------------------------------
@@ -48,13 +43,12 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a Lockable SearchResponseEntry as a reply to an SearchRequest to
+     * Creates a SearchResponseEntry as a reply to an SearchRequest to
      * indicate the end of a search operation.
      * 
-     * @param id
-     *            the session unique message id
+     * @param id the session unique message id
      */
-    public SearchResponseEntryImpl(final int id)
+    public SearchResponseEntryImpl( final int id )
     {
         super( id, TYPE );
     }
@@ -65,25 +59,24 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
     // ------------------------------------------------------------------------
 
     /**
-     * Gets the set of attributes and all their values in a Attributes.
+     * Gets the entry
      * 
-     * @return the set of attributes and all their values
+     * @return the entry
      */
-    public Attributes getAttributes()
+    public Entry getEntry()
     {
-        return attributes;
+        return entry;
     }
 
 
     /**
-     * Sets the set of attributes and all their values in a Attributes.
+     * Sets the entry.
      * 
-     * @param attributes
-     *            the set of attributes and all their values
+     * @param entry the entry
      */
-    public void setAttributes( Attributes attributes )
+    public void setEntry( Entry entry )
     {
-        this.attributes = attributes;
+        this.entry = entry;
     }
 
 
@@ -94,7 +87,7 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
      */
     public LdapDN getObjectName()
     {
-        return objectName;
+        return ( entry == null ? null : entry.getDn() );
     }
 
 
@@ -106,7 +99,10 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
      */
     public void setObjectName( LdapDN objectName )
     {
-        this.objectName = objectName;
+        if ( entry != null )
+        {
+            entry.setDn( objectName );
+        }
     }
 
 
@@ -130,29 +126,14 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
             return false;
         }
 
+        if ( !( obj instanceof SearchResponseEntry ) )
+        {
+            return false;
+        }
+        
         SearchResponseEntry resp = ( SearchResponseEntry ) obj;
 
-        if ( !objectName.equals( resp.getObjectName() ) )
-        {
-            return false;
-        }
-
-        if ( attributes == null && resp.getAttributes() != null )
-        {
-            return false;
-        }
-
-        if ( attributes != null && resp.getAttributes() == null )
-        {
-            return false;
-        }
-
-        if ( attributes != null && resp.getAttributes() != null )
-        {
-            return attributes.equals( resp.getAttributes() );
-        }
-
-        return true;
+        return entry.equals( resp.getEntry() );
     }
 
 
@@ -161,19 +142,17 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append( "    Search Result Entry\n" );
-        sb.append( "        Object Name : '" ).append( objectName.toString() ).append( "'\n" );
-        sb.append( "        Attributes\n" );
 
-        if ( attributes != null )
+        if ( entry != null )
         {
-            sb.append( AttributeUtils.toString( attributes ) );
+            sb.append( entry );
         }
         else
         {
-            sb.append( "            No attributes\n" );
+            sb.append( "            No entry\n" );
         }
 
         return sb.toString();

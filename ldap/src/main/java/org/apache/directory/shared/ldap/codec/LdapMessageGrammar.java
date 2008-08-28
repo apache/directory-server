@@ -1279,7 +1279,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                     // Store the name
                     if ( tlv.getLength() == 0 )
                     {
-                        searchResultEntry.addAttributeValues( type );
+                        // The type can't be null
+                        String msg = "The AttributeType can't be empty";
+                        log.error( msg );
+                        throw new DecoderException( msg );
                     }
                     else
                     {

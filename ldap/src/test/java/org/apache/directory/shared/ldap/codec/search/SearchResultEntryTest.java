@@ -21,14 +21,9 @@ package org.apache.directory.shared.ldap.codec.search;
 
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -39,6 +34,8 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -105,31 +102,18 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            Set<String> expectedValues = new HashSet<String>();
-
-            expectedValues.add( "top" );
-            expectedValues.add( "organizationalUnit" );
-
-            while ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                assertTrue( expectedValues.contains( value.toString() ) );
-
-                expectedValues.remove( value.toString() );
-            }
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
         }
 
         // Check the length
@@ -212,34 +196,21 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 2, partialAttributesList.size() );
+        assertEquals( 2, entry.size() );
 
         String[] expectedAttributes = new String[]
             { "objectClass", "objectClass2" };
 
         for ( int i = 0; i < expectedAttributes.length; i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( expectedAttributes[i] );
+            EntryAttribute attribute = entry.get( expectedAttributes[i] );
 
-            assertEquals( expectedAttributes[i].toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( expectedAttributes[i].toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            Set<String> expectedValues = new HashSet<String>();
-
-            expectedValues.add( "top" );
-            expectedValues.add( "organizationalUnit" );
-
-            while ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                assertTrue( expectedValues.contains( value.toString() ) );
-
-                expectedValues.remove( value.toString() );
-            }
+            assertTrue( attribute.contains(  "top" ) );
+            assertTrue( attribute.contains(  "organizationalUnit" ) );
         }
 
         // Check the length
@@ -250,7 +221,7 @@ public class SearchResultEntryTest extends TestCase
         {
             message.encode( null );
 
-            // We cant compare the encodings, the order of the attributes has
+            // We can't compare the encodings, the order of the attributes has
             // changed
         }
         catch ( EncoderException ee )
@@ -324,33 +295,20 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 2, message.getMessageId() );
         assertEquals( "uid=admin,ou=system", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            Set<String> expectedValues = new HashSet<String>();
-
-            expectedValues.add( "top" );
-            expectedValues.add( "person" );
-            expectedValues.add( "organizationalPerson" );
-            expectedValues.add( "inetOrgPerson" );
-
-            while ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                assertTrue( expectedValues.contains( value.toString() ) );
-
-                expectedValues.remove( value.toString() );
-            }
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "person" ) );
+            assertTrue( attribute.contains( "organizationalPerson" ) );
+            assertTrue( attribute.contains( "inetOrgPerson" ) );
         }
 
         // Check the length
@@ -544,9 +502,9 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 0, partialAttributesList.size() );
+        assertEquals( 0, entry.size() );
 
         // Check the length
         assertEquals( 0x26, message.computeLength() );
@@ -797,19 +755,16 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
-
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            assertFalse( values.hasMore() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
+            assertEquals( 0, attribute.size() );
         }
 
         // Check the length
@@ -882,19 +837,17 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 2, partialAttributesList.size() );
+        assertEquals( 2, entry.size() );
 
-        Attribute attributeValue = partialAttributesList.get( "objectclass" );
-        assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
-        NamingEnumeration<?> values = attributeValue.getAll();
-        assertFalse( values.hasMore() );
+        EntryAttribute attribute = entry.get( "objectclass" );
+        assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
+        assertEquals( 0, attribute.size() );
 
-        attributeValue = partialAttributesList.get( "objectclazz" );
-        assertEquals( "objectClazz".toLowerCase(), attributeValue.getID().toLowerCase() );
-        values = attributeValue.getAll();
-        assertFalse( values.hasMore() );
+        attribute = entry.get( "objectclazz" );
+        assertEquals( "objectClazz".toLowerCase(), attribute.getId().toLowerCase() );
+        assertEquals( 0, attribute.size() );
 
         // Check the length
         assertEquals( 0x48, message.computeLength() );
@@ -967,19 +920,17 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            assertFalse( values.hasMore() );
+            assertEquals( 0, attribute.size() );
         }
 
         // Check the Control
@@ -1061,24 +1012,17 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            while ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                assertEquals( "", value.toString() );
-            }
+            assertTrue( attribute.contains( "" ) );
         }
 
         // Check the length
@@ -1154,24 +1098,17 @@ public class SearchResultEntryTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "ou=contacts,dc=iktek,dc=com", searchResultEntry.getObjectName().toString() );
 
-        Attributes partialAttributesList = searchResultEntry.getPartialAttributeList();
+        Entry entry = searchResultEntry.getEntry();
 
-        assertEquals( 1, partialAttributesList.size() );
+        assertEquals( 1, entry.size() );
 
-        for ( int i = 0; i < partialAttributesList.size(); i++ )
+        for ( int i = 0; i < entry.size(); i++ )
         {
-            Attribute attributeValue = partialAttributesList.get( "objectclass" );
+            EntryAttribute attribute = entry.get( "objectclass" );
 
-            assertEquals( "objectClass".toLowerCase(), attributeValue.getID().toLowerCase() );
+            assertEquals( "objectClass".toLowerCase(), attribute.getId().toLowerCase() );
 
-            NamingEnumeration<?> values = attributeValue.getAll();
-
-            while ( values.hasMore() )
-            {
-                Object value = values.next();
-
-                assertEquals( "", value.toString() );
-            }
+            assertTrue( attribute.contains( "" ) );
         }
 
         // Check the Control

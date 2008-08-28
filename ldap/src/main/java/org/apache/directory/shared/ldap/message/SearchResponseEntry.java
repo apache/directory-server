@@ -21,8 +21,7 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes;
-
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -56,18 +55,17 @@ public interface SearchResponseEntry extends Response
 
 
     /**
-     * Gets the set of attributes and all their values in a MultiMap.
+     * Gets the entry.
      * 
-     * @return the set of attributes and all their values
+     * @return the entry
      */
-    Attributes getAttributes();
+    Entry getEntry();
 
 
     /**
-     * Sets the set of attributes and all their values in a MultiMap.
+     * Sets an entry
      * 
-     * @param attributes
-     *            the set of attributes and all their values
+     * @param entry the entry
      */
-    void setAttributes( Attributes attributes );
+    void setEntry( Entry entry );
 }

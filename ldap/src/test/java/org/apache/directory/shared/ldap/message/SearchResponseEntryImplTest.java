@@ -26,11 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
@@ -49,15 +51,14 @@ public class SearchResponseEntryImplTest extends TestCase
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
     /**
-     * Creates and populates a AttributeImpl with a specific id.
+     * Creates and populates an EntryAttribute with a specific id.
      * 
-     * @param id
-     *            the id for the attribute
-     * @return the AttributeImpl assembled for testing
+     * @param id the id for the attribute
+     * @return the EntryAttribute assembled for testing
      */
-    private AttributeImpl getAttribute( String id )
+    private EntryAttribute getEntry( String id )
     {
-        AttributeImpl attr = new AttributeImpl( id );
+        EntryAttribute attr = new DefaultClientAttribute( id );
         attr.add( "value0" );
         attr.add( "value1" );
         attr.add( "value2" );
@@ -66,16 +67,16 @@ public class SearchResponseEntryImplTest extends TestCase
 
 
     /**
-     * Creates and populates a LockableAttributes object
+     * Creates and populates an Entry object
      * 
-     * @return
+     * @return The populated Entry object
      */
-    AttributesImpl getAttributes()
+    Entry getEntry() throws NamingException
     {
-        AttributesImpl attrs = new AttributesImpl();
-        attrs.put( getAttribute( "attr0" ) );
-        attrs.put( getAttribute( "attr1" ) );
-        attrs.put( getAttribute( "attr2" ) );
+        Entry attrs = new DefaultClientEntry();
+        attrs.put( getEntry( "attr0" ) );
+        attrs.put( getEntry( "attr1" ) );
+        attrs.put( getEntry( "attr2" ) );
         return attrs;
     }
 
@@ -93,14 +94,14 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for equality when an exact copy is compared.
      */
-    public void testEqualsExactCopy() throws InvalidNameException
+    public void testEqualsExactCopy() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
-        resp0.setAttributes( getAttributes() );
+        resp0.setEntry( getEntry() );
         resp0.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
-        resp1.setAttributes( getAttributes() );
+        resp1.setEntry( getEntry() );
         resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         assertTrue( "exact copies should be equal", resp0.equals( resp1 ) );
@@ -109,121 +110,16 @@ public class SearchResponseEntryImplTest extends TestCase
 
 
     /**
-     * Tests for equality when a different implementation is used.
-     */
-    public void testEqualsDiffImpl()
-    {
-        SearchResponseEntry resp0 = new SearchResponseEntry()
-        {
-            public LdapDN getObjectName()
-            {
-                try
-                {
-                    return new LdapDN( "dc=example,dc=com" );
-                }
-                catch ( InvalidNameException ine )
-                {
-                    // Do nothing
-                    return null;
-                }
-            }
-
-
-            public void setObjectName( LdapDN dn )
-            {
-            }
-
-
-            public Attributes getAttributes()
-            {
-                return SearchResponseEntryImplTest.this.getAttributes();
-            }
-
-
-            public void setAttributes( Attributes attributes )
-            {
-            }
-
-
-            public MessageTypeEnum getType()
-            {
-                return MessageTypeEnum.SEARCH_RES_ENTRY;
-            }
-
-
-            public Map<String, Control> getControls()
-            {
-                return EMPTY_CONTROL_MAP;
-            }
-
-
-            public void add( Control control ) throws MessageException
-            {
-            }
-
-
-            public void remove( Control control ) throws MessageException
-            {
-            }
-
-
-            public int getMessageId()
-            {
-                return 5;
-            }
-
-
-            public Object get( Object key )
-            {
-                return null;
-            }
-
-
-            public Object put( Object key, Object value )
-            {
-                return null;
-            }
-
-
-            public void addAll( Control[] controls ) throws MessageException
-            {
-            }
-
-
-            public boolean hasControl( String oid )
-            {
-                return false;
-            }
-        };
-
-        SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
-        resp1.setAttributes( getAttributes() );
-        
-        try
-        {
-            resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
-        }
-        catch ( Exception e )
-        {
-            // Do nothing
-        }
-
-        assertFalse( "using Object.equal() should NOT be equal", resp0.equals( resp1 ) );
-        assertTrue( "same but different implementations should be equal", resp1.equals( resp0 ) );
-    }
-
-
-    /**
      * Tests for inequality when the objectName dn is not the same.
      */
-    public void testNotEqualDiffObjectName() throws InvalidNameException
+    public void testNotEqualDiffObjectName() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
-        resp0.setAttributes( getAttributes() );
+        resp0.setEntry( getEntry() );
         resp0.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
-        resp1.setAttributes( getAttributes() );
+        resp1.setEntry( getEntry() );
         resp1.setObjectName( new LdapDN( "dc=example,dc=com" ) );
 
         assertFalse( "different object names should not be equal", resp1.equals( resp0 ) );
@@ -234,15 +130,15 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for inequality when the attributes are not the same.
      */
-    public void testNotEqualDiffAttributes() throws InvalidNameException
+    public void testNotEqualDiffAttributes() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
-        resp0.setAttributes( getAttributes() );
-        resp0.getAttributes().put( "abc", "123" );
+        resp0.setEntry( getEntry() );
+        resp0.getEntry().put( "abc", "123" );
         resp0.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         SearchResponseEntryImpl resp1 = new SearchResponseEntryImpl( 5 );
-        resp1.setAttributes( getAttributes() );
+        resp1.setEntry( getEntry() );
         resp1.setObjectName( new LdapDN( "dc=apache,dc=org" ) );
 
         assertFalse( "different attributes should not be equal", resp1.equals( resp0 ) );

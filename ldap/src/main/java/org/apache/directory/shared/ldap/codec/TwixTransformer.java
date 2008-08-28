@@ -1140,7 +1140,7 @@ public class TwixTransformer implements TransformerSpi
 
         // Snickers : Attributes attributes -> Twix : ArrayList
         // partialAttributeList
-        searchResultEntry.setPartialAttributeList( snickersSearchResultResponse.getAttributes() );
+        searchResultEntry.setEntry( snickersSearchResultResponse.getEntry() );
 
         // Set the operation into the LdapMessage
         twixMessage.setProtocolOP( searchResultEntry );

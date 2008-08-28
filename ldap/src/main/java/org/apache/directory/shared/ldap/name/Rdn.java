@@ -31,12 +31,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.commons.collections.map.MultiValueMap;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -991,49 +987,6 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
    public int size()
    {
        return nbAtavs;
-   }
-
-
-   /**
-    * Transform the Rdn into an javax.naming.directory.Attributes
-    *
-    * @return An attributes structure containing all the ATAVs
-    */
-   public Attributes toAttributes()
-   {
-       Attributes attributes = new AttributesImpl( true );
-       Attribute attribute = null;
-
-       switch ( nbAtavs  )
-       {
-           case 0 :
-               break;
-
-           case 1 :
-               attribute = new AttributeImpl( atavType, true );
-               attribute.add( atav.getNormValue() );
-               attributes.put( attribute );
-               break;
-
-           default :
-               for ( String type:atavTypes.keySet() )
-               {
-                   List<AttributeTypeAndValue> values = ( List<AttributeTypeAndValue> ) atavTypes.get( type );
-
-                   attribute = new AttributeImpl( type );
-
-                   for ( AttributeTypeAndValue value:values )
-                   {
-                       attribute.add( value.getNormValue() );
-                   }
-
-                   attributes.put( attribute );
-               }
-
-               break;
-       }
-
-       return attributes;
    }
 
 
