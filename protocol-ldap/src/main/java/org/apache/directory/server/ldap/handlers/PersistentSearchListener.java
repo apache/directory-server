@@ -22,7 +22,6 @@ package org.apache.directory.server.ldap.handlers;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ChangeOperationContext;
@@ -139,7 +138,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getDn() );
-        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        respEntry.setEntry( opContext.getEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.ADD );
         session.getIoSession().write( respEntry );
     }
@@ -154,7 +153,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getDn() );
-        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        respEntry.setEntry( opContext.getEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.DELETE );
         session.getIoSession().write( respEntry );
     }
@@ -169,7 +168,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getDn() );
-        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        respEntry.setEntry( opContext.getEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.MODIFY );
         session.getIoSession().write( respEntry );
     }
@@ -184,7 +183,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getDn() );
-        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getEntry() ) );
+        respEntry.setEntry( opContext.getEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
     }
@@ -205,7 +204,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
         SearchResponseEntry respEntry = new SearchResponseEntryImpl( req.getMessageId() );
         respEntry.setObjectName( opContext.getAlteredEntry().getDn() );
-        respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( opContext.getAlteredEntry() ) );
+        respEntry.setEntry( opContext.getAlteredEntry() );
         setECResponseControl( respEntry, opContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
     }

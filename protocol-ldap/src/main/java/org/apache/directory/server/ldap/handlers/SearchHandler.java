@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventType;
 import org.apache.directory.server.core.event.NotificationCriteria;
@@ -486,7 +485,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         {
             SearchResponseEntry respEntry;
             respEntry = new SearchResponseEntryImpl( req.getMessageId() );
-            respEntry.setAttributes( ServerEntryUtils.toAttributesImpl( entry ) );
+            respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
             
             return respEntry;
