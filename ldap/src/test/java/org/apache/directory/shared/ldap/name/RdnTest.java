@@ -35,8 +35,6 @@ import java.util.Iterator;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
@@ -596,42 +594,6 @@ public class RdnTest
         Rdn rdn2 = new Rdn( " A = d " );
 
         assertTrue( rdn1.compareTo( rdn2 ) < 0 );
-    }
-
-
-    /**
-     * 
-     * test the ToAttributes method.
-     *
-     * @throws InvalidNameException
-     * @throws NamingException
-     */
-    @Test
-    public void testToAttributes() throws InvalidNameException, NamingException
-    {
-        Rdn rdn = new Rdn( " a = b + a = f + g = h + c = d " );
-
-        Attributes attributes = rdn.toAttributes();
-
-        assertNotNull( attributes.get( "a" ) );
-        assertNotNull( attributes.get( "g" ) );
-        assertNotNull( attributes.get( "c" ) );
-
-        Attribute attribute = attributes.get( "a" );
-
-        assertNotNull( attribute.get( 0 ) );
-        assertEquals( "b", attribute.get( 0 ) );
-
-        assertNotNull( attribute.get( 1 ) );
-        assertEquals( "f", attribute.get( 1 ) );
-
-        attribute = attributes.get( "g" );
-        assertNotNull( attribute.get( 0 ) );
-        assertEquals( "h", attribute.get( 0 ) );
-
-        attribute = attributes.get( "c" );
-        assertNotNull( attribute.get( 0 ) );
-        assertEquals( "d", attribute.get( 0 ) );
     }
 
 
