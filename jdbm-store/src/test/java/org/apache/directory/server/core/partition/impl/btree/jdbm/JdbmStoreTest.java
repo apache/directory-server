@@ -44,8 +44,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Modification;

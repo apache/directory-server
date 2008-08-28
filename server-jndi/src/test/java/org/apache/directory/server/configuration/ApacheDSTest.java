@@ -20,16 +20,6 @@
 package org.apache.directory.server.configuration;
 
 
-import java.io.File;
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

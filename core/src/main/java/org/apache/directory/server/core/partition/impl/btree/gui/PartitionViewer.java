@@ -28,8 +28,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-
 
 /**
  * A partition database viewer.

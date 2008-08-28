@@ -30,7 +30,6 @@ import java.util.Map;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;

@@ -20,10 +20,6 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 
 import java.util.HashSet;
@@ -64,11 +60,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NoPermissionException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 
 /**

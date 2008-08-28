@@ -27,7 +27,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.partition.Partition;
