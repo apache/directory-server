@@ -26,14 +26,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 
 import javax.naming.ldap.Control;
+
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
@@ -57,9 +60,9 @@ public class AddRequestImplTest extends TestCase
      *            the id for the attribute
      * @return the AttributeImpl assembled for testing
      */
-    private AttributeImpl getAttribute( String id )
+    private EntryAttribute getAttribute( String id )
     {
-        AttributeImpl attr = new AttributeImpl( id );
+        EntryAttribute attr = new DefaultClientAttribute( id );
         attr.add( "value0" );
         attr.add( "value1" );
         attr.add( "value2" );
@@ -72,13 +75,22 @@ public class AddRequestImplTest extends TestCase
      * 
      * @return
      */
-    private AttributesImpl getAttributes()
+    private Entry getEntry()
     {
-        AttributesImpl attrs = new AttributesImpl();
-        attrs.put( getAttribute( "attr0" ) );
-        attrs.put( getAttribute( "attr1" ) );
-        attrs.put( getAttribute( "attr2" ) );
-        return attrs;
+        Entry entry = new DefaultClientEntry();
+        
+        try
+        {
+            entry.put( getAttribute( "attr0" ) );
+            entry.put( getAttribute( "attr1" ) );
+            entry.put( getAttribute( "attr2" ) );
+        }
+        catch ( NamingException ne )
+        {
+            // Do nothing
+        }
+        
+        return entry;
     }
 
 
@@ -95,15 +107,15 @@ public class AddRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy() throws InvalidNameException
+    public void testEqualsExactCopy() throws InvalidNameException, NamingException
     {
         AddRequestImpl req0 = new AddRequestImpl( 5 );
-        req0.setEntry( new LdapDN( "cn=admin,dc=example,dc=com" ) );
-        req0.setAttributes( getAttributes() );
+        req0.setEntryDn( new LdapDN( "cn=admin,dc=example,dc=com" ) );
+        req0.setEntry( getEntry() );
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );
-        req1.setEntry( new LdapDN( "cn=admin,dc=example,dc=com" ) );
-        req1.setAttributes( getAttributes() );
+        req1.setEntryDn( new LdapDN( "cn=admin,dc=example,dc=com" ) );
+        req1.setEntry( getEntry() );
 
         assertTrue( req0.equals( req1 ) );
     }
@@ -112,15 +124,15 @@ public class AddRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
-    public void testNotEqualDiffId() throws InvalidNameException
+    public void testNotEqualDiffId() throws InvalidNameException, NamingException
     {
         AddRequestImpl req0 = new AddRequestImpl( 7 );
-        req0.setEntry( new LdapDN( "cn=admin,dc=example,dc=com" ) );
-        req0.setAttributes( getAttributes() );
+        req0.setEntryDn( new LdapDN( "cn=admin,dc=example,dc=com" ) );
+        req0.setEntry( getEntry() );
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );
-        req1.setEntry( new LdapDN( "cn=admin,dc=example,dc=com" ) );
-        req1.setAttributes( getAttributes() );
+        req1.setEntryDn( new LdapDN( "cn=admin,dc=example,dc=com" ) );
+        req1.setEntry( getEntry() );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -129,15 +141,15 @@ public class AddRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
-    public void testNotEqualDiffName() throws InvalidNameException
+    public void testNotEqualDiffName() throws InvalidNameException, NamingException
     {
         AddRequestImpl req0 = new AddRequestImpl( 5 );
-        req0.setEntry( new LdapDN( "cn=admin,dc=example,dc=com" ) );
-        req0.setAttributes( getAttributes() );
+        req0.setEntry( getEntry() );
+        req0.setEntryDn( new LdapDN( "cn=admin,dc=example,dc=com" ) );
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );
-        req1.setEntry( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
-        req1.setAttributes( getAttributes() );
+        req1.setEntry( getEntry() );
+        req1.setEntryDn( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
 
         assertFalse( req0.equals( req1 ) );
     }
@@ -146,24 +158,24 @@ public class AddRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
-    public void testNotEqualDiffAttributes() throws InvalidNameException
+    public void testNotEqualDiffAttributes() throws InvalidNameException, NamingException
     {
         AddRequestImpl req0 = new AddRequestImpl( 5 );
-        req0.setEntry( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
-        req0.setAttributes( getAttributes() );
+        req0.setEntryDn( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
+        req0.setEntry( getEntry() );
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );
-        req1.setEntry( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
+        req1.setEntryDn( new LdapDN( "cn=admin,dc=apache,dc=org" ) );
 
         assertFalse( req0.equals( req1 ) );
         assertFalse( req1.equals( req0 ) );
 
-        req1.setAttributes( getAttributes() );
+        req1.setEntry( getEntry() );
 
         assertTrue( req0.equals( req1 ) );
         assertTrue( req1.equals( req0 ) );
 
-        req1.getAttributes().put( "asdf", "asdf" );
+        req1.getEntry().put( "asdf", "asdf" );
 
         assertFalse( req0.equals( req1 ) );
         assertFalse( req1.equals( req0 ) );
@@ -177,24 +189,24 @@ public class AddRequestImplTest extends TestCase
     {
         AddRequest req0 = new AddRequest()
         {
-            public Attributes getAttributes()
+            public Entry getEntry()
             {
-                return AddRequestImplTest.this.getAttributes();
+                return AddRequestImplTest.this.getEntry();
             }
 
 
-            public void setAttributes( Attributes entry )
+            public void setEntry( Entry entry )
             {
             }
 
 
-            public LdapDN getEntry()
+            public LdapDN getEntryDn()
             {
                 return null;
             }
 
 
-            public void setEntry( LdapDN entry )
+            public void setEntryDn( LdapDN entryDn )
             {
             }
 
@@ -285,7 +297,7 @@ public class AddRequestImplTest extends TestCase
         };
 
         AddRequestImpl req1 = new AddRequestImpl( 5 );
-        req1.setAttributes( getAttributes() );
+        req1.setEntry( getEntry() );
         assertTrue( req1.equals( req0 ) );
     }
 }

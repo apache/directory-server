@@ -20,10 +20,10 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes;
 
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -36,11 +36,8 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
 {
     static final long serialVersionUID = 7534132448349520346L;
 
-    /** Distinguished name of the new entry. */
-    private LdapDN entry;
-
     /** A MultiMap of the new entry's attributes and their values */
-    private Attributes attributes;
+    private Entry entry;
 
     private AddResponse response;
 
@@ -58,6 +55,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
     public AddRequestImpl(final int id)
     {
         super( id, TYPE );
+        entry = new DefaultClientEntry();
     }
 
 
@@ -70,44 +68,42 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      * 
      * @return the Dn of the added entry.
      */
-    public LdapDN getEntry()
+    public LdapDN getEntryDn()
     {
-        return entry;
+        return entry.getDn();
     }
 
 
     /**
      * Sets the distinguished name of the entry to add.
      * 
-     * @param entry
-     *            the Dn of the added entry.
+     * @param entry the Dn of the added entry.
      */
-    public void setEntry( LdapDN entry )
+    public void setEntryDn( LdapDN dn )
+    {
+        entry.setDn( dn );
+    }
+
+
+    /**
+     * Gets the entry to add.
+     * 
+     * @return the added Entry
+     */
+    public Entry getEntry()
+    {
+        return entry;
+    }
+
+
+    /**
+     * Sets the Entry to add.
+     * 
+     * @param entry the added Entry
+     */
+    public void setEntry( Entry entry )
     {
         this.entry = entry;
-    }
-
-
-    /**
-     * Gets the attribute value pairs of the entry to add as a MultiMap.
-     * 
-     * @return the Attribute with attribute value pairs.
-     */
-    public Attributes getAttributes()
-    {
-        return attributes;
-    }
-
-
-    /**
-     * Sets the attribute value pairs of the entry to add as a MultiMap.
-     * 
-     * @param attributes
-     *            the Attributes with attribute value pairs for the added entry.
-     */
-    public void setAttributes( Attributes attributes )
-    {
-        this.attributes = attributes;
     }
 
 
@@ -158,12 +154,14 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      */
     public boolean equals( Object obj )
     {
+        // Short circuit
         if ( this == obj )
         {
             return true;
         }
         
-        if ( ( obj == null ) || !( obj instanceof AddRequest ) )
+        // Check the object class. If null, it will exit.
+        if ( !( obj instanceof AddRequest ) )
         {
             return false;
         }
@@ -175,45 +173,15 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
 
         AddRequest req = ( AddRequest ) obj;
 
+        // Check the entry
         if ( entry == null )
         {
-            if ( req.getEntry() != null )
-            {
-                return false;
-            }
+            return ( req.getEntry() == null );
         }
         else
         {
-            if ( req.getEntry() == null )
-            {
-                return false;
-            }
-            else if ( !entry.equals( req.getEntry() ) )
-            {
-                return false;
-            }
+            return ( entry.equals( req.getEntry() ) );
         }
-        
-        if ( attributes == null )
-        {
-            if ( req.getAttributes() != null )
-            {
-                return false;
-            }
-        }
-        else
-        {
-            if ( req.getAttributes() == null )
-            {
-                return false;
-            }
-            else if ( !attributes.equals( req.getAttributes() ) )
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -223,7 +191,6 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
     public int hashCode()
     {
         int hash = 37;
-        hash = hash*17 + ( attributes == null ? 0 : attributes.hashCode() );
         hash = hash*17 + ( entry == null ? 0 : entry.hashCode() );
         hash = hash*17 + ( response == null ? 0 : response.hashCode() );
         hash = hash*17 + super.hashCode();
@@ -236,18 +203,17 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        sb.append( "    Add Request\n" );
-        sb.append( "        Entry : '" ).append( entry.toString() ).append( "'\n" );
-
-        if ( ( attributes == null ) || ( attributes.size() == 0 ) )
+        sb.append( "    Add Request :\n" );
+        
+        if ( entry == null )
         {
-            sb.append( "            No attributes\n" );
+            sb.append( "            No entry\n" );
         }
         else
         {
-            sb.append( AttributeUtils.toString( "            ", attributes ) );
+            sb.append( entry.toString() );
         }
 
         return sb.toString();

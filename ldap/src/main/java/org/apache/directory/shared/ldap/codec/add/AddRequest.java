@@ -26,10 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -37,10 +34,13 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
@@ -76,14 +76,11 @@ public class AddRequest extends LdapMessage
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
-    /** The DN to be added. */
-    private LdapDN entry;
-
     /** The attributes list. */
-    private Attributes attributes;
+    private Entry entry;
 
     /** The current attribute being decoded */
-    private Attribute currentAttribute;
+    private EntryAttribute currentAttribute;
 
     /** The add request length */
     private int addRequestLength;
@@ -107,6 +104,7 @@ public class AddRequest extends LdapMessage
     public AddRequest()
     {
         super();
+        entry = new DefaultClientEntry();
     }
 
 
@@ -125,22 +123,22 @@ public class AddRequest extends LdapMessage
 
 
     /**
-     * Initialize the ArrayList for attributes.
+     * Initialize the Entry.
      */
-    public void initAttributes()
+    public void initEntry()
     {
-        attributes = new AttributesImpl( true );
+        entry = new DefaultClientEntry();
     }
 
 
     /**
-     * Get the entry's attributes to be added
+     * Get the entry to be added
      * 
-     * @return Returns the attributes.
+     * @return Returns the entry.
      */
-    public Attributes getAttributes()
+    public Entry getEntry()
     {
-        return attributes;
+        return entry;
     }
 
     /**
@@ -148,18 +146,18 @@ public class AddRequest extends LdapMessage
      * 
      * @param type The attribute's name (called 'type' in the grammar)
      */
-    public void addAttributeType( String type )
+    public void addAttributeType( String type ) throws NamingException
     {
         // do not create a new attribute if we have seen this attributeType before
-        if ( attributes.get( type ) != null )
+        if ( entry.get( type ) != null )
         {
-            currentAttribute = attributes.get( type );
+            currentAttribute = entry.get( type );
             return;
         }
         
         // fix this to use AttributeImpl(type.getString().toLowerCase())
-        currentAttribute = new AttributeImpl( type );
-        attributes.put( currentAttribute );
+        currentAttribute = new DefaultClientAttribute( type );
+        entry.put( currentAttribute );
     }
 
 
@@ -170,29 +168,36 @@ public class AddRequest extends LdapMessage
      */
     public void addAttributeValue( Object value )
     {
-        currentAttribute.add( value );
+        if ( value instanceof String )
+        {
+            currentAttribute.add( (String)value );
+        }
+        else
+        {
+            currentAttribute.add( (byte[])value );
+        }
     }
 
 
     /**
      * Get the added DN
      * 
-     * @return Returns the entry.
+     * @return Returns the entry DN.
      */
-    public LdapDN getEntry()
+    public LdapDN getEntryDn()
     {
-        return entry;
+        return entry.getDn();
     }
 
 
     /**
      * Set the added DN.
      * 
-     * @param entry The entry to set.
+     * @param entry The DN to set.
      */
-    public void setEntry( LdapDN entry )
+    public void setEntryDn( LdapDN entryDn )
     {
-        this.entry = entry;
+        entry.setDn( entryDn );
     }
 
 
@@ -238,60 +243,47 @@ public class AddRequest extends LdapMessage
     public int computeLength()
     {
         // The entry
-        addRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry ) ) + LdapDN.getNbBytes( entry );
+        addRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry.getDn() ) ) + 
+            LdapDN.getNbBytes( entry.getDn() );
 
         // The attributes sequence
         attributesLength = 0;
 
-        if ( ( attributes != null ) && ( attributes.size() != 0 ) )
+        if ( ( entry != null ) && ( entry.size() != 0 ) )
         {
-            NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
             attributeLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
 
             // Compute the attributes length
-            while ( attributeIterator.hasMoreElements() )
+            for ( EntryAttribute attribute:entry )
             {
-                Attribute attribute = attributeIterator.nextElement();
                 int localAttributeLength = 0;
                 int localValuesLength = 0;
 
                 // Get the type length
-                int idLength = attribute.getID().getBytes().length;
+                int idLength = attribute.getId().getBytes().length;
                 localAttributeLength = 1 + TLV.getNbBytes( idLength ) + idLength;
 
                 // The values
-                try
+                if ( attribute.size() != 0 )
                 {
-                    NamingEnumeration<?> values = attribute.getAll();
+                    localValuesLength = 0;
 
-                    if ( values.hasMoreElements() )
+                    for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
                     {
-                        localValuesLength = 0;
-
-                        while ( values.hasMoreElements() )
+                        if ( value instanceof ClientStringValue )
                         {
-                            Object value = values.next();
-
-                            if ( value instanceof String )
-                            {
-                                int valueLength = StringTools.getBytesUtf8( ( String ) value ).length;
-                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                            }
-                            else
-                            {
-                                int valueLength = ( ( byte[] ) value ).length;
-                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                            }
+                            int valueLength = StringTools.getBytesUtf8( ( String ) value.get() ).length;
+                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
                         }
-
-                        localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
+                        else
+                        {
+                            int valueLength = ( ( byte[] ) value.get() ).length;
+                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
+                        }
                     }
 
-                }
-                catch ( NamingException ne )
-                {
-                    return 0;
+                    localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
                 }
 
                 // add the attribute length to the attributes length
@@ -355,61 +347,46 @@ public class AddRequest extends LdapMessage
             buffer.put( TLV.getBytes( addRequestLength ) );
 
             // The entry
-            Value.encode( buffer, LdapDN.getBytes( entry ) );
+            Value.encode( buffer, LdapDN.getBytes( entry.getDn() ) );
 
             // The attributes sequence
             buffer.put( UniversalTag.SEQUENCE_TAG );
             buffer.put( TLV.getBytes( attributesLength ) );
 
             // The partial attribute list
-            if ( ( attributes != null ) && ( attributes.size() != 0 ) )
+            if ( ( entry != null ) && ( entry.size() != 0 ) )
             {
-                NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
                 int attributeNumber = 0;
 
                 // Compute the attributes length
-                while ( attributeIterator.hasMoreElements() )
+                for ( EntryAttribute attribute:entry )
                 {
-                    Attribute attribute = attributeIterator.nextElement();
-
                     // The attributes list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
                     int localAttributeLength = attributeLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localAttributeLength ) );
 
                     // The attribute type
-                    Value.encode( buffer, attribute.getID() );
+                    Value.encode( buffer, attribute.getId() );
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = valuesLength.get( attributeNumber );
                     buffer.put( TLV.getBytes( localValuesLength ) );
 
-                    try
+                    if ( attribute.size() != 0 )
                     {
-                        NamingEnumeration<?> values = attribute.getAll();
-
-                        if ( values.hasMoreElements() )
+                        for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
                         {
-                            while ( values.hasMoreElements() )
+                            if ( value instanceof ClientBinaryValue )
                             {
-                                Object value = values.next();
-
-                                if ( value instanceof byte[] )
-                                {
-                                    Value.encode( buffer, ( byte[] ) value );
-                                }
-                                else
-                                {
-                                    Value.encode( buffer, ( String ) value );
-                                }
+                                Value.encode( buffer, ( byte[] ) value.get() );
+                            }
+                            else
+                            {
+                                Value.encode( buffer, ( String ) value.get() );
                             }
                         }
-
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw new EncoderException( "Cannot enumerate the values" );
                     }
 
                     // Go to the next attribute number;
@@ -440,19 +417,18 @@ public class AddRequest extends LdapMessage
     public String toString()
     {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append( "    Add Request\n" );
-        sb.append( "        Entry : '" ).append( entry ).append( "'\n" );
         sb.append( "        Attributes\n" );
 
-        if ( ( attributes == null ) || ( attributes.size() == 0 ) )
+        if ( entry == null ) 
         {
             sb.append( "            No attributes\n" );
         }
         else
         {
-            sb.append( AttributeUtils.toString( "            ", attributes ) );
+            sb.append( entry );
         }
 
         return sb.toString();
@@ -464,6 +440,6 @@ public class AddRequest extends LdapMessage
      */
     public String getCurrentAttributeType()
     {
-        return currentAttribute.getID();
+        return currentAttribute.getId();
     }
 }

@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.codec;
 
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -1926,12 +1927,12 @@ public class LdapMessageGrammar extends AbstractGrammar
                     }
                     else
                     {
-                        LdapDN entry = null;
+                        LdapDN entryDn = null;
                         byte[] dnBytes = tlv.getValue().getData();
 
                         try
                         {
-                            entry = new LdapDN( dnBytes );
+                            entryDn = new LdapDN( dnBytes );
                         }
                         catch ( InvalidNameException ine )
                         {
@@ -1944,7 +1945,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                                 LdapDN.EMPTY_LDAPDN, ine );
                         }
 
-                        addRequest.setEntry( entry );
+                        addRequest.setEntryDn( entryDn );
                     }
 
                     log.debug( "Adding an entry with DN : {}", addRequest.getEntry() );
@@ -1962,19 +1963,7 @@ public class LdapMessageGrammar extends AbstractGrammar
         //
         // Initialize the attribute list
         super.transitions[LdapStatesEnum.ENTRY_STATE][UniversalTag.SEQUENCE_TAG] = new GrammarTransition(
-            LdapStatesEnum.ENTRY_STATE, LdapStatesEnum.ATTRIBUTES_STATE, UniversalTag.SEQUENCE_TAG, new GrammarAction(
-                "Init attributes array list" )
-            {
-                public void action( IAsn1Container container )
-                {
-
-                    LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    AddRequest addRequest = ldapMessage.getAddRequest();
-
-                    addRequest.initAttributes();
-                }
-            } );
+            LdapStatesEnum.ENTRY_STATE, LdapStatesEnum.ATTRIBUTES_STATE, UniversalTag.SEQUENCE_TAG, null );
 
         // --------------------------------------------------------------------------------------------
         // Transition from Attributes to Attribute
@@ -2018,12 +2007,24 @@ public class LdapMessageGrammar extends AbstractGrammar
                         AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
 
                         throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
-                            addRequest.getEntry(), null );
+                            addRequest.getEntry().getDn(), null );
                     }
 
                     String type = StringTools.getType( tlv.getValue().getData() );
 
-                    addRequest.addAttributeType( type );
+                    try
+                    {
+                        addRequest.addAttributeType( type );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        String msg = "Error while injecting the AttributeType";
+                        log.error( msg );
+
+                        AddResponseImpl response = new AddResponseImpl( ldapMessage.getMessageId() );
+                        throw new ResponseCarryingException( msg, response, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
+                            addRequest.getEntry().getDn(), ne );
+                    }
 
                     if ( IS_DEBUG )
                     {

@@ -21,8 +21,11 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import javax.naming.directory.Attributes;
+//import javax.naming.directory.Attributes;
 
+import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -46,31 +49,29 @@ public interface AddRequest extends SingleReplyRequest, AbandonableRequest
      * 
      * @return the Dn of the added entry.
      */
-    LdapDN getEntry();
+    LdapDN getEntryDn();
 
 
     /**
      * Sets the distinguished name of the entry to add.
      * 
-     * @param entry
-     *            the Dn of the added entry.
+     * @param entry the Dn of the added entry.
      */
-    void setEntry( LdapDN entry );
+    void setEntryDn( LdapDN entry );
 
 
     /**
-     * Gets the attributes of the entry to add.
+     * Gets the entry to add.
      * 
-     * @return the Attributes containing attribute value pairs.
+     * @return the added Entry
      */
-    Attributes getAttributes();
+    Entry getEntry();
 
 
     /**
-     * Sets the attribute value pairs of the entry to add.
+     * Sets the Entry to add.
      * 
-     * @param attributes
-     *            the Attributes with attribute value pairs for the added entry.
+     * @param entry the added Entry
      */
-    void setAttributes( Attributes attributes );
+    void setEntry( Entry entry );
 }

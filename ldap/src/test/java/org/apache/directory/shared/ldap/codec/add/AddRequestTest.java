@@ -27,10 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -42,6 +39,9 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.add.AddRequest;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -116,11 +116,11 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntryDn().toString() );
 
-        Attributes attributes = addRequest.getAttributes();
+        Entry entry = addRequest.getEntry();
 
-        assertEquals( 2, attributes.size() );
+        assertEquals( 2, entry.size() );
 
         Set<String> expectedTypes = new HashSet<String>();
 
@@ -139,36 +139,30 @@ public class AddRequestTest extends TestCase
         lVal2.add( "test3" );
         typesVals.put( "attrs", lVal2 );
 
-        Attribute attributeValue = attributes.get( "l" );
+        EntryAttribute attribute = entry.get( "l" );
 
-        assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
+        assertTrue( expectedTypes.contains( attribute.getId().toLowerCase() ) );
 
-        NamingEnumeration<?> values = attributeValue.getAll();
-        Set<String> vals = ( Set<String> ) typesVals.get( attributeValue.getID().toLowerCase() );
+        Set<String> vals = ( Set<String> ) typesVals.get( attribute.getId().toLowerCase() );
 
-        while ( values.hasMore() )
+        for ( Value<?> value:attribute )
         {
-            Object value = values.next();
+            assertTrue( vals.contains( value.get() ) );
 
-            assertTrue( vals.contains( value.toString() ) );
-
-            vals.remove( value.toString() );
+            vals.remove( value.get() );
         }
 
-        attributeValue = attributes.get( "attrs" );
+        attribute = entry.get( "attrs" );
 
-        assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
+        assertTrue( expectedTypes.contains( attribute.getId().toLowerCase() ) );
 
-        values = attributeValue.getAll();
-        vals = ( Set<String> ) typesVals.get( attributeValue.getID().toLowerCase() );
+        vals = ( Set<String> ) typesVals.get( attribute.getId().toLowerCase() );
 
-        while ( values.hasMore() )
+        for ( Value<?> value:attribute )
         {
-            Object value = values.next();
+            assertTrue( vals.contains( value.get() ) );
 
-            assertTrue( vals.contains( value.toString() ) );
-
-            vals.remove( value.toString() );
+            vals.remove( value.get() );
         }
 
         // Check the length
@@ -605,23 +599,19 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntryDn().toString() );
 
-        Attributes attributes = addRequest.getAttributes();
+        Entry entry = addRequest.getEntry();
 
-        assertEquals( 1, attributes.size() );
+        assertEquals( 1, entry.size() );
 
-        Attribute attributeValue = attributes.get( "l" );
+        EntryAttribute attribute = entry.get( "l" );
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( "l", attribute.getId().toLowerCase() );
 
-        NamingEnumeration<?> values = attributeValue.getAll();
-
-        while ( values.hasMore() )
+        for ( Value<?> value:attribute )
         {
-            Object value = values.next();
-
-            assertEquals( "", value.toString() );
+            assertEquals( "", value.get() );
         }
 
         // Check the length
@@ -697,23 +687,19 @@ public class AddRequestTest extends TestCase
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
-        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntry().toString() );
+        assertEquals( "cn=testModify,ou=users,ou=system", addRequest.getEntryDn().toString() );
 
-        Attributes attributes = addRequest.getAttributes();
+        Entry entry = addRequest.getEntry();
 
-        assertEquals( 1, attributes.size() );
+        assertEquals( 1, entry.size() );
 
-        Attribute attributeValue = attributes.get( "l" );
+        EntryAttribute attribute = entry.get( "l" );
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
-
-        NamingEnumeration<?> values = attributeValue.getAll();
-
-        while ( values.hasMore() )
+        assertEquals( "l", attribute.getId().toLowerCase() );
+ 
+        for ( Value<?> value:attribute )
         {
-            Object value = values.next();
-
-            assertEquals( "", value.toString() );
+            assertEquals( "", value.get() );
         }
 
         // Check the length

@@ -194,7 +194,7 @@ public class TwixTransformer implements TransformerSpi
         snickersMessage.setEntry( addRequest.getEntry() );
 
         // Twix : Attributes attributes -> Snickers : Attributes entry
-        snickersMessage.setAttributes( addRequest.getAttributes() );
+        snickersMessage.setEntry( addRequest.getEntry() );
 
         return snickersMessage;
     }
