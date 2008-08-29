@@ -22,9 +22,6 @@ package org.apache.directory.server.xdbm.tools;
 
 import java.util.Set;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -34,8 +31,10 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -199,14 +198,14 @@ public class StoreUtils
      * @throws Exception if there are failures accessing the underlying store
      */
     @SuppressWarnings("unchecked")
-    public Attributes getAttributes( Store store, Long id ) throws Exception
+    public Entry getAttributes( Store store, Long id ) throws Exception
     {
-        Attributes attributes = new AttributesImpl();
+        Entry entry = new DefaultClientEntry();
 
         // Get the distinguishedName to id mapping
-        attributes.put( "_nDn", store.getEntryDn( id ) );
-        attributes.put( "_upDn", store.getEntryUpdn( id ) );
-        attributes.put( "_parent", store.getParentId( id ) );
+        entry.put( "_nDn", store.getEntryDn( id ) );
+        entry.put( "_upDn", store.getEntryUpdn( id ) );
+        entry.put( "_parent", Long.toString( store.getParentId( id ) ) );
 
         // Get all standard index attribute to value mappings
         for ( Index index : ( Set<Index> )store.getUserIndices() )
@@ -221,20 +220,20 @@ public class StoreUtils
                 IndexEntry rec = list.get();
                 String val = rec.getValue().toString();
                 String attrId = index.getAttribute().getName();
-                Attribute attr = attributes.get( attrId );
+                EntryAttribute attr = entry.get( attrId );
 
                 if ( attr == null )
                 {
-                    attr = new AttributeImpl( attrId );
+                    attr = new DefaultClientAttribute( attrId );
                 }
                 
                 attr.add( val );
-                attributes.put( attr );
+                entry.put( attr );
             }
         }
 
-        // Get all existance mappings for this id creating a special key
-        // that looks like so 'existance[attribute]' and the value is set to id
+        // Get all existence mappings for this id creating a special key
+        // that looks like so 'existence[attribute]' and the value is set to id
         Cursor<IndexEntry> list = store.getPresenceIndex().reverseCursor();
         ForwardIndexEntry recordForward = new ForwardIndexEntry();
         recordForward.setId( id );
@@ -249,15 +248,15 @@ public class StoreUtils
             val.append( "]" );
 
             String valStr = val.toString();
-            Attribute attr = attributes.get( valStr );
+            EntryAttribute attr = entry.get( valStr );
             
             if ( attr == null )
             {
-                attr = new AttributeImpl( valStr );
+                attr = new DefaultClientAttribute( valStr );
             }
             
             attr.add( rec.getId().toString() );
-            attributes.put( attr );
+            entry.put( attr );
             val.setLength( 0 );
         }
 
@@ -268,8 +267,8 @@ public class StoreUtils
         recordForward.setId( id );
         children.before( longRecordForward );
 
-        Attribute childAttr = new AttributeImpl( "_child" );
-        attributes.put( childAttr );
+        EntryAttribute childAttr = new DefaultClientAttribute( "_child" );
+        entry.put( childAttr );
         
         while ( children.next() )
         {
@@ -277,7 +276,7 @@ public class StoreUtils
             childAttr.add( rec.getId().toString() );
         }
 
-        return attributes;
+        return entry;
     }
 
 }

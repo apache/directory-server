@@ -23,9 +23,6 @@ package org.apache.directory.server.core.schema;
 import junit.framework.TestCase;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -43,14 +40,15 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -68,19 +66,12 @@ import java.util.HashSet;
  */
 public class SchemaCheckerTest extends TestCase
 {
-    Registries registries = null;
+    static Registries registries;
 
 
-    public SchemaCheckerTest() throws Exception
+    @BeforeClass
+    protected void setUp() throws Exception
     {
-        this( "SchemaCheckerTest" );
-    }
-
-
-    public SchemaCheckerTest(String name) throws Exception
-    {
-        super( name );
-
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
 
@@ -105,12 +96,14 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations replace objectClasses.
      */
+    @Test
     public void testPreventStructuralClassRemovalOnModifyReplace() throws Exception
     {
         LdapDN name = new LdapDN( "uid=akarasulu,ou=users,dc=example,dc=com" );
-        int mod = DirContext.REPLACE_ATTRIBUTE;
-        Attributes modifyAttributes = new AttributesImpl( true );
-        modifyAttributes.put( new AttributeImpl( "cn" ) );
+        ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
+        ServerEntry modifyAttributes = new DefaultServerEntry( registries );
+        AttributeType atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
+        modifyAttributes.put( new DefaultServerAttribute( atCN ) );
 
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
 
@@ -118,15 +111,16 @@ public class SchemaCheckerTest extends TestCase
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
 
         // this should succeed since person is still in replaced set and is structural
-        modifyAttributes.remove( "cn" );
-        Attribute objectClassesReplaced = new AttributeImpl( "objectClass" );
+        modifyAttributes.removeAttributes( atCN );
+        AttributeType atOC = registries.getAttributeTypeRegistry().lookup( "objectClass" );
+        EntryAttribute objectClassesReplaced = new DefaultServerAttribute( atOC );
         objectClassesReplaced.add( "top" );
         objectClassesReplaced.add( "person" );
         modifyAttributes.put( objectClassesReplaced );
         SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, mod, modifyAttributes );
 
         // this should fail since only top is left
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        objectClassesReplaced = new DefaultServerAttribute( atOC );
         objectClassesReplaced.add( "top" );
         modifyAttributes.put( objectClassesReplaced );
         try
@@ -141,8 +135,8 @@ public class SchemaCheckerTest extends TestCase
 
         // this should fail since the modify operation tries to delete all
         // objectClass attribute values
-        modifyAttributes.remove( "cn" );
-        objectClassesReplaced = new AttributeImpl( "objectClass" );
+        modifyAttributes.removeAttributes( "cn" );
+        objectClassesReplaced = new DefaultServerAttribute( atOC );
         modifyAttributes.put( objectClassesReplaced );
         try
         {
@@ -224,9 +218,10 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations remove RDN attributes.
      */
+    @Test
     public void testPreventRdnChangeOnModifyRemove() throws Exception
     {
-        int mod = DirContext.REMOVE_ATTRIBUTE;
+        ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
         ServerEntry attributes = new DefaultServerEntry( registries, name );
         attributes.put( "cn", "does not matter" );
@@ -293,9 +288,10 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations replace RDN attributes.
      */
+    @Test
     public void testPreventRdnChangeOnModifyReplace() throws Exception
     {
-        int mod = DirContext.REPLACE_ATTRIBUTE;
+        ModificationOperation mod = ModificationOperation.REPLACE_ATTRIBUTE;
         LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
         ServerEntry attributes = new DefaultServerEntry( registries, name );
         attributes.put( "cn", "does not matter" );
@@ -365,6 +361,7 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations replace objectClasses.
      */
+    @Test
     public void testPreventStructuralClassRemovalOnModifyReplaceAttribute() throws Exception
     {
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
@@ -414,6 +411,7 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations remove objectClasses.
      */
+    @Test
     public void testPreventStructuralClassRemovalOnModifyRemoveAttribute() throws Exception
     {
         AttributeTypeRegistry atReg = registries.getAttributeTypeRegistry();
@@ -477,6 +475,7 @@ public class SchemaCheckerTest extends TestCase
      * Test case to check the schema checker operates correctly when modify
      * operations remove RDN attributes.
      */
+    @Test
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
         OidRegistry registry = new MockOidRegistry();

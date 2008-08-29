@@ -40,10 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.Name;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.Attribute;
+//import javax.naming.directory.DirContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,19 +132,20 @@ public class SchemaChecker
      * @param name the name of the entry being modified
      * @param mod the type of modification operation being performed (should be
      * REMOVE_ATTRIBUTE)
-     * @param attributes the attributes being modified
+     * @param entry the entry being modified
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, Name name, int mod,
-        Attributes attributes ) throws NamingException
+    public static void preventStructuralClassRemovalOnModifyReplace( 
+        ObjectClassRegistry registry, LdapDN name, ModificationOperation mod, ServerEntry entry ) throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
 
-        Attribute objectClass = attributes.get( SchemaConstants.OBJECT_CLASS_AT );
+        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
         if ( objectClass == null )
         {
             return;
@@ -166,9 +164,10 @@ public class SchemaChecker
         }
 
         // check that there is at least one structural objectClass in the replacement set
-        for ( int ii = 0; ii < objectClass.size(); ii++ )
+        for ( Value<?> value:objectClass )
         {
-            ObjectClass ocType = registry.lookup( ( String ) objectClass.get( ii ) );
+            ObjectClass ocType = registry.lookup( ( String ) value.get() );
+            
             if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
                 return;
@@ -457,10 +456,11 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyReplace( 
+        LdapDN name, ModificationOperation mod, ServerEntry entry, OidRegistry oidRegistry )
         throws NamingException
     {
-        if ( mod != DirContext.REPLACE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
         {
             return;
         }
@@ -609,10 +609,10 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( LdapDN name, int mod, ServerEntry entry, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerEntry entry, OidRegistry oidRegistry )
         throws NamingException
     {
-        if ( mod != DirContext.REMOVE_ATTRIBUTE )
+        if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
             return;
         }
@@ -676,7 +676,7 @@ public class SchemaChecker
      * attribute is not an rdn attribute
      * @throws NamingException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, Name name, OidRegistry oidRegistry ) throws NamingException
+    private static String getRdnValue( String id, LdapDN name, OidRegistry oidRegistry ) throws NamingException
     {
         // Transform the rdnAttrId to it's OID counterPart
         String idOid = oidRegistry.getOid( id );
