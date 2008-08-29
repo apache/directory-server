@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -38,6 +36,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -157,11 +156,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getInitialSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -273,11 +272,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getInitialSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the Control
@@ -398,11 +397,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( null, substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -515,11 +514,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -633,11 +632,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -749,11 +748,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -862,11 +861,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -978,11 +977,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "*", substringFilter.getAnySubstrings().get( 0 ) );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -1098,11 +1097,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( null, substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -1215,11 +1214,11 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "Amos", substringFilter.getFinalSubstrings() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length

@@ -23,10 +23,8 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.io.UnsupportedEncodingException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -38,9 +36,9 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -89,7 +87,7 @@ public class SearchRequest extends LdapMessage
     private Filter filter;
     
     /** The list of attributes to get */
-    private Attributes attributes = new AttributesImpl( true );
+    private List<EntryAttribute> attributes = new ArrayList<EntryAttribute>();
 
     /** The current filter. This is used while decoding a PDU */
     private Filter currentFilter;
@@ -135,7 +133,7 @@ public class SearchRequest extends LdapMessage
      * 
      * @return Returns the attributes.
      */
-    public Attributes getAttributes()
+    public List<EntryAttribute> getAttributes()
     {
         return attributes;
     }
@@ -148,7 +146,7 @@ public class SearchRequest extends LdapMessage
      */
     public void addAttribute( String attribute )
     {
-        attributes.put( new AttributeImpl( attribute ) );
+        attributes.add( new DefaultClientAttribute( attribute ) );
     }
 
 
@@ -493,17 +491,13 @@ public class SearchRequest extends LdapMessage
 
         if ( ( attributes != null ) && ( attributes.size() != 0 ) )
         {
-            NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
-
             // Compute the attributes length
-            while ( attributeIterator.hasMoreElements() )
+            for ( EntryAttribute attribute:attributes )
             {
-                Attribute attribute = attributeIterator.nextElement();
-
                 // add the attribute length to the attributes length
                 try
                 {
-                    int idLength = attribute.getID().getBytes( "UTF-8" ).length;
+                    int idLength = attribute.getId().getBytes( "UTF-8" ).length;
                     attributeDescriptionListLength += 1 + TLV.getNbBytes( idLength ) + idLength;
                 }
                 catch ( UnsupportedEncodingException uee )
@@ -587,14 +581,10 @@ public class SearchRequest extends LdapMessage
 
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
-
                 // encode each attribute
-                while ( attributeIterator.hasMoreElements() )
+                for ( EntryAttribute attribute:attributes )
                 {
-                    Attribute attribute = ( AttributeImpl ) attributeIterator.nextElement();
-
-                    Value.encode( buffer, attribute.getID() );
+                    Value.encode( buffer, attribute.getId() );
                 }
             }
         }
@@ -634,15 +624,13 @@ public class SearchRequest extends LdapMessage
 
         if ( attributes != null )
         {
-            NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
             boolean isFirst = true;
     
-            if ( attrs != null )
+            if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                while ( attrs.hasMoreElements() )
+                // encode each attribute
+                for ( EntryAttribute attribute:attributes )
                 {
-                    Attribute attr = attrs.nextElement();
-        
                     if ( isFirst )
                     {
                         isFirst = false;
@@ -652,7 +640,7 @@ public class SearchRequest extends LdapMessage
                         sb.append( ", " );
                     }
         
-                    sb.append( attr != null ? attr.getID() : "<no ID>" );
+                    sb.append( attribute != null ? attribute.getId() : "<no ID>" );
                 }
             }
         }

@@ -22,9 +22,8 @@ package org.apache.directory.shared.ldap.codec.search;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -36,6 +35,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.ExtensibleMatchFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -141,11 +141,11 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         assertEquals( true, sr.isTypesOnly() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes  )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -381,7 +381,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         assertEquals( "", extensibleMatchFilter.getMatchValue().toString() );
         assertFalse( extensibleMatchFilter.isDnAttributes() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 0, attributes.size() );
     }
@@ -663,7 +663,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         assertEquals( "test", extensibleMatchFilter.getMatchValue() );
         assertFalse( extensibleMatchFilter.isDnAttributes() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 0, attributes.size() );
     }

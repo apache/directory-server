@@ -25,17 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
@@ -120,83 +115,6 @@ public class SchemaUtils
                 default:
                     throw new IllegalStateException( "undefined modification type: " + mod.getOperation() );
             }
-        }
-
-        return targetEntry;
-    }
-
-
-    /**
-     * Gets the target entry as it would look after a modification operation 
-     * were performed on it.
-     * 
-     * @param modOp the modification operation performed: add, remove, replace
-     * @param mods the modified attributes
-     * @param entry the source entry that is modified
-     * @return the resultant entry after the modifications have taken place
-     * @throws NamingException if there are problems accessing attributes
-     */
-    public static Attributes getTargetEntry( int modOp, Attributes mods, Attributes entry ) throws NamingException
-    {
-        Attributes targetEntry = ( Attributes ) entry.clone();
-        NamingEnumeration<String> list = mods.getIDs();
-        switch ( modOp )
-        {
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                while ( list.hasMore() )
-                {
-                    targetEntry.put( mods.get( list.next() ) );
-                }
-                break;
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                while ( list.hasMore() )
-                {
-                    String id = list.next();
-                    Attribute toBeRemoved = mods.get( id );
-
-                    if ( toBeRemoved.size() == 0 )
-                    {
-                        targetEntry.remove( id );
-                    }
-                    else
-                    {
-                        Attribute existing = targetEntry.get( id );
-
-                        if ( existing != null )
-                        {
-                            for ( int ii = 0; ii < toBeRemoved.size(); ii++ )
-                            {
-                                existing.remove( toBeRemoved.get( ii ) );
-                            }
-                        }
-                    }
-                }
-                break;
-            case ( DirContext.ADD_ATTRIBUTE  ):
-                while ( list.hasMore() )
-                {
-                    String id = list.next();
-                    Attribute combined = new AttributeImpl( id );
-                    Attribute toBeAdded = mods.get( id );
-                    Attribute existing = entry.get( id );
-
-                    if ( existing != null )
-                    {
-                        for ( int ii = 0; ii < existing.size(); ii++ )
-                        {
-                            combined.add( existing.get( ii ) );
-                        }
-                    }
-
-                    for ( int ii = 0; ii < toBeAdded.size(); ii++ )
-                    {
-                        combined.add( toBeAdded.get( ii ) );
-                    }
-                    targetEntry.put( combined );
-                }
-                break;
-            default:
-                throw new IllegalStateException( "undefined modification type: " + modOp );
         }
 
         return targetEntry;

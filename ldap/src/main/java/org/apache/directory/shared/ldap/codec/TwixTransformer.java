@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -64,6 +62,7 @@ import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -82,7 +81,6 @@ import org.apache.directory.shared.ldap.message.AbstractMutableControlImpl;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
@@ -663,17 +661,15 @@ public class TwixTransformer implements TransformerSpi
         // Twix : ArrayList attributes -> Snickers : ArrayList attributes
         if ( searchRequest.getAttributes() != null )
         {
-            NamingEnumeration<?> attributes = searchRequest.getAttributes().getAll();
+            List<EntryAttribute> attributes = searchRequest.getAttributes();
 
-            if ( attributes != null )
+            if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                while ( attributes.hasMoreElements() )
+                for ( EntryAttribute attribute:attributes )
                 {
-                    Attribute attribute = ( AttributeImpl ) attributes.nextElement();
-
                     if ( attribute != null )
                     {
-                        snickersMessage.addAttribute( attribute.getID() );
+                        snickersMessage.addAttribute( attribute.getId() );
                     }
                 }
             }

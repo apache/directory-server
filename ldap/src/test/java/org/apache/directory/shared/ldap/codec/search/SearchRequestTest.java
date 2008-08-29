@@ -22,10 +22,10 @@ package org.apache.directory.shared.ldap.codec.search;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.naming.directory.Attributes;
+import java.util.Set;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
@@ -219,11 +220,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "objectclass", assertion.getAttributeDesc() );
         assertEquals( "ttt", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the encoding
@@ -384,11 +385,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "ttt", assertion.getAssertionValue().get() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -551,11 +552,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "ttt", assertion.getAssertionValue().get() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -656,7 +657,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "objectClass", presentFilter.getAttributeDescription() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 0, attributes.size() );
 
@@ -756,7 +757,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "objectClass", presentFilter.getAttributeDescription() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 1, attributes.size() );
     }
@@ -838,11 +839,20 @@ public class SearchRequestTest extends TestCase
         assertEquals( "objectClass", presentFilter.getAttributeDescription() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 2, attributes.size() );
-        assertNotNull( attributes.get( "sn" ) );
-        assertNotNull( attributes.get( "*" ) );
+        Set<String> expectedAttrs = new HashSet<String>();
+        expectedAttrs.add( "sn" );
+        expectedAttrs.add( "*" );
+        
+        for ( EntryAttribute attribute:attributes )
+        {
+            assertTrue( expectedAttrs.contains( attribute.getId() ) );
+            expectedAttrs.remove( attribute.getId() );
+        }
+        
+        assertEquals( 0, expectedAttrs.size() );
     }        
 
 
@@ -969,11 +979,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "abok", assertion.getAssertionValue().get() );
 
         // The attributes
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the length
@@ -1249,11 +1259,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "organizationalUnitName", assertion.getAttributeDesc() );
         assertEquals( "ttt", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // We won't check the encoding, as it has changed because of
@@ -1556,11 +1566,11 @@ public class SearchRequestTest extends TestCase
         assertEquals( "objectclass", assertion.getAttributeDesc() );
         assertEquals( "ttt", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
-        for ( int i = 0; i < attributes.size(); i++ )
+        for ( EntryAttribute attribute:attributes )
         {
-            assertNotNull( attributes.get( "attr" + i ) );
+            assertNotNull( attribute );
         }
 
         // Check the encoding
@@ -2508,7 +2518,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "test", assertion.getAttributeDesc() );
         assertEquals( "", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 0, attributes.size() );
 
@@ -2590,14 +2600,10 @@ public class SearchRequestTest extends TestCase
         assertEquals( "test", assertion.getAttributeDesc() );
         assertEquals( "", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 1, attributes.size() );
-
-        for ( int i = 0; i < attributes.size(); i++ )
-        {
-            assertNotNull( attributes.get( "*" ) );
-        }
+        assertEquals( "*", attributes.get( 0 ).getId() );
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -2688,7 +2694,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "test", assertion.getAttributeDesc() );
         assertEquals( "", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
 
         assertEquals( 0, attributes.size() );
     }
@@ -3045,7 +3051,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "a", assertion.getAttributeDesc() );
         assertEquals( "b", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3153,7 +3159,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "a", assertion.getAttributeDesc() );
         assertEquals( "b", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3276,7 +3282,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "c", assertion.getAttributeDesc() );
         assertEquals( "d", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3390,7 +3396,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "a", assertion.getAttributeDesc() );
         assertEquals( "b", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3520,7 +3526,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "c", assertion.getAttributeDesc() );
         assertEquals( "d", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3649,7 +3655,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "c", assertion.getAttributeDesc() );
         assertEquals( "d", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3792,7 +3798,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "e", assertion.getAttributeDesc() );
         assertEquals( "f", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -3929,7 +3935,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "c", assertion.getAttributeDesc() );
         assertEquals( "d", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -4080,7 +4086,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "e", assertion.getAttributeDesc() );
         assertEquals( "f", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -4217,7 +4223,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "e", assertion.getAttributeDesc() );
         assertEquals( "f", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
 
         // Check the encoding
@@ -4295,7 +4301,7 @@ public class SearchRequestTest extends TestCase
         assertNotNull( presentFilter );
         assertEquals( "objectClass", presentFilter.getAttributeDescription() );
         
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
     }
     
@@ -4389,7 +4395,7 @@ public class SearchRequestTest extends TestCase
         assertEquals( "sbAttribute", assertion.getAttributeDesc() );
         assertEquals( "Buy ", assertion.getAssertionValue().get() );
 
-        Attributes attributes = sr.getAttributes();
+        List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
     }
     
