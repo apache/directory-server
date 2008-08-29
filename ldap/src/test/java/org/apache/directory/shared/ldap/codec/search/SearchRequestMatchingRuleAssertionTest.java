@@ -40,6 +40,8 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import junit.framework.TestCase;
 
@@ -53,6 +55,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 {
     static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
+    @BeforeClass
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -71,6 +74,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
     /**
      * Tests an search request decode with a simple equality match filter.
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatch()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -173,6 +177,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty extensible match
      */
+    @Test
     public void testDecodeSearchRequestEmptyExtensibleMatch()
     {
         byte[] asn1BER = new byte[]
@@ -221,6 +226,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and an
      * empty matching rule
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchEmptyMatchingRule()
     {
         byte[] asn1BER = new byte[]
@@ -270,6 +276,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and an
      * empty type
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchEmptyType()
     {
         byte[] asn1BER = new byte[]
@@ -319,6 +326,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and an
      * empty matchValue
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchEmptyMatchValue()
     {
         byte[] asn1BER = new byte[]
@@ -391,6 +399,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and an
      * matching rule and an empty type
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchMatchingRuleEmptyType()
     {
         byte[] asn1BER = new byte[]
@@ -440,6 +449,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and an
      * matching rule and an empty dnAttributes
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchDnAttributesEmptyType()
     {
         byte[] asn1BER = new byte[]
@@ -507,6 +517,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and a
      * matching rule and nothing else
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchMatchingRuleAlone()
     {
         byte[] asn1BER = new byte[]
@@ -555,6 +566,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and a type
      * and nothing else
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchTypeAlone()
     {
         byte[] asn1BER = new byte[]
@@ -603,6 +615,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
      * Test the decoding of a SearchRequest with an extensible match and a match
      * Value and nothing else
      */
+    @Test
     public void testDecodeSearchRequestExtensibleMatchMatchValueAlone()
     {
         byte[] asn1BER = new byte[]
