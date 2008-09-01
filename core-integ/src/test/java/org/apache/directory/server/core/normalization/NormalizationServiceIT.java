@@ -23,7 +23,6 @@ package org.apache.directory.server.core.normalization;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -67,11 +67,11 @@ ou: corporate category\, operations
 
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "direct report view" );
         sysRoot.createSubcontext( "ou=direct report view", attrs );
 
-        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "corporate category\\, operations" );
         sysRoot.createSubcontext( "ou=corporate category\\, operations,ou=direct report view", attrs );
 

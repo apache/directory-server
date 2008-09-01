@@ -30,8 +30,6 @@ import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -48,6 +46,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -114,8 +114,8 @@ public class MetaSyntaxHandlerIT
     @Test
     public void testAddSyntax() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_SYNTAX_OC );
         attrs.put( oc );
@@ -241,7 +241,7 @@ public class MetaSyntaxHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -267,7 +267,7 @@ public class MetaSyntaxHandlerIT
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
@@ -379,8 +379,8 @@ public class MetaSyntaxHandlerIT
     
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_MATCHING_RULE_OC );
         attrs.put( oc );
@@ -483,8 +483,8 @@ public class MetaSyntaxHandlerIT
     @Test
     public void testAddSyntaxToDisabledSchema() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_SYNTAX_OC );
         attrs.put( oc );
@@ -558,13 +558,13 @@ public class MetaSyntaxHandlerIT
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( opAttr );
+        Attribute attr = new BasicAttribute( opAttr );
         for ( String description : descriptions )
         {
             attr.add( description );
         }
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( attr );
         
         getRootContext( service ).modifyAttributes( dn, op, mods );

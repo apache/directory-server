@@ -28,8 +28,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -44,6 +42,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
@@ -99,8 +99,8 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testAddAttributeType() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );
@@ -229,9 +229,9 @@ public class MetaAttributeTypeHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new AttributeImpl( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
+        attr = new BasicAttribute( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -259,7 +259,7 @@ public class MetaAttributeTypeHandlerIT
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods.put( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
@@ -283,8 +283,8 @@ public class MetaAttributeTypeHandlerIT
     
     private void addDependeeAttributeType() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );
@@ -468,8 +468,8 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );

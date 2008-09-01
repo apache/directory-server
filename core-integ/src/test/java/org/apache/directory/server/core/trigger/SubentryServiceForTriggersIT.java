@@ -26,8 +26,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -40,6 +38,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -64,8 +64,8 @@ public class SubentryServiceForTriggersIT
 
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -77,8 +77,8 @@ public class SubentryServiceForTriggersIT
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "triggerExecutionSubentry" );
@@ -91,8 +91,8 @@ public class SubentryServiceForTriggersIT
     
     public Attributes getTestSubentryWithExclusion()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "triggerExecutionSubentry" );
@@ -108,7 +108,7 @@ public class SubentryServiceForTriggersIT
     public void addTheAdministrativeRole() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "triggerSpecificArea" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
@@ -253,7 +253,7 @@ public class SubentryServiceForTriggersIT
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
+        Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=interceptors\" } }" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
         sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[] { item } );

@@ -25,7 +25,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.injectEntries;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -38,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -61,7 +61,7 @@ public class TriggerInterceptorIT
      */
     public void createData( LdapContext ctx ) throws NamingException
     {
-        Attributes spContainer = new AttributesImpl( "objectClass", "top", true );
+        Attributes spContainer = new BasicAttributes( "objectClass", "top", true );
         spContainer.get( "objectClass" ).add( "organizationalUnit" );
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );

@@ -24,8 +24,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +39,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -65,8 +65,8 @@ public class SubentryServiceIT
 
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -78,8 +78,8 @@ public class SubentryServiceIT
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -93,8 +93,8 @@ public class SubentryServiceIT
 
     public Attributes getTestSubentryWithExclusion()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -110,7 +110,7 @@ public class SubentryServiceIT
     public void addAdministrativeRole( String role ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
         sysRoot.modifyAttributes( "", new ModificationItemImpl[]
@@ -296,7 +296,7 @@ public class SubentryServiceIT
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
+        Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
         sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
@@ -414,7 +414,7 @@ public class SubentryServiceIT
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
-        Attributes changes = new AttributesImpl();
+        Attributes changes = new BasicAttributes( true );
         changes.put( "subtreeSpecification",
             "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );

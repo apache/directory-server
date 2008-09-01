@@ -24,8 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
@@ -43,6 +41,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -104,7 +104,7 @@ public class SchemaPersistenceIT
             service.shutdown();
             service.startup();
 
-            AttributesImpl attrs = new AttributesImpl( "objectClass", "metaSchema" );
+            Attributes attrs = new BasicAttributes( "objectClass", "metaSchema", true );
             attrs.put( "cn", "blah" );
             getSchemaContext( service ).createSubcontext( "cn=blah", attrs );
 
@@ -126,14 +126,14 @@ public class SchemaPersistenceIT
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( opAttr );
+        Attribute attr = new BasicAttribute( opAttr );
         
         for ( String description : descriptions )
         {
             attr.add( description );
         }
 
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( attr );
 
         getRootContext( service ).modifyAttributes( dn, op, mods );
@@ -144,7 +144,7 @@ public class SchemaPersistenceIT
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }

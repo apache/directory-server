@@ -31,7 +31,6 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -150,7 +150,7 @@ public final class PartitionIT
     public void addLookupDelete( String partitionSuffix ) throws Exception
     {
         LdapContext rootDSE = getRootContext( service );
-        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "people" );
         String entryDn = "ou=people," + partitionSuffix;
         rootDSE.createSubcontext( entryDn, attrs );

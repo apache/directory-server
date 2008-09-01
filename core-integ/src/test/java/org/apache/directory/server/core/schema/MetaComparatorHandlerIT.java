@@ -32,8 +32,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -50,6 +48,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -112,8 +112,8 @@ public class MetaComparatorHandlerIT
     @Test
     public void testAddComparator() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_COMPARATOR_OC );
         attrs.put( oc );
@@ -142,8 +142,8 @@ public class MetaComparatorHandlerIT
             out.write( in.read() );
         }
         
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_COMPARATOR_OC );
         attrs.put( oc );
@@ -275,7 +275,7 @@ public class MetaComparatorHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
+        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -298,7 +298,7 @@ public class MetaComparatorHandlerIT
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
@@ -489,8 +489,8 @@ public class MetaComparatorHandlerIT
     @Test
     public void testAddComparatorToDisabledSchema() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_COMPARATOR_OC );
         attrs.put( oc );

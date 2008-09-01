@@ -30,8 +30,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -70,6 +68,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -1395,7 +1395,7 @@ public class SubschemaSubentryIT
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "attributeTypes", substrate ) );
+            new BasicAttribute( "attributeTypes", substrate ) );
         
         getRootContext( service ).modifyAttributes( dn, mods );
         
@@ -1449,7 +1449,7 @@ public class SubschemaSubentryIT
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "attributeTypes", substrate ) );
+            new BasicAttribute( "attributeTypes", substrate ) );
         
         getRootContext( service ).modifyAttributes( dn, mods );
         
@@ -1885,7 +1885,7 @@ public class SubschemaSubentryIT
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "attributeTypes", substrate ) );
+            new BasicAttribute( "attributeTypes", substrate ) );
         
         getRootContext( service ).modifyAttributes( dn, mods );
 
@@ -1918,7 +1918,7 @@ public class SubschemaSubentryIT
         // now let's test the modifiersName update with another user besides
         // the administrator - we'll create a dummy user for that ...
         
-        AttributesImpl user = new AttributesImpl( "objectClass", "person", true );
+        Attributes user = new BasicAttributes( "objectClass", "person", true );
         user.put( "sn", "bogus" );
         user.put( "cn", "bogus user" );
         user.put( "userPassword", "secret" );
@@ -1941,7 +1941,7 @@ public class SubschemaSubentryIT
         substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10001 NAME ( 'bogus2' 'bogusName2' ) " +
             "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
-            new AttributeImpl( "attributeTypes", substrate ) );
+            new BasicAttribute( "attributeTypes", substrate ) );
         ctx.modifyAttributes( dn, mods );
         
         // now let's verify the new values for the modification attributes
@@ -1977,13 +1977,13 @@ public class SubschemaSubentryIT
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new AttributeImpl( opAttr );
+        Attribute attr = new BasicAttribute( opAttr );
         for ( String description : descriptions )
         {
             attr.add( description );
         }
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( attr );
         
         getRootContext( service ).modifyAttributes( dn, op, mods );
@@ -1994,7 +1994,7 @@ public class SubschemaSubentryIT
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
@@ -2004,7 +2004,7 @@ public class SubschemaSubentryIT
     {
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }

@@ -28,8 +28,6 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -46,6 +44,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 import java.util.Map;
@@ -114,7 +114,7 @@ public class MetaSchemaHandlerIT
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
@@ -135,7 +135,7 @@ public class MetaSchemaHandlerIT
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
@@ -158,7 +158,7 @@ public class MetaSchemaHandlerIT
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
@@ -198,7 +198,7 @@ public class MetaSchemaHandlerIT
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
@@ -218,7 +218,7 @@ public class MetaSchemaHandlerIT
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
@@ -289,7 +289,7 @@ public class MetaSchemaHandlerIT
         // make the nis schema depend on the dummy schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-                new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
+                new BasicAttribute( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
         schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
         
         // attempt to delete it now & it should fail
@@ -318,7 +318,7 @@ public class MetaSchemaHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
 
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
@@ -358,7 +358,7 @@ public class MetaSchemaHandlerIT
 
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
@@ -370,7 +370,7 @@ public class MetaSchemaHandlerIT
 
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
@@ -460,7 +460,7 @@ public class MetaSchemaHandlerIT
         testEnableSchema(); 
         
         // adds enabled dummy schema that depends on the test schema  
-        Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
+        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
@@ -479,7 +479,7 @@ public class MetaSchemaHandlerIT
         // now try to disable the test schema which should fail 
         // since it's dependent, the dummy schema, is enabled
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
+        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         
         try
@@ -626,7 +626,7 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-dependencies", "bogus" );
+        Attribute attr = new BasicAttribute( "m-dependencies", "bogus" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         
         try
@@ -655,7 +655,7 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         enableSchema( TEST_SCHEMA );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
+        Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         
         try
@@ -681,7 +681,7 @@ public class MetaSchemaHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
+        Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
         Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );
@@ -701,7 +701,7 @@ public class MetaSchemaHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( "m-dependencies", "java" );
+        Attribute attr = new BasicAttribute( "m-dependencies", "java" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
         Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );

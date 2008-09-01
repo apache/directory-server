@@ -28,8 +28,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import static org.junit.Assert.assertEquals;
@@ -108,8 +106,8 @@ public class OperationalAttributeServiceIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
         oc.add( "inetOrgPerson" );
@@ -172,8 +170,8 @@ public class OperationalAttributeServiceIT
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -440,7 +438,7 @@ public class OperationalAttributeServiceIT
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        ModificationItem modifyOp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+        ModificationItem modifyOp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
             "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 
         try

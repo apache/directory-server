@@ -25,8 +25,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -37,6 +35,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -60,8 +60,8 @@ public class SubentryServiceObjectClassChangeHandlingIT
 
     public Attributes getTestEntry( String cn )
     {
-        Attributes entry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes entry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         entry.put( objectClass );
@@ -73,8 +73,8 @@ public class SubentryServiceObjectClassChangeHandlingIT
 
     public Attributes getModsForIntroducingNewOC() throws NamingException
     {
-        Attributes changes = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes changes = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "organizationalPerson" );
         changes.put( objectClass );
         changes.put( "ou", "Test Organizational Unit" );
@@ -84,8 +84,8 @@ public class SubentryServiceObjectClassChangeHandlingIT
 
     public Attributes getCollectiveAttributeTestSubentry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -100,7 +100,7 @@ public class SubentryServiceObjectClassChangeHandlingIT
     public void addAdministrativeRoles() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );

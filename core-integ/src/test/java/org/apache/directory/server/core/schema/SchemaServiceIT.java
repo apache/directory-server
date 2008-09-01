@@ -27,6 +27,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -38,11 +39,9 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -96,9 +95,9 @@ public class SchemaServiceIT
     @Test
     public void testNoStructuralObjectClass() throws Exception
     {
-        Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( "uidObject" );
-        attrs.put( SchemaConstants.UID_AT, "invalid" );
+        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "uid", "invalid" );
         
         try
         {
@@ -119,12 +118,12 @@ public class SchemaServiceIT
     @Test
     public void testMultipleStructuralObjectClasses() throws Exception
     {
-        Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
-        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.PERSON_OC );
-        attrs.put( SchemaConstants.OU_AT, "comedy" );
-        attrs.put( SchemaConstants.CN_AT, "Jack Black" );
-        attrs.put( SchemaConstants.SN_AT, "Black" );
+        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+        attrs.get( "objectClass" ).add( "organizationalUnit" );
+        attrs.get( "objectClass" ).add( "person" );
+        attrs.put( "ou", "comedy" );
+        attrs.put( "cn", "Jack Black" );
+        attrs.put( "sn", "Black" );
         
         try
         {

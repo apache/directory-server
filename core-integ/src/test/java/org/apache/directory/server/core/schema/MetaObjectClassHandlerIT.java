@@ -26,8 +26,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaC
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -42,6 +40,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 
@@ -91,8 +91,8 @@ public class MetaObjectClassHandlerIT
     
     private void addObjectClass() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -234,9 +234,9 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        Attribute attr = new AttributeImpl( "m-description", DESCRIPTION1 );
+        Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new AttributeImpl( "m-name", NEW_NAME );
+        attr = new BasicAttribute( "m-name", NEW_NAME );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -264,7 +264,7 @@ public class MetaObjectClassHandlerIT
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( "m-description", DESCRIPTION1 );
         mods.put( "m-name", NEW_NAME );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
@@ -286,8 +286,8 @@ public class MetaObjectClassHandlerIT
     // ----------------------------------------------------------------------
     private void addDependeeObjectClass() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -468,8 +468,8 @@ public class MetaObjectClassHandlerIT
     
     private void addObjectClassToDisabledSchema() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -547,8 +547,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAbstractOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -576,8 +576,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAbstractOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -589,7 +589,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "javaSerializedObject");
         attrs.put( sup );
@@ -615,8 +615,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAbstractOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -628,7 +628,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "person");
         attrs.put( sup );
@@ -654,8 +654,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAuxiliaryOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -683,8 +683,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAuxiliaryOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -697,7 +697,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "javaNamingReference");
         attrs.put( sup );
@@ -717,8 +717,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddAuxiliaryOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -730,7 +730,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "person");
         attrs.put( sup );
@@ -756,8 +756,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddStructuralOCinheritingFromAbstractOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -785,8 +785,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddStructuralOCinheritingFromAuxiliaryOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -798,7 +798,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "javaNamingReference");
         attrs.put( sup );
@@ -818,8 +818,8 @@ public class MetaObjectClassHandlerIT
     @Test
     public void testAddStructuralOCinheritingFromStructuralOC() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
         oc.add( "metaTop" );
         oc.add( "metaObjectClass" );
         attrs.put( oc );
@@ -831,7 +831,7 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         
-        Attribute sup = new AttributeImpl( "m-supObjectClass" );
+        Attribute sup = new BasicAttribute( "m-supObjectClass" );
         sup.add( "top" );
         sup.add( "person");
         attrs.put( sup );

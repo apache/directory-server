@@ -28,8 +28,6 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.Base64;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -38,6 +36,8 @@ import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -75,7 +75,7 @@ public class LdapClassLoaderIT
         ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
 
         // set up
-        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
+        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
@@ -102,8 +102,8 @@ public class LdapClassLoaderIT
         ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
 
         // create an extensible object for holding custom config data
-        Attributes classLoaderDefaultSearchContextConfig = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes classLoaderDefaultSearchContextConfig = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "javaContainer" );
         
@@ -114,17 +114,17 @@ public class LdapClassLoaderIT
 
         // create custom config entry
         classLoaderDefaultSearchContextConfig.put( objectClass );
-        classLoaderDefaultSearchContextConfig.put( new AttributeImpl( "cn", "classLoaderDefaultSearchContext" ) );
+        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "cn", "classLoaderDefaultSearchContext" ) );
 
         // add a default search context to the configuration
-        classLoaderDefaultSearchContextConfig.put( new AttributeImpl( "classLoaderDefaultSearchContext", "ou=system" ) );
+        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "classLoaderDefaultSearchContext", "ou=system" ) );
 
         // add the configuration entry to the DIT
         ServerLdapContext configContext = ( ServerLdapContext ) defaultContext.lookup( "ou=configuration" );
         configContext.createSubcontext( "cn=classLoaderDefaultSearchContext", classLoaderDefaultSearchContextConfig );
 
         // create a class holder entry and add it to the DIT
-        Attributes attributes = new AttributesImpl( "objectClass", "top", true );
+        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
         attributes.get( "objectClass" ).add( "javaClass" );
         attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
         attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
@@ -135,7 +135,7 @@ public class LdapClassLoaderIT
 
         // load the class
         LdapClassLoader loader = new LdapClassLoader( service );
-        Class clazz = loader.loadClass( "HelloWorld" );
+        Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
         assertEquals( clazz.getName(), "HelloWorld" );

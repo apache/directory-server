@@ -30,8 +30,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -51,6 +49,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -113,8 +113,8 @@ public class MetaNormalizerHandlerIT
     @Test
     public void testAddNormalizer() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );
@@ -143,8 +143,8 @@ public class MetaNormalizerHandlerIT
             out.write( in.read() );
         }
         
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );
@@ -278,7 +278,7 @@ public class MetaNormalizerHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute attr = new AttributeImpl( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
+        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -301,7 +301,7 @@ public class MetaNormalizerHandlerIT
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        Attributes mods = new AttributesImpl();
+        Attributes mods = new BasicAttributes( true );
         mods.put( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
@@ -492,8 +492,8 @@ public class MetaNormalizerHandlerIT
     @Test
     public void testAddNormalizerToDisabledSchema() throws Exception
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute oc = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT, "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
         oc.add( MetaSchemaConstants.META_TOP_OC );
         oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
         attrs.put( oc );
