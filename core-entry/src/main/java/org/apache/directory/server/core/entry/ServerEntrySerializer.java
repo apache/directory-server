@@ -134,7 +134,11 @@ public class ServerEntrySerializer implements Serializer
 
     
     /**
-     *  Deserialize a ServerEntry
+     *  Deserialize a ServerEntry.
+     *  
+     *  @param bytes the byte array containing the serialized entry
+     *  @return An instance of a ServerEntry object 
+     *  @throws IOException if we can't deserialize the ServerEntry
      */
     public Object deserialize( byte[] bytes ) throws IOException
     {
