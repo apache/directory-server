@@ -34,7 +34,6 @@ import org.apache.directory.server.core.collective.CollectiveAttributeIntercepto
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
@@ -80,25 +79,25 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -1401,15 +1400,15 @@ public class DefaultDirectoryService implements DirectoryService
      * Read an entry (without DN)
      * 
      * @param text The ldif format file
-     * @return An Attributes.
+     * @return An entry.
      */
-    private Attributes readEntry( String text )
+    private Entry readEntry( String text )
     {
         StringReader strIn = new StringReader( text );
         BufferedReader in = new BufferedReader( strIn );
 
         String line = null;
-        Attributes attributes = new AttributesImpl( true );
+        Entry entry = new DefaultClientEntry();
 
         try
         {
@@ -1427,15 +1426,16 @@ public class DefaultDirectoryService implements DirectoryService
                     continue;
                 }
 
-                Attribute attribute = LdifReader.parseAttributeValue( addedLine );
-                Attribute oldAttribute = attributes.get( attribute.getID() );
+                EntryAttribute attribute = AttributeUtils.toClientAttribute( 
+                    LdifReader.parseAttributeValue( addedLine ) );
+                EntryAttribute oldAttribute = entry.get( attribute.getId() );
 
                 if ( oldAttribute != null )
                 {
                     try
                     {
                         oldAttribute.add( attribute.get() );
-                        attributes.put( oldAttribute );
+                        entry.put( oldAttribute );
                     }
                     catch ( NamingException ne )
                     {
@@ -1444,7 +1444,14 @@ public class DefaultDirectoryService implements DirectoryService
                 }
                 else
                 {
-                    attributes.put( attribute );
+                    try
+                    {
+                        entry.put( attribute );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        // TODO do nothing ...
+                    }
                 }
             }
         }
@@ -1453,7 +1460,7 @@ public class DefaultDirectoryService implements DirectoryService
             // Do nothing : we can't reach this point !
         }
 
-        return attributes;
+        return entry;
     }
 
     
@@ -1467,11 +1474,13 @@ public class DefaultDirectoryService implements DirectoryService
     {
         try
         {
-            Attributes entry = readEntry( ldif );
+            Entry entry = readEntry( ldif );
             LdapDN ldapDn = new LdapDN( dn );
             
+            entry.setDn( ldapDn );
+            
             // TODO Let's get rid of this Attributes crap
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( entry, ldapDn, registries );
+            ServerEntry serverEntry = new DefaultServerEntry( registries, entry );
             return serverEntry;
         }
         catch ( Exception e )
