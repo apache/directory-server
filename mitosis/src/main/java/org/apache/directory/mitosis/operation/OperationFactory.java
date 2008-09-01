@@ -143,7 +143,7 @@ public class OperationFactory
         // MODIFY operation)
         cloneEntry.put( Constants.ENTRY_CSN, csn.toOctetString() );
 
-        return new AddEntryOperation( csn, cloneEntry );
+        return new AddEntryOperation( registries, csn, cloneEntry );
     }
 
 
@@ -155,10 +155,10 @@ public class OperationFactory
     public Operation newDelete( LdapDN normalizedName ) throws NamingException
     {
         CSN csn = newCSN();
-        CompositeOperation result = new CompositeOperation( csn );
+        CompositeOperation result = new CompositeOperation( registries, csn );
 
         // Transform into replace operation.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, 
+        result.add( new ReplaceAttributeOperation( registries, csn, normalizedName, 
             new DefaultServerAttribute( 
                 Constants.ENTRY_DELETED, 
                 attributeRegistry.lookup( Constants.ENTRY_DELETED ),
@@ -182,7 +182,7 @@ public class OperationFactory
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();
-        CompositeOperation result = new CompositeOperation( csn );
+        CompositeOperation result = new CompositeOperation( registries, csn );
         
         // Transform into multiple {@link AttributeOperation}s.
         for ( Modification item:items )
@@ -198,6 +198,7 @@ public class OperationFactory
         // Resurrect the entry in case it is deleted.
         result.add( 
             new ReplaceAttributeOperation( 
+                registries, 
                 csn, 
                 normalizedName, 
                 new DefaultServerAttribute( 
@@ -220,13 +221,13 @@ public class OperationFactory
         switch ( modOp )
         {
             case ADD_ATTRIBUTE:
-                return new AddAttributeOperation( csn, normalizedName, attribute );
+                return new AddAttributeOperation( registries, csn, normalizedName, attribute );
             
             case REPLACE_ATTRIBUTE:
-                return new ReplaceAttributeOperation( csn, normalizedName, attribute );
+                return new ReplaceAttributeOperation( registries, csn, normalizedName, attribute );
             
             case REMOVE_ATTRIBUTE:
-                return new DeleteAttributeOperation( csn, normalizedName, attribute );
+                return new DeleteAttributeOperation( registries, csn, normalizedName, attribute );
             
             default:
                 throw new IllegalArgumentException( "Unknown modOp: " + modOp );
@@ -272,7 +273,7 @@ public class OperationFactory
     {
         // Prepare to create composite operations
         CSN csn = newCSN();
-        CompositeOperation result = new CompositeOperation( csn );
+        CompositeOperation result = new CompositeOperation( registries, csn );
 
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
@@ -298,6 +299,7 @@ public class OperationFactory
             // Delete the old entry
             result.add( 
                 new ReplaceAttributeOperation( 
+                    registries, 
                     csn, 
                     oldEntryName, 
                     new DefaultServerAttribute( 
@@ -410,6 +412,7 @@ public class OperationFactory
     {
         result.add( 
             new ReplaceAttributeOperation( 
+                registries, 
                 csn, 
                 normalizedName, 
                 new DefaultServerAttribute( 

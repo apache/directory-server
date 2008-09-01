@@ -21,6 +21,7 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.mina.common.ByteBuffer;
 
 
@@ -33,13 +34,13 @@ public abstract class ResponseMessageDecoder extends BaseMessageDecoder
     }
 
 
-    protected final BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception
+    protected final BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
-        return decodeBody( sequence, bodyLength, in.getInt(), in );
+        return decodeBody( registries, sequence, bodyLength, in.getInt(), in );
     }
 
 
-    protected abstract BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in )
+    protected abstract BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, int responseCode, ByteBuffer in )
         throws Exception;
 
 }

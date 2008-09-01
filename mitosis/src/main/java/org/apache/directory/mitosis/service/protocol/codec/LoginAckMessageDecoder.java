@@ -29,6 +29,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
+import org.apache.directory.server.schema.registries.Registries;
 
 
 public class LoginAckMessageDecoder extends ResponseMessageDecoder
@@ -42,7 +43,7 @@ public class LoginAckMessageDecoder extends ResponseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
         return new LoginAckMessage( sequence, responseCode, in.getString( utf8decoder ) );
     }

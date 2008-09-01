@@ -21,6 +21,7 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
@@ -87,7 +88,9 @@ public abstract class BaseMessageDecoder implements MessageDecoder
             try
             {
                 in.limit( in.position() + bodyLength );
-                out.write( decodeBody( sequence, bodyLength, in ) );
+                
+                Registries registries = (Registries)session.getAttribute( "registries" );
+                out.write( decodeBody( registries, sequence, bodyLength, in ) );
                 return OK;
             }
             finally
@@ -101,5 +104,5 @@ public abstract class BaseMessageDecoder implements MessageDecoder
     }
 
 
-    protected abstract BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception;
+    protected abstract BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception;
 }

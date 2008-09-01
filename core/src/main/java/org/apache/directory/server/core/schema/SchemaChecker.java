@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
-//import javax.naming.directory.DirContext;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -42,7 +42,9 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.mitosis.common.CSN;
@@ -192,35 +194,35 @@ public class DerbyReplicationStoreTest extends TestCase
         AttributeTypeRegistry atRegistry = service.getRegistries().getAttributeTypeRegistry();
 
         CSN csn = csnFactory.newInstance( REPLICA_ID );
-        CompositeOperation op1 = new CompositeOperation( csn );
+        CompositeOperation op1 = new CompositeOperation( service.getRegistries(), csn );
         LdapDN ouA =  new LdapDN( "ou=a" ).normalize( oids );
-        op1.add( new AddEntryOperation( csn, 
+        op1.add( new AddEntryOperation( service.getRegistries(), csn, 
             new DefaultServerEntry( service.getRegistries(), ouA ) ) );
         
-        op1.add( new AddAttributeOperation( csn, ouA, 
+        op1.add( new AddAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
         
-        op1.add( new ReplaceAttributeOperation( csn, ouA, 
+        op1.add( new ReplaceAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
         
-        op1.add( new DeleteAttributeOperation( csn, ouA, 
+        op1.add( new DeleteAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
 
         store.putLog( op1 );
         testGetLogs( csn, op1 );
 
         csn = csnFactory.newInstance( OTHER_REPLICA_ID );
-        CompositeOperation op2 = new CompositeOperation( csn );
-        op2.add( new AddEntryOperation( csn, 
+        CompositeOperation op2 = new CompositeOperation( service.getRegistries(), csn );
+        op2.add( new AddEntryOperation( service.getRegistries(), csn, 
             new DefaultServerEntry( service.getRegistries(), ouA ) ) );
         
-        op2.add( new AddAttributeOperation( csn, ouA, 
+        op2.add( new AddAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
         
-        op2.add( new ReplaceAttributeOperation( csn, ouA, 
+        op2.add( new ReplaceAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
         
-        op2.add( new DeleteAttributeOperation( csn, ouA, 
+        op2.add( new DeleteAttributeOperation( service.getRegistries(), csn, ouA, 
             new DefaultServerAttribute( "ou", atRegistry.lookup( "ou" ), "valie" ) ) );
 
         store.putLog( op2 );
@@ -281,7 +283,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
         it = store.getLogs( new DefaultCSN( 0, REPLICA_ID, 0 ), false );
         it.next();
-        csn = it.getOperation().getCSN();
+        csn = it.getOperation( service.getRegistries() ).getCSN();
         it.close();
 
         Assert.assertEquals( 0, store.removeLogs( csn, false ) );
@@ -290,7 +292,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
         it = store.getLogs( new DefaultCSN( 0, OTHER_REPLICA_ID, 0 ), false );
         Assert.assertTrue( it.next() );
-        csn = it.getOperation().getCSN();
+        csn = it.getOperation( service.getRegistries() ).getCSN();
         it.close();
 
         Assert.assertEquals( 0, store.removeLogs( csn, false ) );
@@ -307,10 +309,12 @@ public class DerbyReplicationStoreTest extends TestCase
         CSN csnB = new DefaultCSN( 1, REPLICA_ID, 0 );
         CSN csnC = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 0 );
         CSN csnD = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 1 );
-        store.putLog( new Operation( csnA ) );
-        store.putLog( new Operation( csnB ) );
-        store.putLog( new Operation( csnC ) );
-        store.putLog( new Operation( csnD ) );
+        AttributeType at = service.getRegistries().getAttributeTypeRegistry().lookup( "ou" );
+        EntryAttribute attribute = new DefaultServerAttribute( at, "test" );
+        store.putLog( new AddAttributeOperation( service.getRegistries(), csnA, LdapDN.EMPTY_LDAPDN, attribute ) );
+        store.putLog( new AddAttributeOperation( service.getRegistries(), csnB, LdapDN.EMPTY_LDAPDN, attribute ) );
+        store.putLog( new AddAttributeOperation( service.getRegistries(), csnC, LdapDN.EMPTY_LDAPDN, attribute ) );
+        store.putLog( new AddAttributeOperation( service.getRegistries(), csnD, LdapDN.EMPTY_LDAPDN, attribute ) );
 
         Set<String> expectedKnownReplicaIds = new HashSet<String>();
         expectedKnownReplicaIds.add( REPLICA_ID );
@@ -368,7 +372,7 @@ public class DerbyReplicationStoreTest extends TestCase
             Operation expected = expectedIt.next();
             Assert.assertTrue( actualIt.next() );
 
-            Operation actual = actualIt.getOperation();
+            Operation actual = actualIt.getOperation( service.getRegistries() );
             Assert.assertEquals( expected.getCSN(), actual.getCSN() );
             assertEquals( expected, actual );
         }

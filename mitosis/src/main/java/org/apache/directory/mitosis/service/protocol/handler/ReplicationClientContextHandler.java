@@ -48,6 +48,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -154,7 +155,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             }
             else if ( message instanceof BeginLogEntriesAckMessage )
             {
-                onBeginLogEntriesAck( ctx, ( BeginLogEntriesAckMessage ) message );
+                onBeginLogEntriesAck( ctx.getDirectoryService().getRegistries(), ctx, ( BeginLogEntriesAckMessage ) message );
             }
             else if ( message instanceof EndLogEntriesAckMessage )
             {
@@ -297,7 +298,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     }
 
 
-    private void onBeginLogEntriesAck( ReplicationContext ctx, BeginLogEntriesAckMessage message )
+    private void onBeginLogEntriesAck( Registries registries, ReplicationContext ctx, BeginLogEntriesAckMessage message )
         throws Exception
     {
         // Start transaction only when the server says OK.
@@ -334,7 +335,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             {
                 SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
                     + "] Starting a partial replication log transfer." );
-                sendReplicationLogs( ctx, myPV, yourUV );
+                sendReplicationLogs( registries, ctx, myPV, yourUV );
             }
         }
         finally
@@ -433,7 +434,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 LdapDN dn = entry.getDn();
                 dn.normalize( ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry()
                     .getNormalizerMapping() );
-                Operation op = new AddEntryOperation( csn, entry );
+                Operation op = new AddEntryOperation( ctx.getDirectoryService().getRegistries(), csn, entry );
 
                 // Send a LogEntry message for the entry.
                 writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
@@ -447,7 +448,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
 
     @SuppressWarnings("unchecked")
-    private void sendReplicationLogs( ReplicationContext ctx, CSNVector myPV, CSNVector yourUV )
+    private void sendReplicationLogs( Registries registries, ReplicationContext ctx, CSNVector myPV, CSNVector yourUV )
     {
         for ( String replicaId : myPV.getReplicaIds() )
         {
@@ -468,7 +469,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             while ( logIt.next() )
             {
-                Operation op = logIt.getOperation();
+                Operation op = logIt.getOperation( registries );
                 writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
             }
         }

@@ -27,6 +27,8 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -41,37 +43,66 @@ import java.util.List;
  */
 public class ReplaceAttributeOperation extends AttributeOperation
 {
+    /**
+     * Declares the Serial Version Uid.
+     *
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
+     */
     private static final long serialVersionUID = -6573196586521610472L;
 
 
     /**
+     * Creates a new operation that replaces the specified attribute. This 
+     * constructor will not be visible out of this package, as it is 
+     * only used for the deserialization process.
+     * 
+     * @param attribute an attribute to replace
+     */
+    /** No qualifier*/ ReplaceAttributeOperation( Registries registries )
+    {
+        super( registries, OperationType.REPLACE_ATTRIBUTE );
+    }
+
+    
+    /**
      * Creates a new operation that replaces the specified attribute.
      * 
      * @param attribute an attribute to replace
-     * @param csn ??
-     * @param name ??
+     * @param csn The operation CSN
+     * @param dn The associated DN
      */
-    public ReplaceAttributeOperation( CSN csn, LdapDN name, ServerAttribute attribute )
+    public ReplaceAttributeOperation( Registries registries, CSN csn, LdapDN dn, ServerAttribute attribute )
     {
-        super( csn, name, attribute );
+        super( registries, OperationType.REPLACE_ATTRIBUTE, csn, dn, attribute );
     }
 
 
-    public String toString()
-    {
-        return super.toString() + ".replace( " + getAttributeString() + " )";
-    }
-
-
+    /**
+     * Inject the modified attribute into the server.
+     * 
+     * @param nexus the partition which will be modified
+     * @param coreSession the current session
+     */
     protected void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception
     {
         DirectoryService ds = coreSession.getDirectoryService();
         ServerEntry serverEntry = ds.newEntry( LdapDN.EMPTY_LDAPDN );
-        ServerAttribute attribute = getAttribute( ds.getRegistries().getAttributeTypeRegistry() );
+        EntryAttribute attribute = getAttribute();
         serverEntry.put( attribute );
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, 
             ModificationOperation.REPLACE_ATTRIBUTE );
 
-        nexus.modify( new ModifyOperationContext( coreSession, getName(), items ) );
+        nexus.modify( new ModifyOperationContext( coreSession, getDn(), items ) );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return super.toString() + ".replace( " + getAttribute() + " )";
     }
 }

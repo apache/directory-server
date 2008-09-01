@@ -27,6 +27,8 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -41,35 +43,64 @@ import java.util.List;
  */
 public class DeleteAttributeOperation extends AttributeOperation
 {
+    /**
+     * Declares the Serial Version Uid.
+     *
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
+     */
     private static final long serialVersionUID = -131557844165710365L;
 
 
+    /**
+     * Creates a new operation that deletes the specified attribute. This 
+     * constructor will not be visible out of this package, as it is 
+     * only used for the deserialization process.
+     * 
+     * @param attribute an attribute to delete
+     */
+    /** No qualifier*/ DeleteAttributeOperation( Registries registries )
+    {
+        super( registries, OperationType.DELETE_ATTRIBUTE );
+    }
+
+    
     /**
      * Creates a new operation that deletes the specified attribute.
      * 
      * @param attribute an attribute to delete
      */
-    public DeleteAttributeOperation( CSN csn, LdapDN name, ServerAttribute attribute )
+    public DeleteAttributeOperation( Registries registries, CSN csn, LdapDN name, ServerAttribute attribute )
     {
-        super( csn, name, attribute );
+        super( registries, OperationType.DELETE_ATTRIBUTE, csn, name, attribute );
     }
 
 
-    public String toString()
-    {
-        return super.toString() + ".delete( " + getAttributeString() + " )";
-    }
-
-
+    /**
+     * Inject the modified attribute into the server.
+     * 
+     * @param nexus the partition which will be modified
+     * @param coreSession the current session
+     */
     protected void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception
     {
         DirectoryService ds = coreSession.getDirectoryService();
         ServerEntry serverEntry = ds.newEntry( LdapDN.EMPTY_LDAPDN );
-        ServerAttribute attribute = getAttribute( ds.getRegistries().getAttributeTypeRegistry() );
+        EntryAttribute attribute = getAttribute();
         serverEntry.put( attribute );
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, 
             ModificationOperation.REMOVE_ATTRIBUTE );
 
-        nexus.modify( new ModifyOperationContext( coreSession, getName(), items ) );
+        nexus.modify( new ModifyOperationContext( coreSession, getDn(), items ) );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return super.toString() + ".delete( " + getAttribute() + " )";
     }
 }

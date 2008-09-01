@@ -26,20 +26,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -87,10 +87,21 @@ public class SchemaSubentryModifier
     
     private AttributesFactory factory = new AttributesFactory();
     private final SchemaPartitionDao dao;
+    
+    /** The server registries */
+    private Registries registries; 
 
     
-    public SchemaSubentryModifier( SchemaPartitionDao dao )
+    /**
+     * 
+     * Creates a new instance of SchemaSubentryModifier.
+     *
+     * @param registries The server registries
+     * @param dao
+     */
+    public SchemaSubentryModifier( Registries registries, SchemaPartitionDao dao )
     {
+        this.registries = registries;
         this.dao = dao;
     }
     
@@ -143,11 +154,9 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( comparatorDescription );   
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( comparatorDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
-            opContext.getSession().getDirectoryService().getRegistries() );
+        Entry entry = getEntry( dn, comparatorDescription );
 
-        opContext.add( entry, BYPASS );
+        opContext.add( (ServerEntry)entry, BYPASS );
     }
     
     
@@ -156,11 +165,9 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( normalizerDescription );
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( normalizerDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
-            opContext.getSession().getDirectoryService().getRegistries() );
+        Entry entry = getEntry( dn, normalizerDescription );
 
-        opContext.add( entry, BYPASS );
+        opContext.add( (ServerEntry)entry, BYPASS );
     }
     
     
@@ -169,10 +176,8 @@ public class SchemaSubentryModifier
         String schemaName = getSchema( syntaxCheckerDescription );
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        Attributes attrs = getAttributes( syntaxCheckerDescription );
-        ServerEntry entry = ServerEntryUtils.toServerEntry( attrs, dn, 
-            opContext.getSession().getDirectoryService().getRegistries() );
-        opContext.add( entry, BYPASS );
+        Entry entry = getEntry( dn, syntaxCheckerDescription );
+        opContext.add( (ServerEntry)entry, BYPASS );
     }
     
     
@@ -222,49 +227,57 @@ public class SchemaSubentryModifier
     }
 
 
-    private Attributes getAttributes( ComparatorDescription comparatorDescription )
+    private Entry getEntry( LdapDN dn, ComparatorDescription comparatorDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
-        attributes.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
-        attributes.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
+        Entry entry = new DefaultServerEntry( registries, dn );
+        
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
+                    SchemaConstants.TOP_OC, 
+                    MetaSchemaConstants.META_TOP_OC,
+                    MetaSchemaConstants.META_COMPARATOR_OC );
+        
+        entry.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
 
         if ( comparatorDescription.getBytecode() != null )
         {
-            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
                 Base64.decode( comparatorDescription.getBytecode().toCharArray() ) );
         }
         
         if ( comparatorDescription.getDescription() != null )
         {
-            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, comparatorDescription.getDescription() );
+            entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, comparatorDescription.getDescription() );
         }
         
-        return attributes;
+        return entry;
     }
 
 
-    private Attributes getAttributes( NormalizerDescription normalizerDescription )
+    private Entry getEntry( LdapDN dn, NormalizerDescription normalizerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
-        attributes.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
-        attributes.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
+        Entry entry = new DefaultServerEntry( registries, dn );
+
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.TOP_OC, 
+            MetaSchemaConstants.META_TOP_OC,
+            MetaSchemaConstants.META_NORMALIZER_OC );
+        
+        entry.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
 
         if ( normalizerDescription.getBytecode() != null )
         {
-            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
                 Base64.decode( normalizerDescription.getBytecode().toCharArray() ) );
         }
         
         if ( normalizerDescription.getDescription() != null )
         {
-            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, normalizerDescription.getDescription() );
+            entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, normalizerDescription.getDescription() );
         }
         
-        return attributes;
+        return entry;
     }
 
 
@@ -279,25 +292,29 @@ public class SchemaSubentryModifier
     }
     
     
-    private Attributes getAttributes( SyntaxCheckerDescription syntaxCheckerDescription )
+    private Entry getEntry( LdapDN dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
-        attributes.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
-        attributes.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
+        Entry entry = new DefaultServerEntry( registries, dn );
+        
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, 
+            SchemaConstants.TOP_OC, 
+            MetaSchemaConstants.META_TOP_OC,
+            MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
+
+        entry.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
 
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
-            attributes.put( MetaSchemaConstants.M_BYTECODE_AT, 
+            entry.put( MetaSchemaConstants.M_BYTECODE_AT, 
                 Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() ) );
         }
         
         if ( syntaxCheckerDescription.getDescription() != null )
         {
-            attributes.put( MetaSchemaConstants.M_DESCRIPTION_AT, syntaxCheckerDescription.getDescription() );
+            entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, syntaxCheckerDescription.getDescription() );
         }
         
-        return attributes;
+        return entry;
     }
 }

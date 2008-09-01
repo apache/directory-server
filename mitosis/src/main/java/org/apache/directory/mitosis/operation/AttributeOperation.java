@@ -20,15 +20,10 @@
 package org.apache.directory.mitosis.operation;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.InvalidAttributeIdentifierException;
-
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
@@ -42,89 +37,102 @@ import org.apache.directory.mitosis.store.ReplicationStore;
  */
 public abstract class AttributeOperation extends Operation
 {
-    private final LdapDN name;
-    private final Attribute attribute;
-    private transient ServerAttribute serverAttribute;
+    /** The attribute's DN */
+    protected LdapDN dn;
+    
+    /** The attribute */
+    protected EntryAttribute attribute;
 
 
+    /**
+     * Create a new instance of AttributeOperation. This constructor should not
+     * be visible out of this package, as it's only used for deserialization.
+     * 
+     * @param registries The server registries
+     * @param operationType The operation type 
+     */
+    /* No qualifier*/ AttributeOperation( Registries registries, OperationType operationType )
+    {
+        super( registries, operationType );
+    }
+    
+    
     /**
      * Create a new operation that affects an entry with the specified name.
      * 
-     * @param csn
-     * @param name the normalized name of an entry 
-     * @param serverAttribute an attribute to modify
+     * @param registries the server registries
+     * @param operationType The operation's type
+     * @param csn the operation's CSN
+     * @param dn the normalized name of an entry 
+     * @param attribute an attribute to modify
      */
-    public AttributeOperation( CSN csn, LdapDN name, ServerAttribute serverAttribute )
+    public AttributeOperation( Registries registries, OperationType operationType, CSN csn, 
+        LdapDN dn, EntryAttribute attribute )
     {
-        super( csn );
+        super( registries, operationType, csn );
 
-        assert name != null;
-        assert serverAttribute != null;
+        assert dn != null;
+        assert attribute != null;
 
-        this.name = name;
-        this.serverAttribute = (ServerAttribute)serverAttribute.clone();
-        this.attribute = ServerEntryUtils.toAttributeImpl( this.serverAttribute );
+        this.dn = dn;
+        this.attribute = attribute.clone();
     }
 
 
     /**
-     * Returns the attribute to modify.
+     * @return the name of an entry this operation will affect.
      */
-    public ServerAttribute getAttribute( AttributeTypeRegistry atRegistry ) throws InvalidAttributeIdentifierException, NamingException
+    public LdapDN getDn()
     {
-        if ( serverAttribute != null )
-        {
-            return ( ServerAttribute ) serverAttribute.clone();
-        }
-        else
-        {
-            Attribute attr = (Attribute)attribute.clone();
-            
-            serverAttribute = ServerEntryUtils.toServerAttribute( attr, atRegistry.lookup( attr.getID() ) );
-            return (ServerAttribute)serverAttribute.clone();
-        }
+        return ( LdapDN ) dn.clone();
     }
 
 
     /**
-     * Returns the name of an entry this operation will affect.
+     * Check that we can apply the modification, and create the associated entry, if
+     * it does not exists locally.
+     * 
+     * @param nexus The partition to update
+     * @param store the replication storage
+     * @param coreSession the current session
      */
-    public LdapDN getName()
-    {
-        return ( LdapDN ) name.clone();
-    }
-
-
     protected final void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
-        if ( ! EntryUtil.isEntryUpdatable( coreSession, name, getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( coreSession, dn, getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( coreSession, name, true );
+        EntryUtil.createGlueEntries( coreSession, dn, true );
 
         execute1( nexus, coreSession );
     }
 
 
+    /**
+     * Apply the requested modification locally
+     *
+     * @param nexus The partition on which the operation is applied
+     * @param coreSession the current session
+     * @throws Exception 
+     */
     protected abstract void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception;
 
 
     /**
-     * Returns the attribute to modify.
+     * @return Returns the attribute to modify
      */
-    public String getAttributeString()
+    public EntryAttribute getAttribute()
     {
-        return attribute.toString();
+        return attribute;
     }
 
     /**
-     * Returns string representation of this operation.
+     * @see Object#toString()
      */
     public String toString()
     {
-        return super.toString() + ": [" + name.toString() + ']';
+        return super.toString() + ": [" + dn + ']';
     }
 }

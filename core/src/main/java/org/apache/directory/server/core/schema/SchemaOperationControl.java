@@ -215,7 +215,7 @@ public class SchemaOperationControl
         this.schemaObjectHandlers[DIT_CONTENT_RULE_INDEX] = new MetaDitContentRuleHandler( registries, loader ); 
         this.schemaObjectHandlers[NAME_FORM_INDEX] = new MetaNameFormHandler( registries, loader ); 
 
-        this.subentryModifier = new SchemaSubentryModifier( dao );
+        this.subentryModifier = new SchemaSubentryModifier( registries, dao );
         this.parsers = new DescriptionParsers( registries, dao );
         
         OidRegistry oidRegistry = registries.getOidRegistry();

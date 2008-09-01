@@ -20,15 +20,12 @@
 package org.apache.directory.mitosis.operation;
 
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -36,6 +33,7 @@ import org.apache.directory.server.core.interceptor.context.ListOperationContext
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -46,54 +44,83 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class AddEntryOperation extends Operation
 {
+    /**
+     * Declares the Serial Version Uid.
+     *
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
+     */
     private static final long serialVersionUID = 2294492811671880570L;
 
     /** The entry to add */
-    private final Attributes entry;
+    private Entry entry;
+
+
+    /**
+     * Creates a new operation that adds the specified entry. This 
+     * constructor will not be visible out of this package, as it is 
+     * only used for the deserialization process.
+     * 
+     * @param registries the registries instance
+     */
+    public AddEntryOperation( Registries registries )
+    {
+        super( registries, OperationType.ADD_ENTRY );
+    }
     
-    /** The entry's dn */
-    private final LdapDN dn;
-
-
+    
     /**
      * Creates a new instance.
      * 
      * @param entry an entry
      */
-    public AddEntryOperation( CSN csn, ServerEntry entry )
+    public AddEntryOperation( Registries registries, CSN csn, ServerEntry entry )
     {
-        super( csn );
+        super( registries, OperationType.ADD_ENTRY, csn );
 
         assert entry != null;
 
-        this.entry = ServerEntryUtils.toAttributesImpl( entry );
-        this.dn = entry.getDn();
+        this.entry = entry;
     }
 
 
+    /**
+     * Inject the entry into the local server
+     * 
+     * @param nexus the local partition to update
+     * @param store not used... Just for inheritence sake.
+     * @param coreSession the current session
+     */
     protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession )
         throws Exception
     {
-        Registries registries = coreSession.getDirectoryService().getRegistries();
-        
-        if ( ! EntryUtil.isEntryUpdatable( coreSession, dn, getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( coreSession, entry.getDn(), getCSN() ) )
         {
             return;
         }
         
-        EntryUtil.createGlueEntries( coreSession, dn, false );
+        EntryUtil.createGlueEntries( coreSession, entry.getDn(), false );
 
         // Replace the entry if an entry with the same name exists.
-        if ( nexus.lookup( new LookupOperationContext( coreSession, dn ) ) != null )
+        if ( nexus.lookup( new LookupOperationContext( coreSession, entry.getDn() ) ) != null )
         {
-            recursiveDelete( nexus, dn, coreSession );
+            recursiveDelete( nexus, entry.getDn(), coreSession );
         }
 
-        nexus.add( new AddOperationContext( coreSession, 
-            ServerEntryUtils.toServerEntry( entry, dn, registries ) ) );
+        nexus.add( new AddOperationContext( coreSession, (ServerEntry)entry ) );
     }
 
 
+    /**
+     * 
+     * TODO recursiveDelete.
+     *
+     * @param nexus
+     * @param normalizedName
+     * @param coreSession
+     * @throws Exception
+     */
     @SuppressWarnings("unchecked")
     private void recursiveDelete( PartitionNexus nexus, LdapDN normalizedName, CoreSession coreSession )
         throws Exception
@@ -118,9 +145,32 @@ public class AddEntryOperation extends Operation
         nexus.delete( new DeleteOperationContext( coreSession, normalizedName ) );
     }
 
+    
+    /**
+     * Set the Entry to add into this AddEntry instance.
+     *
+     * @param entry the entry to add
+     */
+    public void setEntry( Entry entry )
+    {
+        this.entry = entry;
+    }
 
+
+    /**
+     * @return the operation's entry
+     */
+    public Entry getEntry()
+    {
+        return entry;
+    }
+
+    
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
-        return super.toString() + ": [" + dn + "].new( " + entry + " )";
+        return super.toString() + ": [" + entry.getDn() + "].new( " + entry + " )";
     }
 }

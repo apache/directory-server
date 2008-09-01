@@ -23,6 +23,7 @@ package org.apache.directory.mitosis.store;
 import java.sql.ResultSet;
 
 import org.apache.directory.mitosis.operation.Operation;
+import org.apache.directory.server.schema.registries.Registries;
 
 /**
  * Iterates a set of {@link Operation}s, which is a result of a query on 
@@ -48,5 +49,5 @@ public interface ReplicationLogIterator
     /**
      * Returns the {@link Operation} on the current iterator position.
      */
-    Operation getOperation();
+    Operation getOperation( Registries registries );
 }

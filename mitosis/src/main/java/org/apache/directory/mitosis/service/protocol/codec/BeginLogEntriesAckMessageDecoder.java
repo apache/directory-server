@@ -29,6 +29,7 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
@@ -47,7 +48,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
         if ( responseCode != Constants.OK )
         {

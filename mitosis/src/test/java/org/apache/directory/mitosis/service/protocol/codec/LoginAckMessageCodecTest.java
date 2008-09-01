@@ -27,7 +27,6 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 
 public class LoginAckMessageCodecTest extends AbstractMessageCodecTest
 {
-
     public LoginAckMessageCodecTest()
     {
         super( new LoginAckMessage( 1234, 5678, "ReplicaABCD" ), new LoginAckMessageEncoder(),

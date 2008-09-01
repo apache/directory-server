@@ -24,6 +24,7 @@ import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
@@ -40,12 +41,12 @@ public class LogEntryMessageDecoder extends BaseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( int sequence, int bodyLength, ByteBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
         byte[] src = new byte[in.remaining()];
         in.get( src );
 
-        return new LogEntryMessage( sequence, operationCodec.decode( src ) );
+        return new LogEntryMessage( sequence, operationCodec.decode( registries, src ) );
     }
 
 

@@ -27,6 +27,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamConstants;
 
+import org.apache.directory.server.schema.registries.Registries;
+
 
 /**
  * Encodes {@link Operation}s to <tt>byte[]</tt> and vice versa so an
@@ -51,7 +53,7 @@ public class OperationCodec
         {
             ObjectOutputStream out = new ObjectOutputStream( bout );
             out.useProtocolVersion( ObjectStreamConstants.PROTOCOL_VERSION_2 );
-            out.writeObject( op );
+            Operation.serialize( op, out );
             out.flush();
             out.close();
         }
@@ -59,6 +61,11 @@ public class OperationCodec
         {
             throw ( InternalError ) new InternalError().initCause( e );
         }
+        catch ( ClassNotFoundException cnfe )
+        {
+            throw ( InternalError ) new InternalError().initCause( cnfe );
+        }
+        
         return bout.toByteArray();
     }
 
@@ -66,14 +73,14 @@ public class OperationCodec
     /**
      * Transforms the specified byte array into an {@link Operation}.
      */
-    public Operation decode( byte[] data )
+    public Operation decode( Registries registries, byte[] data )
     {
         ObjectInputStream in;
         
         try
         {
             in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-            return ( Operation ) in.readObject();
+            return Operation.deserialize( registries, in );
         }
         catch ( IOException e )
         {

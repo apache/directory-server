@@ -31,6 +31,7 @@ import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
+import org.apache.directory.server.schema.registries.Registries;
 
 
 class DerbyReplicationLogIterator implements ReplicationLogIterator
@@ -85,11 +86,11 @@ class DerbyReplicationLogIterator implements ReplicationLogIterator
     }
 
 
-    public Operation getOperation()
+    public Operation getOperation( Registries registries )
     {
         try
         {
-            return codec.decode( rs.getBytes( 4 ) );
+            return codec.decode( registries, rs.getBytes( 4 ) );
         }
         catch ( Exception e )
         {

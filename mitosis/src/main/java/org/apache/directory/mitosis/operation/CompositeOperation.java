@@ -28,8 +28,10 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
 
 import javax.naming.Name;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,8 +45,19 @@ import java.util.UUID;
  */
 public class CompositeOperation extends Operation
 {
+    /**
+     * Declares the Serial Version Uid.
+     *
+     * @see <a
+     *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
+     *      Declare Serial Version Uid</a>
+     */
     private static final long serialVersionUID = 6252675003841951356L;
 
+    
+    /**
+     * A dummy replication store, used 
+     */
     private static final ReplicationStore DUMMY_STORE = new ReplicationStore()
     {
 
@@ -138,26 +151,60 @@ public class CompositeOperation extends Operation
     private final List<Operation> children = new ArrayList<Operation>();
 
 
-    public CompositeOperation( CSN csn )
+    /**
+     * Creates a new instance of CompositeOperation. This should not be called
+     * outside of this package.
+     *
+     * @param registries The server registries
+     */
+    /* No qualifier */ CompositeOperation( Registries registries )
     {
-        super( csn );
+        super( registries, OperationType.COMPOSITE_OPERATION );
     }
 
 
+    /**
+     * Creates a new instance of CompositeOperation.
+     *
+     * @param registries The server registries
+     * @param csn the operation CSN
+     */
+    public CompositeOperation( Registries registries, CSN csn )
+    {
+        super( registries, OperationType.COMPOSITE_OPERATION, csn );
+    }
+
+
+    /**
+     * Add a new operation to this composite operation
+     *
+     * @param op The added operation
+     */
     public void add( Operation op )
     {
         assert op != null;
-        assert op.getCSN().equals( this.getCSN() );
+        assert op.getCSN().equals( csn );
+        
         children.add( op );
     }
 
 
+    /**
+     * Remove all the inner operations.
+     */
     public void clear()
     {
         children.clear();
     }
 
 
+    /**
+     * Apply the replication on each internal operation.
+     * 
+     * @param nexus the partition on which the modification will be done
+     * @param store the replication store
+     * @param coreSession the current session
+     */
     protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
@@ -166,8 +213,29 @@ public class CompositeOperation extends Operation
             op.execute( nexus, DUMMY_STORE, coreSession );
         }
     }
+    
+    
+    /**
+     * @return the number of included operations
+     */
+    public int size()
+    {
+        return children.size();
+    }
+    
+    
+    /**
+     * @return The list of all included operations
+     */
+    public List<Operation> getChildren()
+    {
+        return children;
+    }
 
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         return children.toString();

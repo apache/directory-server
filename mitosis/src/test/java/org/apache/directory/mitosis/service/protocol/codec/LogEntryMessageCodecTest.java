@@ -57,17 +57,11 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
 
     public LogEntryMessageCodecTest() throws InvalidNameException, NamingException
     {
-        // Initialize OIDs maps for normalization
-        /*Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
-
-        oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-        oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-         */
         super(
             new LogEntryMessage( 
                 1234, 
                 new AddAttributeOperation( 
+                    service.getRegistries(),
                     new DefaultCSN( System.currentTimeMillis(),
                         "testReplica0", 1234 ), 
                     new LdapDN( "ou=system" ).normalize( oids ),

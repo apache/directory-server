@@ -20,18 +20,30 @@
 package org.apache.directory.mitosis.service.protocol.codec;
 
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import junit.framework.Assert;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoService;
+import org.apache.mina.common.IoServiceConfig;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.IoSessionConfig;
+import org.apache.mina.common.TransportType;
 import org.apache.mina.common.WriteFuture;
+import org.apache.mina.common.support.BaseIoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -42,6 +54,15 @@ public abstract class AbstractMessageCodecTest
     private final MessageDecoder decoder;
 
 
+    private static DefaultDirectoryService service;
+
+    @BeforeClass
+    public static void setUp()
+    {
+        service = new DefaultDirectoryService();
+    }
+    
+    
     protected AbstractMessageCodecTest( BaseMessage message, MessageEncoder encoder, MessageDecoder decoder )
     {
         if ( message == null )
@@ -63,7 +84,8 @@ public abstract class AbstractMessageCodecTest
     }
 
 
-    @Test public void testMessageCodec() throws Exception
+    @Test 
+    public void testMessageCodec() throws Exception
     {
         SimpleProtocolEncoderOutput encoderOut = new SimpleProtocolEncoderOutput()
         {
@@ -73,7 +95,11 @@ public abstract class AbstractMessageCodecTest
             }
 
         };
-        encoder.encode( null, message, encoderOut );
+        
+        IoSession session = new  DummySession();
+        
+        session.setAttribute( "registries", service.getRegistries() );
+        encoder.encode( session, message, encoderOut );
         ByteBuffer buf = encoderOut.getBufferQueue().poll();
 
         buf.mark();
@@ -81,7 +107,7 @@ public abstract class AbstractMessageCodecTest
         buf.reset();
 
         ProtocolDecoderOutputImpl decoderOut = new ProtocolDecoderOutputImpl();
-        decoder.decode( null, buf, decoderOut );
+        decoder.decode( session, buf, decoderOut );
 
         Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.poll() ) );
     }
@@ -105,6 +131,99 @@ public abstract class AbstractMessageCodecTest
         public void write( Object message )
         {
             messages.add( message );
+        }
+    }
+
+
+    protected static class DummySession extends BaseIoSession
+    {
+        Object message;
+
+
+        @Override
+        public WriteFuture write( Object message )
+        {
+            this.message = message;
+
+            return super.write( message );
+        }
+
+
+        protected Object getMessage()
+        {
+            return message;
+        }
+
+
+        protected void updateTrafficMask()
+        {
+            // Do nothing.
+        }
+
+
+        public IoService getService()
+        {
+            return null;
+        }
+
+
+        public IoHandler getHandler()
+        {
+            return null;
+        }
+
+
+        public IoFilterChain getFilterChain()
+        {
+            return null;
+        }
+
+
+        public TransportType getTransportType()
+        {
+            return null;
+        }
+
+
+        public SocketAddress getRemoteAddress()
+        {
+            return new InetSocketAddress( 10088 );
+        }
+
+
+        public SocketAddress getLocalAddress()
+        {
+            return null;
+        }
+
+
+        public IoSessionConfig getConfig()
+        {
+            return null;
+        }
+
+
+        public int getScheduledWriteRequests()
+        {
+            return 0;
+        }
+
+
+        public SocketAddress getServiceAddress()
+        {
+            return null;
+        }
+
+
+        public IoServiceConfig getServiceConfig()
+        {
+            return null;
+        }
+
+
+        public int getScheduledWriteBytes()
+        {
+            return 0;
         }
     }
 }
