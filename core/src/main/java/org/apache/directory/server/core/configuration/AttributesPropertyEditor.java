@@ -21,10 +21,13 @@ package org.apache.directory.server.core.configuration;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifComposer;
 import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingEnumeration;
@@ -103,17 +106,16 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     /**
      * Read an entry (without DN)
      * 
-     * @param text
-     *            The ldif format file
-     * @return An Attributes.
+     * @param text The ldif format file
+     * @return An entry.
      */
-    private Attributes readEntry( String text )
+    private Entry readEntry( String text )
     {
         StringReader strIn = new StringReader( text );
         BufferedReader in = new BufferedReader( strIn );
 
         String line = null;
-        Attributes attributes = new AttributesImpl( true );
+        Entry entry = new DefaultClientEntry();
 
         try
         {
@@ -131,15 +133,15 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                     continue;
                 }
 
-                Attribute attribute = LdifReader.parseAttributeValue( addedLine );
-                Attribute oldAttribute = attributes.get( attribute.getID() );
+                EntryAttribute attribute = AttributeUtils.toClientAttribute( LdifReader.parseAttributeValue( addedLine ) );
+                EntryAttribute oldAttribute = entry.get( attribute.getId() );
 
                 if ( oldAttribute != null )
                 {
                     try
                     {
                         oldAttribute.add( attribute.get() );
-                        attributes.put( oldAttribute );
+                        entry.put( oldAttribute );
                     }
                     catch (NamingException ne)
                     {
@@ -148,7 +150,14 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                 }
                 else
                 {
-                    attributes.put( attribute );
+                    try
+                    {
+                        entry.put( attribute );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        // Do nothing...
+                    }
                 }
             }
         }
@@ -157,7 +166,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
             // Do nothing : we can't reach this point !
         }
 
-        return attributes;
+        return entry;
     }
 
     /**
@@ -170,6 +179,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
             text = "";
         }
 
-        setValue( readEntry( text ) );
+        Entry entry = readEntry( text );
+        setValue( entry );
     }
 }
