@@ -24,8 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +34,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
@@ -64,8 +64,8 @@ public class DestroyContextIT
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -87,8 +87,8 @@ public class DestroyContextIT
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -110,8 +110,8 @@ public class DestroyContextIT
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -135,8 +135,8 @@ public class DestroyContextIT
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );

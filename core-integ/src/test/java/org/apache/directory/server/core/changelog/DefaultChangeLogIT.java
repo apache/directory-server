@@ -25,8 +25,6 @@ import static org.apache.directory.server.core.integ.state.TestServiceContext.sh
 import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
@@ -41,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public class DefaultChangeLogIT
         long revision = service.getChangeLog().getCurrentRevision();
 
         // add new test entry
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test0" );
         sysRoot.createSubcontext( "ou=test0", attrs );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
@@ -82,7 +82,7 @@ public class DefaultChangeLogIT
         assertEquals( revision + 1, t0.getRevision() );
 
         // add another test entry
-        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test1" );
         sysRoot.createSubcontext( "ou=test1", attrs );
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
@@ -100,7 +100,7 @@ public class DefaultChangeLogIT
         assertEquals( revision + 2, t1.getRevision() );
 
         // add third test entry
-        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test2" );
         sysRoot.createSubcontext( "ou=test2", attrs );
         assertEquals( revision + 3, service.getChangeLog().getCurrentRevision() );
@@ -146,7 +146,7 @@ public class DefaultChangeLogIT
         assertEquals( revision, service.getChangeLog().getCurrentRevision() );
 
         // add new test entry
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
@@ -169,7 +169,7 @@ public class DefaultChangeLogIT
     {
         LdapContext sysRoot = getSystemContext( service );
         Tag t0 = service.getChangeLog().tag();
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
 
@@ -195,7 +195,7 @@ public class DefaultChangeLogIT
         Tag t0 = service.getChangeLog().tag();
 
         // add new test entry
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
 
@@ -216,7 +216,7 @@ public class DefaultChangeLogIT
     public void testRevertDeleteOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
 
@@ -238,7 +238,7 @@ public class DefaultChangeLogIT
     public void testRevertRenameOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "oldname" );
         sysRoot.createSubcontext( "ou=oldname", attrs );
 
@@ -262,7 +262,7 @@ public class DefaultChangeLogIT
     public void testRevertModifyOperations() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test5" );
         sysRoot.createSubcontext( "ou=test5", attrs );
 
@@ -276,7 +276,7 @@ public class DefaultChangeLogIT
 
         // modify the test entry to add description and test new attr appears
         sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new AttributesImpl( "description", "a desc value", true ) );
+                new BasicAttributes( "description", "a desc value", true ) );
         Attributes resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         Attribute description = resusitated.get( "description" );
@@ -295,7 +295,7 @@ public class DefaultChangeLogIT
 
         // add the attribute again and make sure it is old value
         sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new AttributesImpl( "description", "old value", true ) );
+                new BasicAttributes( "description", "old value", true ) );
         resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
@@ -305,7 +305,7 @@ public class DefaultChangeLogIT
         // now tag then replace the value to "new value" and confirm
         Tag t1 = service.getChangeLog().tag();
         sysRoot.modifyAttributes( "ou=test5", DirContext.REPLACE_ATTRIBUTE,
-                new AttributesImpl( "description", "new value", true ) );
+                new BasicAttributes( "description", "new value", true ) );
         resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
@@ -327,7 +327,7 @@ public class DefaultChangeLogIT
 
         Tag t2 = service.getChangeLog().tag();
         sysRoot.modifyAttributes( "ou=test5", DirContext.REMOVE_ATTRIBUTE,
-                new AttributesImpl( "description", "old value", true ) );
+                new BasicAttributes( "description", "old value", true ) );
         resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
@@ -347,17 +347,17 @@ public class DefaultChangeLogIT
 
         // add a userPassword attribute so we can test replacing it
         sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
-                new AttributesImpl( "userPassword", "to be replaced", true ) );
+                new BasicAttributes( "userPassword", "to be replaced", true ) );
         assertPassword( sysRoot.getAttributes( "ou=test5" ), "to be replaced" );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[]
         {
             new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE,
-                    new AttributeImpl( "description", "old value" ) ),
+                    new BasicAttribute( "description", "old value" ) ),
             new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-                    new AttributeImpl( "seeAlso", "ou=added" ) ),
+                    new BasicAttribute( "seeAlso", "ou=added" ) ),
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
-                    new AttributeImpl( "userPassword", "a replaced value" ) )
+                    new BasicAttribute( "userPassword", "a replaced value" ) )
         };
         Tag t3 = service.getChangeLog().tag();
 

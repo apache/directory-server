@@ -25,8 +25,6 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -41,6 +39,8 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.DirObjectFactory;
@@ -114,7 +114,7 @@ public class ObjStateFactoryIT
 
                 if ( inAttrs == null )
                 {
-                    outAttrs = new AttributesImpl( true );
+                    outAttrs = new BasicAttributes( true );
                 }
                 else
                 {
@@ -124,7 +124,7 @@ public class ObjStateFactoryIT
                 // Set up object class
                 if ( outAttrs.get( "objectclass" ) == null )
                 {
-                    Attribute oc = new AttributeImpl( "objectclass", "person" );
+                    Attribute oc = new BasicAttribute( "objectclass", "person" );
                     oc.add( "top" );
                     outAttrs.put( oc );
                 }

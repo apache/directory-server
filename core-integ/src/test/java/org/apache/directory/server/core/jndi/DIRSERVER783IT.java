@@ -22,8 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +34,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -64,8 +64,8 @@ public class DIRSERVER783IT
     public void testAddAnotherValueToAnAttribute() throws NamingException
     {
         // create a person without sn
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl("objectClass");
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute("objectClass");
 
         ocls.add("top");
         ocls.add("person");
@@ -86,20 +86,20 @@ public class DIRSERVER783IT
 
         // Add the first value for description
         String description1 = "an American singer-songwriter";
-        Attribute firstDescr = new AttributeImpl("description", description1);
+        Attribute firstDescr = new BasicAttribute( "description", description1 );
         ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, firstDescr);
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
 
         // Add a second value to description
         String description2 = "Grammy award winning";
-        Attribute otherDescr = new AttributeImpl("description", description2 );
+        Attribute otherDescr = new BasicAttribute( "description", description2 );
 
         modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, otherDescr );
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification } );
       
         // Add a third value to description
         String description3 = "MTV Music Award winning";
-        Attribute thirdDescr = new AttributeImpl("description", description3 );
+        Attribute thirdDescr = new BasicAttribute( "description", description3 );
 
         modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, thirdDescr );
         ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });

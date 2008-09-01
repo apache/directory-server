@@ -28,8 +28,6 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import static org.junit.Assert.assertTrue;
@@ -44,6 +42,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -70,8 +70,8 @@ public class ExceptionServiceIT
 
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
-        Attributes attrs = new AttributesImpl( type, value );
-        Attribute attr = new AttributeImpl( "ObjectClass" );
+        Attributes attrs = new BasicAttributes( type, value, true );
+        Attribute attr = new BasicAttribute( "ObjectClass" );
         attr.add( "top"  );
         attr.add( "person" );
         attr.add( "OrganizationalPerson" );
@@ -150,8 +150,8 @@ public class ExceptionServiceIT
 
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "users" );
-            Attribute attr = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new BasicAttributes( "ou", "users", true );
+            Attribute attr = new BasicAttribute( "ObjectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
@@ -168,8 +168,8 @@ public class ExceptionServiceIT
 
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "uzerz" );
-            Attribute attr = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new BasicAttributes( "ou", "uzerz", true );
+            Attribute attr = new BasicAttribute( "ObjectClass" );
             attr.add( "top"  );
             attr.add( "OrganizationalUnit" );
             attrs.put( attr );
@@ -344,8 +344,8 @@ public class ExceptionServiceIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute ou = new AttributeImpl( "ou" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ou = new BasicAttribute( "ou" );
         ou.add( "users" );
         ou.add( "dummyValue" );
         attrs.put( ou );
@@ -388,8 +388,8 @@ public class ExceptionServiceIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "ou" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "ou" );
         attr.add( "dummyValue" );
         attrs.put( attr );
         sysRoot.modifyAttributes( "ou=users", DirContext.ADD_ATTRIBUTE, attrs );
@@ -397,7 +397,7 @@ public class ExceptionServiceIT
         assertTrue( ou.contains( "users" ) );
         assertTrue( ou.contains( "dummyValue" ) );
 
-        attr = new AttributeImpl( "ou" );
+        attr = new BasicAttribute( "ou" );
         attr.add( "another" );
         ModificationItemImpl[] mods = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr ) };
@@ -522,8 +522,8 @@ public class ExceptionServiceIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );
         attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );

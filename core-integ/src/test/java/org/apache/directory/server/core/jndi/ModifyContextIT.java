@@ -28,8 +28,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -42,6 +40,8 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
@@ -75,8 +75,8 @@ public class ModifyContextIT
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -98,8 +98,8 @@ public class ModifyContextIT
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -121,8 +121,8 @@ public class ModifyContextIT
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -146,8 +146,8 @@ public class ModifyContextIT
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -181,8 +181,8 @@ public class ModifyContextIT
 
         LdapContext sysRoot = getSystemContext( service );
 
-        Attribute attr = new AttributeImpl( "description" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "description" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -208,7 +208,7 @@ public class ModifyContextIT
         createData();
 
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.ADD_ATTRIBUTE, attributes );
 
@@ -242,7 +242,7 @@ public class ModifyContextIT
         createData();
 
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         
         try
@@ -264,7 +264,7 @@ public class ModifyContextIT
         createData();
 
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
 

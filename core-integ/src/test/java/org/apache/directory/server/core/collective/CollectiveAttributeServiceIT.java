@@ -25,8 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
@@ -40,6 +38,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -63,8 +63,8 @@ public class CollectiveAttributeServiceIT
 
     public Attributes getTestEntry( String cn )
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "person" );
         subentry.put( objectClass );
@@ -76,8 +76,8 @@ public class CollectiveAttributeServiceIT
 
     public Attributes getTestSubentry()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -91,8 +91,8 @@ public class CollectiveAttributeServiceIT
 
     public Attributes getTestSubentry2()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -106,8 +106,8 @@ public class CollectiveAttributeServiceIT
 
     public Attributes getTestSubentry3()
     {
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "subentry" );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -121,7 +121,7 @@ public class CollectiveAttributeServiceIT
 
     public void addAdministrativeRole( String role ) throws Exception
     {
-        Attribute attribute = new AttributeImpl( "administrativeRole" );
+        Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
         getSystemContext( service ).modifyAttributes( "", new ModificationItemImpl[] { item } );
@@ -232,7 +232,7 @@ public class CollectiveAttributeServiceIT
 
         ModificationItemImpl[] items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-                new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
+                new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
 
         // entry should not show the c-ou collective attribute anymore
@@ -303,7 +303,7 @@ public class CollectiveAttributeServiceIT
         // -------------------------------------------------------------------
 
         items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
+            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
 
@@ -369,7 +369,7 @@ public class CollectiveAttributeServiceIT
 
         ModificationItemImpl[] items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-                new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
+                new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
 
@@ -427,7 +427,7 @@ public class CollectiveAttributeServiceIT
         // -------------------------------------------------------------------
 
         items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
+            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();
@@ -486,7 +486,7 @@ public class CollectiveAttributeServiceIT
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
-        Attributes changeSet = new AttributesImpl( "c-l", "Turkiye", true );
+        Attributes changeSet = new BasicAttributes( "c-l", "Turkiye", true );
         try
         {
             
@@ -505,7 +505,7 @@ public class CollectiveAttributeServiceIT
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
-        Attribute change = new AttributeImpl( "c-l", "Turkiye");
+        Attribute change = new BasicAttribute( "c-l", "Turkiye");
         ModificationItemImpl mod = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, change);
         try
         {

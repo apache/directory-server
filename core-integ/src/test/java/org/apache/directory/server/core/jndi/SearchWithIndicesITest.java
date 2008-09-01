@@ -33,8 +33,6 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 import static org.junit.Assert.assertFalse;
@@ -46,6 +44,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -87,7 +87,7 @@ public class SearchWithIndicesITest
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            Attribute disabled = new AttributeImpl( "m-disabled" );
+            Attribute disabled = new BasicAttribute( "m-disabled" );
             ModificationItemImpl[] mods = new ModificationItemImpl[] {
                 new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
@@ -107,7 +107,7 @@ public class SearchWithIndicesITest
 
     private DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );

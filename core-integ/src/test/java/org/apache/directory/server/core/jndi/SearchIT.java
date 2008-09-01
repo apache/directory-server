@@ -28,8 +28,6 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,6 +44,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -80,8 +80,8 @@ public class SearchIT
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -103,8 +103,8 @@ public class SearchIT
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -126,8 +126,8 @@ public class SearchIT
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -152,8 +152,8 @@ public class SearchIT
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new AttributesImpl( true );
-        attribute = new AttributeImpl( "objectClass" );
+        attributes = new BasicAttributes( true );
+        attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -175,8 +175,8 @@ public class SearchIT
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
         // Create entry cn=Heather Nova, ou=system
-        Attributes heather = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes heather = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         heather.put( ocls );
@@ -205,7 +205,7 @@ public class SearchIT
         // if nis is disabled then enable it
         if ( isNisDisabled )
         {
-            Attribute disabled = new AttributeImpl( "m-disabled" );
+            Attribute disabled = new BasicAttribute( "m-disabled" );
             ModificationItemImpl[] mods = new ModificationItemImpl[] {
                 new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
@@ -225,7 +225,7 @@ public class SearchIT
 
     private DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
-        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "posixGroup" );
         attrs.put( "cn", name );
         attrs.put( "gidNumber", String.valueOf( gid ) );
@@ -721,8 +721,8 @@ public class SearchIT
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -1263,8 +1263,8 @@ public class SearchIT
         // Create an entry with special chars in the description attribute
         LdapContext sysRoot = getSystemContext( service );
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         vicious.put( ocls );

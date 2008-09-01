@@ -34,8 +34,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -53,6 +51,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -138,8 +138,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -168,8 +168,8 @@ public class MixedCaseITest
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -180,7 +180,7 @@ public class MixedCaseITest
         assertNotNull( ctx );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "description", description ) );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ) );
 
         ctxRoot.modifyAttributes( dn, mods );
 
@@ -208,8 +208,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );

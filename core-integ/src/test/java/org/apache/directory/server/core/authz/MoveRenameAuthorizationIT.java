@@ -23,8 +23,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.DirectoryService;
@@ -32,6 +30,8 @@ import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import static org.junit.Assert.assertTrue;
@@ -79,8 +79,8 @@ public class MoveRenameAuthorizationIT
     public boolean checkCanRenameAs( String uid, String password, String entryRdn, String newRdn )
         throws Exception
     {
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );

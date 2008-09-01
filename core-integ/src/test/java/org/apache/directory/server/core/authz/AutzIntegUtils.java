@@ -27,14 +27,14 @@ import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.LdapContext;
@@ -132,8 +132,8 @@ public class AutzIntegUtils
     public static Name createGroup( String cn, String firstMemberDn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes group = new BasicAttributes( "cn", cn, true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
@@ -170,9 +170,9 @@ public class AutzIntegUtils
     public static Name createUser( String uid, String password ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes user = new AttributesImpl( "uid", uid, true );
+        Attributes user = new BasicAttributes( "uid", uid, true );
         user.put( "userPassword", password );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "person" );
@@ -197,8 +197,8 @@ public class AutzIntegUtils
     public static Name createGroup( String groupName ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes group = new AttributesImpl( true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes group = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
@@ -221,7 +221,7 @@ public class AutzIntegUtils
     public static void addUserToGroup( String userUid, String groupCn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
         adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.ADD_ATTRIBUTE, changes );
     }
 
@@ -236,7 +236,7 @@ public class AutzIntegUtils
     public static void removeUserFromGroup( String userUid, String groupCn ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
+        Attributes changes = new BasicAttributes( "uniqueMember", "uid=" + userUid + ",ou=users,ou=system", true );
         adminCtx.modifyAttributes( "cn=" + groupCn + ",ou=groups", DirContext.REMOVE_ATTRIBUTE, changes );
     }
 
@@ -319,13 +319,13 @@ public class AutzIntegUtils
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryInterceptor.AC_AREA, true );
+            Attributes changes = new BasicAttributes( "administrativeRole", SubentryInterceptor.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( "cn", cn, true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
@@ -349,7 +349,7 @@ public class AutzIntegUtils
         DirContext adminCtx = getContextAsAdmin();
 
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new AttributesImpl( "entryACI", aciItem, true );
+        Attributes changes = new BasicAttributes( "entryACI", aciItem, true );
         adminCtx.modifyAttributes( rdn, DirContext.ADD_ATTRIBUTE, changes );
     }
 
@@ -365,7 +365,7 @@ public class AutzIntegUtils
         DirContext adminCtx = getContextAsAdmin();
 
         // modify the entry relative to ou=system to include the aciItem
-        Attributes changes = new AttributesImpl( "subentryACI", aciItem, true );
+        Attributes changes = new BasicAttributes( "subentryACI", aciItem, true );
         adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
     
@@ -381,14 +381,14 @@ public class AutzIntegUtils
     public static void changePresciptiveACI( String cn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
+        Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
     }
     
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();
-        Attributes changes = new AttributesImpl( "prescriptiveACI", aciItem );
+        Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.ADD_ATTRIBUTE, changes );
     }
 }

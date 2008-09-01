@@ -23,8 +23,6 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +34,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -65,19 +65,19 @@ public class DIRSERVER169IT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes people = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes people = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         people.put( attribute );
         people.put( "ou", "people" );
         sysRoot.createSubcontext( "ou=people", people );
 
-        Attributes user = new AttributesImpl( "uid", "bob" );
+        Attributes user = new BasicAttributes( "uid", "bob", true );
         user.put( "cn", "Bob Hamilton" );
         user.put( "userPassword", "bobspassword" );
 
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         user.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "person" );

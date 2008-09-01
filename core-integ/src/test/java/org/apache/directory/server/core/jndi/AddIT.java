@@ -25,8 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -34,6 +32,8 @@ import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 
@@ -107,10 +107,10 @@ public class AddIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "dc", "ke" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "dc", "ke" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -140,12 +140,12 @@ public class AddIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "person" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute sn = new AttributeImpl( "sn", "ke" );
-        Attribute telephone = new AttributeImpl( "telephoneNumber", "0123456abc" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute sn = new BasicAttribute( "sn", "ke" );
+        Attribute telephone = new BasicAttribute( "telephoneNumber", "0123456abc" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( sn );

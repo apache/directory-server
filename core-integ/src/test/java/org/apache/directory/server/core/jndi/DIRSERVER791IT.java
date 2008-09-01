@@ -32,6 +32,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
@@ -40,8 +42,6 @@ import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,15 +64,15 @@ public class DIRSERVER791IT
      */
     protected Attributes getTestEntryAttributes()
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         ocls.add( "organizationalPerson" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
 
-        Attribute cn = new AttributeImpl( "cn" );
+        Attribute cn = new BasicAttribute( "cn" );
         cn.add( "test" );
         cn.add( "aaa" );
         attrs.put( cn );
@@ -116,7 +116,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
         // remove "cn=aaa", which is not part of the RDN
-        Attribute attr = new AttributeImpl( "cn", "aaa" );
+        Attribute attr = new BasicAttribute( "cn", "aaa" );
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
             { modification } );
@@ -151,7 +151,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
         // replace cn attribute with "cn=test", must remove the previous "cn=aaa"
-        Attribute attr = new AttributeImpl( "cn", "test" );
+        Attribute attr = new BasicAttribute( "cn", "test" );
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
             { modification } );
@@ -189,7 +189,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
         // try to add an non-existing objectClass "test", must be rejected
-        Attribute attr = new AttributeImpl( "objectclass", "test" );
+        Attribute attr = new BasicAttribute( "objectclass", "test" );
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         try
         {
@@ -243,7 +243,7 @@ public class DIRSERVER791IT
         DirContext ctx = new InitialDirContext( env );
 
         // try to add an unallowed attribute, must be rejected
-        Attribute attr = new AttributeImpl( "javaDoc", "test" );
+        Attribute attr = new BasicAttribute( "javaDoc", "test" );
         ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         try
         {

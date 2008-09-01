@@ -23,13 +23,13 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.junit.Test;import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertEquals;import static org.junit.Assert.assertTrue;
 import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
@@ -50,8 +50,8 @@ public class ExtensibleObjectIT
     public void testExtensibleObjectModify() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
         attributes.put( attribute );
@@ -70,11 +70,11 @@ public class ExtensibleObjectIT
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-        Attributes newattribs = new AttributesImpl( true );
-        Attribute freeform = new AttributeImpl( "cn" );
+        Attributes newattribs = new BasicAttributes( true );
+        Attribute freeform = new BasicAttribute( "cn" );
         freeform.add( "testing" );
         newattribs.put( freeform );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "extensibleObject" );
         objectClass.add( "organizationalUnit" );
@@ -98,8 +98,8 @@ public class ExtensibleObjectIT
     public void testExtensibleObjectAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "extensibleObject" );
         attribute.add( "organizationalUnit" );

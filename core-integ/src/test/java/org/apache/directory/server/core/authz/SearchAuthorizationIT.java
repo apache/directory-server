@@ -44,6 +44,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -54,8 +56,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,12 +95,12 @@ public class SearchAuthorizationIT
         Attributes[] attributes = new Attributes[count];
         for ( int ii = 0; ii < count; ii++ )
         {
-            attributes[ii] = new AttributesImpl();
-            Attribute oc = new AttributeImpl( "objectClass" );
+            attributes[ii] = new BasicAttributes( true );
+            Attribute oc = new BasicAttribute( "objectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attributes[ii].put( oc );
-            Attribute ou = new AttributeImpl( "ou" );
+            Attribute ou = new BasicAttribute( "ou" );
             ou.add( String.valueOf( ii ) );
             ou.add( "testEntry" );
             attributes[ii].put( ou );
@@ -895,8 +895,8 @@ public class SearchAuthorizationIT
         
         // create an entry subordinate to the user
         DirContext billydCtx = AutzIntegUtils.getContextAsAdmin("uid=billyd,ou=users,ou=system");
-        Attributes phoneBook = new AttributesImpl( "ou", "phoneBook", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes phoneBook = new BasicAttributes( "ou", "phoneBook", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         phoneBook.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );

@@ -25,8 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +37,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -70,11 +70,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -142,11 +142,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey 2" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey 2, dc=example, dc=org#'010101'B" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey 2" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey 2, dc=example, dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -214,11 +214,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey bad" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "kevin spacey bad, dc=example, dc=org#'010101'B" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey bad" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "kevin spacey bad, dc=example, dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -248,11 +248,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey bad 2" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey bad 2, dc=example, dc=org#'010101'" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey bad 2" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey bad 2, dc=example, dc=org#'010101'" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -277,11 +277,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -329,11 +329,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -381,11 +381,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);
@@ -420,11 +420,11 @@ public class UniqueMemberIT
     {
         LdapContext sysRoot = getSystemContext( service );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
-        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
-        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org#'010101'B" );
+        Attribute cn = new BasicAttribute( "cn", "kevin Spacey" );
+        Attribute dc = new BasicAttribute( "uniqueMember", "cn=kevin spacey,dc=example,dc=org#'010101'B" );
         attrs.put( oc );
         attrs.put( cn );
         attrs.put( dc);

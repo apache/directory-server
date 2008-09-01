@@ -21,8 +21,6 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.core.integ.CiRunner;
@@ -35,6 +33,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.Name;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import java.util.List;
@@ -89,8 +89,8 @@ public class ModifyAuthorizationIT
         throws Exception
     {
         // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -147,8 +147,8 @@ public class ModifyAuthorizationIT
         throws Exception
     {
         // create the entry with the telephoneNumber attribute to modify
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes testEntry = new BasicAttributes( "ou", "testou", true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         testEntry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
@@ -272,7 +272,7 @@ public class ModifyAuthorizationIT
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        ModificationItemImpl[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new AttributesImpl( "userPassword",
+        ModificationItemImpl[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "userPassword",
             "williams", true ) );
 
         // try a modify operation which should fail without any ACI
@@ -306,7 +306,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE, new AttributesImpl( "registeredAddress",
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE, new BasicAttributes( "registeredAddress",
             "100 Park Ave.", true ) );
 
         // create the non-admin user
@@ -341,7 +341,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -363,7 +363,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new AttributesImpl( "telephoneNumber", "867-5309", true ) );
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "telephoneNumber", "867-5309", true ) );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -389,7 +389,7 @@ public class ModifyAuthorizationIT
         // Modify with Attribute Addition
         // ----------------------------------------------------------------------------------
         // create the add modifications
-        Attributes changes = new AttributesImpl( "registeredAddress", "100 Park Ave.", true );
+        Attributes changes = new BasicAttributes( "registeredAddress", "100 Park Ave.", true );
 
         // try a modify operation which should fail without any ACI
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
@@ -411,7 +411,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new AttributesImpl( "telephoneNumber", "867-5309", true );
+        changes = new BasicAttributes( "telephoneNumber", "867-5309", true );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
@@ -433,7 +433,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // now let's test to see if we can perform a modify with a delete op
-        changes = new AttributesImpl( "telephoneNumber", "867-5309", true );
+        changes = new BasicAttributes( "telephoneNumber", "867-5309", true );
 
         // make sure we cannot remove the telephone number from the test entry
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REPLACE_ATTRIBUTE, changes ) );
@@ -546,7 +546,7 @@ public class ModifyAuthorizationIT
     {
         
         ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
-            new AttributesImpl( "registeredAddress", "100 Park Ave.", true ) );
+            new BasicAttributes( "registeredAddress", "100 Park Ave.", true ) );
 
         createUser( "billyd", "billyd" );
 
@@ -558,7 +558,7 @@ public class ModifyAuthorizationIT
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
         
         mods = toItems( DirContext.REPLACE_ATTRIBUTE,
-            new AttributesImpl( "registeredAddress", "200 Park Ave.", true ) );
+            new BasicAttributes( "registeredAddress", "200 Park Ave.", true ) );
         
         changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
@@ -613,12 +613,12 @@ public class ModifyAuthorizationIT
             " }" );
         
         ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
-            new AttributesImpl( "description", "description 1", true ) );
+            new BasicAttributes( "description", "description 1", true ) );
         
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
         
-        AttributesImpl attrs = new AttributesImpl(true);
-        AttributeImpl attr = new AttributeImpl( "description" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "description" );
         attr.add( "description 1" );
         attr.add( "description 2" );
         attrs.put( attr );

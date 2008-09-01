@@ -25,7 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -39,6 +38,7 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -109,7 +109,7 @@ public class AuthorizationServiceAsAdminIT
     public void testModifyOnAdminByAdmin() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Attributes attributes = new AttributesImpl();
+        Attributes attributes = new BasicAttributes( true );
         attributes.put( "userPassword", "replaced" );
         sysRoot.modifyAttributes( "uid=admin", DirContext.REPLACE_ATTRIBUTE, attributes );
         Attributes newAttrs = sysRoot.getAttributes( "uid=admin" );

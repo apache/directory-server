@@ -28,8 +28,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -51,6 +49,8 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -108,7 +108,7 @@ public class ReferralIT
         // -------------------------------------------------------------------
 
         // Add a referral entry ( should be fine with or without the control )
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new BasicAttributes( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "referral" );
         referral.get( "objectClass" ).add( "extensibleObject" );
         referral.put( "ref", ref0 );
@@ -187,7 +187,7 @@ public class ReferralIT
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -221,7 +221,7 @@ public class ReferralIT
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        Attributes userEntry = new AttributesImpl( "objectClass", "top", true );
+        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
         userEntry.put( "cn", "alex karasulu" );
@@ -396,7 +396,7 @@ public class ReferralIT
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -427,7 +427,7 @@ public class ReferralIT
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new AttributesImpl(
+            td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", DirContext.ADD_ATTRIBUTE, new BasicAttributes(
                 "description", "just some text", true ) );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -459,7 +459,7 @@ public class ReferralIT
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -491,7 +491,7 @@ public class ReferralIT
         try
         {
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "description", "just some text" ) ) };
+                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -821,7 +821,7 @@ public class ReferralIT
         addReferralEntry();
 
         LdapContext userCtx;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new BasicAttributes( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
@@ -855,7 +855,7 @@ public class ReferralIT
         addReferralEntry();
 
         LdapContext userCtx = null;
-        Attributes referral = new AttributesImpl( "objectClass", "top", true );
+        Attributes referral = new BasicAttributes( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.get( "objectClass" ).add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         referral.put( "cn", "akarasulu" );
@@ -880,8 +880,8 @@ public class ReferralIT
         }
         try
         {
-            Attributes attrs = new AttributesImpl( "ou", "deep" );
-            Attribute oc = new AttributeImpl( "ObjectClass" );
+            Attributes attrs = new BasicAttributes( "ou", "deep", true );
+            Attribute oc = new BasicAttribute( "ObjectClass" );
             oc.add( "top" );
             oc.add( "organizationalUnit" );
             attrs.put( oc );
@@ -1058,14 +1058,14 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
+        Attributes attrs = new BasicAttributes( true );
 
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://" );
         attrs.put( ref );
 
         attrs.put( "cn", "refWithEmptyDN" );
@@ -1095,14 +1095,14 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
+        Attributes attrs = new BasicAttributes( true );
 
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithAttributes?cn" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithAttributes?cn" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithAttributes" );
@@ -1132,13 +1132,13 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithScope??sub" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithScope??sub" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithScope" );
@@ -1168,13 +1168,13 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithFilter???(cn=*)" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithFilter???(cn=*)" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithFilter" );
@@ -1204,13 +1204,13 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithExtension????x-extension=1.2.3.4" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithExtension????x-extension=1.2.3.4" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithExtension" );
@@ -1240,13 +1240,13 @@ public class ReferralIT
     {
         addReferralEntry();
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithCriticalExtension????!x-extension=1.2.3.4" );
+        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithCriticalExtension????!x-extension=1.2.3.4" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithCriticalExtension" );
