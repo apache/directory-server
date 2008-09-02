@@ -228,9 +228,9 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
 
         for ( int ii = 0; ii < mods.size(); ii++ )
         {
-            ModificationItemImpl item = ( ModificationItemImpl ) list.next();
+            ModificationItem item = ( ModificationItem ) list.next();
 
-            if ( !equals( ( ModificationItemImpl ) mods.get( ii ), item ) )
+            if ( !equals( ( ModificationItem ) mods.get( ii ), item ) )
             {
                 return false;
             }
@@ -250,7 +250,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      *            the second ModificationItem to compare
      * @return true if the ModificationItems are equal, false otherwise
      */
-    private boolean equals( ModificationItemImpl item0, ModificationItemImpl item1 )
+    private boolean equals( ModificationItem item0, ModificationItem item1 )
     {
         if ( item0 == item1 )
         {
@@ -343,7 +343,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             for ( int i = 0; i < mods.size(); i++ )
             {
 
-                ModificationItemImpl modification = ( ModificationItemImpl ) mods.get( i );
+                ModificationItem modification = ( ModificationItem ) mods.get( i );
 
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );

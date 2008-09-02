@@ -77,18 +77,18 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req.addModification( item );
 
         attr = new BasicAttribute( "attr1" );
         attr.add( "val3" );
-        item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
         req.addModification( item );
 
         attr = new BasicAttribute( "attr2" );
         attr.add( "val4" );
         attr.add( "val5" );
-        item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         req.addModification( item );
 
         return req;
@@ -158,7 +158,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -166,7 +166,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -184,7 +184,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -204,7 +204,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -212,7 +212,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -230,7 +230,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -239,7 +239,7 @@ public class ModifyRequestImplTest extends TestCase
         attr.add( "val1" );
         attr.add( "val2" );
         attr.add( "val3" );
-        item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -261,18 +261,18 @@ public class ModifyRequestImplTest extends TestCase
                 attr.add( "val0" );
                 attr.add( "val1" );
                 attr.add( "val2" );
-                ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+                ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
                 list.add( item );
 
                 attr = new BasicAttribute( "attr1" );
                 attr.add( "val3" );
-                item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+                item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
                 list.add( item );
 
                 attr = new BasicAttribute( "attr2" );
                 attr.add( "val4" );
                 attr.add( "val5" );
-                item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+                item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
                 list.add( item );
 
                 return list;

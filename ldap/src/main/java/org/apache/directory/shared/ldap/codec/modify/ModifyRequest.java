@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
@@ -38,7 +39,6 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public class ModifyRequest extends LdapMessage
     private LdapDN object;
 
     /** The modifications list. This is an array of ModificationItemImpl. */
-    private List<ModificationItemImpl> modifications;
+    private List<ModificationItem> modifications;
 
     /** The current attribute being decoded */
     private Attribute currentAttribute;
@@ -142,7 +142,7 @@ public class ModifyRequest extends LdapMessage
      */
     public void initModifications()
     {
-        modifications = new ArrayList<ModificationItemImpl>();
+        modifications = new ArrayList<ModificationItem>();
     }
 
 
@@ -151,7 +151,7 @@ public class ModifyRequest extends LdapMessage
      * 
      * @return Returns the modifications.
      */
-    public List<ModificationItemImpl> getModifications()
+    public List<ModificationItem> getModifications()
     {
         return modifications;
     }
@@ -168,7 +168,7 @@ public class ModifyRequest extends LdapMessage
 
         if ( currentAttribute == null )
         {
-            modifications = new ArrayList<ModificationItemImpl>();
+            modifications = new ArrayList<ModificationItem>();
         }
     }
 
@@ -200,7 +200,7 @@ public class ModifyRequest extends LdapMessage
                 break;
         }
 
-        ModificationItemImpl modification = new ModificationItemImpl( operation, currentAttribute );
+        ModificationItem modification = new ModificationItem( operation, currentAttribute );
         modifications.add( modification );
     }
 
@@ -323,7 +323,7 @@ public class ModifyRequest extends LdapMessage
             modificationLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
 
-            for ( ModificationItemImpl modification:modifications )
+            for ( ModificationItem modification:modifications )
             {
                 // Modification sequence length initialized with the operation
                 int localModificationSequenceLength = 1 + 1 + 1;
@@ -442,7 +442,7 @@ public class ModifyRequest extends LdapMessage
                 int modificationNumber = 0;
 
                 // Compute the modifications length
-                for ( ModificationItemImpl modification:modifications )
+                for ( ModificationItem modification:modifications )
                 {
                     // The modification sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -541,7 +541,7 @@ public class ModifyRequest extends LdapMessage
         {
             int i = 0;
             
-            for ( ModificationItemImpl modification:modifications )
+            for ( ModificationItem modification:modifications )
             {
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );

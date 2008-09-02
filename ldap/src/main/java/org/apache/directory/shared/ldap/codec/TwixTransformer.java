@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -92,7 +93,6 @@ import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
 import org.apache.directory.shared.ldap.message.Message;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
@@ -436,7 +436,7 @@ public class TwixTransformer implements TransformerSpi
         if ( modifyRequest.getModifications() != null )
         {
             // Loop through the modifications
-            for ( ModificationItemImpl modification:modifyRequest.getModifications() )
+            for ( ModificationItem modification:modifyRequest.getModifications() )
             {
                 snickersMessage.addModification( modification );
             }

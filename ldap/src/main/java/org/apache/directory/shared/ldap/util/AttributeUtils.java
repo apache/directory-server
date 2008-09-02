@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -244,7 +243,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
+    public static final ModificationItem getModificationItem( List<ModificationItem> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNamesRef().length == 1 )
