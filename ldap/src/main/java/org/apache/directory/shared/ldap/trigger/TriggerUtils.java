@@ -24,12 +24,12 @@ package org.apache.directory.shared.ldap.trigger;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 /**
@@ -55,7 +55,7 @@ public class TriggerUtils
         if ( administrativeRole == null || 
             !AttributeUtils.containsValueCaseIgnore( administrativeRole, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE ) )
         {
-            Attributes changes = new AttributesImpl( ADMINISTRATIVE_ROLE_ATTR, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE, true );
+            Attributes changes = new BasicAttributes( ADMINISTRATIVE_ROLE_ATTR, TRIGGER_EXECUTION_SPECIFIC_AREA_ATTR_VALUE, true );
             apCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
     }
@@ -67,8 +67,8 @@ public class TriggerUtils
         String subtreeSpec,
         String prescriptiveTriggerSpec ) throws NamingException
     {
-        Attributes subentry = new AttributesImpl( SchemaConstants.CN_AT, subentryCN, true );
-        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes subentry = new BasicAttributes( SchemaConstants.CN_AT, subentryCN, true );
+        Attribute objectClass = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         subentry.put( objectClass );
         objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
@@ -84,7 +84,7 @@ public class TriggerUtils
         String subentryCN,
         String triggerSpec ) throws NamingException
     {        
-        Attributes changes = new AttributesImpl( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
+        Attributes changes = new BasicAttributes( PRESCRIPTIVE_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
         apCtx.modifyAttributes( "cn=" + subentryCN, DirContext.ADD_ATTRIBUTE, changes );
     }
     
@@ -93,7 +93,7 @@ public class TriggerUtils
         LdapContext ctx,
         String triggerSpec ) throws NamingException
     {        
-        Attributes changes = new AttributesImpl( ENTRY_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
+        Attributes changes = new BasicAttributes( ENTRY_TRIGGER_SPECIFICATION_ATTR, triggerSpec, true );
         ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
 }

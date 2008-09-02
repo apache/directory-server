@@ -29,11 +29,11 @@ import java.net.URL;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 
@@ -98,7 +98,7 @@ public class JavaStoredProcUtils
         byte[] buf = getClassFileAsStream( clazz );
         String fullClassName = clazz.getName();
         
-        Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
+        Attributes attributes = new BasicAttributes( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "storedProcUnit" );
         attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "javaStoredProcUnit" );
         attributes.put( "storedProcLangId", "Java" );

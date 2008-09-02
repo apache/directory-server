@@ -26,8 +26,6 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -475,7 +473,7 @@ public class LdifUtilsTest
     {
         LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
 
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
         attrs.put( "cn", "john doe" );
         attrs.put( "sn", "doe" );
@@ -508,7 +506,7 @@ public class LdifUtilsTest
     {
         LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
 
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
         attrs.put( "cn", "john doe" );
         attrs.put( "cn", "jack doe" );
@@ -543,10 +541,10 @@ public class LdifUtilsTest
         LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
         LdapDN newSuperior = new LdapDN( "ou=system" );
 
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
                 
-        AttributeImpl attr = new AttributeImpl( "cn" );
+        Attribute attr = new BasicAttribute( "cn" );
         
         attr.add( "john doe" );
         attr.add( "jack doe" );
@@ -582,7 +580,7 @@ public class LdifUtilsTest
         LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
         LdapDN newSuperior = new LdapDN( "ou=system" );
 
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
         attrs.put( "cn", "john doe" );
         attrs.put( "cn", "jack doe" );
@@ -615,7 +613,7 @@ public class LdifUtilsTest
         LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
         LdapDN newSuperior = new LdapDN( "ou=system" );
 
-        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
         attrs.get( "objectClass" ).add( "uidObject" );
         attrs.put( "cn", "john doe" );
         attrs.put( "sn", "doe" );
