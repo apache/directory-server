@@ -3790,15 +3790,6 @@ public class DefaultServerEntryTest
          assertEquals( 0, entry.size() );
      }
       
-      
-    
-    
-    
-    
-    
-    
-    
-    
     
     /**
      * Test a conversion from a ServerEntry to an AttributesImpl

@@ -30,12 +30,12 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.shared.ldap.ldif.LdifComposer;
 import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -114,7 +114,7 @@ public class ServerEntryPropertyEditor extends PropertyEditorSupport
         BufferedReader in = new BufferedReader( strIn );
 
         String line = null;
-        Attributes attributes = new AttributesImpl( true );
+        Attributes attributes = new BasicAttributes( true );
 
         try
         {

@@ -26,6 +26,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
@@ -33,8 +35,6 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.Assert;
 
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
@@ -95,12 +95,12 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         LdapContext ctxB = getReplicaContext( "B" );
         LdapContext ctxC = getReplicaContext( "C" );
 
-        Attributes entryA = new AttributesImpl( true );
+        Attributes entryA = new BasicAttributes( true );
         entryA.put( "cn", "test" );
         entryA.put( "sn", "test" );
         entryA.put( "ou", "A" );
         
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attribute oc = new BasicAttribute( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
@@ -112,7 +112,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         // Ensure the second bind is undebatebly the second.
         Thread.sleep( 100 );
 
-        Attributes entryB = new AttributesImpl( true );
+        Attributes entryB = new BasicAttributes( true );
         entryB.put( "cn", "test" );
         entryB.put( "sn", "test" );
         entryB.put( "ou", "B" );
@@ -140,11 +140,11 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         LdapContext ctxB = getReplicaContext( "B" );
         LdapContext ctxC = getReplicaContext( "C" );
         
-        Attributes entry = new AttributesImpl( true );
+        Attributes entry = new BasicAttributes( true );
         entry.put( "cn", "test" );
         entry.put( "sn", "test" );
         
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attribute oc = new BasicAttribute( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
@@ -171,7 +171,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         String newValue = "anything";
         
         ctxA.modifyAttributes( dn, new ModificationItem[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou", newValue ))} );
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "ou", newValue ))} );
 
         replicationServices.get( "A" ).replicate();
         

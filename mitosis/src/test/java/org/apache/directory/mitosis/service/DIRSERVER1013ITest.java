@@ -20,10 +20,10 @@
 package org.apache.directory.mitosis.service;
 
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,11 +54,12 @@ public class DIRSERVER1013ITest extends AbstractReplicationServiceTestCase
     {
         LdapContext ctxA = getReplicaContext( "A" );
         
-        Attributes entry = new AttributesImpl( true );
+        Attributes entry = new BasicAttributes( true );
         entry.put( "cn", "test" );
         
         // We add the 'room' OC to have at least a STRUCTURAL OC
-        entry.put( "objectClass", "top" ).add( "room" );
+        entry.put( "objectClass", "top" );
+        entry.get( "objectClass" ).add( "room" );
         ctxA.createSubcontext( "cn=test,ou=system", entry );
         
         Attributes attributes = ctxA.getAttributes( "cn=test,ou=system" );
