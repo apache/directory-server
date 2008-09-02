@@ -353,7 +353,7 @@ public class ApacheDS
         
         if ( fileEntry != null )
         {
-            String time = fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
+            String time = ((ClonedServerEntry)fileEntry).getOriginalEntry().get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
             LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
                     + "' skipped.  It has already been loaded on " + time + "." );
         }
