@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Enumeration;
 
 import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -41,7 +42,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
@@ -507,7 +507,7 @@ attributeValue
             attributeTypeAndValue = ( String ) attributeTypeAndValueSet.nextElement();
             attributeType = NamespaceTools.getRdnAttribute( attributeTypeAndValue );
             attributeValue = NamespaceTools.getRdnValue( attributeTypeAndValue );
-            attributeSet.add( new AttributeImpl( attributeType, attributeValue ) );
+            attributeSet.add( new BasicAttribute( attributeType, attributeValue ) );
             log.debug( "An attributeTypeAndValue from the set: " + attributeType + "=" +  attributeValue);
         }
         

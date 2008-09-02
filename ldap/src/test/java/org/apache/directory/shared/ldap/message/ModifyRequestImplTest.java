@@ -23,12 +23,13 @@ package org.apache.directory.shared.ldap.message;
 import junit.framework.TestCase;
 
 import javax.naming.InvalidNameException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
@@ -72,19 +73,19 @@ public class ModifyRequestImplTest extends TestCase
             // do nothing
         }
 
-        AttributeImpl attr = new AttributeImpl( "attr0" );
+        Attribute attr = new BasicAttribute( "attr0" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new AttributeImpl( "attr1" );
+        attr = new BasicAttribute( "attr1" );
         attr.add( "val3" );
         item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new AttributeImpl( "attr2" );
+        attr = new BasicAttribute( "attr2" );
         attr.add( "val4" );
         attr.add( "val5" );
         item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
@@ -153,7 +154,7 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModOps()
     {
         ModifyRequestImpl req0 = getRequest();
-        AttributeImpl attr = new AttributeImpl( "attr3" );
+        Attribute attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -161,7 +162,7 @@ public class ModifyRequestImplTest extends TestCase
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new AttributeImpl( "attr3" );
+        attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -179,7 +180,7 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModCount()
     {
         ModifyRequestImpl req0 = getRequest();
-        AttributeImpl attr = new AttributeImpl( "attr3" );
+        Attribute attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -199,7 +200,7 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModIds()
     {
         ModifyRequestImpl req0 = getRequest();
-        AttributeImpl attr = new AttributeImpl( "attr3" );
+        Attribute attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -207,7 +208,7 @@ public class ModifyRequestImplTest extends TestCase
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new AttributeImpl( "attr4" );
+        attr = new BasicAttribute( "attr4" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -225,7 +226,7 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModValues()
     {
         ModifyRequestImpl req0 = getRequest();
-        AttributeImpl attr = new AttributeImpl( "attr3" );
+        Attribute attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -233,7 +234,7 @@ public class ModifyRequestImplTest extends TestCase
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new AttributeImpl( "attr3" );
+        attr = new BasicAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
@@ -256,19 +257,19 @@ public class ModifyRequestImplTest extends TestCase
             public Collection<ModificationItem> getModificationItems()
             {
                 List<ModificationItem> list = new ArrayList<ModificationItem>();
-                AttributeImpl attr = new AttributeImpl( "attr0" );
+                Attribute attr = new BasicAttribute( "attr0" );
                 attr.add( "val0" );
                 attr.add( "val1" );
                 attr.add( "val2" );
                 ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new AttributeImpl( "attr1" );
+                attr = new BasicAttribute( "attr1" );
                 attr.add( "val3" );
                 item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new AttributeImpl( "attr2" );
+                attr = new BasicAttribute( "attr2" );
                 attr.add( "val4" );
                 attr.add( "val5" );
                 item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );

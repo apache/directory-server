@@ -54,7 +54,7 @@ public class ModificationItemImpl extends ModificationItem
      */
     public ModificationItemImpl( int modificationOp, Attribute attribute ) 
     {
-        super( modificationOp, AttributeUtils.toAttributeImpl( attribute ) );
+        super( modificationOp, AttributeUtils.toBasicAttribute( attribute ) );
         
         serverModified = false;
     }
@@ -70,7 +70,7 @@ public class ModificationItemImpl extends ModificationItem
     public ModificationItemImpl( ModificationItem modification ) 
     {
         super( modification.getModificationOp(), 
-            AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+            AttributeUtils.toBasicAttribute( modification.getAttribute() ) );
         
         serverModified = false;
     }
@@ -82,7 +82,7 @@ public class ModificationItemImpl extends ModificationItem
     public ModificationItemImpl( ModificationItemImpl modification ) 
     {
         super( modification.getModificationOp(), 
-            AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+            AttributeUtils.toBasicAttribute( modification.getAttribute() ) );
         
         serverModified = false;
     }

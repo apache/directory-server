@@ -29,6 +29,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
@@ -39,8 +40,6 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -163,9 +162,9 @@ public class AttributeUtils
      * @param attribute The attribute to transform
      * @return A instance of AttributeImpl
      */
-    public static final Attribute toAttributeImpl( Attribute attribute )
+    public static final Attribute toBasicAttribute( Attribute attribute )
     {
-        if ( attribute instanceof AttributeImpl )
+        if ( attribute instanceof BasicAttribute )
         {
             // Just return the attribute
             return attribute;
@@ -173,7 +172,7 @@ public class AttributeUtils
         else
         {
             // Create a new AttributeImpl from the original attribute
-            AttributeImpl newAttribute = new AttributeImpl( attribute.getID() );
+            Attribute newAttribute = new BasicAttribute( attribute.getID() );
             
             try
             {
@@ -189,46 +188,6 @@ public class AttributeUtils
             catch ( NamingException ne )
             {
                 return newAttribute;
-            }
-        }
-    }
-
-
-    /**
-     * Switch from a BasicAttributes to a AttributesImpl. This is
-     * necessary to allow cloning to be correctly handled.
-     * 
-     * @param attributes The attributes to transform
-     * @return A instance of AttributesImpl
-     */
-    public static final Attributes toAttributesImpl( Attributes attributes )
-    {
-        if ( attributes instanceof AttributesImpl )
-        {
-            // Just return the attribute
-            return attributes;
-        }
-        else
-        {
-            // Create a new AttributesImpl from the original attribute
-            AttributesImpl newAttributes = new AttributesImpl( attributes.isCaseIgnored() );
-            
-            try
-            {
-                NamingEnumeration<?> values = attributes.getAll();
-                
-                while ( values.hasMoreElements() )
-                {
-                    Attribute attribute = (Attribute)values.next();
-                    
-                    newAttributes.put( toAttributeImpl( attribute ) );
-                }
-                
-                return newAttributes;
-            }
-            catch ( NamingException ne )
-            {
-                return newAttributes;
             }
         }
     }
@@ -592,7 +551,7 @@ public class AttributeUtils
         }
         else if ( attr0 == null )
         {
-            return new AttributeImpl( attr1.getID() );
+            return new BasicAttribute( attr1.getID() );
         }
         else if ( attr1 == null )
         {
@@ -607,7 +566,7 @@ public class AttributeUtils
             id = attr0.getID();
         }
 
-        Attribute attr = new AttributeImpl( id );
+        Attribute attr = new BasicAttribute( id );
 
         for ( int ii = 0; ii < attr0.size(); ii++ )
         {
@@ -664,7 +623,7 @@ public class AttributeUtils
             id = attr0.getID();
         }
 
-        Attribute attr = new AttributeImpl( id );
+        Attribute attr = new BasicAttribute( id );
 
         if ( attr0 != null )
         {
@@ -1276,7 +1235,7 @@ public class AttributeUtils
     public static Entry toClientEntry( Attributes attributes, LdapDN dn ) 
             throws InvalidAttributeIdentifierException
     {
-        if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
+        if ( attributes instanceof BasicAttributes )
         {
             try 
             {

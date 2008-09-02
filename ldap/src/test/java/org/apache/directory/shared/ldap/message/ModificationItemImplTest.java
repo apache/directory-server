@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.message;
 
 import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class ModificationItemImplTest
     @Test
     public void testEquals()
     {
-        Attribute attr = new AttributeImpl( "cn", "value" );
+        Attribute attr = new BasicAttribute( "cn", "value" );
         attr.add( "another value" );
         
         ModificationItemImpl mod1 = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
@@ -51,8 +52,8 @@ public class ModificationItemImplTest
         assertEquals( mod1, mod1 );
         assertEquals( mod2, mod1 );
         
-        ModificationItemImpl mod3 = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "cn" ) );  
-        ModificationItemImpl mod4 = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "cn" ) );
+        ModificationItemImpl mod3 = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "cn" ) );  
+        ModificationItemImpl mod4 = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "cn" ) );
         
         assertEquals( mod3, mod4 );
     }
@@ -63,8 +64,8 @@ public class ModificationItemImplTest
     @Test
     public void testDifferentModificationItemImpl()
     {
-        Attribute attr = new AttributeImpl( "cn", "value" );
-        Attribute attr2 = new AttributeImpl( "cn", "value" );
+        Attribute attr = new BasicAttribute( "cn", "value" );
+        Attribute attr2 = new BasicAttribute( "cn", "value" );
         attr.add( "yet another value" );
         
         ModificationItemImpl mod1 = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
