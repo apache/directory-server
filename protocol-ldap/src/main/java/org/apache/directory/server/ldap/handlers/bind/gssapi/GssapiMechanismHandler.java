@@ -98,5 +98,6 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
         ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
         ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_AUTHENT_USER );
     }
 }

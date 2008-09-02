@@ -468,6 +468,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 
                 CoreSession userSession = ds.getSession( ldapPrincipal.getJndiName(), ldapPrincipal.getUserPassword(), saslMechanism, null );
                 
+                // Set the user session into the ldap session 
                 ldapSession.setCoreSession( userSession );
                 
                 // Mark the user as authenticated
@@ -475,7 +476,6 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 
                 // Call the cleanup method for the selected mechanism
                 MechanismHandler handler = (MechanismHandler)ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
-
                 handler.cleanup( ldapSession );
 
                 // And send a Success response
