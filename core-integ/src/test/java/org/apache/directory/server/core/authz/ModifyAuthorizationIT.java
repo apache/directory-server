@@ -21,7 +21,6 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.annotations.Factory;
@@ -36,6 +35,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class ModifyAuthorizationIT
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationItemImpl[] mods )
+    public boolean checkCanModifyAs( String uid, String password, String entryRdn, ModificationItem[] mods )
         throws Exception
     {
         // create the entry with the telephoneNumber attribute to modify
@@ -222,7 +222,7 @@ public class ModifyAuthorizationIT
      * false otherwise.
      * @throws javax.naming.NamingException if there are problems conducting the test
      */
-    public boolean checkCanSelfModify( String uid, String password, ModificationItemImpl[] mods ) throws Exception
+    public boolean checkCanSelfModify( String uid, String password, ModificationItem[] mods ) throws Exception
     {
         try
         {
@@ -247,16 +247,16 @@ public class ModifyAuthorizationIT
      * @return the array of modification items represting the changes
      * @throws NamingException if there are problems accessing attributes
      */
-    private ModificationItemImpl[] toItems( int modOp, Attributes changes ) throws NamingException
+    private ModificationItem[] toItems( int modOp, Attributes changes ) throws NamingException
     {
-        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
+        List<ModificationItem> mods = new ArrayList<ModificationItem>();
         NamingEnumeration<? extends Attribute> list = changes.getAll();
         while ( list.hasMore() )
         {
             Attribute attr = list.next();
-            mods.add( new ModificationItemImpl( modOp, attr ) );
+            mods.add( new ModificationItem( modOp, attr ) );
         }
-        ModificationItemImpl[] modArray = new ModificationItemImpl[mods.size()];
+        ModificationItem[] modArray = new ModificationItem[mods.size()];
         return mods.toArray( modArray );
     }
 
@@ -272,7 +272,7 @@ public class ModifyAuthorizationIT
         createUser( "billyd", "billyd" );
 
         // create the password modification
-        ModificationItemImpl[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "userPassword",
+        ModificationItem[] mods = toItems( DirContext.REPLACE_ATTRIBUTE, new BasicAttributes( "userPassword",
             "williams", true ) );
 
         // try a modify operation which should fail without any ACI
@@ -306,7 +306,7 @@ public class ModifyAuthorizationIT
         // ----------------------------------------------------------------------------------
 
         // create the add modifications
-        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE, new BasicAttributes( "registeredAddress",
+        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE, new BasicAttributes( "registeredAddress",
             "100 Park Ave.", true ) );
 
         // create the non-admin user
@@ -545,7 +545,7 @@ public class ModifyAuthorizationIT
     public void testPresciptiveACIModification() throws Exception
     {
         
-        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE,
             new BasicAttributes( "registeredAddress", "100 Park Ave.", true ) );
 
         createUser( "billyd", "billyd" );
@@ -612,7 +612,7 @@ public class ModifyAuthorizationIT
                 " }" +
             " }" );
         
-        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+        ModificationItem[] mods = toItems( DirContext.ADD_ATTRIBUTE,
             new BasicAttributes( "description", "description 1", true ) );
         
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );

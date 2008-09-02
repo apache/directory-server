@@ -32,7 +32,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -51,6 +50,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -274,9 +275,9 @@ public class MetaComparatorHandlerIT
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "comparator OID should still be present", 

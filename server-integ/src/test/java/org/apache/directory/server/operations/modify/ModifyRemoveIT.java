@@ -49,8 +49,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-
 
 /**
  * Test case with different modify operations on a person entry. Each includes a
@@ -411,8 +409,8 @@ public class ModifyRemoveIT
 
         // replace attribute givenName with empty value (=> deletion)
         Attribute attr = new BasicAttribute( "givenname" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( rdn, new ModificationItemImpl[] { item } );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( rdn, new ModificationItem[] { item } );
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -456,11 +454,11 @@ public class ModifyRemoveIT
 
         // replace attribute cn with empty value (=> deletion)
         Attribute attr = new BasicAttribute( "cn" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
+            ctx.modifyAttributes( rdn, new ModificationItem[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -488,11 +486,11 @@ public class ModifyRemoveIT
 
         // replace attribute cn with empty value (=> deletion)
         Attribute attr = new BasicAttribute( "cn" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
+            ctx.modifyAttributes( rdn, new ModificationItem[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -520,11 +518,11 @@ public class ModifyRemoveIT
 
         // replace attribute cn with empty value (=> deletion)
         Attribute attr = new BasicAttribute( "cn", "Kate Bush" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
+        ModificationItem item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
+            ctx.modifyAttributes( rdn, new ModificationItem[]
                 { item } );
             fail( "modify should fail" );
         }
@@ -550,10 +548,10 @@ public class ModifyRemoveIT
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass", ""));
+        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass", ""));
 
         try {
-            ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
+            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
             fail("deletion of objectclass should fail");
         } catch (SchemaViolationException e) {
             // expected
@@ -583,10 +581,10 @@ public class ModifyRemoveIT
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass"));
+        ModificationItem delModOp = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass"));
 
         try {
-            ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
+            ctx.modifyAttributes(rdn, new ModificationItem[] { delModOp });
             fail("deletion of objectclass should fail");
         } catch (SchemaViolationException e) {
             // expected

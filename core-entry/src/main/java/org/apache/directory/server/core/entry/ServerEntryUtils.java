@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
@@ -349,9 +348,9 @@ public class ServerEntryUtils
     }
     
     
-    public static ModificationItemImpl toModificationItemImpl( Modification modification )
+    public static ModificationItem toModificationItem( Modification modification )
     {
-        ModificationItemImpl modificationItem = new ModificationItemImpl( 
+        ModificationItem modificationItem = new ModificationItem( 
             modification.getOperation().getValue(),
             toAttributeImpl( (ServerAttribute)modification.getAttribute() ) ); 
         
@@ -361,13 +360,13 @@ public class ServerEntryUtils
 
 
     /**
-     * Convert a ModificationItemImpl to an instance of a ServerModification object
+     * Convert a ModificationItem to an instance of a ServerModification object
      *
      * @param modificationImpl the modification instance to convert
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( ModificationItemImpl modificationImpl, AttributeType attributeType ) 
+    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) 
     {
         Modification modification = new ServerModification( 
             modificationImpl.getModificationOp(),
@@ -378,15 +377,15 @@ public class ServerEntryUtils
     }
 
     
-    public static List<ModificationItemImpl> toModificationItemImpl( List<Modification> modifications )
+    public static List<ModificationItem> toModificationItemImpl( List<Modification> modifications )
     {
         if ( modifications != null )
         {
-            List<ModificationItemImpl> modificationItems = new ArrayList<ModificationItemImpl>();
+            List<ModificationItem> modificationItems = new ArrayList<ModificationItem>();
 
             for ( Modification modification: modifications )
             {
-                modificationItems.add( toModificationItemImpl( modification ) );
+                modificationItems.add( toModificationItem( modification ) );
             }
         
             return modificationItems;
@@ -407,17 +406,17 @@ public class ServerEntryUtils
      * @return
      * @throws NamingException
      */
-    public static List<Modification> convertToServerModification( List<ModificationItemImpl> modificationImpls, 
+    public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems, 
         AttributeTypeRegistry atRegistry ) throws NamingException
     {
-        if ( modificationImpls != null )
+        if ( modificationItems != null )
         {
-            List<Modification> modifications = new ArrayList<Modification>( modificationImpls.size() );
+            List<Modification> modifications = new ArrayList<Modification>( modificationItems.size() );
 
-            for ( ModificationItemImpl modificationImpl: modificationImpls )
+            for ( ModificationItem modificationItem: modificationItems )
             {
-                AttributeType attributeType = atRegistry.lookup( modificationImpl.getAttribute().getID() );
-                modifications.add( toServerModification( modificationImpl, attributeType ) );
+                AttributeType attributeType = atRegistry.lookup( modificationItem.getAttribute().getID() );
+                modifications.add( toServerModification( modificationItem, attributeType ) );
             }
         
             return modifications;
@@ -464,7 +463,7 @@ public class ServerEntryUtils
                 
                 // TODO : handle options
                 AttributeType attributeType = atRegistry.lookup( id );
-                modificationsList.add( toServerModification( (ModificationItemImpl)modification, attributeType ) );
+                modificationsList.add( toServerModification( (ModificationItem)modification, attributeType ) );
             }
         
             return modificationsList;

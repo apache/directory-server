@@ -22,7 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -38,6 +37,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -87,22 +87,22 @@ public class DIRSERVER783IT
         // Add the first value for description
         String description1 = "an American singer-songwriter";
         Attribute firstDescr = new BasicAttribute( "description", description1 );
-        ModificationItemImpl modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, firstDescr);
-        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
+        ModificationItem modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, firstDescr);
+        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
 
         // Add a second value to description
         String description2 = "Grammy award winning";
         Attribute otherDescr = new BasicAttribute( "description", description2 );
 
-        modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, otherDescr );
-        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification } );
+        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, otherDescr );
+        ctx.modifyAttributes(rdn, new ModificationItem[] { modification } );
       
         // Add a third value to description
         String description3 = "MTV Music Award winning";
         Attribute thirdDescr = new BasicAttribute( "description", description3 );
 
-        modification = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, thirdDescr );
-        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { modification });
+        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, thirdDescr );
+        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
 
         // Search Entry
         SearchControls sctls = new SearchControls();

@@ -31,7 +31,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
@@ -42,6 +41,8 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -111,8 +112,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
         if ( isKrb5KdcDisabled )
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItemImpl[] mods = new ModificationItemImpl[]
-                    {new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled )};
+            ModificationItem[] mods = new ModificationItem[]
+                    {new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled )};
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
         

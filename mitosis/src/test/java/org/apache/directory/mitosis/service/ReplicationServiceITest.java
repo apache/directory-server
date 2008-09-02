@@ -35,7 +35,6 @@ import javax.naming.ldap.LdapContext;
 import junit.framework.Assert;
 
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -171,7 +170,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         String newValue = "anything";
         
         ctxA.modifyAttributes( dn, new ModificationItem[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "ou", newValue ))} );
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "ou", newValue ))} );
 
         replicationServices.get( "A" ).replicate();
         

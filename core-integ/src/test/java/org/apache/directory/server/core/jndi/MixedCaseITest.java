@@ -34,7 +34,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import static org.junit.Assert.assertEquals;
@@ -54,6 +53,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -179,8 +179,8 @@ public class MixedCaseITest
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
 
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ) );
+        ModificationItem[] mods = new ModificationItem[1];
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "description", description ) );
 
         ctxRoot.modifyAttributes( dn, mods );
 

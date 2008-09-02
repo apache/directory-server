@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -45,6 +44,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -361,8 +361,8 @@ public class ExceptionServiceIT
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
 
-        ModificationItemImpl[] mods = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ou ) };
+        ModificationItem[] mods = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE, ou ) };
 
         try
         {
@@ -399,8 +399,8 @@ public class ExceptionServiceIT
 
         attr = new BasicAttribute( "ou" );
         attr.add( "another" );
-        ModificationItemImpl[] mods = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr ) };
+        ModificationItem[] mods = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE, attr ) };
 
         sysRoot.modifyAttributes( "ou=users", mods );
         ou = sysRoot.getAttributes( "ou=users" ).get( "ou" );

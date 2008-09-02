@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -198,16 +197,16 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        List<ModificationItemImpl> modItems = null;
+        List<ModificationItem> modItems = null;
 
         if ( attrs != null )
         {
-            modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
+            modItems = new ArrayList<ModificationItem>( attrs.size() );
             NamingEnumeration<? extends Attribute> e = ( NamingEnumeration<? extends Attribute> ) attrs.getAll();
 
             while ( e.hasMore() )
             {
-                modItems.add( new ModificationItemImpl( modOp, e.next() ) );
+                modItems.add( new ModificationItem( modOp, e.next() ) );
             }
         }
 
@@ -239,23 +238,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( String name, ModificationItem[] mods ) throws NamingException
     {
-        ModificationItemImpl[] newMods = new ModificationItemImpl[mods.length];
-
-        for ( int i = 0; i < mods.length; i++ )
-        {
-            newMods[i] = new ModificationItemImpl( mods[i] );
-        }
-
-        modifyAttributes( new LdapDN( name ), newMods );
-    }
-
-
-    /**
-     * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
-     *      javax.naming.directory.ModificationItem[])
-     */
-    public void modifyAttributes( String name, ModificationItemImpl[] mods ) throws NamingException
-    {
         modifyAttributes( new LdapDN( name ), mods );
     }
 
@@ -283,7 +265,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
+    public void modifyAttributes( Name name, List<ModificationItem> mods ) throws NamingException
     {
         List<Modification> newMods = ServerEntryUtils
             .convertToServerModification( mods, 

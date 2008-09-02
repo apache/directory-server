@@ -51,7 +51,6 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +68,8 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
@@ -198,8 +199,8 @@ public class KeyDerivationServiceIT
         if ( isKrb5KdcDisabled )
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 

@@ -24,7 +24,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
@@ -44,6 +43,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -143,9 +143,9 @@ public class SchemaPersistenceIT
     private void enableSchema( String schemaName ) throws Exception
     {
         // now enable the test schema
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
 

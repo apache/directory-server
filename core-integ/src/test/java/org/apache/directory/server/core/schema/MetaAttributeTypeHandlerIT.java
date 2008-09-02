@@ -28,7 +28,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -45,6 +44,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 
@@ -228,11 +228,11 @@ public class MetaAttributeTypeHandlerIT
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        ModificationItemImpl[] mods = new ModificationItemImpl[2];
+        ModificationItem[] mods = new ModificationItem[2];
         Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new BasicAttribute( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
-        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "attributeType OID should still be present", 

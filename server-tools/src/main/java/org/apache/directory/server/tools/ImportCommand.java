@@ -33,6 +33,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -64,7 +65,6 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -435,7 +435,7 @@ public class ImportCommand extends ToolCommand
 
         while ( modifications.hasNext() )
         {
-            ModificationItemImpl modification = ( ModificationItemImpl ) modifications.next();
+            ModificationItem modification = ( ModificationItem ) modifications.next();
 
             switch ( modification.getModificationOp() )
             {

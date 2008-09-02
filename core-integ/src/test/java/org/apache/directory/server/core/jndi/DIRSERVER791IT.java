@@ -38,11 +38,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SchemaViolationException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -117,8 +117,8 @@ public class DIRSERVER791IT
 
         // remove "cn=aaa", which is not part of the RDN
         Attribute attr = new BasicAttribute( "cn", "aaa" );
-        ModificationItemImpl modification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+        ModificationItem modification = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( "cn=test", new ModificationItem[]
             { modification } );
 
         Attributes attrs = ctx.getAttributes( "cn=test", new String[]
@@ -152,8 +152,8 @@ public class DIRSERVER791IT
 
         // replace cn attribute with "cn=test", must remove the previous "cn=aaa"
         Attribute attr = new BasicAttribute( "cn", "test" );
-        ModificationItemImpl modification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+        ModificationItem modification = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ctx.modifyAttributes( "cn=test", new ModificationItem[]
             { modification } );
 
         Attributes attrs = ctx.getAttributes( "cn=test", new String[]
@@ -190,10 +190,10 @@ public class DIRSERVER791IT
 
         // try to add an non-existing objectClass "test", must be rejected
         Attribute attr = new BasicAttribute( "objectclass", "test" );
-        ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem modification = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         try
         {
-            ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+            ctx.modifyAttributes( "cn=test", new ModificationItem[]
                 { modification } );
             fail( "Exception expected" );
         }
@@ -244,10 +244,10 @@ public class DIRSERVER791IT
 
         // try to add an unallowed attribute, must be rejected
         Attribute attr = new BasicAttribute( "javaDoc", "test" );
-        ModificationItemImpl modification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
+        ModificationItem modification = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         try
         {
-            ctx.modifyAttributes( "cn=test", new ModificationItemImpl[]
+            ctx.modifyAttributes( "cn=test", new ModificationItem[]
                 { modification } );
             fail( "Exception expected" );
         }

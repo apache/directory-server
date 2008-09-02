@@ -26,7 +26,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaC
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -43,6 +42,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 
 /**
@@ -233,11 +233,11 @@ public class MetaObjectClassHandlerIT
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         
-        ModificationItemImpl[] mods = new ModificationItemImpl[2];
+        ModificationItem[] mods = new ModificationItem[2];
         Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new BasicAttribute( "m-name", NEW_NAME );
-        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
+        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "objectClass OID should still be present", 

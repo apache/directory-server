@@ -25,7 +25,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -93,8 +93,8 @@ public class SubentryServiceEntryModificationHandlingIT
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItemImpl[]
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
+        sysRoot.modifyAttributes( "", new ModificationItem[]
             { item } );
     }
 
@@ -140,8 +140,8 @@ public class SubentryServiceEntryModificationHandlingIT
         //----------------------------------------------------------------------
 
         Attribute attr = new BasicAttribute( "sn", "changedSn");
-        ModificationItemImpl mod = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr);
-        ModificationItemImpl[] mods = new ModificationItemImpl[] { mod };
+        ModificationItem mod = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attr);
+        ModificationItem[] mods = new ModificationItem[] { mod };
         
         sysRoot.modifyAttributes( "cn=testEntry", mods );
 

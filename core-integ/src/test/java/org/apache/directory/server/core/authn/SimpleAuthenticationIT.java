@@ -24,9 +24,9 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -43,6 +43,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 
@@ -197,8 +198,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -256,8 +257,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -313,8 +314,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
         BasicAttribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -369,8 +370,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu : 'secret', encrypted using MD5
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -425,8 +426,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -481,8 +482,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu : 'secret', encrypted using CRYPT
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{crypt}qFkH8Z1woBlXw" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
         // close and try with old password (should fail)
         ctx.close();
@@ -540,8 +541,8 @@ public class SimpleAuthenticationIT
 
         // now modify the password for akarasulu (while we're admin)
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
         ctx.close();
 
         try

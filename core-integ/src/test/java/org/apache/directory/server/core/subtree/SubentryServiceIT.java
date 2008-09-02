@@ -24,7 +24,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +41,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
@@ -112,8 +112,8 @@ public class SubentryServiceIT
         LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItemImpl[]
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
+        sysRoot.modifyAttributes( "", new ModificationItem[]
             { item } );
     }
 
@@ -298,8 +298,8 @@ public class SubentryServiceIT
 
         Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
+        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
             { item } );
         results = getAllEntries();
 

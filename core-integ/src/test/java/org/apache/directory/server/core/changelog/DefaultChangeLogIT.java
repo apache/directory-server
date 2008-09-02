@@ -25,7 +25,6 @@ import static org.apache.directory.server.core.integ.state.TestServiceContext.sh
 import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
@@ -42,6 +41,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 import java.util.Arrays;
 
@@ -350,13 +350,13 @@ public class DefaultChangeLogIT
                 new BasicAttributes( "userPassword", "to be replaced", true ) );
         assertPassword( sysRoot.getAttributes( "ou=test5" ), "to be replaced" );
 
-        ModificationItemImpl[] mods = new ModificationItemImpl[]
+        ModificationItem[] mods = new ModificationItem[]
         {
-            new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE,
+            new ModificationItem( DirContext.REMOVE_ATTRIBUTE,
                     new BasicAttribute( "description", "old value" ) ),
-            new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new ModificationItem( DirContext.ADD_ATTRIBUTE,
                     new BasicAttribute( "seeAlso", "ou=added" ) ),
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE,
                     new BasicAttribute( "userPassword", "a replaced value" ) )
         };
         Tag t3 = service.getChangeLog().tag();

@@ -53,8 +53,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-
 
 /**
  * Test case with different modify operations on a person entry. Each includes a
@@ -319,9 +317,9 @@ public class ModifyAddIT
         
         // modify object classes, add a new value twice
         Attribute ocls = new BasicAttribute( "objectClass", "organizationalPerson" );
-        ModificationItemImpl[] modItems = new ModificationItemImpl[2];
-        modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
-        modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
+        ModificationItem[] modItems = new ModificationItem[2];
+        modItems[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, ocls );
+        modItems[1] = new ModificationItem( DirContext.ADD_ATTRIBUTE, ocls );
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, modItems );
@@ -352,9 +350,9 @@ public class ModifyAddIT
         
         // add the same description value twice
         Attribute desc = new BasicAttribute( "description", "another description value besides songwriter" );
-        ModificationItemImpl[] modItems = new ModificationItemImpl[2];
-        modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
-        modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
+        ModificationItem[] modItems = new ModificationItem[2];
+        modItems[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, desc );
+        modItems[1] = new ModificationItem( DirContext.ADD_ATTRIBUTE, desc );
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, modItems );
@@ -419,15 +417,15 @@ public class ModifyAddIT
         desc1.add(descriptions[0]);
         desc1.add(descriptions[1]);
 
-        ModificationItemImpl addModOp = new ModificationItemImpl(
+        ModificationItem addModOp = new ModificationItem(
                 DirContext.ADD_ATTRIBUTE, desc1);
 
         Attribute desc2 = new BasicAttribute("description");
         desc2.add(descriptions[1]);
-        ModificationItemImpl delModOp = new ModificationItemImpl(
+        ModificationItem delModOp = new ModificationItem(
                 DirContext.REMOVE_ATTRIBUTE, desc2);
 
-        ctx.modifyAttributes(rdn, new ModificationItemImpl[] { addModOp,
+        ctx.modifyAttributes(rdn, new ModificationItem[] { addModOp,
                         delModOp });
 
         SearchControls sctls = new SearchControls();
@@ -460,7 +458,7 @@ public class ModifyAddIT
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        ModificationItem modifyOp = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "subschemaSubentry", "cn=anotherSchema" ) );
 
         try

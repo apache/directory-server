@@ -25,7 +25,6 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
@@ -41,6 +40,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -123,8 +123,8 @@ public class CollectiveAttributeServiceIT
     {
         Attribute attribute = new BasicAttribute( "administrativeRole" );
         attribute.add( role );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        getSystemContext( service ).modifyAttributes( "", new ModificationItemImpl[] { item } );
+        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
+        getSystemContext( service ).modifyAttributes( "", new ModificationItem[] { item } );
     }
 
 
@@ -230,8 +230,8 @@ public class CollectiveAttributeServiceIT
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
 
-        ModificationItemImpl[] items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+        ModificationItem[] items = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
 
@@ -302,8 +302,8 @@ public class CollectiveAttributeServiceIT
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
 
-        items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
+        items = new ModificationItem[]
+            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
 
@@ -367,8 +367,8 @@ public class CollectiveAttributeServiceIT
         // now modify entries included by the subentry to have collectiveExclusions
         // -------------------------------------------------------------------
 
-        ModificationItemImpl[] items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+        ModificationItem[] items = new ModificationItem[]
+            { new ModificationItem( DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute( "collectiveExclusions", "c-ou" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
@@ -426,8 +426,8 @@ public class CollectiveAttributeServiceIT
         // now modify an entry to exclude all collective attributes
         // -------------------------------------------------------------------
 
-        items = new ModificationItemImpl[]
-            { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
+        items = new ModificationItem[]
+            { new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
         getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();
@@ -506,10 +506,10 @@ public class CollectiveAttributeServiceIT
         Attributes entry = getTestEntry( "Ersin Er" );
         getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
         Attribute change = new BasicAttribute( "c-l", "Turkiye");
-        ModificationItemImpl mod = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, change);
+        ModificationItem mod = new ModificationItem(DirContext.ADD_ATTRIBUTE, change);
         try
         {
-            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[] { mod } );
+            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", new ModificationItem[] { mod } );
             fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
         }
         catch ( NamingException e )

@@ -28,7 +28,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import static org.junit.Assert.assertEquals;
@@ -52,6 +51,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -458,8 +458,8 @@ public class ReferralIT
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu", mods );
             fail( "Should fail here throwing a ReferralException" );
         }
@@ -490,8 +490,8 @@ public class ReferralIT
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
-            ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description", "just some text" ) ) };
             td.refCtx.modifyAttributes( "cn=alex karasulu,ou=apache", mods );
             fail( "Should fail here throwing a ReferralException" );
         }

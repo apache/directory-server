@@ -23,7 +23,6 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +35,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.util.Hashtable;
 
 
@@ -288,7 +289,7 @@ public class RootDSEIT
 
         try
         {
-            ctx.modifyAttributes( "", new ModificationItemImpl[]
+            ctx.modifyAttributes( "", new ModificationItem[]
                 {} );
 
             fail( "we should never get here" );
