@@ -141,7 +141,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         
         try
         {
-            attrs = ServerEntryUtils.toAttributesImpl( doLookupOperation( buildTarget( name ) ) );
+            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( name ) ) );
         }
         catch ( Exception e )
         {
@@ -171,7 +171,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attributes attrs = null;
         try
         {
-            attrs = ServerEntryUtils.toAttributesImpl( doLookupOperation( buildTarget( name ), attrIds ) );
+            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( name ), attrIds ) );
         }
         catch ( Exception e )
         {

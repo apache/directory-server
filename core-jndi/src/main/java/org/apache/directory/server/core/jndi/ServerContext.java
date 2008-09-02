@@ -1015,8 +1015,8 @@ public abstract class ServerContext implements EventContext
 
         try
         {
-            obj = DirectoryManager.getObjectInstance( null, name, this, env, ServerEntryUtils
-                .toAttributesImpl( serverEntry ) );
+            obj = DirectoryManager.getObjectInstance( null, name, this, env, 
+                ServerEntryUtils.toBasicAttributes( serverEntry ) );
         }
         catch ( Exception e )
         {

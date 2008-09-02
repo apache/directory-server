@@ -29,6 +29,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.NoSuchAttributeException;
 
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
@@ -52,7 +53,6 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -3792,9 +3792,9 @@ public class DefaultServerEntryTest
       
     
     /**
-     * Test a conversion from a ServerEntry to an AttributesImpl
+     * Test a conversion from a ServerEntry to an BasicAttributes
      */
-    @Test public void testToAttributesImpl() throws InvalidNameException, Exception
+    @Test public void testToBasicAttributes() throws InvalidNameException, Exception
     {
         LdapDN dn = new LdapDN( "cn=test" );
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -3804,10 +3804,10 @@ public class DefaultServerEntryTest
         entry.put( "objectClass", OBJECT_CLASS_AT, "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.put( "cn", registries.getAttributeTypeRegistry().lookup( "cn" ), "test" );
         
-        Attributes attributes = ServerEntryUtils.toAttributesImpl( entry );
+        Attributes attributes = ServerEntryUtils.toBasicAttributes( entry );
         
         assertNotNull( attributes );
-        assertTrue( attributes instanceof AttributesImpl );
+        assertTrue( attributes instanceof BasicAttributes );
         
         Set<String> expected = new HashSet<String>();
         expected.add( "objectClass" );

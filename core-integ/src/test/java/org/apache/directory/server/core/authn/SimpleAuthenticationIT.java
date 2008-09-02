@@ -26,7 +26,6 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
@@ -42,6 +41,7 @@ import org.junit.runner.RunWith;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
@@ -196,7 +196,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
 
         // now modify the password for akarasulu
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -255,7 +255,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -312,7 +312,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
+        BasicAttribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -368,7 +368,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using MD5
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -424,7 +424,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -480,7 +480,7 @@ public class SimpleAuthenticationIT
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
         // now modify the password for akarasulu : 'secret', encrypted using CRYPT
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{crypt}qFkH8Z1woBlXw" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{crypt}qFkH8Z1woBlXw" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
 
@@ -539,7 +539,7 @@ public class SimpleAuthenticationIT
             service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
 
         // now modify the password for akarasulu (while we're admin)
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd" );
         ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
         ctx.close();

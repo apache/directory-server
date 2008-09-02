@@ -118,7 +118,7 @@ public class EventListenerAdapter implements DirectoryListener
         try
         {
             Binding binding = new Binding( opContext.getDn().getUpName(), 
-                ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
             NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_ADDED, 
                 binding, null, opContext );
 
@@ -144,7 +144,7 @@ public class EventListenerAdapter implements DirectoryListener
             if ( listener instanceof NamespaceChangeListener )
             {
                 Binding binding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
                 NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_REMOVED, null, 
                     binding, opContext );
                 ( ( NamespaceChangeListener ) listener ).objectAdded( evt );
@@ -165,9 +165,9 @@ public class EventListenerAdapter implements DirectoryListener
         try
         {
             Binding newBinding = new Binding( opContext.getDn().getUpName(), 
-                ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
             Binding oldBinding = new Binding( opContext.getDn().getUpName(), 
-                ServerEntryUtils.toAttributesImpl( opContext.getEntry().getOriginalEntry() ),  false );
+                ServerEntryUtils.toBasicAttributes( opContext.getEntry().getOriginalEntry() ),  false );
             NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_CHANGED, 
                 newBinding, oldBinding, opContext );
 
@@ -193,9 +193,9 @@ public class EventListenerAdapter implements DirectoryListener
             if ( listener instanceof NamespaceChangeListener )
             {
                 Binding newBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
                 Binding oldBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry().getOriginalEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry().getOriginalEntry() ), false );
                 NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
                     newBinding, oldBinding, opContext );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );
@@ -218,9 +218,9 @@ public class EventListenerAdapter implements DirectoryListener
             if ( listener instanceof NamespaceChangeListener )
             {
                 Binding newBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
                 Binding oldBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry().getOriginalEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry().getOriginalEntry() ), false );
                 NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
                     newBinding, oldBinding, opContext );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );
@@ -243,9 +243,9 @@ public class EventListenerAdapter implements DirectoryListener
             if ( listener instanceof NamespaceChangeListener )
             {
                 Binding newBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry() ), false );
                 Binding oldBinding = new Binding( opContext.getDn().getUpName(), 
-                    ServerEntryUtils.toAttributesImpl( opContext.getEntry().getOriginalEntry() ), false );
+                    ServerEntryUtils.toBasicAttributes( opContext.getEntry().getOriginalEntry() ), false );
                 NamingEvent evt = new NamingEvent( source, NamingEvent.OBJECT_RENAMED, 
                     newBinding, oldBinding, null );
                 ( ( NamespaceChangeListener ) listener ).objectRenamed( evt );

@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.modify;
 
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
@@ -35,7 +36,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.operations.compare.CompareIT;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -175,7 +175,7 @@ public class ModifyReferralIT
         LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
         
         // modify failure
-        Attribute attr = new AttributeImpl( "description", "referral to akarasulu" );
+        Attribute attr = new BasicAttribute( "description", "referral to akarasulu" );
         ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         
         try

@@ -28,6 +28,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
@@ -41,8 +42,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -65,14 +64,14 @@ public class ServerEntryUtils
      *
      * @return An instance of a AttributesImpl() object
      */
-    public static Attributes toAttributesImpl( ServerEntry entry )
+    public static Attributes toBasicAttributes( ServerEntry entry )
     {
         if ( entry == null )
         {
             return null;
         }
         
-        Attributes attributes = new AttributesImpl();
+        Attributes attributes = new BasicAttributes( true );
 
         for ( AttributeType attributeType:entry.getAttributeTypes() )
         {
@@ -88,7 +87,7 @@ public class ServerEntryUtils
                 }
             }
             
-            Attribute attribute = new AttributeImpl( attributeType.getName() );
+            Attribute attribute = new BasicAttribute( attributeType.getName() );
             
             for ( Value<?> value: attr )
             {
@@ -180,7 +179,7 @@ public class ServerEntryUtils
     public static ServerEntry toServerEntry( Attributes attributes, LdapDN dn, Registries registries ) 
             throws InvalidAttributeIdentifierException
     {
-        if ( ( attributes instanceof BasicAttributes ) || ( attributes instanceof AttributesImpl ) )
+        if ( attributes instanceof BasicAttributes )
         {
             try 
             {
@@ -224,7 +223,7 @@ public class ServerEntryUtils
      */
     public static Attribute toAttributeImpl( EntryAttribute attr )
     {
-        Attribute attribute = new AttributeImpl( attr.getUpId() );
+        Attribute attribute = new BasicAttribute( attr.getUpId() );
 
         for ( Value<?> value:attr )
         {
@@ -559,7 +558,7 @@ public class ServerEntryUtils
                 SearchResult searchResult = new SearchResult( 
                         rec.getDn().getUpName(), 
                         rec.getObject(), 
-                        toAttributesImpl( rec.getServerEntry() ), 
+                        toBasicAttributes( rec.getServerEntry() ), 
                         rec.isRelative() );
                 
                 return searchResult;
@@ -587,7 +586,7 @@ public class ServerEntryUtils
                     SearchResult searchResult = new SearchResult( 
                             rec.getDn().getUpName(), 
                             rec.getObject(), 
-                            toAttributesImpl( rec.getServerEntry() ), 
+                            toBasicAttributes( rec.getServerEntry() ), 
                             rec.isRelative() );
                     
                     return searchResult;
