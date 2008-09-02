@@ -30,6 +30,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -46,8 +48,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -230,8 +230,8 @@ public class SearchIT
      */
     private Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attribute.add( "organizationalPerson" );
@@ -655,13 +655,13 @@ public class SearchIT
         Attribute administrativeRole = ap.get( "administrativeRole" );
         if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryInterceptor.AC_AREA, true );
+            Attributes changes = new BasicAttributes( "administrativeRole", SubentryInterceptor.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
-        Attributes subentry = new AttributesImpl( "cn", cn, true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( "cn", cn, true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
@@ -1064,8 +1064,8 @@ public class SearchIT
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // create administrative area
-        Attributes aaAttrs = new AttributesImpl();
-        Attribute aaObjectClass = new AttributeImpl( "objectClass" );
+        Attributes aaAttrs = new BasicAttributes( true );
+        Attribute aaObjectClass = new BasicAttribute( "objectClass" );
         aaObjectClass.add( "top" );
         aaObjectClass.add( "organizationalUnit" );
         aaObjectClass.add( "extensibleObject" );
@@ -1075,8 +1075,8 @@ public class SearchIT
         DirContext aaCtx = ctx.createSubcontext( "ou=Collective Area", aaAttrs );
         
         // create subentry
-        Attributes subentry = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes subentry = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
@@ -1389,7 +1389,7 @@ public class SearchIT
     public void testMissingAnyInSubstring_DIRSERVER_1180() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
-        Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
         attrs.get( "objectClass" ).add( "person" );
         attrs.put( "givenName", "Jim" );

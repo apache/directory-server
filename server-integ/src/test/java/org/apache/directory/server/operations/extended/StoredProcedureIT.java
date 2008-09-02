@@ -39,7 +39,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
@@ -49,6 +48,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -139,7 +139,7 @@ public class StoredProcedureIT
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
         
-        Attributes spContainer = new AttributesImpl( "objectClass", "top", true );
+        Attributes spContainer = new BasicAttributes( "objectClass", "top", true );
         spContainer.get( "objectClass" ).add( "organizationalUnit" );
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );

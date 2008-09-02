@@ -31,6 +31,8 @@ import javax.naming.NoPermissionException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
@@ -58,8 +60,6 @@ import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.util.AvailablePortFinder;
@@ -217,8 +217,8 @@ public class MiscBindIT
         {
         }
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute oc = new BasicAttribute( "objectClass" );
         attrs.put( oc );
         oc.add( "top" );
         oc.add( "organizationalUnit" );
@@ -327,8 +327,8 @@ public class MiscBindIT
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        Attributes attributes = new AttributesImpl();
-        Attribute objectClass = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "organizationalUnit" );
         attributes.put( objectClass );
@@ -369,8 +369,8 @@ public class MiscBindIT
         Attributes attrs = ctx.getAttributes( "" );
         assertTrue( attrs.get( "dc" ).get().equals( "aPache" ) );
 
-        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes user = new BasicAttributes( "cn", "Kate Bush", true );
+        Attribute oc = new BasicAttribute( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );
@@ -459,8 +459,8 @@ public class MiscBindIT
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         InitialLdapContext ctx = new InitialLdapContext( env, null );
 
-        Attributes user = new AttributesImpl( "cn", "Kate Bush", true );
-        Attribute oc = new AttributeImpl( "objectClass" );
+        Attributes user = new BasicAttributes( "cn", "Kate Bush", true );
+        Attribute oc = new BasicAttribute( "objectClass" );
         oc.add( "top" );
         oc.add( "person" );
         oc.add( "organizationalPerson" );

@@ -37,6 +37,8 @@ import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -55,8 +57,6 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
@@ -244,7 +244,7 @@ public class StartTlsIT
     	// do add and confirm
     	// -------------------------------------------------------------------
 
-    	AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+    	Attributes attrs = new BasicAttributes( "objectClass", "person", true );
     	attrs.put( "sn", "foo" );
     	attrs.put( "cn", "foo bar" );
     	ctx.createSubcontext( "cn=foo bar,ou=system", attrs );
@@ -255,7 +255,7 @@ public class StartTlsIT
     	// -------------------------------------------------------------------
 
     	ModificationItem[] mods = new ModificationItem[] {
-    			new ModificationItem( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "cn", "fbar" ) )
+    			new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
     	};
     	ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
     	Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );

@@ -46,8 +46,6 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
@@ -60,6 +58,8 @@ import static org.junit.Assert.assertFalse;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -350,8 +350,8 @@ public class PasswordPolicyServiceIT
      */
     protected Attributes getPersonAttributes( String sn, String cn, String uid, String userPassword )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" ); // sn $ cn
         ocls.add( "inetOrgPerson" ); // uid
@@ -370,8 +370,8 @@ public class PasswordPolicyServiceIT
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );
         attrs.put( ocls );

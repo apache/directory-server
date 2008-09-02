@@ -51,8 +51,6 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
@@ -67,6 +65,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.io.IOException;
@@ -197,7 +197,7 @@ public class KeyDerivationServiceIT
         // if krb5kdc is disabled then enable it
         if ( isKrb5KdcDisabled )
         {
-            Attribute disabled = new AttributeImpl( "m-disabled" );
+            Attribute disabled = new BasicAttribute( "m-disabled" );
             ModificationItemImpl[] mods = new ModificationItemImpl[]
                 { new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
@@ -307,10 +307,10 @@ public class KeyDerivationServiceIT
         String newUserPassword = "secretsecret";
 
         // Modify password.
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "userPassword", newUserPassword );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
+        attr = new BasicAttribute( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -358,10 +358,10 @@ public class KeyDerivationServiceIT
         newUserPassword = "secretsecretsecret";
 
         // Modify password.
-        attributes = new AttributesImpl( true );
-        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes = new BasicAttributes( true );
+        attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
+        attr = new BasicAttribute( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -389,10 +389,10 @@ public class KeyDerivationServiceIT
         newUserPassword = "secretsecretsecretsecret";
 
         // Modify password.
-        attributes = new AttributesImpl( true );
-        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes = new BasicAttributes( true );
+        attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
-        attr = new AttributeImpl( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
+        attr = new BasicAttribute( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, newPrincipalName );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -444,8 +444,8 @@ public class KeyDerivationServiceIT
         String newUserPassword = "secretsecret";
 
         // Modify password.
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "userPassword", newUserPassword );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -493,8 +493,8 @@ public class KeyDerivationServiceIT
         newUserPassword = "secretsecretsecret";
 
         // Modify password.
-        attributes = new AttributesImpl( true );
-        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes = new BasicAttributes( true );
+        attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -522,8 +522,8 @@ public class KeyDerivationServiceIT
         newUserPassword = "secretsecretsecretsecret";
 
         // Modify password.
-        attributes = new AttributesImpl( true );
-        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes = new BasicAttributes( true );
+        attr = new BasicAttribute( "userPassword", newUserPassword );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );
@@ -668,8 +668,8 @@ public class KeyDerivationServiceIT
      */
     protected Attributes getPersonAttributes( String sn, String cn, String uid, String userPassword, String principal )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" ); // sn $ cn
         ocls.add( "inetOrgPerson" ); // uid
@@ -695,8 +695,8 @@ public class KeyDerivationServiceIT
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );
         attrs.put( ocls );

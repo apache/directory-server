@@ -30,6 +30,7 @@ import javax.naming.directory.AttributeInUseException;
 import javax.naming.directory.AttributeModificationException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
@@ -52,8 +53,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -102,8 +101,8 @@ public class ModifyAddIT
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attribute.add( "organizationalperson" );
@@ -126,7 +125,7 @@ public class ModifyAddIT
         
         // Add telephoneNumber attribute
         String newValue = "1234567890";
-        Attributes attrs = new AttributesImpl( "telephoneNumber", newValue );
+        Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute value is added
@@ -149,10 +148,10 @@ public class ModifyAddIT
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
-        Attribute attr = new AttributeImpl( "telephoneNumber" );
+        Attribute attr = new BasicAttribute( "telephoneNumber" );
         attr.add( newValues[0] );
         attr.add( newValues[1] );
-        Attributes attrs = new AttributesImpl();
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
@@ -177,7 +176,7 @@ public class ModifyAddIT
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
-        Attributes attrs = new AttributesImpl( "description", newValue );
+        Attributes attrs = new BasicAttributes( "description", newValue, true );
 
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
@@ -205,7 +204,7 @@ public class ModifyAddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Change description attribute
-        Attributes attrs = new AttributesImpl( "description", PERSON_DESCRIPTION );
+        Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
         
         try
         {
@@ -242,23 +241,23 @@ public class ModifyAddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Change description attribute
-        Attributes attrs = new AttributesImpl( true );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 1" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 2" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 3" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 4" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 5" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 6" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 7" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 8" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 9" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 10" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 11" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 12" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 13" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber", "attr 14" ) );
+        Attributes attrs = new BasicAttributes( true );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 1" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 2" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 3" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 4" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 5" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 6" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 7" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 8" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 9" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 10" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 11" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 12" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 13" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber", "attr 14" ) );
         
-        Attribute attr = new AttributeImpl( "description", PERSON_DESCRIPTION );
+        Attribute attr = new BasicAttribute( "description", PERSON_DESCRIPTION );
 
         attrs.put( attr );
         
@@ -290,8 +289,8 @@ public class ModifyAddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Change description attribute
-        Attributes attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "description", "a British singer-songwriter with an expressive four-octave voice" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute attr = new BasicAttribute( "description", "a British singer-songwriter with an expressive four-octave voice" );
         attr.add( "one of the most influential female artists of the twentieth century" );
         attrs.put( attr );
         
@@ -319,7 +318,7 @@ public class ModifyAddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // modify object classes, add a new value twice
-        Attribute ocls = new AttributeImpl( "objectClass", "organizationalPerson" );
+        Attribute ocls = new BasicAttribute( "objectClass", "organizationalPerson" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
         modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, ocls );
@@ -352,7 +351,7 @@ public class ModifyAddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // add the same description value twice
-        Attribute desc = new AttributeImpl( "description", "another description value besides songwriter" );
+        Attribute desc = new BasicAttribute( "description", "another description value besides songwriter" );
         ModificationItemImpl[] modItems = new ModificationItemImpl[2];
         modItems[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
         modItems[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, desc );
@@ -381,7 +380,7 @@ public class ModifyAddIT
         
         // Add a not existing attribute
         String newValue = "unbelievable";
-        Attributes attrs = new AttributesImpl( "voice", newValue );
+        Attributes attrs = new BasicAttributes( "voice", newValue, true );
 
         try
         {
@@ -416,14 +415,14 @@ public class ModifyAddIT
         String[] descriptions = {
                 "Kate Bush is a British singer-songwriter.",
                 "She has become one of the most influential female artists of the twentieth century." };
-        Attribute desc1 = new AttributeImpl("description");
+        Attribute desc1 = new BasicAttribute("description");
         desc1.add(descriptions[0]);
         desc1.add(descriptions[1]);
 
         ModificationItemImpl addModOp = new ModificationItemImpl(
                 DirContext.ADD_ATTRIBUTE, desc1);
 
-        Attribute desc2 = new AttributeImpl("description");
+        Attribute desc2 = new BasicAttribute("description");
         desc2.add(descriptions[1]);
         ModificationItemImpl delModOp = new ModificationItemImpl(
                 DirContext.REMOVE_ATTRIBUTE, desc2);
@@ -499,7 +498,7 @@ public class ModifyAddIT
         ctx.createSubcontext(rdn, attrs);
 
         // Try to modify the cn attribute
-        Attribute desc1 = new AttributeImpl( "cn", "Georges Bush" );
+        Attribute desc1 = new BasicAttribute( "cn", "Georges Bush" );
 
         ModificationItem addModOp = new ModificationItem(
                 DirContext.REPLACE_ATTRIBUTE, desc1);
@@ -534,8 +533,8 @@ public class ModifyAddIT
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
@@ -544,8 +543,8 @@ public class ModifyAddIT
         ctx.createSubcontext( "cn=Fiona Apple", attrs );
         
         // add two displayNames to an inetOrgPerson
-        attrs = new AttributesImpl();
-        Attribute displayName = new AttributeImpl( "displayName" );
+        attrs = new BasicAttributes( true );
+        Attribute displayName = new BasicAttribute( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
@@ -572,7 +571,7 @@ public class ModifyAddIT
         
         // Add a binary attribute
         byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
-        Attributes attrs = new AttributesImpl( "userCertificate;binary", newValue );
+        Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Verify, that attribute value is added

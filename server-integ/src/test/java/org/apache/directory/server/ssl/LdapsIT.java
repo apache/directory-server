@@ -39,8 +39,6 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.ssl.SSLSocketFactory;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +47,8 @@ import static org.junit.Assert.assertNotNull;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -147,8 +147,8 @@ public class LdapsIT
     public void testLdapS() throws Exception
     {
         // Create a person
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );

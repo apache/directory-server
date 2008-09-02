@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.search;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -31,7 +32,6 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -255,7 +255,7 @@ public class SchemaSearchIT
         DirContext ctx = getWiredContext( ldapServer );
         
         // create an entry with the schema objectClass personActiveDirectory
-        AttributesImpl person = new AttributesImpl( "objectClass", "top", true );
+        Attributes person = new BasicAttributes( "objectClass", "top", true );
         person.get( "objectClass" ).add( "person" );
         person.get( "objectClass" ).add( "personActiveDirectory" );
         person.put( "cn", "foobar" );

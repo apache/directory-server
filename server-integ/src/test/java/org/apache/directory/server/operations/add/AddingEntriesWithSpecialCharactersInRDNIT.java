@@ -24,6 +24,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -33,8 +35,6 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +58,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -72,8 +72,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
 
     protected Attributes getOrgUnitAttributes( String ou )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );
         attrs.put( ocls );

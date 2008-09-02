@@ -27,6 +27,8 @@ import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventDirContext;
@@ -50,8 +52,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 
 import org.junit.Test;
@@ -99,8 +99,8 @@ public class PersistentSearchIT
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -205,7 +205,7 @@ public class PersistentSearchIT
     {
         setUpListener();
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
-            new AttributesImpl( "description", PERSON_DESCRIPTION, true ) );
+            new BasicAttributes( "description", PERSON_DESCRIPTION, true ) );
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
@@ -266,7 +266,7 @@ public class PersistentSearchIT
     public void testPsearchModifyWithEC() throws Exception
     {
         setUpListenerReturnECs();
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
             true ) );
         waitForThreadToDie( t );
         assertNotNull( listener.result );
@@ -354,7 +354,7 @@ public class PersistentSearchIT
         assertNull( listener.result );
 
         // thread is still waiting for notifications try a modify
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new BasicAttributes( "description", PERSON_DESCRIPTION,
             true ) );
         waitForThreadToDie( t );
         

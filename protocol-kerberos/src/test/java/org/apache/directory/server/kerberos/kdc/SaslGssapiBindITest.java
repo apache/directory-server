@@ -31,8 +31,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -40,6 +38,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.HashSet;
@@ -110,7 +110,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         // if krb5kdc is disabled then enable it
         if ( isKrb5KdcDisabled )
         {
-            Attribute disabled = new AttributeImpl( "m-disabled" );
+            Attribute disabled = new BasicAttribute( "m-disabled" );
             ModificationItemImpl[] mods = new ModificationItemImpl[]
                     {new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled )};
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
@@ -184,8 +184,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
      */
     protected Attributes getPrincipalAttributes( String sn, String cn, String uid, String userPassword, String principal )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" ); // sn $ cn
         ocls.add( "inetOrgPerson" ); // uid
@@ -211,8 +211,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes();
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );
         attrs.put( ocls );

@@ -23,6 +23,8 @@ package org.apache.directory.server.operations.modify;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -47,8 +49,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
@@ -85,8 +85,8 @@ public class ModifyRemoveIT
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {
-        Attributes attributes = new AttributesImpl();
-        Attribute attribute = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "person" );
         attributes.put( attribute );
@@ -102,8 +102,8 @@ public class ModifyRemoveIT
      */
     protected Attributes getInetOrgPersonAttributes( String sn, String cn )
     {
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         ocls.add( "organizationalPerson" );
@@ -137,7 +137,7 @@ public class ModifyRemoveIT
         assertNotNull( tori.get( "sn" ) );
         
         // Test an add operation first
-        ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, new AttributeImpl( "cn", "foo" ) );
+        ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "foo" ) );
         ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
         tori = ctx.getAttributes( RDN );
         assertNotNull( tori.get( "objectClass" ) );
@@ -148,7 +148,7 @@ public class ModifyRemoveIT
         assertNotNull( tori.get( "sn" ) );
         
         // Now test remove of value ( bar ) that does not exist in cn
-        mod = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new AttributeImpl( "cn", "bar" ) );
+        mod = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute( "cn", "bar" ) );
         ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
         tori = ctx.getAttributes( RDN );
         assertNotNull( tori.get( "objectClass" ) );
@@ -172,8 +172,8 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove description Attribute
-        Attribute attr = new AttributeImpl( "description" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "description" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
@@ -196,13 +196,13 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // add telephoneNumber to entry
-        Attributes tn = new AttributesImpl( "telephoneNumber", "12345678" );
+        Attributes tn = new BasicAttributes( "telephoneNumber", "12345678", true );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
 
         // Remove description and telephoneNumber to Attribute
-        Attributes attrs = new AttributesImpl();
-        attrs.put( new AttributeImpl( "description" ) );
-        attrs.put( new AttributeImpl( "telephoneNumber" ) );
+        Attributes attrs = new BasicAttributes( true );
+        attrs.put( new BasicAttribute( "description" ) );
+        attrs.put( new BasicAttribute( "telephoneNumber" ) );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
 
         // Verify, that attributes are deleted
@@ -226,8 +226,8 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove sn attribute
-        Attribute attr = new AttributeImpl( "sn" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "sn" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -253,8 +253,8 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove sn attribute
-        Attribute attr = new AttributeImpl( "cn" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "cn" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -285,8 +285,8 @@ public class ModifyRemoveIT
         ctx.rename( RDN, newRdn );
 
         // Remove description, which is now RDN attribute
-        Attribute attr = new AttributeImpl( "description" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "description" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -317,8 +317,8 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove telephoneNumber Attribute
-        Attribute attr = new AttributeImpl( "telephoneNumber" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "telephoneNumber" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -345,16 +345,16 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove telephoneNumber Attribute
-        Attribute attr = new AttributeImpl( "telephoneNumber", "12345" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "telephoneNumber", "12345" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
         
         // Inject the new attribute
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, attrs );
 
         // Now try to remove a value which is not present
-        Attribute attr2 = new AttributeImpl( "telephoneNumber", "7890" );
-        Attributes attrs2 = new AttributesImpl();
+        Attribute attr2 = new BasicAttribute( "telephoneNumber", "7890" );
+        Attributes attrs2 = new BasicAttributes( true );
         attrs2.put( attr2 );
     	
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
@@ -375,8 +375,8 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Remove phantasy attribute
-        Attribute attr = new AttributeImpl( "XXX" );
-        Attributes attrs = new AttributesImpl();
+        Attribute attr = new BasicAttribute( "XXX" );
+        Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
 
         try
@@ -410,7 +410,7 @@ public class ModifyRemoveIT
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute givenName with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "givenname" );
+        Attribute attr = new BasicAttribute( "givenname" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         ctx.modifyAttributes( rdn, new ModificationItemImpl[] { item } );
 
@@ -455,7 +455,7 @@ public class ModifyRemoveIT
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn" );
+        Attribute attr = new BasicAttribute( "cn" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
 
         try
@@ -487,7 +487,7 @@ public class ModifyRemoveIT
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn" );
+        Attribute attr = new BasicAttribute( "cn" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
@@ -519,7 +519,7 @@ public class ModifyRemoveIT
         ctx.createSubcontext( rdn, attrs );
 
         // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn", "Kate Bush" );
+        Attribute attr = new BasicAttribute( "cn", "Kate Bush" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
 
         try
@@ -550,7 +550,7 @@ public class ModifyRemoveIT
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass", ""));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass", ""));
 
         try {
             ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });
@@ -583,7 +583,7 @@ public class ModifyRemoveIT
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext(rdn, attrs);
 
-        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new AttributeImpl("objectclass"));
+        ModificationItemImpl delModOp = new ModificationItemImpl(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute("objectclass"));
 
         try {
             ctx.modifyAttributes(rdn, new ModificationItemImpl[] { delModOp });

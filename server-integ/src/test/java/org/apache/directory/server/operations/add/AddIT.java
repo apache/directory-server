@@ -25,6 +25,8 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
@@ -54,8 +56,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,8 +133,8 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
-        Attributes attributes = new AttributesImpl( true );
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "organizationalPerson" );
         ocls.add( "inetOrgPerson" );
         attributes.put( ocls );
@@ -169,8 +169,8 @@ public class AddIT
         String newDescription = "More info on the user ...";
 
         // modify object classes, add two more
-        Attributes attributes = new AttributesImpl( true );
-        Attribute desc = new AttributeImpl( "description", newDescription );
+        Attributes attributes = new BasicAttributes( true );
+        Attribute desc = new BasicAttribute( "description", newDescription );
         attributes.put( desc );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -196,8 +196,8 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // person without sn
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "person" );
         attrs.put( ocls );
@@ -355,14 +355,14 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // add inetOrgPerson with two displayNames
-        Attributes attrs = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "inetOrgPerson" );
         attrs.put( ocls );
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
-        Attribute displayName = new AttributeImpl( "displayName" );
+        Attribute displayName = new BasicAttribute( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
@@ -389,8 +389,8 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry
-        Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes entry = new BasicAttributes( true );
+        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -400,8 +400,8 @@ public class AddIT
 
         // Create Alias
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
-        Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes alias = new BasicAttributes( true );
+        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -429,8 +429,8 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create container
-        Attributes container = new AttributesImpl();
-        Attribute containerOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes container = new BasicAttributes( true );
+        Attribute containerOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         containerOcls.add( SchemaConstants.TOP_OC );
         containerOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         container.put( containerOcls );
@@ -439,8 +439,8 @@ public class AddIT
         DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
 
         // Create entry
-        Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes entry = new BasicAttributes( true );
+        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -450,8 +450,8 @@ public class AddIT
 
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
-        Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes alias = new BasicAttributes( true );
+        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -518,8 +518,8 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry ou=favorite,dc=example,dc=com
-        Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes entry = new BasicAttributes( true );
+        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         entryOcls.add( SchemaConstants.TOP_OC );
         entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
@@ -529,8 +529,8 @@ public class AddIT
 
         // Create Alias ou=bestFruit,dc=example,dc=com to ou=favorite
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
-        Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        Attributes alias = new BasicAttributes( true );
+        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
         aliasOcls.add( SchemaConstants.TOP_OC );
         aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         aliasOcls.add( SchemaConstants.ALIAS_OC );
@@ -656,7 +656,7 @@ public class AddIT
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         
         // add failure
-        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit" );
+        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "UnderReferral" );
         
         try
@@ -683,7 +683,7 @@ public class AddIT
     public void testDIRSERVER_1183() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
-    	Attributes attrs = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+    	Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
     	attrs.get( "objectClass" ).add( "organizationalPerson" );
     	attrs.get( "objectClass" ).add( "person" );
     	attrs.put( "givenName", "Jim" );
@@ -703,7 +703,7 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
-        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
         person.get( "objectClass" ).add( "organizationalperson" );
@@ -741,7 +741,7 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
-        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
         person.get( "objectClass" ).add( "organizationalperson" );
@@ -786,7 +786,7 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
-        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
         person.get( "objectClass" ).add( "organizationalperson" );
@@ -827,7 +827,7 @@ public class AddIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
-        Attributes person = new AttributesImpl( "objectClass", "inetOrgPerson", true );
+        Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         person.get( "objectClass" ).add( "top" );
         person.get( "objectClass" ).add( "person" );
         person.get( "objectClass" ).add( "organizationalperson" );
