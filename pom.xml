@@ -341,7 +341,7 @@
     <module>utils</module>
     <module>schema-registries</module>
     <module>jdbm-store</module>
-    <module>btree-base</module>
+    <module>xdbm-base</module>
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>

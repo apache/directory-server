@@ -17,7 +17,8 @@ Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar
  ../lib/apacheds-core-shared-1.5.4-SNAPSHOT.jar 
  ../lib/apacheds-jdbm-1.5.4-SNAPSHOT.jar 
  ../lib/apacheds-jdbm-store-1.5.4-SNAPSHOT.jar 
- ../lib/apacheds-btree-base-1.5.4-SNAPSHOT.jar 
+ ../lib/apacheds-xdbm-base-1.5.4-SNAPSHOT.jar 
+ ../lib/apacheds-xdbm-search-1.5.4-SNAPSHOT.jar 
  ../lib/apacheds-server-jndi-1.5.4-SNAPSHOT.jar 
  ../lib/apacheds-server-replication-1.5.4-SNAPSHOT.jar 
  ../lib/apacheds-utils-1.5.4-SNAPSHOT.jar 

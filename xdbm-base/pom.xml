@@ -27,12 +27,11 @@
     <version>1.5.4-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-btree-base</artifactId>
-  <name>ApacheDS BTree Base</name>
+  <name>ApacheDS XDBM Base</name>
   <packaging>jar</packaging>
 
   <description>
-    Base BTree interfaces used by the BTreePartition and JdbmPartitions as well
-    as by the JdbmStore.  Used to break cyclic dependencies.
+    Base XDBM (btree based) entry store interfaces.
   </description>
 
   <dependencies>
