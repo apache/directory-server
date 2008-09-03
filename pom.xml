@@ -332,6 +332,7 @@
   </dependencies>
 
   <modules>
+    <module>all</module>
     <module>jdbm</module>
     <module>bootstrap-extract</module>
     <module>bootstrap-partition</module>
