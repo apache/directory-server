@@ -332,7 +332,7 @@
   </dependencies>
 
   <modules>
-    <module>apacheds-jdbm</module>
+    <module>jdbm</module>
     <module>bootstrap-extract</module>
     <module>bootstrap-partition</module>
     <module>bootstrap-plugin</module>
