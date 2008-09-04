@@ -1289,7 +1289,8 @@ public class SchemaInterceptor extends BaseInterceptor
             ModificationOperation modOp = mod.getOperation();
             ServerAttribute change = ( ServerAttribute ) mod.getAttribute();
 
-            if ( !atRegistry.hasAttributeType( change.getUpId() )
+            // TODO/ handle http://issues.apache.org/jira/browse/DIRSERVER-1198
+            if ( ( change.getAttributeType() == null ) && !atRegistry.hasAttributeType( change.getUpId() )
                 && !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
@@ -1297,7 +1298,12 @@ public class SchemaInterceptor extends BaseInterceptor
 
             // We will forbid modification of operational attributes which are not
             // user modifiable.
-            AttributeType attributeType = atRegistry.lookup( change.getUpId() );
+            AttributeType attributeType = change.getAttributeType();
+            
+            if ( attributeType == null )
+            {
+                attributeType = atRegistry.lookup( change.getUpId() );
+            }
 
             if ( !attributeType.isCanUserModify() )
             {
@@ -1307,7 +1313,7 @@ public class SchemaInterceptor extends BaseInterceptor
             switch ( modOp )
             {
                 case ADD_ATTRIBUTE:
-                    EntryAttribute attr = tmpEntry.get( change.getUpId() );
+                    EntryAttribute attr = tmpEntry.get( attributeType.getName() );
 
                     if ( attr != null )
                     {
@@ -1331,7 +1337,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     break;
 
                 case REMOVE_ATTRIBUTE:
-                    if ( tmpEntry.get( change.getUpId() ) == null )
+                    if ( tmpEntry.get( change.getId() ) == null )
                     {
                         LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
                         throw new LdapNoSuchAttributeException();
@@ -1359,7 +1365,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         }
 
                         // Now remove the attribute and all its values
-                        EntryAttribute modified = tmpEntry.removeAttributes( change.getUpId() ).get( 0 );
+                        EntryAttribute modified = tmpEntry.removeAttributes( change.getId() ).get( 0 );
 
                         // And inject back the values except the ones to remove
                         for ( Value<?> value : change )
@@ -1369,7 +1375,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                         // ok, done. Last check : if the attribute does not content any more value;
                         // and if it's a MUST one, we should thow an exception
-                        if ( ( modified.size() == 0 ) && isRequired( change.getUpId(), objectClass ) )
+                        if ( ( modified.size() == 0 ) && isRequired( change.getId(), objectClass ) )
                         {
                             LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );

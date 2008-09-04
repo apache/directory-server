@@ -57,7 +57,29 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class ServerEntryUtils
 {
     /**
-     * Convert a ServerEntry into a AttributesImpl. The DN is lost
+     * Convert a ServerAttribute into a BasicAttribute. The DN is lost
+     * during this conversion, as the Attributes object does not store
+     * this element.
+     *
+     * @return An instance of a AttributesImpl() object
+     */
+    public static Attribute toBasicAttribute( ServerAttribute entryAttribute )
+    {
+        AttributeType attributeType = entryAttribute.getAttributeType();
+        
+        Attribute attribute = new BasicAttribute( attributeType.getName() );
+        
+        for ( Value<?> value: entryAttribute )
+        {
+            attribute.add( value.get() );
+        }
+        
+        return attribute;
+    }
+    
+    
+    /**
+     * Convert a ServerEntry into a BasicAttributes. The DN is lost
      * during this conversion, as the Attributes object does not store
      * this element.
      *
@@ -86,14 +108,7 @@ public class ServerEntryUtils
                 }
             }
             
-            Attribute attribute = new BasicAttribute( attributeType.getName() );
-            
-            for ( Value<?> value: attr )
-            {
-                attribute.add( value.get() );
-            }
-            
-            attributes.put( attribute );
+            attributes.put( toBasicAttribute( (ServerAttribute)attr ) );
         }
         
         return attributes;
@@ -216,24 +231,6 @@ public class ServerEntryUtils
 
 
     /**
-     * Convert a ServerAttributeEntry into a AttributeImpl.
-     *
-     * @return An instance of a BasicAttribute() object
-     */
-    public static Attribute toAttributeImpl( EntryAttribute attr )
-    {
-        Attribute attribute = new BasicAttribute( attr.getUpId() );
-
-        for ( Value<?> value:attr )
-        {
-            attribute.add( value.get() );
-        }
-        
-        return attribute;
-    }
-
-
-    /**
      * Gets the target entry as it would look after a modification operation 
      * was performed on it.
      * 
@@ -348,17 +345,6 @@ public class ServerEntryUtils
     }
     
     
-    public static ModificationItem toModificationItem( Modification modification )
-    {
-        ModificationItem modificationItem = new ModificationItem( 
-            modification.getOperation().getValue(),
-            toAttributeImpl( (ServerAttribute)modification.getAttribute() ) ); 
-        
-        return modificationItem;
-        
-    }
-
-
     /**
      * Convert a ModificationItem to an instance of a ServerModification object
      *
@@ -368,34 +354,33 @@ public class ServerEntryUtils
      */
     private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) 
     {
+        ModificationOperation operation;
+        
+        switch ( modificationImpl.getModificationOp() )
+        {
+            case DirContext.REMOVE_ATTRIBUTE :
+                operation = ModificationOperation.REMOVE_ATTRIBUTE;
+                break;
+                
+            case DirContext.REPLACE_ATTRIBUTE :
+                operation = ModificationOperation.REPLACE_ATTRIBUTE;
+                break;
+
+            case DirContext.ADD_ATTRIBUTE :
+            default :
+                operation = ModificationOperation.ADD_ATTRIBUTE;
+                break;
+                
+        }
+        
         Modification modification = new ServerModification( 
-            modificationImpl.getModificationOp(),
+            operation,
             ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) ); 
         
         return modification;
         
     }
 
-    
-    public static List<ModificationItem> toModificationItemImpl( List<Modification> modifications )
-    {
-        if ( modifications != null )
-        {
-            List<ModificationItem> modificationItems = new ArrayList<ModificationItem>();
-
-            for ( Modification modification: modifications )
-            {
-                modificationItems.add( toModificationItem( modification ) );
-            }
-        
-            return modificationItems;
-        }
-        else
-        {
-            return null;
-        }
-    }
-    
     
     /**
      * 
@@ -428,6 +413,77 @@ public class ServerEntryUtils
     }
     
     
+    /**
+     * Convert a Modification to an instance of a ServerModification object.
+     *
+     * @param modificationImpl the modification instance to convert
+     * @param attributeType the associated attributeType
+     * @return a instance of a ServerModification object
+     */
+    private static Modification toServerModification( Modification modification, AttributeType attributeType ) 
+    {
+        if ( modification instanceof ServerModification )
+        {
+            return modification;
+        }
+        
+        Modification serverModification = new ServerModification( 
+            modification.getOperation(),
+            new DefaultServerAttribute( attributeType, modification.getAttribute() ) ); 
+        
+        return serverModification;
+        
+    }
+
+    
+    public static List<Modification> toServerModification( Modification[] modifications, 
+        AttributeTypeRegistry atRegistry ) throws NamingException
+    {
+        if ( modifications != null )
+        {
+            List<Modification> modificationsList = new ArrayList<Modification>();
+    
+            for ( Modification modification: modifications )
+            {
+                String attributeId = modification.getAttribute().getId();
+                String id = stripOptions( attributeId );
+                modification.getAttribute().setId( id );
+                Set<String> options = getOptions( attributeId );
+
+                // -------------------------------------------------------------------
+                // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
+                // (deletion) causes an error
+                // -------------------------------------------------------------------
+                
+                // TODO - after removing JNDI we need to make the server handle 
+                // this in the codec
+                
+                if ( ! atRegistry.hasAttributeType( id ) 
+                     && modification.getAttribute().size() == 0 
+                     && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
+                {
+                    continue;
+                }
+
+                // -------------------------------------------------------------------
+                // END DIRSERVER-646 Fix
+                // -------------------------------------------------------------------
+                
+                
+                // TODO : handle options
+                AttributeType attributeType = atRegistry.lookup( id );
+                modificationsList.add( toServerModification( modification, attributeType ) );
+            }
+        
+            return modificationsList;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
     public static List<Modification> toServerModification( ModificationItem[] modifications, 
         AttributeTypeRegistry atRegistry ) throws NamingException
     {

@@ -122,7 +122,7 @@ public class RelatedProtectedItemFilterTest
         
         for ( ServerAttribute attribute:attributes )
         {
-            jndiAttributes.add( ServerEntryUtils.toAttributeImpl( attribute ) );
+            jndiAttributes.add( ServerEntryUtils.toBasicAttribute( attribute ) );
         }
         
         return jndiAttributes;

@@ -27,13 +27,9 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -44,7 +40,6 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
@@ -61,6 +56,7 @@ import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -411,10 +407,8 @@ public class ImportCommand extends ToolCommand
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to modify
-     * @param msgId
-     *            message id number
+     * @param entry The entry to modify
+     * @param msgId message id number
      */
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
@@ -431,35 +425,13 @@ public class ImportCommand extends ToolCommand
         modifyRequest.setObject( new LdapDN( dn ) );
         modifyRequest.initModifications();
 
-        Iterator modifications = entry.getModificationItems().iterator();
-
-        while ( modifications.hasNext() )
+        for ( Modification modification: entry.getModificationItems() )
         {
-            ModificationItem modification = ( ModificationItem ) modifications.next();
+            modifyRequest.setCurrentOperation( modification.getOperation() );
+            modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getId() );
 
-            switch ( modification.getModificationOp() )
+            for ( Value<?> value:modification.getAttribute() )
             {
-                case DirContext.ADD_ATTRIBUTE:
-                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_ADD );
-                    break;
-
-                case DirContext.REMOVE_ATTRIBUTE:
-                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_DELETE );
-                    break;
-
-                case DirContext.REPLACE_ATTRIBUTE:
-                    modifyRequest.setCurrentOperation( LdapConstants.OPERATION_REPLACE );
-                    break;
-
-                default:
-                    System.err.println( "Unknown modify operation for DN " + dn );
-            }
-
-            modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getID() );
-
-            for ( NamingEnumeration values = modification.getAttribute().getAll(); values.hasMoreElements(); )
-            {
-                Object value = values.nextElement();
                 modifyRequest.addAttributeValue( value );
             }
         }

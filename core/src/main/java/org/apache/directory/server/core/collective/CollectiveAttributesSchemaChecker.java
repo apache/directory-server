@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -106,9 +107,23 @@ public class CollectiveAttributesSchemaChecker
     {
         for ( Modification mod:mods )
         {
+            // TODO: handle http://issues.apache.org/jira/browse/DIRSERVER-1198
             ServerAttribute attr = (ServerAttribute)mod.getAttribute();
-            String attrID = attr.getId();
-            AttributeType attrType = attrTypeRegistry.lookup( attrID );
+            AttributeType attrType = attr.getAttributeType();
+
+            if ( attrType == null )
+            {
+                if ( !attrTypeRegistry.hasAttributeType( attr.getUpId() ) )
+                {
+                    throw new LdapInvalidAttributeIdentifierException();
+                }
+                else
+                {
+                    attrType = attrTypeRegistry.lookup( attr.getUpId() );
+                }
+            }
+            
+            
             ModificationOperation modOp = mod.getOperation();
             
             if ( ( ( modOp == ModificationOperation.ADD_ATTRIBUTE ) || ( modOp == ModificationOperation.REPLACE_ATTRIBUTE ) ) &&

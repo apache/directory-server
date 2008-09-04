@@ -542,7 +542,7 @@ public class SchemaChecker
         }
 
         Set<String> rdnAttributes = getRdnAttributes( name );
-        String id = attribute.getUpId();
+        String id = attribute.getId();
 
         if ( !rdnAttributes.contains( oidRegistry.getOid( id ) ) )
         {

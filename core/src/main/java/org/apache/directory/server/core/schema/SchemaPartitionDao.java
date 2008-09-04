@@ -44,6 +44,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -595,14 +596,14 @@ public class SchemaPartitionDao
             return;
         }
 
-        mods.add( new ServerModification( DirContext.REMOVE_ATTRIBUTE, new DefaultServerAttribute(
+        mods.add( new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultServerAttribute(
             MetaSchemaConstants.M_DISABLED_AT, attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
 
-        mods.add( new ServerModification( DirContext.ADD_ATTRIBUTE, new DefaultServerAttribute(
+        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultServerAttribute(
             SchemaConstants.MODIFIERS_NAME_AT, attrRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT ),
             ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
 
-        mods.add( new ServerModification( DirContext.ADD_ATTRIBUTE, new DefaultServerAttribute(
+        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultServerAttribute(
             SchemaConstants.MODIFY_TIMESTAMP_AT, attrRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
                 .getGeneralizedTime() ) ) );
 

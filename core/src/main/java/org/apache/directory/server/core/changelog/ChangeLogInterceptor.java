@@ -248,6 +248,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         for ( Modification modItem : opContext.getModItems() )
         {
             Modification mod = ((ServerModification)modItem).toClientModification();
+            
+            // TODO: handle correctly http://issues.apache.org/jira/browse/DIRSERVER-1198
+            mod.getAttribute().setId( modItem.getAttribute().getId() );
             mods.add( mod );
             
             forward.addModificationItem( mod );

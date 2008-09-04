@@ -24,7 +24,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
+//import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -81,19 +81,6 @@ public class ServerModification implements Modification
     }
     
     
-    /**
-     * Create a new instance of a ServerModification.
-     * 
-     * @param operation the Modification operation (one of add, replace or remove)
-     * @param attribute the modified attribute
-     */
-    public ServerModification( int operation, EntryAttribute attribute )
-    {
-        setOperation( operation );
-        this.attribute = attribute;
-    }
-    
-    
     public ServerModification( Registries registries, Modification modification )
     {
         operation = modification.getOperation();
@@ -142,20 +129,7 @@ public class ServerModification implements Modification
      */
     public void setOperation( int operation )
     {
-        switch ( operation )
-        {
-            case DirContext.ADD_ATTRIBUTE :
-                this.operation = ModificationOperation.ADD_ATTRIBUTE;
-                break;
-
-            case DirContext.REPLACE_ATTRIBUTE :
-                this.operation = ModificationOperation.REPLACE_ATTRIBUTE;
-                break;
-            
-            case DirContext.REMOVE_ATTRIBUTE :
-                this.operation = ModificationOperation.REMOVE_ATTRIBUTE;
-                break;
-        }
+        this.operation = ModificationOperation.getOperation( operation );
     }
 
     
