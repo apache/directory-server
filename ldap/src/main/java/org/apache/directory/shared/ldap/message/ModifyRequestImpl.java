@@ -23,19 +23,12 @@ package org.apache.directory.shared.ldap.message;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +44,13 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
     static final long serialVersionUID = -505803669028990304L;
 
     /** The logger */
-    private static final transient Logger log = LoggerFactory.getLogger( ModifyRequestImpl.class );
+    private static final transient Logger LOG = LoggerFactory.getLogger( ModifyRequestImpl.class );
 
     /** Dn of the entry to modify or PDU's <b>object</b> field */
     private LdapDN name;
 
     /** Sequence of modifications or PDU's <b>modification</b> seqence field */
-    private List<ModificationItem> mods = new ArrayList<ModificationItem>();
+    private List<Modification> mods = new ArrayList<Modification>();
 
     private ModifyResponse response;
 
@@ -82,15 +75,13 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
     // ------------------------------------------------------------------------
     // ModifyRequest Interface Method Implementations
     // ------------------------------------------------------------------------
-
     /**
      * Gets an immutable Collection of modification items representing the
      * atomic changes to perform on the candidate entry to modify.
      * 
-     * @return an immutatble Collection of ModificationItem instances.
-     * @see <{javax.naming.directory.ModificationItem}>
+     * @return an immutable Collection of Modification instances.
      */
-    public Collection<ModificationItem> getModificationItems()
+    public Collection<Modification> getModificationItems()
     {
         return Collections.unmodifiableCollection( mods );
     }
@@ -122,26 +113,24 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
 
 
     /**
-     * Adds a ModificationItem to the set of modifications composing this modify
+     * Adds a Modification to the set of modifications composing this modify
      * request.
      * 
-     * @param mod
-     *            a ModificationItem to add.
+     * @param mod a Modification to add
      */
-    public void addModification( ModificationItem mod )
+    public void addModification( Modification mod )
     {
         mods.add( mod );
     }
 
 
     /**
-     * Removes a ModificationItem to the set of modifications composing this
+     * Removes a Modification to the set of modifications composing this
      * modify request.
      * 
-     * @param mod
-     *            a ModificationItem to remove.
+     * @param mod a Modification to remove.
      */
-    public void removeModification( ModificationItem mod )
+    public void removeModification( Modification mod )
     {
         mods.remove( mod );
     }
@@ -224,103 +213,28 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             return false;
         }
 
-        Iterator<ModificationItem> list = req.getModificationItems().iterator();
+        Iterator<Modification> list = req.getModificationItems().iterator();
 
-        for ( int ii = 0; ii < mods.size(); ii++ )
+        for ( int i = 0; i < mods.size(); i++ )
         {
-            ModificationItem item = ( ModificationItem ) list.next();
+            Modification item = list.next();
 
-            if ( !equals( ( ModificationItem ) mods.get( ii ), item ) )
+            if ( item == null )
+            {
+                if ( mods.get( i ) != null )
+                {
+                    return false;
+                }
+            }
+            else
+                
+            if ( !item.equals((ClientModification) mods.get( i ) ) )
             {
                 return false;
             }
         }
 
         return true;
-    }
-
-
-    /**
-     * Checks to see if two ModificationItems are equal by factoring in the
-     * modification operation as well as the attribute of each item.
-     * 
-     * @param item0
-     *            the first ModificationItem to compare
-     * @param item1
-     *            the second ModificationItem to compare
-     * @return true if the ModificationItems are equal, false otherwise
-     */
-    private boolean equals( ModificationItem item0, ModificationItem item1 )
-    {
-        if ( item0 == item1 )
-        {
-            return true;
-        }
-
-        if ( item0.getModificationOp() != item1.getModificationOp() )
-        {
-            return false;
-        }
-
-        // compare attribute id's at the very least
-        if ( !item0.getAttribute().getID().equals( item1.getAttribute().getID() ) )
-        {
-            return false;
-        }
-
-        try
-        {
-            Attribute attr0 = item0.getAttribute();
-            Attribute attr1 = item1.getAttribute();
-
-            Set<Object> attrHash0 = new HashSet<Object>();
-
-            NamingEnumeration<?> iter0 = attr0.getAll();
-
-            while ( iter0.hasMoreElements() )
-            {
-                attrHash0.add( iter0.next() );
-            }
-
-            NamingEnumeration<?> iter1 = attr1.getAll();
-
-            while ( iter1.hasMoreElements() )
-            {
-                Object value = iter1.next();
-
-                if ( attrHash0.contains( value ) == false )
-                {
-                    if ( value instanceof byte[] )
-                    {
-                        String sValue = StringTools.utf8ToString( ( byte[] ) value );
-
-                        if ( attrHash0.contains( sValue ) == false )
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            attrHash0.remove( sValue );
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    attrHash0.remove( value );
-                }
-            }
-
-            return ( attrHash0.size() == 0 );
-        }
-        catch ( NamingException ne )
-        {
-            return false;
-        }
     }
 
 
@@ -343,64 +257,28 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             for ( int i = 0; i < mods.size(); i++ )
             {
 
-                ModificationItem modification = ( ModificationItem ) mods.get( i );
+                ClientModification modification = ( ClientModification ) mods.get( i );
 
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );
 
-                switch ( modification.getModificationOp() )
+                switch ( modification.getOperation() )
                 {
-
-                    case DirContext.ADD_ATTRIBUTE:
+                    case ADD_ATTRIBUTE:
                         sb.append( " add\n" );
                         break;
 
-                    case DirContext.REPLACE_ATTRIBUTE:
+                    case REPLACE_ATTRIBUTE:
                         sb.append( " replace\n" );
                         break;
 
-                    case DirContext.REMOVE_ATTRIBUTE:
+                    case REMOVE_ATTRIBUTE:
                         sb.append( " delete\n" );
                         break;
                 }
 
                 sb.append( "                Modification\n" );
-
-                Attribute attribute = modification.getAttribute();
-
-                try
-                {
-                    sb.append( "                    Type : '" ).append( attribute.getID() ).append( "'\n" );
-                    sb.append( "                    Vals\n" );
-
-                    for ( int j = 0; j < attribute.size(); j++ )
-                    {
-                        sb.append( "                        Val[" ).append( j ).append( "] : '" );
-
-                        Object attributeValue = attribute.get( j );
-
-                        if ( attributeValue instanceof byte[] )
-                        {
-                            sb.append( StringTools.utf8ToString( ( byte[] ) attributeValue ) ).append( '/' ).append(
-                                StringTools.dumpBytes( ( byte[] ) attributeValue ) );
-                        }
-                        else if ( attributeValue instanceof String )
-                        {
-                            sb.append( attributeValue );
-                        }
-                        else
-                        {
-                            sb.append( StringTools.dumpBytes( StringTools.getBytesUtf8( attributeValue.toString() ) ) );
-                        }
-
-                        sb.append( "' \n" );
-
-                    }
-                }
-                catch ( NamingException ne )
-                {
-                    log.error( "Naming exception while printing the '" + attribute.getID() + "'" );
-                }
+                sb.append( modification.getAttribute() );
             }
         }
 

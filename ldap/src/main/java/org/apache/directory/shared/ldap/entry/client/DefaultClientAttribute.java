@@ -934,6 +934,46 @@ public class DefaultClientAttribute implements ClientAttribute
 
 
     /**
+     * <p>
+     * Get the nth value of this attribute. If there is none, 
+     * null is returned.
+     * </p>
+     * <p>
+     * Note : even if we are storing values into a Set, one can assume
+     * the values are ordered following the insertion order.
+     * </p>
+     * <p> 
+     * 
+     * @param i the index  of the value to get
+     *  @return The nth value for this attribute.
+     */
+    public Value<?> get( int i )
+    {
+        if ( values.size() < i )
+        {
+            return null;
+        }
+        else
+        {
+            int n = 0;
+            
+            for ( Value<?> value:values )
+            {
+                if ( n == i )
+                {
+                    return value;
+                }
+                
+                n++;
+            }
+        }
+        
+        // fallback to 
+        return null;
+    }
+    
+    
+    /**
      * Returns an iterator over all the attribute's values.
      * <p>
      * The effect on the returned enumeration of adding or removing values of

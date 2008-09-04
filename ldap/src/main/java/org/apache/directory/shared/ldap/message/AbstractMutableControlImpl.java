@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Lockable Control implementation.
+ * Control implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

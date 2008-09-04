@@ -26,19 +26,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -78,7 +77,7 @@ public class ModifyRequest extends LdapMessage
     // -----------------------------------------------------------------
 
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( ModifyRequest.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ModifyRequest.class );
 
     // ~ Instance fields
     // ----------------------------------------------------------------------------
@@ -86,14 +85,14 @@ public class ModifyRequest extends LdapMessage
     /** The DN to be modified. */
     private LdapDN object;
 
-    /** The modifications list. This is an array of ModificationItemImpl. */
-    private List<ModificationItem> modifications;
+    /** The modifications list. This is an array of Modification. */
+    private List<Modification> modifications;
 
     /** The current attribute being decoded */
-    private Attribute currentAttribute;
+    private EntryAttribute currentAttribute;
 
     /** A local storage for the operation */
-    private int currentOperation;
+    private ModificationOperation currentOperation;
 
     /** The modify request length */
     private int modifyRequestLength;
@@ -142,7 +141,7 @@ public class ModifyRequest extends LdapMessage
      */
     public void initModifications()
     {
-        modifications = new ArrayList<ModificationItem>();
+        modifications = new ArrayList<Modification>();
     }
 
 
@@ -151,7 +150,7 @@ public class ModifyRequest extends LdapMessage
      * 
      * @return Returns the modifications.
      */
-    public List<ModificationItem> getModifications()
+    public List<Modification> getModifications()
     {
         return modifications;
     }
@@ -164,11 +163,11 @@ public class ModifyRequest extends LdapMessage
      */
     public void addModification( int operation )
     {
-        currentOperation = operation;
+        currentOperation = ModificationOperation.getOperation( operation );
 
         if ( currentAttribute == null )
         {
-            modifications = new ArrayList<ModificationItem>();
+            modifications = new ArrayList<Modification>();
         }
     }
 
@@ -180,27 +179,9 @@ public class ModifyRequest extends LdapMessage
      */
     public void addAttributeTypeAndValues( String type )
     {
-        currentAttribute = new BasicAttribute( StringTools.lowerCaseAscii( type ) );
+        currentAttribute = new DefaultClientAttribute( StringTools.lowerCaseAscii( type ) );
 
-        int operation = 0;
-
-        switch ( currentOperation )
-        {
-
-            case LdapConstants.OPERATION_ADD: // add
-                operation = DirContext.ADD_ATTRIBUTE;
-                break;
-
-            case LdapConstants.OPERATION_DELETE: // delete
-                operation = DirContext.REMOVE_ATTRIBUTE;
-                break;
-
-            case LdapConstants.OPERATION_REPLACE: // replace
-                operation = DirContext.REPLACE_ATTRIBUTE;
-                break;
-        }
-
-        ModificationItem modification = new ModificationItem( operation, currentAttribute );
+        Modification modification = new ClientModification( currentOperation, currentAttribute );
         modifications.add( modification );
     }
 
@@ -210,7 +191,29 @@ public class ModifyRequest extends LdapMessage
      * 
      * @param value The value to add
      */
-    public void addAttributeValue( Object value )
+    public void addAttributeValue( String value )
+    {
+        currentAttribute.add( value );
+    }
+
+
+    /**
+     * Add a new value to the current attribute
+     * 
+     * @param value The value to add
+     */
+    public void addAttributeValue( org.apache.directory.shared.ldap.entry.Value<?> value )
+    {
+        currentAttribute.add( value );
+    }
+
+
+    /**
+     * Add a new value to the current attribute
+     * 
+     * @param value The value to add
+     */
+    public void addAttributeValue( byte[] value )
     {
         currentAttribute.add( value );
     }
@@ -221,7 +224,7 @@ public class ModifyRequest extends LdapMessage
      */
     public String getCurrentAttributeType()
     {
-        return currentAttribute.getID();
+        return currentAttribute.getId();
     }
 
 
@@ -254,7 +257,7 @@ public class ModifyRequest extends LdapMessage
      */
     public int getCurrentOperation()
     {
-        return currentOperation;
+        return currentOperation.getValue();
     }
 
 
@@ -264,6 +267,17 @@ public class ModifyRequest extends LdapMessage
      * @param currentOperation The currentOperation to set.
      */
     public void setCurrentOperation( int currentOperation )
+    {
+        this.currentOperation = ModificationOperation.getOperation( currentOperation );
+    }
+
+
+    /**
+     * Store the current operation
+     * 
+     * @param currentOperation The currentOperation to set.
+     */
+    public void setCurrentOperation( ModificationOperation currentOperation )
     {
         this.currentOperation = currentOperation;
     }
@@ -323,47 +337,35 @@ public class ModifyRequest extends LdapMessage
             modificationLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
 
-            for ( ModificationItem modification:modifications )
+            for ( Modification modification:modifications )
             {
                 // Modification sequence length initialized with the operation
                 int localModificationSequenceLength = 1 + 1 + 1;
                 int localValuesLength = 0;
 
                 // Modification length initialized with the type
-                int typeLength = modification.getAttribute().getID().length();
+                int typeLength = modification.getAttribute().getId().length();
                 int localModificationLength = 1 + TLV.getNbBytes( typeLength ) + typeLength;
 
-                try
+                // Get all the values
+                if ( modification.getAttribute().size() != 0 )
                 {
-
-                    NamingEnumeration<?> values = modification.getAttribute().getAll();
-
-                    // Get all the values
-                    if ( values.hasMoreElements() )
+                    for ( org.apache.directory.shared.ldap.entry.Value<?> value:modification.getAttribute() )
                     {
-                        while ( values.hasMore() )
+                        if ( value instanceof ClientStringValue )
                         {
-                            Object value = values.next();
-
-                            if ( value instanceof String )
-                            {
-                                int valueLength = StringTools.getBytesUtf8( ( String ) value ).length;
-                                localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                            }
-                            else
-                            {
-                                localValuesLength += 1 + TLV.getNbBytes( ( ( byte[] ) value ).length )
-                                    + ( ( byte[] ) value ).length;
-                            }
+                            int valueLength = StringTools.getBytesUtf8( (String)value.get() ).length;
+                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
+                        }
+                        else
+                        {
+                            localValuesLength += 1 + TLV.getNbBytes( ( ( byte[] ) value.getReference() ).length )
+                                + ( ( byte[] ) value.getReference() ).length;
                         }
                     }
+                }
 
-                    localModificationLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
-                }
-                catch ( NamingException ne )
-                {
-                    continue;
-                }
+                localModificationLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
 
                 // Compute the modificationSequenceLength
                 localModificationSequenceLength += 1 + TLV.getNbBytes( localModificationLength )
@@ -442,7 +444,7 @@ public class ModifyRequest extends LdapMessage
                 int modificationNumber = 0;
 
                 // Compute the modifications length
-                for ( ModificationItem modification:modifications )
+                for ( Modification modification:modifications )
                 {
                     // The modification sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -454,22 +456,7 @@ public class ModifyRequest extends LdapMessage
                     // the same value in DirContext and in RFC 2251.
                     buffer.put( UniversalTag.ENUMERATED_TAG );
                     buffer.put( ( byte ) 1 );
-
-                    switch ( modification.getModificationOp() )
-                    {
-
-                        case DirContext.ADD_ATTRIBUTE: // add
-                            buffer.put( ( byte ) LdapConstants.OPERATION_ADD );
-                            break;
-
-                        case DirContext.REMOVE_ATTRIBUTE: // delete
-                            buffer.put( ( byte ) LdapConstants.OPERATION_DELETE );
-                            break;
-
-                        case DirContext.REPLACE_ATTRIBUTE: // replace
-                            buffer.put( ( byte ) LdapConstants.OPERATION_REPLACE );
-                            break;
-                    }
+                    buffer.put( ( byte ) modification.getOperation().getValue() );
 
                     // The modification
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -477,38 +464,26 @@ public class ModifyRequest extends LdapMessage
                     buffer.put( TLV.getBytes( localModificationLength ) );
 
                     // The modification type
-                    Value.encode( buffer, modification.getAttribute().getID() );
+                    Value.encode( buffer, modification.getAttribute().getId() );
 
                     // The values
                     buffer.put( UniversalTag.SET_TAG );
                     int localValuesLength = valuesLength.get( modificationNumber );
                     buffer.put( TLV.getBytes( localValuesLength ) );
 
-                    try
+                    if ( modification.getAttribute().size() != 0 )
                     {
-                        NamingEnumeration<?> values = modification.getAttribute().getAll();
-
-                        if ( values.hasMoreElements() )
+                        for ( org.apache.directory.shared.ldap.entry.Value<?> value:modification.getAttribute() )
                         {
-                            while ( values.hasMoreElements() )
+                            if ( value instanceof ClientStringValue )
                             {
-                                Object value = values.next();
-
-                                if ( value instanceof String )
-                                {
-                                    Value.encode( buffer, ( String ) value );
-                                }
-                                else
-                                {
-                                    Value.encode( buffer, ( byte[] ) value );
-                                }
+                                Value.encode( buffer, ( String ) value.get() );
+                            }
+                            else
+                            {
+                                Value.encode( buffer, ( byte[] ) value.getReference() );
                             }
                         }
-
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw new EncoderException( "Cannot enumerate the values" );
                     }
 
                     // Go to the next modification number;
@@ -541,67 +516,36 @@ public class ModifyRequest extends LdapMessage
         {
             int i = 0;
             
-            for ( ModificationItem modification:modifications )
+            for ( Modification modification:modifications )
             {
                 sb.append( "            Modification[" ).append( i ).append( "]\n" );
                 sb.append( "                Operation : " );
 
                 if ( modification != null )
                 {
-                    switch ( modification.getModificationOp() )
+                    switch ( modification.getOperation() )
                     {
     
-                        case DirContext.ADD_ATTRIBUTE:
+                        case ADD_ATTRIBUTE:
                             sb.append( " add\n" );
                             break;
     
-                        case DirContext.REPLACE_ATTRIBUTE:
+                        case REPLACE_ATTRIBUTE:
                             sb.append( " replace\n" );
                             break;
     
-                        case DirContext.REMOVE_ATTRIBUTE:
+                        case REMOVE_ATTRIBUTE:
                             sb.append( " delete\n" );
                             break;
                     }
 
                     sb.append( "                Modification\n" );
     
-                    Attribute attribute = modification.getAttribute();
+                    EntryAttribute attribute = modification.getAttribute();
     
                     if ( attribute != null )
                     {
-                        try
-                        {
-                            sb.append( "                    Type : '" ).append( attribute.getID() ).append( "'\n" );
-                            sb.append( "                    Vals\n" );
-        
-                            for ( int j = 0; j < attribute.size(); j++ )
-                            {
-        
-                                Object attributeValue = attribute.get( j );
-                                sb.append( "                        Val[" ).append( j ).append( "] : '" );
-        
-                                if ( attributeValue != null )
-                                {
-                                    if ( attributeValue instanceof String )
-                                    {
-                                        sb.append( attributeValue ).append( "' \n" );
-                                    }
-                                    else
-                                    {
-                                        sb.append( StringTools.utf8ToString( ( byte[] ) attributeValue ) ).append( "' \n" );
-                                    }
-                                }
-                                else
-                                {
-                                    sb.append( "<null>'\n" );
-                                }
-                            }
-                        }
-                        catch ( NamingException ne )
-                        {
-                            log.error( "Naming exception while printing the '{}'", attribute.getID() );
-                        }
+                        sb.append( attribute );
                     }
                 }
                 else

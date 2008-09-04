@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Lockable AddResponse implementation.
+ * AddResponse implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

@@ -43,12 +43,12 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.LdapDnParser;
@@ -987,7 +987,7 @@ public class LdifReader implements Iterable<LdifEntry>
     {
         int state = MOD_SPEC;
         String modified = null;
-        int modificationType = 0;
+        ModificationOperation modificationType = ModificationOperation.ADD_ATTRIBUTE;
         EntryAttribute attribute = null;
 
         // The following flag is used to deal with empty modifications
@@ -1032,7 +1032,7 @@ public class LdifReader implements Iterable<LdifEntry>
                 }
 
                 modified = StringTools.trim( line.substring( "add:".length() ) );
-                modificationType = DirContext.ADD_ATTRIBUTE;
+                modificationType = ModificationOperation.ADD_ATTRIBUTE;
                 attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC;
@@ -1046,7 +1046,7 @@ public class LdifReader implements Iterable<LdifEntry>
                 }
 
                 modified = StringTools.trim( line.substring( "delete:".length() ) );
-                modificationType = DirContext.REMOVE_ATTRIBUTE;
+                modificationType = ModificationOperation.REMOVE_ATTRIBUTE;
                 attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
@@ -1060,7 +1060,7 @@ public class LdifReader implements Iterable<LdifEntry>
                 }
 
                 modified = StringTools.trim( line.substring( "replace:".length() ) );
-                modificationType = DirContext.REPLACE_ATTRIBUTE;
+                modificationType = ModificationOperation.REPLACE_ATTRIBUTE;
                 attribute = new DefaultClientAttribute( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;

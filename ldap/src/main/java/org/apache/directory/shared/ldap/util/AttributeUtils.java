@@ -237,52 +237,6 @@ public class AttributeUtils
     
     
     /**
-     * Utility method to extract a modification item from an array of modifications.
-     * 
-     * @param mods the array of ModificationItems to extract the Attribute from.
-     * @param type the attributeType spec of the Attribute to extract
-     * @return the modification item on the attributeType specified
-     */
-    public static final ModificationItem getModificationItem( List<ModificationItem> mods, AttributeType type )
-    {
-        // optimization bypass to avoid cost of the loop below
-        if ( type.getNamesRef().length == 1 )
-        {
-            for ( ModificationItem mod:mods )
-            {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[0] ) )
-                {
-                    return mod;
-                }
-            }
-        }
-        
-        // check if the attribute's OID is used
-        for ( ModificationItem mod:mods )
-        {
-            if ( mod.getAttribute().getID().equals( type.getOid() ) )
-            {
-                return mod;
-            }
-        }
-        
-        // iterate through aliases
-        for ( int ii = 0; ii < type.getNamesRef().length; ii++ )
-        {
-            for ( ModificationItem mod:mods )
-            {
-                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNamesRef()[ii] ) )
-                {
-                    return mod;
-                }
-            }
-        }
-        
-        return null;
-    }
-
-    
-    /**
      * Check if an attribute contains a specific value, using the associated matchingRule for that
      *
      * @param attr The attribute we are searching in

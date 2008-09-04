@@ -24,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -37,6 +35,8 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -120,25 +120,25 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue =  modification.getAttribute();
-
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
-
-        String attrValue = ( String ) attributeValue.get( 0 );
-        assertEquals( "Paris", attrValue );
-
-        modification = modifications.get( 1 );
-        attributeValue =  modification.getAttribute();
-
-        assertEquals( "attrs", attributeValue.getID().toLowerCase() );
-
-        attrValue = ( String ) attributeValue.get( 0 );
-        assertEquals( "test", attrValue );
+        for ( Modification modification:modifications )
+        {
+            EntryAttribute attribute =  modification.getAttribute();
+            
+            if ( "l".equalsIgnoreCase( attribute.getId() ) )
+            {
+                String attrValue = attribute.getString();
+                assertEquals( "Paris", attrValue );
+            }
+            else if ( "attrs".equalsIgnoreCase( attribute.getId() ) )
+            {
+                String attrValue = attribute.getString();
+                assertEquals( "test", attrValue );
+            }
+        }
 
         // Check the length
         assertEquals( 0x54, message.computeLength() );
@@ -288,24 +288,24 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 21, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "telephonenumber", attributeValue.getID().toLowerCase() );
+        assertEquals( "telephonenumber", attributeValue.getId().toLowerCase() );
 
-        String attrValue = ( String ) attributeValue.get( 0 );
+        String attrValue = attributeValue.getString();
         assertEquals( "1234567890", attrValue );
 
         modification = modifications.get( 1 );
         attributeValue = modification.getAttribute();
 
-        assertEquals( "cn", attributeValue.getID().toLowerCase() );
+        assertEquals( "cn", attributeValue.getId().toLowerCase() );
 
-        attrValue = ( String ) attributeValue.get( 0 );
+        attrValue = attributeValue.getString();
         assertEquals( "XXX", attrValue );
 
         // Check the length
@@ -411,33 +411,33 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 3, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "description", attributeValue.getID().toLowerCase() );
+        assertEquals( "description", attributeValue.getId().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
 
         modification = modifications.get( 1 );
         attributeValue = modification.getAttribute();
 
-        String attrValue = ( String ) attributeValue.get( 0 );
+        String attrValue = attributeValue.getString();
 
-        assertEquals( "telephonenumber", attributeValue.getID().toLowerCase() );
+        assertEquals( "telephonenumber", attributeValue.getId().toLowerCase() );
 
         assertEquals( "01234567890", attrValue );
 
         modification = modifications.get( 2 );
         attributeValue = modification.getAttribute();
 
-        attrValue = ( String ) attributeValue.get( 0 );
+        attrValue = attributeValue.getString();
 
-        assertEquals( "telephonenumber", attributeValue.getID().toLowerCase() );
+        assertEquals( "telephonenumber", attributeValue.getId().toLowerCase() );
 
-        attrValue = ( String ) attributeValue.get( 0 );
+        attrValue = attributeValue.getString();
         assertEquals( "01234567890", attrValue );
 
         // Check the length
@@ -542,27 +542,27 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 2, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( "l", attributeValue.getId().toLowerCase() );
 
-        String attrValue = ( String ) attributeValue.get( 0 );
+        String attrValue = attributeValue.getString();
         assertEquals( "Paris", attrValue );
 
-        attrValue = ( String ) attributeValue.get( 1 );
+        attrValue = (String)attributeValue.get( 1 ).get();
         assertEquals( "London", attrValue );
 
         modification = modifications.get( 1 );
         attributeValue = modification.getAttribute();
 
-        assertEquals( "attrs", attributeValue.getID().toLowerCase() );
+        assertEquals( "attrs", attributeValue.getId().toLowerCase() );
 
-        attrValue = ( String ) attributeValue.get( 0 );
+        attrValue = attributeValue.getString();
         assertEquals( "test", attrValue );
 
         // Check the length
@@ -1073,14 +1073,14 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( "l", attributeValue.getId().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
 
         // Check the length
@@ -1156,14 +1156,14 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( "l", attributeValue.getId().toLowerCase() );
         assertEquals( 0, attributeValue.size() );
 
         // Check the Control
@@ -1247,20 +1247,20 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
 
-        List<ModificationItem> modifications = modifyRequest.getModifications();
+        List<Modification> modifications = modifyRequest.getModifications();
 
         assertEquals( 1, modifications.size() );
 
-        ModificationItem modification = modifications.get( 0 );
-        Attribute attributeValue = modification.getAttribute();
+        Modification modification = modifications.get( 0 );
+        EntryAttribute attributeValue = modification.getAttribute();
 
-        assertEquals( "l", attributeValue.getID().toLowerCase() );
+        assertEquals( "l", attributeValue.getId().toLowerCase() );
         assertEquals( 2, attributeValue.size() );
 
-        String attrValue = ( String ) attributeValue.get( 0 );
+        String attrValue = attributeValue.getString();
         assertEquals( "a", attrValue );
 
-        attrValue = ( String ) attributeValue.get( 1 );
+        attrValue = ( String ) attributeValue.get( 1 ).get();
         assertEquals( "b", attrValue );
 
         // Check the length

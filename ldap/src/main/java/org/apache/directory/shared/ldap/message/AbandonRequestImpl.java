@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.message;
 
 
 /**
- * Lockable implementation of an AbandonRequest.
+ * Implementation of an AbandonRequest.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

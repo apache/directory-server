@@ -29,9 +29,9 @@ package org.apache.directory.shared.ldap.entry;
  */
 public enum ModificationOperation
 {
-    ADD_ATTRIBUTE( 1 ),
-    REPLACE_ATTRIBUTE( 2 ),
-    REMOVE_ATTRIBUTE( 3 );
+    ADD_ATTRIBUTE( 0 ),
+    REMOVE_ATTRIBUTE( 1 ),
+    REPLACE_ATTRIBUTE( 2 );
 
     /** Internal value */
     private int value;

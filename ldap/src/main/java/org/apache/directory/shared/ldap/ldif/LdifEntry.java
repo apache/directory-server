@@ -36,6 +36,7 @@ import javax.naming.ldap.Control;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientEntry;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
@@ -188,12 +189,14 @@ public class LdifEntry implements Cloneable, Externalizable
     /**
      * Add a modification item (used by modify operations)
      * 
-     * @param modOp The operation. One of : DirContext.ADD_ATTRIBUTE
-     *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
+     * @param modOp The operation. One of : 
+     * - ModificationOperation.ADD_ATTRIBUTE
+     * - ModificationOperation.REMOVE_ATTRIBUTE 
+     * - ModificationOperation.REPLACE_ATTRIBUTE
      * 
      * @param attr The attribute to be added
      */
-    public void addModificationItem( int modOp, EntryAttribute attr )
+    public void addModificationItem( ModificationOperation modOp, EntryAttribute attr )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -203,18 +206,20 @@ public class LdifEntry implements Cloneable, Externalizable
         }
     }
 
+
     /**
      * Add a modification item
      * 
-     * @param modOp
-     *            The operation. One of : DirContext.ADD_ATTRIBUTE
-     *            DirContext.REMOVE_ATTRIBUTE DirContext.REPLACE_ATTRIBUTE
+     * @param modOp The operation. One of : 
+     *  - ModificationOperation.ADD_ATTRIBUTE
+     *  - ModificationOperation.REMOVE_ATTRIBUTE 
+     *  - ModificationOperation.REPLACE_ATTRIBUTE
      * 
      * @param modOp The modification operation value
      * @param id The attribute's ID
      * @param value The attribute's value
      */
-    public void addModificationItem( int modOp, String id, Object value )
+    public void addModificationItem( ModificationOperation modOp, String id, Object value )
     {
         if ( changeType == ChangeType.Modify )
         {
@@ -235,6 +240,7 @@ public class LdifEntry implements Cloneable, Externalizable
             modificationItems.put( id, item );
         }
     }
+
 
     /**
      * Add an attribute to the entry
@@ -990,7 +996,7 @@ public class LdifEntry implements Cloneable, Externalizable
                     String modStr = in.readUTF();
                     DefaultClientAttribute value = (DefaultClientAttribute)in.readObject();
                     
-                    addModificationItem( operation, modStr, value );
+                    addModificationItem( ModificationOperation.getOperation( operation ), modStr, value );
                 }
                 
                 break;

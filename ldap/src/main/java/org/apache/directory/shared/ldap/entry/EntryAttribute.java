@@ -232,6 +232,23 @@ public interface EntryAttribute extends Iterable<Value<?>>, Cloneable, Externali
 
     /**
      * <p>
+     * Get the nth value of this attribute. If there is none, 
+     * null is returned.
+     * </p>
+     * <p>
+     * Note : even if we are storing values into a Set, one can assume
+     * the values are ordered following the insertion order.
+     * </p>
+     * <p> 
+     * 
+     * @param i the index  of the value to get
+     *  @return The nth value for this attribute.
+     */
+    Value<?> get( int i );
+    
+    
+    /**
+     * <p>
      * Get the byte[] value, if and only if the value is known to be Binary,
      * otherwise a InvalidAttributeValueException will be thrown
      * </p>

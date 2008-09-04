@@ -23,12 +23,13 @@ package org.apache.directory.shared.ldap.message;
 import junit.framework.TestCase;
 
 import javax.naming.InvalidNameException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
@@ -73,22 +74,22 @@ public class ModifyRequestImplTest extends TestCase
             // do nothing
         }
 
-        Attribute attr = new BasicAttribute( "attr0" );
+        EntryAttribute attr = new DefaultClientAttribute( "attr0" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new BasicAttribute( "attr1" );
+        attr = new DefaultClientAttribute( "attr1" );
         attr.add( "val3" );
-        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         req.addModification( item );
 
-        attr = new BasicAttribute( "attr2" );
+        attr = new DefaultClientAttribute( "attr2" );
         attr.add( "val4" );
         attr.add( "val5" );
-        item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        item = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
         req.addModification( item );
 
         return req;
@@ -154,19 +155,19 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModOps()
     {
         ModifyRequestImpl req0 = getRequest();
-        Attribute attr = new BasicAttribute( "attr3" );
+        EntryAttribute attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new BasicAttribute( "attr3" );
+        attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+        item = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -180,11 +181,11 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModCount()
     {
         ModifyRequestImpl req0 = getRequest();
-        Attribute attr = new BasicAttribute( "attr3" );
+        EntryAttribute attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
@@ -200,19 +201,19 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModIds()
     {
         ModifyRequestImpl req0 = getRequest();
-        Attribute attr = new BasicAttribute( "attr3" );
+        EntryAttribute attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new BasicAttribute( "attr4" );
+        attr = new DefaultClientAttribute( "attr4" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -226,20 +227,20 @@ public class ModifyRequestImplTest extends TestCase
     public void testNotEqualDiffModValues()
     {
         ModifyRequestImpl req0 = getRequest();
-        Attribute attr = new BasicAttribute( "attr3" );
+        EntryAttribute attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         ModifyRequestImpl req1 = getRequest();
-        attr = new BasicAttribute( "attr3" );
+        attr = new DefaultClientAttribute( "attr3" );
         attr.add( "val0" );
         attr.add( "val1" );
         attr.add( "val2" );
         attr.add( "val3" );
-        item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+        item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
         req0.addModification( item );
 
         assertFalse( req0.equals( req1 ) );
@@ -254,37 +255,37 @@ public class ModifyRequestImplTest extends TestCase
     {
         ModifyRequest req0 = new ModifyRequest()
         {
-            public Collection<ModificationItem> getModificationItems()
+            public Collection<Modification> getModificationItems()
             {
-                List<ModificationItem> list = new ArrayList<ModificationItem>();
-                Attribute attr = new BasicAttribute( "attr0" );
+                List<Modification> list = new ArrayList<Modification>();
+                EntryAttribute attr = new DefaultClientAttribute( "attr0" );
                 attr.add( "val0" );
                 attr.add( "val1" );
                 attr.add( "val2" );
-                ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
+                Modification item = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new BasicAttribute( "attr1" );
+                attr = new DefaultClientAttribute( "attr1" );
                 attr.add( "val3" );
-                item = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, attr );
+                item = new ClientModification( ModificationOperation.REMOVE_ATTRIBUTE, attr );
                 list.add( item );
 
-                attr = new BasicAttribute( "attr2" );
+                attr = new DefaultClientAttribute( "attr2" );
                 attr.add( "val4" );
                 attr.add( "val5" );
-                item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+                item = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE, attr );
                 list.add( item );
 
                 return list;
             }
 
 
-            public void addModification( ModificationItem mod )
+            public void addModification( Modification mod )
             {
             }
 
 
-            public void removeModification( ModificationItem mod )
+            public void removeModification( Modification mod )
             {
             }
 

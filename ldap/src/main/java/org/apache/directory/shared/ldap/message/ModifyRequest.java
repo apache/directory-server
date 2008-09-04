@@ -22,10 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.Collection;
 
-import javax.naming.directory.ModificationItem;
-
-
-
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -130,28 +127,25 @@ public interface ModifyRequest extends SingleReplyRequest, AbandonableRequest
      * Gets an immutable Collection of modification items representing the
      * atomic changes to perform on the candidate entry to modify.
      * 
-     * @return an immutatble Collection of ModificationItem instances.
-     * @see javax.naming.directory.ModificationItem
+     * @return an immutable Collection of Modification instances.
      */
-    Collection<ModificationItem> getModificationItems();
+    Collection<Modification> getModificationItems();
 
 
     /**
      * Adds a ModificationItem to the set of modifications composing this modify
      * request.
      * 
-     * @param mod
-     *            a ModificationItem to add.
+     * @param mod a Modification to add.
      */
-    void addModification( ModificationItem mod );
+    void addModification( Modification mod );
 
 
     /**
      * Removes a ModificationItem to the set of modifications composing this
      * modify request.
      * 
-     * @param mod
-     *            a ModificationItem to remove.
+     * @param mod a Modification to remove.
      */
-    void removeModification( ModificationItem mod );
+    void removeModification( Modification mod );
 }

@@ -63,7 +63,7 @@ public class ModifyAttributeValueAction extends GrammarAction
         TLV tlv = ldapMessageContainer.getCurrentTLV();
 
         // Store the value. It can't be null
-        Object value = StringTools.EMPTY_BYTES;
+        byte[] value = StringTools.EMPTY_BYTES;
 
         if ( tlv.getLength() == 0 )
         {

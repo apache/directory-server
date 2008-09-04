@@ -158,11 +158,6 @@ public class ClientModification implements Modification
             return true;
         }
         
-        if ( o == null )
-        {
-           return false;
-        }
-        
         if ( ! (o instanceof ClientModification ) )
         {
             return false;
