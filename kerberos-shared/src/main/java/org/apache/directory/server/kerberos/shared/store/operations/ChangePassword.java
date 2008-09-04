@@ -85,7 +85,7 @@ public class ChangePassword implements DirectoryServiceOperation
         
         ServerAttribute principalAttribute = new DefaultServerAttribute( 
             registry.lookup( "krb5PrincipalName" ), principal.getName() );
-        mods.set( 1, new ServerModification( DirContext.REPLACE_ATTRIBUTE, principalAttribute ) );
+        mods.set( 1, new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
 
         
         ServerEntry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
