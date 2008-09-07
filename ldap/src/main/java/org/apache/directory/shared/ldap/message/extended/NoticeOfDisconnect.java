@@ -116,7 +116,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
     public static final NoticeOfDisconnect STRONGAUTHREQUIRED = new NoticeOfDisconnect( ResultCodeEnum.STRONG_AUTH_REQUIRED );
 
 
-    private NoticeOfDisconnect(ResultCodeEnum rcode)
+    private NoticeOfDisconnect( ResultCodeEnum rcode )
     {
         super( 0, EXTENSION_OID );
 
@@ -136,7 +136,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
                     + ", " + ResultCodeEnum.PROTOCOL_ERROR + ", " + ResultCodeEnum.STRONG_AUTH_REQUIRED );
         }
         
-        super.getLdapResult().setErrorMessage( "The server will disconnect!" );
+        super.getLdapResult().setErrorMessage( rcode.toString() + ": The server will disconnect!" );
         super.getLdapResult().setMatchedDn( null );
         super.getLdapResult().setResultCode( rcode );
     }
@@ -146,6 +146,7 @@ public class NoticeOfDisconnect extends ExtendedResponseImpl
     // ExtendedResponse Interface Method Implementations
     // ------------------------------------------------------------------------
 
+    
     /**
      * Gets the reponse OID specific encoded response values.
      * 
