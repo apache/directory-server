@@ -171,7 +171,7 @@ public class SimpleBindIT
         catch ( AuthenticationException ae )
         {
     		// Error code 49 : LDAP_INVALID_CREDENTIALS
-            assertTrue( ae.getMessage().startsWith( "[LDAP: error code 49 - Bind failed" ) );
+            assertTrue( ae.getMessage().contains( "error code 49" ) );
         }
         catch ( NamingException e )
         {
@@ -321,7 +321,7 @@ public class SimpleBindIT
     	catch ( OperationNotSupportedException onse )
     	{
     		// Error code 53 : LDAP_UNWILLING_TO_PERFORM
-    		assertTrue( onse.getMessage().startsWith( "[LDAP: error code 53 - Bind failed" ) );
+    		assertTrue( onse.getMessage().contains( "error code 53" ) );
     	}
     	catch ( NamingException ne )
     	{
