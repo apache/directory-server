@@ -199,7 +199,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 result.setResultCode( code );
             }
 
-            String msg = "Bind failed: " + e.getMessage();
+            String msg = code.toString() + ": Bind failed: " + e.getMessage();
 
             if ( LOG.isDebugEnabled() )
             {
@@ -211,7 +211,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             
             if ( e instanceof LdapAuthenticationException )
             {
-            	name = ((LdapAuthenticationException)e).getResolvedName();
+            	name = ( ( LdapAuthenticationException ) e ).getResolvedName();
             }
             
             if ( ( name != null )
@@ -310,7 +310,8 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         {
             LOG.error( se.getMessage() );
             result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
-            result.setErrorMessage( se.getMessage() );
+            result.setErrorMessage( ResultCodeEnum.INVALID_CREDENTIALS.toString() + ": " 
+                + se.getMessage() );
             
             // Reinitialize the state to Anonymous and clear the sasl properties
             ldapSession.clearSaslProperties();
@@ -335,7 +336,8 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         // And send the response to the client
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
         bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-        bindResult.setErrorMessage( bindRequest.getSaslMechanism() + " is not a supported mechanism." );
+        bindResult.setErrorMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": " 
+            + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
         
         // Write back the error
         ldapSession.getIoSession().write( bindRequest.getResultResponse() );
@@ -356,7 +358,11 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         
         if ( e != null )
         {
-            message = e.getMessage();
+            message = ResultCodeEnum.INVALID_CREDENTIALS + ": " + e.getMessage();
+        }
+        else
+        {
+            message = ResultCodeEnum.INVALID_CREDENTIALS.toString();
         }
         
         LOG.error( message );
@@ -483,7 +489,9 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             }
             catch ( Exception e )
             {
-                
+                // TODO - why is this exception being ignored?  Isn't this 
+                // really bad?
+                LOG.error( "Exception encountered while processing Sasl BindRequest", e );
             }
         }
     }

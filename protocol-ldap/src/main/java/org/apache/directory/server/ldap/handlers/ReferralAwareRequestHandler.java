@@ -779,18 +779,12 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
      */
     public void handleException( LdapSession session, T req, Exception e )
     {
-        String msg = "failed for " + req + ": " + e.getMessage();
-        LOG.error( msg, e );
         LdapResult result = req.getResultResponse().getLdapResult();
 
-
-        if ( IS_DEBUG )
-        {
-            msg += ":\n" + ExceptionUtils.getStackTrace( e );
-        }
-
+        /*
+         * Set the result code or guess the best option.
+         */
         ResultCodeEnum code;
-
         if ( e instanceof LdapException )
         {
             code = ( ( LdapException ) e ).getResultCode();
@@ -799,8 +793,19 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
         {
             code = ResultCodeEnum.getBestEstimate( e, req.getType() );
         }
-
         result.setResultCode( code );
+
+        /*
+         * Setup the error message to put into the request and put entire
+         * exception into the message if we are in debug mode.  Note we 
+         * embed the result code name into the message.
+         */
+        String msg = code.toString() + ": failed for " + req + ": " + e.getMessage();
+        LOG.error( msg, e );
+        if ( IS_DEBUG )
+        {
+            msg += ":\n" + ExceptionUtils.getStackTrace( e );
+        }
         result.setErrorMessage( msg );
 
         if ( e instanceof NamingException )

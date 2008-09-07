@@ -61,7 +61,8 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
         {
             LdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
-            result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
+            result.setErrorMessage( ResultCodeEnum.OTHER  
+                + ": Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
             ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
             resp.setResponse( new byte[0] );
