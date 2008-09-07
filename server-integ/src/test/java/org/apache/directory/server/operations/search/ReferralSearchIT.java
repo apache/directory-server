@@ -38,7 +38,7 @@ import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Before;
@@ -115,7 +115,7 @@ import static org.junit.Assert.assertNotNull;
 )
 public class ReferralSearchIT
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     
     @Before
@@ -127,21 +127,21 @@ public class ReferralSearchIT
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: europ\n" +
-        "ref: ldap://localhost:" + ldapServer.getIpPort() + "/c=france,ou=system\n\n" +
+        "ref: ldap://localhost:" + ldapService.getIpPort() + "/c=france,ou=system\n\n" +
 
         "dn: c=america,ou=Countries,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: america\n" +
-        "ref: ldap://localhost:" + ldapServer.getIpPort() + "/c=usa,ou=system\n\n";
+        "ref: ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system\n\n";
 
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
-            ldapServer.getDirectoryService().getAdminSession().add( 
-                new DefaultServerEntry( ldapServer.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
+            ldapService.getDirectoryService().getAdminSession().add( 
+                new DefaultServerEntry( ldapService.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
         }
     }
     
@@ -149,7 +149,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchBaseIsReferral() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         
@@ -173,7 +173,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchBaseParentIsReferral() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
@@ -196,7 +196,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchBaseAncestorIsReferral() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
@@ -221,7 +221,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchContinuations() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -299,7 +299,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchWithReferralThrow() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
 
         try
         {
@@ -311,7 +311,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getIpPort() + "/c=usa,ou=system??sub", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??sub", referral );
         }
     }
 
@@ -326,7 +326,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchBaseWithReferralThrow() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -339,7 +339,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
         }
     }
 
@@ -354,7 +354,7 @@ public class ReferralSearchIT
     @Test
     public void testSearchOneLevelWithReferralThrow() throws Exception
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( ldapServer );
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -367,7 +367,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapServer.getIpPort() + "/c=usa,ou=system??one", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??one", referral );
         }
     }
 }

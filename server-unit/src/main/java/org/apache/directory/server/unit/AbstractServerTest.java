@@ -45,7 +45,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -101,7 +101,7 @@ public abstract class AbstractServerTest extends TestCase
     protected static int nbTests = 10000;
     protected DirectoryService directoryService;
     protected SocketAcceptor socketAcceptor;
-    protected LdapServer ldapServer;
+    protected LdapService ldapService;
 
 
     /**
@@ -255,12 +255,12 @@ public abstract class AbstractServerTest extends TestCase
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
         socketAcceptor = new SocketAcceptor( null );
-        ldapServer = new LdapServer();
-        ldapServer.setSocketAcceptor( socketAcceptor );
-        ldapServer.setDirectoryService( directoryService );
-        ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
+        ldapService = new LdapService();
+        ldapService.setSocketAcceptor( socketAcceptor );
+        ldapService.setDirectoryService( directoryService );
+        ldapService.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
 
-        setupSaslMechanisms( ldapServer );
+        setupSaslMechanisms( ldapService );
 
         doDelete( directoryService.getWorkingDirectory() );
         configureDirectoryService();
@@ -269,15 +269,15 @@ public abstract class AbstractServerTest extends TestCase
         configureLdapServer();
 
         // TODO shouldn't this be before calling configureLdapServer() ???
-        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
-        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+        ldapService.addExtendedOperationHandler( new StartTlsHandler() );
+        ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
-        ldapServer.start();
+        ldapService.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
 
-    private void setupSaslMechanisms( LdapServer server )
+    private void setupSaslMechanisms( LdapService server )
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
@@ -300,7 +300,7 @@ public abstract class AbstractServerTest extends TestCase
         mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
         mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+        ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
     }
 
 
@@ -386,7 +386,7 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        ldapServer.stop();
+        ldapService.stop();
         try
         {
             directoryService.shutdown();

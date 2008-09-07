@@ -134,16 +134,16 @@
   </dnsServer>
 -->
 
-  <ldapServer id="ldapsServer"
+  <ldapService id="ldapsService"
               enabled="true"
               ipPort="10636"
               enableLdaps="true">
     <directoryService>#directoryService</directoryService>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </ldapServer>
+  </ldapService>
 
 
-  <ldapServer id="ldapServer"
+  <ldapService id="ldapService"
               ipPort="10389"
               allowAnonymousAccess="false"
               saslHost="ldap.example.com"
@@ -186,7 +186,7 @@
       <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
       <!--storedProcedureExtendedOperationHandler/-->
     </extendedOperationHandlers>
-  </ldapServer>
+  </ldapService>
 
 
   <apacheDS id="apacheDS"
@@ -194,8 +194,8 @@
             allowAnonymousAccess="false">
 
     <directoryService>#directoryService</directoryService>
-    <ldapServer>#ldapServer</ldapServer>
-    <ldapsServer>#ldapsServer</ldapsServer>
+    <ldapService>#ldapService</ldapService>
+    <ldapsService>#ldapsService</ldapsService>
   </apacheDS>
 
   <!-- another bean I didn't convert -->

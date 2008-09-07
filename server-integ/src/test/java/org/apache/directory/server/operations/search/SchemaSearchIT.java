@@ -31,7 +31,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -167,7 +167,7 @@ public class SchemaSearchIT
     private static final String FILTER = "(objectclass=subschema)";
 
     
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
 
     protected void checkForAttributes( Attributes attrs, String[] attrNames )
@@ -188,7 +188,7 @@ public class SchemaSearchIT
     @Test
     public void testRequestOperationalAttributes() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
         SearchControls ctls = new SearchControls();
 
         String[] attrNames =
@@ -220,7 +220,7 @@ public class SchemaSearchIT
     @Test
     public void testRequestAllOperationalAttributes() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -252,7 +252,7 @@ public class SchemaSearchIT
     @Test
     public void testSearchingNewSchemaElements() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
         
         // create an entry with the schema objectClass personActiveDirectory
         Attributes person = new BasicAttributes( "objectClass", "top", true );
@@ -297,7 +297,7 @@ public class SchemaSearchIT
     @Test
     public void testRequestWithoutManageDsaITControl() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
 
         // this removes the ManageDsaIT control from the search request
         ctx.addToEnvironment( DirContext.REFERRAL, "throw" );

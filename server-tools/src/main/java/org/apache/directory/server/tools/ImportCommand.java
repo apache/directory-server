@@ -799,7 +799,7 @@ public class ImportCommand extends ToolCommand
         }
         else if ( getApacheDS() != null )
         {
-            port = getApacheDS().getLdapServer().getIpPort();
+            port = getApacheDS().getLdapService().getIpPort();
 
             if ( isDebugEnabled() )
             {

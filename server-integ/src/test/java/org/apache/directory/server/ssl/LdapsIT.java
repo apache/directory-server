@@ -28,7 +28,7 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -72,12 +72,12 @@ public class LdapsIT
     private static final String RDN = "cn=The Person";
 
     
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     
     public static class Factory implements LdapServerFactory
     {
-        public LdapServer newInstance() throws Exception
+        public LdapService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -88,14 +88,14 @@ public class LdapsIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
-            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapServer.setEnabled( true );
-            ldapServer.setEnableLdaps( true );
-            ldapServer.setConfidentialityRequired( true );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            LdapService ldapService = new LdapService();
+            ldapService.setDirectoryService( service );
+            ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.setEnabled( true );
+            ldapService.setEnableLdaps( true );
+            ldapService.setConfidentialityRequired( true );
+            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -115,9 +115,9 @@ public class LdapsIT
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
 
-            return ldapServer;
+            return ldapService;
         }
     }
     
@@ -129,7 +129,7 @@ public class LdapsIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getIpPort() + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getIpPort() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );

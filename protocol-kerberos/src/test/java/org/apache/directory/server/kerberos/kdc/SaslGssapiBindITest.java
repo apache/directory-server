@@ -83,8 +83,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
     {
         super.setUp();
 
-        ldapServer.setSaslHost( "localhost" );
-        ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
+        ldapService.setSaslHost( "localhost" );
+        ldapService.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
         KdcServer kdcConfig = new KdcServer();
         kdcConfig.setSocketAcceptor( socketAcceptor );
@@ -118,10 +118,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         }
         
         LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
-        ServerEntry entry = ldapServer.getDirectoryService().newEntry( contextDn );
+        ServerEntry entry = ldapService.getDirectoryService().newEntry( contextDn );
         entry.add( "objectClass", "top", "domain", "extensibleObject" );
         entry.add( "dc", "example" );
-        ldapServer.getDirectoryService().getAdminSession().add( entry );
+        ldapService.getDirectoryService().getAdminSession().add( entry );
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();

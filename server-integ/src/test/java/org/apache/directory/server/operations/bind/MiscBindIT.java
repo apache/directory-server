@@ -48,7 +48,7 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -94,12 +94,12 @@ import static org.junit.Assert.assertNotNull;
 )
 public class MiscBindIT
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     
     public static class Factory implements LdapServerFactory
     {
-        public LdapServer newInstance() throws Exception
+        public LdapService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -120,12 +120,12 @@ public class MiscBindIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
-            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapServer.setAllowAnonymousAccess( true );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            LdapService ldapService = new LdapService();
+            ldapService.setDirectoryService( service );
+            ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.setAllowAnonymousAccess( true );
+            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -145,9 +145,9 @@ public class MiscBindIT
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
 
-            return ldapServer;
+            return ldapService;
         }
     }
     
@@ -159,15 +159,15 @@ public class MiscBindIT
     @Before
     public void recordAnnonymous() throws NamingException
     {
-        oldAnnonymousAccess = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+        oldAnnonymousAccess = ldapService.getDirectoryService().isAllowAnonymousAccess();
     }
     
     
     @After
     public void revertAnonnymous()
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );
-        ldapServer.setAllowAnonymousAccess( oldAnnonymousAccess );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );
+        ldapService.setAllowAnonymousAccess( oldAnnonymousAccess );
     }
 
     
@@ -180,14 +180,14 @@ public class MiscBindIT
     @Test
     public void testDisableAnonymousBinds() throws Exception
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
-        ldapServer.setAllowAnonymousAccess( false );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapService.setAllowAnonymousAccess( false );
         
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         InitialDirContext ic = null;
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -206,7 +206,7 @@ public class MiscBindIT
             }
         }
 
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( false );
         
         try
         {
@@ -242,12 +242,12 @@ public class MiscBindIT
     @Test
     public void testEnableAnonymousBindsOnRootDSE() throws Exception
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -280,12 +280,12 @@ public class MiscBindIT
     @Test
     public void testAnonymousBindsEnabledBaseSearch() throws Exception
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -317,13 +317,13 @@ public class MiscBindIT
     @Test
     public void testAdminAccessBug() throws Exception
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -358,11 +358,11 @@ public class MiscBindIT
     @Test
     public void testUserAuthOnMixedCaseSuffix() throws Exception
     {
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( true );
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/dc=aPache,dc=org" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         InitialDirContext ctx = new InitialDirContext( env );
@@ -447,11 +447,11 @@ public class MiscBindIT
             }
         };
         
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
+        ldapService.getDirectoryService().setAllowAnonymousAccess( true );
         
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );

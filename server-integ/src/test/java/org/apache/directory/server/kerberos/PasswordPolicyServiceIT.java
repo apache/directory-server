@@ -36,7 +36,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -94,12 +94,12 @@ public class PasswordPolicyServiceIT
     private DirContext users;
 
 
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     
     public static class Factory implements LdapServerFactory
     {
-        public LdapServer newInstance() throws Exception
+        public LdapService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -129,12 +129,12 @@ public class PasswordPolicyServiceIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
-            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapServer.setAllowAnonymousAccess( false );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            LdapService ldapService = new LdapService();
+            ldapService.setDirectoryService( service );
+            ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.setAllowAnonymousAccess( false );
+            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -154,10 +154,10 @@ public class PasswordPolicyServiceIT
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
-            ldapServer.setSaslHost( "localhost" );
+            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapService.setSaslHost( "localhost" );
             
-            return ldapServer;
+            return ldapService;
         }
     }
     
@@ -172,7 +172,7 @@ public class PasswordPolicyServiceIT
         Attributes attrs;
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getIpPort() + "/dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getIpPort() + "/dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

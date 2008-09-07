@@ -36,7 +36,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +62,7 @@ public class ModifyRdnIT
 {
     private static final String BASE = "ou=system";
 
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
     
     /**
@@ -106,7 +106,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnAndDeleteOld() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -155,7 +155,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnAndDontDeleteOldFalse() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -202,7 +202,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnAndKeepOld() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -250,7 +250,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnAndDeleteOldVariant() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -305,7 +305,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnDifferentAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -355,7 +355,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnDifferentAttributeDeleteOldFails() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person, cn value is rdn
         String cnVal = "Tori Amos";
@@ -390,7 +390,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnAndDeleteOldWithChild() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create an organizational unit, ou value is rdn
         String oldOu = "Writers";
@@ -460,7 +460,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnWithEncodedNewRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
@@ -513,7 +513,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnWithEscapedPoundNewRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // Create a person "cn=Tori Amos", cn value is rdn
         String cnVal = "Tori Amos";
@@ -567,7 +567,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant1() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -607,7 +607,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant2() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         String oldRdn = getRdn( attributes, "cn" );
@@ -647,7 +647,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant3() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
@@ -687,7 +687,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant4() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "description" );
         String oldRdn = getRdn( attributes, "description" );
@@ -730,7 +730,7 @@ public class ModifyRdnIT
     @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant5() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
@@ -777,7 +777,7 @@ public class ModifyRdnIT
     @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant6() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn" );
         attributes.put( "telephoneNumber", "12345" );
@@ -837,7 +837,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant7() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
@@ -879,7 +879,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyMultiValuedRdnVariant8() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = createPerson( "cn", "sn" );
         String oldRdn = getRdn( attributes, "cn", "sn" );
@@ -936,7 +936,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnOperationalAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // create the entry
         Attributes attributes = createPerson( "cn" );
@@ -981,7 +981,7 @@ public class ModifyRdnIT
     @Test
     public void testModifyRdnObjectClassAttribute() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // create the entry
         Attributes attributes = createPerson( "cn" );
@@ -1026,7 +1026,7 @@ public class ModifyRdnIT
 
     private Attributes createPerson( String... rdnTypes ) throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         Attributes attributes = new BasicAttributes( true );
         Attribute attribute = new BasicAttribute( "objectClass" );

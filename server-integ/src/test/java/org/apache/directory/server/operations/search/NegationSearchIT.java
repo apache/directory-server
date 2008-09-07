@@ -34,7 +34,7 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -108,7 +108,7 @@ import static org.junit.Assert.assertFalse;
 )
 public class NegationSearchIT 
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     
     /**
@@ -163,7 +163,7 @@ public class NegationSearchIT
     
     Set<SearchResult> getResults( String filter ) throws Exception
     {
-        DirContext ctx = getWiredContext( ldapServer );
+        DirContext ctx = getWiredContext( ldapService );
         Set<SearchResult> results = new HashSet<SearchResult>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );

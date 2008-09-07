@@ -56,7 +56,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
@@ -94,7 +94,7 @@ public class StartTlsIT
     private File ksFile;
 
     
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     boolean oldConfidentialityRequiredValue;
     
     
@@ -118,7 +118,7 @@ public class StartTlsIT
     	
     	ksFile = File.createTempFile( "testStore", "ks" );
     	
-    	CoreSession session = ldapServer.getDirectoryService().getAdminSession();
+    	CoreSession session = ldapService.getDirectoryService().getAdminSession();
     	ClonedServerEntry entry = session.lookup( new LdapDN( "uid=admin,ou=system" ), CERT_IDS );
     	byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
     	assertNotNull( userCertificate );
@@ -132,7 +132,7 @@ public class StartTlsIT
     	ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
     	LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
     	
-        oldConfidentialityRequiredValue = ldapServer.isConfidentialityRequired();
+        oldConfidentialityRequiredValue = ldapService.isConfidentialityRequired();
     }
     
     
@@ -148,7 +148,7 @@ public class StartTlsIT
     	}
     	
     	LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
-    	ldapServer.setConfidentialityRequired( oldConfidentialityRequiredValue );
+    	ldapService.setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
     
 
@@ -164,7 +164,7 @@ public class StartTlsIT
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         
         // Must use the name of the server that is found in its certificate?
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
 
         // Create initial context
         LOG.debug( "About to get initial context" );
@@ -192,7 +192,7 @@ public class StartTlsIT
     @Test
     public void testConfidentiality() throws Exception
     {
-        ldapServer.setConfidentialityRequired( true );
+        ldapService.setConfidentialityRequired( true );
 
         // -------------------------------------------------------------------
     	// Unsecured bind should fail
@@ -200,7 +200,7 @@ public class StartTlsIT
 
     	try
     	{
-    		ServerIntegrationUtils.getWiredContext( ldapServer );
+    		ServerIntegrationUtils.getWiredContext( ldapService );
     		fail( "Should not get here due to violation of confidentiality requirements" );
     	}
     	catch( AuthenticationNotSupportedException e )
@@ -364,7 +364,7 @@ public class StartTlsIT
             env.put( "java.naming.security.authentication", "simple" );
             
             // Must use the name of the server that is found in its certificate?
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getIpPort() );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
     
             // Create initial context
             LOG.debug( "About to get initial context" );

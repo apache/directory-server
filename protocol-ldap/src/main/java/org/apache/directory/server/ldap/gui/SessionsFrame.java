@@ -45,7 +45,7 @@ import javax.swing.JMenuItem;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
@@ -92,17 +92,17 @@ public class SessionsFrame extends JFrame
     private LdapSession selected;
     private JMenuItem unbindItem;
     private JMenuItem bindItem;
-    private LdapServer ldapServer;
+    private LdapService ldapService;
 
 
     /**
      * This is the default constructor
-     * @param ldapServer the session registry
+     * @param ldapService the session registry
      */
-    public SessionsFrame( LdapServer ldapServer )
+    public SessionsFrame( LdapService ldapService )
     {
         super();
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
         initialize();
     }
 
@@ -191,7 +191,7 @@ public class SessionsFrame extends JFrame
         {
             sessionsTable = new JTable();
             sessionsTable.setSelectionMode( javax.swing.ListSelectionModel.SINGLE_SELECTION );
-            sessionsTable.setModel( new SessionsModel( ldapServer.getLdapSessionManager().getSessions() ) );
+            sessionsTable.setModel( new SessionsModel( ldapService.getLdapSessionManager().getSessions() ) );
             sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
             {
                 public void valueChanged( ListSelectionEvent e )
@@ -363,7 +363,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    ldapServer.getLdapSessionManager().removeLdapSession( selected.getIoSession() );
+                    ldapService.getLdapSessionManager().removeLdapSession( selected.getIoSession() );
                     try
                     {
                         Thread.sleep( 250 );
@@ -548,7 +548,7 @@ public class SessionsFrame extends JFrame
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     OutstandingRequestsDialog dialog =
-                            new OutstandingRequestsDialog( SessionsFrame.this, selected, ldapServer );
+                            new OutstandingRequestsDialog( SessionsFrame.this, selected, ldapService );
                     dialog.addWindowListener( new WindowAdapter()
                     {
                         public void windowClosed( WindowEvent e )
@@ -691,7 +691,7 @@ public class SessionsFrame extends JFrame
     private void refresh()
     {
         LOG.info( "Refreshing Sessions UI" );
-        sessionsTable.setModel( new SessionsModel( ldapServer.getLdapSessionManager().getSessions() ) );
+        sessionsTable.setModel( new SessionsModel( ldapService.getLdapSessionManager().getSessions() ) );
         closeItem.setEnabled( false );
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );

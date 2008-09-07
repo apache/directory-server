@@ -31,7 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JButton;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import javax.swing.JTextArea;
@@ -51,7 +51,7 @@ public class OutstandingRequestsDialog extends JDialog
     private JButton jButton;
 
     final LdapSession session;
-    final LdapServer ldapServer;
+    final LdapService ldapService;
 
     private JPanel jPanel2;
     private JTextArea jTextArea;
@@ -65,11 +65,11 @@ public class OutstandingRequestsDialog extends JDialog
      * @param session the MINA IoSession to get outstanding requests for
      * @param sessionRegistry the session registry
      */
-    public OutstandingRequestsDialog( JFrame owner, LdapSession session, LdapServer ldapServer )
+    public OutstandingRequestsDialog( JFrame owner, LdapSession session, LdapService ldapService )
     {
         super( owner, true );
         this.session = session;
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
 
         StringBuffer buf = new StringBuffer();
         buf.append( "Outstanding Requests: " );

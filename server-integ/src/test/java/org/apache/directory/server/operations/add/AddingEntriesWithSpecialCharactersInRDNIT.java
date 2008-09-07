@@ -34,7 +34,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertNotNull;
 @CleanupLevel( Level.SUITE )
 public class AddingEntriesWithSpecialCharactersInRDNIT
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
 
     protected Attributes getPersonAttributes( String sn, String cn )
@@ -91,7 +91,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithHashRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getPersonAttributes( "Bush", "Kate#Bush" );
         String rdn = "cn=Kate\\#Bush";
@@ -124,7 +124,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithCommaInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getPersonAttributes( "Bush", "Bush, Kate" );
         String rdn = "cn=Bush\\, Kate";
@@ -211,7 +211,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithGreaterSignInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getOrgUnitAttributes( "East -> West" );
         String rdn = "ou=East -\\> West";
@@ -244,7 +244,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithLessSignInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getOrgUnitAttributes( "Scissors 8<" );
         String rdn = "ou=Scissors 8\\<";
@@ -277,7 +277,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithSemicolonInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getOrgUnitAttributes( "semicolon group;" );
         String rdn = "ou=semicolon group\\;";
@@ -310,7 +310,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     @Test
     public void testAddingWithEqualsInRdn() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
 
         Attributes attrs = getOrgUnitAttributes( "nomen=omen" );
         String rdn = "ou=nomen\\=omen";

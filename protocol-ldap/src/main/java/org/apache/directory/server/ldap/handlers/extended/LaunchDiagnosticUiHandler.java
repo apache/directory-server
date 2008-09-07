@@ -40,7 +40,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.gui.SessionsFrame;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -67,7 +67,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
-    private LdapServer ldapServer;
+    private LdapService ldapService;
 
 
     public String getOid()
@@ -117,9 +117,9 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             }
         }
 
-        SessionsFrame sessions = new SessionsFrame( ldapServer );
+        SessionsFrame sessions = new SessionsFrame( ldapService );
         sessions.setRequestor( requestor.getIoSession() );
-        sessions.setLdapProvider( ldapServer.getHandler() );
+        sessions.setLdapProvider( ldapService.getHandler() );
         Point pos = getCenteredPosition( sessions );
         pos.y = launchedWindowCount * 20 + pos.y;
         double multiplier = getAspectRatio() * 20.0;
@@ -154,8 +154,8 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapServer( LdapServer ldapServer )
+    public void setLdapServer( LdapService ldapService )
     {
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
     }
 }

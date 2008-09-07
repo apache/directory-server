@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
- * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing 
+ * the LDAP protocol.  THe {@link LdapService} creates this multiplexing 
  * {@link IoHandler} handler and populates it with subordinate handlers for
  * the various kinds of LDAP {@link Request} messages.  This is done in the
- * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
+ * setXxxHandler() methods of the LdapService where Xxxx is Add, Modify, etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -57,18 +57,18 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( LdapProtocolHandler.class );
     
-    /** the {@link LdapServer} this handler is associated with */
-    private final LdapServer ldapServer;
+    /** the {@link LdapService} this handler is associated with */
+    private final LdapService ldapService;
 
 
     /**
      * Creates a new instance of LdapProtocolHandler.
      *
-     * @param ldapServer
+     * @param ldapService
      */
-    LdapProtocolHandler( LdapServer ldapServer )
+    LdapProtocolHandler( LdapService ldapService )
     {
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
     }
 
 
@@ -80,8 +80,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
     {
         LdapSession ldapSession = new LdapSession( session );
         IoFilterChain filters = session.getFilterChain();
-        filters.addLast( "codec", new ProtocolCodecFilter( ldapServer.getProtocolCodecFactory() ) );
-        ldapServer.getLdapSessionManager().addLdapSession( ldapSession );
+        filters.addLast( "codec", new ProtocolCodecFilter( ldapService.getProtocolCodecFactory() ) );
+        ldapService.getLdapSessionManager().addLdapSession( ldapSession );
     }
 
 
@@ -91,7 +91,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      */
     public void sessionClosed( IoSession session )
     {
-        LdapSession ldapSession = ldapServer.getLdapSessionManager().removeLdapSession( session );
+        LdapSession ldapSession = ldapService.getLdapSessionManager().removeLdapSession( session );
         cleanUpSession( ldapSession );
     }
 
@@ -167,7 +167,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
             for ( Control control1 : req.getControls().values() )
             {
                 MutableControl control = ( MutableControl ) control1;
-                if ( control.isCritical() && ! ldapServer.getSupportedControls().contains( control.getID() ) )
+                if ( control.isCritical() && ! ldapService.getSupportedControls().contains( control.getID() ) )
                 {
                     ResultResponse resp = req.getResultResponse();
                     resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
@@ -203,7 +203,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
             "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
-        LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
+        LdapSession ldapSession = this.ldapService.getLdapSessionManager().removeLdapSession( session );
         cleanUpSession( ldapSession );
         session.close();
     }

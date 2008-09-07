@@ -22,7 +22,7 @@ package org.apache.directory.server.integ.state;
 import java.io.IOException;
 
 import org.apache.directory.server.integ.InheritableServerSettings;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.internal.runners.TestClass;
@@ -78,7 +78,7 @@ public class StartedPristineState extends AbstractState
     public void startup() throws Exception
     {
         LOG.debug( "calling start()" );
-        LdapServer server = context.getLdapServer();
+        LdapService server = context.getLdapServer();
         server.getDirectoryService().startup();
         server.start();
     }
@@ -92,7 +92,7 @@ public class StartedPristineState extends AbstractState
     public void shutdown() throws Exception
     {
         LOG.debug( "calling stop()" );
-        LdapServer server = context.getLdapServer();
+        LdapService server = context.getLdapServer();
         server.stop();
         server.getDirectoryService().shutdown();
     }

@@ -228,7 +228,7 @@ public class DisconnectNotificationCommand extends ToolCommand implements Unsoli
         }
         else if ( getApacheDS() != null )
         {
-            port = getApacheDS().getLdapServer().getIpPort();
+            port = getApacheDS().getLdapService().getIpPort();
 
             if ( isDebugEnabled() )
             {

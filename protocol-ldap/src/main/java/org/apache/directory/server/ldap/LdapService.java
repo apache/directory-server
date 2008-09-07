@@ -81,10 +81,10 @@ import org.slf4j.LoggerFactory;
  * handlers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 688548 $
  * @org.apache.xbean.XBean
  */
-public class LdapServer extends DirectoryBackedService
+public class LdapService extends DirectoryBackedService
 {
     /** Value (0) for configuration where size limit is unlimited. */
     public static final int NO_SIZE_LIMIT = 0;
@@ -100,7 +100,7 @@ public class LdapServer extends DirectoryBackedService
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( LdapService.class.getName() );
 
     /** The default maximum size limit. */
     private static final int MAX_SIZE_LIMIT_DEFAULT = 100;
@@ -117,7 +117,7 @@ public class LdapServer extends DirectoryBackedService
     /** The default IP port. */
     private static final int IP_PORT_DEFAULT = 389;
 
-    /** the session manager for this LdapServer */
+    /** the session manager for this LdapService */
     private LdapSessionManager ldapSessionManager = new LdapSessionManager();
     
     /** a set of supported controls */
@@ -125,13 +125,13 @@ public class LdapServer extends DirectoryBackedService
 
     /** 
      * The maximum size limit. 
-     * @see {@link LdapServer#MAX_SIZE_LIMIT_DEFAULT }
+     * @see {@link LdapService#MAX_SIZE_LIMIT_DEFAULT }
      */
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; 
 
     /** 
      * The maximum time limit.
-     * @see {@link LdapServer#MAX_TIME_LIMIT_DEFAULT }
+     * @see {@link LdapService#MAX_TIME_LIMIT_DEFAULT }
      */
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; 
 
@@ -193,7 +193,7 @@ public class LdapServer extends DirectoryBackedService
     /**
      * Creates an LDAP protocol provider.
      */
-    public LdapServer()
+    public LdapService()
     {
         super.setIpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
@@ -527,7 +527,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * Sets the mode for this LdapServer to accept requests with or without a
+     * Sets the mode for this LdapService to accept requests with or without a
      * TLS secured connection via either StartTLS extended operations or using
      * LDAPS.
      * 
@@ -541,7 +541,7 @@ public class LdapServer extends DirectoryBackedService
 
     /**
      * Gets whether or not TLS secured connections are required to perform 
-     * operations on this LdapServer.
+     * operations on this LdapService.
      * 
      * @return true if TLS secured connections are required, false otherwise
      */

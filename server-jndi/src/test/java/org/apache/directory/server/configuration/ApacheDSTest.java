@@ -63,14 +63,14 @@ public class ApacheDSTest extends TestCase
         directoryService.addPartition( example );
         directoryService.startup();
         
-        LdapServer ldapServer = new LdapServer();
-        ldapServer.setDirectoryService( directoryService );
-        ldapServer.setAllowAnonymousAccess( false );
-        ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
-        ldapServer.setEnabled( true );
-        ldapServer.setIpPort( 20389 );
+        LdapService ldapService = new LdapService();
+        ldapService.setDirectoryService( directoryService );
+        ldapService.setAllowAnonymousAccess( false );
+        ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+        ldapService.setEnabled( true );
+        ldapService.setIpPort( 20389 );
 
-        ApacheDS ads = new ApacheDS( directoryService, ldapServer, null );
+        ApacheDS ads = new ApacheDS( directoryService, ldapService, null );
         File f = new File( System.getProperty( "ldifFile" ) );
         ads.setLdifDirectory( f );
         

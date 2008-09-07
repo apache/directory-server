@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.handlers.bind.digestMD5;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
@@ -48,15 +48,15 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
     /**
      * Create a list of all the configured realms.
      * 
-     * @param ldapServer the LdapServer for which we want to get the realms
+     * @param ldapService the LdapService for which we want to get the realms
      * @return a list of realms, separated by spaces
      */
-    private String getActiveRealms( LdapServer ldapServer )
+    private String getActiveRealms( LdapService ldapService )
     {
         StringBuilder realms = new StringBuilder();
         boolean isFirst = true;
 
-        for ( String realm:ldapServer.getSaslRealms() )
+        for ( String realm:ldapService.getSaslRealms() )
         {
             if ( isFirst )
             {

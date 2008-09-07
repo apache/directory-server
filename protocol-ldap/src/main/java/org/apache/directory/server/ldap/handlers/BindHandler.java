@@ -40,7 +40,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
@@ -233,7 +233,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     private boolean checkMechanism( LdapSession ldapSession, String saslMechanism ) throws Exception
     {
         // Guard clause:  Reject unsupported SASL mechanisms.
-        if ( ! ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
+        if ( ! ldapService.getSupportedMechanisms().contains( saslMechanism ) )
         {
             LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml " + 
                 "configuration file (supportedMechanisms field)", 
@@ -592,15 +592,15 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     /**
      * Create a list of all the configured realms.
      * 
-     * @param ldapServer the LdapServer for which we want to get the realms
+     * @param ldapService the LdapService for which we want to get the realms
      * @return a list of realms, separated by spaces
      */
-    private String getActiveRealms( LdapServer ldapServer )
+    private String getActiveRealms( LdapService ldapService )
     {
         StringBuilder realms = new StringBuilder();
         boolean isFirst = true;
 
-        for ( String realm:ldapServer.getSaslRealms() )
+        for ( String realm:ldapService.getSaslRealms() )
         {
             if ( isFirst )
             {
@@ -618,9 +618,9 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     }
 
 
-    private Subject getSubject( LdapServer ldapServer ) throws Exception
+    private Subject getSubject( LdapService ldapService ) throws Exception
     {
-        String servicePrincipalName = ldapServer.getSaslPrincipal();
+        String servicePrincipalName = ldapService.getSaslPrincipal();
 
         KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
         GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
@@ -629,19 +629,19 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
         try
         {
-            entry = findPrincipal( ldapServer, getPrincipal );
+            entry = findPrincipal( ldapService, getPrincipal );
         }
         catch ( ServiceConfigurationException sce )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
+                + ldapService.getSearchBaseDn() + ".";
             throw new ServiceConfigurationException( message, sce );
         }
 
         if ( entry == null )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
+                + ldapService.getSearchBaseDn() + ".";
             throw new ServiceConfigurationException( message );
         }
 
@@ -664,9 +664,9 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
     }
     
 
-    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
+    private PrincipalStoreEntry findPrincipal( LdapService ldapService, GetPrincipal getPrincipal ) throws Exception
     {
-        CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
+        CoreSession adminSession = ldapService.getDirectoryService().getAdminSession();
 
         return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, null );
     }    

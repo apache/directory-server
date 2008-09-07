@@ -67,7 +67,7 @@ public interface ExtendedOperationHandler
     /**
      * Sets the LDAP server for this extendedOperation handler.
      * 
-     * @param ldapServer the ldap protocol server
+     * @param ldapService the ldap protocol server
      */
-    void setLdapServer( LdapServer ldapServer );
+    void setLdapServer( LdapService ldapService );
 }

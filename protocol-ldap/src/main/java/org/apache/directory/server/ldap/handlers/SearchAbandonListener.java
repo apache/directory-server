@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
@@ -40,33 +40,33 @@ import org.slf4j.LoggerFactory;
 public class SearchAbandonListener implements AbandonListener
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchAbandonListener.class );
-    private final LdapServer ldapServer;
+    private final LdapService ldapService;
     private EntryFilteringCursor cursor;
     private DirectoryListener listener;
     
     
-    public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor, DirectoryListener listener )
+    public SearchAbandonListener( LdapService ldapService, EntryFilteringCursor cursor, DirectoryListener listener )
     {
-        if ( ldapServer == null )
+        if ( ldapService == null )
         {
-            throw new NullPointerException( "ldapServer" );
+            throw new NullPointerException( "ldapService" );
         }
         
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
         this.cursor = cursor;
         this.listener = listener;
     }
     
     
-    public SearchAbandonListener( LdapServer ldapServer, DirectoryListener listener )
+    public SearchAbandonListener( LdapService ldapService, DirectoryListener listener )
     {
-        this ( ldapServer, null, listener );
+        this ( ldapService, null, listener );
     }
     
     
-    public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor )
+    public SearchAbandonListener( LdapService ldapService, EntryFilteringCursor cursor )
     {
-        this ( ldapServer, cursor, null );
+        this ( ldapService, cursor, null );
     }
     
     
@@ -74,7 +74,7 @@ public class SearchAbandonListener implements AbandonListener
     {
         if ( listener != null )
         {
-            ldapServer.getDirectoryService().getEventService().removeListener( listener );
+            ldapService.getDirectoryService().getEventService().removeListener( listener );
         }
 
         try

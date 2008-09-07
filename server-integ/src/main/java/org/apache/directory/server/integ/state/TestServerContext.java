@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.integ.InheritableServerSettings;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.internal.runners.MethodRoadie;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
@@ -66,7 +66,7 @@ public class TestServerContext
     private TestServerState state = nonExistentState;
 
     /** the ldap server managed by this context */
-    private LdapServer ldapServer;
+    private LdapService ldapService;
 
 
     /**
@@ -206,7 +206,7 @@ public class TestServerContext
         try
         {
             Object test = testClass.getConstructor().newInstance();
-            Field field = testClass.getJavaClass().getDeclaredField( "ldapServer" );
+            Field field = testClass.getJavaClass().getDeclaredField( "ldapService" );
             field.set( testClass.getJavaClass(), get().getLdapServer() );
             new MethodRoadie( test, testMethod, notifier, description ).run();
         }
@@ -278,14 +278,14 @@ public class TestServerContext
     }
 
 
-    LdapServer getLdapServer()
+    LdapService getLdapServer()
     {
-        return ldapServer;
+        return ldapService;
     }
 
 
-    void setLdapServer( LdapServer ldapServer )
+    void setLdapServer( LdapService ldapService )
     {
-        this.ldapServer = ldapServer;
+        this.ldapService = ldapService;
     }
 }

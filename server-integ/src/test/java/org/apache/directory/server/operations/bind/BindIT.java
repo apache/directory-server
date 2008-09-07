@@ -32,7 +32,7 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -79,7 +79,7 @@ import static org.junit.Assert.fail;
 )
 public class BindIT
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
 
     /**
@@ -93,7 +93,7 @@ public class BindIT
     {
         try
         {
-            getWiredContext( ldapServer, "cn=bogus", "blah" );
+            getWiredContext( ldapService, "cn=bogus", "blah" );
             fail( "should never get here due to a " );
         }
         catch ( AuthenticationException e )
@@ -126,7 +126,7 @@ public class BindIT
     {
         try
         {
-            getWiredContext( ldapServer, "cn=bogus,ou=system", "blah" );
+            getWiredContext( ldapService, "cn=bogus,ou=system", "blah" );
             fail( "should never get here due to a " );
         }
         catch ( AuthenticationException e )
@@ -143,7 +143,7 @@ public class BindIT
         try
         {
             conn = new LDAPConnection();
-            conn.connect( 100, "localhost", ldapServer.getIpPort(), "uid=admin,ou=system", "secret" );
+            conn.connect( 100, "localhost", ldapService.getIpPort(), "uid=admin,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
         catch ( LDAPException e )
@@ -174,7 +174,7 @@ public class BindIT
         
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getIpPort(), 
+            conn.connect( 3, "localhost", ldapService.getIpPort(), 
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
@@ -185,7 +185,7 @@ public class BindIT
         
         try
         {
-            conn.connect( 3, "localhost", ldapServer.getIpPort(), 
+            conn.connect( 3, "localhost", ldapService.getIpPort(), 
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }

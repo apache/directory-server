@@ -26,7 +26,7 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.fail;
@@ -75,13 +75,13 @@ public class IllegalModificationIT
 {
     private static final String DN = "cn=Kate Bush,ou=system";
 
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
 
     @Test
     public void testIllegalModification() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( ldapService );
         LDAPAttribute attr = new LDAPAttribute( "description" );
         LDAPModification mod = new LDAPModification( LDAPModification.ADD, attr );
 
@@ -104,7 +104,7 @@ public class IllegalModificationIT
     @Test
     public void testIllegalModification2() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapServer );
+        LDAPConnection con = getWiredConnection( ldapService );
 
         // first a valid attribute
         LDAPAttribute attr = new LDAPAttribute( "description", "The description" );

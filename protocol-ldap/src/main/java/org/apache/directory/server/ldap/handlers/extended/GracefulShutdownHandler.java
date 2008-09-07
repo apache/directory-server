@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -307,7 +307,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapServer( LdapServer ldapServer )
+    public void setLdapServer( LdapService ldapService )
     {
     }
 }

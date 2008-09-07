@@ -47,7 +47,7 @@ import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -98,12 +98,12 @@ public class ModifyReplaceIT
 {
     private static final String BASE = "ou=system";
 
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
     
     public static class Factory implements LdapServerFactory
     {
-        public LdapServer newInstance() throws Exception
+        public LdapService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -129,12 +129,12 @@ public class ModifyReplaceIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapServer ldapServer = new LdapServer();
-            ldapServer.setDirectoryService( service );
-            ldapServer.setSocketAcceptor( new SocketAcceptor( null ) );
-            ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
-            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            LdapService ldapService = new LdapService();
+            ldapService.setDirectoryService( service );
+            ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.addExtendedOperationHandler( new StartTlsHandler() );
+            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -154,9 +154,9 @@ public class ModifyReplaceIT
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
 
-            return ldapServer;
+            return ldapService;
         }
     }
     
@@ -166,7 +166,7 @@ public class ModifyReplaceIT
     @Test
     public void testReplaceNotPresentAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -199,7 +199,7 @@ public class ModifyReplaceIT
     @Test
     public void testReplaceNonExistingAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -232,7 +232,7 @@ public class ModifyReplaceIT
     @Test
     public void testReplaceNonExistingAttributeManyMods() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         String rdn = "cn=Kate Bush";
 
@@ -267,10 +267,10 @@ public class ModifyReplaceIT
     @Test
     public void testReplaceNonExistingIndexedAttribute() throws Exception 
     {
-        DirContext sysRoot = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         String rdn = "cn=Kim Wilde";
-        //ldapServer.getDirectoryService().getPartitions();
+        //ldapService.getDirectoryService().getPartitions();
 
         Attribute attr = new BasicAttribute( "ou", "test" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );

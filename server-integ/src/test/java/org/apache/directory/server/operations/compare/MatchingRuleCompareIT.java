@@ -31,7 +31,7 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ import static org.junit.Assert.assertEquals;
 )
 public class MatchingRuleCompareIT
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
 
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
@@ -87,7 +87,7 @@ public class MatchingRuleCompareIT
     @Test
     public void testCaseIgnoreMatch() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
         
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
@@ -194,7 +194,7 @@ public class MatchingRuleCompareIT
     @Test
     public void testDistinguishedNameMatch() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
         
         // determine member DN of person
         DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );

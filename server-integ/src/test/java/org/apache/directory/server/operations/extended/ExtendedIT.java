@@ -31,7 +31,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,7 +48,7 @@ import static org.junit.Assert.fail;
 @CleanupLevel ( Level.SUITE )
 public class ExtendedIT 
 {
-    public static LdapServer ldapServer;
+    public static LdapService ldapService;
     
 
     /**
@@ -62,7 +62,7 @@ public class ExtendedIT
     @Test
     public void testUnknownExtendedOperation() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( "ou=system" );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( "ou=system" );
         try
         {
             ctx.extendedOperation( new UnknownExtendedOperationRequest() );

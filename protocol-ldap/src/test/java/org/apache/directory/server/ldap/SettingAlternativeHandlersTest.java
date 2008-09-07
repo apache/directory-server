@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap;
 
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
 import org.apache.directory.server.ldap.handlers.BindHandler;
@@ -54,24 +54,24 @@ import org.apache.mina.common.IoSession;
  */
 public class SettingAlternativeHandlersTest extends TestCase
 {
-    LdapServer ldapServer;
+    LdapService ldapService;
 
 
     public void setUp() throws Exception
     {
-        ldapServer = new LdapServer();
+        ldapService = new LdapService();
         
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {
-            ldapServer.setAbandonHandler( new BogusAbandonHandler() );
-            ldapServer.setAddHandler( new BogusAddHandler() );
-            ldapServer.setBindHandler( new BogusBindHandler() );
-            ldapServer.setCompareHandler( new BogusCompareHandler() );
-            ldapServer.setDeleteHandler( new BogusDeleteHandler() );
-            ldapServer.setModifyDnHandler( new BogusModifyDnHandler() );
-            ldapServer.setModifyHandler( new BogusModifyHandler() );
-            ldapServer.setSearchHandler( new BogusSearchHandler() );
-            ldapServer.setUnbindHandler( new BogusUnbindHandler() );
+            ldapService.setAbandonHandler( new BogusAbandonHandler() );
+            ldapService.setAddHandler( new BogusAddHandler() );
+            ldapService.setBindHandler( new BogusBindHandler() );
+            ldapService.setCompareHandler( new BogusCompareHandler() );
+            ldapService.setDeleteHandler( new BogusDeleteHandler() );
+            ldapService.setModifyDnHandler( new BogusModifyDnHandler() );
+            ldapService.setModifyHandler( new BogusModifyHandler() );
+            ldapService.setSearchHandler( new BogusSearchHandler() );
+            ldapService.setUnbindHandler( new BogusUnbindHandler() );
         }
     }
 
@@ -85,7 +85,7 @@ public class SettingAlternativeHandlersTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
+        assertEquals( ldapService.getName(), LdapService.SERVICE_NAME );
     }
 
 
@@ -98,16 +98,16 @@ public class SettingAlternativeHandlersTest extends TestCase
      */
     public void testAlternativeConfiguration() throws LdapNamingException
     {
-        assertEquals( ldapServer.getAbandonHandler().getClass(), BogusAbandonHandler.class  );
-        assertEquals( ldapServer.getAddHandler().getClass(), BogusAddHandler.class  );
-        assertEquals( ldapServer.getBindHandler().getClass(), BogusBindHandler.class  );
-        assertEquals( ldapServer.getCompareHandler().getClass(), BogusCompareHandler.class  );
-        assertEquals( ldapServer.getDeleteHandler().getClass(), BogusDeleteHandler.class  );
-        assertEquals( ldapServer.getModifyDnHandler().getClass(), BogusModifyDnHandler.class  );
-        assertEquals( ldapServer.getModifyHandler().getClass(), BogusModifyHandler.class  );
-        assertEquals( ldapServer.getSearchHandler().getClass(), BogusSearchHandler.class  );
-        assertEquals( ldapServer.getUnbindHandler().getClass(), BogusUnbindHandler.class  );
-        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
+        assertEquals( ldapService.getAbandonHandler().getClass(), BogusAbandonHandler.class  );
+        assertEquals( ldapService.getAddHandler().getClass(), BogusAddHandler.class  );
+        assertEquals( ldapService.getBindHandler().getClass(), BogusBindHandler.class  );
+        assertEquals( ldapService.getCompareHandler().getClass(), BogusCompareHandler.class  );
+        assertEquals( ldapService.getDeleteHandler().getClass(), BogusDeleteHandler.class  );
+        assertEquals( ldapService.getModifyDnHandler().getClass(), BogusModifyDnHandler.class  );
+        assertEquals( ldapService.getModifyHandler().getClass(), BogusModifyHandler.class  );
+        assertEquals( ldapService.getSearchHandler().getClass(), BogusSearchHandler.class  );
+        assertEquals( ldapService.getUnbindHandler().getClass(), BogusUnbindHandler.class  );
+        assertEquals( ldapService.getName(), LdapService.SERVICE_NAME );
     }
 
     
