@@ -37,6 +37,9 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <!--<siteId>apacheds</siteId>-->
+
+    <!-- Set versions for depending projects -->
+    <org.apache.directory.shared.version>0.9.12-SNAPSHOT</org.apache.directory.shared.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -47,25 +50,25 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
-        <version>0.9.12-SNAPSHOT</version>
+        <version>${org.apache.directory.shared.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap</artifactId>
-        <version>0.9.12-SNAPSHOT</version>
+        <version>${org.apache.directory.shared.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-ldap-constants</artifactId>
-        <version>0.9.12-SNAPSHOT</version>
+        <version>${org.apache.directory.shared.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-bouncycastle-reduced</artifactId>
-        <version>0.9.12-SNAPSHOT</version>
+        <version>${org.apache.directory.shared.version}</version>
       </dependency>
 
       <dependency>
