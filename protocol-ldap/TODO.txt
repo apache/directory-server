@@ -1,5 +1,0 @@
- o handle setting request and response controls 
- o bind is all messed up now with sasl handling - fix that
- o need to add methods to CoreSession to build operations from requests?
-   or just add more parameters to set all options?
-   should operation context constructors take requests?
