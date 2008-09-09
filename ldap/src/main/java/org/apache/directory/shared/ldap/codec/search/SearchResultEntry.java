@@ -69,7 +69,7 @@ public class SearchResultEntry extends LdapMessage
     // ~ Instance fields
     // ----------------------------------------------------------------------------
 
-    /** A temporary storage for the byte[] representing the objectName */ 
+    /** A temporary storage for the byte[] representing the objectName */
     private byte[] objectNameBytes;
 
     /** The entry */
@@ -151,7 +151,10 @@ public class SearchResultEntry extends LdapMessage
 
 
     /**
-     * Initialize the entry.
+     * Sets the entry.
+     *
+     * @param entry
+     *      the entry
      */
     public void setEntry( Entry entry )
     {
@@ -188,11 +191,11 @@ public class SearchResultEntry extends LdapMessage
     {
         if ( value instanceof String )
         {
-            currentAttributeValue.add( (String)value );
+            currentAttributeValue.add( ( String ) value );
         }
         else
         {
-            currentAttributeValue.add( (byte[])value );
+            currentAttributeValue.add( ( byte[] ) value );
         }
     }
 
@@ -240,7 +243,7 @@ public class SearchResultEntry extends LdapMessage
     public int computeLength()
     {
         objectNameBytes = StringTools.getBytesUtf8( entry.getDn().getUpName() );
-        
+
         // The entry
         searchResultEntryLength = 1 + TLV.getNbBytes( objectNameBytes.length ) + objectNameBytes.length;
 
@@ -253,7 +256,7 @@ public class SearchResultEntry extends LdapMessage
             valsLength = new LinkedList<Integer>();
 
             // Compute the attributes length
-            for ( EntryAttribute attribute:entry )
+            for ( EntryAttribute attribute : entry )
             {
                 int localAttributeLength = 0;
                 int localValuesLength = 0;
@@ -269,7 +272,7 @@ public class SearchResultEntry extends LdapMessage
                     {
                         localValuesLength = 0;
 
-                        for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
+                        for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                         {
                             if ( value instanceof ClientStringValue )
                             {
@@ -281,8 +284,7 @@ public class SearchResultEntry extends LdapMessage
                             else
                             {
                                 byte[] binaryValue = ( byte[] ) value.get();
-                                localValuesLength += 1 + TLV.getNbBytes( binaryValue.length )
-                                    + binaryValue.length;
+                                localValuesLength += 1 + TLV.getNbBytes( binaryValue.length ) + binaryValue.length;
                             }
 
                         }
@@ -371,7 +373,7 @@ public class SearchResultEntry extends LdapMessage
                 int attributeNumber = 0;
 
                 // Compute the attributes length
-                for ( EntryAttribute attribute:entry )
+                for ( EntryAttribute attribute : entry )
                 {
                     // The partial attribute list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -390,7 +392,7 @@ public class SearchResultEntry extends LdapMessage
                     {
                         if ( attribute.size() > 0 )
                         {
-                            for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
+                            for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                             {
                                 if ( value instanceof ClientStringValue )
                                 {
