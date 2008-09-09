@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -141,6 +140,19 @@ public class AddRequest extends LdapMessage
         return entry;
     }
 
+
+    /**
+     * Sets the entry.
+     *
+     * @param entry
+     *      the entry
+     */
+    public void setEntry( Entry entry )
+    {
+        this.entry = entry;
+    }
+
+
     /**
      * Create a new attributeValue
      * 
@@ -154,7 +166,7 @@ public class AddRequest extends LdapMessage
             currentAttribute = entry.get( type );
             return;
         }
-        
+
         // fix this to use AttributeImpl(type.getString().toLowerCase())
         currentAttribute = new DefaultClientAttribute( type );
         entry.put( currentAttribute );
@@ -170,11 +182,11 @@ public class AddRequest extends LdapMessage
     {
         if ( value instanceof String )
         {
-            currentAttribute.add( (String)value );
+            currentAttribute.add( ( String ) value );
         }
         else
         {
-            currentAttribute.add( (byte[])value );
+            currentAttribute.add( ( byte[] ) value );
         }
     }
 
@@ -243,8 +255,7 @@ public class AddRequest extends LdapMessage
     public int computeLength()
     {
         // The entry
-        addRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry.getDn() ) ) + 
-            LdapDN.getNbBytes( entry.getDn() );
+        addRequestLength = 1 + TLV.getNbBytes( LdapDN.getNbBytes( entry.getDn() ) ) + LdapDN.getNbBytes( entry.getDn() );
 
         // The attributes sequence
         attributesLength = 0;
@@ -255,7 +266,7 @@ public class AddRequest extends LdapMessage
             valuesLength = new LinkedList<Integer>();
 
             // Compute the attributes length
-            for ( EntryAttribute attribute:entry )
+            for ( EntryAttribute attribute : entry )
             {
                 int localAttributeLength = 0;
                 int localValuesLength = 0;
@@ -269,7 +280,7 @@ public class AddRequest extends LdapMessage
                 {
                     localValuesLength = 0;
 
-                    for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
+                    for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                     {
                         if ( value instanceof ClientStringValue )
                         {
@@ -289,7 +300,7 @@ public class AddRequest extends LdapMessage
                 // add the attribute length to the attributes length
                 attributesLength += 1 + TLV.getNbBytes( localAttributeLength ) + localAttributeLength;
 
-                attributeLength.add(localAttributeLength );
+                attributeLength.add( localAttributeLength );
                 valuesLength.add( localValuesLength );
             }
         }
@@ -359,7 +370,7 @@ public class AddRequest extends LdapMessage
                 int attributeNumber = 0;
 
                 // Compute the attributes length
-                for ( EntryAttribute attribute:entry )
+                for ( EntryAttribute attribute : entry )
                 {
                     // The attributes list sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -376,7 +387,7 @@ public class AddRequest extends LdapMessage
 
                     if ( attribute.size() != 0 )
                     {
-                        for ( org.apache.directory.shared.ldap.entry.Value<?> value:attribute )
+                        for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                         {
                             if ( value instanceof ClientBinaryValue )
                             {
@@ -422,7 +433,7 @@ public class AddRequest extends LdapMessage
         sb.append( "    Add Request\n" );
         sb.append( "        Attributes\n" );
 
-        if ( entry == null ) 
+        if ( entry == null )
         {
             sb.append( "            No attributes\n" );
         }
