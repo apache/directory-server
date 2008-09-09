@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.util;
 import java.text.ParseException;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -32,7 +31,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InvalidAttributeIdentifierException;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
