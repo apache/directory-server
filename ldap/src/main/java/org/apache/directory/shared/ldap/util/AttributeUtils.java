@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.util;
 import java.text.ParseException;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -63,12 +64,12 @@ public class AttributeUtils
     public static Attribute removeAttribute( AttributeType type, Attributes entry )
     {
         Attribute attr = entry.get( type.getOid() );
-        
+
         if ( attr == null )
         {
             String[] aliases = type.getNamesRef();
-            
-            for ( String alias:aliases )
+
+            for ( String alias : aliases )
             {
                 attr = entry.get( alias );
 
@@ -78,16 +79,16 @@ public class AttributeUtils
                 }
             }
         }
-        
+
         if ( attr == null )
         {
             return null;
         }
-        
+
         return entry.remove( attr.getID() );
     }
-    
-    
+
+
     /**
      * Compare two values and return true if they are equal.
      * 
@@ -101,17 +102,17 @@ public class AttributeUtils
         {
             return true;
         }
-        
+
         if ( value1 == null )
         {
             return ( value2 == null );
         }
-        
+
         if ( value1 instanceof byte[] )
         {
             if ( value2 instanceof byte[] )
             {
-                return Arrays.equals( (byte[])value1, (byte[])value2 );
+                return Arrays.equals( ( byte[] ) value1, ( byte[] ) value2 );
             }
             else
             {
@@ -138,16 +139,16 @@ public class AttributeUtils
     {
         // First copy the value
         Object newValue = null;
-        
+
         if ( value instanceof byte[] )
         {
-            newValue = ((byte[])value).clone();
+            newValue = ( ( byte[] ) value ).clone();
         }
         else
         {
             newValue = value;
         }
-        
+
         return newValue;
     }
 
@@ -170,16 +171,16 @@ public class AttributeUtils
         {
             // Create a new AttributeImpl from the original attribute
             Attribute newAttribute = new BasicAttribute( attribute.getID() );
-            
+
             try
             {
                 NamingEnumeration<?> values = attribute.getAll();
-                
+
                 while ( values.hasMoreElements() )
                 {
                     newAttribute.add( cloneValue( values.next() ) );
                 }
-                
+
                 return newAttribute;
             }
             catch ( NamingException ne )
@@ -202,7 +203,7 @@ public class AttributeUtils
     {
         // check if the attribute's OID is used
         Attribute attr = attrs.get( type.getOid() );
-        
+
         if ( attr != null )
         {
             return attr;
@@ -212,28 +213,28 @@ public class AttributeUtils
         if ( type.getNamesRef().length == 1 )
         {
             attr = attrs.get( type.getNamesRef()[0] );
-            
+
             if ( attr != null )
             {
                 return attr;
             }
         }
-        
+
         // iterate through aliases
-        for ( String alias:type.getNamesRef() )
+        for ( String alias : type.getNamesRef() )
         {
             attr = attrs.get( alias );
-            
+
             if ( attr != null )
             {
                 return attr;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * Check if an attribute contains a specific value, using the associated matchingRule for that
      *
@@ -250,11 +251,11 @@ public class AttributeUtils
         {
             return true;
         }
-        
+
         MatchingRule matchingRule = type.getEquality();
-        
+
         Normalizer normalizer = null;
-        
+
         if ( matchingRule != null )
         {
             normalizer = type.getEquality().getNormalizer();
@@ -267,10 +268,10 @@ public class AttributeUtils
         if ( type.getSyntax().isHumanReadable() )
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
-            
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
             {
-                String value = (String)values.nextElement();
+                String value = ( String ) values.nextElement();
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
                 {
                     return true;
@@ -280,24 +281,24 @@ public class AttributeUtils
         else
         {
             byte[] comparedBytes = null;
-            
+
             if ( compared instanceof String )
             {
-                if ( ((String)compared).length() < 3 )
+                if ( ( ( String ) compared ).length() < 3 )
                 {
                     return false;
                 }
-                
+
                 // Tansform the String to a byte array
                 int state = 1;
-                comparedBytes = new byte[((String)compared).length()/3];
+                comparedBytes = new byte[( ( String ) compared ).length() / 3];
                 int pos = 0;
-                
-                for ( char c:((String)compared).toCharArray() )
+
+                for ( char c : ( ( String ) compared ).toCharArray() )
                 {
                     switch ( state )
                     {
-                        case 1 :
+                        case 1:
                             if ( c != '\\' )
                             {
                                 return false;
@@ -305,31 +306,31 @@ public class AttributeUtils
 
                             state++;
                             break;
-                            
-                        case 2 :
+
+                        case 2:
                             int high = StringTools.getHexValue( c );
-                            
+
                             if ( high == -1 )
                             {
                                 return false;
                             }
-                            
-                            comparedBytes[pos] = (byte)(high << 4);
-                            
+
+                            comparedBytes[pos] = ( byte ) ( high << 4 );
+
                             state++;
                             break;
-                            
-                        case 3 :
+
+                        case 3:
                             int low = StringTools.getHexValue( c );
-                            
+
                             if ( low == -1 )
                             {
                                 return false;
                             }
-                            
-                            comparedBytes[pos] += (byte)low;
+
+                            comparedBytes[pos] += ( byte ) low;
                             pos++;
-                            
+
                             state = 1;
                             break;
                     }
@@ -339,11 +340,11 @@ public class AttributeUtils
             {
                 comparedBytes = ( byte[] ) compared;
             }
-            
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
             {
                 Object value = values.nextElement();
-                
+
                 if ( value instanceof byte[] )
                 {
                     if ( ArrayUtils.isEquals( comparedBytes, value ) )
@@ -379,7 +380,7 @@ public class AttributeUtils
         {
             if ( value instanceof String )
             {
-                String strVal = (String)value;
+                String strVal = ( String ) value;
 
                 NamingEnumeration<?> attrVals = attr.getAll();
 
@@ -389,7 +390,7 @@ public class AttributeUtils
 
                     if ( attrVal instanceof String )
                     {
-                        if ( strVal.equalsIgnoreCase( (String)attrVal ) )
+                        if ( strVal.equalsIgnoreCase( ( String ) attrVal ) )
                         {
                             return true;
                         }
@@ -398,7 +399,7 @@ public class AttributeUtils
             }
             else
             {
-                byte[] valueBytes = ( byte[] )value;
+                byte[] valueBytes = ( byte[] ) value;
 
                 NamingEnumeration<?> attrVals = attr.getAll();
 
@@ -408,7 +409,7 @@ public class AttributeUtils
 
                     if ( attrVal instanceof byte[] )
                     {
-                        if ( Arrays.equals( (byte[])attrVal, valueBytes ) )
+                        if ( Arrays.equals( ( byte[] ) attrVal, valueBytes ) )
                         {
                             return true;
                         }
@@ -417,7 +418,7 @@ public class AttributeUtils
                 }
             }
         }
-        catch (NamingException ne )
+        catch ( NamingException ne )
         {
             return false;
         }
@@ -430,26 +431,26 @@ public class AttributeUtils
         throws NamingException
     {
         // quick bypass test
-        for ( Object object:compared )
+        for ( Object object : compared )
         {
             if ( attr.contains( object ) )
             {
                 return true;
             }
         }
-        
+
         Normalizer normalizer = type.getEquality().getNormalizer();
 
         if ( type.getSyntax().isHumanReadable() )
         {
-            for ( Object object:compared )
+            for ( Object object : compared )
             {
                 String comparedStr = ( String ) normalizer.normalize( object );
-                
+
                 for ( int ii = attr.size(); ii >= 0; ii-- )
                 {
                     String value = ( String ) attr.get( ii );
-                    
+
                     if ( comparedStr.equals( normalizer.normalize( value ) ) )
                     {
                         return true;
@@ -459,10 +460,10 @@ public class AttributeUtils
         }
         else
         {
-            for ( Object object:compared )
+            for ( Object object : compared )
             {
-                byte[] comparedBytes = ( byte[] )object;
-                
+                byte[] comparedBytes = ( byte[] ) object;
+
                 for ( int ii = attr.size(); ii >= 0; ii-- )
                 {
                     if ( ArrayUtils.isEquals( comparedBytes, attr.get( ii ) ) )
@@ -609,7 +610,7 @@ public class AttributeUtils
         {
             return attributes;
         }
-        
+
         if ( attributes instanceof BasicAttributes )
         {
             if ( attributes.isCaseIgnored() )
@@ -622,18 +623,18 @@ public class AttributeUtils
                 // Ok, bad news : we have to create a new BasicAttributes
                 // which will be case insensitive
                 Attributes newAttrs = new BasicAttributes( true );
-                
+
                 NamingEnumeration<?> attrs = attributes.getAll();
-                
+
                 if ( attrs != null )
                 {
                     // Iterate through the attributes now
                     while ( attrs.hasMoreElements() )
                     {
-                        newAttrs.put( (Attribute)attrs.nextElement() );
+                        newAttrs.put( ( Attribute ) attrs.nextElement() );
                     }
                 }
-                
+
                 return newAttrs;
             }
         }
@@ -643,7 +644,7 @@ public class AttributeUtils
             return attributes;
         }
     }
-    
+
 
     /**
      * Return a string representing the attributes with tabs in front of the
@@ -676,13 +677,13 @@ public class AttributeUtils
                     {
                         if ( attr instanceof String )
                         {
-                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                                " \n" );
+                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr )
+                                .append( " \n" );
                         }
                         else if ( attr instanceof byte[] )
                         {
                             String string = StringTools.utf8ToString( ( byte[] ) attr );
-    
+
                             sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " );
                             sb.append( string ).append( '/' );
                             sb.append( StringTools.dumpBytes( ( byte[] ) attr ) );
@@ -690,8 +691,8 @@ public class AttributeUtils
                         }
                         else
                         {
-                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr ).append(
-                                " \n" );
+                            sb.append( tabs ).append( "        Val[" ).append( j ).append( "] : " ).append( attr )
+                                .append( " \n" );
                         }
                     }
                 }
@@ -701,7 +702,7 @@ public class AttributeUtils
                 }
             }
         }
-        
+
         return sb.toString();
     }
 
@@ -737,14 +738,14 @@ public class AttributeUtils
         if ( attributes != null )
         {
             NamingEnumeration<?> attributesIterator = attributes.getAll();
-    
+
             while ( attributesIterator.hasMoreElements() )
             {
                 Attribute attribute = ( Attribute ) attributesIterator.nextElement();
                 sb.append( tabs ).append( attribute.toString() );
             }
         }
-        
+
         return sb.toString();
     }
 
@@ -761,16 +762,16 @@ public class AttributeUtils
         while ( StringTools.isCharASCII( str, pos.start, ';' ) )
         {
             pos.start++;
-            
+
             // We have an option
             if ( !StringTools.isAlphaDigitMinus( str, pos.start ) )
             {
                 // We must have at least one keychar
                 throw new ParseException( "An empty option is not allowed", pos.start );
             }
-            
+
             pos.start++;
-            
+
             while ( StringTools.isAlphaDigitMinus( str, pos.start ) )
             {
                 pos.start++;
@@ -790,40 +791,40 @@ public class AttributeUtils
     private static boolean parseNumber( String filter, Position pos )
     {
         char c = StringTools.charAt( filter, pos.start );
-        
+
         switch ( c )
         {
-            case '0' :
+            case '0':
                 // If we get a starting '0', we should get out
                 pos.start++;
                 return true;
-                
-            case '1' : 
-            case '2' : 
-            case '3' : 
-            case '4' : 
-            case '5' : 
-            case '6' : 
-            case '7' : 
-            case '8' : 
-            case '9' : 
+
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
                 pos.start++;
                 break;
-                
-            default :
+
+            default:
                 // Not a number.
                 return false;
         }
-        
+
         while ( StringTools.isDigit( filter, pos.start ) )
         {
             pos.start++;
         }
-        
+
         return true;
     }
 
-    
+
     /**
      * 
      * Parse an OID.
@@ -840,20 +841,20 @@ public class AttributeUtils
     {
         // We have an OID
         parseNumber( str, pos );
-        
+
         // We must have at least one '.' number
         if ( !StringTools.isCharASCII( str, pos.start, '.' ) )
         {
             throw new ParseException( "Invalid OID, missing '.'", pos.start );
         }
-        
+
         pos.start++;
-        
+
         if ( !parseNumber( str, pos ) )
         {
             throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
         }
-        
+
         while ( true )
         {
             // Break if we get something which is not a '.'
@@ -861,9 +862,9 @@ public class AttributeUtils
             {
                 break;
             }
-            
+
             pos.start++;
-            
+
             if ( !parseNumber( str, pos ) )
             {
                 throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
@@ -894,19 +895,19 @@ public class AttributeUtils
     {
         // We must have an OID or an DESCR first
         char c = StringTools.charAt( str, pos.start );
-        
+
         if ( c == '\0' )
         {
             throw new ParseException( "Empty attributes", pos.start );
         }
-        
+
         int start = pos.start;
 
         if ( StringTools.isAlpha( c ) )
         {
             // A DESCR
             pos.start++;
-            
+
             while ( StringTools.isAlphaDigitMinus( str, pos.start ) )
             {
                 pos.start++;
@@ -917,23 +918,23 @@ public class AttributeUtils
             {
                 parseOptions( str, pos );
             }
-            
+
             return str.substring( start, pos.start );
         }
         else if ( StringTools.isDigit( c ) )
         {
             // An OID
             pos.start++;
-            
+
             // Parse the OID
             parseOID( str, pos );
-            
+
             // Parse the options
             if ( withOption )
             {
                 parseOptions( str, pos );
             }
-            
+
             return str.substring( start, pos.start );
         }
         else
@@ -965,14 +966,14 @@ public class AttributeUtils
      */
     public static void applyModification( Entry entry, Modification modification ) throws NamingException
     {
-        EntryAttribute modAttr = modification.getAttribute(); 
+        EntryAttribute modAttr = modification.getAttribute();
         String modificationId = modAttr.getId();
-        
+
         switch ( modification.getOperation() )
         {
-            case ADD_ATTRIBUTE :
-                EntryAttribute modifiedAttr = entry.get( modificationId ) ;
-                
+            case ADD_ATTRIBUTE:
+                EntryAttribute modifiedAttr = entry.get( modificationId );
+
                 if ( modifiedAttr == null )
                 {
                     // The attribute should be added.
@@ -982,7 +983,7 @@ public class AttributeUtils
                 {
                     // The attribute exists : the values can be different,
                     // so we will just add the new values to the existing ones.
-                    for ( Value<?> value:modAttr )
+                    for ( Value<?> value : modAttr )
                     {
                         // If the value already exist, nothing is done.
                         // Note that the attribute *must* have been
@@ -990,10 +991,10 @@ public class AttributeUtils
                         modifiedAttr.add( value );
                     }
                 }
-                
+
                 break;
-                
-            case REMOVE_ATTRIBUTE :
+
+            case REMOVE_ATTRIBUTE:
                 if ( modAttr.get() == null )
                 {
                     // We have no value in the ModificationItem attribute :
@@ -1005,21 +1006,21 @@ public class AttributeUtils
                 {
                     // We just have to remove the values from the original
                     // entry, if they exist.
-                    modifiedAttr = entry.get( modificationId ) ;
-                    
+                    modifiedAttr = entry.get( modificationId );
+
                     if ( modifiedAttr == null )
                     {
                         break;
                     }
 
-                    for ( Value<?> value:modAttr )
+                    for ( Value<?> value : modAttr )
                     {
                         // If the value does not exist, nothing is done.
                         // Note that the attribute *must* have been
                         // normalized before.
                         modifiedAttr.remove( value );
                     }
-                    
+
                     if ( modifiedAttr.size() == 0 )
                     {
                         // If this was the last value, remove the attribute
@@ -1028,8 +1029,8 @@ public class AttributeUtils
                 }
 
                 break;
-                
-            case REPLACE_ATTRIBUTE :
+
+            case REPLACE_ATTRIBUTE:
                 if ( modAttr.get() == null )
                 {
                     // If the modification does not have any value, we have
@@ -1081,7 +1082,7 @@ public class AttributeUtils
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
 
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
             {
                 String value = ( String ) values.nextElement();
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
@@ -1106,11 +1107,11 @@ public class AttributeUtils
                 comparedBytes = new byte[( ( String ) compared ).length() / 3];
                 int pos = 0;
 
-                for ( char c:((String)compared).toCharArray() )
+                for ( char c : ( ( String ) compared ).toCharArray() )
                 {
                     switch ( state )
                     {
-                        case 1 :
+                        case 1:
                             if ( c != '\\' )
                             {
                                 return null;
@@ -1119,7 +1120,7 @@ public class AttributeUtils
                             state++;
                             break;
 
-                        case 2 :
+                        case 2:
                             int high = StringTools.getHexValue( c );
 
                             if ( high == -1 )
@@ -1127,12 +1128,12 @@ public class AttributeUtils
                                 return null;
                             }
 
-                            comparedBytes[pos] = (byte)(high << 4);
+                            comparedBytes[pos] = ( byte ) ( high << 4 );
 
                             state++;
                             break;
 
-                        case 3 :
+                        case 3:
                             int low = StringTools.getHexValue( c );
 
                             if ( low == -1 )
@@ -1140,7 +1141,7 @@ public class AttributeUtils
                                 return null;
                             }
 
-                            comparedBytes[pos] += (byte)low;
+                            comparedBytes[pos] += ( byte ) low;
                             pos++;
 
                             state = 1;
@@ -1153,7 +1154,7 @@ public class AttributeUtils
                 comparedBytes = ( byte[] ) compared;
             }
 
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
             {
                 Object value = values.nextElement();
 
@@ -1171,8 +1172,6 @@ public class AttributeUtils
     }
 
 
-
-
     /**
      * Convert a BasicAttributes or a AttributesImpl to a ServerEntry
      *
@@ -1183,27 +1182,26 @@ public class AttributeUtils
      * 
      * @throws InvalidAttributeIdentifierException If we get an invalid attribute
      */
-    public static Entry toClientEntry( Attributes attributes, LdapDN dn ) 
-            throws InvalidAttributeIdentifierException
+    public static Entry toClientEntry( Attributes attributes, LdapDN dn ) throws InvalidAttributeIdentifierException
     {
         if ( attributes instanceof BasicAttributes )
         {
-            try 
+            try
             {
                 Entry entry = new DefaultClientEntry( dn );
-    
+
                 for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
                 {
                     Attribute attr = attrs.nextElement();
 
                     EntryAttribute entryAttribute = toClientAttribute( attr );
-                    
+
                     if ( entryAttribute != null )
                     {
                         entry.put( entryAttribute );
                     }
                 }
-                
+
                 return entry;
             }
             catch ( NamingException ne )
@@ -1215,6 +1213,37 @@ public class AttributeUtils
         {
             return null;
         }
+    }
+
+
+    /**
+     * Converts an {@link Entry} to an {@link Attributes}.
+     *
+     * @param entry
+     *      the entry to convert
+     * @return
+     *      the equivalent {@link Attributes}
+     */
+    public static Attributes toAttributes( Entry entry )
+    {
+        Attributes attributes = new BasicAttributes();
+
+        // Looping on attributes
+        for ( Iterator<EntryAttribute> attributeIterator = entry.iterator(); attributeIterator.hasNext(); )
+        {
+            EntryAttribute entryAttribute = ( EntryAttribute ) attributeIterator.next();
+            Attribute attribute = new BasicAttribute( entryAttribute.getId() );
+            attributes.put( attribute );
+
+            // Looping on values
+            for ( Iterator<Value<?>> valueIterator = entryAttribute.iterator(); valueIterator.hasNext(); )
+            {
+                Value<?> value = ( Value<?> ) valueIterator.next();
+                attribute.add( value.get() );
+            }
+        }
+
+        return attributes;
     }
 
 
@@ -1233,29 +1262,29 @@ public class AttributeUtils
         {
             return null;
         }
-        
-        try 
+
+        try
         {
             EntryAttribute clientAttribute = new DefaultClientAttribute( attribute.getID() );
-        
+
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
-                
+
                 if ( value instanceof String )
                 {
-                    clientAttribute.add( (String)value );
+                    clientAttribute.add( ( String ) value );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    clientAttribute.add( (byte[])value );
+                    clientAttribute.add( ( byte[] ) value );
                 }
                 else
                 {
-                    clientAttribute.add( (String)null );
+                    clientAttribute.add( ( String ) null );
                 }
             }
-            
+
             return clientAttribute;
         }
         catch ( NamingException ne )
