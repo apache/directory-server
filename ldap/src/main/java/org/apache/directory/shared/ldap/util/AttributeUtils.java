@@ -1220,20 +1220,44 @@ public class AttributeUtils
      * Converts an {@link Entry} to an {@link Attributes}.
      *
      * @param entry
-     *      the entry to convert
+     *      the {@link Entry} to convert
      * @return
      *      the equivalent {@link Attributes}
      */
     public static Attributes toAttributes( Entry entry )
     {
-        Attributes attributes = new BasicAttributes();
-
-        // Looping on attributes
-        for ( Iterator<EntryAttribute> attributeIterator = entry.iterator(); attributeIterator.hasNext(); )
+        if ( entry != null )
         {
-            EntryAttribute entryAttribute = ( EntryAttribute ) attributeIterator.next();
+            Attributes attributes = new BasicAttributes();
+
+            // Looping on attributes
+            for ( Iterator<EntryAttribute> attributeIterator = entry.iterator(); attributeIterator.hasNext(); )
+            {
+                EntryAttribute entryAttribute = ( EntryAttribute ) attributeIterator.next();
+
+                attributes.put( toAttribute( entryAttribute ) );
+            }
+
+            return attributes;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Converts an {@link EntryAttribute} to an {@link Attribute}.
+     *
+     * @param entryAttribute
+     *      the {@link EntryAttribute} to convert
+     * @return
+     *      the equivalent {@link Attribute}
+     */
+    public static Attribute toAttribute( EntryAttribute entryAttribute )
+    {
+        if ( entryAttribute != null )
+        {
             Attribute attribute = new BasicAttribute( entryAttribute.getId() );
-            attributes.put( attribute );
 
             // Looping on values
             for ( Iterator<Value<?>> valueIterator = entryAttribute.iterator(); valueIterator.hasNext(); )
@@ -1241,9 +1265,11 @@ public class AttributeUtils
                 Value<?> value = ( Value<?> ) valueIterator.next();
                 attribute.add( value.get() );
             }
+
+            return attribute;
         }
 
-        return attributes;
+        return null;
     }
 
 
