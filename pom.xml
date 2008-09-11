@@ -27,7 +27,7 @@
   <artifactId>shared-parent</artifactId>
   <name>Apache Directory Shared</name>
   <packaging>pom</packaging>
-  <version>0.9.12-SNAPSHOT</version>
+  <version>0.9.12</version>
 
   <properties>
     <projectName>ApacheDS-Shared</projectName>
@@ -235,9 +235,9 @@
   </reporting>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/shared/trunk/</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/shared/tags/0.9.12</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/shared/tags/0.9.12</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/shared/tags/0.9.12</url>
   </scm>
 
   <repositories>
