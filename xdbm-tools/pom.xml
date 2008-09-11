@@ -38,7 +38,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-btree-base</artifactId>
+      <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>
