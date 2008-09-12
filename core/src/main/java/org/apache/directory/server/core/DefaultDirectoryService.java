@@ -30,6 +30,7 @@ import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
+import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -1387,6 +1388,12 @@ public class DefaultDirectoryService implements DirectoryService
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );
+            
+            if( changeLog.isExposeChangeLog() && changeLog.isTagSearchSupported() )
+            {
+                String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix();
+                partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
+            }
         }
 
         if ( LOG.isDebugEnabled() )
