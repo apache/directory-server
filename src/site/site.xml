@@ -21,7 +21,7 @@
 <project name="${project.name}">
   <bannerLeft>
     <src>images/server-icon_128x128.png</src>
-    <href>http://directory.apache.org/studio/</href>
+    <href>http://directory.apache.org/</href>
     <name>${project.name}</name>
   </bannerLeft>
   <publishDate position="navigation-bottom" format="dd-MM-yyyy HH:mm"/>
