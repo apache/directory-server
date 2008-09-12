@@ -296,6 +296,10 @@ public interface SchemaConstants
     String NAMING_CONTEXTS_AT = "namingContexts";
     String NAMING_CONTEXTS_AT_OID = "1.3.6.1.4.1.1466.101.120.5";
     
+    // ChangeLogContext
+    String CHANGELOG_CONTEXT_AT = "changeLogContext";
+    String CHANGELOG_CONTEXT_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.49";
+    
     // SupportedExtension
     String SUPPORTED_EXTENSION_AT = "supportedExtension";
     String SUPPORTED_EXTENSION_AT_OID = "1.3.6.1.4.1.1466.101.120.7";
