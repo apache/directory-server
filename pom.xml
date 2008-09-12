@@ -25,12 +25,12 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>12</version>
+    <version>13-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.4</version>
+  <version>1.5.5-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -39,7 +39,7 @@
     <!--<siteId>apacheds</siteId>-->
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.12</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>0.9.13-SNAPSHOT</org.apache.directory.shared.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
