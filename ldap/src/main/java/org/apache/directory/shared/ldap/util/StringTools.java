@@ -36,6 +36,9 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+
 
 /**
  * Various string manipulation methods that are more efficient then chaining
@@ -1036,11 +1039,19 @@ public class StringTools
         {
             if ( object instanceof String )
             {
-                return (String)object;
+                return (String) object;
             }
             else if ( object instanceof byte[] )
             {
-                return dumpBytes( (byte[])object );
+                return dumpBytes( ( byte[] ) object );
+            }
+            else if ( object instanceof ClientStringValue )
+            {
+                return ( ( ClientStringValue ) object ).get();
+            }
+            else if ( object instanceof ClientBinaryValue )
+            {
+                return dumpBytes( ( ( ClientBinaryValue ) object ).get() );
             }
             else
             {
