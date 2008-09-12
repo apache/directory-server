@@ -22,6 +22,7 @@ package org.apache.directory.server.core.changelog;
 import org.apache.directory.server.core.partition.Partition;
 
 
+
 /**
  * TODO TaggableSearchableChangeLogStore.
  *
@@ -51,8 +52,14 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * @param partitionSuffix the suffix of the partition e.x ou=chnagelog
      * @param revContainerName the container's name for holding the revisions ex. ou=revisions
      * @param tagContainerName the container's name for holding the tags ex. ou=tags
-     * 
-     * @return the partial-write enabled uninitialized partition
      */
-    Partition getPartition( String partitionSuffix, String revContainerName, String tagContainerName );
+    void createPartition( String partitionSuffix, String revContainerName, String tagContainerName );
+    
+    /**
+     * Gets the partition associated with this store
+     *
+     * @return the partition associated with this store, null if not initialized
+     */
+    Partition getPartition();
+    
 }

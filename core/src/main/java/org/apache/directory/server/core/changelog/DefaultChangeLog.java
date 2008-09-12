@@ -212,7 +212,11 @@ public class DefaultChangeLog implements ChangeLog
 
             if ( exposeChangeLog && isTagSearchSupported() )
             {
-                Partition partition = ( ( TaggableSearchableChangeLogStore ) store ).getPartition( partitionSuffix, revContainerName, tagContainerName );
+                TaggableSearchableChangeLogStore tmp = ( TaggableSearchableChangeLogStore ) store;
+                
+                tmp.createPartition( partitionSuffix, revContainerName, tagContainerName );
+                
+                Partition partition = tmp.getPartition();
                 partition.init( service );
 
                 service.addPartition( partition );
