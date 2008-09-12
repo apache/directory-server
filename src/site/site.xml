@@ -19,8 +19,29 @@
   @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
 -->
 <project name="${project.name}">
+  <bannerLeft>
+    <src>images/server-icon_128x128.png</src>
+    <href>http://directory.apache.org/studio/</href>
+    <name>${project.name}</name>
+  </bannerLeft>
+  <publishDate position="navigation-bottom" format="dd-MM-yyyy HH:mm"/>
+  <version position="right"/>
   <body>
-    <menu ref="parent" />
-    <menu ref="reports" />
+    <breadcrumbs>
+      <item name="Apache Directory Shared" href="http://vm094.oxylos.org/projects/shared/" />
+    </breadcrumbs>
+    <links>
+       <!--
+         Need to encode a part of the url due to Issue
+         http://jira.codehaus.org/browse/MSITE-159
+         and as of https://bugzilla.mozilla.org/show_bug.cgi?id=43659
+         this workaround doesn't works in FF 3.x ...
+        -->
+       <item name="Apache Directory" href="http://directory.apache%2eorg/"/>
+       <item name="Apache" href="http://www.apache.org/"/>
+       <item name="Maven" href="http://maven.apache.org/"/>
+    </links>
+    <menu ref="reports"/>
+    <menu ref="modules"/>
   </body>
 </project>

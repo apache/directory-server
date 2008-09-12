@@ -19,14 +19,8 @@
   @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
 -->
 <project name="${project.name}">
-    <bannerLeft>
-        <name>${project.name}</name>
-    </bannerLeft>
-    <publishDate position="navigation-bottom" format="dd-MM-yyyy HH:mm" />
-    <body>
-        <menu name="Parent">
-            <item name="Apache Directory Shared" href="../index.html" />
-        </menu>
-        <menu ref="reports" />
-    </body>
+  <body>
+    <menu ref="parent" />
+    <menu ref="reports" />
+  </body>
 </project>
