@@ -246,9 +246,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.codehaus.plexus</groupId>
+        <groupId>plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>1.5.6</version>
+        <version>1.0.3</version>
       </dependency>
 
       <dependency>
@@ -389,9 +389,9 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>dependency-maven-plugin</artifactId>
-          <version>1.0</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.0</version>
         </plugin>
 
         <plugin>
@@ -467,6 +467,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <aggregate>true</aggregate>
           <tags>
@@ -532,6 +533,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.2</version>
       </plugin>
     </plugins>
   </reporting>
