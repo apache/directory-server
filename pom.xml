@@ -198,6 +198,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <aggregate>true</aggregate>
         </configuration>
@@ -231,6 +232,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.2</version>
       </plugin>
     </plugins>
   </reporting>
