@@ -47,7 +47,7 @@ public abstract class AbstractAsn1Object implements Asn1Object
     protected AbstractAsn1Object parent;
 
     
-    /** The identifier of the asqsocaited TLV */
+    /** The identifier of the associated TLV */
     private int tlvId;
 
     // ~ Methods
