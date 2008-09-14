@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.jndi;
+package org.apache.directory.server.core.operations.search;
 
 
 import org.apache.directory.server.core.DirectoryService;
@@ -46,6 +46,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidSearchControlsException;
+import javax.naming.directory.InvalidSearchFilterException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -1304,6 +1306,33 @@ public class SearchIT
 
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
+    }
+
+
+    /**
+     * Test a search with a bad filter : there is a missing closing ')'
+     */
+    @Test
+    public void testBadFilter() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+        
+        try
+        {
+            sysRoot.search( "", "(|(name=testing00)(name=testing01)", controls );
+            fail();
+        }
+        catch ( InvalidSearchFilterException isfe )
+        {
+            assertTrue( true );
+        }
     }
 
 

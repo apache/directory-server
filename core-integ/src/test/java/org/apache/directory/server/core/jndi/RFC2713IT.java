@@ -50,7 +50,7 @@ public class RFC2713IT
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testSerializatin() throws Exception
+    public void testSerialization() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
 
