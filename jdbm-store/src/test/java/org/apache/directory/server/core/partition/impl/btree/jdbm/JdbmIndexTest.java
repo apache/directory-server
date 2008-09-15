@@ -143,12 +143,12 @@ public class JdbmIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex jdbmIndex = new JdbmIndex();
-        jdbmIndex.setAttributeId( "foo" );
-        assertEquals( "foo", jdbmIndex.getAttributeId() );
+        JdbmIndex jdbmIndex1= new JdbmIndex();
+        jdbmIndex1.setAttributeId( "foo" );
+        assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
-        jdbmIndex = new JdbmIndex( "bar" );
-        assertEquals( "bar", jdbmIndex.getAttributeId() );
+        JdbmIndex jdbmIndex2 = new JdbmIndex( "bar" );
+        assertEquals( "bar", jdbmIndex2.getAttributeId() );
 
         // initialized index
         initIndex();
@@ -568,5 +568,6 @@ public class JdbmIndexTest
     {
         JdbmIndex jdbmIndex = new JdbmIndex();
         jdbmIndex.init( registry.lookup( SchemaConstants.CREATORS_NAME_AT ), dbFileDir );
+        jdbmIndex.close();
     }
 }

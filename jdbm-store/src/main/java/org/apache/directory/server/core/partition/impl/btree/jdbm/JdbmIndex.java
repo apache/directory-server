@@ -155,7 +155,17 @@ public class JdbmIndex<K,O> implements Index<K,O>
         base.disableTransactions();
         this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
-        initTables();
+        try
+        {
+            initTables();
+        }
+        catch ( IOException e )
+        {
+            // clean up
+            close();
+            throw e;
+        }
+        
         initialized = true;
     }
 
@@ -623,8 +633,16 @@ public class JdbmIndex<K,O> implements Index<K,O>
      */
     public synchronized void close() throws IOException
     {
-        forward.close();
-        reverse.close();
+        if (forward != null)
+        {
+            forward.close();
+        }
+        
+        if (reverse != null)
+        {
+            reverse.close();
+        }
+
         recMan.commit();
         recMan.close();
     }
