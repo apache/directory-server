@@ -210,10 +210,13 @@ public final class TransactionManager {
         ObjectInputStream ois = new ObjectInputStream(fis);
 
         try {
-            if (ois.readShort() != Magic.LOGFILE_HEADER)
+            if (ois.readShort() != Magic.LOGFILE_HEADER) {
+                ois.close();
                 throw new Error("Bad magic on log file");
+            }
         } catch (IOException e) {
             // corrupted/empty logfile
+            ois.close();
             logFile.delete();
             return;
         }
@@ -223,6 +226,7 @@ public final class TransactionManager {
             try {
                 blocks = (ArrayList) ois.readObject();
             } catch (ClassNotFoundException e) {
+                ois.close();
                 throw new Error("Unexcepted exception: " + e);
             } catch (IOException e) {
                 // corrupted logfile, ignore rest of transactions
@@ -240,6 +244,7 @@ public final class TransactionManager {
             }
         }
         owner.sync();
+        ois.close();
         logFile.delete();
     }
 
@@ -313,9 +318,10 @@ public final class TransactionManager {
         // set clean flag to indicate blocks have been written to log
         setClean(txns[curTxn]);
 
-        // open a new ObjectOutputStream in order to store
+        // reset ObjectOutputStream in order to store
         // newer states of BlockIo
         oos = new ObjectOutputStream(fos);
+        oos.reset();
     }
 
     /** Flushes and syncs */

@@ -75,11 +75,6 @@ public class JdbmIndexTest
         loader.loadWithDependencies( bootstrapSchemas, registries );
         this.registry = registries.getAttributeTypeRegistry();
 
-        if ( dbFileDir != null )
-        {
-            dbFileDir.delete();
-        }
-
         File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
         tmpIndexFile.deleteOnExit();
         dbFileDir = new File( tmpIndexFile.getParentFile(),
@@ -108,8 +103,14 @@ public class JdbmIndexTest
         {
             idx.sync();
             idx.close();
-            File file = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
-            file.delete();
+            
+            // created by this test
+            File dbFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".db" );
+            assert dbFile.delete();
+            
+            // created by TransactionManager
+            File logFile = new File( idx.getWkDirPath(), idx.getAttribute().getName() + ".lg" );
+            assert logFile.delete();
         }
         
         idx = null;
