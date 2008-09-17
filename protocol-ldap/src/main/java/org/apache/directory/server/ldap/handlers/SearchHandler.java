@@ -572,6 +572,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             LOG.debug( "Message received:  {}", req.toString() );
         }
 
+        // A flag set if we have a persistent search
+        boolean isPersistentSearch = false;
+        
+        // A flag set when we've got an exception while processing a
+        // persistent search
+        boolean persistentSearchException = false;
+        
         // add the search request to the registry of outstanding requests for this session
         session.registerOutstandingRequest( req );
 
@@ -586,6 +593,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             if ( isRootDSESearch( req ) )
             {
                 handleRootDseSearch( session, req );
+                
                 return;
             }
 
@@ -598,9 +606,12 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             
             if ( psearchControl != null )
             {
+                // Set the flag to avoid the request being removed
+                // from the session
+                isPersistentSearch = true;
+
                 handlePersistentSearch( session, req, psearchControl );
                 
-                // do not unregister the outstanding request unlike below
                 return;
             }
 
@@ -610,7 +621,6 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
 
             SearchResponseDone done = doSimpleSearch( session, req );
             session.getIoSession().write( done );
-            session.unregisterOutstandingRequest( req );
         }
         catch ( Exception e )
         {
@@ -631,7 +641,24 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 return;
             }
 
+            // If it was a persistent search and if we had an exception,
+            // we set the flag to remove the request from the session
+            if ( isPersistentSearch )
+            {
+                persistentSearchException = true;
+            }
+            
             handleException( session, req, e );
+        }
+        finally 
+        {
+            
+            // remove the request from the session, except if
+            // we didn't got an exception for a Persistent search 
+            if ( !isPersistentSearch || persistentSearchException )
+            {
+                session.unregisterOutstandingRequest( req );
+            }
         }
     }
 
