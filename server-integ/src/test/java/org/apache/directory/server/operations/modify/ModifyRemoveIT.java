@@ -115,7 +115,7 @@ public class ModifyRemoveIT
 
 
     /**
-     * Remove an attribute which does not exist in an attribute making sure 
+     * Remove a value which does not exist in an attribute making sure  
      * it does not remove other values in that attribute.  Tests if the 
      * following JIRA issue is still valid:
      * 

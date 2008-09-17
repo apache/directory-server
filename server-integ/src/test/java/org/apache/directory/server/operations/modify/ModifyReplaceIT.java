@@ -65,6 +65,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -164,7 +166,7 @@ public class ModifyReplaceIT
      * Create a person entry and try to remove a not present attribute
      */
     @Test
-    public void testReplaceNotPresentAttribute() throws Exception 
+    public void testReplaceToRemoveNotPresentAttribute() throws Exception
     {
         DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
@@ -181,17 +183,58 @@ public class ModifyReplaceIT
         String base = "";
 
         NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+        
         while ( enm.hasMore() ) 
         {
             SearchResult sr = ( SearchResult ) enm.next();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
-            assertTrue( cn.contains("Kate Bush") );
+            assertTrue( cn.contains( "Kate Bush") );
+            Attribute desc = sr.getAttributes().get( "description" );
+            assertNull( desc );
         }
 
         sysRoot.destroySubcontext( rdn );
     }
+    
+    
+    /**
+     * Create a person entry and try to add a not present attribute via a REPLACE
+     */
+    @Test
+    public void testReplaceToAddNotPresentAttribute() throws Exception 
+    {
+        DirContext sysRoot = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        
+        String rdn = "cn=Kate Bush";
 
+        Attribute attr = new BasicAttribute( "description", "added description" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+
+        sysRoot.modifyAttributes( rdn, new ModificationItem[] { item } );
+
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+        
+        while ( enm.hasMore() ) 
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush") );
+            Attribute desc = sr.getAttributes().get( "description" );
+            assertNotNull( desc );
+            assertTrue( desc.contains( "added description") );
+            assertEquals( 1, desc.size() );
+        }
+
+        sysRoot.destroySubcontext( rdn );
+    }
+    
     
     /**
      * Create a person entry and try to remove a non existing attribute
@@ -206,7 +249,7 @@ public class ModifyReplaceIT
         Attribute attr = new BasicAttribute( "numberOfOctaves" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
 
-        sysRoot.modifyAttributes(rdn, new ModificationItem[] { item });
+        sysRoot.modifyAttributes( rdn, new ModificationItem[] { item } );
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -214,6 +257,7 @@ public class ModifyReplaceIT
         String base = "";
 
         NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+        
         while ( enm.hasMore() ) 
         {
             SearchResult sr = enm.next();
