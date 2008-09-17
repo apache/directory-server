@@ -19,27 +19,22 @@
  */
 package org.apache.directory.server.core.configuration;
 
-import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.ldif.LdifComposer;
-import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Map;
 
 
 /**
@@ -76,25 +71,11 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     @SuppressWarnings("deprecation")
     public String getAsText()
     {
-        LdifComposer composer = new LdifComposerImpl();
-        Map<String, Object> map = new MultiValueMap();
-
         Attributes attrs = (Attributes) getValue();
+        
         try
         {
-            NamingEnumeration<? extends Attribute> e = attrs.getAll();
-            while ( e.hasMore() )
-            {
-                Attribute attr = e.next();
-                NamingEnumeration<? extends Object> e2 = attr.getAll();
-                while ( e2.hasMoreElements() )
-                {
-                    Object value = e2.next();
-                    map.put( attr.getID(), value );
-                }
-            }
-
-            return composer.compose( map );
+            return LdifUtils.convertToLdif( attrs );
         }
         catch ( Exception e )
         {
