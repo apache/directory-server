@@ -312,7 +312,7 @@ public class LdapService extends DirectoryBackedService
         }
 
         /*
-         * The serveur is now initialized, we can
+         * The server is now initialized, we can
          * install the default requests handlers, which need 
          * access to the DirectoryServer instance.
          */ 
@@ -321,6 +321,17 @@ public class LdapService extends DirectoryBackedService
         startLDAP0( getIpPort(), chain );
         
         started = true;
+        
+        if ( isEnableLdaps() )
+        {
+            LOG.info( "Ldaps service started." );
+            System.out.println( "Ldaps service started." );
+        }
+        else
+        {
+            LOG.info( "Ldap service started." );
+            System.out.println( "Ldap service started." );
+        }
     }
 
 
@@ -378,6 +389,17 @@ public class LdapService extends DirectoryBackedService
         catch ( Exception e )
         {
             LOG.warn( "Failed to sent NoD.", e );
+        }
+
+        if ( isEnableLdaps() )
+        {
+            LOG.info( "Ldaps service stopped." );
+            System.out.println( "Ldaps service stopped." );
+        }
+        else
+        {
+            LOG.info( "Ldap service stopped." );
+            System.out.println( "Ldap service stopped." );
         }
     }
 

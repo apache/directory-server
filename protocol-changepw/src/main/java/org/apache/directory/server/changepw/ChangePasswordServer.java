@@ -35,6 +35,8 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,6 +50,9 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 public class ChangePasswordServer extends DirectoryBackedService
 {
     private static final long serialVersionUID = 3509208713288140629L;
+
+    /** logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordServer.class.getName() );
 
     /** The default change password principal name. */
     private static final String SERVICE_PRINCIPAL_DEFAULT = "kadmin/changepw@EXAMPLE.COM";
@@ -277,6 +282,9 @@ public class ChangePasswordServer extends DirectoryBackedService
             getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ),
                     new ChangePasswordProtocolHandler( this, store ), tcpConfig );
         }
+        
+        LOG.info( "ChangePassword service started." );
+        System.out.println( "ChangePassword service started." );
     }
 
 
@@ -290,6 +298,9 @@ public class ChangePasswordServer extends DirectoryBackedService
         {
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
+
+        LOG.info( "ChangePassword service stopped." );
+        System.out.println( "ChangePassword service stopped." );
     }
 
 

@@ -35,6 +35,8 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -49,6 +51,10 @@ public class KdcServer extends DirectoryBackedService
 {
     private static final long serialVersionUID = 522567370475574165L;
 
+    /** logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( KdcServer.class.getName() );
+    
+    
     /** The default kdc port */
     private static final int DEFAULT_IP_PORT = 88;
 
@@ -453,6 +459,9 @@ public class KdcServer extends DirectoryBackedService
             tcpConfig.setReuseAddress( true );
             getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), tcpConfig );
         }
+        
+        LOG.info( "Kerberos service started." );
+        System.out.println( "Kerberos service started." );
     }
 
     
@@ -466,6 +475,9 @@ public class KdcServer extends DirectoryBackedService
         {
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
+        
+        LOG.info( "Kerberos service stopped." );
+        System.out.println( "Kerberos service stopped." );
     }
 
 

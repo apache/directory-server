@@ -29,6 +29,8 @@ import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +45,9 @@ public class DnsServer extends DirectoryBackedService
 {
     private static final long serialVersionUID = 6943138644427163149L;
 
+    /** logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( DnsServer.class.getName() );
+    
     /** The default IP port. */
     private static final int IP_PORT_DEFAULT = 53;
 
@@ -84,6 +89,9 @@ public class DnsServer extends DirectoryBackedService
             tcpConfig.setReuseAddress( true );
             getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
         }
+        
+        LOG.info( "DSN service started." );
+        System.out.println( "DSN service started." );
     }
 
 
@@ -96,5 +104,8 @@ public class DnsServer extends DirectoryBackedService
         {
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
+        
+        LOG.info( "DSN service stopped." );
+        System.out.println( "DSN service stopped." );
     }
 }
