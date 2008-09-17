@@ -113,7 +113,7 @@ public class DefaultOidRegistry implements OidRegistry
 
         NamingException fault = new NoSuchAttributeException( "OID for name '" + name + "' was not "
             + "found within the OID registry" );
-        LOG.error( fault.getMessage() );
+        LOG.warn( fault.getMessage() );
         throw fault;
     }
 
