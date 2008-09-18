@@ -17,11 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.message;
+package org.apache.directory.shared.ldap.message.control;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
+import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class EntryChangeControl extends AbstractMutableControlImpl
 
     public static final String CONTROL_OID = "2.16.840.1.113730.3.4.7";
 
-    public static final long UNDEFINED_CHANGE_NUMBER = org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec.UNDEFINED_CHANGE_NUMBER;
+    public static final long UNDEFINED_CHANGE_NUMBER = EntryChangeControlCodec.UNDEFINED_CHANGE_NUMBER;
 
     private ChangeType changeType = ChangeType.ADD;
 
@@ -137,7 +138,7 @@ public class EntryChangeControl extends AbstractMutableControlImpl
     public byte[] getEncodedValue() 
     {
         // should call this codec or something
-        org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec ecc = new org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec();
+        EntryChangeControlCodec ecc = new EntryChangeControlCodec();
         ecc.setChangeNumber( changeNumber );
         ecc.setChangeType( changeType );
         ecc.setPreviousDn( previousDn );

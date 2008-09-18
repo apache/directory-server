@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.codec.controls;
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.ControlDecoder;
+import org.apache.directory.shared.ldap.message.control.CascadeControl;
 
 
 /**
@@ -35,12 +36,12 @@ public class CascadeControlDecoder implements ControlDecoder
 {
     public String getControlType()
     {
-        return org.apache.directory.shared.ldap.message.CascadeControl.CONTROL_OID;
+        return CascadeControl.CONTROL_OID;
     }
 
 
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
-        return new org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec();
+        return new CascadeControlCodec();
     }
 }

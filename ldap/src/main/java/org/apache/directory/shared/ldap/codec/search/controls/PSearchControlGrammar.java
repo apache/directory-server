@@ -71,7 +71,7 @@ public class PSearchControlGrammar extends AbstractGrammar
 
 
     /**
-     * Creates a new ModifyDNRequestGrammar object.
+     * Creates a new PSearchControlGrammar object.
      */
     private PSearchControlGrammar()
     {

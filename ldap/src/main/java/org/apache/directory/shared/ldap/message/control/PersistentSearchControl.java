@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.message;
+package org.apache.directory.shared.ldap.message.control;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;

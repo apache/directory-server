@@ -17,7 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.message;
+package org.apache.directory.shared.ldap.message.control;
+
+import org.apache.directory.shared.ldap.message.MutableControl;
 
 
 /**
@@ -53,7 +55,7 @@ public abstract class AbstractMutableControlImpl implements MutableControl
 
 
     /**
-     * Sets the criticil flag which determines whether or not this control is
+     * Sets the critical flag which determines whether or not this control is
      * critical for the correct operation of a request or response message. The
      * default for this value should be false.
      * 

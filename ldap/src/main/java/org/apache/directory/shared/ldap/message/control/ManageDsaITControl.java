@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.message;
+package org.apache.directory.shared.ldap.message.control;
 
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -67,7 +67,7 @@ public class ManageDsaITControl extends AbstractMutableControlImpl
     private static final long serialVersionUID = -8844249964346248321L;
 
     /**
-     * Returns an empty byte[] everytime.
+     * Returns an empty byte[] every time.
      */
     public byte[] getEncodedValue()
     {
@@ -76,7 +76,7 @@ public class ManageDsaITControl extends AbstractMutableControlImpl
 
 
     /**
-     * Returns an empty byte[] everytime.
+     * Returns an empty byte[] every time.
      */
     public byte[] getValue()
     {
@@ -85,7 +85,7 @@ public class ManageDsaITControl extends AbstractMutableControlImpl
 
 
     /**
-     * Returns "2.16.840.1.113730.3.4.2" everytime.
+     * Returns "2.16.840.1.113730.3.4.2" every time.
      */
     public String getType()
     {
@@ -94,7 +94,7 @@ public class ManageDsaITControl extends AbstractMutableControlImpl
 
 
     /**
-     * Returns "2.16.840.1.113730.3.4.2" everytime.
+     * Returns "2.16.840.1.113730.3.4.2" every time.
      */
     public String getID()
     {
