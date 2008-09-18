@@ -232,6 +232,22 @@ public class RdnTest
         assertEquals( "a=#0010A0AAFF", new Rdn( "a = #0010A0AAFF" ).toString() );
     }
 
+    /**
+     * test exception from illegal hexString attribute value : a=#zz.
+     */
+    @Test
+    public void testBadRdnHexStringAttributeValue() throws InvalidNameException
+    {
+        try
+        {
+            new Rdn( "a=#zz" );
+            fail();
+        }
+        catch ( InvalidNameException ine )
+        {
+            assertTrue( true );
+        }
+    }
 
     /**
      * test a simple RDN with quoted attribute value : a = "quoted \"value"

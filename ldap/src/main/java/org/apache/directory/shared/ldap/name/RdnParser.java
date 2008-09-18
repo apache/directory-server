@@ -1069,11 +1069,14 @@ public class RdnParser
      */
     public static void parse( String dn, Rdn rdn ) throws InvalidNameException
     {
-        parse( StringTools.getBytesUtf8( dn ), new Position(), rdn );
+        if ( parse( StringTools.getBytesUtf8( dn ), new Position(), rdn ) == DNUtils.PARSING_ERROR )
+        {
+            throw new InvalidNameException( "The RDN can't be parsed." );
+        }
     }
 
     /**
-     * Validtae a NameComponent : <br>
+     * Validate a NameComponent : <br>
      * <p>
      * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;

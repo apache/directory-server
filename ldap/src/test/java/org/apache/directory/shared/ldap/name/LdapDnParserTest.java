@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
@@ -202,6 +203,28 @@ public class LdapDnParserTest extends TestCase
     }
 
 
+    /**
+     * test exception from illegal hexString attribute value : a=#zz.
+     */
+    public void testBadLdapDNHexStringAttributeValue() throws InvalidNameException
+    {
+        try
+        {
+            NameParser dnParser = LdapDnParser.getNameParser();
+            dnParser.parse( "a=#zz" );
+            fail();
+        }
+        catch ( InvalidNameException ine )
+        {
+            assertTrue( true );
+        }
+        catch ( NamingException ine )
+        {
+            fail();
+        }
+    }
+    
+    
     /**
      * test a simple DN with quoted attribute value : a = "quoted \"value"
      */
