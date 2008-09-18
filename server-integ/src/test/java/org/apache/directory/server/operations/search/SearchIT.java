@@ -48,7 +48,7 @@ import org.apache.directory.server.ldap.LdapService;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.SubentriesControl;
+import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.fail;

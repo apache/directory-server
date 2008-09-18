@@ -52,7 +52,7 @@ import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
-import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -603,7 +603,7 @@ public class PersistentSearchIT
                             for ( int ii = 0; ii < controls.length; ii++ )
                             {
                                 if ( controls[ii].getID().equals(
-                                    org.apache.directory.shared.ldap.message.EntryChangeControl.CONTROL_OID ) )
+                                    org.apache.directory.shared.ldap.message.control.EntryChangeControl.CONTROL_OID ) )
                                 {
                                     EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
                                     ecControl = ( EntryChangeControlCodec ) decoder.decode( controls[ii].getEncodedValue() );
