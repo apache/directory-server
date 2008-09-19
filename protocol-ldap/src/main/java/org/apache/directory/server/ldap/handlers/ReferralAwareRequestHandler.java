@@ -793,6 +793,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
         {
             code = ResultCodeEnum.getBestEstimate( e, req.getType() );
         }
+        
         result.setResultCode( code );
 
         /*
@@ -801,11 +802,13 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
          * embed the result code name into the message.
          */
         String msg = code.toString() + ": failed for " + req + ": " + e.getMessage();
-        LOG.error( msg, e );
+        LOG.debug( msg, e );
+        
         if ( IS_DEBUG )
         {
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
+        
         result.setErrorMessage( msg );
 
         if ( e instanceof NamingException )
