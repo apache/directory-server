@@ -97,6 +97,14 @@ public class DefaultSearchEngine implements SearchEngine<ServerEntry>
     {
         LdapDN effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
+        
+        // Check that we have an entry, otherwise we can immediately get out
+        if ( baseId == null )
+        {
+            // The entry is not found : ciao !
+            return new EmptyIndexCursor<Long, ServerEntry>();
+        }
+        
         String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
