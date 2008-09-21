@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -215,6 +216,7 @@ public class LdapService extends DirectoryBackedService
         this.supportedControls.add( SubentriesControl.CONTROL_OID );
         this.supportedControls.add( ManageDsaITControl.CONTROL_OID );
         this.supportedControls.add( CascadeControl.CONTROL_OID );
+        this.supportedControls.add( PagedSearchControl.CONTROL_OID );
     }
 
 
