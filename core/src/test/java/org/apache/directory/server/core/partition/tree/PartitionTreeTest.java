@@ -25,6 +25,9 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.tree.BranchNode;
+import org.apache.directory.shared.ldap.util.tree.LeafNode;
+import org.apache.directory.shared.ldap.util.tree.Node;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -47,24 +50,24 @@ public class PartitionTreeTest
     @Test public void testNewPartitionTree() throws NamingException
     {
         /** A structure to hold all the partitions */
-        BranchNode partitionLookupTree = new BranchNode();
+        BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
         
         LdapDN suffix = new LdapDN( "dc=example, dc=com" );
         Partition partition = new JdbmPartition();
         partition.setSuffix( suffix.getUpName() );
         
-        Node node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix, 0, partition );
+        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix, 0, partition );
         
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
-        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        assertTrue( ((BranchNode<Partition>)node).contains( "dc=com" ) );
         
-        Node child = ((BranchNode)node).getChild( "dc=com" );
+        Node<Partition> child = ((BranchNode<Partition>)node).getChild( "dc=com" );
         assertTrue( child instanceof BranchNode );
-        assertTrue( ((BranchNode)child).contains( "dc=example" ) );
+        assertTrue( ((BranchNode<Partition>)child).contains( "dc=example" ) );
 
-        child = ((BranchNode)child).getChild( "dc=example" );
-        assertEquals( "dc=example, dc=com", ((LeafNode)child).getPartition().getSuffix() );
+        child = ((BranchNode<Partition>)child).getChild( "dc=example" );
+        assertEquals( "dc=example, dc=com", ((LeafNode<Partition>)child).getElement().getSuffix() );
     }
 
 
@@ -74,13 +77,13 @@ public class PartitionTreeTest
     @Test public void testNewPartitionTree2Nodes() throws NamingException
     {
         /** A structure to hold all the partitions */
-        BranchNode partitionLookupTree = new BranchNode();
+        BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=example, dc=com" );
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
-        Node node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix1, 0, partition1 );
+        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix1, 0, partition1 );
         
         LdapDN suffix2 = new LdapDN( "ou=system" );
         Partition partition2 = new JdbmPartition();
@@ -90,20 +93,20 @@ public class PartitionTreeTest
 
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
-        assertTrue( ((BranchNode)node).contains( "ou=system" ) );
-        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        assertTrue( ((BranchNode<Partition>)node).contains( "ou=system" ) );
+        assertTrue( ((BranchNode<Partition>)node).contains( "dc=com" ) );
         
-        Node child = ((BranchNode)node).getChild( "ou=system" );
+        Node<Partition> child = ((BranchNode<Partition>)node).getChild( "ou=system" );
         assertTrue( child instanceof LeafNode );
-        assertEquals( "ou=system", ((LeafNode)child).getPartition().getSuffix() );
+        assertEquals( "ou=system", ((LeafNode<Partition>)child).getElement().getSuffix() );
 
-        child = ((BranchNode)node).getChild( "dc=com" );
+        child = ((BranchNode<Partition>)node).getChild( "dc=com" );
         assertTrue( child instanceof BranchNode );
-        assertTrue( ((BranchNode)child).contains( "dc=example" ) );
+        assertTrue( ((BranchNode<Partition>)child).contains( "dc=example" ) );
         
-        child = ((BranchNode)child).getChild( "dc=example" );
+        child = ((BranchNode<Partition>)child).getChild( "dc=example" );
         assertTrue( child instanceof LeafNode );
-        assertEquals( "dc=example, dc=com", ((LeafNode)child).getPartition().getSuffix() );
+        assertEquals( "dc=example, dc=com", ((LeafNode<Partition>)child).getElement().getSuffix() );
     }
 
 
@@ -113,7 +116,7 @@ public class PartitionTreeTest
     @Test public void testNewPartitionTree2OverlapingNodes() throws NamingException
     {
         /** A structure to hold all the partitions */
-        BranchNode partitionLookupTree = new BranchNode();
+        BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=com" );
         Partition partition1 = new JdbmPartition();
@@ -143,7 +146,7 @@ public class PartitionTreeTest
     @Test public void testNewPartitionTree2NodesWithSameRoot() throws NamingException
     {
         /** A structure to hold all the partitions */
-        BranchNode partitionLookupTree = new BranchNode();
+        BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=example1, dc=com" );
         Partition partition1 = new JdbmPartition();
@@ -155,27 +158,27 @@ public class PartitionTreeTest
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
-        Node node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
+        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
 
         assertNotNull( node );
         
         assertTrue( node instanceof BranchNode );
-        assertTrue( ((BranchNode)node).contains( "dc=com" ) );
+        assertTrue( ((BranchNode<Partition>)node).contains( "dc=com" ) );
         
-        Node child = ((BranchNode)node).getChild( "dc=com" );
+        Node<Partition> child = ((BranchNode<Partition>)node).getChild( "dc=com" );
         assertTrue( child instanceof BranchNode );
 
-        child = ((BranchNode)node).getChild( "dc=com" );
+        child = ((BranchNode<Partition>)node).getChild( "dc=com" );
         assertTrue( child instanceof BranchNode );
-        assertTrue( ((BranchNode)child).contains( "dc=example1" ) );
-        assertTrue( ((BranchNode)child).contains( "dc=example2" ) );
+        assertTrue( ((BranchNode<Partition>)child).contains( "dc=example1" ) );
+        assertTrue( ((BranchNode<Partition>)child).contains( "dc=example2" ) );
         
-        Node child1 = ((BranchNode)child).getChild( "dc=example1" );
+        Node<Partition> child1 = ((BranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child1 instanceof LeafNode );
-        assertEquals( "dc=example1, dc=com", ((LeafNode)child1).getPartition().getSuffix() );
+        assertEquals( "dc=example1, dc=com", ((LeafNode<Partition>)child1).getElement().getSuffix() );
 
-        Node child2 = ((BranchNode)child).getChild( "dc=example1" );
+        Node<Partition> child2 = ((BranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child2 instanceof LeafNode );
-        assertEquals( "dc=example1, dc=com", ((LeafNode)child2).getPartition().getSuffix() );
+        assertEquals( "dc=example1, dc=com", ((LeafNode<Partition>)child2).getElement().getSuffix() );
     }
 }
