@@ -431,7 +431,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffixDn(), 0, system );
+            partitionLookupTree.recursivelyAddElement( partitionLookupTree, system.getSuffixDn(), 0, system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
@@ -621,7 +621,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffixDn(), 0, partition );
+            partitionLookupTree.recursivelyAddElement( partitionLookupTree, partition.getSuffixDn(), 0, partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
@@ -674,7 +674,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             
             for ( Partition part : partitions.values() )
             {
-                partitionLookupTree.recursivelyAddPartition( partitionLookupTree, part.getSuffixDn(), 0, partition );
+                partitionLookupTree.recursivelyAddElement( partitionLookupTree, part.getSuffixDn(), 0, partition );
             }
     
             partition.sync();
