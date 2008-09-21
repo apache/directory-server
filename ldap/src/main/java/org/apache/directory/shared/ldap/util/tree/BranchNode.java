@@ -76,7 +76,7 @@ public class BranchNode<N> implements Node<N>
      * @param element The associated element to add as a tree node
      * @return The modified tree structure.
      */
-    public Node<N> recursivelyAddPartition( BranchNode<N> current, LdapDN dn, int index, N element ) throws NamingException
+    public Node<N> recursivelyAddElement( BranchNode<N> current, LdapDN dn, int index, N element ) throws NamingException
     {
         String rdnAtIndex = dn.getRdn( index ).toString();
         
@@ -100,7 +100,7 @@ public class BranchNode<N> implements Node<N>
                 newNode = new BranchNode<N>();
             }
 
-            Node<N> child = recursivelyAddPartition( (BranchNode<N>)newNode, dn, index + 1, element );
+            Node<N> child = recursivelyAddElement( (BranchNode<N>)newNode, dn, index + 1, element );
             return current.addNode( rdnAtIndex, child );
         }
     }
