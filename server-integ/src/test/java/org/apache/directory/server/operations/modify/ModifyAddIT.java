@@ -126,10 +126,13 @@ public class ModifyAddIT
         Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
-        // Verify, that attribute value is added
+        // Verify, that
+        // - case of attribute description is correct
+        // - attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "telephoneNumber" );
         assertNotNull( attr );
+        assertEquals( "telephoneNumber", attr.getID() );
         assertTrue( attr.contains( newValue ) );
         assertEquals( 1, attr.size() );
     }
@@ -153,10 +156,13 @@ public class ModifyAddIT
         attrs.put( attr );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
 
-        // Verify, that attribute values are present
+        // Verify, that
+        // - case of attribute description is correct
+        // - attribute values are present
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "telephoneNumber" );
         assertNotNull( attr );
+        assertEquals( "telephoneNumber", attr.getID() );
         assertTrue( attr.contains( newValues[0] ) );
         assertTrue( attr.contains( newValues[1] ) );
         assertEquals( newValues.length, attr.size() );
