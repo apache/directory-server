@@ -74,6 +74,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -177,7 +178,8 @@ public class DefaultPartitionNexus extends PartitionNexus
             EntryChangeControl.CONTROL_OID,
             SubentriesControl.CONTROL_OID,
             ManageDsaITControl.CONTROL_OID,
-            CascadeControl.CONTROL_OID );
+            CascadeControl.CONTROL_OID,
+            PagedSearchControl.CONTROL_OID);
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,
