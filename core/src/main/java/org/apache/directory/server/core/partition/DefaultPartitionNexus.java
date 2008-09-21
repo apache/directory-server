@@ -54,9 +54,6 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.tree.BranchNode;
-import org.apache.directory.server.core.partition.tree.LeafNode;
-import org.apache.directory.server.core.partition.tree.Node;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -85,6 +82,9 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.tree.BranchNode;
+import org.apache.directory.shared.ldap.util.tree.LeafNode;
+import org.apache.directory.shared.ldap.util.tree.Node;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +136,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
-    private BranchNode partitionLookupTree = new BranchNode();
+    private BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
     
     /** the read only rootDSE attributes */
     private final ServerEntry rootDSE;
@@ -670,7 +670,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.remove( key );
-            partitionLookupTree = new BranchNode();
+            partitionLookupTree = new BranchNode<Partition>();
             
             for ( Partition part : partitions.values() )
             {
@@ -1065,7 +1065,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         // partitionList when it is modified.
         synchronized ( partitionLookupTree )
         {
-            Node currentNode = partitionLookupTree;
+            Node<Partition> currentNode = partitionLookupTree;
 
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
@@ -1079,10 +1079,10 @@ public class DefaultPartitionNexus extends PartitionNexus
 
                 if ( currentNode instanceof LeafNode )
                 {
-                    return ( ( LeafNode ) currentNode ).getPartition();
+                    return ( ( LeafNode<Partition> ) currentNode ).getElement();
                 }
 
-                BranchNode currentBranch = ( BranchNode ) currentNode;
+                BranchNode<Partition> currentBranch = ( BranchNode<Partition> ) currentNode;
                 
                 if ( currentBranch.contains( rdn ) )
                 {
@@ -1090,7 +1090,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     
                     if ( currentNode instanceof LeafNode )
                     {
-                        return ( ( LeafNode ) currentNode ).getPartition();
+                        return ( ( LeafNode<Partition> ) currentNode ).getElement();
                     }
                 }
             }
