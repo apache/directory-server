@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ManageReferrals
+public interface ReferralManager
 {
     /**
      * Tells if a DN is a referral (its associated entry contains the Referral ObjectClass).
