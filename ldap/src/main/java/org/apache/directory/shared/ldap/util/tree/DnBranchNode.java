@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,13 +187,18 @@ public class DnBranchNode<N> implements DnNode<N>
     
     
     /**
-     * Gets the partition associated with a normalized dn.
+     * Get the parent of a given DN, if present in the tree. This parent should be a 
+     * subset of the given dn.<br>
+     * For instance, if we have stored dc=acme, dc=org into the tree, 
+     * the DN: ou=example, dc=acme, dc=org will have a parent, and 
+     * dc=acme, dc=org will be returned.
+     * <br>For the DN ou=apache, dc=org, there is no parent, so null will be returned.
+     *  
      *
-     * @param dn the normalized distinguished name to resolve to a partition
-     * @return the backend partition associated with the normalized dn
-     * @throws Exception if the name cannot be resolved to a partition
+     * @param dn the normalized distinguished name to resolve to a parent
+     * @return the parent associated with the normalized dn
      */
-    public N getElement( LdapDN dn ) throws Exception
+    public N getParentElement( LdapDN dn )
     {
         Enumeration<String> rdns = dn.getAll();
         
@@ -233,6 +237,58 @@ public class DnBranchNode<N> implements DnNode<N>
             }
         }
         
-        throw new LdapNameNotFoundException( dn.getUpName() );
+        return null;
+    }
+
+    
+    /**
+     * Tells if the DN contains a parent in the tree. This parent should be a 
+     * subset of the given dn.<br>
+     * For instance, if we have stored dc=acme, dc=org into the tree, 
+     * the DN: ou=example, dc=acme, dc=org will have a parent. 
+     *
+     * @param dn the normalized distinguished name to resolve to a parent
+     * @return the parent associated with the normalized dn
+     */
+    public boolean hasParentElement( LdapDN dn )
+    {
+        Enumeration<String> rdns = dn.getAll();
+        
+        // This is synchronized so that we can't read the
+        // partitionList when it is modified.
+        synchronized ( this )
+        {
+            DnNode<N> currentNode = this;
+
+            // Iterate through all the RDN until we find the associated partition
+            while ( rdns.hasMoreElements() )
+            {
+                String rdn = rdns.nextElement();
+
+                if ( currentNode == null )
+                {
+                    return false;
+                }
+
+                if ( currentNode instanceof DnLeafNode )
+                {
+                    return true;
+                }
+
+                DnBranchNode<N> currentBranch = ( DnBranchNode<N> ) currentNode;
+                
+                if ( currentBranch.contains( rdn ) )
+                {
+                    currentNode = currentBranch.getChild( rdn );
+                    
+                    if ( currentNode instanceof DnLeafNode )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 }
