@@ -66,6 +66,8 @@
 
   <build>
     <plugins>
+      <!-- Seems to exist some more inheritence problems - it's not sufficient
+        to comment the docck plugin in the bootstrap-plugin only ...
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-docck-plugin</artifactId>
@@ -78,6 +80,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
   
