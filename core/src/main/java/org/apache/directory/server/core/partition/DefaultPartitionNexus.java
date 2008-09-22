@@ -428,7 +428,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.recursivelyAddElement( partitionLookupTree, system.getSuffixDn(), 0, system );
+            partitionLookupTree.add( system.getSuffixDn(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
@@ -618,7 +618,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.recursivelyAddElement( partitionLookupTree, partition.getSuffixDn(), 0, partition );
+            partitionLookupTree.add( partition.getSuffixDn(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
@@ -660,23 +660,9 @@ public class DefaultPartitionNexus extends PartitionNexus
             namingContexts.remove( partition.getUpSuffixDn().getUpName() );
         }
 
-        // Create a new partition list. 
-        // This is easier to create a new structure from scratch than to reorganize
-        // the current structure. As this structure is not modified often
-        // this is an acceptable solution.
-        synchronized ( partitionLookupTree )
-        {
-            partitions.remove( key );
-            partitionLookupTree = new DnBranchNode<Partition>();
-            
-            for ( Partition part : partitions.values() )
-            {
-                partitionLookupTree.recursivelyAddElement( partitionLookupTree, part.getSuffixDn(), 0, partition );
-            }
-    
-            partition.sync();
-            partition.destroy();
-        }
+        // Update the partition tree
+        partitionLookupTree.remove( partition );
+        partitions.remove( key );
     }
 
 
