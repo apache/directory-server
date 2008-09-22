@@ -30,6 +30,12 @@
   <name>ApacheDS Core Plugin (Maven 2)</name>
   <packaging>maven-plugin</packaging>
 
+  <url>http://vm094.oxylos.org/projects/apacheds/apacheds-core-plugin/</url>
+
+  <prerequisites>
+    <maven>2.0.9</maven>
+  </prerequisites>
+
   <description>
     A collection of tools as plugins to manage various tasks associated with
     the directory server.
@@ -58,6 +64,23 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-docck-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
   <reporting>
     <plugins>
       <plugin>
@@ -68,5 +91,9 @@
     </plugins>
   </reporting>
 
+  <!-- Somehow inheritence of <scm> doesn' works correctly ? -->
+  <scm>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+  </scm>
 </project>
 
