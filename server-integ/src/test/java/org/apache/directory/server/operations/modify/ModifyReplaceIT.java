@@ -27,7 +27,9 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -337,5 +339,32 @@ public class ModifyReplaceIT
         }
 
         sysRoot.destroySubcontext( rdn );
+    }
+    
+    
+    /**
+     * Create a person entry, replace telephoneNumber, verify the 
+     * case of the attribute description attribute.
+     */
+    @Test
+    public void testReplaceCaseOfAttributeDescription() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        String rdn = "cn=Kate Bush";
+
+        // Replace telephoneNumber
+        String newValue = "2345678901";
+        Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, false );
+        ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
+
+        // Verify, that
+        // - case of attribute description is correct
+        // - attribute value is added 
+        attrs = ctx.getAttributes( rdn );
+        Attribute attr = attrs.get( "telephoneNumber" );
+        assertNotNull( attr );
+        assertEquals( "telephoneNumber", attr.getID() );
+        assertTrue( attr.contains( newValue ) );
+        assertEquals( 1, attr.size() );
     }
 }
