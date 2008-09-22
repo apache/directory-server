@@ -26,6 +26,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
+import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -296,6 +297,12 @@ public class InterceptorChainTest extends TestCase
 
         public void removePartition( Partition partition ) throws NamingException
         {
+        }
+
+
+        public ReferralManager getReferralManager()
+        {
+            return null;
         }
 
 

@@ -26,6 +26,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralHandlingMode;
+import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.cursor.ClosureMonitor;
@@ -494,6 +495,12 @@ public class MaxImmSubFilterTest
 
 
         public Registries getRegistries()
+        {
+            return null;
+        }
+
+
+        public ReferralManager getReferralManager()
         {
             return null;
         }
