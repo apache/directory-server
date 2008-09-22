@@ -56,7 +56,7 @@ public class PartitionTreeTest
         Partition partition = new JdbmPartition();
         partition.setSuffix( suffix.getUpName() );
         
-        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix, 0, partition );
+        Node<Partition> node = partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix, 0, partition );
         
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
@@ -83,13 +83,13 @@ public class PartitionTreeTest
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
-        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix1, 0, partition1 );
+        Node<Partition> node = partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix1, 0, partition1 );
         
         LdapDN suffix2 = new LdapDN( "ou=system" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
-        node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
+        node = partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix2, 0, partition2 );
 
         assertNotNull( node );
         assertTrue( node instanceof BranchNode );
@@ -122,7 +122,7 @@ public class PartitionTreeTest
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
-        partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix1, 0, partition1 );
+        partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix1, 0, partition1 );
         
         LdapDN suffix2 = new LdapDN( "dc=example, dc=com" );
         Partition partition2 = new JdbmPartition();
@@ -130,7 +130,7 @@ public class PartitionTreeTest
         
         try
         {
-            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
+            partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix2, 0, partition2 );
             fail();
         }
         catch ( NamingException ne )
@@ -152,13 +152,13 @@ public class PartitionTreeTest
         Partition partition1 = new JdbmPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
-        partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix1, 0, partition1 );
+        partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix1, 0, partition1 );
         
         LdapDN suffix2 = new LdapDN( "dc=example2, dc=com" );
         Partition partition2 = new JdbmPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
-        Node<Partition> node = partitionLookupTree.recursivelyAddPartition( partitionLookupTree, suffix2, 0, partition2 );
+        Node<Partition> node = partitionLookupTree.recursivelyAddElement( partitionLookupTree, suffix2, 0, partition2 );
 
         assertNotNull( node );
         
