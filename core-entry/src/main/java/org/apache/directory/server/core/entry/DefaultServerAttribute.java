@@ -393,13 +393,18 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             
             for ( String val:vals )
             {
-                if ( add( new ServerStringValue( attributeType, val ) ) != 0 )
+                Value<String> newValue = new ServerStringValue( attributeType, val );
+                
+                if ( !contains( newValue ) )
                 {
-                    nbAdded++;
-                }
-                else
-                {
-                    LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                    if ( add( newValue ) != 0 )
+                    {
+                        nbAdded++;
+                    }
+                    else
+                    {
+                        LOG.error( "The value '" + val + "' is incorrect, it hasn't been added" );
+                    }
                 }
             }
             
