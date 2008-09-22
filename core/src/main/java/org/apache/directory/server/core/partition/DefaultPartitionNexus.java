@@ -82,9 +82,9 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.util.tree.BranchNode;
-import org.apache.directory.shared.ldap.util.tree.LeafNode;
-import org.apache.directory.shared.ldap.util.tree.Node;
+import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
+import org.apache.directory.shared.ldap.util.tree.DnLeafNode;
+import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +136,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
-    private BranchNode<Partition> partitionLookupTree = new BranchNode<Partition>();
+    private DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
     
     /** the read only rootDSE attributes */
     private final ServerEntry rootDSE;
@@ -670,7 +670,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.remove( key );
-            partitionLookupTree = new BranchNode<Partition>();
+            partitionLookupTree = new DnBranchNode<Partition>();
             
             for ( Partition part : partitions.values() )
             {
@@ -1065,7 +1065,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         // partitionList when it is modified.
         synchronized ( partitionLookupTree )
         {
-            Node<Partition> currentNode = partitionLookupTree;
+            DnNode<Partition> currentNode = partitionLookupTree;
 
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
@@ -1077,20 +1077,20 @@ public class DefaultPartitionNexus extends PartitionNexus
                     break;
                 }
 
-                if ( currentNode instanceof LeafNode )
+                if ( currentNode instanceof DnLeafNode )
                 {
-                    return ( ( LeafNode<Partition> ) currentNode ).getElement();
+                    return ( ( DnLeafNode<Partition> ) currentNode ).getElement();
                 }
 
-                BranchNode<Partition> currentBranch = ( BranchNode<Partition> ) currentNode;
+                DnBranchNode<Partition> currentBranch = ( DnBranchNode<Partition> ) currentNode;
                 
                 if ( currentBranch.contains( rdn ) )
                 {
                     currentNode = currentBranch.getChild( rdn );
                     
-                    if ( currentNode instanceof LeafNode )
+                    if ( currentNode instanceof DnLeafNode )
                     {
-                        return ( ( LeafNode<Partition> ) currentNode ).getElement();
+                        return ( ( DnLeafNode<Partition> ) currentNode ).getElement();
                     }
                 }
             }

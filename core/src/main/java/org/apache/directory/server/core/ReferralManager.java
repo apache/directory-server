@@ -73,6 +73,7 @@ public interface ReferralManager
      * The manager will search for every entries having a Referral ObjectClass.
      *
      * @param directoryService The associated LDAP service
+     * @exception If the initialization failed
      */
-    void init( DirectoryService directoryService );
+    void init( DirectoryService directoryService ) throws Exception;
 }
