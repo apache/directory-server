@@ -194,15 +194,15 @@ public class DnBranchNode<N> implements DnNode<N>
      * @return the backend partition associated with the normalized dn
      * @throws Exception if the name cannot be resolved to a partition
      */
-    public N getElement( DnBranchNode<N> tree, LdapDN dn ) throws Exception
+    public N getElement( LdapDN dn ) throws Exception
     {
         Enumeration<String> rdns = dn.getAll();
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( tree )
+        synchronized ( this )
         {
-            DnNode<N> currentNode = tree;
+            DnNode<N> currentNode = this;
 
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
