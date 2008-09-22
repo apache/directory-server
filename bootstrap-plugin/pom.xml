@@ -30,6 +30,12 @@
   <name>ApacheDS Bootstrap Plugin</name>
   <packaging>maven-plugin</packaging>
 
+  <url>http://vm094.oxylos.org/projects/apacheds/apacheds-bootstrap-plugin/</url>
+  
+  <prerequisites>
+    <maven>2.0.9</maven>
+  </prerequisites>
+
   <description>
     This plugin pre-loads a set of schema objects into a special fixed schema
     partition within the server.  It uses the bootstrap schema objects to do
@@ -85,6 +91,27 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <!-- Comment docck checker to not pollute plugins with SNAPSHOT versions
+        docck fails using beta-2 because of JDK 1.5 type safety issues
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-docck-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      -->
+    </plugins>
+  </build>
+  
   <reporting>
     <plugins>
       <plugin>
@@ -95,5 +122,9 @@
     </plugins>
   </reporting>
 
+  <!-- Somehow inheritence of <scm> doesn' works correctly ? -->
+  <scm>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+  </scm>
 </project>
 
