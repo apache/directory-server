@@ -78,7 +78,7 @@
     <repository>
       <id>mojo.snapshots</id>
       <name>Codehaus Snapshot Repository</name>
-      <url>http://snapshots.maven.codehaus.org/maven2</url>
+      <url>http://snapshots.repository.codehaus.org/</url>
     </repository>
   </repositories>
 
