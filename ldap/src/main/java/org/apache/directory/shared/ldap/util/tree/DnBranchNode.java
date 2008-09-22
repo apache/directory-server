@@ -77,7 +77,7 @@ public class DnBranchNode<N> implements DnNode<N>
      * @param element The associated element to add as a tree node
      * @return The modified tree structure.
      */
-    public DnNode<N> recursivelyAddElement( DnBranchNode<N> current, LdapDN dn, int index, N element ) throws NamingException
+    private DnNode<N> recursivelyAddElement( DnBranchNode<N> current, LdapDN dn, int index, N element ) throws NamingException
     {
         String rdnAtIndex = dn.getRdn( index ).toString();
         
@@ -148,41 +148,6 @@ public class DnBranchNode<N> implements DnNode<N>
         }
 
         return null;
-    }
-    
-    
-    /**
-     * @see Object#toString()
-     */
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append( "{" );
-        boolean isFirst = true;
-        
-        for ( DnNode<N> child:children.values() )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                sb.append(  ", " );
-            }
-
-            if ( child instanceof DnBranchNode )
-            {
-                sb.append( "Branch: ").append( child.toString() );
-            }
-            else
-            {
-                sb.append( "Leaf: " ).append( "'" ).append( child.toString() ).append( "'" );
-            }
-        }
-
-        sb.append( "}" );
-        return sb.toString();
     }
     
     
@@ -290,5 +255,127 @@ public class DnBranchNode<N> implements DnNode<N>
         }
         
         return false;
+    }
+    
+    
+    /**
+     * Tells if a branchNode has some children or not
+     *
+     * @return <code>true</code> if the node has some children
+     */
+    public boolean hasChildren()
+    {
+        return children.size() != 0;
+    }
+    
+    
+    /**
+     * Removes an element from the tree.
+     *
+     * @param element The element to remove
+     */
+    private boolean recursivelyRemoveElement( DnBranchNode<N> currentNode, N element )
+    {
+        // It might be a leaf
+        for ( String key: currentNode.children.keySet() )
+        {
+            DnNode<N> child = currentNode.children.get( key );
+            
+            if ( child instanceof DnLeafNode )
+            {
+                if ( ((DnLeafNode<N>)child).getElement().equals( element ) )
+                {
+                    // found ! Remove it from the children
+                    currentNode.children.remove( key );
+                    return true;
+                }
+            }
+            else
+            {
+                if ( recursivelyRemoveElement( (DnBranchNode<N>)child, element ) )
+                {
+                    if ( ((DnBranchNode<N>)child).children.size() == 0 )
+                    {
+                        // If there are no more children, we can remove the node
+                        currentNode.children.remove( key );
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        
+        return false;
+    }
+
+    
+    /**
+     * 
+     * TODO add.
+     *
+     * @param dn
+     * @param element
+     * @throws NamingException
+     */
+    public void add( LdapDN dn, N element ) throws NamingException
+    {
+        recursivelyAddElement( this, dn, 0, element );
+    }
+    
+    
+    /**
+     * Removes an element from the tree.
+     *
+     * @param element The element to remove
+     */
+    public void remove( N element )
+    {
+        DnBranchNode<N> currentNode = this;
+        
+        if ( currentNode.hasChildren() )
+        {
+            recursivelyRemoveElement( currentNode, element );
+        }
+        else
+        {
+            
+        }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "{" );
+        boolean isFirst = true;
+        
+        for ( String key:children.keySet() )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append(  ", " );
+            }
+
+            DnNode<N> child = children.get( key );
+            
+            if ( child instanceof DnBranchNode )
+            {
+                sb.append( "Branch[" ).append( key ).append( "]: ").append( child );
+            }
+            else
+            {
+                sb.append( "Leaf: " ).append( "'" ).append( child ).append( "'" );
+            }
+        }
+
+        sb.append( "}" );
+        return sb.toString();
     }
 }
