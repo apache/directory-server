@@ -102,6 +102,12 @@ public interface DirectoryService extends ServerEntryFactory
     void setRegistries( Registries registries );
 
 
+    /**
+     * @return The referral manager
+     */
+    ReferralManager getReferralManager();
+
+    
     SchemaService getSchemaService();
 
 
