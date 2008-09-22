@@ -179,7 +179,7 @@ public class ModifyRequest extends LdapMessage
      */
     public void addAttributeTypeAndValues( String type )
     {
-        currentAttribute = new DefaultClientAttribute( StringTools.lowerCaseAscii( type ) );
+        currentAttribute = new DefaultClientAttribute( type );
 
         Modification modification = new ClientModification( currentOperation, currentAttribute );
         modifications.add( modification );

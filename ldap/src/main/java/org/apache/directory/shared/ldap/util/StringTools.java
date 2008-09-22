@@ -3533,7 +3533,7 @@ public class StringTools
         
         for ( byte b:bytes )
         {
-            chars[pos++] = TO_LOWER_CASE[b];
+            chars[pos++] = (char)b;
         }
         
         return new String( chars );
