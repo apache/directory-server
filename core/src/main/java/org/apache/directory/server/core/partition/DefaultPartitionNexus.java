@@ -1056,7 +1056,16 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public Partition getPartition( LdapDN dn ) throws Exception
     {
-        return partitionLookupTree.getElement( dn );
+        Partition parent = partitionLookupTree.getParentElement( dn );
+        
+        if ( parent == null )
+        {
+            throw new LdapNameNotFoundException( " Cannot find a partition for " + dn );
+        }
+        else
+        {
+            return parent;
+        }
     }
 
 
