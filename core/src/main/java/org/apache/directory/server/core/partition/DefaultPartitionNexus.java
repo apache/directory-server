@@ -83,8 +83,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
-import org.apache.directory.shared.ldap.util.tree.DnLeafNode;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +95,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1059,44 +1056,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public Partition getPartition( LdapDN dn ) throws Exception
     {
-        Enumeration<String> rdns = dn.getAll();
-        
-        // This is synchronized so that we can't read the
-        // partitionList when it is modified.
-        synchronized ( partitionLookupTree )
-        {
-            DnNode<Partition> currentNode = partitionLookupTree;
-
-            // Iterate through all the RDN until we find the associated partition
-            while ( rdns.hasMoreElements() )
-            {
-                String rdn = rdns.nextElement();
-
-                if ( currentNode == null )
-                {
-                    break;
-                }
-
-                if ( currentNode instanceof DnLeafNode )
-                {
-                    return ( ( DnLeafNode<Partition> ) currentNode ).getElement();
-                }
-
-                DnBranchNode<Partition> currentBranch = ( DnBranchNode<Partition> ) currentNode;
-                
-                if ( currentBranch.contains( rdn ) )
-                {
-                    currentNode = currentBranch.getChild( rdn );
-                    
-                    if ( currentNode instanceof DnLeafNode )
-                    {
-                        return ( ( DnLeafNode<Partition> ) currentNode ).getElement();
-                    }
-                }
-            }
-        }
-        
-        throw new LdapNameNotFoundException( dn.getUpName() );
+        return partitionLookupTree.getElement( dn );
     }
 
 
