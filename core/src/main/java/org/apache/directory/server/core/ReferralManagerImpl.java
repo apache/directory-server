@@ -52,6 +52,19 @@ public class ReferralManagerImpl implements ReferralManager
 
     
     /**
+     * 
+     * Creates a new instance of ReferralManagerImpl.
+     *
+     * @param directoryService The directory service
+     * @throws Exception If we can't initialize the manager
+     */
+    public ReferralManagerImpl( DirectoryService directoryService ) throws Exception
+    {
+        init( directoryService );
+    }
+    
+    
+    /**
      * {@inheritDoc}
      */
     public void addReferral( LdapDN dn )

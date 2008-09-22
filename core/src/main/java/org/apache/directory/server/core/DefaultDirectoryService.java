@@ -158,6 +158,9 @@ public class DefaultDirectoryService implements DirectoryService
     
     /** session used as admin for internal operations */
     private CoreSession adminSession;
+    
+    /** The referral manager */
+    private ReferralManager referralManager;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -878,7 +881,18 @@ public class DefaultDirectoryService implements DirectoryService
         setDefaultInterceptorConfigurations();
     }
 
+    
+    /**
+     * @return The referral manager
+     */
+    public ReferralManager getReferralManager()
+    {
+        return referralManager;
+    }
 
+    /**
+     * @return the registries
+     */
     public Registries getRegistries()
     {
         return registries;
@@ -1385,6 +1399,9 @@ public class DefaultDirectoryService implements DirectoryService
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
+        // Initialize the referralManager
+        referralManager = new ReferralManagerImpl( this );
+        
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );

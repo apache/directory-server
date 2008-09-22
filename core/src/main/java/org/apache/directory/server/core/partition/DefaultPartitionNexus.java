@@ -284,6 +284,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         oidRegistry = registries.getOidRegistry();
         
         initializeSystemPartition();
+        
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
