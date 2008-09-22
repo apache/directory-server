@@ -93,6 +93,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
     private boolean verboseOutput;
 
     /**
+     * POM
      * @parameter expression="${project}"
      * @required
      */
