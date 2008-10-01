@@ -1415,4 +1415,15 @@ public class RdnTest
         assertEquals( true, rdn.equals( copiedRdn ) );
     }
 
+
+    /**
+     * test the UpName method on a RDN with more than one atav
+     */
+    @Test 
+    public void testGetUpNameMultipleAtav() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn( " A = b + C = d " );
+        
+        assertEquals( " A = b + C = d ", rdn.getUpName() );
+    }
 }
