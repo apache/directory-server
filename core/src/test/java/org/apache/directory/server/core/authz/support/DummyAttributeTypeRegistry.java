@@ -193,7 +193,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+                public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
                 {
                     return false;
                 }
@@ -469,7 +469,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+                public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
                 {
                     return false;
                 }

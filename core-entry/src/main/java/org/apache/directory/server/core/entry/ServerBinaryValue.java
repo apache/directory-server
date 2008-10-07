@@ -465,7 +465,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             return true;
         }
 
-        return this.attributeType.isDescentantOf( attributeType );
+        return this.attributeType.isDescendantOf( attributeType );
     }
 
 

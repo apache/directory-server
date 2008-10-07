@@ -347,7 +347,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+        public boolean isDescendantOf( AttributeType attributeType ) throws NamingException
         {
             return false;
         }

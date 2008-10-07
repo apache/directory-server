@@ -107,7 +107,7 @@ public class NoMatchingRuleAttributeType implements AttributeType
     }
 
 
-    public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+    public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
     {
         return false;
     }

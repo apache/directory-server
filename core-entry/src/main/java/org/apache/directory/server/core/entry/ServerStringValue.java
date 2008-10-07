@@ -380,7 +380,7 @@ public class ServerStringValue extends ClientStringValue
             return true;
         }
 
-        return this.attributeType.isDescentantOf( attributeType );
+        return this.attributeType.isDescendantOf( attributeType );
     }
 
 

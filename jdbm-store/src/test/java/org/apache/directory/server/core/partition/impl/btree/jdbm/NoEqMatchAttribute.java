@@ -102,7 +102,7 @@ public class NoEqMatchAttribute implements AttributeType
     }
 
 
-    public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+    public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
     {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
