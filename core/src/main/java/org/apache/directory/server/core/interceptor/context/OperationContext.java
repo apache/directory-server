@@ -324,8 +324,26 @@ public interface OperationContext
     boolean hasEntry( LdapDN dn, Collection<String> byPass ) throws Exception;
     
     
-//    AddOperationContext newAddContext( ServerEntry entry );
+    /**
+     * Set the throwReferral flag to true
+     */
+    void throwReferral();
     
     
-//    void add( AddOperationContext addContext ) throws Exception;
+    /**
+     * @return <code>true</code> if the referrals are thrown
+     */
+    boolean isReferralThrown();
+
+
+    /**
+     * Set the throwReferral flag to false
+     */
+    void ignoreReferral();
+
+
+    /**
+     * @return <code>true</code> if the referrals are ignored
+     */
+    boolean isReferralIgnored();
 }

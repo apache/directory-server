@@ -20,21 +20,31 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.Request;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,7 +55,10 @@ import org.apache.mina.handler.demux.MessageHandler;
  */
 public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
 {
-	/** The reference on the Ldap server instance */
+    /** The logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
+
+    /** The reference on the Ldap server instance */
     protected LdapService ldapService;
 
 
@@ -194,4 +207,78 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
      * @throws Exception If there is an error during the processing of this message
      */
     public abstract void handle( LdapSession session, T message ) throws Exception;
+    
+    
+    /**
+     * Handles processing with referrals without ManageDsaIT control.
+     */
+    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
+    {
+        LdapResult result = req.getResultResponse().getLdapResult();
+
+        /*
+         * Set the result code or guess the best option.
+         */
+        ResultCodeEnum code;
+        if ( e instanceof LdapException )
+        {
+            code = ( ( LdapException ) e ).getResultCode();
+        }
+        else
+        {
+            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+        }
+        
+        result.setResultCode( code );
+
+        /*
+         * Setup the error message to put into the request and put entire
+         * exception into the message if we are in debug mode.  Note we 
+         * embed the result code name into the message.
+         */
+        String msg = code.toString() + ": failed for " + req + ": " + e.getMessage();
+
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( msg, e );
+        
+            msg += ":\n" + ExceptionUtils.getStackTrace( e );
+        }
+        
+        result.setErrorMessage( msg );
+
+        if ( e instanceof NamingException )
+        {
+            NamingException ne = ( NamingException ) e;
+
+            // Add the matchedDN if necessary
+            boolean setMatchedDn = 
+                code == ResultCodeEnum.NO_SUCH_OBJECT             || 
+                code == ResultCodeEnum.ALIAS_PROBLEM              ||
+                code == ResultCodeEnum.INVALID_DN_SYNTAX          || 
+                code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            
+            if ( ( ne.getResolvedName() != null ) && setMatchedDn )
+            {
+                result.setMatchedDn( ( LdapDN ) ne.getResolvedName() );
+            }
+            
+            // Add the referrals if necessary
+            if ( e instanceof LdapReferralException )
+            {
+                Referral referrals = new ReferralImpl();
+                
+                do
+                {
+                    String ref = ((LdapReferralException)e).getReferralInfo();
+                    referrals.addLdapUrl( ref );
+                }
+                while ( ((LdapReferralException)e).skipReferral() );
+                
+                result.setReferral( referrals );
+            }
+        }
+
+        session.getIoSession().write( req.getResultResponse() );
+    }
 }

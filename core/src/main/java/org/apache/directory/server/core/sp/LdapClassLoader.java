@@ -21,8 +21,8 @@ package org.apache.directory.server.core.sp;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -183,13 +183,13 @@ public class LdapClassLoader extends ClassLoader
                 
                 // TODO - why is this an operation????  Why can't we just list these damn things
                 // who went stupid crazy making everything into a damn operation  !!!! grrrr 
-                Iterator<String> suffixes = 
+                Set<String> suffixes = 
                     directoryService.getPartitionNexus().listSuffixes( 
                         new ListSuffixOperationContext( directoryService.getAdminSession() ) );
 
-                while ( suffixes.hasNext() )
+                for ( String suffix:suffixes )
                 {
-                    LdapDN dn = new LdapDN( suffixes.next() );
+                    LdapDN dn = new LdapDN( suffix );
                     dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
                     namingContexts.add( dn );
                 }

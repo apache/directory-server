@@ -20,12 +20,11 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,26 +36,25 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddHandler extends ReferralAwareRequestHandler<AddRequest>
+public class AddHandler extends LdapRequestHandler<AddRequest>
 {
 	/** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AddHandler.class );
     
     
     /**
-     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, ClonedServerEntry, 
-     * org.apache.directory.shared.ldap.message.SingleReplyRequest)
+     * {@inheritDoc}
      */
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, AddRequest req ) 
+    public void handle( LdapSession session, AddRequest req ) 
     {
-        LOG.debug( "Handling add request while ignoring referrals: {}", req );
+        LOG.debug( "Handling request: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
         	// Call the underlying layer to inject the new entry 
-            session.getCoreSession().add( req );
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.add( req );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );

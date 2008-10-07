@@ -188,10 +188,13 @@ public abstract class AbstractState implements TestServiceState
                 {
                     StringReader in = new StringReader( ldif );
                     LdifReader ldifReader = new LdifReader( in );
-                    LdifEntry entry = ldifReader.next();
                     
-                    service.getAdminSession().add( 
-                        new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
+                    for ( LdifEntry entry : ldifReader )
+                    {
+                        service.getAdminSession().add( 
+                            new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                        LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
+                    }
                 }
                 catch ( Exception e )
                 {

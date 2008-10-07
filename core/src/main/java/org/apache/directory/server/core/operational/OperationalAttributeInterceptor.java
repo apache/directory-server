@@ -312,7 +312,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             filterOperationalAttributes( result );
         }
-        else
+        else if ( ( opContext.getAllOperational() == null ) || ( opContext.getAllOperational() == false ) )
         {
             filter( opContext, result );
         }

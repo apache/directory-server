@@ -45,7 +45,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
-import java.util.Iterator;
+import java.util.Set;
 
 
 public class MockInterceptor implements Interceptor
@@ -104,7 +104,7 @@ public class MockInterceptor implements Interceptor
     }
 
 
-    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         test.interceptors.add( this );
         return next.listSuffixes( opContext );

@@ -384,7 +384,7 @@ public class JdbmStore<E> implements Store<E>
 
 
     /**
-     * Close the parttion : we have to close all the userIndices and the master table.
+     * Close the partition : we have to close all the userIndices and the master table.
      * 
      * @throws Exception lazily thrown on any closer failures to avoid leaving
      * open files

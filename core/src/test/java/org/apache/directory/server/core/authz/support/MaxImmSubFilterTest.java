@@ -437,6 +437,28 @@ public class MaxImmSubFilterTest
         public void setEntry( ClonedServerEntry entry )
         {
         }
+
+
+        public void throwReferral()
+        {
+        }
+        
+        
+        public boolean isReferralThrown()
+        {
+            return false;
+        }
+
+
+        public void ignoreReferral()
+        {
+        }
+
+
+        public boolean isReferralIgnored()
+        {
+            return false;
+        }
     }
 
     class MockDirectoryService implements DirectoryService
@@ -503,6 +525,11 @@ public class MaxImmSubFilterTest
         public ReferralManager getReferralManager()
         {
             return null;
+        }
+
+
+        public void setReferralManager( ReferralManager referralManager )
+        {
         }
 
 
@@ -845,7 +872,7 @@ public class MaxImmSubFilterTest
             return null;
         }
 
-        public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+        public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
         {
             return null;
         }

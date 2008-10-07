@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,11 +134,10 @@ public class GroupCache
         filter.addNode( new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
             SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-        Iterator<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes( null );
 
-        while ( suffixes.hasNext() )
+        for ( String suffix:suffixes )
         {
-            String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );

@@ -55,9 +55,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -110,11 +110,10 @@ public class TriggerSpecCache
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Iterator<String> suffixes = nexus.listSuffixes( null );
+        Set<String> suffixes = nexus.listSuffixes( null );
         
-        while ( suffixes.hasNext() )
+        for ( String suffix:suffixes )
         {
-            String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
             ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
                     new ClientStringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );

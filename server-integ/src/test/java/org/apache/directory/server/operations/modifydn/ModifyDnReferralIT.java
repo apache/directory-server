@@ -67,6 +67,7 @@ import static org.junit.Assert.fail;
     "uid: akarasulu\n" +
     "cn: Alex Karasulu\n" +
     "sn: karasulu\n\n" + 
+    
     // Entry # 2
     "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
     "objectClass: organizationalUnit\n" +
@@ -74,6 +75,7 @@ import static org.junit.Assert.fail;
     "ou: computers\n" +
     "description: Computers for Alex\n" +
     "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    
     // Entry # 3
     "dn: uid=akarasuluref,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +
@@ -83,6 +85,7 @@ import static org.junit.Assert.fail;
     "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
     "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
     "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" +
+    
     // Entry # 4
     "dn: uid=elecharny,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +
@@ -136,12 +139,15 @@ public class ModifyDnReferralIT
         conn.setConstraints( constraints );
         
         // ModifyDN success
-        conn.rename( "uid=elecharny,ou=users,ou=system", "uid=newuser", 
-            "uid=akarasuluref,ou=users,ou=system", true, constraints );
-        LDAPEntry entry = conn.read( "uid=newuser,uid=akarasuluref,ou=users,ou=system", 
-            ( LDAPSearchConstraints ) constraints );
-        assertNotNull( entry );
-        assertEquals( "uid=newuser,uid=akarasuluref,ou=users,ou=system", entry.getDN() );
+        try
+        {
+            conn.rename( "uid=elecharny,ou=users,ou=system", "uid=newuser", 
+                "uid=akarasuluref,ou=users,ou=system", true, constraints );
+        }
+        catch ( LDAPException le )
+        {
+            assertEquals ( LDAPException.AFFECTS_MULTIPLE_DSAS, le.getLDAPResultCode() );
+        }
         
         conn.disconnect();
     }

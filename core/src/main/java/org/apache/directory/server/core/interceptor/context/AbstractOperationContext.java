@@ -64,12 +64,15 @@ public abstract class AbstractOperationContext implements OperationContext
     
     protected LdapPrincipal authorizedPrincipal;
     
+    /** The core session */
     protected CoreSession session;
     
     protected OperationContext next;
     
     protected OperationContext previous;
 
+    /** A flag used to tell if we should consider referrals as standard entries */
+    protected boolean throwReferral;
 
     /**
      * Creates a new instance of AbstractOperationContext.
@@ -89,6 +92,10 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         this.dn = dn;
         this.session = session;
+        
+        // The flag is set to ignore, so that the revert operation can act on 
+        // the entries, even if they are referrals.
+        ignoreReferral();
     }
 
 
@@ -421,5 +428,41 @@ public abstract class AbstractOperationContext implements OperationContext
     public ClonedServerEntry getEntry()
     {
         return entry;
+    }
+    
+    
+    /**
+     * Set the throwReferral flag to true
+     */
+    public void throwReferral()
+    {
+        throwReferral = true;
+    }
+    
+    
+    /**
+     * @return <code>true</code> if the referrals are thrown
+     */
+    public boolean isReferralThrown()
+    {
+        return throwReferral;
+    }
+
+
+    /**
+     * Set the throwReferral flag to false
+     */
+    public void ignoreReferral()
+    {
+        throwReferral = false;
+    }
+
+
+    /**
+     * @return <code>true</code> if the referrals are ignored
+     */
+    public boolean isReferralIgnored()
+    {
+        return !throwReferral;
     }
 }

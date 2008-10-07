@@ -516,4 +516,40 @@ public class BindOperationContext implements OperationContext
     {
         this.entry = entry;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void throwReferral()
+    {
+        throw new NotImplementedException( " The throwReferral method is not implemented for a Bind operation" );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isReferralThrown()
+    {
+        throw new NotImplementedException( " The isReferralThrown method is not implemented for a Bind operation" );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void ignoreReferral()
+    {
+        throw new NotImplementedException( " The ignoreReferral method is not implemented for a Bind operation" );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isReferralIgnored()
+    {
+        throw new NotImplementedException( " The isReferralIgnored method is not implemented for a Bind operation" );
+    }
 }

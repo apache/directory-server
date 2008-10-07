@@ -46,7 +46,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import java.util.Iterator;
+import java.util.Set;
 
 
 /**
@@ -104,7 +104,7 @@ import java.util.Iterator;
  * {
  *     // transform deletion into modification.
  *     Attribute mark = new AttributeImpl( "entryDeleted", "true" );
- *     nextInterceptor.modify( name, DirContext.REPLACE_ATTRIBUTE, mark );
+ *     nextInterceptor.modify( name, DirIteratorContext.REPLACE_ATTRIBUTE, mark );
  * }
  * </pre>
  *
@@ -156,7 +156,7 @@ public interface Interceptor
     /**
      * Filters {@link PartitionNexus#listSuffixes( ListSuffixOperationContext )} call.
      */
-    Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception;
+    Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**

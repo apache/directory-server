@@ -20,12 +20,11 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,26 +36,29 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class ModifyHandler extends ReferralAwareRequestHandler<ModifyRequest>
+public class ModifyHandler extends LdapRequestHandler<ModifyRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ModifyHandler.class );
 
 
     /**
-     * @see ReferralAwareRequestHandler#handleIgnoringReferrals(LdapSession, LdapDN, ClonedServerEntry, 
-     * org.apache.directory.shared.ldap.message.SingleReplyRequest)
+     * {@inheritDoc}
      */
-    @Override
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, ModifyRequest req )
+    public void handle( LdapSession session, ModifyRequest req )
     {
-        LOG.debug( "Handling modify request while ignoring referrals: {}", req );
+        LOG.debug( "Handling request : {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
-            session.getCoreSession().modify( req );
+            // Call the underlying layer to delete the entry
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.modify( req );
+            
+            // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
+            
+            // Write the DeleteResponse message
             session.getIoSession().write( req.getResultResponse() );
         }
         catch ( Exception e )

@@ -22,11 +22,13 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -45,6 +47,7 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -101,7 +104,7 @@ public class ReferralIT
 
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ), true ); 
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -150,22 +153,22 @@ public class ReferralIT
 
     private void checkAncestorReferrals( ReferralException e ) throws Exception
     {
-        assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+        assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+        assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
     }
 
 
     private void checkParentReferrals( ReferralException e ) throws Exception
     {
-        assertEquals( "ldap://fermi:10389", e.getReferralInfo() );
+        assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=users,ou=system", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
         assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=users,dc=example,dc=com", e.getReferralInfo() );
         assertTrue( e.skipReferral() );
-        assertEquals( "ldap://maxwell:10389", e.getReferralInfo() );
+        assertEquals( "ldap://maxwell:10389/cn=alex%20karasulu,ou=users,ou=system", e.getReferralInfo() );
         assertFalse( e.skipReferral() );
     }
 
@@ -234,6 +237,113 @@ public class ReferralIT
         catch ( ReferralException e )
         {
             checkAncestorReferrals( e );
+        }
+    }
+
+
+    /**
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>ignore</b>
+     * for an add operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    @Test
+    public void testAddNewEntryWithReferralAncestorJNDIIgnore() throws Exception
+    {
+        addReferralEntry();
+
+        // -------------------------------------------------------------------
+        // Attempt to add a normal entry below the referral ancestor. We should
+        // encounter referral errors with referral setting set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+        
+        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+        userEntry.get( "objectClass" ).add( "person" );
+        userEntry.put( "sn", "karasulu" );
+        userEntry.put( "cn", "alex karasulu" );
+
+        try
+        {
+            td.refCtx.createSubcontext( "cn=alex karasulu,ou=apache", userEntry );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( PartialResultException pre )
+        {
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getUpName() );
+            assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
+        }
+    }
+
+
+    /**
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>throw</b>
+     * for an add operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    @Test
+    public void testAddNewEntryWithReferralAncestorJNDIThrow() throws Exception
+    {
+        addReferralEntry();
+
+        // -------------------------------------------------------------------
+        // Attempt to add a normal entry below the referral ancestor. We should
+        // encounter referral errors with referral setting set to throw.
+        // -------------------------------------------------------------------
+
+        td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
+        
+        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+        userEntry.get( "objectClass" ).add( "person" );
+        userEntry.put( "sn", "karasulu" );
+        userEntry.put( "cn", "alex karasulu" );
+
+        try
+        {
+            td.refCtx.createSubcontext( "cn=alex karasulu,ou=apache", userEntry );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( LdapReferralException lre )
+        {
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)lre.getRemainingName()).getUpName() );
+            assertEquals( "ou=users,ou=system", ((LdapDN)lre.getResolvedName()).getUpName() );
+        }
+    }
+
+
+    /**
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>ignore</b>
+     * for an add operation with an ancestor context being a referral.
+     * 
+     * @throws Exception if something goes wrong.
+     */
+    @Test
+    public void testAddNewEntryWithReferralAncestorProtocolWithManageDSAIT() throws Exception
+    {
+        addReferralEntry();
+
+        // -------------------------------------------------------------------
+        // Attempt to add a normal entry below the referral ancestor. We should
+        // encounter referral errors with referral setting set to throw.
+        // -------------------------------------------------------------------
+        LdapDN userDN = new LdapDN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
+        ServerEntry userEntry = new DefaultServerEntry( service.getRegistries(), userDN );
+        
+        userEntry.add(  "ObjectClass", "top", "person" );
+        userEntry.add( "sn", "karasulu" );
+        userEntry.add( "cn", "alex karasulu" );
+
+        try
+        {
+            service.getAdminSession().add( userEntry );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( PartialResultException pre )
+        {
+            assertEquals( "cn=alex karasulu,ou=apache", ((LdapDN)pre.getRemainingName()).getUpName() );
+            assertEquals( LdapDN.EMPTY_LDAPDN, pre.getResolvedName() );
         }
     }
 
@@ -328,7 +438,8 @@ public class ReferralIT
                 // abort the test because we're using the sun jdni provider
                 return;
             }
-            fail( "Should fail here throwing a ReferralException" );
+            
+            fail( "Should fail here throwing a PartialResultException" );
         }
         catch ( ReferralException e )
         {
@@ -338,7 +449,7 @@ public class ReferralIT
 
 
     /**
-     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>throw</b>
      * for a compare operation with an ancestor context being a referral.
      * 
      * @throws Exception if something goes wrong.
@@ -634,7 +745,7 @@ public class ReferralIT
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testMoveWithReferralParent2() throws Exception
+    public void testMoveAndRenameWithReferralParent2() throws Exception
     {
         addReferralEntry();
 
@@ -665,7 +776,7 @@ public class ReferralIT
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testMoveWithReferralAncestor2() throws Exception
+    public void testMoveAndRenameWithReferralAncestor2() throws Exception
     {
         addReferralEntry();
 
@@ -689,7 +800,7 @@ public class ReferralIT
 
 
     /**
-     * Checks for correct core behavoir when Context.REFERRAL is set to <b>throw</b>
+     * Checks for correct core behavior when Context.REFERRAL is set to <b>throw</b>
      * for a move interceptor operation (corresponds to a subset of the modify 
      * dn operation) with the parent context being a referral.
      * 
@@ -705,8 +816,8 @@ public class ReferralIT
         // resides below an parent which is a referral. We should encounter 
         // referral errors when referral setting is set to throw.
         // -------------------------------------------------------------------
-
         createLocalUser();
+
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
         try
         {
@@ -760,7 +871,7 @@ public class ReferralIT
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testMoveWithReferralParent2Dest() throws Exception
+    public void testMoveAndRenameWithReferralParent2Dest() throws Exception
     {
         addReferralEntry();
 
@@ -792,7 +903,7 @@ public class ReferralIT
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testMoveWithReferralAncestor2Dest() throws Exception
+    public void testMoveAndRenameWithReferralAncestor2Dest() throws Exception
     {
         addReferralEntry();
 
@@ -818,7 +929,7 @@ public class ReferralIT
 
     private void createLocalUser() throws Exception
     {
-        addReferralEntry();
+        //addReferralEntry();
 
         LdapContext userCtx;
         Attributes referral = new BasicAttributes( "objectClass", "top", true );
@@ -852,7 +963,7 @@ public class ReferralIT
 
     private void createDeepLocalUser() throws Exception
     {
-        addReferralEntry();
+        //addReferralEntry();
 
         LdapContext userCtx = null;
         Attributes referral = new BasicAttributes( "objectClass", "top", true );
@@ -1065,9 +1176,7 @@ public class ReferralIT
         oc.add( "referral" );
         attrs.put( oc );
         
-        Attribute ref = new BasicAttribute( "ref", "ldap://" );
-        attrs.put( ref );
-
+        attrs.put( "ref", "ldap://" );
         attrs.put( "cn", "refWithEmptyDN" );
 
         String base = "cn=refWithEmptyDN";

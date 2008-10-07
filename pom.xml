@@ -66,12 +66,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-bouncycastle-reduced</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-bootstrappers</artifactId>
         <version>1.1.6-SNAPSHOT</version>

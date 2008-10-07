@@ -306,6 +306,11 @@ public class InterceptorChainTest extends TestCase
         }
 
 
+        public void setReferralManager( ReferralManager referralManager )
+        {
+        }
+
+
         public Registries getRegistries()
         {
             return null;

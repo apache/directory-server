@@ -108,6 +108,14 @@ public interface DirectoryService extends ServerEntryFactory
     ReferralManager getReferralManager();
 
     
+    /**
+     * Set the referralManager
+     * 
+     * @param referralManager The initialized referralManager
+     */
+    void setReferralManager( ReferralManager referralManager );
+
+    
     SchemaService getSchemaService();
 
 

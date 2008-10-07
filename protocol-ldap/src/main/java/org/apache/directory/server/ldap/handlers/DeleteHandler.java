@@ -20,12 +20,11 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,21 +36,29 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class DeleteHandler extends ReferralAwareRequestHandler<DeleteRequest>
+public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( DeleteHandler.class );
 
 
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, DeleteRequest req )
+    /**
+     * {@inheritDoc}
+     */
+    public void handle( LdapSession session, DeleteRequest req )
     {
-        LOG.debug( "Handling request while ignoring referrals: {}", req );
+        LOG.debug( "Handling request: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
-            session.getCoreSession().delete( req );
+            // Call the underlying layer to delete the entry 
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.delete( req );
+            
+            // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
+            
+            // Write the DeleteResponse message
             session.getIoSession().write( req.getResultResponse() );
         }
         catch ( Exception e )

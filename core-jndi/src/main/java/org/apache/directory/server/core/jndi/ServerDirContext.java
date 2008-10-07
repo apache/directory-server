@@ -27,6 +27,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -650,8 +651,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
             try
             {
-                return new NamingEnumerationAdapter ( 
-                    doSearchOperation( target, aliasDerefMode, filter, ctls ) );
+                EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, filter, ctls );               
+                return new NamingEnumerationAdapter ( cursor );
             }
             catch ( Exception e )
             {
@@ -683,8 +684,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
                 try
                 {
-                    return new NamingEnumerationAdapter ( 
-                        doSearchOperation( target, aliasDerefMode, node, ctls ) );
+                    EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, node, ctls );
+                    return new NamingEnumerationAdapter ( cursor ); 
                 }
                 catch ( Exception e )
                 {
@@ -739,7 +740,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         try
         {
-            return new NamingEnumerationAdapter( doSearchOperation( target, aliasDerefMode, filter, ctls ) );
+            EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, filter, ctls );
+            return new NamingEnumerationAdapter( cursor );
         }
         catch ( Exception e )
         {
@@ -813,7 +815,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         try
         {
-            return new NamingEnumerationAdapter( doSearchOperation( target, aliasDerefMode, filterNode, cons ) );
+            EntryFilteringCursor cursor = doSearchOperation( target, aliasDerefMode, filterNode, cons );
+            return new NamingEnumerationAdapter( cursor );
         }
         catch ( Exception e )
         {

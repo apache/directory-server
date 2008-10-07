@@ -25,7 +25,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -95,12 +94,12 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         adminDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
         CoreSession session = service.getSession( principal );
-        Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
+        Set<String> suffixes = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
         int launchedWindowCount = 0;
             
-        while ( list.hasNext() )
+        for ( String suffix:suffixes )
         {
-            LdapDN dn = new LdapDN( list.next() );
+            LdapDN dn = new LdapDN( suffix );
             Partition partition = nexus.getPartition( dn );
             
             if ( partition instanceof BTreePartition )

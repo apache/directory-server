@@ -20,8 +20,10 @@
 package org.apache.directory.server.operations.add;
 
 
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -45,18 +47,26 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 import org.apache.directory.server.integ.SiRunner;
+
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
 import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -85,6 +95,7 @@ import static org.junit.Assert.assertNotNull;
     "cn: The Person\n" +
     "description: this is a person\n" +
     "sn: Person\n\n" + 
+    
     // Entry # 1
     "dn: uid=akarasulu,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +
@@ -93,6 +104,7 @@ import static org.junit.Assert.assertNotNull;
     "uid: akarasulu\n" +
     "cn: Alex Karasulu\n" +
     "sn: karasulu\n\n" + 
+    
     // Entry # 2
     "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
     "objectClass: organizationalUnit\n" +
@@ -100,6 +112,7 @@ import static org.junit.Assert.assertNotNull;
     "ou: computers\n" +
     "description: Computers for Alex\n" +
     "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    
     // Entry # 3
     "dn: uid=akarasuluref,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +
@@ -564,13 +577,80 @@ public class AddIT
         attrSet.add( new LDAPAttribute( "ou", "UnderReferral" ) );
         LDAPEntry entry = new LDAPEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", attrSet );
         
-        conn.add( entry, constraints );
+        try
+        {
+            conn.add( entry, constraints );
+            fail();
+        }
+        catch ( LDAPException le )
+        {
+            assertEquals( 80, le.getLDAPResultCode() );
+        }
         
-        LDAPEntry reread = conn.read( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
-            ( LDAPSearchConstraints ) constraints );
-        assertEquals( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", reread.getDN() );
+        try
+        {
+            conn.read( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+                ( LDAPSearchConstraints ) constraints );
+            fail();
+        }
+        catch ( LDAPException le )
+        {
+            
+        }
         
         conn.disconnect();
+    }
+    
+    
+    public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
+    throws Exception
+    {
+        if ( principalDn == null )
+        {
+            principalDn = "";
+        }
+        
+        LdapDN userDn = new LdapDN( principalDn );
+        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
+        
+        if ( dn == null )
+        {
+            dn = "";
+        }
+        
+        CoreSession session = service.getSession( principal );
+        LdapContext ctx = new ServerLdapContext( service, session, new LdapDN( dn ) );
+        return ctx;
+    }
+    
+    
+    /**
+     * Tests add operation on referral entry with the ManageDsaIT control.
+     */
+    @Test
+    public void testOnReferralWitJNDIIgnore() throws Exception
+    {
+        LdapContext MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, ldapService.getDirectoryService(), "uid=akarasuluref,ou=users,ou=system" );
+
+        // Set to 'ignore'
+        MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+        
+        try
+        {
+            // JNDI entry
+            Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+            userEntry.get( "objectClass" ).add( "person" );
+            userEntry.put( "sn", "elecharny" );
+            userEntry.put( "cn", "Emmanuel Lecharny" );
+
+            MNNCtx.createSubcontext( "cn=Emmanuel Lecharny, ou=apache, ou=people", userEntry );
+            fail();
+        }
+        catch ( PartialResultException pre )
+        {
+            assertTrue( true );
+        }
     }
     
     

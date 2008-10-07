@@ -84,6 +84,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -157,7 +158,7 @@ public class SubentryInterceptor extends BaseInterceptor
         evaluator = new SubtreeEvaluator( oidRegistry, atRegistry );
 
         // prepare to find all subentries in all namingContexts
-        Iterator<String> suffixes = this.nexus.listSuffixes( null );
+        Set<String> suffixes = this.nexus.listSuffixes( null );
         ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new ClientStringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
@@ -166,11 +167,10 @@ public class SubentryInterceptor extends BaseInterceptor
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
         // search each namingContext for subentries
-        while ( suffixes.hasNext() )
+        for ( String suffix:suffixes )
         {
-            LdapDN suffix = new LdapDN( suffixes.next() );
-            //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
-            suffix.normalize( atRegistry.getNormalizerMapping() );
+            LdapDN suffixDn = new LdapDN( suffix );
+            suffixDn.normalize( atRegistry.getNormalizerMapping() );
 
             LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -178,7 +178,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
             EntryFilteringCursor subentries = nexus.search( new SearchOperationContext( adminSession,
-                suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
+                suffixDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.next() )
             {

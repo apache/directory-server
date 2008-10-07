@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -74,6 +75,15 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         if ( parent == null )
         {
             throw new IllegalStateException( "NewSuperior must not be null: " + modifyDnRequest );
+        }
+        
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            ignoreReferral();
+        }
+        else
+        {
+            throwReferral();
         }
     }
 

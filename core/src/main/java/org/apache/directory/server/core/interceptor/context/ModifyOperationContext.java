@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -83,10 +84,21 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws Exception
     {
         super( session, modifyRequest.getName() );
-        this.modItems = ServerEntryUtils.toServerModification( 
+        
+        modItems = ServerEntryUtils.toServerModification( 
             modifyRequest.getModificationItems().toArray( new ClientModification[0]), 
             session.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
-        this.requestControls = modifyRequest.getControls();
+        
+        requestControls = modifyRequest.getControls();
+
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            ignoreReferral();
+        }
+        else
+        {
+            throwReferral();
+        }
     }
 
 

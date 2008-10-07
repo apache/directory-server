@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -287,7 +286,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
     {
         if ( IS_DEBUG )
         {

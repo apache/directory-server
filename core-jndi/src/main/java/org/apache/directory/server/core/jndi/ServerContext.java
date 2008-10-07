@@ -23,16 +23,22 @@ package org.apache.directory.server.core.jndi;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.cursor.EmptyCursor;
+import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
+import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
@@ -41,6 +47,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -48,6 +55,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -158,8 +166,9 @@ public abstract class ServerContext implements EventContext
             props.getSaslMechanism(), props.getSaslAuthId() );
 
         session = opContext.getSession();
+        OperationManager operationManager = service.getOperationManager();
         
-        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -185,8 +194,9 @@ public abstract class ServerContext implements EventContext
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         session = new DefaultCoreSession( principal, service );
+        OperationManager operationManager = service.getOperationManager();
         
-        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -201,14 +211,35 @@ public abstract class ServerContext implements EventContext
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.session = session;
+        OperationManager operationManager = service.getOperationManager();
         
-        if ( ! service.getOperationManager().hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
+        if ( ! operationManager.hasEntry( new EntryOperationContext( session, ( LdapDN ) dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
     }
 
 
+    /**
+     * Set the referral handling flag into the operation context using
+     * the JNDI value stored into the environment.
+     */
+    protected void injectReferralControl( OperationContext opCtx )
+    {
+        if ( "ignore".equalsIgnoreCase( (String)env.get( Context.REFERRAL ) ) )
+        {
+            opCtx.ignoreReferral();
+        }
+        else if ( "throw".equalsIgnoreCase( (String)env.get( Context.REFERRAL ) ) )
+        {
+            opCtx.throwReferral();
+        }
+        else
+        {
+            // TODO : handle the 'follow' referral option 
+            opCtx.throwReferral();
+        }
+    }
     // ------------------------------------------------------------------------
     // Protected Methods for Operations
     // ------------------------------------------------------------------------
@@ -230,10 +261,14 @@ public abstract class ServerContext implements EventContext
         AddOperationContext opCtx = new AddOperationContext( session, entry );
 
         opCtx.addRequestControls( requestControls );
-
+        
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+        
         // execute add operation
-        service.getOperationManager().add( opCtx );
-
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.add( opCtx );
+    
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
         responseControls = opCtx.getResponseControls();
@@ -248,10 +283,15 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         DeleteOperationContext opCtx = new DeleteOperationContext( session, target );
+
         opCtx.addRequestControls( requestControls );
 
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+
         // execute delete operation
-        service.getOperationManager().delete( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.delete( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -270,17 +310,61 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
     {
-        // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( session, dn, aliasDerefMode, filter,
-            searchControls );
-        opCtx.addRequestControls( requestControls );
+        OperationManager operationManager = service.getOperationManager();
+        EntryFilteringCursor results = null;
+        OperationContext opContext;
 
-        // execute search operation
-        EntryFilteringCursor results = service.getOperationManager().search( opCtx );
+        // We have to check if it's a compare operation or a search. 
+        // A compare operation has a OBJECT scope search, the filter must
+        // be of the form (object=value) (no wildcards), and no attributes
+        // should be asked to be returned.
+        if ( ( searchControls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+            && ( ( searchControls.getReturningAttributes() != null )
+                && ( searchControls.getReturningAttributes().length == 0 ) )
+            && ( filter instanceof EqualityNode ) )
+        {
+            opContext = new CompareOperationContext( session, dn, ((EqualityNode)filter).getAttribute(), ((EqualityNode)filter).getValue() );
+            
+            // Inject the referral handling into the operation context
+            injectReferralControl( opContext );
+
+            // Call the operation
+            boolean result = operationManager.compare( (CompareOperationContext)opContext );
+
+            // setup the op context and populate with request controls
+            opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
+                searchControls );
+            opContext.addRequestControls( requestControls );
+            
+            if ( result )
+            {
+                ServerEntry emptyEntry = new DefaultServerEntry( service.getRegistries(), LdapDN.EMPTY_LDAPDN ); 
+                return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( emptyEntry ), (SearchOperationContext)opContext );
+            }
+            else
+            {
+                return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), (SearchOperationContext)opContext );
+            }
+        }
+        else
+        {
+            // It's a Search
+            
+            // setup the op context and populate with request controls
+            opContext = new SearchOperationContext( session, dn, aliasDerefMode, filter,
+                searchControls );
+            opContext.addRequestControls( requestControls );
+
+            // Inject the referral handling into the operation context
+            injectReferralControl( opContext );
+
+            // execute search operation
+            results = operationManager.search( (SearchOperationContext)opContext );
+        }
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
-        responseControls = opCtx.getResponseControls();
+        responseControls = opContext.getResponseControls();
 
         return results;
     }
@@ -296,7 +380,8 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute list operation
-        EntryFilteringCursor results = service.getOperationManager().list( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        EntryFilteringCursor results = operationManager.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -313,7 +398,8 @@ public abstract class ServerContext implements EventContext
 
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
-        return service.getOperationManager().getRootDSE( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        return operationManager.getRootDSE( opCtx );
     }
 
 
@@ -328,7 +414,8 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target );
         opCtx.addRequestControls( requestControls );
-        ServerEntry serverEntry = service.getOperationManager().lookup( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        ServerEntry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -348,7 +435,8 @@ public abstract class ServerContext implements EventContext
         // execute lookup/getRootDSE operation
         opCtx = new LookupOperationContext( session, target, attrIds );
         opCtx.addRequestControls( requestControls );
-        ClonedServerEntry serverEntry = service.getOperationManager().lookup( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        ClonedServerEntry serverEntry = operationManager.lookup( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -383,7 +471,8 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
 
         // execute bind operation
-        service.getOperationManager().bind( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.bind( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -403,8 +492,12 @@ public abstract class ServerContext implements EventContext
             newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
 
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+        
         // execute moveAndRename operation
-        service.getOperationManager().moveAndRename( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.moveAndRename( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -421,8 +514,12 @@ public abstract class ServerContext implements EventContext
         ModifyOperationContext opCtx = new ModifyOperationContext( session, dn, modifications );
         opCtx.addRequestControls( requestControls );
 
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+        
         // execute modify operation
-        service.getOperationManager().modify( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.modify( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -439,8 +536,12 @@ public abstract class ServerContext implements EventContext
         MoveOperationContext opCtx = new MoveOperationContext( session, oldDn, target );
         opCtx.addRequestControls( requestControls );
 
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+        
         // execute move operation
-        service.getOperationManager().move( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.move( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -457,8 +558,12 @@ public abstract class ServerContext implements EventContext
         RenameOperationContext opCtx = new RenameOperationContext( session, oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
 
+        // Inject the referral handling into the operation context
+        injectReferralControl( opCtx );
+        
         // execute rename operation
-        service.getOperationManager().rename( opCtx );
+        OperationManager operationManager = service.getOperationManager();
+        operationManager.rename( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -929,10 +1034,11 @@ public abstract class ServerContext implements EventContext
     public void rebind( Name name, Object obj ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-
+        OperationManager operationManager = service.getOperationManager();
+        
         try
         {
-            if ( service.getOperationManager().hasEntry( new EntryOperationContext( session, target ) ) )
+            if ( operationManager.hasEntry( new EntryOperationContext( session, target ) ) )
             {
                 doDeleteOperation( target );
             }

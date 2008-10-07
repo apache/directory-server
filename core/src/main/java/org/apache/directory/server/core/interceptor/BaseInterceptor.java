@@ -48,7 +48,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
-import java.util.Iterator;
+import java.util.Set;
 
 
 /**
@@ -166,7 +166,7 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
+    public Set<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
         throws Exception
     {
         return next.listSuffixes( opContext );

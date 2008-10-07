@@ -76,6 +76,15 @@ public class SearchOperationContext extends SearchingOperationContext
         this.timeLimit = searchRequest.getTimeLimit();
         this.noAttributes = searchRequest.getTypesOnly();
         setReturningAttributes( searchRequest.getAttributes() );
+        
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            ignoreReferral();
+        }
+        else
+        {
+            throwReferral();
+        }
     }
 
 

@@ -55,6 +55,7 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
@@ -562,6 +563,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         list.add( new NormalizationInterceptor() );
         list.add( new AuthenticationInterceptor() );
+        list.add( new ReferralInterceptor() );
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
         list.add( new ExceptionInterceptor() );
@@ -755,17 +757,17 @@ public class DefaultDirectoryService implements DirectoryService
                     {
                         case( ChangeType.ADD_ORDINAL ):
                             adminSession.add( 
-                                new DefaultServerEntry( registries, reverse.getEntry() ) ); 
+                                new DefaultServerEntry( registries, reverse.getEntry() ), true ); 
                             break;
                             
                         case( ChangeType.DELETE_ORDINAL ):
-                            adminSession.delete( reverse.getDn() );
+                            adminSession.delete( reverse.getDn(), true );
                             break;
                             
                         case( ChangeType.MODIFY_ORDINAL ):
                             List<Modification> mods = reverse.getModificationItems();
     
-                            adminSession.modify( reverse.getDn(), mods );
+                            adminSession.modify( reverse.getDn(), mods, true );
                             break;
                             
                         case( ChangeType.MODDN_ORDINAL ):
@@ -890,6 +892,17 @@ public class DefaultDirectoryService implements DirectoryService
         return referralManager;
     }
 
+    /**
+     * Set the referralManager
+     * 
+     * @param referralManager The initialized referralManager
+     */
+    public void setReferralManager( ReferralManager referralManager )
+    {
+        this.referralManager = referralManager;
+    }
+    
+    
     /**
      * @return the registries
      */
@@ -1399,9 +1412,6 @@ public class DefaultDirectoryService implements DirectoryService
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
-        // Initialize the referralManager
-        referralManager = new ReferralManagerImpl( this );
-        
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );

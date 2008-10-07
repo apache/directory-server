@@ -21,8 +21,12 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -40,7 +44,7 @@ public class CompareOperationContext extends AbstractOperationContext
     private String oid;
 
     /** The value to be compared */
-    private Object value;
+    private Value<?> value;
     
     
     /**
@@ -94,7 +98,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, LdapDN dn, String oid, Object value )
+    public CompareOperationContext( CoreSession session, LdapDN dn, String oid, Value<?> value )
     {
     	super( session, dn );
         this.oid = oid;
@@ -108,6 +112,15 @@ public class CompareOperationContext extends AbstractOperationContext
         this.oid = compareRequest.getAttributeId();
         this.value = compareRequest.getAssertionValue();
         this.requestControls = compareRequest.getControls();
+        
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            ignoreReferral();
+        }
+        else
+        {
+            throwReferral();
+        }
     }
 
 
@@ -143,7 +156,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Set the value to compare
      * @param value The value to compare
      */
-    public void setValue( Object value ) 
+    public void setValue( Value<?> value ) 
     {
         this.value = value;
     }
@@ -166,10 +179,10 @@ public class CompareOperationContext extends AbstractOperationContext
         return "CompareContext for DN '" + getDn().getUpName() + "'" + 
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
-                    ( ( value instanceof String ) ?
-                            value :
-                            ( ( value instanceof byte[] ) ?
-                                    StringTools.dumpBytes( (byte[])value ) : 
+                    ( ( value instanceof ClientStringValue ) ?
+                            ((ClientStringValue)value).get() :
+                            ( ( value instanceof ClientBinaryValue ) ?
+                                    StringTools.dumpBytes( ((ClientBinaryValue)value).getReference() ) : 
                                         "unknown value type" ) )
                         + "'"
                     : "" );

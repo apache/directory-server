@@ -218,6 +218,9 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
         opCtx.addRequestControls( requestControls );
+        
+        // Inject the Referral flag
+        injectReferralControl( opCtx );
 
         // execute operation
         boolean result = false;

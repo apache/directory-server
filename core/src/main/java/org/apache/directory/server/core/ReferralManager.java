@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core;
 
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -29,6 +30,30 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public interface ReferralManager
 {
+    /**
+     * Get a read-lock on the referralManager. 
+     * No read operation can be done on the referralManager if this
+     * method is not called before.
+     */
+    void lockRead();
+    
+    
+    /**
+     * Get a write-lock on the referralManager. 
+     * No write operation can be done on the referralManager if this
+     * method is not called before.
+     */
+    void lockWrite();
+    
+    
+    /**
+     * Release the read-write lock on the referralManager. 
+     * This method must be called after having read or modified the
+     * ReferralManager
+     */
+    void unlock();
+    
+    
     /**
      * Tells if a DN is a referral (its associated entry contains the Referral ObjectClass).
      * 
@@ -49,15 +74,24 @@ public interface ReferralManager
      * @param dn The DN we want to check for a referral in its partents
      * @return <code>true</code> if there is a parent referral
      */
-    boolean isParentReferral( LdapDN dn );
+    boolean hasParentReferral( LdapDN dn );
     
     
     /**
-     * Add a refrral to the manager.
+     * Get the DN of the parent referral for a specific DN
+     *
+     * @param dn The DN from which we want to get the parent referral
+     * @return The parent referral of null if none is found
+     */
+    ServerEntry getParentReferral( LdapDN dn );
+    
+    
+    /**
+     * Add a referral to the manager.
      *
      * @param dn The referral to add
      */
-    void addReferral( LdapDN dn );
+    void addReferral( ServerEntry entry );
     
     
     /**
@@ -65,7 +99,7 @@ public interface ReferralManager
      * 
      * @param dn The referral to remove
      */
-    void removeReferral( LdapDN dn );
+    void removeReferral( ServerEntry entry );
     
     
     /**
@@ -73,7 +107,20 @@ public interface ReferralManager
      * The manager will search for every entries having a Referral ObjectClass.
      *
      * @param directoryService The associated LDAP service
+     * @param suffixes The partition list
      * @exception If the initialization failed
      */
-    void init( DirectoryService directoryService ) throws Exception;
+    void init( DirectoryService directoryService, String... suffixes ) throws Exception;
+
+    
+    /**
+     * Remove a partition from the manager, reading all the referrals from the base.
+     * The manager will search for every entries having a Referral ObjectClass, and
+     * will remove them from the referrals table.
+     *
+     * @param directoryService The associated LDAP service
+     * @param suffixes The partition DN to remove
+     * @exception If the removal failed
+     */
+    void remove( DirectoryService directoryService, LdapDN suffix ) throws Exception;
 }

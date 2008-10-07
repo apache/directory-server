@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -84,7 +84,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, ListSuffixOperationContext )}.
      */
-    Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
+    Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**

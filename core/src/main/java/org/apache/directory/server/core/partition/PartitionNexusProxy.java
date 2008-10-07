@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition;
 
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -276,13 +275,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
         return listSuffixes( opContext, null );
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
         ensureStarted();
         opContext.setByPassed( byPassed );

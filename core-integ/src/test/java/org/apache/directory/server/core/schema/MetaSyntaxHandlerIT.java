@@ -558,6 +558,7 @@ public class MetaSyntaxHandlerIT
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         Attribute attr = new BasicAttribute( opAttr );
         for ( String description : descriptions )
         {

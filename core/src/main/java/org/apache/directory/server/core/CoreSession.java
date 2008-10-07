@@ -201,8 +201,6 @@ public interface CoreSession
     // -----------------------------------------------------------------------
     // Operation Methods
     // -----------------------------------------------------------------------
-
-
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * 
@@ -212,6 +210,25 @@ public interface CoreSession
     void add( ServerEntry entry ) throws Exception;
     
     
+    /**
+     * Adds an entry into the DirectoryService associated with this CoreSession.
+     * The flag is used to tell the server to ignore the referrals and manipulate
+     * them as if they were normal entries.
+     * 
+     * @param entry the entry to add
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @exception Exception on failures to add the entry
+     */
+    void add( ServerEntry entry, boolean ignoreReferral ) throws Exception;
+    
+    
+    /**
+     * Adds an entry into the DirectoryService associated with this CoreSession.
+     * The entry is built using the received AddRequest.
+     * 
+     * @param AddRequest the request to execute
+     * @exception Exception on failures to add the entry
+     */
     void add( AddRequest addRequest ) throws Exception;
     
     
@@ -223,9 +240,29 @@ public interface CoreSession
      * @param value the value to check for
      * @throws Exception if there are failures while comparing
      */
-    void compare( LdapDN dn, String oid, Object value ) throws Exception;
+    boolean compare( LdapDN dn, String oid, Object value ) throws Exception;
     
     
+    /**
+     * Checks to see if an attribute in an entry contains a value.
+     * The flag is used to tell the server to ignore the referrals and manipulate
+     * them as if they were normal entries.
+     *
+     * @param dn the distinguished name of the entry to check
+     * @param oid the OID of the attribute to check for the value
+     * @param value the value to check for
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @throws Exception if there are failures while comparing
+     */
+    boolean compare( LdapDN dn, String oid, Object value, boolean ignoreReferral ) throws Exception;
+    
+    
+    /**
+     * Checks to see if an attribute in an entry contains a value.
+     *
+     * @param compareRequest the received request
+     * @throws Exception if there are failures while comparing
+     */
     boolean compare( CompareRequest compareRequest ) throws Exception;
 
     
@@ -238,7 +275,20 @@ public interface CoreSession
     void delete( LdapDN dn ) throws Exception;
     
     
+    /**
+     * Deletes an entry in the server.
+     * The flag is used to tell the server to ignore the referrals and manipulate
+     * them as if they were normal entries.
+     *
+     * @param dn the distinguished name of the entry to delete
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @throws Exception if there are failures while deleting the entry
+     */
+    void delete( LdapDN dn, boolean ignoreReferral ) throws Exception;
+    
+    
     void delete( DeleteRequest deleteRequest ) throws Exception;
+    
 
     /**
      * Checks to see if an entry exists. 
@@ -272,6 +322,20 @@ public interface CoreSession
     void modify( LdapDN dn, List<Modification> mods ) throws Exception;
     
     
+    /**
+     * Modifies an entry within the server by applying a list of modifications 
+     * to the entry.
+     * The flag is used to tell the server to ignore the referrals and manipulate
+     * them as if they were normal entries.
+     *
+     * @param dn the distinguished name of the entry to modify
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @param mods the list of modifications to apply
+     * @throws Exception if there are failures while modifying the entry
+     */
+    void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral ) throws Exception;
+    
+    
     void modify( ModifyRequest modifyRequest ) throws Exception;
 
     
@@ -286,6 +350,24 @@ public interface CoreSession
     void move( LdapDN dn, LdapDN newParent ) throws Exception;
     
     
+    /**
+     * Moves an entry or a branch of entries at a specified distinguished name
+     * to a position under a new parent.
+     * 
+     * @param dn the distinguished name of the entry/branch to move
+     * @param newParent the new parent under which the entry/branch is moved
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @exception if there are failures while moving the entry/branch
+     */
+    void move( LdapDN dn, LdapDN newParent, boolean ignoreReferral ) throws Exception;
+    
+    
+    /**
+     * Move an entry by changing its superior.
+     *
+     * @param modifyDnRequest The ModifyDN request
+     * @throws Exception if there are failures while moving the entry/branch
+     */
     void move( ModifyDnRequest modifyDnRequest ) throws Exception;
     
     
@@ -308,6 +390,29 @@ public interface CoreSession
     void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
     
     
+    /**
+     * Moves and renames (the relative distinguished name of) an entry (or a 
+     * branch if the entry has children) at a specified distinguished name to 
+     * a position under a new parent.
+     * 
+     * @param dn the distinguished name of the entry/branch to move
+     * @param newParent the new parent under which the entry/branch is moved
+     * @param newRdn the new relative distinguished name of the entry at the 
+     * root of the branch
+     * @param ignoreReferral  a flag to tell the server to ignore referrals
+     * @exception if there are failures while moving and renaming the entry
+     * or branch
+     */
+    void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
+    
+    
+    /**
+     * Move and rename an entry. We change the RDN and the superior.
+     *
+     * @param modifyDnRequest The move and rename request
+     * @throws Exception if there are failures while moving and renaming the entry
+     * or branch
+     */
     void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception;
     
     
@@ -330,6 +435,28 @@ public interface CoreSession
     void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception;
     
     
+    /**
+     * Renames an entry by changing it's relative distinguished name.  This 
+     * has the side effect of changing the distinguished name of all entries
+     * directly or indirectly subordinate to the named entry if it has 
+     * descendants.
+     *
+     * @param dn the distinguished name of the entry to rename
+     * @param newRdn the new relative distinguished name for the entry
+     * @param deleteOldRdn whether or not the old value for the relative 
+     * distinguished name is to be deleted from the entry
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @throws Exception if there are failures while renaming the entry
+     */
+    void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception;
+    
+    
+    /**
+     * Rename an entry applying the ModifyDN request 
+     *
+     * @param modifyDnRequest The requested modification
+     * @throws Exception if there are failures while renaming the entry
+     */
     void rename( ModifyDnRequest modifyDnRequest ) throws Exception;
     
     
@@ -372,16 +499,56 @@ public interface CoreSession
     
     
     /**
+     * Searches the directory using a specified filter. The scope is defaulting
+     * to 'base'. The alias dereferencing default to 'always'. the returned attributes 
+     * defaults to 'all the user attributes)
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param filter the search filter
+     * @throws Exception if there are failures while listing children
+     */
+    EntryFilteringCursor search( LdapDN dn, String filter ) throws Exception;
+    
+    
+    /**
+     * Searches the directory using a specified filter. The scope is defaulting
+     * to 'base'. The alias dereferencing default to 'always'. the returned attributes 
+     * defaults to 'all the user attributes)
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param filter the search filter
+     * @param ignoreReferrals a flag to tell the server to ignore referrals
+     * @throws Exception if there are failures while listing children
+     */
+    EntryFilteringCursor search( LdapDN dn, String filter, boolean ignoreReferrals ) throws Exception;
+    
+    
+    /**
      * Searches the directory using a specified search scope and filter.
      *
      * @param dn the distinguished name of the entry to list the children of
      * @param scope the search scope to apply
+     * @param filter the search filter
      * @param aliasDerefMode the alias dereferencing mode used
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes ) throws Exception;
+    
+    
+    /**
+     * Searches the directory using a specified search scope and filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param scope the search scope to apply
+     * @param filter the search filter
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @throws Exception if there are failures while listing children
+     */
+    //EntryFilteringCursor search( LdapDN dn, SearchScope scope, String filter, AliasDerefMode aliasDerefMode, 
+    //    String[] returningAttributes ) throws Exception;
     
     
     /**
@@ -397,6 +564,41 @@ public interface CoreSession
      */
     EntryFilteringCursor search( LdapDN dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode, 
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+
+
+    /**
+     * Searches the directory using a specified search scope and filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param scope the search scope
+     * @param filter the search filter
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @param sizeLimit the upper bound to the number of entries to return
+     * @param timeLimit the upper bound to the amount of time before 
+     * terminating the search
+     * @throws Exception if there are failures while listing children
+     */
+    //EntryFilteringCursor search( LdapDN dn, SearchScope scope, String filter, AliasDerefMode aliasDerefMode, 
+    //    String[] returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
+
+
+    /**
+     * Searches the directory using a specified search scope and filter.
+     *
+     * @param dn the distinguished name of the entry to list the children of
+     * @param scope the search scope
+     * @param filter the search filter
+     * @param aliasDerefMode the alias dereferencing mode used
+     * @param returningAttributes the attributes to return
+     * @param sizeLimit the upper bound to the number of entries to return
+     * @param timeLimit the upper bound to the amount of time before 
+     * terminating the search
+     * @param ignoreReferral a flag to tell the server to ignore referrals
+     * @throws Exception if there are failures while listing children
+     */
+    //EntryFilteringCursor search( LdapDN dn, SearchScope scope, String filter, AliasDerefMode aliasDerefMode, 
+    //    String[] returningAttributes, int sizeLimit, int timeLimit, boolean ignoreReferral ) throws Exception;
 
 
     EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception;

@@ -26,6 +26,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -91,10 +92,19 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws Exception
     {
         super( session );
-        this.entry = new ClonedServerEntry( 
+        entry = new ClonedServerEntry( 
             new DefaultServerEntry( session.getDirectoryService().getRegistries(), addRequest.getEntry() ) );
-        this.dn = addRequest.getEntry().getDn();
-        this.requestControls = addRequest.getControls();
+        dn = addRequest.getEntry().getDn();
+        requestControls = addRequest.getControls();
+        
+        if ( requestControls.containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            ignoreReferral();
+        }
+        else
+        {
+            throwReferral();
+        }
     }
 
 

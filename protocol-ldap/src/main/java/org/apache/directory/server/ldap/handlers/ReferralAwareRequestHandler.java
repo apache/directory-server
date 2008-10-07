@@ -24,6 +24,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.ldap.LdapSession;
@@ -32,13 +33,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -79,76 +74,36 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
     {
         LOG.debug( "Handling single reply request: {}", req );
         
-        LdapDN reqTargetDn = null;
-        
-        switch ( req.getType() )
-        {
-            case ADD_REQUEST:
-                reqTargetDn = ( ( AddRequest ) req ).getEntryDn();
-                break;
-            case BIND_REQUEST:
-                // not used for bind but may be in future
-                reqTargetDn = ( ( BindRequest ) req ).getName();
-                break;
-            case COMPARE_REQUEST:
-                reqTargetDn = ( ( CompareRequest ) req ).getName();
-                break;
-            case DEL_REQUEST:
-                reqTargetDn = ( ( DeleteRequest ) req ).getName();
-                break;
-            case EXTENDED_REQ:
-                throw new IllegalStateException( 
-                    "Although ExtendedRequests are SingleReplyRequests they're not handled" +
-                    " using this base class.  They have no target entry unlike the rest of" +
-                    " the SingleReplyRequests" );
-            case MOD_DN_REQUEST:
-                /*
-                 * Special handling needed because of the new superior entry 
-                 * as specified in RFC 3296 section 5.6.2 here: 
-                 *    
-                 *     http://www.faqs.org/rfcs/rfc3296.html
-                 */
-                if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-                {
-                    LOG.debug( "ManageDsaITControl detected." );
-                    handleIgnoringReferrals( session, ( ( ModifyDnRequest ) req ).getName(), null, req );
-                }
-                else
-                {
-                    LOG.debug( "ManageDsaITControl NOT detected." );
-                    
-                    if ( ( ( ModifyDnRequest ) req ).getNewSuperior() == null )
-                    {
-                        handleWithReferrals( session, ( ( ModifyDnRequest ) req ).getName(), req );
-                    }
-                    else
-                    {
-                        // NOTE: call is to overload just for the ModifyDnRequest
-                        handleModifyDnWithReferrals( session, req );
-                    }
-                }
-                return;
-            case MODIFY_REQUEST:
-                reqTargetDn = ( ( ModifyRequest ) req ).getName();
-                break;
-            case SEARCH_REQUEST:
-                reqTargetDn = ( ( SearchRequest ) req ).getBase();
-                break;
-            default:
-                throw new IllegalStateException( 
-                    "Unidentified single reply request/response type: " + req );
-        }
-        
+        // First, if we have the ManageDSAIt control, go directly
+        // to the handling without pre-processing the request
         if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
             LOG.debug( "ManageDsaITControl detected." );
-            handleIgnoringReferrals( session, reqTargetDn, null, req );
+            handleIgnoringReferrals( session, req );
         }
         else
         {
             LOG.debug( "ManageDsaITControl NOT detected." );
-            handleWithReferrals( session, reqTargetDn, req );
+    
+            switch ( req.getType() )
+            {
+                case SEARCH_REQUEST:
+                    handleWithReferrals( session, ( ( SearchRequest ) req ).getBase(), req );
+                    break;
+
+                case EXTENDED_REQ:
+                    throw new IllegalStateException( 
+                        "Although ExtendedRequests are SingleReplyRequests they're not handled" +
+                        " using this base class.  They have no target entry unlike the rest of" +
+                        " the SingleReplyRequests" );
+                    
+                default:
+                    throw new IllegalStateException( 
+                        "Unidentified single reply request/response type: " + req );
+            }
+            
         }
+
     }
 
     
@@ -220,182 +175,51 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
     }
     
     
-    private void handleModifyDnWithReferrals( LdapSession session, T modifyDnRequest )
-    {
-        ModifyDnRequest req = ( ModifyDnRequest ) modifyDnRequest;
-        LdapResult result = req.getResultResponse().getLdapResult();
-        ClonedServerEntry entry = null;
-        ClonedServerEntry superiorEntry = null;
-
-        // -------------------------------------------------------------------
-        // Lookup Entry
-        // -------------------------------------------------------------------
-        
-        // try to lookup the entry but ignore exceptions when it does not   
-        // exist since entry may not exist but may have an ancestor that is a 
-        // referral - would rather attempt a lookup that fails then do check 
-        // for existence than have to do another lookup to get entry info
-
-        try
-        {
-            entry = session.getCoreSession().lookup( req.getName() );
-            LOG.debug( "Entry for {} was found: ", req.getName(), entry );
-        }
-        catch ( NameNotFoundException e )
-        {
-            /* ignore */
-            LOG.debug( "Entry for {} not found.", req.getName() );
-        }
-        catch ( Exception e )
-        {
-            /* serious and needs handling */
-            handleException( session, modifyDnRequest, e );
-            return;
-        }
-        
-        try
-        {
-            superiorEntry = session.getCoreSession().lookup( req.getNewSuperior() );
-            LOG.debug( "New superior entry for {} was found: ", req.getName(), entry );
-        }
-        catch ( NameNotFoundException e )
-        {
-            /* ignore */
-            LOG.debug( "New superior entry for {} not found.", req.getName() );
-        }
-        catch ( Exception e )
-        {
-            /* serious and needs handling */
-            handleException( session, modifyDnRequest, e );
-            return;
-        }
-        
-        // -------------------------------------------------------------------
-        // Handle Existing Entry
-        // -------------------------------------------------------------------
-        
-        if ( entry != null )
-        {
-            try
-            {
-                if ( isEntryReferral( entry ) )
-                {
-                    LOG.debug( "Entry is a referral: {}", entry );
-                    handleReferralEntry( session, req.getName(), modifyDnRequest, entry );
-                    return;
-                }
-                else
-                {
-                    if ( superiorEntry != null && isEntryReferral( superiorEntry ) )
-                    {
-                        result.setErrorMessage( "Superior entry is a referral." );
-                        result.setMatchedDn( req.getNewSuperior() );
-                        result.setResultCode( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
-                        session.getIoSession().write( req.getResultResponse() );
-                        return;
-                    }
-                    else if ( superiorEntry == null )
-                    {
-                        ClonedServerEntry referralAncestor = getFarthestReferralAncestor( session, 
-                            req.getNewSuperior() );
-                        
-                        if ( referralAncestor != null )
-                        {
-                            result.setErrorMessage( "Superior entry does has referral ancestor." );
-                            result.setResultCode( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
-                            session.getIoSession().write( req.getResultResponse() );
-                            return;
-                        }
-                        else
-                        {
-                            result.setErrorMessage( "Superior entry does not exist." );
-                            result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
-                            session.getIoSession().write( req.getResultResponse() );
-                            return;
-                        }
-                    }
-                    
-                    LOG.debug( "Entry is NOT a referral: {}", entry );
-                    handleIgnoringReferrals( session, req.getName(), entry, modifyDnRequest );
-                    return;
-                }
-            }
-            catch ( Exception e )
-            {
-                handleException( session, modifyDnRequest, e );
-            }
-        }
-
-        // -------------------------------------------------------------------
-        // Handle Non-existing Entry
-        // -------------------------------------------------------------------
-        
-        // if the entry is null we still have to check for a referral ancestor
-        // also the referrals need to be adjusted based on the ancestor's ref
-        // values to yield the correct path to the entry in the target DSAs
-        
-        if ( entry == null )
-        {
-            ClonedServerEntry referralAncestor = null;
-
-            try
-            {
-                referralAncestor = getFarthestReferralAncestor( session, req.getName() );
-            }
-            catch ( Exception e )
-            {
-                handleException( session, modifyDnRequest, e );
-                return;
-            }
-
-            if ( referralAncestor == null && ! ( req instanceof AddRequest ) )
-            {
-                result.setErrorMessage( "Entry not found." );
-                result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
-                session.getIoSession().write( req.getResultResponse() );
-                return;
-            }
-            else if ( ( req instanceof AddRequest ) && referralAncestor == null )
-            {
-                handleIgnoringReferrals( session, req.getName(), entry, modifyDnRequest );
-                return;
-            }
-              
-            // if we get here then we have a valid referral ancestor
-            try
-            {
-                Referral referral = getReferralOnAncestor( session, req.getName(), modifyDnRequest, referralAncestor );
-                result.setResultCode( ResultCodeEnum.REFERRAL );
-                result.setReferral( referral );
-                session.getIoSession().write( req.getResultResponse() );
-            }
-            catch ( Exception e )
-            {
-                handleException( session, modifyDnRequest, e );
-            }
-        }
-    }
-    
-    
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    private void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, T req )
+    private void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, T req ) throws NamingException
     {
         LdapResult result = req.getResultResponse().getLdapResult();
         ClonedServerEntry entry = null;
-
-        // -------------------------------------------------------------------
-        // Lookup Entry
-        // -------------------------------------------------------------------
+        boolean isReferral = false;
+        boolean isparentReferral = false;
+        ReferralManager referralManager= session.getCoreSession().getDirectoryService().getReferralManager();
         
-        // try to lookup the entry but ignore exceptions when it does not   
-        // exist since entry may not exist but may have an ancestor that is a 
-        // referral - would rather attempt a lookup that fails then do check 
-        // for existence than have to do another lookup to get entry info
-
-        if ( ! ( req instanceof AddRequest ) )
+        reqTargetDn.normalize( session.getCoreSession().getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        
+        // Check if the entry itself is a referral
+        referralManager.lockRead();
+        
+        isReferral = referralManager.isReferral( reqTargetDn );
+        
+        if ( !isReferral )
         {
+            // Check if the entry has a parent which is a referral
+            isparentReferral = referralManager.hasParentReferral( reqTargetDn );
+        }
+        
+        referralManager.unlock();
+        
+        if ( !isReferral && !isparentReferral )
+        {
+            // This is not a referral and it does not have a parent which 
+            // is a referral : standard case, just deal with the request
+            LOG.debug( "Entry {} is NOT a referral.", reqTargetDn );
+            handleIgnoringReferrals( session, req );
+            return;
+        }
+        else
+        {
+            // -------------------------------------------------------------------
+            // Lookup Entry
+            // -------------------------------------------------------------------
+            
+            // try to lookup the entry but ignore exceptions when it does not   
+            // exist since entry may not exist but may have an ancestor that is a 
+            // referral - would rather attempt a lookup that fails then do check 
+            // for existence than have to do another lookup to get entry info
+    
             try
             {
                 entry = session.getCoreSession().lookup( reqTargetDn );
@@ -412,99 +236,94 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
                 handleException( session, req, e );
                 return;
             }
-        }
-        
-        // -------------------------------------------------------------------
-        // Handle Existing Entry
-        // -------------------------------------------------------------------
-        
-        if ( entry != null )
-        {
-            try
+            
+            // -------------------------------------------------------------------
+            // Handle Existing Entry
+            // -------------------------------------------------------------------
+            
+            if ( entry != null )
             {
-                if ( isEntryReferral( entry ) )
+                try
                 {
-                    LOG.debug( "Entry is a referral: {}", entry );
-                    
-                    if ( req instanceof SearchRequest )
+                    if ( isEntryReferral( entry ) )
                     {
-                        handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
+                        LOG.debug( "Entry is a referral: {}", entry );
+                        
+                        if ( req instanceof SearchRequest )
+                        {
+                            handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
+                        }
+                        else
+                        {
+                            handleReferralEntry( session, reqTargetDn, req, entry );
+                        }
+                        return;
                     }
                     else
                     {
-                        handleReferralEntry( session, reqTargetDn, req, entry );
+                        LOG.debug( "Entry is NOT a referral: {}", entry );
+                        handleIgnoringReferrals( session, req );
+                        return;
                     }
+                }
+                catch ( Exception e )
+                {
+                    handleException( session, req, e );
+                }
+            }
+    
+            // -------------------------------------------------------------------
+            // Handle Non-existing Entry
+            // -------------------------------------------------------------------
+            
+            // if the entry is null we still have to check for a referral ancestor
+            // also the referrals need to be adjusted based on the ancestor's ref
+            // values to yield the correct path to the entry in the target DSAs
+            
+            if ( entry == null )
+            {
+                ClonedServerEntry referralAncestor = null;
+    
+                try
+                {
+                    referralAncestor = getFarthestReferralAncestor( session, reqTargetDn );
+                }
+                catch ( Exception e )
+                {
+                    handleException( session, req, e );
                     return;
                 }
-                else
+    
+                if ( referralAncestor == null )
                 {
-                    LOG.debug( "Entry is NOT a referral: {}", entry );
-                    handleIgnoringReferrals( session, reqTargetDn, entry, req );
+                    result.setErrorMessage( "Entry not found." );
+                    result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
+                    session.getIoSession().write( req.getResultResponse() );
                     return;
                 }
-            }
-            catch ( Exception e )
-            {
-                handleException( session, req, e );
-            }
-        }
-
-        // -------------------------------------------------------------------
-        // Handle Non-existing Entry
-        // -------------------------------------------------------------------
-        
-        // if the entry is null we still have to check for a referral ancestor
-        // also the referrals need to be adjusted based on the ancestor's ref
-        // values to yield the correct path to the entry in the target DSAs
-        
-        if ( entry == null )
-        {
-            ClonedServerEntry referralAncestor = null;
-
-            try
-            {
-                referralAncestor = getFarthestReferralAncestor( session, reqTargetDn );
-            }
-            catch ( Exception e )
-            {
-                handleException( session, req, e );
-                return;
-            }
-
-            if ( referralAncestor == null && ! ( req instanceof AddRequest ) )
-            {
-                result.setErrorMessage( "Entry not found." );
-                result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
-                session.getIoSession().write( req.getResultResponse() );
-                return;
-            }
-            else if ( ( req instanceof AddRequest ) && referralAncestor == null )
-            {
-                handleIgnoringReferrals( session, reqTargetDn, entry, req );
-                return;
-            }
-              
-            // if we get here then we have a valid referral ancestor
-            try
-            {
-                Referral referral = null;
-                
-                if ( req instanceof SearchRequest )
+                  
+                // if we get here then we have a valid referral ancestor
+                try
                 {
-                    referral = getReferralOnAncestorForSearch( session, ( SearchRequest ) req, referralAncestor );
+                    Referral referral = null;
+                    
+                    if ( req instanceof SearchRequest )
+                    {
+                        referral = getReferralOnAncestorForSearch( session, ( SearchRequest ) req, referralAncestor );
+                    }
+                    else
+                    {
+                        referral = getReferralOnAncestor( session, reqTargetDn, req, referralAncestor );
+                    }
+                    
+                    result.setResultCode( ResultCodeEnum.REFERRAL );
+                    result.setReferral( referral );
+                    session.getIoSession().write( req.getResultResponse() );
                 }
-                else
+                catch ( Exception e )
                 {
-                    referral = getReferralOnAncestor( session, reqTargetDn, req, referralAncestor );
+                    handleException( session, req, e );
                 }
-                
-                result.setResultCode( ResultCodeEnum.REFERRAL );
-                result.setReferral( referral );
-                session.getIoSession().write( req.getResultResponse() );
-            }
-            catch ( Exception e )
-            {
-                handleException( session, req, e );
             }
         }
     }
@@ -777,7 +596,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleException( LdapSession session, T req, Exception e )
+    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
 
@@ -848,6 +667,5 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
      * exist.
      * @param req the request to be handled
      */
-    public abstract void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, T req );
+    public abstract void handleIgnoringReferrals( LdapSession session, T req );
 }

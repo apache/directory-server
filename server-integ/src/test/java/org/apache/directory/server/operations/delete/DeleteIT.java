@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
     "uid: akarasulu\n" +
     "cn: Alex Karasulu\n" +
     "sn: karasulu\n\n" + 
+    
     // Entry # 2
     "dn: ou=Computers,uid=akarasulu,ou=users,ou=system\n" +
     "objectClass: organizationalUnit\n" +
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
     "ou: computers\n" +
     "description: Computers for Alex\n" +
     "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system\n\n" + 
+    
     // Entry # 3
     "dn: uid=akarasuluref,ou=users,ou=system\n" +
     "objectClass: uidObject\n" +

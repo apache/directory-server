@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap.handlers;
 
  
-import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class ModifyDnHandler extends ReferralAwareRequestHandler<ModifyDnRequest>
+public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ModifyDnHandler.class );
 
@@ -58,8 +58,7 @@ public class ModifyDnHandler extends ReferralAwareRequestHandler<ModifyDnRequest
      * - newSuperior : this is a move operation. The entry is removed from its
      * current location, and created in the new one.
      */
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, ModifyDnRequest req )
+    public void handle( LdapSession session, ModifyDnRequest req )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
         LOG.debug( "Handling modify dn request while ignoring referrals: {}", req );
@@ -87,21 +86,23 @@ public class ModifyDnHandler extends ReferralAwareRequestHandler<ModifyDnRequest
             boolean rdnChanged = req.getNewRdn() != null && 
                 ! newRdn.getNormName().equals( oldRdn.getNormName() );
             
+            CoreSession coreSession = session.getCoreSession();
+            
             if ( rdnChanged )
             {
                 if ( req.getNewSuperior() != null )
                 {
-                    session.getCoreSession().moveAndRename( req );
+                    coreSession.moveAndRename( req );
                 }
                 else
                 {
-                    session.getCoreSession().rename( req );
+                    coreSession.rename( req );
                 }
             }
             else if ( req.getNewSuperior() != null )
             {
                 req.setNewRdn( null );
-                session.getCoreSession().move( req );
+                coreSession.move( req );
             }
             else
             {

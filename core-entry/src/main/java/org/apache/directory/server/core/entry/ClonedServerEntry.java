@@ -448,6 +448,36 @@ public class ClonedServerEntry implements ServerEntry
     }
     
     
+    /**
+	 * @see Object#equals(Object);
+	 */
+    public boolean equals( Object obj )
+    {
+        // Short circuit
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        Entry other;
+        
+        if ( obj instanceof ClonedServerEntry )
+        {
+            other = ((ClonedServerEntry)obj).getClonedEntry();
+        }
+        else if ( obj instanceof ServerEntry )
+        {
+            other = (ServerEntry)obj;
+        }
+        else 
+        {
+            return false;
+        }
+
+        return clonedEntry.equals( other );
+    }
+    
+    
     public String toString()
     {
         return clonedEntry.toString();

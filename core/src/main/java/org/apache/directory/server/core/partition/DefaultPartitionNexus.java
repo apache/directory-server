@@ -664,6 +664,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         // Update the partition tree
         partitionLookupTree.remove( partition );
         partitions.remove( key );
+        partition.destroy();
     }
 
 
@@ -727,9 +728,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see PartitionNexus#listSuffixes( ListSuffixOperationContext )
      */
-    public Iterator<String> listSuffixes ( ListSuffixOperationContext emptyContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext emptyContext ) throws Exception
     {
-        return Collections.unmodifiableSet( partitions.keySet() ).iterator();
+        return Collections.unmodifiableSet( partitions.keySet() );
     }
 
 

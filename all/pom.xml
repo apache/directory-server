@@ -68,11 +68,6 @@
             <configuration>
               <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
               <shadedArtifactAttached>false</shadedArtifactAttached>
-              <artifactSet>
-                <excludes>
-                  <exclude>bouncycastle:bcprov-jdk15</exclude>
-                </excludes>
-              </artifactSet>
             </configuration>
           </execution>
         </executions>

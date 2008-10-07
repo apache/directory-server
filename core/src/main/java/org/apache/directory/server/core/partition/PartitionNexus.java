@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition;
 
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -237,7 +236,7 @@ public abstract class PartitionNexus implements Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws Exception if there are any problems
      */
-    public abstract Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
+    public abstract Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**

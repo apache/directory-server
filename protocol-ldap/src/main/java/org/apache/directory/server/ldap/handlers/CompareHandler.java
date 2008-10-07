@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class CompareHandler extends ReferralAwareRequestHandler<CompareRequest>
+public class CompareHandler extends LdapRequestHandler<CompareRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareHandler.class );
 
@@ -48,8 +47,7 @@ public class CompareHandler extends ReferralAwareRequestHandler<CompareRequest>
      * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */
     @Override
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, CompareRequest req )
+    public void handle( LdapSession session, CompareRequest req )
     {
         LOG.debug( "Handling compare request while ignoring referrals: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
@@ -65,7 +63,7 @@ public class CompareHandler extends ReferralAwareRequestHandler<CompareRequest>
                 result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
             }
 
-            result.setMatchedDn( reqTargetDn );
+            result.setMatchedDn( req.getName() );
             session.getIoSession().write( req.getResultResponse() );
         }
         catch ( Exception e )

@@ -564,8 +564,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param session the associated session
      * @param req the received SearchRequest
      */
-    public void handleIgnoringReferrals( LdapSession session, LdapDN reqTargetDn, 
-        ClonedServerEntry entry, SearchRequest req )
+    public void handleIgnoringReferrals( LdapSession session, SearchRequest req )
     {
         if ( IS_DEBUG )
         {

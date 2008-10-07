@@ -22,9 +22,9 @@ package org.apache.directory.server.core.interceptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -52,6 +52,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,7 @@ public class InterceptorChain
         }
 
 
-        public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
+        public Set<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws Exception
         {
             return nexus.listSuffixes( opContext );
         }
@@ -623,7 +624,7 @@ public class InterceptorChain
     }
 
 
-    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -706,7 +707,7 @@ public class InterceptorChain
         {
             try
             {
-                opContext.setEntry( opContext.getSession().lookup( opContext.getDn() ) );
+                opContext.setEntry( opContext.getSession().lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
             }
             catch ( Exception e )
             {
@@ -1138,7 +1139,7 @@ public class InterceptorChain
                 }
 
 
-                public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+                public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core;
 
 
-import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -74,7 +74,7 @@ public interface OperationManager
     /**
      * TODO document after determining if this method should be here.
      */
-    Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
+    Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception;
 
 
     /**
