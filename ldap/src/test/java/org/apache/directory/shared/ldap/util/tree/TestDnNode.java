@@ -125,6 +125,22 @@ public class TestDnNode
         assertTrue( dnLookupTree.hasParentElement( new LdapDN( "dc=nothing,dc=empty" ) ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
     }
+    
+    
+    /**
+     * Test that we can add an entry twice without any problem
+     * TODO testAddEntryTwice.
+     *
+     */
+    @Test
+    public void testAddEntryTwice() throws NamingException
+    {
+        assertEquals( 6, dnLookupTree.size() );
+
+        dnLookupTree.add( dn1, dn1 );
+        
+        assertEquals( 6, dnLookupTree.size() );
+    }
 
     /**
      * test the deletion of elements in a tree
@@ -133,6 +149,7 @@ public class TestDnNode
     public void testComplexTreeDeletion() throws NamingException
     {
         dnLookupTree.remove( dn3 );
+        assertEquals( 5, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn1 ) );
         assertTrue( dnLookupTree.hasParentElement( dn2 ) );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
@@ -142,6 +159,7 @@ public class TestDnNode
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
 
         dnLookupTree.remove( dn6 );
+        assertEquals( 4, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn1 ) );
         assertTrue( dnLookupTree.hasParentElement( dn2 ) );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
@@ -150,6 +168,7 @@ public class TestDnNode
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
 
         dnLookupTree.remove( dn1 );
+        assertEquals( 3, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn2 ) );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
         assertTrue( dnLookupTree.hasParentElement( dn5 ) );
@@ -158,6 +177,7 @@ public class TestDnNode
 
         // Should not change anything
         dnLookupTree.remove( dn3 );
+        assertEquals( 3, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn2 ) );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
         assertTrue( dnLookupTree.hasParentElement( dn5 ) );
@@ -165,17 +185,20 @@ public class TestDnNode
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
 
         dnLookupTree.remove( dn5 );
+        assertEquals( 2, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn2 ) );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN( "dc=nothing,dc=empty" ) ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
 
         dnLookupTree.remove( dn2 );
+        assertEquals( 1, dnLookupTree.size() );
         assertTrue( dnLookupTree.hasParentElement( dn4 ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN( "dc=nothing,dc=empty" ) ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
 
         dnLookupTree.remove( dn4 );
+        assertEquals( 0, dnLookupTree.size() );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN( "dc=nothing,dc=empty" ) ) );
         assertFalse( dnLookupTree.hasParentElement( new LdapDN(  "dc=directory,dc=apache,dc=root" ) ) );
     }

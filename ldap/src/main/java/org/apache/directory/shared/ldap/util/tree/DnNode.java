@@ -37,4 +37,13 @@ public interface DnNode<N>
      * @return <code>true</code> if the class is a leaf node, false otherwise.
      */
     boolean isLeaf();
+    
+    
+    /**
+     * Returns the number of entries under this node. It includes
+     * the node itself, plus the sum of all it children and descendents.
+     *
+     * @return The number of descendents
+     */
+    int size();
 }

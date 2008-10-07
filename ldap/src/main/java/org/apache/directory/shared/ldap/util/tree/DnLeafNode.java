@@ -51,9 +51,21 @@ public class DnLeafNode<N> implements DnNode<N>
     }
     
 
+    /**
+     * @return Return the stored element
+     */
     public N getElement()
     {
         return element;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public int size()
+    {
+        return 1;
     }
     
     

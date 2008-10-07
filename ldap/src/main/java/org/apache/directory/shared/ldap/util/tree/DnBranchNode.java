@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,10 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * The Hierarchical Container holds elements ordered by their DN. 
- * 
+ * <br/>
  * We can see them as directories, where the leaves are the files.
+ * <br/>
+ * This class is *not* thread safe
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -47,6 +50,8 @@ public class DnBranchNode<N> implements DnNode<N>
     /** Stores the list of all the descendant */
     private Map<String, DnNode<N>> children;
     
+    /** Stores the number of descendents */
+    private int size;
     
     /**
      * Creates a new instance of a DnBranchNode.
@@ -54,6 +59,7 @@ public class DnBranchNode<N> implements DnNode<N>
     public DnBranchNode()
     {
         children = new HashMap<String, DnNode<N>>(3);
+        size = 0;
     }
 
     
@@ -83,7 +89,14 @@ public class DnBranchNode<N> implements DnNode<N>
         
         if ( index == dn.size() - 1 )
         {
-            return current.addNode( rdnAtIndex, new DnLeafNode<N>( element ) );
+            if ( !current.contains( rdnAtIndex ) )
+            {
+                return current.addNode( rdnAtIndex, new DnLeafNode<N>( element ) );
+            }
+            else
+            {
+                return null;
+            }
         }
         else
         {
@@ -102,7 +115,15 @@ public class DnBranchNode<N> implements DnNode<N>
             }
 
             DnNode<N> child = recursivelyAddElement( (DnBranchNode<N>)newNode, dn, index + 1, element );
-            return current.addNode( rdnAtIndex, child );
+            
+            if ( child != null )
+            {
+                return current.addNode( rdnAtIndex, child );
+            }
+            else
+            {
+                return null;
+            }
         }
     }
     
@@ -117,6 +138,7 @@ public class DnBranchNode<N> implements DnNode<N>
     public DnNode<N> addNode( String rdn, DnNode<N> child )
     {
         children.put( rdn, child );
+        size++;
         return this;
     }
     
@@ -217,7 +239,7 @@ public class DnBranchNode<N> implements DnNode<N>
      */
     public boolean hasParentElement( LdapDN dn )
     {
-        Enumeration<String> rdns = dn.getAll();
+        Enumeration<Rdn> rdns = dn.getAllRdn();
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
@@ -228,7 +250,7 @@ public class DnBranchNode<N> implements DnNode<N>
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
             {
-                String rdn = rdns.nextElement();
+                Rdn rdn = rdns.nextElement();
 
                 if ( currentNode == null )
                 {
@@ -242,9 +264,9 @@ public class DnBranchNode<N> implements DnNode<N>
 
                 DnBranchNode<N> currentBranch = ( DnBranchNode<N> ) currentNode;
                 
-                if ( currentBranch.contains( rdn ) )
+                if ( currentBranch.contains( rdn.getNormName() ) )
                 {
-                    currentNode = currentBranch.getChild( rdn );
+                    currentNode = currentBranch.getChild( rdn.getNormName() );
                     
                     if ( currentNode instanceof DnLeafNode )
                     {
@@ -287,6 +309,7 @@ public class DnBranchNode<N> implements DnNode<N>
                 {
                     // found ! Remove it from the children
                     currentNode.children.remove( key );
+                    currentNode.size--;
                     return true;
                 }
             }
@@ -298,8 +321,14 @@ public class DnBranchNode<N> implements DnNode<N>
                     {
                         // If there are no more children, we can remove the node
                         currentNode.children.remove( key );
-                        return true;
+                        currentNode.size--;
                     }
+                    else
+                    {
+                        currentNode.size--;
+                    }
+
+                    return true;
                 }
             }
         }
@@ -336,10 +365,15 @@ public class DnBranchNode<N> implements DnNode<N>
         {
             recursivelyRemoveElement( currentNode, element );
         }
-        else
-        {
-            
-        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public int size()
+    {
+        return size;
     }
 
 

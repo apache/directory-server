@@ -55,7 +55,6 @@
     <module>ldap-constants</module>
     <module>asn1-codec</module>
     <module>convert</module>
-    <module>bouncycastle-reduced</module>
   </modules>
 
   <dependencyManagement>

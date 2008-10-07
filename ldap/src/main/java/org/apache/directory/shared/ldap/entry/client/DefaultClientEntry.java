@@ -1102,7 +1102,7 @@ public final class DefaultClientEntry extends AbstractEntry<String> implements C
         StringBuilder sb = new StringBuilder();
         
         sb.append( "ClientEntry\n" );
-        sb.append( "    dn: " ).append( dn ).append( '\n' );
+        sb.append( "    dn: " ).append( dn.getUpName() ).append( '\n' );
         
         // First dump the ObjectClass attribute
         if ( containsAttribute( "objectClass" ) )
