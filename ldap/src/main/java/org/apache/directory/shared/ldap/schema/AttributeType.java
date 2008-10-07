@@ -241,5 +241,5 @@ public interface AttributeType extends SchemaObject
      * @return true if this AttributeType truely descends from the ancestor
      * @throws NamingException if there are problems resolving superior types
      */
-    boolean isDescentantOf( AttributeType ancestor ) throws NamingException;
+    boolean isDescendantOf( AttributeType ancestor ) throws NamingException;
 }

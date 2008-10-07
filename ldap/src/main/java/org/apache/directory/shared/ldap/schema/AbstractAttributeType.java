@@ -222,7 +222,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
      * @return true if this AttributeType truly descends from the ancestor
      * @throws NamingException if there are problems resolving superior types
      */
-    public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+    public boolean isDescendantOf( AttributeType ancestor ) throws NamingException
     {
         if ( ( ancestor == null ) || equals( ancestor ) )
         {

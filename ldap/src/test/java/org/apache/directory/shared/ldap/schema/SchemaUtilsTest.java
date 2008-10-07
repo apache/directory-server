@@ -270,7 +270,7 @@ public class SchemaUtilsTest extends TestCase
         }
 
 
-        public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+        public boolean isDescendantOf( AttributeType attributeType ) throws NamingException
         {
             return false;
         }
