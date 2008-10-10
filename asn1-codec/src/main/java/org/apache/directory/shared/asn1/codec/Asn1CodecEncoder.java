@@ -26,8 +26,8 @@ import java.util.Iterator;
 
 import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
@@ -73,8 +73,7 @@ public class Asn1CodecEncoder implements ProtocolEncoder
             if( encoded instanceof java.nio.ByteBuffer )
             {
                 java.nio.ByteBuffer buf = ( java.nio.ByteBuffer ) encoded;
-                ByteBuffer wrappedBuf = ByteBuffer.wrap( buf );
-                wrappedBuf.acquire();  // acquire once more to prvent leak
+                IoBuffer wrappedBuf = IoBuffer.wrap( buf );
                 encOut.write( wrappedBuf );
             }
             else if( encoded instanceof Object[] )
