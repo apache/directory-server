@@ -25,9 +25,9 @@ import org.apache.directory.mitosis.service.DefaultReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 
 /**
  * A MINA {@link IoHandler} that wraps a {@link ReplicationContextHandler}

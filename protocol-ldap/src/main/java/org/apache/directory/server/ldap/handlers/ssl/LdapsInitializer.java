@@ -29,9 +29,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IoFilterChainBuilder;
-import org.apache.mina.filter.SSLFilter;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.IoFilterChainBuilder;
+import org.apache.mina.filter.ssl.SslFilter;
 
 
 /**
@@ -69,7 +69,7 @@ public class LdapsInitializer
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        chain.addLast( "sslFilter", new SSLFilter( sslCtx ) );
+        chain.addLast( "sslFilter", new SslFilter( sslCtx ) );
         return chain;
     }
 }

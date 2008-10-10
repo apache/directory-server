@@ -33,8 +33,9 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationContextH
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationProtocolHandler;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.util.SessionLog;
+import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default implementation of {@link ReplicationContext}
@@ -43,6 +44,9 @@ import org.apache.mina.util.SessionLog;
  */
 public class DefaultReplicationContext implements ReplicationContext
 {
+    /** A logger for this class */
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final Timer EXPIRATION_TIMER = new Timer( "ReplicationMessageExpirer" );
 
     private final ReplicationInterceptor interceptor;
@@ -208,7 +212,7 @@ public class DefaultReplicationContext implements ReplicationContext
         {
             if ( removeTask( message.getSequence() ) == this )
             {
-                SessionLog.warn( getSession(), "No response within " + configuration.getResponseTimeout()
+                logger.warn( "No response within " + configuration.getResponseTimeout()
                     + " second(s) for message #" + message.getSequence() );
                 getSession().close();
             }

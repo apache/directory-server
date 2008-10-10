@@ -21,13 +21,15 @@ package org.apache.directory.server.ntp;
 
 
 import java.net.InetAddress;
+import java.util.concurrent.Executors;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.directory.server.protocol.shared.DatagramAcceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 
 
@@ -48,7 +50,9 @@ public class NtpITest extends TestCase
      */
     public void setUp() throws Exception
     {
-        DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
+        NioDatagramAcceptor datagramAcceptor = new NioDatagramAcceptor( null );
+        datagramAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        //datagramAcceptor.getFilterChain().addlast( "decoder", )
         ntpConfig = new NtpServer();
         ntpConfig.setDatagramAcceptor( datagramAcceptor );
         ntpConfig.setEnabled( true );
@@ -70,7 +74,7 @@ public class NtpITest extends TestCase
         InetAddress host = InetAddress.getByName( null );
 
         NTPUDPClient ntp = new NTPUDPClient();
-        ntp.setDefaultTimeout( 5000 );
+        ntp.setDefaultTimeout( 500000 );
 
         TimeInfo timeInfo = ntp.getTime( host, port );
         long returnTime = timeInfo.getReturnTime();

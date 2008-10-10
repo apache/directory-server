@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.session.IoSession;
 
 
 /**

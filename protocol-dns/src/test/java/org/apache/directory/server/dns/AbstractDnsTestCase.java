@@ -41,7 +41,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -53,31 +53,31 @@ public abstract class AbstractDnsTestCase extends TestCase
     protected static final int MINIMUM_DNS_DATAGRAM_SIZE = 576;
 
 
-    protected ByteBuffer getTestQueryByteBuffer() throws IOException
+    protected IoBuffer getTestQueryByteBuffer() throws IOException
     {
         return getByteBufferFromFile( "DNS-QUERY.pdu" );
     }
 
 
-    protected ByteBuffer getTestResponseByteBuffer() throws IOException
+    protected IoBuffer getTestResponseByteBuffer() throws IOException
     {
         return getByteBufferFromFile( "DNS-RESPONSE.pdu" );
     }
 
 
-    protected ByteBuffer getTestMxQueryByteBuffer() throws IOException
+    protected IoBuffer getTestMxQueryByteBuffer() throws IOException
     {
         return getByteBufferFromFile( "MX-QUERY.pdu" );
     }
 
 
-    protected ByteBuffer getTestMxResponseByteBuffer() throws IOException
+    protected IoBuffer getTestMxResponseByteBuffer() throws IOException
     {
         return getByteBufferFromFile( "MX-RESPONSE.pdu" );
     }
 
 
-    protected ByteBuffer getByteBufferFromFile( String file ) throws IOException
+    protected IoBuffer getByteBufferFromFile( String file ) throws IOException
     {
         InputStream is = getClass().getResourceAsStream( file );
 
@@ -92,7 +92,7 @@ public abstract class AbstractDnsTestCase extends TestCase
 
         is.close();
 
-        return ByteBuffer.wrap( bytes );
+        return IoBuffer.wrap( bytes );
     }
 
 

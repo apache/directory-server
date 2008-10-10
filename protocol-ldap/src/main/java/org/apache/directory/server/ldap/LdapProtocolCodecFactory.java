@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -61,7 +62,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      * (non-Javadoc)
      * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getEncoder()
      */
-    public ProtocolEncoder getEncoder()
+    public ProtocolEncoder getEncoder( IoSession session )
     {
         return new Asn1CodecEncoder( new MessageEncoder() );
     }
@@ -71,7 +72,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      * (non-Javadoc)
      * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getDecoder()
      */
-    public ProtocolDecoder getDecoder()
+    public ProtocolDecoder getDecoder( IoSession session )
     {
         return new Asn1CodecDecoder( new MessageDecoder( new BinaryAttributeDetector()
         {

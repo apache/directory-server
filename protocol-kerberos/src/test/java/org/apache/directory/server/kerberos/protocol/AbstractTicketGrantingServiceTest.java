@@ -61,14 +61,14 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.common.WriteFuture;
-import org.apache.mina.common.support.BaseIoSession;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoProcessor;
+import org.apache.mina.core.service.IoService;
+import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.AbstractIoSession;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.session.IoSessionConfig;
 
 
 /**
@@ -324,17 +324,14 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         return principalName;
     }
 
-    protected static class DummySession extends BaseIoSession
+    protected static class DummySession extends AbstractIoSession
     {
         Object message;
 
 
-        @Override
-        public WriteFuture write( Object message )
+        public IoProcessor<IoSession> getProcessor()
         {
-            this.message = message;
-
-            return super.write( message );
+            return null;
         }
 
 
@@ -368,7 +365,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         }
 
 
-        public TransportType getTransportType()
+        public TransportMetadata getTransportMetadata()
         {
             return null;
         }
@@ -401,18 +398,6 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         public SocketAddress getServiceAddress()
         {
             return null;
-        }
-
-
-        public IoServiceConfig getServiceConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteBytes()
-        {
-            return 0;
         }
     }
 }

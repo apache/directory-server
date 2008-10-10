@@ -26,7 +26,7 @@ import java.util.Set;
 import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 public class LogEntryMessageEncoder extends BaseMessageEncoder
@@ -39,7 +39,7 @@ public class LogEntryMessageEncoder extends BaseMessageEncoder
     }
 
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out )
+    protected void encodeBody( BaseMessage in, IoBuffer out )
     {
         LogEntryMessage m = ( LogEntryMessage ) in;
         out.put( operationCodec.encode( m.getOperation() ) );

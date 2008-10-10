@@ -21,6 +21,7 @@
 package org.apache.directory.server.dns.protocol;
 
 
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -52,14 +53,14 @@ public class DnsProtocolUdpCodecFactory implements ProtocolCodecFactory
     }
 
 
-    public ProtocolEncoder getEncoder()
+    public ProtocolEncoder getEncoder( IoSession session )
     {
         // Create a new encoder.
         return new DnsUdpEncoder();
     }
 
 
-    public ProtocolDecoder getDecoder()
+    public ProtocolDecoder getDecoder( IoSession session )
     {
         // Create a new decoder.
         return new DnsUdpDecoder();

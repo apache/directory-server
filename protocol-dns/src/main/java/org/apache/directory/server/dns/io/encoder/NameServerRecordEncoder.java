@@ -23,7 +23,7 @@ package org.apache.directory.server.dns.io.encoder;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -55,7 +55,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class NameServerRecordEncoder extends ResourceRecordEncoder
 {
-    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
+    protected void putResourceRecordData( IoBuffer byteBuffer, ResourceRecord record )
     {
         String domainName = record.get( DnsAttribute.DOMAIN_NAME );
 

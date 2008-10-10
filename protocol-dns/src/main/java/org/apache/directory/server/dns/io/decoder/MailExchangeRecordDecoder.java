@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -58,7 +58,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class MailExchangeRecordDecoder implements RecordDecoder
 {
-    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException
+    public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put( DnsAttribute.MX_PREFERENCE, byteBuffer.getShort() );

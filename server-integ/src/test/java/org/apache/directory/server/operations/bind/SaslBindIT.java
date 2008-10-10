@@ -59,7 +59,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
@@ -70,7 +69,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,7 +152,7 @@ public class SaslBindIT
 
              LdapService ldapService = new LdapService();
              ldapService.setDirectoryService( service );
-             ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+             ldapService.setSocketAcceptor( new NioSocketAcceptor( null ) );
              ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
              ldapService.setAllowAnonymousAccess( false );
              ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
