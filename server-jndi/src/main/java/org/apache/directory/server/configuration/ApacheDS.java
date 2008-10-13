@@ -34,8 +34,8 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.SimpleByteBufferAllocator;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.buffer.SimpleBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,8 +101,8 @@ public class ApacheDS
         
         this.ldapService = ldapService;
         this.ldapsService = ldapsService;
-        ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
-        ByteBuffer.setUseDirectBuffers( false );
+        IoBuffer.setAllocator( new SimpleBufferAllocator() );
+        IoBuffer.setUseDirectBuffer( false );
     }
 
 

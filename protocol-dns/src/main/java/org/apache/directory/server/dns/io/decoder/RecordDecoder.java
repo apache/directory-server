@@ -24,7 +24,7 @@ package org.apache.directory.server.dns.io.decoder;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -42,5 +42,5 @@ public interface RecordDecoder
      * @return The map of attributes.
      * @throws IOException
      */
-    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException;
+    public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException;
 }

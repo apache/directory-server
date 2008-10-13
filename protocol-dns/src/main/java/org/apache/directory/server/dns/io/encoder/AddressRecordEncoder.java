@@ -26,7 +26,7 @@ import java.net.UnknownHostException;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -53,7 +53,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class AddressRecordEncoder extends ResourceRecordEncoder
 {
-    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
+    protected void putResourceRecordData( IoBuffer byteBuffer, ResourceRecord record )
     {
         String ipAddress = record.get( DnsAttribute.IP_ADDRESS );
 

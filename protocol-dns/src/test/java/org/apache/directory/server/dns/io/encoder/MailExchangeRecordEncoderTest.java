@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -56,7 +56,7 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     }
 
 
-    protected void putExpectedResourceData( ByteBuffer expectedData )
+    protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) 20 );
         expectedData.putShort( Short.parseShort( mxPreference ) );

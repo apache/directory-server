@@ -27,8 +27,6 @@ import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,16 +76,16 @@ public class DnsServer extends DirectoryBackedService
 
         if ( getDatagramAcceptor() != null )
         {
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), udpConfig );
+            getDatagramAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
 
         if ( getSocketAcceptor() != null )
         {
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
+            getSocketAcceptor().setCloseOnDeactivation( false );
+            getSocketAcceptor().setReuseAddress( true );
+            getSocketAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
         
         LOG.info( "DSN service started." );

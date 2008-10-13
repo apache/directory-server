@@ -26,12 +26,12 @@ import java.nio.charset.CharsetEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.mina.common.ByteBuffer;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
@@ -45,7 +45,7 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
+    protected void encodeBody( BaseMessage in, IoBuffer out ) throws Exception
     {
         // write out response code
         super.encodeBody( in, out );
@@ -61,7 +61,7 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    private void writeCSNVector( ByteBuffer out, CSNVector csns )
+    private void writeCSNVector( IoBuffer out, CSNVector csns )
     {
         Set<String> replicaIds = csns.getReplicaIds();
 

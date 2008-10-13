@@ -31,13 +31,11 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.SSLFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
-import org.apache.mina.util.SessionLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,14 +144,14 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // and degrade authentication level to 'anonymous' as specified
         // in the RFC, and this is no threat.
 
-        if ( message == SSLFilter.SESSION_SECURED )
+        if ( message == SslFilter.SESSION_SECURED )
         {
             ExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
             req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
-        else if ( message == SSLFilter.SESSION_UNSECURED )
+        else if ( message == SslFilter.SESSION_UNSECURED )
         {
             ExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
@@ -199,8 +197,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
             }                
         }
         
-        SessionLog.warn( session,
-            "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
+        LOG.warn( "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
         LdapSession ldapSession = this.ldapService.getLdapSessionManager().removeLdapSession( session );

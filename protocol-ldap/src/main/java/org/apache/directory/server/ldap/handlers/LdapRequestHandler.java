@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,6 +198,18 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         }
     }
 
+    
+    public final void handleMessage( IoSession session, T message ) throws Exception
+    {
+        LdapSession ldapSession = ldapService.getLdapSessionManager().getLdapSession( session );
+        
+        // TODO - session you get from LdapService should have the ldapService 
+        // member already set no?  Should remove these lines where ever they
+        // may be if that's the case.
+        ldapSession.setLdapServer( ldapService );
+        
+        handle( ldapSession, message );
+    }
     
     /**
      * Handle a Ldap message associated with a session

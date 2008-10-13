@@ -22,7 +22,7 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.ResponseMessage;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 public abstract class ResponseMessageEncoder extends BaseMessageEncoder
@@ -32,7 +32,7 @@ public abstract class ResponseMessageEncoder extends BaseMessageEncoder
     }
 
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
+    protected void encodeBody( BaseMessage in, IoBuffer out ) throws Exception
     {
         ResponseMessage m = ( ResponseMessage ) in;
         out.putInt( m.getResponseCode() );

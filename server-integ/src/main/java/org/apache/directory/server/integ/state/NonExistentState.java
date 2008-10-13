@@ -83,6 +83,7 @@ public class NonExistentState extends AbstractState
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new NamingException( e.getMessage() );
         }
     }

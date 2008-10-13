@@ -23,8 +23,8 @@ package org.apache.directory.mitosis.service.protocol.codec;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
@@ -44,7 +44,7 @@ public class LoginMessageDecoder extends BaseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, IoBuffer in ) throws Exception
     {
         return new LoginMessage( sequence, in.getString( utf8decoder ) );
     }

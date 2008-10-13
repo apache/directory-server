@@ -22,8 +22,6 @@ package org.apache.directory.server.ntp;
 
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -73,16 +71,16 @@ public class NtpServer extends AbstractProtocolService
         //If appropriate, the udp and tcp servers could be enabled with boolean flags.
         if ( getDatagramAcceptor() != null )
         {
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
+            getDatagramAcceptor().setHandler( new NtpProtocolHandler() );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
 
         if ( getSocketAcceptor() != null )
         {
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
+            getSocketAcceptor().setReuseAddress( true );
+            getSocketAcceptor().setCloseOnDeactivation( false );
+            getSocketAcceptor().setHandler( new NtpProtocolHandler() );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
     }
 

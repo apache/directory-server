@@ -21,6 +21,7 @@ package org.apache.directory.server.integ;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
@@ -34,8 +35,9 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.mina.transport.socket.nio.NioProcessor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 
 
@@ -69,7 +71,7 @@ public interface LdapServerFactory
 
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
-            ldapService.setSocketAcceptor( new SocketAcceptor( null ) );
+            ldapService.setSocketAcceptor( new NioSocketAcceptor( new NioProcessor( Executors.newCachedThreadPool() ) ) );
             ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
             ldapService.addExtendedOperationHandler( new StartTlsHandler() );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );

@@ -25,9 +25,11 @@ import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
 import org.apache.directory.shared.ldap.constants.SaslQoP;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoFilterAdapter;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.DefaultWriteRequest;
+import org.apache.mina.core.write.WriteRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,14 +97,14 @@ public class SaslFilter extends IoFilterAdapter
             /*
              * Get the buffer as bytes.  First 4 bytes are length as int.
              */
-            ByteBuffer buf = ( ByteBuffer ) message;
+            IoBuffer buf = ( IoBuffer ) message;
             int bufferLength = buf.getInt();
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
 
             log.debug( "Will use SASL to unwrap received message of length:  {}", bufferLength );
             byte[] token = saslServer.unwrap( bufferBytes, 0, bufferBytes.length );
-            nextFilter.messageReceived( session, ByteBuffer.wrap( token ) );
+            nextFilter.messageReceived( session, IoBuffer.wrap( token ) );
         }
         else
         {
@@ -134,14 +136,14 @@ public class SaslFilter extends IoFilterAdapter
         String qop = ( String ) saslServer.getNegotiatedProperty( Sasl.QOP );
         boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
 
-        ByteBuffer saslLayerBuffer = null;
+        IoBuffer saslLayerBuffer = null;
 
         if ( hasSecurityLayer )
         {
             /*
              * Get the buffer as bytes.
              */
-            ByteBuffer buf = ( ByteBuffer ) writeRequest.getMessage();
+            IoBuffer buf = ( IoBuffer ) writeRequest.getMessage();
             int bufferLength = buf.remaining();
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
@@ -153,14 +155,14 @@ public class SaslFilter extends IoFilterAdapter
             /*
              * Prepend 4 byte length.
              */
-            saslLayerBuffer = ByteBuffer.allocate( 4 + saslLayer.length );
+            saslLayerBuffer = IoBuffer.allocate( 4 + saslLayer.length );
             saslLayerBuffer.putInt( saslLayer.length );
             saslLayerBuffer.put( saslLayer );
             saslLayerBuffer.position( 0 );
             saslLayerBuffer.limit( 4 + saslLayer.length );
 
             log.debug( "Sending encrypted token of length {}.", saslLayerBuffer.limit() );
-            nextFilter.filterWrite( session, new WriteRequest( saslLayerBuffer, writeRequest.getFuture() ) );
+            nextFilter.filterWrite( session, new DefaultWriteRequest( saslLayerBuffer, writeRequest.getFuture() ) );
         }
         else
         {

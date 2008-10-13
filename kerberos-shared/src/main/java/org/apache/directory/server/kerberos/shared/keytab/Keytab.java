@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -66,7 +66,7 @@ public class Keytab
      */
     public static Keytab read( File file ) throws IOException
     {
-        ByteBuffer buffer = ByteBuffer.wrap( getBytesFromFile( file ) );
+        IoBuffer buffer = IoBuffer.wrap( getBytesFromFile( file ) );
         return readKeytab( buffer );
     }
 
@@ -92,7 +92,7 @@ public class Keytab
     public void write( File file ) throws IOException
     {
         KeytabEncoder writer = new KeytabEncoder();
-        ByteBuffer buffer = writer.write( keytabVersion, entries );
+        IoBuffer buffer = writer.write( keytabVersion, entries );
         writeFile( buffer, file );
     }
 
@@ -141,7 +141,7 @@ public class Keytab
      */
     static Keytab read( byte[] bytes )
     {
-        ByteBuffer buffer = ByteBuffer.wrap( bytes );
+        IoBuffer buffer = IoBuffer.wrap( bytes );
         return readKeytab( buffer );
     }
 
@@ -150,7 +150,7 @@ public class Keytab
      * Write the keytab to a {@link ByteBuffer}.
      * @return The buffer.
      */
-    ByteBuffer write()
+    IoBuffer write()
     {
         KeytabEncoder writer = new KeytabEncoder();
         return writer.write( keytabVersion, entries );
@@ -163,7 +163,7 @@ public class Keytab
      * @param buffer
      * @return The keytab.
      */
-    private static Keytab readKeytab( ByteBuffer buffer )
+    private static Keytab readKeytab( IoBuffer buffer )
     {
         KeytabDecoder reader = new KeytabDecoder();
         byte[] keytabVersion = reader.getKeytabVersion( buffer );
@@ -227,7 +227,7 @@ public class Keytab
      * @param file
      * @throws IOException
      */
-    protected void writeFile( ByteBuffer buffer, File file ) throws IOException
+    protected void writeFile( IoBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
         FileChannel wChannel = new FileOutputStream( file, false ).getChannel();

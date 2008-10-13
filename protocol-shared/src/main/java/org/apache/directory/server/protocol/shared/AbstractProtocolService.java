@@ -20,6 +20,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,8 +44,8 @@ public abstract class AbstractProtocolService implements ProtocolService
     private String ipAddress;
     private int ipPort = -1;
     private Set<TransportProtocol> transportProtocols;
-    private DatagramAcceptor datagramAcceptor;
-    private SocketAcceptor socketAcceptor;
+    private NioDatagramAcceptor datagramAcceptor;
+    private NioSocketAcceptor socketAcceptor;
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
 
@@ -151,25 +153,25 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
-    public DatagramAcceptor getDatagramAcceptor()
+    public NioDatagramAcceptor getDatagramAcceptor()
     {
         return datagramAcceptor;
     }
 
 
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
+    public void setDatagramAcceptor( NioDatagramAcceptor datagramAcceptor )
     {
         this.datagramAcceptor = datagramAcceptor;
     }
 
 
-    public SocketAcceptor getSocketAcceptor()
+    public NioSocketAcceptor getSocketAcceptor()
     {
         return socketAcceptor;
     }
 
 
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
+    public void setSocketAcceptor( NioSocketAcceptor socketAcceptor )
     {
         this.socketAcceptor = socketAcceptor;
     }

@@ -26,8 +26,8 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncode
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcReplyEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
@@ -44,7 +44,7 @@ public class KerberosUdpEncoder extends ProtocolEncoderAdapter
 
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
-        ByteBuffer buf = ByteBuffer.allocate( 1024 );
+        IoBuffer buf = IoBuffer.allocate( 1024 );
 
         if ( message instanceof KdcReply )
         {
