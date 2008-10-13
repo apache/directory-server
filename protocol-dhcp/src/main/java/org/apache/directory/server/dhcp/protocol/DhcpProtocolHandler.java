@@ -26,9 +26,10 @@ import java.net.InetSocketAddress;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.apache.directory.server.dhcp.messages.MessageType;
 import org.apache.directory.server.dhcp.service.DhcpService;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.BroadcastIoSession;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +110,7 @@ public class DhcpProtocolHandler implements IoHandler {
 
         if (null != reply) {
             final InetSocketAddress isa = determineMessageDestination(request, reply);
-            session.write(reply, isa);
+            ((BroadcastIoSession) session).write(reply, isa);
         }
     }
 

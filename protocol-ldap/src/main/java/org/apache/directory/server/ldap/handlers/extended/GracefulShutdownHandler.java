@@ -36,9 +36,9 @@ import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownResponse;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.WriteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
         IoAcceptor acceptor = ( IoAcceptor ) requestor.getIoSession().getService();
         List<IoSession> sessions = new ArrayList<IoSession>(
-                acceptor.getManagedSessions().values() );
+                acceptor.getManagedSessions( requestor.getIoSession().getServiceAddress() ) );
         GracefulShutdownRequest gsreq = ( GracefulShutdownRequest ) req;
 
         // build the graceful disconnect message with replicationContexts
@@ -142,7 +142,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     {
         GracefulShutdownResponse msg = new GracefulShutdownResponse( messageId, ResultCodeEnum.SUCCESS );
         WriteFuture future = requestor.write( msg );
-        future.awaitUninterruptibly();
+        future.join();
         if ( future.isWritten() )
         {
             if ( LOG.isInfoEnabled() )

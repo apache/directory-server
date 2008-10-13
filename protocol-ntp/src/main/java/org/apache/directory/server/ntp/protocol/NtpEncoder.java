@@ -23,8 +23,8 @@ package org.apache.directory.server.ntp.protocol;
 
 import org.apache.directory.server.ntp.io.NtpMessageEncoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
@@ -39,7 +39,7 @@ public class NtpEncoder extends ProtocolEncoderAdapter
     {
         NtpMessageEncoder encoder = new NtpMessageEncoder();
 
-        IoBuffer buf = IoBuffer.allocate( 1024 );
+        ByteBuffer buf = ByteBuffer.allocate( 1024 );
         encoder.encode( buf.buf(), ( NtpMessage ) message );
 
         buf.flip();

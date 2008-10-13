@@ -27,8 +27,8 @@ import org.apache.directory.server.changepw.io.ChangePasswordErrorEncoder;
 import org.apache.directory.server.changepw.io.ChangePasswordReplyEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordReply;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
@@ -41,7 +41,7 @@ public class ChangePasswordUdpEncoder extends ProtocolEncoderAdapter
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
-        IoBuffer buf = IoBuffer.allocate( 512 );
+        ByteBuffer buf = ByteBuffer.allocate( 512 );
 
         if ( message instanceof ChangePasswordReply )
         {
@@ -61,7 +61,7 @@ public class ChangePasswordUdpEncoder extends ProtocolEncoderAdapter
     }
 
 
-    private void encodeReply( ChangePasswordReply reply, IoBuffer buf ) throws IOException
+    private void encodeReply( ChangePasswordReply reply, ByteBuffer buf ) throws IOException
     {
         ChangePasswordReplyEncoder encoder = new ChangePasswordReplyEncoder();
 
@@ -69,7 +69,7 @@ public class ChangePasswordUdpEncoder extends ProtocolEncoderAdapter
     }
 
 
-    private void encodeError( ChangePasswordError error, IoBuffer buf ) throws IOException
+    private void encodeError( ChangePasswordError error, ByteBuffer buf ) throws IOException
     {
         ChangePasswordErrorEncoder encoder = new ChangePasswordErrorEncoder();
 

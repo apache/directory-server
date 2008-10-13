@@ -26,7 +26,7 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerContextHandler;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.IoSession;
 
 
 /**

@@ -24,7 +24,7 @@ package org.apache.directory.server.dns.io.encoder;
 import java.io.IOException;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -40,5 +40,5 @@ public interface RecordEncoder
      * @param record
      * @throws IOException
      */
-    public void put( IoBuffer buffer, ResourceRecord record ) throws IOException;
+    public void put( ByteBuffer buffer, ResourceRecord record ) throws IOException;
 }

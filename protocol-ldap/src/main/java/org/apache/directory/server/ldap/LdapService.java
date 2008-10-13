@@ -64,13 +64,15 @@ import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.filterchain.IoFilterChainBuilder;
-import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.DefaultIoFilterChainBuilder;
+import org.apache.mina.common.IoFilterChainBuilder;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.ThreadModel;
+import org.apache.mina.common.WriteFuture;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.handler.demux.MessageHandler;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -352,7 +354,7 @@ public class LdapService extends DirectoryBackedService
             try
             {
                 sessions = new ArrayList<IoSession>(
-                        getSocketAcceptor().getManagedSessions().values() );
+                        getSocketAcceptor().getManagedSessions( new InetSocketAddress( getIpPort() ) ) );
             }
             catch ( IllegalArgumentException e )
             {
@@ -382,7 +384,7 @@ public class LdapService extends DirectoryBackedService
 
             for ( WriteFuture future:writeFutures )
             {
-                future.await( 1000L );
+                future.join( 1000 );
                 sessionIt.next().close();
             }
         }
@@ -420,12 +422,17 @@ public class LdapService extends DirectoryBackedService
 
         try
         {
+            SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
+
             // Disable the disconnection of the clients on unbind
-            getSocketAcceptor().setCloseOnDeactivation( false );
-            getSocketAcceptor().getSessionConfig().setTcpNoDelay( true );
-            getSocketAcceptor().setFilterChainBuilder( chainBuilder );
-            getSocketAcceptor().setHandler( getHandler() );
-            getSocketAcceptor().bind( new InetSocketAddress( port ) );
+            acceptorCfg.setDisconnectOnUnbind( false );
+            acceptorCfg.setReuseAddress( true );
+            acceptorCfg.setFilterChainBuilder( chainBuilder );
+            acceptorCfg.setThreadModel( ThreadModel.MANUAL );
+
+            acceptorCfg.getSessionConfig().setTcpNoDelay( true );
+
+            getSocketAcceptor().bind( new InetSocketAddress( port ), getHandler(), acceptorCfg );
             started = true;
 
             if ( LOG.isInfoEnabled() )
@@ -869,10 +876,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
     {
-        this.handler.removeReceivedMessageHandler( AbandonRequest.class );
+        this.handler.removeMessageHandler( AbandonRequest.class );
         this.abandonHandler = abandonHandler;
         this.abandonHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( AbandonRequest.class, this.abandonHandler );
+        this.handler.addMessageHandler( AbandonRequest.class, this.abandonHandler );
     }
 
 
@@ -884,10 +891,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
-        this.handler.removeReceivedMessageHandler( AddRequest.class );
+        this.handler.removeMessageHandler( AddRequest.class );
         this.addHandler = addHandler;
         this.addHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( AddRequest.class, this.addHandler );
+        this.handler.addMessageHandler( AddRequest.class, this.addHandler );
     }
 
 
@@ -899,10 +906,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
-        this.handler.removeReceivedMessageHandler( BindRequest.class );
+        this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
+        this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
     }
 
 
@@ -914,10 +921,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
-        this.handler.removeReceivedMessageHandler( CompareRequest.class );
+        this.handler.removeMessageHandler( CompareRequest.class );
         this.compareHandler = compareHandler;
         this.compareHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( CompareRequest.class, this.compareHandler );
+        this.handler.addMessageHandler( CompareRequest.class, this.compareHandler );
     }
 
 
@@ -929,10 +936,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
-        this.handler.removeReceivedMessageHandler( DeleteRequest.class );
+        this.handler.removeMessageHandler( DeleteRequest.class );
         this.deleteHandler = deleteHandler;
         this.deleteHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( DeleteRequest.class, this.deleteHandler );
+        this.handler.addMessageHandler( DeleteRequest.class, this.deleteHandler );
     }
 
 
@@ -944,10 +951,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
-        this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
+        this.handler.removeMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
         this.extendedHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ExtendedRequest.class, this.extendedHandler );
+        this.handler.addMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
 
 
@@ -959,10 +966,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
-        this.handler.removeReceivedMessageHandler( ModifyRequest.class );
+        this.handler.removeMessageHandler( ModifyRequest.class );
         this.modifyHandler = modifyHandler;
         this.modifyHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ModifyRequest.class, this.modifyHandler );
+        this.handler.addMessageHandler( ModifyRequest.class, this.modifyHandler );
     }
 
 
@@ -974,10 +981,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
-        this.handler.removeReceivedMessageHandler( ModifyDnRequest.class );
+        this.handler.removeMessageHandler( ModifyDnRequest.class );
         this.modifyDnHandler = modifyDnHandler;
         this.modifyDnHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
+        this.handler.addMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
     }
 
 
@@ -989,10 +996,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
-        this.handler.removeReceivedMessageHandler( SearchRequest.class );
+        this.handler.removeMessageHandler( SearchRequest.class );
         this.searchHandler = searchHandler;
         this.searchHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( SearchRequest.class, this.searchHandler );
+        this.handler.addMessageHandler( SearchRequest.class, this.searchHandler );
     }
 
 
@@ -1004,10 +1011,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {
-        this.handler.removeReceivedMessageHandler( UnbindRequest.class );
+        this.handler.removeMessageHandler( UnbindRequest.class );
         this.unbindHandler = unbindHandler;
         this.unbindHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( UnbindRequest.class, this.unbindHandler );
+        this.handler.addMessageHandler( UnbindRequest.class, this.unbindHandler );
     }
 
 

@@ -26,8 +26,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.apache.directory.server.protocol.shared.DatagramAcceptor;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +62,8 @@ public class Main
     {
         LOG.debug( "Starting the DNS server" );
         
-        NioDatagramAcceptor datagramAcceptor = new NioDatagramAcceptor( null );
-        NioSocketAcceptor socketAcceptor = new NioSocketAcceptor( null );
+        DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
+        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
         DirectoryService directoryService = new DefaultDirectoryService();
         dnsConfiguration = new DnsServer();
         dnsConfiguration.setDatagramAcceptor( datagramAcceptor );

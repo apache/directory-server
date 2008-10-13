@@ -38,7 +38,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -151,7 +151,7 @@ public class KeytabTest extends TestCase
 
         Keytab writer = Keytab.getInstance();
         writer.setEntries( entries );
-        IoBuffer buffer = writer.write();
+        ByteBuffer buffer = writer.write();
         assertEquals( "Expected file size.", 130, buffer.limit() );
     }
 

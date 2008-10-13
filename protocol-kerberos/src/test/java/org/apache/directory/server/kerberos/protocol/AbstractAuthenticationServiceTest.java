@@ -41,14 +41,14 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AbstractIoSession;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoService;
+import org.apache.mina.common.IoServiceConfig;
+import org.apache.mina.common.IoSessionConfig;
+import org.apache.mina.common.TransportType;
+import org.apache.mina.common.WriteFuture;
+import org.apache.mina.common.support.BaseIoSession;
 
 
 /**
@@ -122,14 +122,17 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         return key;
     }
 
-    protected static class DummySession extends AbstractIoSession
+    protected static class DummySession extends BaseIoSession
     {
         Object message;
 
 
-        public IoProcessor<IoSession> getProcessor()
+        @Override
+        public WriteFuture write( Object message )
         {
-            return null;
+            this.message = message;
+
+            return super.write( message );
         }
 
 
@@ -163,7 +166,7 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         }
 
 
-        public TransportMetadata getTransportMetadata()
+        public TransportType getTransportType()
         {
             return null;
         }
@@ -196,6 +199,18 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         public SocketAddress getServiceAddress()
         {
             return null;
+        }
+
+
+        public IoServiceConfig getServiceConfig()
+        {
+            return null;
+        }
+
+
+        public int getScheduledWriteBytes()
+        {
+            return 0;
         }
     }
 }

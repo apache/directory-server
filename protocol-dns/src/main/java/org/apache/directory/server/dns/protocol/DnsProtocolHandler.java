@@ -34,9 +34,10 @@ import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.service.DnsContext;
 import org.apache.directory.server.dns.service.DomainNameService;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,10 +73,10 @@ public class DnsProtocolHandler implements IoHandler
     {
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
+            LOG.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
         }
 
-        if ( session.getTransportMetadata().isConnectionless() )
+        if ( session.getTransportType() == TransportType.DATAGRAM )
         {
             session.getFilterChain().addFirst( "codec",
                 new ProtocolCodecFilter( DnsProtocolUdpCodecFactory.getInstance() ) );

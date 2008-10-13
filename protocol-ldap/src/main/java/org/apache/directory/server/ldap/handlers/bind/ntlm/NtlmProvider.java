@@ -19,7 +19,8 @@
  */
 package org.apache.directory.server.ldap.handlers.bind.ntlm;
 
-import org.apache.mina.core.session.IoSession;
+
+import org.apache.mina.common.IoSession;
 
 
 /**

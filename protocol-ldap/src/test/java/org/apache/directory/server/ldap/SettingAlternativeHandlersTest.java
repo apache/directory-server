@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.IoSession;
 
 
 /**

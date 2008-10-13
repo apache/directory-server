@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -54,7 +54,7 @@ public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTe
     }
 
 
-    protected void putExpectedResourceData( IoBuffer expectedData )
+    protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 19 );
         expectedData.put( ( byte ) nsParts[0].length() ); // 1

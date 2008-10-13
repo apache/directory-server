@@ -66,9 +66,11 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.mina.filter.logging.LoggingFilter;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +164,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     private PartitionNexus nexus;
     private OperationFactory operationFactory;
     private ReplicationStore store;
-    private NioSocketAcceptor registry;
+    private IoAcceptor registry;
     private final ClientConnectionManager clientConnectionManager = new ClientConnectionManager( this );
     private Registries registries;
 
@@ -252,16 +254,18 @@ public class ReplicationInterceptor extends BaseInterceptor
 
     private void startNetworking() throws Exception
     {
-        registry = new NioSocketAcceptor();
-        registry.setReuseAddress( true );
-        registry.getFilterChain().addLast( "protocol",
+        registry = new SocketAcceptor();
+        SocketAcceptorConfig config = new SocketAcceptorConfig();
+        config.setReuseAddress( true );
+
+        config.getFilterChain().addLast( "protocol",
             new ProtocolCodecFilter( new ReplicationServerProtocolCodecFactory() ) );
 
-        registry.getFilterChain().addLast( "logger", new LoggingFilter() );
-        registry.setHandler( new ReplicationServerProtocolHandler( this  ) );
-        
+        config.getFilterChain().addLast( "logger", new LoggingFilter() );
+
         // bind server protocol provider
-        registry.bind( new InetSocketAddress( configuration.getServerPort() ) );
+        registry.bind( new InetSocketAddress( configuration.getServerPort() ), new ReplicationServerProtocolHandler(
+            this ), config );
 
         clientConnectionManager.start( configuration );
     }
@@ -286,7 +290,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             LOG.error( "[Replica-{}] Failed to stop the client connection manager.", configuration.getReplicaId() );
             LOG.error( "Stop failure exception: ", e );
         }
-        registry.unbind();
+        registry.unbindAll();
     }
 
 

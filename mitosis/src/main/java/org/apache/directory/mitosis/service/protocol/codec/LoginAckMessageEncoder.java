@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 public class LoginAckMessageEncoder extends ResponseMessageEncoder
@@ -48,7 +48,7 @@ public class LoginAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    protected void encodeBody( BaseMessage in, IoBuffer out ) throws Exception
+    protected void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception
     {
         LoginAckMessage m = ( LoginAckMessage ) in;
         super.encodeBody( in, out );

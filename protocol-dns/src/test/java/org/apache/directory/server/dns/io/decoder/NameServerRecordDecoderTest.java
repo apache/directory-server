@@ -26,7 +26,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -37,7 +37,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public class NameServerRecordDecoderTest extends TestCase
 {
-    IoBuffer inputBuffer;
+    ByteBuffer inputBuffer;
 
     String domainName = "ns.hyperreal.org";
     String[] domainNameParts = new String[]
@@ -48,7 +48,7 @@ public class NameServerRecordDecoderTest extends TestCase
 
     public void setUp()
     {
-        inputBuffer = IoBuffer.allocate( 128 );
+        inputBuffer = ByteBuffer.allocate( 128 );
         inputBuffer.put( ( byte ) domainNameParts[0].length() );
         inputBuffer.put( domainNameParts[0].getBytes() );
         inputBuffer.put( ( byte ) domainNameParts[1].length() );

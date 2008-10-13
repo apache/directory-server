@@ -23,7 +23,7 @@ package org.apache.directory.server.dns.io.encoder;
 
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 /**
  * 3.3.13. SOA RDATA format
@@ -96,7 +96,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public class StartOfAuthorityRecordEncoder extends ResourceRecordEncoder
 {
-    protected void putResourceRecordData( IoBuffer byteBuffer, ResourceRecord record )
+    protected void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record )
     {
         String mName = record.get( DnsAttribute.SOA_M_NAME );
         String rName = record.get( DnsAttribute.SOA_R_NAME );

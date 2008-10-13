@@ -20,8 +20,6 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.util.Set;
 
@@ -64,7 +62,7 @@ public interface ProtocolService
      *
      * @return the MINA DatagramAcceptor used for UDP transports
      */
-    NioDatagramAcceptor getDatagramAcceptor();
+    DatagramAcceptor getDatagramAcceptor();
 
 
     /**
@@ -73,7 +71,7 @@ public interface ProtocolService
      *
      * @param datagramAcceptor the MINA DatagramAcceptor used for UDP transport
      */
-    void setDatagramAcceptor( NioDatagramAcceptor datagramAcceptor );
+    void setDatagramAcceptor( DatagramAcceptor datagramAcceptor );
 
 
     /**
@@ -82,7 +80,7 @@ public interface ProtocolService
      *
      * @return the MINA SocketAcceptor used for TCP transport
      */
-    NioSocketAcceptor getSocketAcceptor();
+    SocketAcceptor getSocketAcceptor();
 
 
     /**
@@ -91,7 +89,7 @@ public interface ProtocolService
      *
      * @param socketAcceptor the MINA SocketAcceptor used for TCP transport
      */
-    void setSocketAcceptor( NioSocketAcceptor socketAcceptor );
+    void setSocketAcceptor( SocketAcceptor socketAcceptor );
 
 
     /**

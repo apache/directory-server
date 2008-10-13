@@ -24,7 +24,7 @@ package org.apache.directory.server.dns.io.encoder;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -39,7 +39,7 @@ public class QuestionRecordEncoder
      * @param out
      * @param question
      */
-    public void put( IoBuffer out, QuestionRecord question )
+    public void put( ByteBuffer out, QuestionRecord question )
     {
         encodeDomainName( out, question.getDomainName() );
         encodeRecordType( out, question.getRecordType() );
@@ -47,7 +47,7 @@ public class QuestionRecordEncoder
     }
 
 
-    private void encodeDomainName( IoBuffer byteBuffer, String domainName )
+    private void encodeDomainName( ByteBuffer byteBuffer, String domainName )
     {
         String[] labels = domainName.split( "\\." );
 
@@ -66,13 +66,13 @@ public class QuestionRecordEncoder
     }
 
 
-    private void encodeRecordType( IoBuffer byteBuffer, RecordType recordType )
+    private void encodeRecordType( ByteBuffer byteBuffer, RecordType recordType )
     {
         byteBuffer.putShort( recordType.convert() );
     }
 
 
-    private void encodeRecordClass( IoBuffer byteBuffer, RecordClass recordClass )
+    private void encodeRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
     {
         byteBuffer.putShort( recordClass.convert() );
     }

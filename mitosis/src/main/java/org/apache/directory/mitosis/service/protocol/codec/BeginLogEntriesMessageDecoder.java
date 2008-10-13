@@ -24,8 +24,8 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
@@ -38,7 +38,7 @@ public class BeginLogEntriesMessageDecoder extends BaseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, IoBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception
     {
         return new BeginLogEntriesMessage( sequence );
     }

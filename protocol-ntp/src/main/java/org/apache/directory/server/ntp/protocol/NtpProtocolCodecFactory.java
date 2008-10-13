@@ -21,7 +21,6 @@
 package org.apache.directory.server.ntp.protocol;
 
 
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -53,14 +52,14 @@ public class NtpProtocolCodecFactory implements ProtocolCodecFactory
     }
 
 
-    public ProtocolEncoder getEncoder( IoSession session )
+    public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new NtpEncoder();
     }
 
 
-    public ProtocolDecoder getDecoder( IoSession session )
+    public ProtocolDecoder getDecoder()
     {
         // Create a new decoder.
         return new NtpDecoder();

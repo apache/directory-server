@@ -21,7 +21,8 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 
 import org.apache.directory.mitosis.service.ReplicationContext;
-import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.common.IdleStatus;
+import org.apache.mina.common.IoHandler;
 
 /**
  * An interface that provides handler methods for events which occurs

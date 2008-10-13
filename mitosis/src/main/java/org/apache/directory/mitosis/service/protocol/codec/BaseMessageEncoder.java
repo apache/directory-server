@@ -21,8 +21,8 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 
@@ -37,7 +37,7 @@ public abstract class BaseMessageEncoder implements MessageEncoder
     public final void encode( IoSession session, Object in, ProtocolEncoderOutput out ) throws Exception
     {
         BaseMessage m = ( BaseMessage ) in;
-        IoBuffer buf = IoBuffer.allocate( 16 );
+        ByteBuffer buf = ByteBuffer.allocate( 16 );
         buf.setAutoExpand( true );
         buf.put( ( byte ) m.getType() );
         buf.putInt( m.getSequence() );
@@ -58,5 +58,5 @@ public abstract class BaseMessageEncoder implements MessageEncoder
     }
 
 
-    protected abstract void encodeBody( BaseMessage in, IoBuffer out ) throws Exception;
+    protected abstract void encodeBody( BaseMessage in, ByteBuffer out ) throws Exception;
 }

@@ -20,10 +20,6 @@
 package org.apache.directory.mitosis.service.protocol.codec;
 
 
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 
 
@@ -32,14 +28,14 @@ public class ReplicationClientProtocolCodecFactory extends DemuxingProtocolCodec
 
     public ReplicationClientProtocolCodecFactory()
     {
-        addMessageEncoder( LogEntryMessage.class, LogEntryMessageEncoder.class );
-        addMessageEncoder( LoginMessage.class, LoginMessageEncoder.class );
-        addMessageEncoder( BeginLogEntriesMessage.class, BeginLogEntriesMessageEncoder.class );
-        addMessageEncoder( EndLogEntriesMessage.class, EndLogEntriesMessageEncoder.class );
+        register( LogEntryMessageEncoder.class );
+        register( LoginMessageEncoder.class );
+        register( BeginLogEntriesMessageEncoder.class );
+        register( EndLogEntriesMessageEncoder.class );
 
-        addMessageDecoder( LogEntryAckMessageDecoder.class );
-        addMessageDecoder( LoginAckMessageDecoder.class );
-        addMessageDecoder( BeginLogEntriesAckMessageDecoder.class );
-        addMessageDecoder( EndLogEntriesAckMessageDecoder.class );
+        register( LogEntryAckMessageDecoder.class );
+        register( LoginAckMessageDecoder.class );
+        register( BeginLogEntriesAckMessageDecoder.class );
+        register( EndLogEntriesAckMessageDecoder.class );
     }
 }

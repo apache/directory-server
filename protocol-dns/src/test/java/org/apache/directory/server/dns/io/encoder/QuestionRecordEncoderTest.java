@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -37,7 +37,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public class QuestionRecordEncoderTest extends TestCase
 {
-    IoBuffer expectedData;
+    ByteBuffer expectedData;
 
     QuestionRecordEncoder encoder;
 
@@ -53,7 +53,7 @@ public class QuestionRecordEncoderTest extends TestCase
     {
         encoder = new QuestionRecordEncoder();
 
-        expectedData = IoBuffer.allocate( 128 );
+        expectedData = ByteBuffer.allocate( 128 );
         expectedData.put( ( byte ) nameParts[0].length() ); // 1
         expectedData.put( nameParts[0].getBytes() ); // + 3
         expectedData.put( ( byte ) nameParts[1].length() ); // + 1
@@ -68,7 +68,7 @@ public class QuestionRecordEncoderTest extends TestCase
 
     public void testEncode()
     {
-        IoBuffer out = IoBuffer.allocate( 128 );
+        ByteBuffer out = ByteBuffer.allocate( 128 );
         encoder.put( out, record );
         assertEquals( expectedData, out );
     }

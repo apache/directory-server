@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -63,7 +63,7 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
 
 
     @Override
-    protected void putExpectedResourceData( IoBuffer expectedData )
+    protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 22 );
         expectedData.putShort( Short.parseShort( priority ) );

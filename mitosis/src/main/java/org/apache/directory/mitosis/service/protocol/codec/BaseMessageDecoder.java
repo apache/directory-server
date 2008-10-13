@@ -22,8 +22,8 @@ package org.apache.directory.mitosis.service.protocol.codec;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
@@ -48,13 +48,13 @@ public abstract class BaseMessageDecoder implements MessageDecoder
     }
 
 
-    public final MessageDecoderResult decodable( IoSession session, IoBuffer buf )
+    public final MessageDecoderResult decodable( IoSession session, ByteBuffer buf )
     {
         return type == buf.get() ? OK : NOT_OK;
     }
 
 
-    public final MessageDecoderResult decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out )
+    public final MessageDecoderResult decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out )
         throws Exception
     {
         if ( !readHeader )
@@ -104,5 +104,5 @@ public abstract class BaseMessageDecoder implements MessageDecoder
     }
 
 
-    protected abstract BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, IoBuffer in ) throws Exception;
+    protected abstract BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, ByteBuffer in ) throws Exception;
 }

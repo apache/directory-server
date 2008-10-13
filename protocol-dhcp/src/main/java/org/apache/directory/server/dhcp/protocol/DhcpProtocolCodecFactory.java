@@ -21,7 +21,6 @@
 package org.apache.directory.server.dhcp.protocol;
 
 
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -47,14 +46,14 @@ public class DhcpProtocolCodecFactory implements ProtocolCodecFactory
     }
 
 
-    public ProtocolEncoder getEncoder( IoSession session )
+    public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
         return new DhcpEncoder();
     }
 
 
-    public ProtocolDecoder getDecoder( IoSession session )
+    public ProtocolDecoder getDecoder()
     {
         // Create a new decoder.
         return new DhcpDecoder();

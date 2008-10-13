@@ -27,7 +27,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -39,7 +39,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 public class IPv6RecordDecoderTest extends TestCase
 {
     InetAddress address;
-    IoBuffer inputBuffer;
+    ByteBuffer inputBuffer;
 
     IPv6RecordDecoder decoder;
 
@@ -47,7 +47,7 @@ public class IPv6RecordDecoderTest extends TestCase
     public void setUp() throws Exception
     {
         address = InetAddress.getByName( "0:0:0:0:0:0:0:1" );
-        inputBuffer = IoBuffer.allocate( address.getAddress().length );
+        inputBuffer = ByteBuffer.allocate( address.getAddress().length );
         inputBuffer.put( address.getAddress() );
         inputBuffer.flip();
 

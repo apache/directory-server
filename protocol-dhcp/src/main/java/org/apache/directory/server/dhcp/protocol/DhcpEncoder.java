@@ -23,8 +23,8 @@ package org.apache.directory.server.dhcp.protocol;
 
 import org.apache.directory.server.dhcp.io.DhcpMessageEncoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
@@ -41,7 +41,7 @@ public class DhcpEncoder implements ProtocolEncoder
 
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
-        IoBuffer buf = IoBuffer.allocate( 1024 );
+        ByteBuffer buf = ByteBuffer.allocate( 1024 );
         encoder.encode( buf.buf(), ( DhcpMessage ) message );
 
         buf.flip();

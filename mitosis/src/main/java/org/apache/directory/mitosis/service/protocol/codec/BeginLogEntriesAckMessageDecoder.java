@@ -30,8 +30,8 @@ import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
@@ -48,7 +48,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
     }
 
 
-    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, int responseCode, IoBuffer in ) throws Exception
+    protected BaseMessage decodeBody( Registries registries, int sequence, int bodyLength, int responseCode, ByteBuffer in ) throws Exception
     {
         if ( responseCode != Constants.OK )
         {
@@ -65,7 +65,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
     }
 
 
-    private void readCSNVector( IoBuffer in, CSNVector updateVector ) throws Exception
+    private void readCSNVector( ByteBuffer in, CSNVector updateVector ) throws Exception
     {
         int nReplicas = in.getInt();
         

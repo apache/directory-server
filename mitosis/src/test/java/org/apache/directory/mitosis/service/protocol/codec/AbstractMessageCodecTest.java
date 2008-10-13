@@ -29,20 +29,20 @@ import junit.framework.Assert;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AbstractIoSession;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
-import org.apache.mina.filter.codec.AbstractProtocolEncoderOutput;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoService;
+import org.apache.mina.common.IoServiceConfig;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.IoSessionConfig;
+import org.apache.mina.common.TransportType;
+import org.apache.mina.common.WriteFuture;
+import org.apache.mina.common.support.BaseIoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
+import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -87,9 +87,9 @@ public abstract class AbstractMessageCodecTest
     @Test 
     public void testMessageCodec() throws Exception
     {
-        AbstractProtocolEncoderOutput encoderOut = new AbstractProtocolEncoderOutput()
+        SimpleProtocolEncoderOutput encoderOut = new SimpleProtocolEncoderOutput()
         {
-            public WriteFuture flush()
+            protected WriteFuture doFlush( ByteBuffer buf )
             {
                 return null;
             }
@@ -100,7 +100,7 @@ public abstract class AbstractMessageCodecTest
         
         session.setAttribute( "registries", service.getRegistries() );
         encoder.encode( session, message, encoderOut );
-        IoBuffer buf = (IoBuffer)encoderOut.getMessageQueue().poll();
+        ByteBuffer buf = encoderOut.getBufferQueue().poll();
 
         buf.mark();
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );
@@ -135,17 +135,20 @@ public abstract class AbstractMessageCodecTest
     }
 
 
-    protected static class DummySession extends AbstractIoSession
+    protected static class DummySession extends BaseIoSession
     {
         Object message;
 
 
-        public IoProcessor<IoSession> getProcessor()
+        @Override
+        public WriteFuture write( Object message )
         {
-            return null;
+            this.message = message;
+
+            return super.write( message );
         }
-        
-        
+
+
         protected Object getMessage()
         {
             return message;
@@ -176,7 +179,7 @@ public abstract class AbstractMessageCodecTest
         }
 
 
-        public TransportMetadata getTransportMetadata()
+        public TransportType getTransportType()
         {
             return null;
         }
@@ -209,6 +212,18 @@ public abstract class AbstractMessageCodecTest
         public SocketAddress getServiceAddress()
         {
             return null;
+        }
+
+
+        public IoServiceConfig getServiceConfig()
+        {
+            return null;
+        }
+
+
+        public int getScheduledWriteBytes()
+        {
+            return 0;
         }
     }
 }

@@ -29,7 +29,7 @@ import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.mina.core.session.IoSession;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

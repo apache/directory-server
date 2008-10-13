@@ -27,11 +27,11 @@ import java.util.List;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
- * Decode a {@link IoBuffer} into keytab fields.
+ * Decode a {@link ByteBuffer} into keytab fields.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -42,7 +42,7 @@ class KeytabDecoder
      * Read the keytab 16-bit file format version.  This
      * keytab reader currently only supports version 5.2.
      */
-    byte[] getKeytabVersion( IoBuffer buffer )
+    byte[] getKeytabVersion( ByteBuffer buffer )
     {
         byte[] version = new byte[2];
         buffer.get( version );
@@ -58,7 +58,7 @@ class KeytabDecoder
      * @param buffer
      * @return The keytab entries.
      */
-    List<KeytabEntry> getKeytabEntries( IoBuffer buffer )
+    List<KeytabEntry> getKeytabEntries( ByteBuffer buffer )
     {
         List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
 
@@ -68,7 +68,7 @@ class KeytabDecoder
             byte[] entry = new byte[size];
 
             buffer.get( entry );
-            entries.add( getKeytabEntry( IoBuffer.wrap( entry ) ) );
+            entries.add( getKeytabEntry( ByteBuffer.wrap( entry ) ) );
         }
 
         return entries;
@@ -79,7 +79,7 @@ class KeytabDecoder
      * Reads off a "keytab entry," which consists of a principal name,
      * principal type, key version number, and key material.
      */
-    private KeytabEntry getKeytabEntry( IoBuffer buffer )
+    private KeytabEntry getKeytabEntry( ByteBuffer buffer )
     {
         String principalName = getPrincipalName( buffer );
 
@@ -102,7 +102,7 @@ class KeytabDecoder
      * @param buffer
      * @return The principal name.
      */
-    private String getPrincipalName( IoBuffer buffer )
+    private String getPrincipalName( ByteBuffer buffer )
     {
         int count = buffer.getUnsignedShort();
 
@@ -132,7 +132,7 @@ class KeytabDecoder
     /**
      * Read off a 16-bit encryption type and symmetric key material.
      */
-    private EncryptionKey getKeyBlock( IoBuffer buffer, int keyVersion )
+    private EncryptionKey getKeyBlock( ByteBuffer buffer, int keyVersion )
     {
         int type = buffer.getUnsignedShort();
         byte[] keyblock = getCountedBytes( buffer );
@@ -148,7 +148,7 @@ class KeytabDecoder
      * Use a prefixed 16-bit length to read off a String.  Realm and name
      * components are ASCII encoded text with no zero terminator.
      */
-    private String getCountedString( IoBuffer buffer )
+    private String getCountedString( ByteBuffer buffer )
     {
         int length = buffer.getUnsignedShort();
         byte[] data = new byte[length];
@@ -169,7 +169,7 @@ class KeytabDecoder
     /**
      * Use a prefixed 16-bit length to read off raw bytes.
      */
-    private byte[] getCountedBytes( IoBuffer buffer )
+    private byte[] getCountedBytes( ByteBuffer buffer )
     {
         int length = buffer.getUnsignedShort();
         byte[] data = new byte[length];

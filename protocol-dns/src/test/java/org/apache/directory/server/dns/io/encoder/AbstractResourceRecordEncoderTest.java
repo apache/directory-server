@@ -30,7 +30,7 @@ import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
-import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.common.ByteBuffer;
 
 
 /**
@@ -43,7 +43,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  */
 public abstract class AbstractResourceRecordEncoderTest extends TestCase
 {
-    IoBuffer expectedData;
+    ByteBuffer expectedData;
     String domainName = "herse.apache.org";
     String[] domainNameParts = domainName.split( "\\." );
     int timeToLive = 3400;
@@ -55,7 +55,7 @@ public abstract class AbstractResourceRecordEncoderTest extends TestCase
         setUpResourceData();
         record = new ResourceRecordImpl( domainName, RecordType.A, RecordClass.IN, timeToLive, getAttributes() );
 
-        expectedData = IoBuffer.allocate( 128 );
+        expectedData = ByteBuffer.allocate( 128 );
         expectedData.put( ( byte ) 18 );
         expectedData.put( ( byte ) domainNameParts[0].length() ); // 1
         expectedData.put( domainNameParts[0].getBytes() ); // + 5
@@ -73,7 +73,7 @@ public abstract class AbstractResourceRecordEncoderTest extends TestCase
 
     public void testEncode() throws IOException
     {
-        IoBuffer outBuffer = IoBuffer.allocate( 128 );
+        ByteBuffer outBuffer = ByteBuffer.allocate( 128 );
         getEncoder().put( outBuffer, record );
         assertEquals( expectedData, outBuffer );
     }
@@ -108,5 +108,5 @@ public abstract class AbstractResourceRecordEncoderTest extends TestCase
      * 
      * @param expectedData buffer where the expected resource data should be put
      */
-    protected abstract void putExpectedResourceData( IoBuffer expectedData );
+    protected abstract void putExpectedResourceData( ByteBuffer expectedData );
 }
