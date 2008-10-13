@@ -28,7 +28,7 @@
   <artifactId>shared-parent</artifactId>
   <name>Apache Directory Shared</name>
   <packaging>pom</packaging>
-  <version>0.9.14-SNAPSHOT</version>
+  <version>0.9.13-SNAPSHOT</version>
 
   <properties>
     <projectName>ApacheDS-Shared</projectName>
