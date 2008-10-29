@@ -24,7 +24,6 @@ import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
 import org.apache.directory.shared.ldap.message.spi.ProviderEncoder;
 import org.apache.directory.shared.ldap.message.spi.ProviderException;
-import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 
 
 
@@ -37,17 +36,12 @@ import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
  */
 public class TwixProvider extends Provider
 {
-    /** The Transformer for this provider */
-    private final TwixTransformer transformer;
-
-
     /**
      * Creates an instance of a Twix based LDAP BER Provider.
      */
     private TwixProvider()
     {
         super( "Twix LDAP BER Provider", "Apache Directory Project" );
-        transformer = new TwixTransformer( this );
     }
 
     /** the singleton TwixProvider instance */
@@ -94,18 +88,5 @@ public class TwixProvider extends Provider
     public ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector ) throws ProviderException
     {
         return new TwixDecoder( this, binaryAttributeDetector );
-    }
-
-
-    /**
-     * Gets the transformer associated with this provider.
-     * 
-     * @return the provider's transformer.
-     * @throws org.apache.directory.shared.ldap.message.spi.ProviderException
-     *             if the provider or its transformer cannot be found
-     */
-    public TransformerSpi getTransformer() throws ProviderException
-    {
-        return transformer;
     }
 }

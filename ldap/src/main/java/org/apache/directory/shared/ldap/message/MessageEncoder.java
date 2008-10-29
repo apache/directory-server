@@ -26,10 +26,10 @@ import java.nio.ByteBuffer;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.EncoderMonitor;
+import org.apache.directory.shared.ldap.codec.TwixTransformer;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderEncoder;
 import org.apache.directory.shared.ldap.message.spi.ProviderException;
-import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 
 
 /**
@@ -47,9 +47,6 @@ public final class MessageEncoder implements ProviderEncoder
     /** the provider's encoder */
     private final ProviderEncoder encoder;
 
-    /** the provider's transformer */
-    private final TransformerSpi transformer;
-
 
     /**
      * Creates a MessageEncoder using default properties for enabling a BER
@@ -61,7 +58,6 @@ public final class MessageEncoder implements ProviderEncoder
     {
         this.provider = Provider.getProvider( Provider.getEnvironment() );
         this.encoder = provider.getEncoder();
-        this.transformer = provider.getTransformer();
     }
 
 
@@ -75,7 +71,7 @@ public final class MessageEncoder implements ProviderEncoder
     public void encodeBlocking( Object lock, OutputStream out, Object obj ) throws ProviderException
     {
         // transform to build provider specific intermediate envelope
-        Object providerEnvelope = transformer.transform( ( Message ) obj );
+        Object providerEnvelope = TwixTransformer.transform( ( Message ) obj );
 
         // now encode provider's intermediate stub into a PDU onto stream
         this.encoder.encodeBlocking( lock, out, providerEnvelope );
@@ -88,7 +84,7 @@ public final class MessageEncoder implements ProviderEncoder
     public ByteBuffer encodeBlocking( Object obj ) throws ProviderException
     {
         // transform to build provider specific intermediate envelope
-        Object providerEnvelope = transformer.transform( ( Message ) obj );
+        Object providerEnvelope = TwixTransformer.transform( ( Message ) obj );
 
         // now encode provider's intermediate stub into PDU in a byte buffer
         return this.encoder.encodeBlocking( providerEnvelope );
@@ -122,7 +118,7 @@ public final class MessageEncoder implements ProviderEncoder
     public void encode( Object obj ) throws EncoderException
     {
         // transform to build provider specific intermediate envelope
-        Object providerEnvelope = transformer.transform( ( Message ) obj );
+        Object providerEnvelope = TwixTransformer.transform( ( Message ) obj );
 
         // now give intermediate envelope to provider's encoder
         this.encoder.encode( providerEnvelope );

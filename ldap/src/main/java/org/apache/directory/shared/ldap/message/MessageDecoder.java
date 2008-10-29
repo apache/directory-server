@@ -26,10 +26,10 @@ import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
+import org.apache.directory.shared.ldap.codec.TwixTransformer;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
-import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
 
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -50,9 +50,6 @@ public final class MessageDecoder implements ProviderDecoder
     /** the ASN.1 provider's decoder */
     private final ProviderDecoder decoder;
 
-    /** the ASN.1 provider's transformer */
-    private final TransformerSpi transformer;
-
     /** the Message decode operation callback */
     private DecoderCallback cb;
 
@@ -71,14 +68,13 @@ public final class MessageDecoder implements ProviderDecoder
         
         this.provider = Provider.getProvider( providerEnv );
         this.decoder = this.provider.getDecoder( binaryAttributeDetector );
-        this.transformer = this.provider.getTransformer();
         this.decoder.setCallback( new DecoderCallback()
         {
             public void decodeOccurred( StatefulDecoder decoder, Object decoded )
             {
                 if ( decoded instanceof Asn1Object )
                 {
-                    cb.decodeOccurred( decoder, transformer.transform( decoded ) );
+                    cb.decodeOccurred( decoder, TwixTransformer.transform( decoded ) );
                 }
                 else
                 {
@@ -130,7 +126,7 @@ public final class MessageDecoder implements ProviderDecoder
         }
 
         // Call on transformer to convert stub based PDU into Message based PDU
-        return transformer.transform( providerEnvelope );
+        return TwixTransformer.transform( providerEnvelope );
     }
 
 

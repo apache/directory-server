@@ -181,16 +181,6 @@ public abstract class Provider
             throws ProviderException;
 
 
-    /**
-     * Gets the transformer associated with this provider.
-     * 
-     * @return the provider's transformer.
-     * @throws ProviderException
-     *             if the provider or its transformer cannot be found
-     */
-    public abstract TransformerSpi getTransformer() throws ProviderException;
-
-
     // ------------------------------------------------------------------------
     // Factory/Environment Methods
     // ------------------------------------------------------------------------
