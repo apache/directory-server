@@ -76,6 +76,7 @@ import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.AbandonRequestImpl;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
@@ -123,10 +124,10 @@ import org.slf4j.LoggerFactory;
 public class TwixTransformer
 {
     /** The logger */
-    private static Logger log = LoggerFactory.getLogger( TwixTransformer.class );
+    private static Logger LOG = LoggerFactory.getLogger( TwixTransformer.class );
 
     /** A speedup for logger */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
 
     /**
@@ -252,7 +253,7 @@ public class TwixTransformer
         }
         catch ( InvalidNameException e )
         {
-            log.error( "Could not parse matchedDN while transforming twix value to snickers: {}", 
+            LOG.error( "Could not parse matchedDN while transforming twix value to snickers: {}", 
                 twixResult.getMatchedDN() );
             snickersResult.setMatchedDn( new LdapDN() );
         }
@@ -580,6 +581,158 @@ public class TwixTransformer
 
 
     /**
+     * Transform an ExprNode filter to a TwixFilter
+     * 
+     * @param exprNode The filter to be transformed
+     * @return A Twix filter
+     */
+    public static Filter transformFilter( ExprNode exprNode )
+    {
+        if ( exprNode != null )
+        {
+            Filter filter  = null;
+
+            // Transform OR, AND or NOT leaves
+            if ( exprNode instanceof BranchNode )
+            {
+                if ( exprNode instanceof AndNode )
+                {
+                    filter = new AndFilter();
+                }
+                else if ( exprNode instanceof OrNode )
+                {
+                    filter = new OrFilter();
+                }
+                else if ( exprNode instanceof NotNode )
+                {
+                    filter = new NotFilter();
+                }
+
+                List<ExprNode> children = ((BranchNode)exprNode).getChildren();
+
+                // Loop on all AND/OR children
+                if ( children != null )
+                {
+                    for ( ExprNode child:children )
+                    {
+                        try
+                        {
+                            ((ConnectorFilter)filter).addFilter( transformFilter( child ) );
+                        }
+                        catch ( DecoderException de )
+                        {
+                            LOG.error( "Error while transforming a ExprNode : " + de.getMessage() );
+                            return null;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if ( exprNode instanceof PresenceNode )
+                {
+                    // Transform Presence Node
+                    filter = new PresentFilter();
+                    ((PresentFilter)filter).setAttributeDescription( ((PresenceNode)exprNode).getAttribute() );
+                }
+                else if ( exprNode instanceof SimpleNode<?> )
+                {
+                    if ( exprNode instanceof EqualityNode<?> )
+                    {
+                        filter = new AttributeValueAssertionFilter( LdapConstants.EQUALITY_MATCH_FILTER );
+                        AttributeValueAssertion assertion = new AttributeValueAssertion();
+                        assertion.setAttributeDesc( ((EqualityNode<?>)exprNode).getAssertionType().name() );
+                        assertion.setAssertionValue( ((EqualityNode<?>)exprNode).getValue() );
+                        ((AttributeValueAssertionFilter)filter).setAssertion( assertion );
+                    }
+                    else if ( exprNode instanceof GreaterEqNode<?> ) 
+                    {
+                        filter = new AttributeValueAssertionFilter( LdapConstants.GREATER_OR_EQUAL_FILTER );
+                        AttributeValueAssertion assertion = new AttributeValueAssertion();
+                        assertion.setAttributeDesc( ((EqualityNode<?>)exprNode).getAssertionType().name() );
+                        assertion.setAssertionValue( ((EqualityNode<?>)exprNode).getValue() );
+                        ((AttributeValueAssertionFilter)filter).setAssertion( assertion );
+                    }
+                    else if ( exprNode instanceof LessEqNode<?> ) 
+                    {
+                        filter = new AttributeValueAssertionFilter( LdapConstants.LESS_OR_EQUAL_FILTER );
+                        AttributeValueAssertion assertion = new AttributeValueAssertion();
+                        assertion.setAttributeDesc( ((EqualityNode<?>)exprNode).getAssertionType().name() );
+                        assertion.setAssertionValue( ((EqualityNode<?>)exprNode).getValue() );
+                        ((AttributeValueAssertionFilter)filter).setAssertion( assertion );
+                    }
+                    else if ( exprNode instanceof ApproximateNode<?> )
+                    {
+                        filter = new AttributeValueAssertionFilter( LdapConstants.APPROX_MATCH_FILTER );
+                        AttributeValueAssertion assertion = new AttributeValueAssertion();
+                        assertion.setAttributeDesc( ((EqualityNode<?>)exprNode).getAssertionType().name() );
+                        assertion.setAssertionValue( ((EqualityNode<?>)exprNode).getValue() );
+                        ((AttributeValueAssertionFilter)filter).setAssertion( assertion );
+                    }
+                }
+                else if ( exprNode instanceof SubstringNode )
+                {
+                    // Transform Substring Nodes
+                    filter = new SubstringFilter();
+
+                    String initialString = ((SubstringNode)exprNode).getInitial();
+                    String finalString = ((SubstringNode)exprNode).getFinal();
+                    List<String> anyStrings = ((SubstringNode)exprNode).getAny();
+
+                    if ( initialString != null )
+                    {
+                        ((SubstringFilter)filter).setInitialSubstrings( initialString );
+                    }
+
+                    if ( finalString != null )
+                    {
+                        ((SubstringFilter)filter).setFinalSubstrings( finalString );
+                    }
+
+                    if ( anyStrings != null )
+                    {
+                        for ( String any:anyStrings )
+                        {
+                            ((SubstringFilter)filter).addAnySubstrings( any );
+                        }
+                    }
+                }
+                else if ( exprNode instanceof ExtensibleNode )
+                {
+                    // Transform Extensible Node
+                    filter = new ExtensibleMatchFilter();
+                    
+                    String attribute = ((ExtensibleNode)exprNode).getAttribute();
+                    String matchingRule = ((ExtensibleNode)exprNode).getMatchingRuleId();
+                    boolean dnAttributes = ((ExtensibleNode)exprNode).hasDnAttributes();
+                    Object value = ((ExtensibleNode)exprNode).getValue();
+
+                    if ( attribute != null )
+                    {
+                        ((ExtensibleMatchFilter)filter).setType( attribute );
+                    }
+
+                    if ( matchingRule != null )
+                    {
+                        ((ExtensibleMatchFilter)filter).setMatchingRule( matchingRule );
+                    }
+
+                    ((ExtensibleMatchFilter)filter).setMatchValue( value );
+                    ((ExtensibleMatchFilter)filter).setDnAttributes( dnAttributes );
+                }
+            }
+
+            return filter;
+        }
+        else
+        {
+            // We have found nothing to transform. Return null then.
+            return null;
+        }
+    }
+
+
+    /**
      * Transform a SearchRequest message from a TwixMessage to a SnickersMessage
      * 
      * @param twixMessage The message to transform
@@ -679,7 +832,7 @@ public class TwixTransformer
 
         if ( IS_DEBUG )
         {
-            log.debug( "Transforming LdapMessage <" + messageId + ", " + twixMessage.getMessageTypeName()
+            LOG.debug( "Transforming LdapMessage <" + messageId + ", " + twixMessage.getMessageTypeName()
                 + "> from Twix to Snickers." );
         }
 
@@ -863,7 +1016,7 @@ public class TwixTransformer
                 }
                 catch ( LdapURLEncodingException lude )
                 {
-                    log.warn( "The referral " + referral + " is invalid : " + lude.getMessage() );
+                    LOG.warn( "The referral " + referral + " is invalid : " + lude.getMessage() );
                     twixLdapResult.addReferral( LdapURL.EMPTY_URL );
                 }
             }
@@ -1016,7 +1169,7 @@ public class TwixTransformer
         }
         catch ( DecoderException de )
         {
-            log.warn( "The OID " + snickersExtendedResponse.getResponseName() + " is invalid : " + de.getMessage() );
+            LOG.warn( "The OID " + snickersExtendedResponse.getResponseName() + " is invalid : " + de.getMessage() );
             extendedResponse.setResponseName( null );
         }
 
@@ -1147,7 +1300,7 @@ public class TwixTransformer
                     }
                     catch ( LdapURLEncodingException luee )
                     {
-                        log.warn( "The LdapURL " + url + " is incorrect : " + luee.getMessage() );
+                        LOG.warn( "The LdapURL " + url + " is incorrect : " + luee.getMessage() );
                     }
                 }
             }
@@ -1168,7 +1321,7 @@ public class TwixTransformer
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Transforming message type " + msg.getType() );
+            LOG.debug( "Transforming message type " + msg.getType() );
         }
 
         LdapMessage twixMessage = new LdapMessage();
@@ -1231,7 +1384,7 @@ public class TwixTransformer
 
         if ( IS_DEBUG )
         {
-            log.debug( "Transformed message : " + twixMessage );
+            LOG.debug( "Transformed message : " + twixMessage );
         }
 
         return twixMessage;
@@ -1254,7 +1407,7 @@ public class TwixTransformer
         
         for ( Control control:twixMessage.getControls() )
         {
-            log.debug( "Not decoding response control: {}", control );
+            LOG.debug( "Not decoding response control: {}", control );
         }
     }
     
