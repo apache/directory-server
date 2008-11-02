@@ -157,7 +157,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         KeyManagerFactory keyManagerFactory = null;
         try
         {
-            keyManagerFactory = KeyManagerFactory.getInstance( "SunX509" );
+            keyManagerFactory = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
         }
         catch ( Exception e )
         {
