@@ -31,9 +31,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.slf4j.Logger;
@@ -77,14 +75,12 @@ class LdapProtocolHandler extends DemuxingIoHandler
     public void sessionCreated( IoSession session ) throws Exception
     {
         LdapSession ldapSession = new LdapSession( session );
-        IoFilterChain filters = session.getFilterChain();
-        filters.addLast( "codec", new ProtocolCodecFilter( ldapService.getProtocolCodecFactory() ) );
         ldapService.getLdapSessionManager().addLdapSession( ldapSession );
     }
 
 
     /*
-     * (non-Javadoc)
+     * (non-Javadoc)LdapProtocolHandler
      * @see org.apache.mina.common.IoHandlerAdapter#sessionClosed(org.apache.mina.common.IoSession)
      */
     public void sessionClosed( IoSession session )
@@ -125,7 +121,18 @@ class LdapProtocolHandler extends DemuxingIoHandler
             }
         }
     }
+
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mina.handler.demux.DemuxingIoHandler#messageReceived(org.apache.mina.common.IoSession, java.lang.Object)
+     */
+    public void messageSent( IoSession session, Object message ) throws Exception
+    {
+    	// Do nothing : we have to ignore this message, otherwise we get an exception,
+    	// thanks to the way MINA 2 works ...
+	}
+
 
     /*
      * (non-Javadoc)
