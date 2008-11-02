@@ -184,7 +184,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
         ClonedServerEntry entry = null;
         boolean isReferral = false;
         boolean isparentReferral = false;
-        ReferralManager referralManager= session.getCoreSession().getDirectoryService().getReferralManager();
+        ReferralManager referralManager = session.getCoreSession().getDirectoryService().getReferralManager();
         
         reqTargetDn.normalize( session.getCoreSession().getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         
