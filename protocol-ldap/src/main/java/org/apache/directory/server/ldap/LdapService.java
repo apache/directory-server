@@ -25,7 +25,14 @@ import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 import org.apache.directory.server.core.DirectoryService;
@@ -42,7 +49,7 @@ import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
-import org.apache.directory.server.ldap.handlers.bind.*;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.shared.ldap.constants.SaslQoP;
@@ -70,7 +77,10 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.handler.demux.MessageHandler;
+import org.apache.mina.transport.socket.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +204,7 @@ public class LdapService extends DirectoryBackedService
      */
     public LdapService()
     {
-        super.setIpPort( IP_PORT_DEFAULT );
+        super.setTcpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
@@ -310,6 +320,10 @@ public class LdapService extends DirectoryBackedService
         {
             chain = new DefaultIoFilterChainBuilder();
         }
+        
+        // Inject the codec into the chain
+        ((DefaultIoFilterChainBuilder)chain).addLast( "codec", 
+        		new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
 
         /*
          * The server is now initialized, we can
@@ -318,7 +332,7 @@ public class LdapService extends DirectoryBackedService
          */ 
         installDefaultHandlers();      
 
-        startLDAP0( getIpPort(), chain );
+        startLDAP0( getTcpPort(), chain );
         
         started = true;
         
@@ -420,12 +434,38 @@ public class LdapService extends DirectoryBackedService
 
         try
         {
+        	// First, create the acceptor with the configured number of threads (if defined)
+        	int nbTcpThreads = getNbTcpThreads();
+        	SocketAcceptor acceptor;
+        	
+        	if ( nbTcpThreads > 0 )
+        	{
+        		acceptor = new NioSocketAcceptor( nbTcpThreads );
+        	}
+        	else
+        	{
+        		acceptor = new NioSocketAcceptor();
+        	}
+        		
+        	setSocketAcceptor( acceptor );
+        	
+        	// Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
-            getSocketAcceptor().setCloseOnDeactivation( false );
-            getSocketAcceptor().getSessionConfig().setTcpNoDelay( true );
-            getSocketAcceptor().setFilterChainBuilder( chainBuilder );
-            getSocketAcceptor().setHandler( getHandler() );
-            getSocketAcceptor().bind( new InetSocketAddress( port ) );
+        	acceptor.setCloseOnDeactivation( false );
+        	
+        	// No Nagle's algorithm
+        	acceptor.getSessionConfig().setTcpNoDelay( true );
+        	
+        	// Inject the chain
+        	acceptor.setFilterChainBuilder( chainBuilder );
+        	
+        	// Inject the protocol handler
+        	acceptor.setHandler( getHandler() );
+        	
+        	// Bind to the configured address
+        	acceptor.bind( new InetSocketAddress( port ) );
+        	
+        	// We are done !
             started = true;
 
             if ( LOG.isInfoEnabled() )
@@ -899,10 +939,11 @@ public class LdapService extends DirectoryBackedService
 
     public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
-        this.handler.removeReceivedMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
+
+        handler.removeReceivedMessageHandler( BindRequest.class );
+        handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
     }
 
 
