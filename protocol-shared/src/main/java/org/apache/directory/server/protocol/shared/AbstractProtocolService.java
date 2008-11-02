@@ -20,8 +20,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.SocketAcceptor;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,10 +42,39 @@ public abstract class AbstractProtocolService implements ProtocolService
     private String serviceId;
     private String serviceName;
     private String ipAddress;
+    
+    /** The service's port, if there is only one (TCP or UDP) */
     private int ipPort = -1;
+    
+    /** The TCP port, if defined. */
+    private int tcpPort = -1;
+    
+    /** The UDP port, if defined. */
+    private int udpPort = -1;
+    
     private Set<TransportProtocol> transportProtocols;
-    private NioDatagramAcceptor datagramAcceptor;
-    private NioSocketAcceptor socketAcceptor;
+    
+    /** The IoAcceptor used to accept UDP requests */
+    private DatagramAcceptor datagramAcceptor;
+    
+    /** The IoAcceptor used to accept TCP requests */
+    private SocketAcceptor socketAcceptor;
+    
+    /** The number of threads to use for the IoAcceptor executor */
+    private int nbThreads;
+    
+    /** 
+     * The number of threads to use for the TCP transport
+     * protocol based IoAcceptor executor 
+     **/
+    private int nbTcpThreads;
+    
+    /** 
+     * The number of threads to use for the UDP transport
+     * protocol based IoAcceptor executor 
+     **/
+    private int nbUdpThreads;
+    
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
 
@@ -122,23 +151,79 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public int getIpPort()
     {
         return ipPort;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public int getTcpPort()
+    {
+        return tcpPort;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getUdpPort()
+    {
+        return udpPort;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void setIpPort( int ipPort )
     {
-        if ( ipPort < 0 || ipPort > 65535 )
+        if ( ( ipPort < 0 ) || ( ipPort > 65535 ) )
         {
             throw new IllegalArgumentException( "Invalid port number: " + ipPort );
         }
 
         this.ipPort = ipPort;
+        
+        // Now, substitute the existing values by the new one
+     	udpPort = ipPort;
+       	tcpPort = ipPort;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setTcpPort( int tcpPort )
+    {
+        if ( ( tcpPort < 0 ) || ( tcpPort > 65535 ) )
+        {
+            throw new IllegalArgumentException( "Invalid port number: " + tcpPort );
+        }
+
+        this.tcpPort = tcpPort;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setUdpPort( int udpPort )
+    {
+        if ( ( udpPort < 0 ) || ( udpPort > 65535 ) )
+        {
+            throw new IllegalArgumentException( "Invalid port number: " + udpPort );
+        }
+
+        this.udpPort = udpPort;
+    }
+
+    
     public Set<TransportProtocol> getTransportProtocols()
     {
         return transportProtocols;
@@ -153,26 +238,103 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
-    public NioDatagramAcceptor getDatagramAcceptor()
+    /**
+     * {@inheritDoc}
+     */
+    public DatagramAcceptor getDatagramAcceptor()
     {
         return datagramAcceptor;
     }
 
 
-    public void setDatagramAcceptor( NioDatagramAcceptor datagramAcceptor )
+    /**
+     * {@inheritDoc}
+     */
+    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
     {
         this.datagramAcceptor = datagramAcceptor;
     }
 
 
-    public NioSocketAcceptor getSocketAcceptor()
+    /**
+     * {@inheritDoc}
+     */
+    public SocketAcceptor getSocketAcceptor()
     {
         return socketAcceptor;
     }
 
 
-    public void setSocketAcceptor( NioSocketAcceptor socketAcceptor )
+    /**
+     * {@inheritDoc}
+     */
+    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
     {
         this.socketAcceptor = socketAcceptor;
     }
+
+    
+    /**
+     * @return The number of thread used in the IoAcceptor executor. It is
+     * used if no specific transport protocol is defined, and will be
+     * overloaded by the specific NbUdpThreads or nbTcpThreads if those
+     * transport protocols are defined.
+     */
+	public int getNbThreads() 
+	{
+		return nbThreads;
+	}
+
+
+    /**
+     * @return The number of thread used in the IoAcceptor executor for
+     * a TCP transport protocol based Acceptor.
+     */
+	public int getNbTcpThreads() 
+	{
+		return nbTcpThreads;
+	}
+
+
+    /**
+     * @return The number of thread used in the IoAcceptor executor for
+     * a UDP transport protocol based Acceptor.
+     */
+	public int getNbUdpThreads() 
+	{
+		return nbUdpThreads;
+	}
+
+
+	/**
+	 * @param nbThreads The number of thread to affect to the IoAcceptor
+	 * executor. This number will be injected into the UDP and TCP
+	 * nbThreads value.
+	 */
+	public void setNbThreads(int nbThreads) 
+	{
+		this.nbThreads = nbThreads;
+		this.nbTcpThreads = nbThreads;
+		this.nbUdpThreads = nbThreads;
+	}
+
+
+	/**
+	 * @param nbThreads The number of thread to affect to the 
+	 * TCP transport protocol based IoAcceptor executor
+	 */
+	public void setNbTcpThreads(int nbTcpThreads) 
+	{
+		this.nbTcpThreads = nbTcpThreads;
+	}
+
+
+	/**
+	 * @param nbThreads The number of thread to affect to the 
+	 * UDP transport protocol based IoAcceptor executor
+	 */
+	public void setNbUdpThreads(int nbUdpThreads) 
+	{
+		this.nbUdpThreads = nbUdpThreads;
+	}
 }
