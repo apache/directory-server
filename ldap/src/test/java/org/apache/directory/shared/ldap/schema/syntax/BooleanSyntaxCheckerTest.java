@@ -55,16 +55,23 @@ public class BooleanSyntaxCheckerTest extends TestCase
     }
     
     
-    public void testWrongCase()
+    public void testWrongValue()
     {
-        assertFalse( checker.isValidSyntax( "fAlSe" ) );
-        assertFalse( checker.isValidSyntax( "tRue" ) );
-        assertFalse( checker.isValidSyntax( "false" ) );
         assertFalse( checker.isValidSyntax( "abc" ) );
+        assertFalse( checker.isValidSyntax( "123" ) );
     }
     
     
-    public void testCorrectCase()
+    public void testMixedCase()
+    {
+        assertTrue( checker.isValidSyntax( "fAlSe" ) );
+        assertTrue( checker.isValidSyntax( "tRue" ) );
+        assertTrue( checker.isValidSyntax( "false" ) );
+        assertTrue( checker.isValidSyntax( "true" ) );
+    }
+    
+    
+    public void testUpperCase()
     {
         assertTrue( checker.isValidSyntax( "FALSE" ) );
         assertTrue( checker.isValidSyntax( "TRUE" ) );

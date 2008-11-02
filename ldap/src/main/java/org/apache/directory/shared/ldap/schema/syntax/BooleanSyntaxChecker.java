@@ -90,6 +90,6 @@ public class BooleanSyntaxChecker extends AbstractSyntaxChecker
             return false;
         }
         
-        return ( ( "TRUE".equals( strValue ) ) || ( "FALSE".equals( strValue ) ) );
+        return ( ( "TRUE".equalsIgnoreCase( strValue ) ) || ( "FALSE".equalsIgnoreCase( strValue ) ) );
     }
 }
