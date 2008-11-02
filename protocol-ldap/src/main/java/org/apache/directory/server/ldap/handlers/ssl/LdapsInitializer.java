@@ -51,10 +51,12 @@ public class LdapsInitializer
         {
             // Set up key manager factory to use our key store
             String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
+
             if ( algorithm == null )
             {
-                algorithm = "SunX509";
+                algorithm = KeyManagerFactory.getDefaultAlgorithm();
             }
+            
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
             kmf.init( ks, null );
 
