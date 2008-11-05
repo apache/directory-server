@@ -32,9 +32,9 @@ import java.util.List;
 public class NotNode extends BranchNode
 {
     /**
-     * Creates a NotNode using a logical operator and a list of children.
+     * Creates a NotNode using a logical NOT operator and a list of children.
      * 
-     * A Not node should contain only one child
+     * A Not node could contain only one child.
      * 
      * @param childList the child nodes under this branch node.
      */
@@ -50,11 +50,27 @@ public class NotNode extends BranchNode
 
 
     /**
+     * Creates a NotNode using a logical NOT operator and the given child.
+     * 
+     * @param child the child node under this branch node.
+     */
+    public NotNode( ExprNode child )
+    {
+        super( AssertionType.NOT );
+
+        if ( child != null )
+        {
+            addNode( child );
+        }
+    }
+
+
+    /**
      * Creates an empty NotNode
      */
     public NotNode()
     {
-        this( null );
+        this( (ExprNode)null );
     }
 
     /**
