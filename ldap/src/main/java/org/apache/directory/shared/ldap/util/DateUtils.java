@@ -169,4 +169,34 @@ public class DateUtils
             return dateFormat.format( date );
         }
     }
+    
+    
+    /**
+     * 
+     * @see #getGeneralizedTime()
+     *
+     * @param date the date to be converted to generalized time string
+     * @return given date in the generalized time string format
+     */
+    public static String getGeneralizedTime( Date date )
+    {
+        synchronized ( dateFormat )
+        {
+            return dateFormat.format( date );
+        }
+    }
+
+
+    /**
+     * 
+     * @see #getGeneralizedTime()
+     *
+     * @param time the time value to be converted to generalized time string
+     * @return given time in generalized time string format
+     */
+    public static String getGeneralizedTime( long time )
+    {
+        return getGeneralizedTime( new Date( time ) );
+    }
+    
 }
