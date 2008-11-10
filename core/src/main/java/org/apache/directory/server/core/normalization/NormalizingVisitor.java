@@ -179,7 +179,13 @@ public class NormalizingVisitor implements FilterVisitor
         if ( escaped )
         {
             // We should not have a '\' at the end of the string
-            throw new InvalidNameException( "The value must not ends with a '\\'." );
+            //throw new InvalidNameException( "The value must not ends with a '\\'." );
+            
+            // TODO: We have a weird behaviour:
+            // - If a request (cn=\5C) comes over the wire the '\5C' is already decoded to a '\'.
+            // - If we use the embedded LdapContext it is not decoded here.
+            // This is just a hack to make it working.
+            buf.append( '\\' );
         }
 
         return buf.toString();

@@ -189,7 +189,7 @@ public class AndCursorTest
         List<Evaluator<? extends ExprNode,ServerEntry>> evaluators = new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>();
         Evaluator<? extends ExprNode, ServerEntry> eval;
         
-        ExprNode exprNode = new SubstringNode( "cn", "J*", null );
+        ExprNode exprNode = new SubstringNode( "cn", "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, registries );
         IndexCursor<?,ServerEntry> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
         
