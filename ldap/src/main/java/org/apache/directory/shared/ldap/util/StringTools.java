@@ -803,20 +803,20 @@ public class StringTools
 
         if ( initialPattern != null )
         {
-            buf.append( '^' ).append( initialPattern );
+            buf.append( '^' ).append( Pattern.quote( initialPattern ) );
         }
 
         if ( anyPattern != null )
         {
             for ( int i = 0; i < anyPattern.length; i++ )
             {
-                buf.append( ".*" ).append( anyPattern[i] );
+                buf.append( ".*" ).append( Pattern.quote( anyPattern[i] ) );
             }
         }
 
         if ( finalPattern != null )
         {
-            buf.append( ".*" ).append( finalPattern );
+            buf.append( ".*" ).append( Pattern.quote( finalPattern ) );
         }
         else
         {

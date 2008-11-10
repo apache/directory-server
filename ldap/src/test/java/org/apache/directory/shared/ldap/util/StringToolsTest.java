@@ -289,6 +289,29 @@ public class StringToolsTest extends TestCase
     }
 
 
+    /**
+     * Tests StringTools.getRegex() with some LDAP filter special characters.
+     */
+    public void testGetRegexpWithLdapFilterSpecialChars() throws Exception
+    {
+        Pattern[] patterns = new Pattern[]
+            { StringTools.getRegex( null, new String[]
+                { "(" }, null ), StringTools.getRegex( null, new String[]
+                { ")" }, null ), StringTools.getRegex( null, new String[]
+                { "*" }, null ), StringTools.getRegex( null, new String[]
+                { "\\" }, null ), };
+
+        for ( Pattern pattern : patterns )
+        {
+            boolean b1 = pattern.matcher( "a(b*c\\d)e" ).matches();
+            assertTrue( b1 );
+
+            boolean b3 = pattern.matcher( "Test test" ).matches();
+            assertFalse( b3 );
+        }
+    }
+
+
     public void testDeepTrim()
     {
         assertEquals( "", StringTools.deepTrim( " ", false ) );
