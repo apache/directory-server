@@ -1447,4 +1447,37 @@ public class SearchIT
         }
     }
 
+
+    @Test
+    public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "x*y*z*" );
+        vicious.put( "sn", "x*y*z*" );
+        ctx.createSubcontext( "cn=x*y*z*", vicious );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+        NamingEnumeration<SearchResult> res;
+
+        res = ctx.search( "", "(cn=*x\\2Ay\\2Az\\2A*)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        res = ctx.search( "", "(cn=*{0}*)", new String[]
+            { "x*y*z*" }, controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+    }
+
 }

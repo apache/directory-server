@@ -20,24 +20,18 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
-import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -51,9 +45,16 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
+import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -1363,6 +1364,39 @@ public class SearchIT
             assertNotNull( attrs.get( "objectClass" ) );
             assertNotNull( attrs.get( "cn" ) );
         }
+    }
+
+
+    @Test
+    public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "x*y*z*" );
+        vicious.put( "sn", "x*y*z*" );
+        sysRoot.createSubcontext( "cn=x*y*z*", vicious );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+        NamingEnumeration<SearchResult> res;
+
+        res = sysRoot.search( "", "(cn=*x\\2Ay\\2Az\\2A*)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        res = sysRoot.search( "", "(cn=*{0}*)", new String[]
+            { "x*y*z*" }, controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
     }
 
 
