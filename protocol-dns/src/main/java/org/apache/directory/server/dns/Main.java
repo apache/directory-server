@@ -63,7 +63,7 @@ public class Main
         LOG.debug( "Starting the DNS server" );
         
         NioDatagramAcceptor datagramAcceptor = new NioDatagramAcceptor( null );
-        NioSocketAcceptor socketAcceptor = new NioSocketAcceptor( null );
+        NioSocketAcceptor socketAcceptor = new NioSocketAcceptor();
         DirectoryService directoryService = new DefaultDirectoryService();
         dnsConfiguration = new DnsServer();
         dnsConfiguration.setDatagramAcceptor( datagramAcceptor );
