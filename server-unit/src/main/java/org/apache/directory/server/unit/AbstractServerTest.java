@@ -252,7 +252,7 @@ public abstract class AbstractServerTest extends TestCase
         start++;
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
-        socketAcceptor = new NioSocketAcceptor( null );
+        socketAcceptor = new NioSocketAcceptor();
         ldapService = new LdapService();
         ldapService.setSocketAcceptor( socketAcceptor );
         ldapService.setDirectoryService( directoryService );
