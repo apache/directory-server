@@ -453,6 +453,9 @@ public class LdapService extends DirectoryBackedService
             // Disable the disconnection of the clients on unbind
         	acceptor.setCloseOnDeactivation( false );
         	
+        	// Allow the port to be reused even if the socket is in TIME_WAIT state
+        	acceptor.setReuseAddress( true );
+        	
         	// No Nagle's algorithm
         	acceptor.getSessionConfig().setTcpNoDelay( true );
         	
