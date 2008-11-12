@@ -27,8 +27,6 @@ import java.security.SecureRandom;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -58,7 +56,7 @@ import org.apache.mina.core.session.IoSessionConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractAuthenticationServiceTest extends TestCase
+public abstract class AbstractAuthenticationServiceTest
 {
     protected CipherTextHandler lockBox;
     protected static final SecureRandom random = new SecureRandom();
@@ -122,9 +120,27 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         return key;
     }
 
-    protected static class DummySession extends AbstractIoSession
+    protected static class KrbDummySession extends DummySession
     {
         Object message;
+        
+        public KrbDummySession() 
+        {
+        	super();
+        }
+        
+        public DummySession( IoService service )
+        {
+        	try
+        	{
+	            ((AbstractIoSession) this).setAttributeMap(service
+	                    .getSessionDataStructureFactory().getAttributeMap(this));
+        	}
+        	catch( Exception e ) 
+        	{
+        		
+        	}
+        }
 
 
         public IoProcessor<IoSession> getProcessor()

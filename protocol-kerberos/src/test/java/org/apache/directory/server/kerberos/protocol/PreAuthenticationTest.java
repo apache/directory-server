@@ -38,6 +38,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -52,18 +55,19 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
-    private DummySession session;
+    private KrbDummySession session;
 
 
     /**
      * Creates a new instance of {@link PreAuthenticationTest}.
      */
-    public PreAuthenticationTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
-        store = new MapPrincipalStoreImpl();
+        store  = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
-        session = new DummySession();
+        session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
 
@@ -78,6 +82,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * METHOD-DATA object will be stored in the e-data field of the KRB-ERROR
      * message to specify which pre-authentication mechanisms are acceptable."
      */
+    @Test
     public void testPreAuthenticationRequired()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -106,6 +111,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testPreAuthenticationIntegrityFailed() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -142,6 +148,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testPreAuthenticationFailed() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -179,6 +186,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testPreAuthenticationNoSupport() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();

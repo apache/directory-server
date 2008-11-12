@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
@@ -54,7 +55,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
-    private DummySession session;
+    private KrbDummySession session;
 
 
     /**
@@ -72,7 +73,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
-        session = new DummySession();
+        session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
 

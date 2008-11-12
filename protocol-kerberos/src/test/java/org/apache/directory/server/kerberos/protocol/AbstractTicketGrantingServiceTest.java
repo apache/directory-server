@@ -21,8 +21,6 @@ package org.apache.directory.server.kerberos.protocol;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -61,14 +59,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AbstractIoSession;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
 
 
 /**
@@ -324,6 +314,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         return principalName;
     }
 
+    /*
     protected static class DummySession extends AbstractIoSession
     {
         Object message;
@@ -399,5 +390,15 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         {
             return null;
         }
-    }
+        
+        public DummySession() {
+	        try {
+	            IoSessionDataStructureFactory factory = new DefaultIoSessionDataStructureFactory();
+	            setAttributeMap(factory.getAttributeMap(this));
+	            setWriteRequestQueue(factory.getWriteRequestQueue(this));
+	        } catch (Exception e) {
+	            throw new InternalError();
+	        }
+        }
+    }*/
 }

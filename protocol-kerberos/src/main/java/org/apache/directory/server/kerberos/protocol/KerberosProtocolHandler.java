@@ -62,7 +62,6 @@ public class KerberosProtocolHandler implements IoHandler
     private static final String CONTEXT_KEY = "context";
     
 
-
     /**
      * Creates a new instance of KerberosProtocolHandler.
      *
@@ -204,6 +203,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
+        e.printStackTrace();
             log.error( "Unexpected exception:  " + e.getMessage(), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
