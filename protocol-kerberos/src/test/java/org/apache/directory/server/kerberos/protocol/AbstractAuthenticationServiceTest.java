@@ -40,11 +40,13 @@ import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AbstractIoSession;
+import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 
@@ -129,7 +131,7 @@ public abstract class AbstractAuthenticationServiceTest
         	super();
         }
         
-        public DummySession( IoService service )
+        public KrbDummySession( IoService service )
         {
         	try
         	{
@@ -142,12 +144,12 @@ public abstract class AbstractAuthenticationServiceTest
         	}
         }
 
-
-        public IoProcessor<IoSession> getProcessor()
+        public WriteFuture write( Object message )
         {
-            return null;
+        	this.message = message;
+        	
+        	return null;
         }
-
 
         protected Object getMessage()
         {
@@ -168,18 +170,6 @@ public abstract class AbstractAuthenticationServiceTest
 
 
         public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportMetadata getTransportMetadata()
         {
             return null;
         }
