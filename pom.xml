@@ -362,13 +362,13 @@
       <module>server-sar</module>
     -->
 
-    <module>server-xml</module>
+    <!--module>server-xml</module-->
     <module>server-unit</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
     <module>interceptor-kerberos</module>
-    <module>mitosis</module>
+    <!--module>mitosis</module-->
     <module>server-replication</module>
     <module>xbean-spring</module>
   </modules>
