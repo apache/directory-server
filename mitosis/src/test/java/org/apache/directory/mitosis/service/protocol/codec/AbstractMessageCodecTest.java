@@ -30,15 +30,10 @@ import junit.framework.Assert;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AbstractIoSession;
+import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.filter.codec.AbstractProtocolEncoderOutput;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
@@ -96,7 +91,7 @@ public abstract class AbstractMessageCodecTest
 
         };
         
-        IoSession session = new  DummySession();
+        IoSession session = new MitosisDummySession();
         
         session.setAttribute( "registries", service.getRegistries() );
         encoder.encode( session, message, encoderOut );
@@ -126,6 +121,9 @@ public abstract class AbstractMessageCodecTest
         public void flush()
         {
         }
+        
+        public void flush(NextFilter nextFilter, IoSession session) {
+        }
 
 
         public void write( Object message )
@@ -135,50 +133,14 @@ public abstract class AbstractMessageCodecTest
     }
 
 
-    protected static class DummySession extends AbstractIoSession
+    protected static class MitosisDummySession extends DummySession
     {
         Object message;
 
 
-        public IoProcessor<IoSession> getProcessor()
-        {
-            return null;
-        }
-        
-        
         protected Object getMessage()
         {
             return message;
-        }
-
-
-        protected void updateTrafficMask()
-        {
-            // Do nothing.
-        }
-
-
-        public IoService getService()
-        {
-            return null;
-        }
-
-
-        public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportMetadata getTransportMetadata()
-        {
-            return null;
         }
 
 
@@ -187,19 +149,7 @@ public abstract class AbstractMessageCodecTest
             return new InetSocketAddress( 10088 );
         }
 
-
-        public SocketAddress getLocalAddress()
-        {
-            return null;
-        }
-
-
-        public IoSessionConfig getConfig()
-        {
-            return null;
-        }
-
-
+        
         public int getScheduledWriteRequests()
         {
             return 0;
@@ -209,6 +159,12 @@ public abstract class AbstractMessageCodecTest
         public SocketAddress getServiceAddress()
         {
             return null;
+        }
+        
+        
+        public WriteFuture write(Object message) {
+        	this.message = message;
+        	return null;
         }
     }
 }
