@@ -58,14 +58,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.AbstractIoSession;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.session.DummySession;
 
 
 /**
@@ -86,7 +80,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
     private ChangePasswordServer config;
     private PrincipalStore store;
     private ChangePasswordProtocolHandler handler;
-    private DummySession session;
+    private ChPwdDummySession session;
 
     private CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
@@ -99,7 +93,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         config = new ChangePasswordServer();
         store = new MapPrincipalStoreImpl();
         handler = new ChangePasswordProtocolHandler( config, store );
-        session = new DummySession();
+        session = new ChPwdDummySession();
     }
 
 
@@ -328,49 +322,14 @@ public class ChangepwProtocolHandlerTest extends TestCase
         return principalName;
     }
 
-    private static class DummySession extends AbstractIoSession
+    private static class ChPwdDummySession extends DummySession
     {
         Object message;
 
         
-        public IoProcessor<IoSession> getProcessor()
-        {
-            return null;
-        }
-
         private Object getMessage()
         {
             return message;
-        }
-
-
-        protected void updateTrafficMask()
-        {
-            // Do nothing.
-        }
-
-
-        public IoService getService()
-        {
-            return null;
-        }
-
-
-        public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportMetadata getTransportMetadata()
-        {
-            return null;
         }
 
 
@@ -378,28 +337,17 @@ public class ChangepwProtocolHandlerTest extends TestCase
         {
             return new InetSocketAddress( 10464 );
         }
-
-
-        public SocketAddress getLocalAddress()
-        {
-            return null;
-        }
-
-
-        public IoSessionConfig getConfig()
-        {
-            return null;
-        }
-
-
+        
+        
         public int getScheduledWriteRequests()
         {
             return 0;
         }
-
-
-        public SocketAddress getServiceAddress()
+        
+        
+        public WriteFuture write(Object message) 
         {
+            this.message = message;
             return null;
         }
     }
