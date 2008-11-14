@@ -214,7 +214,7 @@ public class DefaultReplicationContext implements ReplicationContext
             {
                 logger.warn( "No response within " + configuration.getResponseTimeout()
                     + " second(s) for message #" + message.getSequence() );
-                getSession().close();
+                getSession().close( true );
             }
         }
     }

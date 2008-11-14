@@ -115,7 +115,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.debug( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close();
+        session.close( true );
     }
 
 

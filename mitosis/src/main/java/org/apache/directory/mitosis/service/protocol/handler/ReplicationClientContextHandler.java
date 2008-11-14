@@ -210,7 +210,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Unexpected exception.", cause );
         }
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 
 
@@ -226,7 +226,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Login attempt failed: " + message.getResponseCode() );
-            ctx.getSession().close();
+            ctx.getSession().close( true );
             return;
         }
 
@@ -246,7 +246,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                     logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                         + "] Peer address mismatches: " + ctx.getSession().getRemoteAddress() + " (expected: "
                         + replica.getAddress() );
-                    ctx.getSession().close();
+                    ctx.getSession().close( true );
                     return;
                 }
             }
@@ -254,7 +254,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
         logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
             + "] Unknown peer replica ID: " + message.getReplicaId() );
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 
 
@@ -297,7 +297,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Remote peer failed to execute a log entry." );
-            ctx.getSession().close();
+            ctx.getSession().close( true );
         }
     }
 
@@ -322,7 +322,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Failed to get update vector.", e );
-            ctx.getSession().close();
+            ctx.getSession().close( true );
             return;
         }
 
@@ -463,7 +463,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             {
                 logger.warn( "Remote update vector (" + yourUV
                     + ") is out-of-date.  Full replication is required." );
-                ctx.getSession().close();
+                ctx.getSession().close( true );
                 return;
             }
         }
@@ -487,6 +487,6 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     private void onUnexpectedMessage( ReplicationContext ctx, Object message )
     {
         logger.warn( "Unexpected message: " + message );
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 }

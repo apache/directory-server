@@ -113,7 +113,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         {
             try
             {
-                ldapSession.getIoSession().close();
+                ldapSession.getIoSession().close( true );
             }
             catch ( Throwable t )
             {
@@ -209,6 +209,6 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
         LdapSession ldapSession = this.ldapService.getLdapSessionManager().removeLdapSession( session );
         cleanUpSession( ldapSession );
-        session.close();
+        session.close( true );
     }
 }

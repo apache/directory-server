@@ -482,7 +482,7 @@ public class SessionsFrame extends JFrame
                     try
                     {
                         future.awaitUninterruptibly( 1000L );
-                        CloseFuture cfuture = selected.getIoSession().close();
+                        CloseFuture cfuture = selected.getIoSession().close( true );
                         cfuture.awaitUninterruptibly( 1000L );
                     }
                     catch ( Exception e1 )

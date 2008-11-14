@@ -306,7 +306,7 @@ class ClientConnectionManager
                         {
                             LOG.info( "[Replica-{}] Closed connection to Replica-{}", configuration.getReplicaId(),
                                     con.replicaId );
-                            con.session.close();
+                            con.session.close( true );
                         }
                     }
                 }

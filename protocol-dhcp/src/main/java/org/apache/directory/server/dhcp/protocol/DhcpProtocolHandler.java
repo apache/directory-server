@@ -92,7 +92,7 @@ public class DhcpProtocolHandler implements IoHandler {
         logger.error("EXCEPTION CAUGHT ", cause);
         cause.printStackTrace(System.out);
 
-        session.close();
+        session.close( true );
     }
 
     public void messageReceived(IoSession session, Object message)

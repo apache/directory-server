@@ -85,7 +85,7 @@ public class NtpProtocolHandler implements IoHandler
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close();
+        session.close( true );
     }
 
 

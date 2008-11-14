@@ -154,7 +154,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             LOG.error( "Failed to write GracefulShutdownResponse to client: " + requestor.getRemoteAddress() );
         }
-        requestor.close();
+        requestor.close( true );
     }
 
 
@@ -254,7 +254,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
             try
             {
                 future.join( 1000 );
-                sessionIt.next().close();
+                sessionIt.next().close( true );
             }
             catch ( Exception e )
             {

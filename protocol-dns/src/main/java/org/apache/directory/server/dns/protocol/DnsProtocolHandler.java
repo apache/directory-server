@@ -109,7 +109,7 @@ public class DnsProtocolHandler implements IoHandler
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close();
+        session.close( true );
     }
 
 

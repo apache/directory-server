@@ -123,7 +123,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
     {
         logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Unexpected exception.", cause );
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 
 
@@ -134,7 +134,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
             logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] No login attempt in " + ctx.getConfiguration().getResponseTimeout()
                 + " second(s)." );
-            ctx.getSession().close();
+            ctx.getSession().close( true );
         }
     }
 
@@ -167,7 +167,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
                     ctx.getSession().write(
                             new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
                                     .getReplicaId() ) );
-                    ctx.getSession().close();
+                    ctx.getSession().close( true );
                     return;
                 }
             }
@@ -177,7 +177,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
                 + "] Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().write(
             new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration().getReplicaId() ) );
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 
     
@@ -258,6 +258,6 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
     {
         logger.warn( "[Replica-" + ctx.getConfiguration().getReplicaId()
                 + "] Unexpected message: " + message );
-        ctx.getSession().close();
+        ctx.getSession().close( true );
     }
 }

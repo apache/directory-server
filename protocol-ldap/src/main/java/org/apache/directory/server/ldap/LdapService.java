@@ -397,7 +397,7 @@ public class LdapService extends DirectoryBackedService
             for ( WriteFuture future:writeFutures )
             {
                 future.await( 1000L );
-                sessionIt.next().close();
+                sessionIt.next().close( true );
             }
         }
         catch ( Exception e )
