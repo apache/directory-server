@@ -362,7 +362,7 @@
       <module>server-sar</module>
     -->
 
-    <!--module>server-xml</module-->
+    <module>server-xml</module>
     <module>server-unit</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
