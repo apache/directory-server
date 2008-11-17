@@ -27,8 +27,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.DnNormalizer;
 import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
-import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.BooleanNormalizer;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
@@ -348,7 +348,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
 
          */
 
-        normalizer = new NoOpNormalizer();
+        normalizer = new BooleanNormalizer();
         cb.schemaObjectProduced( this, "2.5.13.13", normalizer );
 
         /*
