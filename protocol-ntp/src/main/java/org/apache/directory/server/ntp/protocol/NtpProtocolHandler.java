@@ -24,8 +24,7 @@ package org.apache.directory.server.ntp.protocol;
 import org.apache.directory.server.ntp.NtpService;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.directory.server.ntp.service.NtpServiceImpl;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpProtocolHandler implements IoHandler
+public class NtpProtocolHandler extends IoHandlerAdapter
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( NtpProtocolHandler.class );
@@ -44,6 +43,9 @@ public class NtpProtocolHandler implements IoHandler
     private NtpService ntpService = new NtpServiceImpl();
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( log.isDebugEnabled() )
@@ -51,10 +53,14 @@ public class NtpProtocolHandler implements IoHandler
             log.debug( "{} CREATED", session.getRemoteAddress() );
         }
 
-        session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
+        // Inject the Codec filter in the chain 
+        //session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     public void sessionOpened( IoSession session )
     {
         if ( log.isDebugEnabled() )
@@ -64,6 +70,9 @@ public class NtpProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionClosed( IoSession session )
     {
         if ( log.isDebugEnabled() )
@@ -73,6 +82,9 @@ public class NtpProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         if ( log.isDebugEnabled() )
@@ -82,6 +94,9 @@ public class NtpProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.error( session.getRemoteAddress() + " EXCEPTION", cause );
@@ -89,6 +104,9 @@ public class NtpProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void messageReceived( IoSession session, Object message )
     {
         if ( log.isDebugEnabled() )
@@ -102,11 +120,14 @@ public class NtpProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
     public void messageSent( IoSession session, Object message )
     {
         if ( log.isDebugEnabled() )
         {
             log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
-    }
+    }*/
 }

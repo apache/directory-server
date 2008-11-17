@@ -20,8 +20,17 @@
 package org.apache.directory.server.ntp;
 
 
+import org.apache.directory.server.ntp.protocol.NtpProtocolCodecFactory;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -64,23 +73,63 @@ public class NtpServer extends AbstractProtocolService
 
     
     /**
+     * Start the NTPServer. We initialize the Datagram and Socket, if necessary.
+     * 
+     * Note that we don't have any filter in the chain, everything is done
+     * in the handler.
      * @throws IOException if there are issues binding
      */
     public void start() throws IOException
     {
-        //If appropriate, the udp and tcp servers could be enabled with boolean flags.
-        if ( getDatagramAcceptor() != null )
+        IoHandler ntpProtocolHandler = new NtpProtocolHandler();
+        
+        // Create the chain for the NTP server
+        DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
+        ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
+        
+        if ( getUdpPort() > 0 )
         {
-            getDatagramAcceptor().setHandler( new NtpProtocolHandler() );
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            // We have to create a DatagramAcceptor
+            DatagramAcceptor acceptor = new  NioDatagramAcceptor();
+            setDatagramAcceptor( (NioDatagramAcceptor)acceptor );
+        
+            // Set the handler
+            acceptor.setHandler( ntpProtocolHandler );
+    
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+    
+            // Inject the chain
+            acceptor.setFilterChainBuilder( ntpChain );
+                
+            // Start the listener
+            acceptor.bind( new InetSocketAddress( getUdpPort() ) );
         }
-
-        if ( getSocketAcceptor() != null )
+        
+        if ( getTcpPort() > 0 )
         {
-            getSocketAcceptor().setReuseAddress( true );
-            getSocketAcceptor().setCloseOnDeactivation( false );
-            getSocketAcceptor().setHandler( new NtpProtocolHandler() );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            // It's a SocketAcceptor
+            SocketAcceptor acceptor = new NioSocketAcceptor();
+            
+            // Set the handler
+            acceptor.setHandler( ntpProtocolHandler );
+
+            // Disable the disconnection of the clients on unbind
+            acceptor.setCloseOnDeactivation( false );
+            
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            acceptor.setReuseAddress( true );
+            
+            // No Nagle's algorithm
+            acceptor.getSessionConfig().setTcpNoDelay( true );
+            
+            // Inject the chain
+            acceptor.setFilterChainBuilder( ntpChain );
+
+            setSocketAcceptor( acceptor );
+            
+            // Start the listener
+            acceptor.bind( new InetSocketAddress( getTcpPort() ) );
         }
     }
 
@@ -96,5 +145,28 @@ public class NtpServer extends AbstractProtocolService
         {
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "NTPServer[" ).append( getServiceName() ).append( "] :" ).append( '\n' );
+        
+        if ( getUdpPort() > 0 )
+        {
+            sb.append( "  Listening on UDP:" ).append( getUdpPort() ).append( '\n' );
+        }
+
+        if ( getTcpPort() > 0 )
+        {
+            sb.append( "  Listening on TCP:" ).append( getTcpPort() ).append( '\n' );
+        }
+        
+        return sb.toString();
     }
 }
