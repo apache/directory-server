@@ -39,7 +39,7 @@
     <!--<siteId>apacheds</siteId>-->
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.13-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>0.9.14-SNAPSHOT</org.apache.directory.shared.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
