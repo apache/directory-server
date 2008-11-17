@@ -20,7 +20,16 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,19 +53,10 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -1379,6 +1379,44 @@ public class SearchIT
     }
    
     
+    @Test
+    public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
+        attrs.get( "objectClass" ).add( "organizationalPerson" );
+        attrs.get( "objectClass" ).add( "person" );
+        attrs.put( "givenName", "Jim" );
+        attrs.put( "sn", "Bean" );
+        attrs.put( "cn", "jimbean" );
+        attrs.put( "description", "(sex*pis\\tols)" );
+        ctx.createSubcontext( "cn=jimbean", attrs );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+
+        String[] filters = new String[]
+            { "(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)", "(description=*\\5C*)" };
+        for ( String filter : filters )
+        {
+            HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+            NamingEnumeration<SearchResult> res = ctx.search( "", filter, controls );
+            assertTrue( res.hasMore() );
+            SearchResult result = res.next();
+            assertNotNull( result );
+            attrs = result.getAttributes();
+            assertEquals( 1, attrs.size() );
+            assertNotNull( attrs.get( "cn" ) );
+            assertEquals( 1, attrs.get( "cn" ).size() );
+            assertEquals( "jimbean", ( String ) attrs.get( "cn" ).get() );
+            assertFalse( res.hasMore() );
+        }
+    }
+
+
     /**
      * Test for DIRSERVER-1180 where search hangs when an invalid a substring 
      * expression missing an any field is used in a filter: i.e. (cn=**).
@@ -1407,5 +1445,38 @@ public class SearchIT
         {
             assertTrue( true );
         }
+    }
+
+    
+    @Test
+    public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "x*y*z*" );
+        vicious.put( "sn", "x*y*z*" );
+        ctx.createSubcontext( "cn=x*y*z*", vicious );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+        NamingEnumeration<SearchResult> res;
+
+        res = ctx.search( "", "(cn=*x\\2Ay\\2Az\\2A*)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        res = ctx.search( "", "(cn=*{0}*)", new String[]
+            { "x*y*z*" }, controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
     }
 }
