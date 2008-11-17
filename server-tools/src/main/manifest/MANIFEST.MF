@@ -31,9 +31,9 @@ Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar
  ../lib/apacheds-xbean-spring-1.5.5-SNAPSHOT.jar 
  ../lib/apacheds-xdbm-base-1.5.5-SNAPSHOT.jar 
  ../lib/apacheds-xdbm-search-1.5.5-SNAPSHOT.jar 
- ../lib/shared-asn1-codec-0.9.13-SNAPSHOT.jar 
- ../lib/shared-asn1-0.9.13-SNAPSHOT.jar 
- ../lib/shared-ldap-0.9.13-SNAPSHOT.jar 
+ ../lib/shared-asn1-codec-0.9.14-SNAPSHOT.jar 
+ ../lib/shared-asn1-0.9.14-SNAPSHOT.jar 
+ ../lib/shared-ldap-0.9.14-SNAPSHOT.jar 
  ../lib/mina-core-1.1.7.jar 
  ../lib/mina-filter-ssl-1.1.7.jar 
  ../lib/commons-collections-3.2.1.jar 
