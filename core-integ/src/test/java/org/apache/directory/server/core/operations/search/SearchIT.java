@@ -20,24 +20,18 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
-import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -51,10 +45,17 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
+import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+ 
 
 /**
  * Tests the search() methods of the provider.
@@ -1256,7 +1257,7 @@ public class SearchIT
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
     }
-    
+
 
     @Test
     public void testSearchWithEscapedCharsInFilter() throws Exception
@@ -1271,7 +1272,7 @@ public class SearchIT
         vicious.put( ocls );
         vicious.put( "cn", "Sid Vicious" );
         vicious.put( "sn", "Vicious" );
-        vicious.put(  "description", "(sex pistols)" );
+        vicious.put( "description", "(sex*pis\\tols)" );
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
 
@@ -1280,19 +1281,22 @@ public class SearchIT
         
         Attributes attributes = ctx.getAttributes( "" );
         
-        assertEquals( "(sex pistols)", attributes.get( "description" ).get() );
+        assertEquals( "(sex*pis\\tols)", attributes.get( "description" ).get() );
 
         // Now, search for the description
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+
+        controls.setReturningAttributes( new String[]
+                    { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
+                     .getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(description=\\28sex pistols\\29)", controls );
-        
+        NamingEnumeration<SearchResult> list = sysRoot
+            .search( "", "(description=\\28sex\\2Apis\\5Ctols\\29)", controls );
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
@@ -1305,6 +1309,95 @@ public class SearchIT
 
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
+    }
+    
+    
+    @Test
+    public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
+    {
+        // Create an entry with special chars in the description attribute
+        LdapContext sysRoot = getSystemContext( service );
+        // Create entry cn=Sid Vicious, ou=system
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "Sid Vicious" );
+        vicious.put( "sn", "Vicious" );
+        vicious.put( "description", "(sex*pis\\tols)" );
+        DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
+        assertNotNull( ctx );
+
+        ctx = ( DirContext ) sysRoot.lookup( "cn=Sid Vicious" );
+        assertNotNull( ctx );
+
+        Attributes attributes = ctx.getAttributes( "" );
+
+        assertEquals( "(sex*pis\\tols)", attributes.get( "description" ).get() );
+
+        // Now, search for the description
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]
+            { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
+            .getJndiValue() );
+
+        String[] filters = new String[]
+            { "(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)", "(description=*\\5C*)" };
+        for ( String filter : filters )
+        {
+            HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+            NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
+
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                map.put( result.getName(), result.getAttributes() );
+            }
+
+            assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+            Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
+
+            assertNotNull( attrs.get( "objectClass" ) );
+            assertNotNull( attrs.get( "cn" ) );
+        }
+    }
+
+
+    @Test
+    public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+
+        Attributes vicious = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        vicious.put( ocls );
+        vicious.put( "cn", "x*y*z*" );
+        vicious.put( "sn", "x*y*z*" );
+        sysRoot.createSubcontext( "cn=x*y*z*", vicious );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "cn" } );
+        NamingEnumeration<SearchResult> res;
+
+        res = sysRoot.search( "", "(cn=*x\\2Ay\\2Az\\2A*)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        res = sysRoot.search( "", "(cn=*{0}*)", new String[]
+            { "x*y*z*" }, controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
     }
 
 
