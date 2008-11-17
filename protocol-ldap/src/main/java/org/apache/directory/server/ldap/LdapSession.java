@@ -208,7 +208,7 @@ public class LdapSession
         
         if ( request.isAbandoned() )
         {
-            LOG.warn( "AbandonableRequest with messageId {} has already been abandoned", messageId );
+            LOG.info( "AbandonableRequest with messageId {} has already been abandoned", messageId );
             return request;
         }
 
