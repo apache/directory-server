@@ -464,6 +464,7 @@
         <version>2.4</version>
         <configuration>
           <aggregate>true</aggregate>
+          <linksource>true</linksource>
           <tags>
             <tag>
               <name>org.apache.xbean.XBean</name>
