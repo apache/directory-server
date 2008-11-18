@@ -26,12 +26,15 @@ import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.directory.server.ntp.service.NtpServiceImpl;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
+ * The NTP protocol handler. It implements the {@link IoHandler#messageReceived} method,
+ * which returns the NTP reply. The {@link IoHandler#exceptionCaught} is also implemented,
+ * all the other methods are handled by the {@link IoHandlerAdapter} class.<br/>
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -40,58 +43,8 @@ public class NtpProtocolHandler extends IoHandlerAdapter
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( NtpProtocolHandler.class );
 
+    /** The NtpService instance */
     private NtpService ntpService = new NtpServiceImpl();
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void sessionCreated( IoSession session ) throws Exception
-    {
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "{} CREATED", session.getRemoteAddress() );
-        }
-
-        // Inject the Codec filter in the chain 
-        //session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public void sessionOpened( IoSession session )
-    {
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "{} OPENED", session.getRemoteAddress() );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void sessionClosed( IoSession session )
-    {
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "{} CLOSED", session.getRemoteAddress() );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public void sessionIdle( IoSession session, IdleStatus status )
-    {
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
-        }
-    }
 
 
     /**
@@ -118,16 +71,4 @@ public class NtpProtocolHandler extends IoHandlerAdapter
 
         session.write( reply );
     }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public void messageSent( IoSession session, Object message )
-    {
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
-        }
-    }*/
 }
