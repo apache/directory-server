@@ -200,7 +200,7 @@
         <version>2.5</version>
         <configuration>
           <aggregate>true</aggregate>
-          <linksource>true<linksource>
+          <linksource>true</linksource>
         </configuration>
       </plugin>
       <plugin>
