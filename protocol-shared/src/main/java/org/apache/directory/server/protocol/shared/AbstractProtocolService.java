@@ -362,7 +362,16 @@ public abstract class AbstractProtocolService implements ProtocolService
 	 * @param ipBacklog the ipBacklog to set
 	 */
 	public void setIpBacklog(int ipBacklog) {
-		this.ipBacklog = ipBacklog;
+        if ( ipBacklog < 0  )
+        {
+            throw new IllegalArgumentException( "Invalid backlog number: " + ipBacklog );
+        }
+
+        this.ipBacklog = ipBacklog;
+        
+        // Now, substitute the existing values by the new one
+        tcpBacklog = ipBacklog;
+        udpBacklog = ipBacklog;
 	}
 
 
