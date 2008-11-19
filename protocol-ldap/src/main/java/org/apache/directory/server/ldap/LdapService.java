@@ -71,6 +71,7 @@ import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
@@ -323,7 +324,7 @@ public class LdapService extends DirectoryBackedService
         
         // Inject the codec into the chain
         ((DefaultIoFilterChainBuilder)chain).addLast( "codec", 
-        		new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
+                new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
 
         /*
          * The server is now initialized, we can
@@ -332,7 +333,7 @@ public class LdapService extends DirectoryBackedService
          */ 
         installDefaultHandlers();      
 
-        startLDAP0( getTcpPort(), chain );
+        startNetwork( getIpAddress(), getTcpPort(), getTcpBacklog(), chain );
         
         started = true;
         
@@ -418,9 +419,15 @@ public class LdapService extends DirectoryBackedService
     }
 
 
-    private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
+    private void startNetwork( String hostname, int port,int backlog, IoFilterChainBuilder chainBuilder )
         throws Exception
     {
+        if ( backlog < 0 ) 
+        {
+            // Set the baclog to the default value when it's below 0
+            backlog = 50;
+        }
+
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
         for ( ExtendedOperationHandler h : extendedOperationHandlers )
@@ -434,41 +441,51 @@ public class LdapService extends DirectoryBackedService
 
         try
         {
-        	// First, create the acceptor with the configured number of threads (if defined)
-        	int nbTcpThreads = getNbTcpThreads();
-        	SocketAcceptor acceptor;
-        	
-        	if ( nbTcpThreads > 0 )
-        	{
-        		acceptor = new NioSocketAcceptor( nbTcpThreads );
-        	}
-        	else
-        	{
-        		acceptor = new NioSocketAcceptor();
-        	}
-        		
-        	setSocketAcceptor( acceptor );
-        	
-        	// Now, configure the acceptor
+            // First, create the acceptor with the configured number of threads (if defined)
+            int nbTcpThreads = getNbTcpThreads();
+            SocketAcceptor acceptor;
+            
+            if ( nbTcpThreads > 0 )
+            {
+                acceptor = new NioSocketAcceptor( nbTcpThreads );
+            }
+            else
+            {
+                acceptor = new NioSocketAcceptor();
+            }
+            
+            setSocketAcceptor( acceptor );
+            
+            // Set the service backlog
+            acceptor.setBacklog( backlog );
+                
+            // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
-        	acceptor.setCloseOnDeactivation( false );
-        	
-        	// Allow the port to be reused even if the socket is in TIME_WAIT state
-        	acceptor.setReuseAddress( true );
-        	
-        	// No Nagle's algorithm
-        	acceptor.getSessionConfig().setTcpNoDelay( true );
-        	
-        	// Inject the chain
-        	acceptor.setFilterChainBuilder( chainBuilder );
-        	
-        	// Inject the protocol handler
-        	acceptor.setHandler( getHandler() );
-        	
-        	// Bind to the configured address
-        	acceptor.bind( new InetSocketAddress( port ) );
-        	
-        	// We are done !
+            acceptor.setCloseOnDeactivation( false );
+            
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            acceptor.setReuseAddress( true );
+            
+            // No Nagle's algorithm
+            acceptor.getSessionConfig().setTcpNoDelay( true );
+            
+            // Inject the chain
+            acceptor.setFilterChainBuilder( chainBuilder );
+            
+            // Inject the protocol handler
+            acceptor.setHandler( getHandler() );
+            
+            // Bind to the configured address
+            if ( StringTools.isEmpty( hostname ) )
+            {
+                acceptor.bind( new InetSocketAddress( port ) );
+            }
+            else
+            {
+                acceptor.bind( new InetSocketAddress( hostname, port ) );
+            }
+            
+            // We are done !
             started = true;
 
             if ( LOG.isInfoEnabled() )

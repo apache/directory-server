@@ -41,6 +41,8 @@ public abstract class AbstractProtocolService implements ProtocolService
     private boolean enabled;
     private String serviceId;
     private String serviceName;
+    
+    /** The server IP address */
     private String ipAddress;
     
     /** The service's port, if there is only one (TCP or UDP) */
@@ -74,6 +76,15 @@ public abstract class AbstractProtocolService implements ProtocolService
      * protocol based IoAcceptor executor 
      **/
     private int nbUdpThreads;
+    
+    /** The backlog for all the transport services */
+    private int ipBacklog;
+    
+    /** The backlog for the TCP transport services */
+    private int tcpBacklog;
+    
+    /** The backlog for the UDP transport services */
+    private int udpBacklog;
     
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
@@ -336,5 +347,53 @@ public abstract class AbstractProtocolService implements ProtocolService
 	public void setNbUdpThreads(int nbUdpThreads) 
 	{
 		this.nbUdpThreads = nbUdpThreads;
+	}
+
+
+	/**
+	 * @return the ipBacklog
+	 */
+	public int getIpBacklog() {
+		return ipBacklog;
+	}
+
+
+	/**
+	 * @param ipBacklog the ipBacklog to set
+	 */
+	public void setIpBacklog(int ipBacklog) {
+		this.ipBacklog = ipBacklog;
+	}
+
+
+	/**
+	 * @return the tcpBacklog
+	 */
+	public int getTcpBacklog() {
+		return tcpBacklog;
+	}
+
+
+	/**
+	 * @param tcpBacklog the tcpBacklog to set
+	 */
+	public void setTcpBacklog(int tcpBacklog) {
+		this.tcpBacklog = tcpBacklog;
+	}
+
+
+	/**
+	 * @return the udpBacklog
+	 */
+	public int getUdpBacklog() {
+		return udpBacklog;
+	}
+
+
+	/**
+	 * @param udpBacklog the udpBacklog to set
+	 */
+	public void setUdpBacklog(int udpBacklog) {
+		this.udpBacklog = udpBacklog;
 	}
 }
