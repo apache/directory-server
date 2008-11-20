@@ -266,7 +266,7 @@
       <dependency>
         <groupId>bouncycastle</groupId>
         <artifactId>bcprov-jdk15</artifactId>
-        <version>136</version>
+        <version>140</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
