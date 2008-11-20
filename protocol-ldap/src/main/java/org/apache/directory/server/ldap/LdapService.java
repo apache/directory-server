@@ -76,9 +76,12 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -325,6 +328,13 @@ public class LdapService extends DirectoryBackedService
         // Inject the codec into the chain
         ((DefaultIoFilterChainBuilder)chain).addLast( "codec", 
                 new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
+        
+        // Now inject an ExecutorFilter for the write operations
+        // We use the same number of thread than the number of IoProcessor
+        // (NOTE : this has to be double checked)
+        ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
+                new ExecutorFilter( new OrderedThreadPoolExecutor( getNbTcpThreads() ), 
+                    IoEventType.WRITE ) );
 
         /*
          * The server is now initialized, we can
