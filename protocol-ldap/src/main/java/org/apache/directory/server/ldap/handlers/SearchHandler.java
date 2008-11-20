@@ -373,7 +373,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                         break;
                     }
                     ClonedServerEntry entry = cursor.get();
-                    session.getIoSession().write( generateResponse( session, req, entry ) );
+                    Response response = generateResponse( session, req, entry );
+                    session.getIoSession().write( response );
                 }
             }
             else
