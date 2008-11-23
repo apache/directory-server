@@ -267,7 +267,7 @@ public class ApacheDS
         }
         catch( Exception e )
         {
-            LOG.warn( "Failure while looking up {}. The entry will be created now.", ServerDNConstants.LDIF_FILES_DN, e );
+            LOG.info( "Failure while looking up {}. The entry will be created now.", ServerDNConstants.LDIF_FILES_DN, e );
         }
 
         if ( entry == null )
