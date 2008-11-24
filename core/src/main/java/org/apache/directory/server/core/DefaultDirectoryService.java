@@ -162,6 +162,9 @@ public class DefaultDirectoryService implements DirectoryService
     
     /** The referral manager */
     private ReferralManager referralManager;
+    
+    /** A flag to tell if the userPassword attribute's value must be hidden */
+    private boolean passwordHidden = false;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -1535,5 +1538,23 @@ public class DefaultDirectoryService implements DirectoryService
     public void setEventService( EventService eventService )
     {
         this.eventService = eventService;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPasswordHidden()
+    {
+        return passwordHidden;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setPassordHidden( boolean passwordHidden )
+    {
+        this.passwordHidden = passwordHidden;
     }
 }

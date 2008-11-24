@@ -622,5 +622,16 @@ public class InterceptorChainTest extends TestCase
             // TODO Auto-generated method stub
             
         }
+
+        
+        public boolean isPasswordHidden()
+        {
+            return false;
+        }
+        
+        
+        public void setPassordHidden( boolean passwordHidden )
+        {
+        }
     }
 }

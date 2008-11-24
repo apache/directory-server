@@ -439,8 +439,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
 
-        if ( ref != null && ! hasManageDsaItControl )
+        if ( ( ref != null ) && ! hasManageDsaItControl )
         {
+            // The entry is a referral.
             SearchResponseReference respRef;
             respRef = new SearchResponseReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
@@ -470,9 +471,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                     case SUBTREE:
                         ldapUrl.setScope( SearchScope.SUBTREE.getJndiScope() );
                         break;
+                        
                     case ONELEVEL: // one level here is object level on remote server
                         ldapUrl.setScope( SearchScope.OBJECT.getJndiScope() );
                         break;
+                        
                     default:
                         throw new IllegalStateException( "Unexpected base scope." );
                 }
@@ -484,10 +487,18 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         }
         else 
         {
+            // The entry is not a referral, or the ManageDsaIt control is set
             SearchResponseEntry respEntry;
             respEntry = new SearchResponseEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
+            
+            // Filter the userPassword if the server mandate to do so
+            if ( session.getCoreSession().getDirectoryService().isPasswordHidden() )
+            {
+                // Remove the userPassord attribute from the entry.
+                respEntry.getEntry().removeAttributes( SchemaConstants.USER_PASSWORD_AT );
+            }
             
             return respEntry;
         }

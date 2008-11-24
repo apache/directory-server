@@ -815,6 +815,15 @@ public class MaxImmSubFilterTest
         public void setEventService( EventService eventService )
         {
         }
+        
+        public boolean isPasswordHidden()
+        {
+            return false;
+        }
+        
+        public void setPassordHidden( boolean passwordHidden )
+        {
+        }
     }
 
     
