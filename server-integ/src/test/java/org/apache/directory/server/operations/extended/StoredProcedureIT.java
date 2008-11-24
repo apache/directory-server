@@ -96,6 +96,7 @@ public class StoredProcedureIT
             ldapService.setDirectoryService( service );
             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
             ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.setNbTcpThreads( 3 );
             ldapService.setEnabled( true );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

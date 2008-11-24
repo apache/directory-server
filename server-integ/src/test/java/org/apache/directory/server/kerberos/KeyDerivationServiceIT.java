@@ -146,6 +146,7 @@ public class KeyDerivationServiceIT
              ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
              ldapService.setAllowAnonymousAccess( false );
              ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+             ldapService.setNbTcpThreads( 3 );
 
              // Setup SASL Mechanisms
              

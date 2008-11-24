@@ -133,6 +133,7 @@ public class PasswordPolicyServiceIT
             ldapService.setDirectoryService( service );
             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
             ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+            ldapService.setNbTcpThreads( 3 );
             ldapService.setAllowAnonymousAccess( false );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

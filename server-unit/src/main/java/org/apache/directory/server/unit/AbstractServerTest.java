@@ -257,6 +257,7 @@ public abstract class AbstractServerTest extends TestCase
         ldapService.setSocketAcceptor( socketAcceptor );
         ldapService.setDirectoryService( directoryService );
         ldapService.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
+        ldapService.setNbTcpThreads( 3 );
 
         setupSaslMechanisms( ldapService );
 
