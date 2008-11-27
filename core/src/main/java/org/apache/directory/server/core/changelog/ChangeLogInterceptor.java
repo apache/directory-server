@@ -48,7 +48,6 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifRevertor;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -333,8 +332,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        List<LdifEntry> reverses = LdifUtils.reverseModifyRdn( ServerEntryUtils.toBasicAttributes( serverEntry ), 
-            opCtx.getParent(), opCtx.getDn(), new Rdn( opCtx.getNewRdn() ) );
+        List<LdifEntry> reverses = LdifRevertor.reverseMoveAndRename(  
+            serverEntry, opCtx.getParent(), new Rdn( opCtx.getNewRdn() ), false );
         opCtx.setChangeLogEvent( changeLog.log( getPrincipal(), forward, reverses ) );
     }
 
