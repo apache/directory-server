@@ -74,6 +74,7 @@
     <interceptors>
       <normalizationInterceptor/>
       <authenticationInterceptor/>
+      <referralInterceptor/>
       <aciAuthorizationInterceptor/>
       <defaultAuthorizationInterceptor/>
       <exceptionInterceptor/>
