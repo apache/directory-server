@@ -84,7 +84,7 @@ public class DumpCommand extends ToolCommand
 {
     private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(),
         new DefaultOidRegistry() );
-    private Set exclusions = new HashSet();
+    private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
 
 
@@ -135,6 +135,7 @@ public class DumpCommand extends ToolCommand
 
         // If not present then we need to abort 
         File schemaDirectory = new File( getLayout().getPartitionsDirectory(), "schema" );
+
         if ( !schemaDirectory.exists() )
         {
             throw new LdapConfigurationException( "The following schema directory from "
@@ -146,6 +147,7 @@ public class DumpCommand extends ToolCommand
         schemaPartition.setCacheSize( 1000 );
 
         DbFileListing listing;
+        
         try
         {
             listing = new DbFileListing();
@@ -172,7 +174,6 @@ public class DumpCommand extends ToolCommand
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries
         // --------------------------------------------------------------------
-
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
         Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
         schemaLoader.loadEnabled( globalRegistries );
@@ -192,12 +193,14 @@ public class DumpCommand extends ToolCommand
         PrintWriter out = null;
 
         String[] excludedAttributes = cmdline.getOptionValues( 'e' );
+        
         if ( excludedAttributes != null )
         {
             AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-            for ( int ii = 0; ii < excludedAttributes.length; ii++ )
+            
+            for ( String attributeType:excludedAttributes)
             {
-                AttributeType type = registry.lookup( excludedAttributes[ii] );
+                AttributeType type = registry.lookup( attributeType );
                 exclusions.add( type.getName() );
             }
         }
@@ -211,9 +214,9 @@ public class DumpCommand extends ToolCommand
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
 
-        for ( int ii = 0; ii < partitions.length; ii++ )
+        for ( String partition:partitions )
         {
-            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partitions[ii] );
+            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partition );
             out.println( "\n\n" );
             dump( partitionDirectory, out );
         }
@@ -250,6 +253,7 @@ public class DumpCommand extends ToolCommand
         out.println( "#---------------------" );
         Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
         StringBuffer buf = new StringBuffer();
+        
         while ( list.next() )
         {
             Tuple<Long,ServerEntry> tuple = list.get();
@@ -260,6 +264,7 @@ public class DumpCommand extends ToolCommand
             filterAttributes( dn, entry );
 
             buf.append( "# Entry: " ).append( id ).append( "\n#---------------------\n\n" );
+        
             if ( !LdifUtils.isLDIFSafe( dn ) )
             {
                 // If the DN isn't LdifSafe, it needs to be Base64 encoded.
@@ -270,11 +275,14 @@ public class DumpCommand extends ToolCommand
             {
                 buf.append( "dn: " ).append( dn );
             }
+            
             buf.append( "\n" ).append( LdifUtils.convertToLdif( entry ) );
+
             if ( list.next() )
             {
                 buf.append( "\n\n#---------------------\n" );
             }
+            
             out.print( buf.toString() );
             out.flush();
             buf.setLength( 0 );
@@ -284,12 +292,14 @@ public class DumpCommand extends ToolCommand
 
     private void filterAttributes( String dn, Attributes entry ) throws Exception
     {
-        List toRemove = new ArrayList();
+        List<String> toRemove = new ArrayList<String>();
         AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-        NamingEnumeration attrs = entry.getAll();
+        NamingEnumeration<? extends Attribute> attrs = entry.getAll();
+        
         while ( attrs.hasMore() )
         {
-            Attribute attr = ( Attribute ) attrs.next();
+            Attribute attr = attrs.next();
+            
             if ( !registry.hasAttributeType( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )
@@ -302,15 +312,17 @@ public class DumpCommand extends ToolCommand
 
             AttributeType type = registry.lookup( attr.getID() );
             boolean isOperational = type.getUsage() != UsageEnum.USER_APPLICATIONS;
+            
             if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )
             {
                 toRemove.add( attr.getID() );
             }
         }
-        for ( int ii = 0; ii < toRemove.size(); ii++ )
+        
+        for ( String id:toRemove )
         {
-            String id = ( String ) toRemove.get( ii );
             entry.remove( id );
+            
             if ( isDebugEnabled() )
             {
                 System.out.println( "# Excluding attribute " + id + " in " + dn );
