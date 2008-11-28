@@ -72,6 +72,7 @@ import org.junit.runners.Suite;
         AddIT.class,
         CreateContextIT.class,
         DestroyContextIT.class,
+        PartitionConfigurationIT.class,
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,
         DIRSERVER783IT.class,
@@ -94,8 +95,7 @@ import org.junit.runners.Suite;
         SubentryServiceIT.class,
         LdapClassLoaderIT.class,
         NormalizationServiceIT.class,
-        DefaultChangeLogIT.class,
-        PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
+        DefaultChangeLogIT.class
         } )
 @CleanupLevel ( Level.SUITE )
 @Mode ( SetupMode.ROLLBACK )
