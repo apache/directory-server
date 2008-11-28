@@ -96,21 +96,21 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected abstract void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
+    protected abstract boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws Exception;
     
     
-    public final void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
+    public final boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws Exception
     {
-        modify( name, entry, targetEntry, cascade );
+        return modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
+    public final boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws Exception
     {
-        modify( name, entry, targetEntry, cascade );
+        return modify( name, entry, targetEntry, cascade );
     }
 
     

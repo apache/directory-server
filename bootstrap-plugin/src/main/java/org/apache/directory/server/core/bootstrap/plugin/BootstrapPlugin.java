@@ -334,9 +334,39 @@ public class BootstrapPlugin extends AbstractMojo
             }
 
 
+            /**
+             * {@inheritDoc}
+             */
             public boolean isDisabled()
             {
                 return false;
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public boolean isEnabled()
+            {
+                return true;
+            }
+            
+            
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public void disable()
+            {
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            public void enable()
+            {
             }
         };
 

@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.util.ClassUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractBootstrapSchema implements BootstrapSchema
+public abstract class AbstractBootstrapSchema implements BootstrapSchema
 {
     protected static final String[] DEFAULT_DEPS = ArrayUtils.EMPTY_STRING_ARRAY;
     private static final String DEFAULT_OWNER = ServerDNConstants.ADMIN_SYSTEM_DN;
@@ -194,8 +194,36 @@ public class AbstractBootstrapSchema implements BootstrapSchema
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isDisabled()
     {
         return false;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isEnabled()
+    {
+        return true;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void disable()
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void enable()
+    {
     }
 }

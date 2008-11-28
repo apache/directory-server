@@ -87,9 +87,11 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an Attributes object
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
+    public boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
         ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        boolean hasModification = SCHEMA_UNCHANGED;
+
         EntryAttribute disabledInMods = mods.get( disabledAT );
         
         if ( disabledInMods != null )
@@ -116,6 +118,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         {
             checkForDependencies( isEnabled, targetEntry );
         }
+        
+        return hasModification;
     }
 
 
@@ -128,15 +132,19 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an ModificationItem arry
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, List<Modification> mods, ServerEntry entry,
+    public boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry,
         ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        boolean hasModification = SCHEMA_UNCHANGED;
+        
+        // Check if the entry has a m-disabled attribute 
         EntryAttribute disabledInEntry = entry.get( disabledAT );
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
         
         if ( disabledModification != null )
         {
-            disable( name, 
+            // We are trying to modify the m-disabled attribute. 
+            hasModification = disable( name, 
                      disabledModification.getOperation(), 
                      (ServerAttribute)disabledModification.getAttribute(), 
                      disabledInEntry );
@@ -161,6 +169,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         {
             checkForDependencies( isEnabled, targetEntry );
         }
+        
+        return hasModification;
     }
 
 
@@ -380,7 +390,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     // -----------------------------------------------------------------------
 
     
-    private void disable( LdapDN name, ModificationOperation modOp, EntryAttribute disabledInMods, EntryAttribute disabledInEntry )
+    private boolean disable( LdapDN name, ModificationOperation modOp, EntryAttribute disabledInMods, EntryAttribute disabledInEntry )
         throws Exception
     {
         switch ( modOp )
@@ -394,7 +404,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
                 {
                     if ( "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
                     {
-                        disableSchema( getSchemaName( name ) );
+                        return disableSchema( getSchemaName( name ) );
                     }
                 }
                 
@@ -405,9 +415,9 @@ public class MetaSchemaHandler implements SchemaChangeHandler
              * disabled.  If so we enable the schema.
              */
             case REMOVE_ATTRIBUTE :
-                if ( "TRUE".equalsIgnoreCase( disabledInEntry.getString() ) )
+                if ( ( disabledInEntry != null ) && ( "TRUE".equalsIgnoreCase( disabledInEntry.getString() ) ) )
                 {
-                    enableSchema( getSchemaName( name ) );
+                    return enableSchema( getSchemaName( name ) );
                 }
                 
                 break;
@@ -418,18 +428,29 @@ public class MetaSchemaHandler implements SchemaChangeHandler
              * schema is not disabled we disable it if the mods set m-disabled to true.
              */
             case REPLACE_ATTRIBUTE :
-                boolean isCurrentlyDisabled = "TRUE".equalsIgnoreCase( disabledInEntry.getString() );
-                boolean isNewStateDisabled = "TRUE".equalsIgnoreCase( disabledInMods.getString() );
+                
+                boolean isCurrentlyDisabled = false;
+                
+                if ( disabledInEntry != null )
+                {
+                    isCurrentlyDisabled = "TRUE".equalsIgnoreCase( disabledInEntry.getString() );
+                }
+                
+                boolean isNewStateDisabled = false;
+                
+                if ( disabledInMods != null )
+                {
+                    isNewStateDisabled = "TRUE".equalsIgnoreCase( disabledInMods.getString() );
+                }
 
                 if ( isCurrentlyDisabled && !isNewStateDisabled )
                 {
-                    enableSchema( getSchemaName( name ) );
-                    break;
+                    return enableSchema( getSchemaName( name ) );
                 }
 
                 if ( !isCurrentlyDisabled && isNewStateDisabled )
                 {
-                    disableSchema( getSchemaName( name ) );
+                    return disableSchema( getSchemaName( name ) );
                 }
                 
                 break;
@@ -437,6 +458,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             default:
                 throw new IllegalArgumentException( "Unknown modify operation type: " + modOp );
         }
+        
+        return SCHEMA_UNCHANGED;
     }
 
 
@@ -446,17 +469,32 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
 
 
-    private void disableSchema( String schemaName ) throws Exception
+    private boolean disableSchema( String schemaName ) throws Exception
     {
+        // First check that the schema is not already disabled
+        Map<String, Schema> schemas = globalRegistries.getLoadedSchemas();
+        
+        Schema schema = schemas.get( schemaName );
+        
+        if ( ( schema == null ) || schema.isDisabled() )
+        {
+            // The schema is disabled, do nothing
+            return SCHEMA_UNCHANGED;
+        }
+        
         Set<String> dependents = loader.listEnabledDependentSchemaNames( schemaName );
+        
         if ( ! dependents.isEmpty() )
         {
             throw new LdapOperationNotSupportedException(
                 "Cannot disable schema with enabled dependents: " + dependents,
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
+        schema.disable();
         
         globalRegistries.unload( schemaName );
+        
+        return SCHEMA_MODIFIED;
     }
 
 
@@ -464,16 +502,19 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * TODO - for now we're just going to add the schema to the global 
      * registries ... we may need to add it to more than that though later.
      */
-    private void enableSchema( String schemaName ) throws Exception
+    private boolean enableSchema( String schemaName ) throws Exception
     {
         if ( globalRegistries.getLoadedSchemas().containsKey( schemaName ) )
         {
             // TODO log warning: schemaName + " was already loaded"
-            return;
+            return SCHEMA_UNCHANGED;
         }
 
         Schema schema = loader.getSchema( schemaName );
         loader.loadWithDependencies( schema, globalRegistries );
+        schema.enable();
+        
+        return SCHEMA_MODIFIED;
     }
 
 

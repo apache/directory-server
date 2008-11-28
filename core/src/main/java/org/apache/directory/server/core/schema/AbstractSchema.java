@@ -110,8 +110,38 @@ public abstract class AbstractSchema implements Schema
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public boolean isDisabled()
     {
         return disabled;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isEnabled()
+    {
+        return !disabled;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void disable()
+    {
+        this.disabled = true;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void enable()
+    {
+        this.disabled = false;
     }
 }

@@ -38,16 +38,22 @@ import java.util.List;
  */
 public interface SchemaChangeHandler
 {
+    /** A constant to tell the caller that the schema has been modified */
+    static final boolean SCHEMA_MODIFIED = true;
+
+    /** A constant to tell the caller that the schema has not been modified */
+    static final boolean SCHEMA_UNCHANGED = false;
+    
     void add( LdapDN name, ServerEntry entry ) throws Exception;
     
     void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws Exception;
     
     void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
     
-    void modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
+    boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
         throws Exception;
     
-    void modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
+    boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
         throws Exception;
     
     void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,

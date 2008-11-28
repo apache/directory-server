@@ -46,10 +46,12 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
 
 
     @Override
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
+            
+            return SCHEMA_UNCHANGED;
     }
 
 

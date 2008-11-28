@@ -49,11 +49,11 @@ public class MetaDitContentRuleHandler extends AbstractSchemaChangeHandler
      * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, javax.naming.directory.Attributes)
      */
     @Override
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws NamingException
     {
         // TODO Auto-generated method stub
-
+        return SCHEMA_UNCHANGED;
     }
 
 

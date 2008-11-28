@@ -62,9 +62,11 @@ import java.util.Map;
 public class MetaSchemaHandlerIT
 {
     /** the schema to use for this test: one that is not loaded by default */
-    private static final String TEST_SCHEMA = "nis";
+    private static final String NIS_SCHEMA = "nis";
+    
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String TEST_ATTR_OID = "1.3.6.1.1.1.1.0";
+    
     /** the name of the dummy schema to test metaSchema adds/deletes with */
     private static final String DUMMY_SCHEMA = "dummy";
     
@@ -96,6 +98,9 @@ public class MetaSchemaHandlerIT
         attributes = schemaRoot.getAttributes( "ou=attributeTypes,cn=samba" );
         assertNotNull( attributes );
         assertTrue( attributes.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
+        
+        // Disable the NIS schema
+        disableSchema( "nis" );
     }
 
 
@@ -139,7 +144,7 @@ public class MetaSchemaHandlerIT
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
         schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
@@ -221,7 +226,7 @@ public class MetaSchemaHandlerIT
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
         
         try
         {
@@ -290,7 +295,7 @@ public class MetaSchemaHandlerIT
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
                 new BasicAttribute( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
-        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
         
         // attempt to delete it now & it should fail
         try
@@ -377,6 +382,28 @@ public class MetaSchemaHandlerIT
     
     
     /**
+     * A helper method which tells if a schema is disabled
+     */
+    private boolean isDisabled( String schemaName )
+    {
+        Schema schema = getLoadedSchemas().get( schemaName );
+        
+        return ( schema == null ) || ( schema.isDisabled() );
+    }
+    
+    
+    /**
+     * A helper method which tells if a schema is enabled
+     */
+    private boolean isEnabled( String schemaName )
+    {
+        Schema schema = getLoadedSchemas().get( schemaName );
+        
+        return ( schema != null ) && ( !schema.isDisabled() );
+    }
+    
+    
+    /**
      * Checks to make sure updates enabling a metaSchema object in
      * the schema partition triggers the loading of that schema into
      * the global registries.
@@ -389,7 +416,7 @@ public class MetaSchemaHandlerIT
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is not loaded
-        assertNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertTrue( isDisabled( NIS_SCHEMA ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
@@ -399,7 +426,7 @@ public class MetaSchemaHandlerIT
         enableSchema( "nis" );
         
         // now test that the schema is loaded 
-        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertTrue( isEnabled( NIS_SCHEMA ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
@@ -407,6 +434,75 @@ public class MetaSchemaHandlerIT
     }
 
 
+    /**
+     * Checks to make sure that if we try to enable an already enabled
+     * schema, we don't do anything.
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testEnableSchemaAlreadyEnabled() throws Exception
+    {
+        AttributeTypeRegistry atr = getAttributeTypeRegistry();
+        
+        // check that the nis schema is not loaded
+        assertTrue( isDisabled( NIS_SCHEMA ) );
+        
+        // double check and make sure an attribute from that schema is 
+        // not in the AttributeTypeRegistry
+        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        
+        // now enable the test schema
+        enableSchema( "nis" );
+        
+        // and enable it again (it should not do anything)
+        enableSchema( "nis" );
+        
+        // now test that the schema is loaded 
+        assertTrue( isEnabled( NIS_SCHEMA ) );
+        
+        // double check and make sure the test attribute from the 
+        // test schema is now loaded and present within the attr registry
+        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+    }
+
+    
+    /**
+     * Checks to make sure that if we try to disable an already disabled
+     * schema, we don't do anything.
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testDisableSchemaAlreadyDisabled() throws Exception
+    {
+        AttributeTypeRegistry atr = getAttributeTypeRegistry();
+        
+        // check that the nis schema is not loaded
+        assertTrue( isDisabled( NIS_SCHEMA ) );
+        
+        // double check and make sure an attribute from that schema is 
+        // not in the AttributeTypeRegistry
+        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        
+        // now disable the test schema
+        disableSchema( "nis" );
+        
+        // now test that the schema is loaded 
+        assertTrue( isDisabled( NIS_SCHEMA ) );
+        
+        // and disable it again (it should not do anything)
+        disableSchema( "nis" );
+        
+        // and test again that the schema is still disabled
+        assertTrue( isDisabled( NIS_SCHEMA ) );
+        
+        // double check and make sure the test attribute from the 
+        // test schema is now loaded and present within the attr registry
+        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+    }
+
+    
     /**
      * Checks to make sure an attempt to disable a metaSchema fails if 
      * that schema has dependents which are enabled.
@@ -421,8 +517,8 @@ public class MetaSchemaHandlerIT
         
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
-        // check that the nis schema is loaded
-        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        // check that the nis schema is enabled
+        assertTrue( isEnabled( NIS_SCHEMA ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
@@ -433,7 +529,7 @@ public class MetaSchemaHandlerIT
         disableSchema( "nis" );
         
         // now test that the schema is NOT loaded 
-        assertNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertTrue( isDisabled( NIS_SCHEMA ) );
         
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
@@ -463,11 +559,11 @@ public class MetaSchemaHandlerIT
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
         schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
-        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertTrue( isEnabled( NIS_SCHEMA ) );
         assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
@@ -493,7 +589,7 @@ public class MetaSchemaHandlerIT
         }
         
         // now test that both schema are still loaded 
-        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertTrue( isEnabled( NIS_SCHEMA ) );
         assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
         // double check and make sure the test attribute from the test  
@@ -631,7 +727,7 @@ public class MetaSchemaHandlerIT
         
         try
         {
-            schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+            schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
             fail( "Should not be able to add bogus dependency to schema" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -653,14 +749,14 @@ public class MetaSchemaHandlerIT
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        enableSchema( TEST_SCHEMA );
+        enableSchema( NIS_SCHEMA );
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         
         try
         {
-            schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
+            schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
             fail( "Should not be able to add disabled dependency to schema" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -683,8 +779,8 @@ public class MetaSchemaHandlerIT
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
-        Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );
+        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=" + NIS_SCHEMA );
         Attribute dependencies = attrs.get( "m-dependencies" );
         assertTrue( dependencies.contains( "mozilla" ) );
     }
@@ -703,8 +799,8 @@ public class MetaSchemaHandlerIT
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "java" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
-        Attributes attrs = schemaRoot.getAttributes( "cn=" + TEST_SCHEMA );
+        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=" + NIS_SCHEMA );
         Attribute dependencies = attrs.get( "m-dependencies" );
         assertTrue( dependencies.contains( "java" ) );
     }
