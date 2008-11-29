@@ -542,7 +542,7 @@ public class DefaultRegistries implements Registries
     }
     
 
-    public SchemaLoader setSchemaLoader()
+    public SchemaLoader getSchemaLoader()
     {
         return schemaLoader;
     }

@@ -45,7 +45,7 @@ public interface Registries
 
     void unload( String schemaName ) throws Exception;
     
-    SchemaLoader setSchemaLoader();
+    SchemaLoader getSchemaLoader();
     
     AttributeTypeRegistry getAttributeTypeRegistry();
     
