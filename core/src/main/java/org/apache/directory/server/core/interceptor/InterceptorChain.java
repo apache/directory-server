@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -707,7 +708,10 @@ public class InterceptorChain
         {
             try
             {
-                opContext.setEntry( opContext.getSession().lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
+                // We have to use the admin session here, otherwise we may have
+                // trouble reading the entry due to insufficient access rights 
+                CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
+                opContext.setEntry( adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES_ARRAY ) );
             }
             catch ( Exception e )
             {
