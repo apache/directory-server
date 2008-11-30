@@ -30,6 +30,9 @@ import javax.naming.ReferralException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.ManageReferralControl;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
@@ -341,6 +344,159 @@ public class ReferralSearchIT
             String referral = (String)re.getReferralInfo();
             assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
         }
+    }
+
+    
+    /**
+     * Test of an search operation with a referral after the entry
+     * has been renamed.
+     *
+     * search for "cn=alex karasulu" on "c=usa, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchBaseWithReferralThrowAfterRename() throws Exception
+    {
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        try
+        {
+            ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
+        Control manageDsaItControl = new ManageReferralControl();
+        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+
+        // Now let's move the entry
+        ctx.rename( "c=america,ou=Countries,ou=system", "c=USA,ou=Countries,ou=system" );
+
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+
+        try
+        {
+            ctx.search( "c=usa,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
+    }
+
+    
+    /**
+     * Test of an search operation with a referral after the entry
+     * has been moved.
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchBaseWithReferralThrowAfterMove() throws Exception
+    {
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        try
+        {
+            ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
+        Control manageDsaItControl = new ManageReferralControl();
+        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+
+        // Now let's move the entry
+        ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
+
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+
+        try
+        {
+            ctx.search( "c=america,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
+    }
+
+    
+    /**
+     * Test of an search operation with a referral after the entry
+     * has been moved.
+     *
+     * search for "cn=alex karasulu" on "c=usa, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchBaseWithReferralThrowAfterMoveAndRename() throws Exception
+    {
+        DirContext ctx = getWiredContextThrowOnRefferal( ldapService );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        try
+        {
+            ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
+        Control manageDsaItControl = new ManageReferralControl();
+        ((LdapContext)ctx).setRequestControls( new Control[]{manageDsaItControl} );
+
+        // Now let's move the entry
+        ctx.rename( "c=america,ou=Countries,ou=system", "c=us,ou=system" );
+
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+        ((LdapContext)ctx).setRequestControls( new Control[]{} );
+
+        try
+        {
+            ctx.search( "c=us,ou=system", "(cn=alex karasulu)", controls );
+            fail( "Should fail here throwing a ReferralException" );
+        }
+        catch ( ReferralException re )
+        {
+            String referral = (String)re.getReferralInfo();
+            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+        }
+        
     }
 
     
