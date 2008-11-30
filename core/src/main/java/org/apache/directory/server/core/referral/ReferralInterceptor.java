@@ -32,6 +32,9 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -148,6 +151,14 @@ public class ReferralInterceptor extends BaseInterceptor
     
     static private boolean isReferral( ServerEntry entry ) throws NamingException
     {
+        // Check that the entry is not null, otherwise return FALSE.
+        // This is typically to cover the case where the entry has not 
+        // been added into the context because it does not exists.
+        if ( entry == null )
+        {
+            return false;
+        }
+        
         EntryAttribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         if ( oc == null )
@@ -287,7 +298,9 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    /*
+    /**
+     * 
+     **/
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
     {
         LdapDN oldName = opContext.getDn();
@@ -295,40 +308,56 @@ public class ReferralInterceptor extends BaseInterceptor
         LdapDN newName = ( LdapDN ) opContext.getParent().clone();
         newName.add( oldName.get( oldName.size() - 1 ) );
 
+        // Check if the entry is a referral itself
+        boolean isReferral = isReferral( opContext.getEntry() );
+
         next.move( opContext );
         
-        // Update the referralManager
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
         
-        ServerEntry newEntry = nexus.lookup( lookupContext );
-        
-        referralManager.lockWrite();
-        
-        referralManager.addReferral( newEntry );
-        referralManager.removeReferral( opContext.getEntry() );
-        
-        referralManager.unlock();
+        if ( isReferral ) 
+        {
+            // Update the referralManager
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            
+            ServerEntry newEntry = nexus.lookup( lookupContext );
+            
+            referralManager.lockWrite();
+            
+            referralManager.addReferral( newEntry );
+            referralManager.removeReferral( opContext.getEntry() );
+            
+            referralManager.unlock();
+        }
     }
 
 
+    /**
+     * 
+     **/
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
     {
         LdapDN newName = ( LdapDN ) opContext.getParent().clone();
         newName.add( opContext.getNewRdn() );
 
+        // Check if the entry is a referral itself
+        boolean isReferral = isReferral( opContext.getEntry() );
+
         next.moveAndRename( opContext );
         
-        // Update the referralManager
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
-        
-        ServerEntry newEntry = nexus.lookup( lookupContext );
-        
-        referralManager.lockWrite();
-        
-        referralManager.addReferral( newEntry );
-        referralManager.removeReferral( opContext.getEntry() );
-        
-        referralManager.unlock();
+        if ( isReferral ) 
+        {
+            // Update the referralManager
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            
+            ServerEntry newEntry = nexus.lookup( lookupContext );
+            
+            referralManager.lockWrite();
+            
+            referralManager.addReferral( newEntry );
+            referralManager.removeReferral( opContext.getEntry() );
+            
+            referralManager.unlock();
+        }
     }
 
 
@@ -341,21 +370,27 @@ public class ReferralInterceptor extends BaseInterceptor
 
         newName.add( opContext.getNewRdn() );
 
+        // Check if the entry is a referral itself
+        boolean isReferral = isReferral( opContext.getEntry() );
+
         next.rename( opContext );
         
-        // Update the referralManager
-        LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
-        
-        ServerEntry newEntry = nexus.lookup( lookupContext );
-        
-        referralManager.lockWrite();
-        
-        referralManager.addReferral( newEntry );
-        referralManager.removeReferral( opContext.getEntry() );
-        
-        referralManager.unlock();
+        if ( isReferral ) 
+        {
+            // Update the referralManager
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            
+            ServerEntry newEntry = nexus.lookup( lookupContext );
+            
+            referralManager.lockWrite();
+            
+            referralManager.addReferral( newEntry );
+            referralManager.removeReferral( opContext.getEntry() );
+            
+            referralManager.unlock();
+        }
     }
-    */
+    
 
     /**
      * Modify an entry in the server.
