@@ -78,11 +78,18 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
         // to the handling without pre-processing the request
         if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
         {
+            // If the ManageDsaIT control is present, we will
+            // consider that the user wants to get entry which
+            // are referrals as plain entry. We have to return
+            // SearchResponseEntry elements instead of 
+            // SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl detected." );
             handleIgnoringReferrals( session, req );
         }
         else
         {
+            // No ManageDsaIT control. If the found entries is a referral,
+            // we will return SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl NOT detected." );
     
             switch ( req.getType() )
