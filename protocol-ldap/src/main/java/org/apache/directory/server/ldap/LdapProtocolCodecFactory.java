@@ -44,6 +44,9 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
 {
     /** the directory service for which this factor generates codecs */
     final private DirectoryService directoryService;
+    
+    /** The tag stored into the session if we want to set a max PDU size */
+    public final static String MAX_PDU_SIZE = "MAX_PDU_SIZE"; 
 
 
     /**
@@ -74,6 +77,14 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
      */
     public ProtocolDecoder getDecoder( IoSession session )
     {
+        Object maxPDUSizeValue = session.getAttribute( MAX_PDU_SIZE );
+        int maxPDUSize = Integer.MAX_VALUE;
+        
+        if ( ( maxPDUSizeValue != null ) || ( maxPDUSizeValue instanceof Number ) )
+        {
+            maxPDUSize = ((Number)maxPDUSizeValue).intValue();
+        }
+        
         return new Asn1CodecDecoder( new MessageDecoder( new BinaryAttributeDetector()
         {
             public boolean isBinary( String id )
@@ -89,6 +100,7 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
                     return false;
                 }
             }
-        }) );
+        },
+        maxPDUSize ) );
     }
 }
