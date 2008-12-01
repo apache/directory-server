@@ -252,26 +252,17 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
             {
                 try
                 {
-                    if ( isEntryReferral( entry ) )
+                    LOG.debug( "Entry is a referral: {}", entry );
+                    
+                    if ( req instanceof SearchRequest )
                     {
-                        LOG.debug( "Entry is a referral: {}", entry );
-                        
-                        if ( req instanceof SearchRequest )
-                        {
-                            handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
-                        }
-                        else
-                        {
-                            handleReferralEntry( session, reqTargetDn, req, entry );
-                        }
-                        return;
+                        handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
                     }
                     else
                     {
-                        LOG.debug( "Entry is NOT a referral: {}", entry );
-                        handleIgnoringReferrals( session, req );
-                        return;
+                        handleReferralEntry( session, reqTargetDn, req, entry );
                     }
+                    return;
                 }
                 catch ( Exception e )
                 {
