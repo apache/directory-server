@@ -406,8 +406,8 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#lookup(org.apache.directory.shared.ldap.name.LdapDN)
+    /**
+     * {@inheritDoc} 
      */
     public ClonedServerEntry lookup( LdapDN dn ) throws Exception
     {
@@ -416,8 +416,8 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#lookup(org.apache.directory.shared.ldap.name.LdapDN)
+    /**
+     * {@inheritDoc}
      */
     public ClonedServerEntry lookup( LdapDN dn, String[] attrId ) throws Exception
     {
