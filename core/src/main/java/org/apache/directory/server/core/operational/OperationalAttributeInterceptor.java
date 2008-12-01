@@ -317,6 +317,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             filter( opContext, result );
         }
         
+        denormalizeEntryOpAttrs( result );
         return result;
     }
 
