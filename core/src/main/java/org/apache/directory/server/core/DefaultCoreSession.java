@@ -637,16 +637,6 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode,
-        LdapDN authorized ) throws Exception
-    {
-        LookupOperationContext opContext = new LookupOperationContext( this, dn );
-        opContext.addRequestControls( requestControls );
-        OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( opContext );
-    }
-
-
     public boolean exists( LdapDN dn ) throws Exception
     {
         EntryOperationContext opContext = new EntryOperationContext( this, dn );
