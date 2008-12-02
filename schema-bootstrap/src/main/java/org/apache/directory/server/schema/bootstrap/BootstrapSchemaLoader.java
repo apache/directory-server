@@ -78,8 +78,10 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
 
     /** stores schemas of producers for callback access */
     private ThreadLocal<BootstrapSchema> schemas;
+    
     /** stores registries associated with producers for callback access */
     private ThreadLocal<Registries> registries;
+    
     /** the callback that just calls register() */
     private final ProducerCallback cb = new ProducerCallback()
     {
@@ -151,7 +153,8 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         notLoaded.remove( schema.getSchemaName() ); // Remove if user specified it.
         loaded.put( schema.getSchemaName(), schema );
 
-        Iterator list = notLoaded.values().iterator();
+        Iterator<Schema> list = notLoaded.values().iterator();
+        
         while ( list.hasNext() )
         {
             schema = ( BootstrapSchema ) list.next();
@@ -185,10 +188,19 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         this.registries.set( registries );
         this.schemas.set( ( BootstrapSchema ) schema );
 
-        for ( ProducerTypeEnum producerType:ProducerTypeEnum.getList() )
+        try
         {
-            BootstrapProducer producer = getProducer( ( BootstrapSchema ) schema, producerType.getName() );
-            producer.produce( registries, cb );
+            for ( ProducerTypeEnum producerType:ProducerTypeEnum.getList() )
+            {
+                BootstrapProducer producer = getProducer( ( BootstrapSchema ) schema, producerType.getName() );
+                producer.produce( registries, cb );
+            }
+        }
+        finally
+        {
+            // Don't forget to release the ThreadLocal variables when done !
+            this.registries.set( null );
+            this.schemas.set( null );
         }
 
         notifyListenerOrRegistries( schema, registries );
