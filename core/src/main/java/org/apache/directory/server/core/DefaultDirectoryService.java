@@ -248,6 +248,10 @@ public class DefaultDirectoryService implements DirectoryService
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
     private EventService eventService;
 
+    
+    
+    /** The maximum size for an incoming PDU */
+    private int maxPDUSize = Integer.MAX_VALUE;
 
 
     public void setInstanceId( String instanceId )
@@ -1556,5 +1560,30 @@ public class DefaultDirectoryService implements DirectoryService
     public void setPassordHidden( boolean passwordHidden )
     {
         this.passwordHidden = passwordHidden;
+    }
+
+
+    /**
+     * @return The maximum allowed size for an incoming PDU
+     */
+    public int getMaxPDUSize()
+    {
+        return maxPDUSize;
+    }
+
+
+    /**
+     * Set the maximum allowed size for an incoming PDU 
+     * @param maxPDUSize A positive number of bytes for the PDU. A negative or
+     * null value will be transformed to {@link Integer#MAX_VALUE}
+     */
+    public void setMaxPDUSize( int maxPDUSize )
+    {
+        if ( maxPDUSize <= 0 )
+        {
+            maxPDUSize = Integer.MAX_VALUE;
+        }
+        
+        this.maxPDUSize = maxPDUSize;
     }
 }

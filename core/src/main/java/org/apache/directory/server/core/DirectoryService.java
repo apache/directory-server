@@ -414,4 +414,18 @@ public interface DirectoryService extends ServerEntryFactory
      * Gets the operation manager.
      */
     OperationManager getOperationManager();
+
+
+    /**
+     * @return The maximum allowed size for an incoming PDU
+     */
+    int getMaxPDUSize();
+
+
+    /**
+     * Set the maximum allowed size for an incoming PDU 
+     * @param maxPDUSize A positive number of bytes for the PDU. A negative or
+     * null value will be transformed to {@link Integer#MAX_VALUE}
+     */
+    void setMaxPDUSize( int maxPDUSize );
 }

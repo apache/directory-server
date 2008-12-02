@@ -824,6 +824,18 @@ public class MaxImmSubFilterTest
         public void setPassordHidden( boolean passwordHidden )
         {
         }
+
+
+        public int getMaxPDUSize()
+        {
+            return Integer.MAX_VALUE;
+        }
+
+
+        public void setMaxPDUSize( int maxPDUSize )
+        {
+            // Do nothing
+        }
     }
 
     

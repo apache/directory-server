@@ -28,7 +28,8 @@
                            workingDirectory="example.com"
                            allowAnonymousAccess="true"
                            accessControlEnabled="false"
-                           denormalizeOpAttrsEnabled="false">
+                           denormalizeOpAttrsEnabled="false"
+                           maxPDUSize="2000000">
     <systemPartition>
       <!-- use the following partitionConfiguration to override defaults for -->
       <!-- the system partition                                              -->
