@@ -20,7 +20,6 @@
 package org.apache.directory.server.operations.add;
 
 
-import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
