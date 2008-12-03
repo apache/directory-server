@@ -246,7 +246,7 @@ public class AvlTreePerfTest
     
     
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testRBTreeDeserializationPerf() throws Exception
     {
      // read test

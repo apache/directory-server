@@ -449,8 +449,8 @@ public class ClonedServerEntry implements ServerEntry
     
     
     /**
-	 * @see Object#equals(Object);
-	 */
+     * @see Object#equals(Object);
+     */
     public boolean equals( Object obj )
     {
         // Short circuit
