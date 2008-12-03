@@ -443,73 +443,73 @@ public class KdcServer extends DirectoryBackedService
         // Kerberos can use UDP or TCP
         if ( getUdpPort() != -1 )
         {
-        	// Actually, this is not used for Datagram. But it should !
-        	int nbUdpThreads = getNbUdpThreads();
-        	
-        	// Create the acceptor
-        	DatagramAcceptor udpAcceptor = new NioDatagramAcceptor();
-        	
-        	// Stores it
-        	setDatagramAcceptor( udpAcceptor );
-        	
-        	// Now, configure the acceptor
-        	// Inject the chain
+            // Actually, this is not used for Datagram. But it should !
+            int nbUdpThreads = getNbUdpThreads();
+            
+            // Create the acceptor
+            DatagramAcceptor udpAcceptor = new NioDatagramAcceptor();
+            
+            // Stores it
+            setDatagramAcceptor( udpAcceptor );
+            
+            // Now, configure the acceptor
+            // Inject the chain
             IoFilterChainBuilder udpChainBuilder = new DefaultIoFilterChainBuilder();
 
             ((DefaultIoFilterChainBuilder)udpChainBuilder).addFirst( "codec", 
-            		new ProtocolCodecFilter( 
-            				KerberosUdpProtocolCodecFactory.getInstance() ) );
+                    new ProtocolCodecFilter( 
+                            KerberosUdpProtocolCodecFactory.getInstance() ) );
 
-        	udpAcceptor.setFilterChainBuilder( udpChainBuilder );
-        	
-        	// Inject the protocol handler
-        	udpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-        	
-        	// Bind to the configured address
-        	udpAcceptor.bind( new InetSocketAddress( getUdpPort() ) );
+            udpAcceptor.setFilterChainBuilder( udpChainBuilder );
+            
+            // Inject the protocol handler
+            udpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
+            
+            // Bind to the configured address
+            udpAcceptor.bind( new InetSocketAddress( getUdpPort() ) );
         }
 
         if ( getTcpPort() != -1 )
         {
-        	// First, create the acceptor with the configured number of threads (if defined)
-        	int nbTcpThreads = getNbTcpThreads();
-        	SocketAcceptor tcpAcceptor;
-        	
-        	if ( nbTcpThreads > 0 )
-        	{
-        		tcpAcceptor = new NioSocketAcceptor( nbTcpThreads );
-        	}
-        	else
-        	{
-        		tcpAcceptor = new NioSocketAcceptor();
-        	}
-        		
-        	setSocketAcceptor( tcpAcceptor );
-        	
-        	// Now, configure the acceptor
+            // First, create the acceptor with the configured number of threads (if defined)
+            int nbTcpThreads = getNbTcpThreads();
+            SocketAcceptor tcpAcceptor;
+            
+            if ( nbTcpThreads > 0 )
+            {
+                tcpAcceptor = new NioSocketAcceptor( nbTcpThreads );
+            }
+            else
+            {
+                tcpAcceptor = new NioSocketAcceptor();
+            }
+                
+            setSocketAcceptor( tcpAcceptor );
+            
+            // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
-        	tcpAcceptor.setCloseOnDeactivation( false );
-        	
-        	// No Nagle's algorithm
-        	tcpAcceptor.getSessionConfig().setTcpNoDelay( true );
-        	
-        	// Allow the port to be reused even if the socket is in TIME_WAIT state
-        	tcpAcceptor.setReuseAddress( true );
-        	
-        	// Inject the chain
+            tcpAcceptor.setCloseOnDeactivation( false );
+            
+            // No Nagle's algorithm
+            tcpAcceptor.getSessionConfig().setTcpNoDelay( true );
+            
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            tcpAcceptor.setReuseAddress( true );
+            
+            // Inject the chain
             IoFilterChainBuilder tcpChainBuilder = new DefaultIoFilterChainBuilder();
 
             ((DefaultIoFilterChainBuilder)tcpChainBuilder).addFirst( "codec", 
-            		new ProtocolCodecFilter( 
-            				KerberosTcpProtocolCodecFactory.getInstance() ) );
+                    new ProtocolCodecFilter( 
+                            KerberosTcpProtocolCodecFactory.getInstance() ) );
 
-        	tcpAcceptor.setFilterChainBuilder( tcpChainBuilder );
-        	
-        	// Inject the protocol handler
-        	tcpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-        	
-        	// Bind to the configured address
-        	tcpAcceptor.bind( new InetSocketAddress( getTcpPort() ) );
+            tcpAcceptor.setFilterChainBuilder( tcpChainBuilder );
+            
+            // Inject the protocol handler
+            tcpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
+            
+            // Bind to the configured address
+            tcpAcceptor.bind( new InetSocketAddress( getTcpPort() ) );
         }
         
         LOG.info( "Kerberos service started." );

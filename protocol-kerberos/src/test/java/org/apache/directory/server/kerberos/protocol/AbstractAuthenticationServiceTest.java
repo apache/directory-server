@@ -39,15 +39,11 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;
-import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.DummySession;
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 
 
@@ -128,27 +124,27 @@ public abstract class AbstractAuthenticationServiceTest
         
         public KrbDummySession() 
         {
-        	super();
+            super();
         }
         
         public KrbDummySession( IoService service )
         {
-        	try
-        	{
-	            ((AbstractIoSession) this).setAttributeMap(service
-	                    .getSessionDataStructureFactory().getAttributeMap(this));
-        	}
-        	catch( Exception e ) 
-        	{
-        		
-        	}
+            try
+            {
+                ((AbstractIoSession) this).setAttributeMap(service
+                        .getSessionDataStructureFactory().getAttributeMap(this));
+            }
+            catch( Exception e ) 
+            {
+                
+            }
         }
 
         public WriteFuture write( Object message )
         {
-        	this.message = message;
-        	
-        	return null;
+            this.message = message;
+            
+            return null;
         }
 
         protected Object getMessage()
