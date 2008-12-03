@@ -763,14 +763,14 @@ public class AddIT
     public void testDIRSERVER_1183() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
-    	Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
-    	attrs.get( "objectClass" ).add( "organizationalPerson" );
-    	attrs.get( "objectClass" ).add( "person" );
-    	attrs.put( "givenName", "Jim" );
-    	attrs.put( "sn", "Bean" );
-    	attrs.put( "cn", "\"Jim, Bean\"" );
-    	
-    	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
+        Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
+        attrs.get( "objectClass" ).add( "organizationalPerson" );
+        attrs.get( "objectClass" ).add( "person" );
+        attrs.put( "givenName", "Jim" );
+        attrs.put( "sn", "Bean" );
+        attrs.put( "cn", "\"Jim, Bean\"" );
+        
+        ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
     }
 
 

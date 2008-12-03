@@ -170,7 +170,7 @@ public class SimpleBindIT
         }
         catch ( AuthenticationException ae )
         {
-    		// Error code 49 : LDAP_INVALID_CREDENTIALS
+            // Error code 49 : LDAP_INVALID_CREDENTIALS
             assertTrue( ae.getMessage().contains( "error code 49" ) );
         }
         catch ( NamingException e )
@@ -200,8 +200,8 @@ public class SimpleBindIT
         }
         catch ( InvalidNameException ine )
         {
-    		// Error code 34 : LDAP_INVALID_DN_SYNTAX
-        	assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect DN given" ) );
+            // Error code 34 : LDAP_INVALID_DN_SYNTAX
+            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect DN given" ) );
         }
         catch ( NamingException e )
         {
@@ -256,47 +256,47 @@ public class SimpleBindIT
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
         String[] attrIDs = { "*", "+" };
-    	DirContext ctx = null;
-    	
-    	// Create the initial context
-    	try
-    	{
-    		ctx = new InitialDirContext(env);
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
-    	
-    	// We should be anonymous here. 
-    	// Check that we can read the rootDSE
-    	try
-    	{
+        DirContext ctx = null;
+        
+        // Create the initial context
+        try
+        {
+            ctx = new InitialDirContext(env);
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+        
+        // We should be anonymous here. 
+        // Check that we can read the rootDSE
+        try
+        {
             Attributes attrs = ctx.getAttributes( "", attrIDs );
-    		
-    		assertNotNull( attrs );
-    		assertEquals( "Apache Software Foundation", attrs.get( "vendorName" ).get() );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+            
+            assertNotNull( attrs );
+            assertEquals( "Apache Software Foundation", attrs.get( "vendorName" ).get() );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
 
-    	// Check that we cannot read another entry being anonymous
-    	try
-    	{
+        // Check that we cannot read another entry being anonymous
+        try
+        {
             Attributes attrs = ctx.getAttributes( "uid=admin,ou=system", attrIDs );
-    		
-    		assertNotNull( attrs );
-    		assertEquals( 0, attrs.size() );
+            
+            assertNotNull( attrs );
+            assertEquals( 0, attrs.size() );
             fail( "Should not be able to read the root DSE" );
-    	}
-    	catch ( NamingException ne )
-    	{
-    	}
-    	
-    	ldapService.getDirectoryService().setAllowAnonymousAccess( oldValue );
-    	ldapService.setAllowAnonymousAccess( oldValue );
+        }
+        catch ( NamingException ne )
+        {
+        }
+        
+        ldapService.getDirectoryService().setAllowAnonymousAccess( oldValue );
+        ldapService.setAllowAnonymousAccess( oldValue );
     }
     
     
@@ -314,19 +314,19 @@ public class SimpleBindIT
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
         // Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
-    	}
-    	catch ( OperationNotSupportedException onse )
-    	{
-    		// Error code 53 : LDAP_UNWILLING_TO_PERFORM
-    		assertTrue( onse.getMessage().contains( "error code 53" ) );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        try
+        {
+            new InitialDirContext(env);
+        }
+        catch ( OperationNotSupportedException onse )
+        {
+            // Error code 53 : LDAP_UNWILLING_TO_PERFORM
+            assertTrue( onse.getMessage().contains( "error code 53" ) );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }    
     
     
@@ -345,17 +345,17 @@ public class SimpleBindIT
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
-    	}
-    	catch ( AuthenticationException ae )
-    	{
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail( "Expected AuthenticationException but instead got: " + ne.getMessage() );
-    	}
+        try
+        {
+            new InitialDirContext(env);
+        }
+        catch ( AuthenticationException ae )
+        {
+        }
+        catch ( NamingException ne )
+        {
+            fail( "Expected AuthenticationException but instead got: " + ne.getMessage() );
+        }
     }    
 
 

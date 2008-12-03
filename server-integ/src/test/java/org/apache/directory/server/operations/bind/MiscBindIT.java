@@ -202,8 +202,8 @@ public class MiscBindIT
             }
             catch ( Exception e )
             {
-            	// We should not get here
-            	fail();
+                // We should not get here
+                fail();
             }
         }
 
