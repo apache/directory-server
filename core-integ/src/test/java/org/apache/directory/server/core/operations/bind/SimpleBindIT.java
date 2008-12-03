@@ -57,7 +57,7 @@ import static org.junit.Assert.fail;
 @RunWith ( CiRunner.class )
 public class SimpleBindIT
 {
-	/** The directory service */
+    /** The directory service */
     public static DirectoryService service;
     
     /**
@@ -85,38 +85,38 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindUserPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
-    	// Authenticate as admin and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-    	env.put(Context.SECURITY_CREDENTIALS, "secret");
+        // Authenticate as admin and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
+        env.put(Context.SECURITY_CREDENTIALS, "secret");
 
-    	DirContext ctx = null;
-    	
-    	// Create the initial context
-    	try
-    	{
-    		ctx = new InitialDirContext(env);
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
-    	
-    	try
-    	{
-    		ctx.close();
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        DirContext ctx = null;
+        
+        // Create the initial context
+        try
+        {
+            ctx = new InitialDirContext(env);
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+        
+        try
+        {
+            ctx.close();
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
     
@@ -128,34 +128,34 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindUserBadPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
-    	// Authenticate as admin and password "badsecret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-    	env.put(Context.SECURITY_CREDENTIALS, "badsecret");
+        // Authenticate as admin and password "badsecret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
+        env.put(Context.SECURITY_CREDENTIALS, "badsecret");
 
-    	// Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
+        // Create the initial context
+        try
+        {
+            new InitialDirContext(env);
 
-        	// We should not be connected
-    		fail();
-    	}
-    	catch ( LdapAuthenticationException lae )
-    	{
-    		assertTrue( true );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+            // We should not be connected
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
     
@@ -167,34 +167,34 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindBadUserPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
-    	// Authenticate as admin and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "admin");
-    	env.put(Context.SECURITY_CREDENTIALS, "secret");
+        // Authenticate as admin and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "admin");
+        env.put(Context.SECURITY_CREDENTIALS, "secret");
 
-    	// Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
+        // Create the initial context
+        try
+        {
+            new InitialDirContext(env);
 
-        	// We should not be connected
-    		fail();
-    	}
-    	catch ( InvalidNameException ine )
-    	{
-    		assertEquals( "Bad DN : admin", ine.getMessage() );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+            // We should not be connected
+            fail();
+        }
+        catch ( InvalidNameException ine )
+        {
+            assertEquals( "Bad DN : admin", ine.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
 
@@ -206,34 +206,34 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindUnknowUserPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
-    	// Authenticate as uid=unknown and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system");
-    	env.put(Context.SECURITY_CREDENTIALS, "secret");
+        // Authenticate as uid=unknown and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system");
+        env.put(Context.SECURITY_CREDENTIALS, "secret");
 
-    	// Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
+        // Create the initial context
+        try
+        {
+            new InitialDirContext(env);
 
-        	// We should not be connected
-    		fail();
-    	}
-    	catch ( LdapAuthenticationException lae )
-    	{
-    		assertEquals( "Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+            // We should not be connected
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertEquals( "Cannot authenticate user uid=unknown,ou=system", lae.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
     
@@ -245,8 +245,8 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindNoUserNoPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -254,63 +254,63 @@ public class SimpleBindIT
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
-    	// Authenticate as admin and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "");
-    	env.put(Context.SECURITY_CREDENTIALS, "");
+        // Authenticate as admin and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "");
+        env.put(Context.SECURITY_CREDENTIALS, "");
 
-    	DirContext ctx = null;
-    	
-    	// Create the initial context
-    	try
-    	{
-    		ctx = new InitialDirContext(env);
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
-    	
-    	// We should be anonymous here. 
-    	// Check that we can read the rootDSE
-    	try
-    	{
-    		NamingEnumeration<SearchResult> list = search( ctx, "", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
-    		
-    		assertNotNull( list );
-    		
+        DirContext ctx = null;
+        
+        // Create the initial context
+        try
+        {
+            ctx = new InitialDirContext(env);
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+        
+        // We should be anonymous here. 
+        // Check that we can read the rootDSE
+        try
+        {
+            NamingEnumeration<SearchResult> list = search( ctx, "", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
+            
+            assertNotNull( list );
+            
             while ( list.hasMore() )
             {
                 SearchResult result = list.next();
                 assertNotNull( result );
             }
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
 
-    	// Check that we cannot read another entry being anonymous
-    	try
-    	{
-    		NamingEnumeration<SearchResult> list = search( ctx, "uid=admin, ou=system", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
-    		
-    		assertNotNull( list );
-    		assertFalse( list.hasMore() );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        // Check that we cannot read another entry being anonymous
+        try
+        {
+            NamingEnumeration<SearchResult> list = search( ctx, "uid=admin, ou=system", "(ObjectClass=*)", SearchControls.OBJECT_SCOPE );
+            
+            assertNotNull( list );
+            assertFalse( list.hasMore() );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
 
-    	try
-    	{
-    		ctx.close();
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        try
+        {
+            ctx.close();
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
     
@@ -322,8 +322,8 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindUserNoPassword()
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -331,24 +331,24 @@ public class SimpleBindIT
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
-    	// Authenticate as admin and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-    	env.put(Context.SECURITY_CREDENTIALS, "");
+        // Authenticate as admin and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
+        env.put(Context.SECURITY_CREDENTIALS, "");
 
-    	// Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
-    	}
-    	catch ( OperationNotSupportedException onse )
-    	{
-    		assertEquals( "Cannot Bind for DN uid=admin,ou=system", onse.getMessage() );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        // Create the initial context
+        try
+        {
+            new InitialDirContext(env);
+        }
+        catch ( OperationNotSupportedException onse )
+        {
+            assertEquals( "Cannot Bind for DN uid=admin,ou=system", onse.getMessage() );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
     
     
@@ -360,8 +360,8 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindNoUserPassword() throws Exception
     {
-    	// We will bind using JNDI
-    	// Set up the environment for creating the initial context
+        // We will bind using JNDI
+        // Set up the environment for creating the initial context
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -369,23 +369,23 @@ public class SimpleBindIT
         // Bind on the rootDSE
         env.put( Context.PROVIDER_URL, "" );
 
-    	// Authenticate as admin and password "secret"
-    	env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    	env.put(Context.SECURITY_PRINCIPAL, "");
-    	env.put(Context.SECURITY_CREDENTIALS, "secret");
+        // Authenticate as admin and password "secret"
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "");
+        env.put(Context.SECURITY_CREDENTIALS, "secret");
 
-    	// Create the initial context
-    	try
-    	{
-    		new InitialDirContext(env);
-    	}
-    	catch ( LdapNameNotFoundException lnnfe )
-    	{
-    		assertTrue( true );
-    	}
-    	catch ( NamingException ne )
-    	{
-    		fail();
-    	}
+        // Create the initial context
+        try
+        {
+            new InitialDirContext(env);
+        }
+        catch ( LdapNameNotFoundException lnnfe )
+        {
+            assertTrue( true );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
     }
 }

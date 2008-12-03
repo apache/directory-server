@@ -80,8 +80,8 @@ public final class PartitionIT
      */
     public static class Factory implements DirectoryServiceFactory
     {
-		public DirectoryService newInstance() throws Exception 
-		{
+        public DirectoryService newInstance() throws Exception 
+        {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
             
@@ -96,7 +96,7 @@ public final class PartitionIT
             service.addPartition( bar );
             
             return service;
-		}
+        }
     }
     
 
