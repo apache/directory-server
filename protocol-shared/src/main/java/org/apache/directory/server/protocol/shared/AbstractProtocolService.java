@@ -202,8 +202,8 @@ public abstract class AbstractProtocolService implements ProtocolService
         this.ipPort = ipPort;
         
         // Now, substitute the existing values by the new one
-     	udpPort = ipPort;
-       	tcpPort = ipPort;
+         udpPort = ipPort;
+         tcpPort = ipPort;
     }
 
 
@@ -291,77 +291,77 @@ public abstract class AbstractProtocolService implements ProtocolService
      * overloaded by the specific NbUdpThreads or nbTcpThreads if those
      * transport protocols are defined.
      */
-	public int getNbThreads() 
-	{
-		return nbThreads;
-	}
+    public int getNbThreads() 
+    {
+        return nbThreads;
+    }
 
 
     /**
      * @return The number of thread used in the IoAcceptor executor for
      * a TCP transport protocol based Acceptor.
      */
-	public int getNbTcpThreads() 
-	{
-		return nbTcpThreads;
-	}
+    public int getNbTcpThreads() 
+    {
+        return nbTcpThreads;
+    }
 
 
     /**
      * @return The number of thread used in the IoAcceptor executor for
      * a UDP transport protocol based Acceptor.
      */
-	public int getNbUdpThreads() 
-	{
-		return nbUdpThreads;
-	}
+    public int getNbUdpThreads() 
+    {
+        return nbUdpThreads;
+    }
 
 
-	/**
-	 * @param nbThreads The number of thread to affect to the IoAcceptor
-	 * executor. This number will be injected into the UDP and TCP
-	 * nbThreads value.
-	 */
-	public void setNbThreads(int nbThreads) 
-	{
-		this.nbThreads = nbThreads;
-		this.nbTcpThreads = nbThreads;
-		this.nbUdpThreads = nbThreads;
-	}
+    /**
+     * @param nbThreads The number of thread to affect to the IoAcceptor
+     * executor. This number will be injected into the UDP and TCP
+     * nbThreads value.
+     */
+    public void setNbThreads(int nbThreads) 
+    {
+        this.nbThreads = nbThreads;
+        this.nbTcpThreads = nbThreads;
+        this.nbUdpThreads = nbThreads;
+    }
 
 
-	/**
-	 * @param nbThreads The number of thread to affect to the 
-	 * TCP transport protocol based IoAcceptor executor
-	 */
-	public void setNbTcpThreads(int nbTcpThreads) 
-	{
-		this.nbTcpThreads = nbTcpThreads;
-	}
+    /**
+     * @param nbThreads The number of thread to affect to the 
+     * TCP transport protocol based IoAcceptor executor
+     */
+    public void setNbTcpThreads(int nbTcpThreads) 
+    {
+        this.nbTcpThreads = nbTcpThreads;
+    }
 
 
-	/**
-	 * @param nbThreads The number of thread to affect to the 
-	 * UDP transport protocol based IoAcceptor executor
-	 */
-	public void setNbUdpThreads(int nbUdpThreads) 
-	{
-		this.nbUdpThreads = nbUdpThreads;
-	}
+    /**
+     * @param nbThreads The number of thread to affect to the 
+     * UDP transport protocol based IoAcceptor executor
+     */
+    public void setNbUdpThreads(int nbUdpThreads) 
+    {
+        this.nbUdpThreads = nbUdpThreads;
+    }
 
 
-	/**
-	 * @return the ipBacklog
-	 */
-	public int getIpBacklog() {
-		return ipBacklog;
-	}
+    /**
+     * @return the ipBacklog
+     */
+    public int getIpBacklog() {
+        return ipBacklog;
+    }
 
 
-	/**
-	 * @param ipBacklog the ipBacklog to set
-	 */
-	public void setIpBacklog(int ipBacklog) {
+    /**
+     * @param ipBacklog the ipBacklog to set
+     */
+    public void setIpBacklog(int ipBacklog) {
         if ( ipBacklog < 0  )
         {
             throw new IllegalArgumentException( "Invalid backlog number: " + ipBacklog );
@@ -372,37 +372,37 @@ public abstract class AbstractProtocolService implements ProtocolService
         // Now, substitute the existing values by the new one
         tcpBacklog = ipBacklog;
         udpBacklog = ipBacklog;
-	}
+    }
 
 
-	/**
-	 * @return the tcpBacklog
-	 */
-	public int getTcpBacklog() {
-		return tcpBacklog;
-	}
+    /**
+     * @return the tcpBacklog
+     */
+    public int getTcpBacklog() {
+        return tcpBacklog;
+    }
 
 
-	/**
-	 * @param tcpBacklog the tcpBacklog to set
-	 */
-	public void setTcpBacklog(int tcpBacklog) {
-		this.tcpBacklog = tcpBacklog;
-	}
+    /**
+     * @param tcpBacklog the tcpBacklog to set
+     */
+    public void setTcpBacklog(int tcpBacklog) {
+        this.tcpBacklog = tcpBacklog;
+    }
 
 
-	/**
-	 * @return the udpBacklog
-	 */
-	public int getUdpBacklog() {
-		return udpBacklog;
-	}
+    /**
+     * @return the udpBacklog
+     */
+    public int getUdpBacklog() {
+        return udpBacklog;
+    }
 
 
-	/**
-	 * @param udpBacklog the udpBacklog to set
-	 */
-	public void setUdpBacklog(int udpBacklog) {
-		this.udpBacklog = udpBacklog;
-	}
+    /**
+     * @param udpBacklog the udpBacklog to set
+     */
+    public void setUdpBacklog(int udpBacklog) {
+        this.udpBacklog = udpBacklog;
+    }
 }
