@@ -129,9 +129,9 @@ class LdapProtocolHandler extends DemuxingIoHandler
      */
     public void messageSent( IoSession session, Object message ) throws Exception
     {
-    	// Do nothing : we have to ignore this message, otherwise we get an exception,
-    	// thanks to the way MINA 2 works ...
-	}
+        // Do nothing : we have to ignore this message, otherwise we get an exception,
+        // thanks to the way MINA 2 works ...
+    }
 
 
     /*

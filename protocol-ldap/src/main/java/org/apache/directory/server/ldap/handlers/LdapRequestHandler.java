@@ -159,7 +159,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         // only if it's not a BindRequest
         if ( message instanceof BindRequest )
         {
-        	handle( ldapSession, message );
+            handle( ldapSession, message );
         }
         else
         {
