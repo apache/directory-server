@@ -63,7 +63,7 @@ public class LinkedAvlNode<T>
     }
 
 
-	public void setLeft( LinkedAvlNode<T> left )
+    public void setLeft( LinkedAvlNode<T> left )
     {
         this.left = left;
     }
@@ -88,37 +88,37 @@ public class LinkedAvlNode<T>
 
 
     public LinkedAvlNode<T> getLeft() {
-		return left;
-	}
-
-
-	public LinkedAvlNode<T> getRight() {
-		return right;
-	}
-
-	public T getKey() {
-		return key;
-	}
-
-	public boolean isLeaf()
-	{
-		return ( right == null && left == null );
-	}
-	
-	public int getDepth() {
-		return depth;
-	}
-
-	public void setDepth( int depth ) {
-		this.depth = depth;
-	}
-
-	public int getHeight()
-    {
-	    return height;
+        return left;
     }
-	
-	
+
+
+    public LinkedAvlNode<T> getRight() {
+        return right;
+    }
+
+    public T getKey() {
+        return key;
+    }
+
+    public boolean isLeaf()
+    {
+        return ( right == null && left == null );
+    }
+    
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth( int depth ) {
+        this.depth = depth;
+    }
+
+    public int getHeight()
+    {
+        return height;
+    }
+    
+    
    public void setNext( LinkedAvlNode<T> next )
    {
       this.next = next;
@@ -127,11 +127,11 @@ public class LinkedAvlNode<T>
    
    public void setPrevious( LinkedAvlNode<T> previous )
    {
-	  this.previous = previous;
-   }	
+      this.previous = previous;
+   }    
    
    
-	public int computeHeight()
+    public int computeHeight()
     {
 
         if(right == null && left == null)
@@ -157,10 +157,10 @@ public class LinkedAvlNode<T>
         
         return height;
     }
-	
-	public int getBalance()
+    
+    public int getBalance()
     {
-	    int lh = ( left == null ? 0 : left.computeHeight() );
+        int lh = ( left == null ? 0 : left.computeHeight() );
         int rh = ( right == null ? 0 : right.computeHeight() );
         
         return ( rh - lh );
@@ -178,8 +178,8 @@ public class LinkedAvlNode<T>
 
 
     @Override
-	public String toString() {
-	    return "[" + key + "]";
-	}
+    public String toString() {
+        return "[" + key + "]";
+    }
     
 }
