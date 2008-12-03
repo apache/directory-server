@@ -196,7 +196,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         try
         {
             op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
-            		ctx.getDirectoryService().getSession() );
+                        ctx.getDirectoryService().getSession() );
             
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }

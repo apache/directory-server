@@ -382,7 +382,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         {
             while ( cursor.next() )
             {
-            	ServerEntry entry = cursor.get();
+                ServerEntry entry = cursor.get();
                 LdapDN name = entry.getDn();
                 
                 if ( name.size() > contextName.size() )
@@ -524,14 +524,14 @@ public class ReplicationInterceptor extends BaseInterceptor
     @Override
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
-    	EntryFilteringCursor cursor = nextInterceptor.search(
-	            new SearchOperationContext(
-	                opContext.getSession(), opContext.getDn(), opContext.getAliasDerefMode(),
-	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
-	                new SearchControls() ) );
+        EntryFilteringCursor cursor = nextInterceptor.search(
+                new SearchOperationContext(
+                    opContext.getSession(), opContext.getDn(), opContext.getAliasDerefMode(),
+                    new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
+                    new SearchControls() ) );
 
-    	cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
-    	return cursor;
+        cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
+        return cursor;
     }
 
 
@@ -550,10 +550,10 @@ public class ReplicationInterceptor extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
 
-    	EntryFilteringCursor cursor = nextInterceptor.search( new SearchOperationContext( opContext.getSession(), 
-    	    opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
-    	cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
-    	return cursor;
+        EntryFilteringCursor cursor = nextInterceptor.search( new SearchOperationContext( opContext.getSession(), 
+            opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
+        cursor.addEntryFilter( Constants.DELETED_ENTRIES_FILTER );
+        return cursor;
     }
 
 

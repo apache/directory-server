@@ -162,9 +162,10 @@ public abstract class AbstractMessageCodecTest
         }
         
         
-        public WriteFuture write(Object message) {
-        	this.message = message;
-        	return null;
+        public WriteFuture write(Object message) 
+        {
+            this.message = message;
+            return null;
         }
     }
 }
