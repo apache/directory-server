@@ -440,9 +440,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         
         if ( level == AuthenticationLevel.UNAUTHENT )
         {
-        	// This is a case where the Bind request contains a DN, but no password.
-        	// We don't check the DN, we just return a UnwillingToPerform error
-        	throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            // This is a case where the Bind request contains a DN, but no password.
+            // We don't check the DN, we just return a UnwillingToPerform error
+            throw new LdapOperationNotSupportedException( "Cannot Bind for DN " + opContext.getDn().getUpName(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
         Collection<Authenticator> authenticators = getAuthenticators( level.getName() );

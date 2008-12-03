@@ -56,7 +56,7 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public LookupOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
     
 

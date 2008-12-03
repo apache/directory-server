@@ -534,7 +534,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         try
         {
             EntryFilteringCursor cursor =  nextInterceptor.search( opContext );
-	        
+            
             if ( ! cursor.next() )
             {
                 if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )

@@ -1048,9 +1048,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
-    	LdapDN name = opContext.getDn();
-    	String oid = opContext.getOid();
-    	Value<?> value = ( Value<?> ) opContext.getValue();
+        LdapDN name = opContext.getDn();
+        String oid = opContext.getOid();
+        Value<?> value = ( Value<?> ) opContext.getValue();
 
         ClonedServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 

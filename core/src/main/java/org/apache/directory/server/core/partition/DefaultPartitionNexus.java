@@ -649,7 +649,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws Exception
     {
-    	// Get the Partition name. It's a DN.
+        // Get the Partition name. It's a DN.
         String key = removeContextPartition.getDn().getNormName();
         
         // Retrieve this partition from the aprtition's table

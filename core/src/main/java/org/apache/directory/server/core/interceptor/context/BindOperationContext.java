@@ -109,27 +109,27 @@ public class BindOperationContext implements OperationContext
     {
         if ( ( saslMechanism == null ) )
         {
-        	if ( dn.isEmpty() )
-        	{
-        		if ( StringTools.isEmpty( credentials ) )
-        		{
-        			// Dn and Credentials are empty, this is an anonymous authent
-        			return AuthenticationLevel.NONE;
-        		}
-        		else
-        		{
-        			// If we have a password but no DN, this is invalid 
-        			return AuthenticationLevel.INVALID;
-        		}
-        	}
-        	else if ( StringTools.isEmpty( credentials ) )
-        	{
-        		return AuthenticationLevel.UNAUTHENT;
-        	}
-        	else
-        	{
-        		return AuthenticationLevel.SIMPLE;
-        	}
+            if ( dn.isEmpty() )
+            {
+                if ( StringTools.isEmpty( credentials ) )
+                {
+                    // Dn and Credentials are empty, this is an anonymous authent
+                    return AuthenticationLevel.NONE;
+                }
+                else
+                {
+                    // If we have a password but no DN, this is invalid 
+                    return AuthenticationLevel.INVALID;
+                }
+            }
+            else if ( StringTools.isEmpty( credentials ) )
+            {
+                return AuthenticationLevel.UNAUTHENT;
+            }
+            else
+            {
+                return AuthenticationLevel.SIMPLE;
+            }
         }
         else
         {

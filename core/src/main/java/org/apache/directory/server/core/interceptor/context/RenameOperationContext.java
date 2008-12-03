@@ -58,7 +58,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      */
     public RenameOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
 
 

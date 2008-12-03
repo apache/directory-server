@@ -45,7 +45,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
      */
     public MoveOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
     
 
