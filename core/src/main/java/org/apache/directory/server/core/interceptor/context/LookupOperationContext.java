@@ -78,7 +78,7 @@ public class LookupOperationContext extends AbstractOperationContext
      */
     public LookupOperationContext( CoreSession session, String attrsId[] )
     {
-    	super( session );
+        super( session );
         setAttrsId( attrsId );
     }
 
