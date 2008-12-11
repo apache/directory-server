@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.codec.bind;
 
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -32,7 +33,9 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.search.controls.PagedSearchControlCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.TestCase;
@@ -124,26 +127,32 @@ public class BindResponseTest extends TestCase
         ByteBuffer stream = ByteBuffer.allocate( 0x3C );
 
         stream.put( new byte[]
-            { 0x30, 0x3A, // LDAPMessage ::=SEQUENCE {
-                0x02, 0x01, 0x01, // messageID MessageID
-                0x61, 0x07, // CHOICE { ..., bindResponse BindResponse, ...
-                // BindResponse ::= APPLICATION[1] SEQUENCE {
-                // COMPONENTS OF LDAPResult,
-                0x0A, 0x01, 0x00, // LDAPResult ::= SEQUENCE {
-                // resultCode ENUMERATED {
-                // success (0), ...
-                // },
-                0x04, 0x00, // matchedDN LDAPDN,
-                0x04, 0x00, // errorMessage LDAPString,
-                // referral [3] Referral OPTIONAL }
-                // serverSaslCreds [7] OCTET STRING OPTIONAL }
-                ( byte ) 0xa0, 0x2C, // controls
-                0x30, 0x2A, 0x04, 0x16, 0x31, 0x2e, 0x32, 0x2e, 0x38, 0x34, 0x30, 0x2e, 0x31, 0x31, 0x33, 0x35, 0x35,
-                0x36, 0x2e, 0x31, 0x2e, 0x34, 0x2e, 0x33, 0x31, 0x39, // control
-                                                                        // oid:
-                                                                        // 1.2.840.113556.1.4.319
-                0x01, 0x01, ( byte ) 0xff, // criticality: false
-                0x04, 0x0D, 0x30, 0x0B, 0x0A, 0x01, 0x08, 0x04, 0x03, 'a', '=', 'b', 0x02, 0x01, 0x10 } );
+            { 
+              0x30, 0x3A,                      // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x01,              // messageID MessageID
+                0x61, 0x07,                    // CHOICE { ..., bindResponse BindResponse, ...
+                                               // BindResponse ::= APPLICATION[1] SEQUENCE {
+                                               // COMPONENTS OF LDAPResult,
+                  0x0A, 0x01, 0x00,            // LDAPResult ::= SEQUENCE {
+                                               // resultCode ENUMERATED {
+                                               // success (0), ...
+                                               // },
+                  0x04, 0x00,                  // matchedDN LDAPDN,
+                  0x04, 0x00,                  // errorMessage LDAPString,
+                                               // referral [3] Referral OPTIONAL }
+                                               // serverSaslCreds [7] OCTET STRING OPTIONAL }
+                  ( byte ) 0xa0, 0x2C,         // controls
+                    0x30, 0x2A,                // The PagedSearchControl
+                      0x04, 0x16,              // Oid : 1.2.840.113556.1.4.319
+                        0x31, 0x2e, 0x32, 0x2e, 0x38, 0x34, 0x30, 0x2e, 
+                        0x31, 0x31, 0x33, 0x35, 0x35, 0x36, 0x2e, 0x31, 
+                        0x2e, 0x34, 0x2e, 0x33, 0x31, 0x39, // control
+                    0x01, 0x01, ( byte ) 0xff, // criticality: false
+                    0x04, 0x0D,
+                      0x30, 0x0B,
+                        0x02, 0x01, 0x05,      // Size = 5, cookie = "abcdef" 
+                        0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
+              } );
 
         String decodedPdu = StringTools.dumpBytes( stream.array() );
         stream.flip();
@@ -181,8 +190,12 @@ public class BindResponseTest extends TestCase
 
         Control control = message.getControls( 0 );
         assertEquals( "1.2.840.113556.1.4.319", control.getControlType() );
-        assertEquals( "0x30 0x0B 0x0A 0x01 0x08 0x04 0x03 0x61 0x3D 0x62 0x02 0x01 0x10 ", StringTools
-            .dumpBytes( ( byte[] ) control.getControlValue() ) );
+        assertTrue( control.getControlValue() instanceof PagedSearchControlCodec );
+        
+        PagedSearchControlCodec pagedSearchControl = (PagedSearchControlCodec)control.getControlValue();
+        
+        assertEquals( 5, pagedSearchControl.getSize() );
+        assertTrue( Arrays.equals( "abcdef".getBytes(), pagedSearchControl.getCookie() ) );
 
         // Check the encoding
         try

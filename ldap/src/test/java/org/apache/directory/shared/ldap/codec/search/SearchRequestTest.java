@@ -54,8 +54,12 @@ import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -63,14 +67,13 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SearchRequestTest extends TestCase
+public class SearchRequestTest
 {
     static Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>(); 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
         oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
@@ -86,6 +89,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with no controls. The search filter
      * is : (&(|(objectclass=top)(ou=contacts))(!(objectclass=ttt)))
      */
+    @Test
     public void testDecodeSearchRequestGlobalNoControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -251,6 +255,7 @@ public class SearchRequestTest extends TestCase
      * types of filter : >=, <=, ~= The search filter is :
      * (&(|(objectclass~=top)(ou<=contacts))(!(objectclass>=ttt)))
      */
+    @Test
     public void testDecodeSearchRequestCompareFiltersNoControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -419,6 +424,7 @@ public class SearchRequestTest extends TestCase
      * filter : =* The search filter is :
      * (&(|(objectclass=*)(ou=*))(!(objectclass>=ttt)))
      */
+    @Test
     public void testDecodeSearchRequestPresentNoControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -585,6 +591,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with no attributes. The search
      * filter is : (objectclass=*)
      */
+    @Test
     public void testDecodeSearchRequestNoAttributes()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -684,6 +691,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with an empty attribute. The search
      * filter is : (objectclass=*)
      */
+    @Test
     public void testDecodeSearchRequestOneEmptyAttribute()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -766,6 +774,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a star and an attribute. The search
      * filter is : (objectclass=*)
      */
+    @Test
     public void testDecodeSearchRequestWithStarAndAttr()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -859,6 +868,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Tests an search request decode with a simple equality match filter.
      */
+    @Test
     public void testDecodeSearchRequestOrFilters()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1011,6 +1021,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with controls.
      */
+    @Test
     public void testDecodeSearchRequestWithControls()
     {
         byte[] asn1BER = new byte[]
@@ -1112,6 +1123,7 @@ public class SearchRequestTest extends TestCase
      * attributes. The search filter is :
      * (&(|(objectclass=top)(2.5.4.11=contacts))(!(organizationalUnitName=ttt)))
      */
+    @Test
     public void testDecodeSearchRequestGlobalNoControlsOidAndAlias()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1274,6 +1286,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with SubEntry control.
      */
+    @Test
     public void testDecodeSearchRequestSubEntryControl()
     {
         byte[] asn1BER = new byte[]
@@ -1364,6 +1377,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty body
      */
+    @Test
     public void testDecodeSearchRequestEmptyBody()
     {
         byte[] asn1BER = new byte[]
@@ -1397,6 +1411,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty baseDN and nothing more
      */
+    @Test
     public void testDecodeSearchRequestBaseDnOnly()
     {
         byte[] asn1BER = new byte[]
@@ -1434,6 +1449,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with no controls. The search filter
      * is : (&(|(objectclass=top)(ou=contacts))(!(objectclass=ttt)))
      */
+    @Test
     public void testDecodeSearchRequestEmptyBaseDnNoControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1594,6 +1610,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad objectBase
      */
+    @Test
     public void testDecodeSearchRequestGlobalBadObjectBase()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1676,6 +1693,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty scope
      */
+    @Test
     public void testDecodeSearchRequestEmptyScope()
     {
         byte[] asn1BER = new byte[]
@@ -1715,6 +1733,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad scope
      */
+    @Test
     public void testDecodeSearchRequestGlobalBadScope()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1794,6 +1813,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty derefAlias
      */
+    @Test
     public void testDecodeSearchRequestEmptyDerefAlias()
     {
         byte[] asn1BER = new byte[]
@@ -1828,6 +1848,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad derefAlias
      */
+    @Test
     public void testDecodeSearchRequestGlobalBadDerefAlias()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1908,6 +1929,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty size limit
      */
+    @Test
     public void testDecodeSearchRequestEmptySizeLimit()
     {
         byte[] asn1BER = new byte[]
@@ -1942,6 +1964,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad sizeLimit
      */
+    @Test
     public void testDecodeSearchRequestGlobalBadSizeLimit()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -2021,6 +2044,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty time limit
      */
+    @Test
     public void testDecodeSearchRequestEmptyTimeLimit()
     {
         byte[] asn1BER = new byte[]
@@ -2056,6 +2080,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad timeLimit
      */
+    @Test
     public void testDecodeSearchRequestGlobalBadTimeLimit()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -2135,6 +2160,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyTypeOnly()
     {
         byte[] asn1BER = new byte[]
@@ -2178,6 +2204,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2214,6 +2241,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty Present filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyPresentFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2260,6 +2288,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty equalityMatch filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyEqualityMatchFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2296,6 +2325,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty greaterOrEqual filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyGreaterOrEqualFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2332,6 +2362,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty lessOrEqual filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyLessOrEqualFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2368,6 +2399,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an approxMatch filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyApproxMatchFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2405,6 +2437,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a greaterOrEqual filter and an
      * empty attributeDesc
      */
+    @Test
     public void testDecodeSearchRequestEmptyGreaterOrEqualEmptyAttrDesc()
     {
         byte[] asn1BER = new byte[]
@@ -2451,6 +2484,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a greaterOrEqual filter and an
      * empty attributeValue, and an empty attribute List
      */
+    @Test
     public void testDecodeSearchRequestEmptyGreaterOrEqualEmptyAttrValue()
     {
         byte[] asn1BER = new byte[]
@@ -2545,6 +2579,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a greaterOrEqual filter and an
      * empty attributeValue, and an '*' attribute List
      */
+    @Test
     public void testDecodeSearchRequestEmptyGreaterOrEqualEmptyAttrValueStar()
     {
         byte[] asn1BER = new byte[]
@@ -2628,6 +2663,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a greaterOrEqual filter and an
      * empty attributeValue, and an empty attribute List
      */
+    @Test
     public void testDecodeSearchRequestEmptyGreaterOrEqualEmptyAttrValueEmpty()
     {
         byte[] asn1BER = new byte[]
@@ -2703,6 +2739,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty And filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyAndFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2744,6 +2781,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty Or filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyOrFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2785,6 +2823,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with an empty Not filter
      */
+    @Test
     public void testDecodeSearchRequestEmptyNotFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2827,6 +2866,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a Not filter and an empty And
      * filter
      */
+    @Test
     public void testDecodeSearchRequestNotFilterEmptyAndFilter()
     {
         byte[] asn1BER = new byte[]
@@ -2866,6 +2906,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a greaterOrEqual filter and an
      * empty attributeValue, and an '*' attribute List
      */
+    @Test
     public void testDecodeSearchRequestDIRSERVER_651()
     {
         byte[] asn1BER = new byte[]
@@ -2976,6 +3017,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (a=b)
      */
+    @Test
     public void testDecodeSearchRequestEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3076,6 +3118,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(a=b))
      */
+    @Test
     public void testDecodeSearchRequestAndEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3184,6 +3227,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(a=b)(c=d))
      */
+    @Test
     public void testDecodeSearchRequestAndEqEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3307,6 +3351,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(&(a=b))
      */
+    @Test
     public void testDecodeSearchRequestAndAndEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3421,6 +3466,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(&(a=b)(c=d))
      */
+    @Test
     public void testDecodeSearchRequestAndAndEqEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3551,6 +3597,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(&(a=b))(c=d))
      */
+    @Test
     public void testDecodeSearchRequestAnd_AndEq_Eq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3676,10 +3723,12 @@ public class SearchRequestTest extends TestCase
         }
     }
 
+
     /**
      * Test the decoding of a SearchRequest
      * (&(&(a=b)(c=d))(e=f))
      */
+    @Test
     public void testDecodeSearchRequestAnd_AndEqEq_Eq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3819,10 +3868,159 @@ public class SearchRequestTest extends TestCase
         }
     }
 
+
+
+
+    /**
+     * Test the decoding of a SearchRequest
+     * (&(a=b)(|(a=b)(c=d)))
+     */
+    @Test
+    public void testDecodeSearchRequestAndEq_OrEqEq()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x39 );
+        stream.put( new byte[]
+            { 
+                0x30, 0x37,                 // LDAPMessage ::=SEQUENCE {
+                  0x02, 0x01, 0x01,         // messageID MessageID
+                  0x63, 0x32,               // CHOICE { ...,
+                                            // searchRequest SearchRequest, ...
+                                            // SearchRequest ::= APPLICATION[3] SEQUENCE {
+                    0x04, 0x03,             // baseObject LDAPDN,
+                      'a', '=', 'b', 
+                    0x0A, 0x01, 0x01,       // scope ENUMERATED {
+                                            //      baseObject (0),
+                                            //      singleLevel (1),
+                                            //      wholeSubtree (2) },
+                    0x0A, 0x01, 0x03,       // derefAliases ENUMERATED {
+                                            //      neverDerefAliases (0),
+                                            //      derefInSearching (1),
+                                            //      derefFindingBaseObj (2),
+                                            //      derefAlways (3) },
+                    0x02, 0x01, 0x00,       // sizeLimit INTEGER (0 .. maxInt), (0)
+                    0x02, 0x01, 0x00,       // timeLimit INTEGER (0 .. maxInt), (1000) 
+                    0x01, 0x01, ( byte ) 0xFF,// typesOnly BOOLEAN, (TRUE)
+                                            // filter Filter,
+                    ( byte ) 0xA0, 0x1A,    // Filter ::= CHOICE { and             [0] SET OF Filter,
+                      ( byte ) 0xA3, 0x06,  //      equalityMatch [3] AttributeValueAssertion,
+                                            // AttributeValueAssertion ::= SEQUENCE {
+                        0x04, 0x01, 'a',  //      attributeDesc AttributeDescription (LDAPString),
+                        0x04, 0x01, 'b',  //      assertionValue AssertionValue (OCTET STRING) } 
+                      ( byte ) 0xA1, 0x10,  // Filter ::= CHOICE { or             [1] SET OF Filter,
+                        ( byte ) 0xA3, 0x06,//      equalityMatch [3] AttributeValueAssertion,
+                                            // AttributeValueAssertion ::= SEQUENCE {
+                          0x04, 0x01, 'c',  //      attributeDesc AttributeDescription (LDAPString),
+                          0x04, 0x01, 'd',  //      assertionValue AssertionValue (OCTET STRING) } 
+                        ( byte ) 0xA3, 0x06,//      equalityMatch [3] AttributeValueAssertion,
+                                            //      equalityMatch [3] AttributeValueAssertion,
+                                            // AttributeValueAssertion ::= SEQUENCE {
+                          0x04, 0x01, 'e',  //      attributeDesc AttributeDescription (LDAPString),
+                          0x04, 0x01, 'f',  //      assertionValue AssertionValue (OCTET STRING) } 
+                    0x30, 0x00,             // AttributeDescriptionList ::= SEQUENCE OF AttributeDescription
+            } );
+
+        String decodedPdu = StringTools.dumpBytes( stream.array() );
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequest sr = message.getSearchRequest();
+
+        assertEquals( 1, message.getMessageId() );
+        assertEquals( "a=b", sr.getBaseObject().toString() );
+        assertEquals( SearchScope.ONELEVEL, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( true, sr.isTypesOnly() );
+
+        // (&(...
+        AndFilter andFilter = ( AndFilter ) sr.getFilter();
+        assertNotNull( andFilter );
+
+        List<Filter> andFilters = andFilter.getAndFilter();
+        assertEquals( 2, andFilters.size() );
+        
+        // (&(a=b)..
+        AttributeValueAssertionFilter equalityMatch = ( AttributeValueAssertionFilter ) andFilters.get( 0 );
+        assertNotNull( equalityMatch );
+
+        AttributeValueAssertion assertion = equalityMatch.getAssertion();
+        assertNotNull( assertion );
+
+        assertEquals( "a", assertion.getAttributeDesc() );
+        assertEquals( "b", assertion.getAssertionValue().get() );
+
+        // (&(a=b)(|(...
+        OrFilter orFilter = ( OrFilter ) andFilters.get( 1 );
+        assertNotNull( orFilter );
+
+        List<Filter> orFilters = orFilter.getOrFilter();
+        assertEquals( 2, orFilters.size() );
+
+        // (&(a=b)(|(c=d)...
+        equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 0 );
+        assertNotNull( equalityMatch );
+
+        assertion = equalityMatch.getAssertion();
+        assertNotNull( assertion );
+
+        assertEquals( "c", assertion.getAttributeDesc() );
+        assertEquals( "d", assertion.getAssertionValue().get() );
+
+        // (&(a=b)(|(c=d)(e=f)))
+        equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
+        assertNotNull( equalityMatch );
+
+        assertion = equalityMatch.getAssertion();
+        assertNotNull( assertion );
+
+        assertEquals( "e", assertion.getAttributeDesc() );
+        assertEquals( "f", assertion.getAssertionValue().get() );
+        
+        List<EntryAttribute> attributes = sr.getAttributes();
+        assertEquals( 0, attributes.size() );
+
+        // Check the encoding
+        // We won't check the whole PDU, as it may differs because
+        // attributes may have been reordered
+        try
+        {
+            ByteBuffer bb = message.encode( null );
+
+            String encodedPdu = StringTools.dumpBytes( bb.array() );
+
+            assertEquals( encodedPdu.substring( 0, 0x39 ), decodedPdu.substring( 0, 0x39 ) );
+        }
+        catch ( EncoderException ee )
+        {
+            ee.printStackTrace();
+            fail( ee.getMessage() );
+        }
+    }
+    
+    
     /**
      * Test the decoding of a SearchRequest
      * (&(&(a=b))(&(c=d)))
      */
+    @Test
     public void testDecodeSearchRequestAnd_AndEq_AndEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -3960,6 +4158,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(&(a=b)(c=d))(&(e=f)))
      */
+    @Test
     public void testDecodeSearchRequestAnd_AndEqEq_AndEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -4111,6 +4310,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * (&(|(abcdef=*)(ghijkl=*))(!(e>=f)))
      */
+    @Test
     public void testDecodeSearchRequestAnd_OrPrPr_NotGEq()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -4248,6 +4448,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest
      * for rootDSE
      */
+    @Test
     public void testDecodeSearchRequestRootDSE()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -4309,6 +4510,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with special length (long form)
      * for rootDSE
      */
+    @Test
     public void testDecodeSearchRequestDIRSERVER_810()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -4404,6 +4606,7 @@ public class SearchRequestTest extends TestCase
      * Test the decoding of a SearchRequest with a complex filter :
      * (&(objectClass=person)(|(cn=Tori*)(sn=Jagger)))
      */
+    @Test
     public void testDecodeSearchRequestComplexFilter()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

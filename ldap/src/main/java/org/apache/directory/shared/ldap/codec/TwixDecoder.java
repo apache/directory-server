@@ -69,12 +69,15 @@ public class TwixDecoder implements ProviderDecoder
      * 
      * @param provider the owning provider.
      * @param binaryAttributeDetector checks for binary attributes 
+     * @param maxPDUSize the maximum size a PDU can be
      */
-    public TwixDecoder( Provider provider, BinaryAttributeDetector binaryAttributeDetector )
+    public TwixDecoder( Provider provider, BinaryAttributeDetector binaryAttributeDetector, int maxPDUSize )
     {
         this.provider = provider;
-        this.ldapMessageContainer = new LdapMessageContainer( binaryAttributeDetector );
-        this.ldapDecoder = new LdapDecoder();
+        ldapMessageContainer = new LdapMessageContainer( binaryAttributeDetector );
+        ldapDecoder = new LdapDecoder();
+        
+        ldapMessageContainer.setMaxPDUSize( maxPDUSize );
     }
 
 

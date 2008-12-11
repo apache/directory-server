@@ -176,8 +176,10 @@ public abstract class Provider
      * @return the provider's decoder.
      * @throws ProviderException if the provider or its decoder cannot be found
      * @param binaryAttributeDetector detects whether or not attributes are binary
+     * @param maxPDUSize the maximum size a PDU can be
      */
-    public abstract ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector )
+    public abstract ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector,
+        int maxPDUSize )
             throws ProviderException;
 
 

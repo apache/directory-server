@@ -116,6 +116,17 @@ public class PagedSearchControl extends AbstractMutableControlImpl
 
 
     /**
+     * @return The integer value for the current cookie
+     */
+    public int getCookieValue()
+    {
+        int value = ((cookie[0]&0x00FF)<<24) + ((cookie[1]&0x00FF)<<16) + ((cookie[2]&0x00FF)<<8) + (cookie[3]&0x00FF);
+        
+        return value;
+    }
+    
+    
+    /**
      * Set the cookie
      *
      * @param cookie The cookie to store in this control

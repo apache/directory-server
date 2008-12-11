@@ -139,4 +139,33 @@ public interface IAsn1Container
      * @return a unique value representing the current TLV id
      */
     int getTlvId();
+    
+    
+    /**
+     * @return The number of decoded bytes for this message. This is used
+     * to control the PDU size and avoid PDU exceeding the maximum allowed
+     * size to break the server.
+     */
+    int getDecodeBytes();
+
+    
+    /**
+     * Increment the decodedBytes by the latest received buffer's size.
+     * @param nb The buffer size.
+     */
+    void incrementDecodeBytes( int nb );
+
+
+    /**
+     * @return The maximum PDU size.
+     */
+    int getMaxPDUSize();
+    
+    
+    /**
+     * Set the maximum PDU size.
+     * @param maxPDUSize The maximum PDU size (if negative or null, will be
+     * replaced by the max integer value)
+     */
+    void setMaxPDUSize( int maxPDUSize );
 }

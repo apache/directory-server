@@ -63,11 +63,25 @@ public final class MessageDecoder implements ProviderDecoder
      */
     public MessageDecoder( BinaryAttributeDetector binaryAttributeDetector ) throws MessageException
     {
+        this( binaryAttributeDetector, Integer.MAX_VALUE );
+    }
+    
+    
+    /**
+     * Creates a MessageDecoder using default properties for enabling a BER
+     * library provider.
+     * 
+     * @param binaryAttributeDetector detects whether or not an attribute is binary
+     * @param maxPDUSize the maximum size a PDU can be
+     * @throws MessageException if there is a problem creating this decoder.
+     */
+    public MessageDecoder( BinaryAttributeDetector binaryAttributeDetector, int maxPDUSize ) throws MessageException
+    {
         // We need to get the encoder class name
         Hashtable<Object, Object> providerEnv = Provider.getEnvironment();
         
         this.provider = Provider.getProvider( providerEnv );
-        this.decoder = this.provider.getDecoder( binaryAttributeDetector );
+        this.decoder = this.provider.getDecoder( binaryAttributeDetector, maxPDUSize );
         this.decoder.setCallback( new DecoderCallback()
         {
             public void decodeOccurred( StatefulDecoder decoder, Object decoded )

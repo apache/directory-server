@@ -28,7 +28,7 @@ package org.apache.directory.shared.ldap.util;
  */
 public class Position
 {
-	/** The starting position in the string */
+    /** The starting position in the string */
     public int start = 0;
     
     /** The current token length */  

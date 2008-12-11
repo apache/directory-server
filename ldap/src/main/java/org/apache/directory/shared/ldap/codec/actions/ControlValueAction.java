@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.PagedSearchControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -72,6 +73,9 @@ public class ControlValueAction extends GrammarAction
         controlDecoders.put( decoder.getControlType(), decoder );
 
         decoder = new SubEntryControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+
+        decoder = new PagedSearchControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
     }
 

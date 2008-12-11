@@ -114,6 +114,7 @@ public class LdapMessageContainer extends AbstractContainer
         ldapMessage = null;
         messageId = 0;
         currentControl = null;
+        decodeBytes = 0;
     }
 
 

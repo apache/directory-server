@@ -684,6 +684,55 @@ public class FilterParserTest
     }
 
 
+    /**
+     * Test that filters like (&(a=b)(|(c=d)(e=f))) are correctly parsed
+     */
+    @Test
+    public void testAndEqOr_EqEq()
+    {
+        try
+        {
+            BranchNode node = ( BranchNode ) FilterParser.parse("(&(objectClass=nisNetgroup)(|(nisNetGroupTriple=a*a)(nisNetGroupTriple=\\28*,acc1,*\\29)))");
+            assertEquals( 2, node.getChildren().size() );
+            
+            assertTrue( node instanceof AndNode );
+            
+            // Check the (a=b) part
+            ExprNode aEqb = node.getFirstChild();
+            assertTrue( aEqb instanceof EqualityNode );
+            assertEquals( "objectClass", ((EqualityNode<?>)aEqb).getAttribute() );
+            assertEquals( "nisNetgroup", ((EqualityNode<?>)aEqb).getValue().get() );
+            
+            // Check the or node
+            ExprNode orNode = node.getChildren().get( 1 );
+            assertTrue( orNode instanceof OrNode );
+            
+            assertEquals( 2, ((OrNode)orNode).getChildren().size() );
+            
+            ExprNode leftNode = ((OrNode)orNode).getChildren().get( 0 );
+            
+            assertTrue( leftNode instanceof SubstringNode );
+            assertEquals( "nisNetGroupTriple", ((SubstringNode)leftNode).getAttribute() );
+            assertEquals( "a", ((SubstringNode)leftNode).getInitial() );
+            assertEquals( 0, ((SubstringNode)leftNode).getAny().size() );
+            assertEquals( "a", ((SubstringNode)leftNode).getFinal() );
+            
+            ExprNode rightNode = ((OrNode)orNode).getChildren().get( 1 );
+            
+            assertTrue( rightNode instanceof SubstringNode );
+            assertEquals( "nisNetGroupTriple", ((SubstringNode)rightNode).getAttribute() );
+            assertEquals( "\\28", ((SubstringNode)rightNode).getInitial() );
+            assertEquals( 1, ((SubstringNode)rightNode).getAny().size() );
+            assertEquals( ",acc1,", ((SubstringNode)rightNode).getAny().get( 0 ) );
+            assertEquals( "\\29", ((SubstringNode)rightNode).getFinal() );
+        }
+        catch ( ParseException pe )
+        {
+            assertTrue( true );
+        }
+    }
+    
+    
     /*
     @Test
     public void testPerf() throws ParseException

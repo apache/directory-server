@@ -22,8 +22,8 @@ package org.apache.directory.shared.asn1.codec;
 
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
@@ -47,7 +47,7 @@ public class Asn1CodecDecoder extends ProtocolDecoderAdapter
     }
 
 
-    public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws DecoderException
+    public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws DecoderException
     {
         callback.decOut = out;
         decoder.decode( in.buf() );

@@ -28,11 +28,11 @@ package org.apache.directory.shared.ldap.constants;
  */
 public enum AuthenticationLevel
 {
-	/**
-	 * Invalid authentication type
-	 */
-	INVALID(-1, "invalid" ),
-	
+    /**
+     * Invalid authentication type
+     */
+    INVALID(-1, "invalid" ),
+    
     /**
      * No authentication (anonymous access)
      */
@@ -47,10 +47,10 @@ public enum AuthenticationLevel
      * Strong authentication (bound with encrypted credentials)
      */
     STRONG( 2, "strong" ),
-	
-	/**
-	 * Unauthentication, if the BIND contains a DN but no credentials
-	 */
+    
+    /**
+     * Unauthentication, if the BIND contains a DN but no credentials
+     */
     UNAUTHENT( 3, "unauthent" );
     
     private int level;

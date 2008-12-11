@@ -47,10 +47,10 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
     // -----------------------------------------------------------------
 
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( Asn1Decoder.class );
+    private static final Logger LOG = LoggerFactory.getLogger( Asn1Decoder.class );
     
     /** A speedup for logger */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** This flag is used to indicate that there are more bytes in the stream */
     private static final boolean MORE = true;
@@ -120,7 +120,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             if ( IS_DEBUG )
             {
                 byte tag = container.getCurrentTLV().getTag();
-                log.debug( "Tag {} has been decoded", Asn1StringUtils.dumpByte( tag ) );
+                LOG.debug( "Tag {} has been decoded", Asn1StringUtils.dumpByte( tag ) );
             }
 
             return MORE;
@@ -157,7 +157,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG ) 
         {
-            log.debug( "TLV Tree : {}", sb.toString() );
+            LOG.debug( "TLV Tree : {}", sb.toString() );
         }
     }
 
@@ -232,7 +232,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                 if ( expectedLength > 4 )
                 {
-                    log.error( "Overflow : can't have more than 4 bytes long length" );
+                    LOG.error( "Overflow : can't have more than 4 bytes long length" );
                     throw new DecoderException( "Overflow : can't have more than 4 bytes long length" );
                 }
 
@@ -243,7 +243,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             }
             else
             {
-                log.error( "Length reserved extension used" );
+                LOG.error( "Length reserved extension used" );
                 throw new DecoderException( "Length reserved extension used" );
             }
 
@@ -282,7 +282,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
                 if ( IS_DEBUG )
                 {
-                    log.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
+                    LOG.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
                 }
 
                 tlv.incLengthBytesRead();
@@ -362,7 +362,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
         
         if ( tlv == null )
         {
-            log.error( "The current container TLV is null." );
+            LOG.error( "The current container TLV is null." );
             throw new DecoderException( "Current TLV is null" );
         }
         
@@ -375,7 +375,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG )
         {
-            log.debug( "Parent length : {}", getParentLength( parentTLV ) );
+            LOG.debug( "Parent length : {}", getParentLength( parentTLV ) );
         }
 
         if ( parentTLV == null )
@@ -387,7 +387,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( IS_DEBUG )
             {
-                log.debug( "Root TLV[{}]", Integer.valueOf( length ) );
+                LOG.debug( "Root TLV[{}]", Integer.valueOf( length ) );
             }
         }
         else
@@ -401,7 +401,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
             {
                 // The expected length is lower than the Value length of the
                 // current TLV. This is an error...
-                log.error( "tlv[{}, {}]", Integer.valueOf( expectedLength ), Integer.valueOf( currentLength ) );
+                LOG.error( "tlv[{}, {}]", Integer.valueOf( expectedLength ), Integer.valueOf( currentLength ) );
                 throw new DecoderException( "The current Value length is above the expected length" );
             }
 
@@ -494,7 +494,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG )
         {
-            log.debug( "Length {} has been decoded", Integer.valueOf( length ) );
+            LOG.debug( "Length {} has been decoded", Integer.valueOf( length ) );
         }
 
         if ( length == 0 )
@@ -636,7 +636,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 }
                 else
                 {
-                    log.error( "The PDU is decoded, but we should have had more TLVs" );
+                    LOG.error( "The PDU is decoded, but we should have had more TLVs" );
                     throw new DecoderException( "Truncated PDU. Some elements are lacking, accordingly to the grammar" );
                 }
             }
@@ -724,12 +724,23 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
          */
 
         boolean hasRemaining = stream.hasRemaining();
+        
+        // Increment the PDU size counter.
+        container.incrementDecodeBytes( stream.remaining() );
+        
+        if ( container.getDecodeBytes() > container.getMaxPDUSize() )
+        {
+            String message = "The PDU current size (" + container.getDecodeBytes() +
+            ") exceeds the maximum allowed PDU size (" + container.getMaxPDUSize() +")";
+            LOG.error( message );
+            throw new DecoderException( message );
+        }
 
         if ( IS_DEBUG )
         {
-            log.debug( ">>>==========================================" );
-            log.debug( "--> Decoding a PDU" );
-            log.debug( ">>>------------------------------------------" );
+            LOG.debug( ">>>==========================================" );
+            LOG.debug( "--> Decoding a PDU" );
+            LOG.debug( ">>>------------------------------------------" );
         }
 
         while ( hasRemaining )
@@ -737,17 +748,17 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
             if ( IS_DEBUG )
             {
-                log.debug( "--- State = {} ---", stateToString( container.getState() ) );
+                LOG.debug( "--- State = {} ---", stateToString( container.getState() ) );
 
                 if ( stream.hasRemaining() )
                 {
                     byte octet = stream.get( stream.position() );
 
-                    log.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
+                    LOG.debug( "  current byte : {}", Asn1StringUtils.dumpByte( octet ) );
                 }
                 else
                 {
-                    log.debug( "  no more byte to decode in the stream" );
+                    LOG.debug( "  no more byte to decode in the stream" );
                 }
             }
 
@@ -800,7 +811,7 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
                 case TLVStateEnum.PDU_DECODED:
                     // We have to deal with the case where there are
                     // more bytes in the buffer, but the PDU has been decoded.
-                    log.warn( "The PDU has been fully decoded but there are still bytes in the buffer." );
+                    LOG.warn( "The PDU has been fully decoded but there are still bytes in the buffer." );
 
                     hasRemaining = false;
 
@@ -813,32 +824,32 @@ public class Asn1Decoder implements ITLVBerDecoderMBean
 
         if ( IS_DEBUG )
         {
-            log.debug( "<<<------------------------------------------" );
+            LOG.debug( "<<<------------------------------------------" );
 
             if ( container.getState() == TLVStateEnum.PDU_DECODED )
             {
                 if ( container.getCurrentTLV() != null )
                 {
-                    log.debug( "<-- Stop decoding : {}", container.getCurrentTLV().toString() );
+                    LOG.debug( "<-- Stop decoding : {}", container.getCurrentTLV().toString() );
                 }
                 else
                 {
-                    log.debug( "<-- Stop decoding : null current TLV" );
+                    LOG.debug( "<-- Stop decoding : null current TLV" );
                 }
             }
             else
             {
                 if ( container.getCurrentTLV() != null )
                 {
-                    log.debug( "<-- End decoding : {}", container.getCurrentTLV().toString() );
+                    LOG.debug( "<-- End decoding : {}", container.getCurrentTLV().toString() );
                 }
                 else
                 {
-                    log.debug( "<-- End decoding : null current TLV" );
+                    LOG.debug( "<-- End decoding : null current TLV" );
                 }
             }
 
-            log.debug( "<<<==========================================" );
+            LOG.debug( "<<<==========================================" );
         }
 
         return;

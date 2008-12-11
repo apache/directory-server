@@ -85,8 +85,8 @@ public class TwixProvider extends Provider
      * @throws org.apache.directory.shared.ldap.message.spi.ProviderException
      *             if the provider or its decoder cannot be found
      */
-    public ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector ) throws ProviderException
+    public ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector, int maxPDUSize ) throws ProviderException
     {
-        return new TwixDecoder( this, binaryAttributeDetector );
+        return new TwixDecoder( this, binaryAttributeDetector, maxPDUSize );
     }
 }

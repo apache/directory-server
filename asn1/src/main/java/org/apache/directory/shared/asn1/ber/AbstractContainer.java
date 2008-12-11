@@ -63,6 +63,12 @@ public class AbstractContainer implements IAsn1Container
     /** The grammar end transition flag */
     protected boolean grammarEndAllowed;
 
+    /** A counter for the decoded bytes */
+    protected int decodeBytes;
+
+    /** The maximum allowed size for a PDU. Default to MAX int value */
+    protected int maxPDUSize = Integer.MAX_VALUE;
+
     /** The incremental id used to tag TLVs */
     private int id = 0;
     
@@ -228,5 +234,53 @@ public class AbstractContainer implements IAsn1Container
     public int getTlvId()
     {
         return tlv.getId();
+    }
+
+
+    /**
+     * @return The number of decoded bytes for this message. This is used
+     * to control the PDU size and avoid PDU exceeding the maximum allowed
+     * size to break the server.
+     */
+    public int getDecodeBytes()
+    {
+        return decodeBytes;
+    }
+
+
+    /**
+     * Increment the decodedBytes by the latest received buffer's size.
+     * @param nb The buffer size.
+     */
+    public void incrementDecodeBytes( int nb )
+    {
+        decodeBytes += nb;
+    }
+    
+    
+    /**
+     * @return The maximum PDU size.
+     */
+    public int getMaxPDUSize()
+    {
+        return maxPDUSize;
+    }
+    
+    
+    /**
+     * Set the maximum PDU size.
+     * @param maxPDUSize The maximum PDU size (if negative or null, will be
+     * replaced by the max integer value)
+     */
+    public void setMaxPDUSize( int maxPDUSize )
+    {
+        if ( maxPDUSize > 0 )
+        {
+            this.maxPDUSize = maxPDUSize;
+        }
+        else
+        {
+            this.maxPDUSize = Integer.MAX_VALUE;
+        }
     }
 }
