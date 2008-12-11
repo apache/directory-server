@@ -53,7 +53,7 @@ public class PagedSearchCookie
     private byte[] cookie;
     
     /** The integer value for the cookie */
-    private int cookieInt;
+    private int cookieValue;
     
     /** The associated cursor for the current search request */
     private EntryFilteringCursor cursor;
@@ -69,9 +69,9 @@ public class PagedSearchCookie
         // We compute a key for this cookie. It combines the search request
         // and some time seed, in order to avoid possible collisions, as
         // a user may send more than one PagedSearch on the same session.
-        cookieInt = (int)(System.nanoTime()*17) + searchRequest.getMessageId();
+        cookieValue = (int)(System.nanoTime()*17) + searchRequest.getMessageId();
         
-        cookie = Value.getBytes( cookieInt );
+        cookie = Value.getBytes( cookieValue );
     }
     
     
@@ -88,6 +88,12 @@ public class PagedSearchCookie
     }
 
     
+    public int getCookieValue()
+    {
+        return cookieValue;
+    }
+    
+    
     /**
      * Compute a new cookie, if the previous one already exists. This
      * is unlikely, as we are based on some time seed, but just in case, 
@@ -96,8 +102,8 @@ public class PagedSearchCookie
      */
     public byte[] getNewCookie()
     {
-        cookieInt = cookieInt + (int)(System.nanoTime()*17);
-        cookie = Value.getBytes( cookieInt );
+        cookieValue = cookieValue + (int)(System.nanoTime()*17);
+        cookie = Value.getBytes( cookieValue );
         
         return cookie;
     }
@@ -249,7 +255,7 @@ public class PagedSearchCookie
         // as the filter is not normalized. This is a real problem, as the normalization
         // phase is done in the interceptor chain, which is a bad decision wrt what we
         // do here.
-        return request.getFilter().equals( previousSearchRequest.getFilter() );
+        return true; //request.getFilter().equals( previousSearchRequest.getFilter() );
     }
 
     
