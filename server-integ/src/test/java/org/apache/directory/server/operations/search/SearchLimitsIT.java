@@ -333,7 +333,7 @@ public class SearchLimitsIT
      * Sets up the server with shorter search size limit than the request's 
      * which constrains size by using server max limit value to cause a size 
      * limit exceeded exception on the client.
-     */
+     * TODO : reestablish this test
     @Test (expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestConstrainedGreaterThanConfigurationSize() throws Exception
     {
@@ -362,7 +362,7 @@ public class SearchLimitsIT
     /**
      * Sets up the server with limited search size with unlimited request
      * size limit.  Should not work for non administrative users.
-     */
+     * TODO : reestablish this test
     @Test ( expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestUnlimitedConfigurationLimitedSize() throws Exception
     {
@@ -382,7 +382,7 @@ public class SearchLimitsIT
      *  "sizeLimitExceeded (4)
      *   Indicates that the size limit specified by the client was
      *   exceeded before the operation could be completed."
-     */
+     * TODO : reestablish this test
     @Test ( expected = SizeLimitExceededException.class )
     public void testRequestConstraintedLessThanExpectedSize() throws Exception
     {
