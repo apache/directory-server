@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -74,7 +74,7 @@ public class CanonicalNameRecordEncoderTest extends AbstractResourceRecordEncode
     }
 
 
-    protected void putExpectedResourceData( ByteBuffer expectedData )
+    protected void putExpectedResourceData( IoBuffer expectedData )
     {
         expectedData.put( ( byte ) 18 );
         expectedData.put( ( byte ) cnameParts[0].length() ); // 1

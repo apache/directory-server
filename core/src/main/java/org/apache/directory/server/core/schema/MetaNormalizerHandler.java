@@ -104,7 +104,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     }
     
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, targetRegistries );
@@ -116,7 +116,11 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), 
                 targetEntry );
             normalizerRegistry.register( normalizerDescription, normalizer );
+            
+            return SCHEMA_MODIFIED;
         }
+        
+        return SCHEMA_UNCHANGED;
     }
 
 

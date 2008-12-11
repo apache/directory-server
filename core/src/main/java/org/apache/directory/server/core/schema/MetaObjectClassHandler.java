@@ -61,7 +61,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
@@ -72,7 +72,11 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         {
             objectClassRegistry.unregister( oid );
             objectClassRegistry.register( oc );
+            
+            return SCHEMA_MODIFIED;
         }
+        
+        return SCHEMA_UNCHANGED;
     }
 
 

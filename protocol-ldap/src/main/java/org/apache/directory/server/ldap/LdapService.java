@@ -25,7 +25,14 @@ import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 import org.apache.directory.server.core.DirectoryService;
@@ -42,7 +49,7 @@ import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
-import org.apache.directory.server.ldap.handlers.bind.*;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.shared.ldap.constants.SaslQoP;
@@ -64,15 +71,20 @@ import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IoFilterChainBuilder;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.common.ThreadModel;
-import org.apache.mina.common.WriteFuture;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.filterchain.IoFilterChainBuilder;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoEventType;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.handler.demux.MessageHandler;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.apache.mina.transport.socket.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,7 +208,7 @@ public class LdapService extends DirectoryBackedService
      */
     public LdapService()
     {
-        super.setIpPort( IP_PORT_DEFAULT );
+        super.setTcpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
@@ -312,6 +324,17 @@ public class LdapService extends DirectoryBackedService
         {
             chain = new DefaultIoFilterChainBuilder();
         }
+        
+        // Inject the codec into the chain
+        ((DefaultIoFilterChainBuilder)chain).addLast( "codec", 
+                new ProtocolCodecFilter( this.getProtocolCodecFactory() ) );
+        
+        // Now inject an ExecutorFilter for the write operations
+        // We use the same number of thread than the number of IoProcessor
+        // (NOTE : this has to be double checked)
+        ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
+                new ExecutorFilter( new OrderedThreadPoolExecutor( getNbTcpThreads() ), 
+                    IoEventType.WRITE ) );
 
         /*
          * The server is now initialized, we can
@@ -320,7 +343,7 @@ public class LdapService extends DirectoryBackedService
          */ 
         installDefaultHandlers();      
 
-        startLDAP0( getIpPort(), chain );
+        startNetwork( getIpAddress(), getTcpPort(), getTcpBacklog(), chain );
         
         started = true;
         
@@ -354,7 +377,7 @@ public class LdapService extends DirectoryBackedService
             try
             {
                 sessions = new ArrayList<IoSession>(
-                        getSocketAcceptor().getManagedSessions( new InetSocketAddress( getIpPort() ) ) );
+                        getSocketAcceptor().getManagedSessions().values() );
             }
             catch ( IllegalArgumentException e )
             {
@@ -384,8 +407,8 @@ public class LdapService extends DirectoryBackedService
 
             for ( WriteFuture future:writeFutures )
             {
-                future.join( 1000 );
-                sessionIt.next().close();
+                future.await( 1000L );
+                sessionIt.next().close( true );
             }
         }
         catch ( Exception e )
@@ -406,9 +429,15 @@ public class LdapService extends DirectoryBackedService
     }
 
 
-    private void startLDAP0( int port, IoFilterChainBuilder chainBuilder )
+    private void startNetwork( String hostname, int port,int backlog, IoFilterChainBuilder chainBuilder )
         throws Exception
     {
+        if ( backlog < 0 ) 
+        {
+            // Set the baclog to the default value when it's below 0
+            backlog = 50;
+        }
+
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
         for ( ExtendedOperationHandler h : extendedOperationHandlers )
@@ -422,17 +451,51 @@ public class LdapService extends DirectoryBackedService
 
         try
         {
-            SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
-
+            // First, create the acceptor with the configured number of threads (if defined)
+            int nbTcpThreads = getNbTcpThreads();
+            SocketAcceptor acceptor;
+            
+            if ( nbTcpThreads > 0 )
+            {
+                acceptor = new NioSocketAcceptor( nbTcpThreads );
+            }
+            else
+            {
+                acceptor = new NioSocketAcceptor();
+            }
+            
+            setSocketAcceptor( acceptor );
+            
+            // Set the service backlog
+            acceptor.setBacklog( backlog );
+                
+            // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
-            acceptorCfg.setDisconnectOnUnbind( false );
-            acceptorCfg.setReuseAddress( true );
-            acceptorCfg.setFilterChainBuilder( chainBuilder );
-            acceptorCfg.setThreadModel( ThreadModel.MANUAL );
-
-            acceptorCfg.getSessionConfig().setTcpNoDelay( true );
-
-            getSocketAcceptor().bind( new InetSocketAddress( port ), getHandler(), acceptorCfg );
+            acceptor.setCloseOnDeactivation( false );
+            
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            acceptor.setReuseAddress( true );
+            
+            // No Nagle's algorithm
+            acceptor.getSessionConfig().setTcpNoDelay( true );
+            
+            // Inject the chain
+            acceptor.setFilterChainBuilder( chainBuilder );
+            
+            // Inject the protocol handler
+            acceptor.setHandler( getHandler() );
+            
+            // Bind to the configured address
+            if ( StringTools.isEmpty( hostname ) )
+            {
+                acceptor.bind( new InetSocketAddress( port ) );
+            }
+            else
+            {
+                acceptor.bind( new InetSocketAddress( hostname, port ) );
+            }
+            
+            // We are done !
             started = true;
 
             if ( LOG.isInfoEnabled() )
@@ -876,10 +939,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
     {
-        this.handler.removeMessageHandler( AbandonRequest.class );
+        this.handler.removeReceivedMessageHandler( AbandonRequest.class );
         this.abandonHandler = abandonHandler;
         this.abandonHandler.setLdapServer( this );
-        this.handler.addMessageHandler( AbandonRequest.class, this.abandonHandler );
+        this.handler.addReceivedMessageHandler( AbandonRequest.class, this.abandonHandler );
     }
 
 
@@ -891,10 +954,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
-        this.handler.removeMessageHandler( AddRequest.class );
+        this.handler.removeReceivedMessageHandler( AddRequest.class );
         this.addHandler = addHandler;
         this.addHandler.setLdapServer( this );
-        this.handler.addMessageHandler( AddRequest.class, this.addHandler );
+        this.handler.addReceivedMessageHandler( AddRequest.class, this.addHandler );
     }
 
 
@@ -906,10 +969,11 @@ public class LdapService extends DirectoryBackedService
 
     public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
-        this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setLdapServer( this );
-        this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
+
+        handler.removeReceivedMessageHandler( BindRequest.class );
+        handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
     }
 
 
@@ -921,10 +985,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
-        this.handler.removeMessageHandler( CompareRequest.class );
+        this.handler.removeReceivedMessageHandler( CompareRequest.class );
         this.compareHandler = compareHandler;
         this.compareHandler.setLdapServer( this );
-        this.handler.addMessageHandler( CompareRequest.class, this.compareHandler );
+        this.handler.addReceivedMessageHandler( CompareRequest.class, this.compareHandler );
     }
 
 
@@ -936,10 +1000,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
-        this.handler.removeMessageHandler( DeleteRequest.class );
+        this.handler.removeReceivedMessageHandler( DeleteRequest.class );
         this.deleteHandler = deleteHandler;
         this.deleteHandler.setLdapServer( this );
-        this.handler.addMessageHandler( DeleteRequest.class, this.deleteHandler );
+        this.handler.addReceivedMessageHandler( DeleteRequest.class, this.deleteHandler );
     }
 
 
@@ -951,10 +1015,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
-        this.handler.removeMessageHandler( ExtendedRequest.class );
+        this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
         this.extendedHandler.setLdapServer( this );
-        this.handler.addMessageHandler( ExtendedRequest.class, this.extendedHandler );
+        this.handler.addReceivedMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
 
 
@@ -966,10 +1030,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
-        this.handler.removeMessageHandler( ModifyRequest.class );
+        this.handler.removeReceivedMessageHandler( ModifyRequest.class );
         this.modifyHandler = modifyHandler;
         this.modifyHandler.setLdapServer( this );
-        this.handler.addMessageHandler( ModifyRequest.class, this.modifyHandler );
+        this.handler.addReceivedMessageHandler( ModifyRequest.class, this.modifyHandler );
     }
 
 
@@ -981,10 +1045,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
-        this.handler.removeMessageHandler( ModifyDnRequest.class );
+        this.handler.removeReceivedMessageHandler( ModifyDnRequest.class );
         this.modifyDnHandler = modifyDnHandler;
         this.modifyDnHandler.setLdapServer( this );
-        this.handler.addMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
+        this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
     }
 
 
@@ -996,10 +1060,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
-        this.handler.removeMessageHandler( SearchRequest.class );
+        this.handler.removeReceivedMessageHandler( SearchRequest.class );
         this.searchHandler = searchHandler;
         this.searchHandler.setLdapServer( this );
-        this.handler.addMessageHandler( SearchRequest.class, this.searchHandler );
+        this.handler.addReceivedMessageHandler( SearchRequest.class, this.searchHandler );
     }
 
 
@@ -1011,10 +1075,10 @@ public class LdapService extends DirectoryBackedService
 
     public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {
-        this.handler.removeMessageHandler( UnbindRequest.class );
+        this.handler.removeReceivedMessageHandler( UnbindRequest.class );
         this.unbindHandler = unbindHandler;
         this.unbindHandler.setLdapServer( this );
-        this.handler.addMessageHandler( UnbindRequest.class, this.unbindHandler );
+        this.handler.addReceivedMessageHandler( UnbindRequest.class, this.unbindHandler );
     }
 
 

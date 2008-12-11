@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
  * A RenameService context used for Interceptors. It contains all the informations
  * needed for the modify DN operation, and used by all the interceptors
  * 
- * This is used whne the modifyDN is about changing the RDN, not the base DN.
+ * This is used when the modifyDN is about changing the RDN, not the base DN.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -58,7 +58,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      */
     public RenameOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
 
 

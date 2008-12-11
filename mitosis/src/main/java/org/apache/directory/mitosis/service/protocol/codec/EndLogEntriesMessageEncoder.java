@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
@@ -35,7 +35,7 @@ public class EndLogEntriesMessageEncoder extends BaseMessageEncoder
     }
 
 
-    protected void encodeBody( BaseMessage in, ByteBuffer out )
+    protected void encodeBody( BaseMessage in, IoBuffer out )
     {
     }
 

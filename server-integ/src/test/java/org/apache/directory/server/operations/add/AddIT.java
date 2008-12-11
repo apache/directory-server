@@ -763,14 +763,14 @@ public class AddIT
     public void testDIRSERVER_1183() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
-    	Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
-    	attrs.get( "objectClass" ).add( "organizationalPerson" );
-    	attrs.get( "objectClass" ).add( "person" );
-    	attrs.put( "givenName", "Jim" );
-    	attrs.put( "sn", "Bean" );
-    	attrs.put( "cn", "\"Jim, Bean\"" );
-    	
-    	ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
+        Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
+        attrs.get( "objectClass" ).add( "organizationalPerson" );
+        attrs.get( "objectClass" ).add( "person" );
+        attrs.put( "givenName", "Jim" );
+        attrs.put( "sn", "Bean" );
+        attrs.put( "cn", "\"Jim, Bean\"" );
+        
+        ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
     }
 
 
@@ -941,5 +941,74 @@ public class AddIT
         assertEquals( 2, cn.size() );
         assertTrue( cn.contains( "Jackson" ) );
         assertTrue( cn.contains( "Michael" ) );
+    }
+
+
+    /**
+     * Test that if we inject a PDU above the max allowed size,
+     * the connection is closed. 
+     * 
+     * @throws NamingException 
+     */
+    @Test
+    public void testAddPDUExceedingMaxSize() throws Exception
+    {
+        // Limit the PDU size to 1024
+        ldapService.getDirectoryService().setMaxPDUSize( 1024 );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        // modify object classes, add two more
+        Attributes attributes = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "description" );
+        
+        // Inject a 1024 bytes long description
+        StringBuilder sb = new StringBuilder();
+        
+        for ( int i = 0; i < 128; i++ )
+        {
+            sb.append( "0123456789ABCDEF" );
+        }
+        
+        ocls.add( sb.toString() );
+        attributes.put( ocls );
+
+        DirContext person = ( DirContext ) ctx.lookup( RDN );
+        
+        try
+        {
+            person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
+            fail();
+        }
+        catch ( Exception e )
+        {
+            // We are expecting the session to be close here.
+        }
+        
+        // Test again with a bigger size
+        // Limit the PDU size to 1024
+        ldapService.getDirectoryService().setMaxPDUSize( 4096 );
+        
+        ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        person = ( DirContext ) ctx.lookup( RDN );
+        
+        try
+        {
+            person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
+        }
+        catch ( Exception e )
+        {
+            // We should not go there
+            fail();
+        }
+
+        // Read again from directory
+        ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        person = ( DirContext ) ctx.lookup( RDN );
+        
+        assertNotNull( person );
+        attributes = person.getAttributes( "" );
+        Attribute newOcls = attributes.get( "objectClass" );
+
+        assertNotNull( newOcls );
     }
 }

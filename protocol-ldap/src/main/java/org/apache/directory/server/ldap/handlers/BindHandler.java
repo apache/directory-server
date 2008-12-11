@@ -169,22 +169,22 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             // opContext.setEntry( principalEntry );
 
             // And call the OperationManager bind operation.
-	        getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
-	        
-	        // As a result, store the created session in the Core Session
-	        ldapSession.setCoreSession( opContext.getSession() );
-	        
-	        if ( ! ldapSession.getCoreSession().isAnonymous() )
-	        {
-	            ldapSession.setAuthenticated();
-	        }
-	        
-	        // Return the successful response
-	        sendBindSuccess( ldapSession, bindRequest, null );
+            getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
+            
+            // As a result, store the created session in the Core Session
+            ldapSession.setCoreSession( opContext.getSession() );
+            
+            if ( ! ldapSession.getCoreSession().isAnonymous() )
+            {
+                ldapSession.setAuthenticated();
+            }
+            
+            // Return the successful response
+            sendBindSuccess( ldapSession, bindRequest, null );
         }
         catch ( Exception e )
         {
-        	// Something went wrong. Write back an error message        	
+            // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
             LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
@@ -211,7 +211,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             
             if ( e instanceof LdapAuthenticationException )
             {
-            	name = ( ( LdapAuthenticationException ) e ).getResolvedName();
+                name = ( ( LdapAuthenticationException ) e ).getResolvedName();
             }
             
             if ( ( name != null )

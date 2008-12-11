@@ -176,11 +176,11 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             if ( node instanceof AndNode )
             {
-            	count = getConjunctionScan( (AndNode)node );
+                count = getConjunctionScan( (AndNode)node );
             }
             else if ( node instanceof OrNode )
             {
-            	count = getDisjunctionScan( (OrNode)node );
+                count = getDisjunctionScan( (OrNode)node );
             }
             else if ( node instanceof NotNode )
             {
@@ -196,7 +196,7 @@ public class DefaultOptimizer<E> implements Optimizer
             }
             else
             {
-            	throw new IllegalArgumentException( "Unrecognized branch node type" );
+                throw new IllegalArgumentException( "Unrecognized branch node type" );
             }
         }
 

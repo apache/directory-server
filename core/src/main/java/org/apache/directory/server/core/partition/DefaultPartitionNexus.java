@@ -644,21 +644,43 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws Exception
     {
+        // Get the Partition name. It's a DN.
         String key = removeContextPartition.getDn().getNormName();
+        
+        // Retrieve this partition from the aprtition's table
         Partition partition = partitions.get( key );
         
         if ( partition == null )
         {
-            throw new NameNotFoundException( "No partition with suffix: " + key );
+            String msg = "No partition with suffix: " + key;
+            LOG.error( msg );
+            throw new NameNotFoundException( msg );
         }
+        
+        String partitionSuffix = partition.getUpSuffixDn().getUpName();
 
+        // Retrieve the namingContexts from the RootDSE : the partition
+        // suffix must be present in those namingContexts
         EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getUpSuffixDn().getUpName() );
+            if ( namingContexts.contains( partitionSuffix ) )
+            {
+                namingContexts.remove( partitionSuffix );
+            }
+            else
+            {
+                String msg = "No partition with suffix '" + key + 
+                                    "' can be found in the NamingContexts";
+                LOG.error( msg );
+                throw new NameNotFoundException( msg );
+            }
         }
 
         // Update the partition tree

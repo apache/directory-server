@@ -566,9 +566,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
             if ( userEntry == null )
             {
-            	LdapDN dn = opContext.getDn();
-            	String upDn = ( dn == null ? "" : dn.getUpName() );
-            	
+            LdapDN dn = opContext.getDn();
+            String upDn = ( dn == null ? "" : dn.getUpName() );
+            
                 throw new LdapAuthenticationException( "Failed to lookup user for authentication: " 
                     + upDn );
             }

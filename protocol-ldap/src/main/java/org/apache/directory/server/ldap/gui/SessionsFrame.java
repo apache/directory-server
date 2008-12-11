@@ -50,11 +50,11 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.mina.common.CloseFuture;
-import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.common.WriteFuture;
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -481,9 +481,9 @@ public class SessionsFrame extends JFrame
                     WriteFuture future = selected.getIoSession().write( NoticeOfDisconnect.STRONGAUTHREQUIRED );
                     try
                     {
-                        future.join( 1000 );
-                        CloseFuture cfuture = selected.getIoSession().close();
-                        cfuture.join( 1000 );
+                        future.awaitUninterruptibly( 1000L );
+                        CloseFuture cfuture = selected.getIoSession().close( true );
+                        cfuture.awaitUninterruptibly( 1000L );
                     }
                     catch ( Exception e1 )
                     {
@@ -726,7 +726,7 @@ public class SessionsFrame extends JFrame
                         "Send graceful disconnect before disconnect notice?", JOptionPane.YES_NO_CANCEL_OPTION );
                     IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
                     List<IoSession> sessions = new ArrayList<IoSession>(
-                            acceptor.getManagedSessions( requestor.getServiceAddress() ) );
+                            acceptor.getManagedSessions().values() );
 
                     if ( input == JOptionPane.CANCEL_OPTION )
                     {
@@ -826,7 +826,8 @@ public class SessionsFrame extends JFrame
                 {
                     try
                     {
-                        ( ( IoAcceptor ) requestor.getService() ).bind( requestor.getServiceAddress(), getLdapProvider() );
+                        ( ( IoAcceptor ) requestor.getService() ).setHandler( getLdapProvider() );
+                        ( ( IoAcceptor ) requestor.getService() ).bind( requestor.getServiceAddress() );
                         JOptionPane.showMessageDialog( SessionsFrame.this, "Ldap service " + requestor.getServiceAddress()
                             + " has been successfully bound.\n" + " Clients may now connect to the server once again.",
                             "Success!", JOptionPane.INFORMATION_MESSAGE );

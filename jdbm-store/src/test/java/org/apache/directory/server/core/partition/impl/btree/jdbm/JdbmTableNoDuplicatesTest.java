@@ -327,7 +327,7 @@ public class JdbmTableNoDuplicatesTest
         {
             assertTrue( table.hasLessOrEqual( 1, 2 ) );
             fail( "Should never get here since no dups tables " +
-            		"freak when they cannot find a value comparator" );
+                  "freak when they cannot find a value comparator" );
         } 
         catch ( UnsupportedOperationException e )
         {

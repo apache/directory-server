@@ -21,14 +21,15 @@
 
 
 <spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" 
-			  xmlns:s="http://www.springframework.org/schema/beans"
-			  xmlns="http://apacheds.org/config/1.0">
+              xmlns:s="http://www.springframework.org/schema/beans"
+              xmlns="http://apacheds.org/config/1.0">
 
   <defaultDirectoryService id="directoryService" instanceId="default"
                            workingDirectory="example.com"
                            allowAnonymousAccess="true"
                            accessControlEnabled="false"
-                           denormalizeOpAttrsEnabled="false">
+                           denormalizeOpAttrsEnabled="false"
+                           maxPDUSize="2000000">
     <systemPartition>
       <!-- use the following partitionConfiguration to override defaults for -->
       <!-- the system partition                                              -->
@@ -105,56 +106,42 @@
     </interceptors>
   </defaultDirectoryService>
 
-  <standardThreadPool id="standardThreadPool" maxThreads="8"/>
-  <datagramAcceptor id="datagramAcceptor" logicExecutor="#standardThreadPool"/>
-  <socketAcceptor id="socketAcceptor" logicExecutor="#standardThreadPool"/>
-
 <!--  missing  atou=users,dc=example,dc=com
-  <changePasswordServer ipPort="60464">
+  <changePasswordServer ipPort="60464" nbThreads="8">
     <directoryService>#directoryService</directoryService>
-    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </changePasswordServer>
 -->
 <!--  missing atou=users,dc=example,dc=com
-  <kdcServer ipPort="60088">
+  <kdcServer ipPort="60088" nbThreads="8">
     <directoryService>#directoryService</directoryService>
-    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </kdcServer>
 -->
-  <ntpServer ipPort="60123">
-    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </ntpServer>
+  <ntpServer ipPort="60123" nbThreads="8"/>
 <!--  missing atou=users,dc=example,dc=com
-  <dnsServer ipPort="8053">
+  <dnsServer ipPort="8053" nbThreads="8">
     <directoryService>#directoryService</directoryService>
-    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </dnsServer>
 -->
 
   <ldapService id="ldapsService"
               enabled="true"
-              ipPort="10636"
-              enableLdaps="true">
+              tcpPort="10636"
+              enableLdaps="true"
+              nbTcpThreads="8">
     <directoryService>#directoryService</directoryService>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </ldapService>
 
-
   <ldapService id="ldapService"
-              ipPort="10389"
+              tcpPort="10389"
               allowAnonymousAccess="false"
               saslHost="ldap.example.com"
               saslPrincipal="ldap/ldap.example.com@EXAMPLE.COM"
               searchBaseDn="ou=users,ou=system"
               maxTimeLimit="15000"
-              maxSizeLimit="1000">
+              maxSizeLimit="1000"
+              nbTcpThreads="8">
 
     <directoryService>#directoryService</directoryService>
-    <socketAcceptor>#socketAcceptor</socketAcceptor>
 
     <!-- The list of supported authentication mechanisms.                   -->
     <saslMechanismHandlers>

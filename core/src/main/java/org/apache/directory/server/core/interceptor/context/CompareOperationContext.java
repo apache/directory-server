@@ -54,7 +54,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public CompareOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
 
     
@@ -76,7 +76,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public CompareOperationContext( CoreSession session, String oid )
     {
-    	super( session );
+        super( session );
         this.oid = oid;
     }
 
@@ -88,7 +88,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public CompareOperationContext( CoreSession session, LdapDN dn, String oid )
     {
-    	super( session, dn );
+        super( session, dn );
         this.oid = oid;
     }
 
@@ -100,7 +100,7 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public CompareOperationContext( CoreSession session, LdapDN dn, String oid, Value<?> value )
     {
-    	super( session, dn );
+        super( session, dn );
         this.oid = oid;
         this.value = value;
     }
@@ -132,7 +132,7 @@ public class CompareOperationContext extends AbstractOperationContext
         return oid;
     }
 
-	
+    
     /**
      * Set the compared OID
      * @param oid The compared OID
@@ -142,7 +142,7 @@ public class CompareOperationContext extends AbstractOperationContext
         this.oid = oid;
     }
 
-	
+    
     /**
      * @return The value to compare
      */
@@ -151,7 +151,7 @@ public class CompareOperationContext extends AbstractOperationContext
         return value;
     }
 
-	
+    
     /**
      * Set the value to compare
      * @param value The value to compare

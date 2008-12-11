@@ -38,10 +38,9 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.common.TransportType;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,6 @@ public class KerberosProtocolHandler implements IoHandler
     private static final String CONTEXT_KEY = "context";
     
 
-
     /**
      * Creates a new instance of KerberosProtocolHandler.
      *
@@ -81,10 +79,10 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
+            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
         }
 
-        if ( session.getTransportType() == TransportType.DATAGRAM )
+        if ( session.getTransportMetadata().isConnectionless() )
         {
             session.getFilterChain().addFirst( "codec",
                 new ProtocolCodecFilter( KerberosUdpProtocolCodecFactory.getInstance() ) );
@@ -127,7 +125,7 @@ public class KerberosProtocolHandler implements IoHandler
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         log.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close();
+        session.close( true );
     }
 
 
@@ -205,6 +203,7 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
+        e.printStackTrace();
             log.error( "Unexpected exception:  " + e.getMessage(), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(

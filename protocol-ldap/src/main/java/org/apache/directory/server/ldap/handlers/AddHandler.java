@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AddHandler extends LdapRequestHandler<AddRequest>
 {
-	/** The logger for this class */
+    /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AddHandler.class );
     
     
@@ -52,7 +52,7 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
 
         try
         {
-        	// Call the underlying layer to inject the new entry 
+            // Call the underlying layer to inject the new entry 
             CoreSession coreSession = session.getCoreSession();
             coreSession.add( req );
 

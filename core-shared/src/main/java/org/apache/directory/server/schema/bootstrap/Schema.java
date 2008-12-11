@@ -35,6 +35,27 @@ public interface Schema
      */
     boolean isDisabled();
     
+    
+    /**
+     * Disable the schema
+     */
+    void disable();
+    
+    
+    /**
+     * Checks whether or not this schema is enabled or disabled.
+     * 
+     * @return true if this schema is enabled, false otherwise
+     */
+    boolean isEnabled();
+    
+
+    /**
+     * Enable the schema
+     */
+    void enable();
+    
+    
     /**
      * Gets the name of the owner of the schema objects within this
      * Schema.

@@ -20,6 +20,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.SocketAcceptor;
 
 import java.util.Set;
 
@@ -66,30 +68,12 @@ public interface ProtocolService
 
 
     /**
-     * If this protocol service supports UDP transport then this sets the
-     * MINA DatagramAcceptor it uses.
-     *
-     * @param datagramAcceptor the MINA DatagramAcceptor used for UDP transport
-     */
-    void setDatagramAcceptor( DatagramAcceptor datagramAcceptor );
-
-
-    /**
      * If this protocol service support TCP transport then this gets the
      * MINA SocketAcceptor it uses.
      *
      * @return the MINA SocketAcceptor used for TCP transport
      */
     SocketAcceptor getSocketAcceptor();
-
-
-    /**
-     * If this protocol service support TCP transport then this sets the
-     * MINA SocketAcceptor it uses.
-     *
-     * @param socketAcceptor the MINA SocketAcceptor used for TCP transport
-     */
-    void setSocketAcceptor( SocketAcceptor socketAcceptor );
 
 
     /**
@@ -160,11 +144,29 @@ public interface ProtocolService
 
 
     /**
-     * Gets the IP port for this service.
+     * Gets the IP port for this service. This is just a temporary
+     * storage for the service port, as we will move it to either
+     * TCP or UDP port.
      *
      * @return the IP port for this service
      */
     int getIpPort();
+
+
+    /**
+     * Gets the UDP port for this service.
+     *
+     * @return the UDP port for this service
+     */
+    int getUdpPort();
+
+
+    /**
+     * Gets the TCP port for this service.
+     *
+     * @return the TCP port for this service
+     */
+    int getTcpPort();
 
 
     /**
@@ -174,6 +176,24 @@ public interface ProtocolService
      * @throws IllegalArgumentException if the port number is not within a valid range
      */
     void setIpPort( int ipPort );
+
+
+    /**
+     * Sets the UDP port for this service.
+     *
+     * @param ipPort the udp port for this service
+     * @throws IllegalArgumentException if the port number is not within a valid range
+     */
+    void setUdpPort( int udpPort );
+
+
+    /**
+     * Sets the TCP port for this service.
+     *
+     * @param tcpPort the tcp port for this service
+     * @throws IllegalArgumentException if the port number is not within a valid range
+     */
+    void setTcpPort( int tcpPort );
 
 
     /**

@@ -1377,8 +1377,8 @@ public class SearchIT
 
         result.close();
     }
-
-
+   
+    
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
@@ -1447,7 +1447,7 @@ public class SearchIT
         }
     }
 
-
+    
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
@@ -1479,5 +1479,4 @@ public class SearchIT
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
     }
-
 }

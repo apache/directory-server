@@ -34,109 +34,109 @@ import java.util.List;
 public class AvlTree<K>
 {
     /** the root of the tree */
-	private LinkedAvlNode<K> root;
+    private LinkedAvlNode<K> root;
 
-	/** The Comparator used for comparing the keys */
-	private Comparator<K> comparator;
+    /** The Comparator used for comparing the keys */
+    private Comparator<K> comparator;
 
-	/** node representing the start of the doubly linked list formed with the tree nodes */
-	private LinkedAvlNode<K> first;
-	
-	/** node representing the end of the doubly linked list formed with the tree nodes */
+    /** node representing the start of the doubly linked list formed with the tree nodes */
+    private LinkedAvlNode<K> first;
+    
+    /** node representing the end of the doubly linked list formed with the tree nodes */
     private LinkedAvlNode<K> last;
 
 
     /**
-	 * Creates a new instance of AVLTree.
-	 *
-	 * @param comparator the comparator to be used for comparing keys
-	 */
-	public AvlTree( Comparator<K> comparator)
-	{
-	    this.comparator = comparator;
-	}
-	
-	
-	/**
-	 * @return the comparator associated with this tree 
-	 */
-	public Comparator<K> getComparator()
-	{
-	    return comparator;
-	}
-	
-	
-	/**
-	 * Inserts a LinkedAvlNode with the given key.
-	 *
-	 * @param key the item to be inserted
-	 * @return the replaced key if it already exists
-	 * Note: Ignores if a node with the given key already exists.
-	 */
-	public K insert( K key )
-	{
-	    LinkedAvlNode<K> node, temp;
-	    LinkedAvlNode<K> parent = null;
-	    int c;
-	    
-	    if ( root == null )
-	    {
-	      root = new LinkedAvlNode<K>( key );
-	      first = root;
-	      last = root;
-	      return null;
-	    }
-	    
-	    node = new LinkedAvlNode<K>( key );
-	    
-	    temp = root;
-	    
-	    List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
+     * Creates a new instance of AVLTree.
+     *
+     * @param comparator the comparator to be used for comparing keys
+     */
+    public AvlTree( Comparator<K> comparator)
+    {
+        this.comparator = comparator;
+    }
+    
+    
+    /**
+     * @return the comparator associated with this tree 
+     */
+    public Comparator<K> getComparator()
+    {
+        return comparator;
+    }
+    
+    
+    /**
+     * Inserts a LinkedAvlNode with the given key.
+     *
+     * @param key the item to be inserted
+     * @return the replaced key if it already exists
+     * Note: Ignores if a node with the given key already exists.
+     */
+    public K insert( K key )
+    {
+        LinkedAvlNode<K> node, temp;
+        LinkedAvlNode<K> parent = null;
+        int c;
+        
+        if ( root == null )
+        {
+          root = new LinkedAvlNode<K>( key );
+          first = root;
+          last = root;
+          return null;
+        }
+        
+        node = new LinkedAvlNode<K>( key );
+        
+        temp = root;
+        
+        List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
 
-	    while( temp != null )
-	    {
-	        treePath.add(0, temp ); // last node first, for the sake of balance factor computation
-	        parent = temp;
-	        
-	        c = comparator.compare( key, temp.getKey() );
-	        
-	        if( c == 0 )
-	        {
-	            return key; // key already exists
-	        }
-	        
-	        if( c < 0 )
-	        {
-	            temp.isLeft = true;
-	            temp = temp.getLeft();
-	        }
-	        else
-	        {
-	            temp.isLeft = false;
-	            temp = temp.getRight();
-	        }
-	    }
-	    
-	    if( ( c = comparator.compare( key, parent.getKey() ) ) < 0 )
-	    {
-	        parent.setLeft( node );
-	    }
-	    else
-	    {
-	        parent.setRight( node );
-	    }
-	    
+        while( temp != null )
+        {
+            treePath.add(0, temp ); // last node first, for the sake of balance factor computation
+            parent = temp;
+            
+            c = comparator.compare( key, temp.getKey() );
+            
+            if( c == 0 )
+            {
+                return key; // key already exists
+            }
+            
+            if( c < 0 )
+            {
+                temp.isLeft = true;
+                temp = temp.getLeft();
+            }
+            else
+            {
+                temp.isLeft = false;
+                temp = temp.getRight();
+            }
+        }
+        
+        if( ( c = comparator.compare( key, parent.getKey() ) ) < 0 )
+        {
+            parent.setLeft( node );
+        }
+        else
+        {
+            parent.setRight( node );
+        }
+        
         insertInList( node, parent, c );
         
         treePath.add( 0, node );
-	    balance(treePath);
-	    
-	    return null;
-	}
-	
-	
-	private void removeFromList(LinkedAvlNode<K> node)
-	{
+        balance(treePath);
+        
+        return null;
+    }
+    
+    
+    private void removeFromList(LinkedAvlNode<K> node)
+    {
         if( node.next == null && node.previous == null ) // should happen in case of tree having single node
         {
             first = last = null;
@@ -157,11 +157,11 @@ public class AvlTree<K>
             node.next.previous = node.previous;
         }
         
-	}
-	
-	
-	private void insertInList(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode, int pos)
-	{
+    }
+    
+    
+    private void insertInList(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode, int pos)
+    {
 
         if( pos < 0 )
         {
@@ -198,10 +198,10 @@ public class AvlTree<K>
             parentNode.next = node;
          }
         
-	}
-	
-	
-	/**
+    }
+    
+    
+    /**
      * Removes the LinkedAvlNode present in the tree with the given key value
      *
      * @param key the value of the node to be removed
@@ -308,26 +308,26 @@ public class AvlTree<K>
     }
     
     
-	/**
-	 * Balances the tree by visiting the nodes present in the List of nodes present in the
-	 * treePath parameter.<br><br>
-	 *
-	 * This really does the balancing if the height of the tree is greater than 2 and the<br> 
-	 * balance factor is greater than +1 or less than -1.<br><br>
-	 * For an excellent info please read the 
-	 * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
-	 * 
-	 * @param treePath the traversed list of LinkedAvlNodes after performing an insert/delete operation.
-	 */
-	private void balance( List<LinkedAvlNode<K>> treePath )
-	{
-	    LinkedAvlNode<K> parentNode = null;
-	    
-	    int size = treePath.size();
-	    
-	    for( LinkedAvlNode<K> node: treePath )
-	    {
-	        int balFactor = getBalance( node );
+    /**
+     * Balances the tree by visiting the nodes present in the List of nodes present in the
+     * treePath parameter.<br><br>
+     *
+     * This really does the balancing if the height of the tree is greater than 2 and the<br> 
+     * balance factor is greater than +1 or less than -1.<br><br>
+     * For an excellent info please read the 
+     * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
+     * 
+     * @param treePath the traversed list of LinkedAvlNodes after performing an insert/delete operation.
+     */
+    private void balance( List<LinkedAvlNode<K>> treePath )
+    {
+        LinkedAvlNode<K> parentNode = null;
+        
+        int size = treePath.size();
+        
+        for( LinkedAvlNode<K> node: treePath )
+        {
+            int balFactor = getBalance( node );
 
             if( node != root )
             {
@@ -337,37 +337,37 @@ public class AvlTree<K>
                 }
             }
 
-	        if( balFactor > 1 )
-	        {
-	            if( getBalance( node.right ) <= -1)
-	            {
-	                //------rotate double-left--------
-	                rotateSingleRight( node.right, node );
-	                rotateSingleLeft( node, parentNode );
-	            }
-	            else // rotate single-left
-	            {
-	               rotateSingleLeft( node, parentNode );
-	            }
-	        }
-	        else if( balFactor < -1 )
-	        {
-	            if( getBalance( node.left ) >= 1)
-	            {
-	               //------rotate double-right--------
-	               rotateSingleLeft( node.left, node ); 
-	               rotateSingleRight( node, parentNode );
-	            }
-	            else
-	            {
-	                rotateSingleRight( node, parentNode );
-	            }
-	        }
-	    }
-	}
-	
+            if( balFactor > 1 )
+            {
+                if( getBalance( node.right ) <= -1)
+                {
+                    //------rotate double-left--------
+                    rotateSingleRight( node.right, node );
+                    rotateSingleLeft( node, parentNode );
+                }
+                else // rotate single-left
+                {
+                   rotateSingleLeft( node, parentNode );
+                }
+            }
+            else if( balFactor < -1 )
+            {
+                if( getBalance( node.left ) >= 1)
+                {
+                   //------rotate double-right--------
+                   rotateSingleLeft( node.left, node ); 
+                   rotateSingleRight( node, parentNode );
+                }
+                else
+                {
+                    rotateSingleRight( node, parentNode );
+                }
+            }
+        }
+    }
+    
 
-	/**
+    /**
      * Tests if the tree is logically empty.
      * 
      * @return true if the tree is empty, false otherwise
@@ -498,15 +498,15 @@ public class AvlTree<K>
     /**
      * @return The first element of this tree
      */
-	public LinkedAvlNode<K> getFirst()
+    public LinkedAvlNode<K> getFirst()
     {
         return first;
     }
 
-	
-	/**
-	 * @return The last element in this tree
-	 */
+    
+    /**
+     * @return The last element in this tree
+     */
     public LinkedAvlNode<K> getLast()
     {
         return last;
@@ -514,15 +514,15 @@ public class AvlTree<K>
 
     
     /**
-	 * Rotate the node left side once.
-	 *
-	 * @param node the LinkedAvlNode to be rotated
-	 * @param parentNode parent LinkedAvlNode of node
-	 */
-	private void rotateSingleLeft(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
-	{
-	    LinkedAvlNode<K> temp;
-	    //------rotate single-left--------
+     * Rotate the node left side once.
+     *
+     * @param node the LinkedAvlNode to be rotated
+     * @param parentNode parent LinkedAvlNode of node
+     */
+    private void rotateSingleLeft(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
+    {
+        LinkedAvlNode<K> temp;
+        //------rotate single-left--------
         
         temp = node.right;
         node.right = temp.left;
@@ -543,18 +543,18 @@ public class AvlTree<K>
                 parentNode.right = temp;
             }
         }
-	}
-	
-	
-	/**
+    }
+    
+    
+    /**
      * Rotate the node right side once.
      *
      * @param node the LinkedAvlNode to be rotated
      * @param parentNode parent LinkedAvlNode of node
      */
-	private void rotateSingleRight(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
-	{
-	    LinkedAvlNode<K> temp;
+    private void rotateSingleRight(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
+    {
+        LinkedAvlNode<K> temp;
         //------rotate single-right--------
         
         temp = node.left;
@@ -588,39 +588,39 @@ public class AvlTree<K>
             }
             // no need to check for right node
         }
-	}
-		
+    }
+        
 
-	/**
-	 * Detach a LinkedAvlNode from its parent
-	 *
-	 * @param node the LinkedAvlNode to be detached
-	 * @param parentNode the parent LinkedAvlNode of the node
-	 */
-	private void detachNodes(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
-	{
-	    if( parentNode != null )
-	    {
-	        if( node == parentNode.left )
-	        {
-	            parentNode.left = node.left;
-	        }
-	        else if( node == parentNode.right )
-	        {
-	            parentNode.right = node.left;
-	        }
-	    }
-	}
+    /**
+     * Detach a LinkedAvlNode from its parent
+     *
+     * @param node the LinkedAvlNode to be detached
+     * @param parentNode the parent LinkedAvlNode of the node
+     */
+    private void detachNodes(LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode)
+    {
+        if( parentNode != null )
+        {
+            if( node == parentNode.left )
+            {
+                parentNode.left = node.left;
+            }
+            else if( node == parentNode.right )
+            {
+                parentNode.right = node.left;
+            }
+        }
+    }
 
 
-	/**
-	 * 
-	 * Replace a LinkedAvlNode to be removed with a new existing LinkedAvlNode 
-	 *
-	 * @param deleteNode the LinkedAvlNode to be deleted
-	 * @param replaceNode the LinkedAvlNode to replace the deleteNode
-	 * @param parentNode the parent LinkedAvlNode of deleteNode
-	 */
+    /**
+     * 
+     * Replace a LinkedAvlNode to be removed with a new existing LinkedAvlNode 
+     *
+     * @param deleteNode the LinkedAvlNode to be deleted
+     * @param replaceNode the LinkedAvlNode to replace the deleteNode
+     * @param parentNode the parent LinkedAvlNode of deleteNode
+     */
     private void replaceNode(LinkedAvlNode<K> deleteNode, LinkedAvlNode<K> replaceNode, LinkedAvlNode<K> parentNode)
     {
         if( parentNode != null )
@@ -847,37 +847,37 @@ public class AvlTree<K>
      * @param startNode starting node of a subtree/tree
      * @return the list of traversed LinkedAvlNodes.
      */
-	private List<LinkedAvlNode<K>> findMax( LinkedAvlNode<K> startNode )
-	{
-	    LinkedAvlNode<K> x = startNode;
-	    LinkedAvlNode<K> y = null;
-	    List<LinkedAvlNode<K>> path;
-	    
-	    if( x == null )
-	    {
-	        return null;
-	    }
-	    
-	    while( x.right != null )
-	    {
-	        x.isLeft = false;
-	        y = x;
-	        x = x.right;
-	    }
-	    
-	    path = new ArrayList<LinkedAvlNode<K>>(2);
-	    path.add( x );
-	    
-	    if ( y != null )
-	    {
-	      path.add( y );  
-	    }
-	    
-	    return path;
-	}
+    private List<LinkedAvlNode<K>> findMax( LinkedAvlNode<K> startNode )
+    {
+        LinkedAvlNode<K> x = startNode;
+        LinkedAvlNode<K> y = null;
+        List<LinkedAvlNode<K>> path;
+        
+        if( x == null )
+        {
+            return null;
+        }
+        
+        while( x.right != null )
+        {
+            x.isLeft = false;
+            y = x;
+            x = x.right;
+        }
+        
+        path = new ArrayList<LinkedAvlNode<K>>(2);
+        path.add( x );
+        
+        if ( y != null )
+        {
+          path.add( y );  
+        }
+        
+        return path;
+    }
 
-	
-	/**
+    
+    /**
      * Find the LinkedAvlNode having the min key value in the tree starting from the startNode.
      *
      * @param startNode starting node of a subtree/tree
@@ -919,16 +919,16 @@ public class AvlTree<K>
      * @param node a LinkedAvlNode 
      * @return balance-factor of the node
      */
-	private int getBalance( LinkedAvlNode<K> node )
-	{
-	    if( node == null)
-	    {
-	        return 0;
-	    }
-	    
-	    return node.getBalance();
-	}
-	
+    private int getBalance( LinkedAvlNode<K> node )
+    {
+        if( node == null)
+        {
+            return 0;
+        }
+        
+        return node.getBalance();
+    }
+    
     
     private void visit( LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode ) 
     {

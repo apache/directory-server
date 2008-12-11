@@ -1745,65 +1745,65 @@ public class SchemaInterceptor extends BaseInterceptor
     
     private void checkOcSuperior( ServerEntry entry ) throws Exception
     {
-    	ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-    	
+        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
+        
         // handle the m-supObjectClass meta attribute
         EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
         
         if ( supOC != null )
         {
-        	ObjectClassTypeEnum ocType = ObjectClassTypeEnum.STRUCTURAL;
-        	
+            ObjectClassTypeEnum ocType = ObjectClassTypeEnum.STRUCTURAL;
+            
             if ( entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ) != null )
             {
                 String type = entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ).getString();
                 ocType = ObjectClassTypeEnum.getClassType( type );
             }
-        	
-        	// First check that the inheritence scheme is correct.
-        	// 1) If the ocType is ABSTRACT, it should not have any other SUP not ABSTRACT
-        	for ( Value<?> sup:supOC )
-        	{
-        		try
-        		{
-        			String supName = (String)sup.get();
-        			
-            		ObjectClass superior = ocRegistry.lookup( supName );
+            
+            // First check that the inheritence scheme is correct.
+            // 1) If the ocType is ABSTRACT, it should not have any other SUP not ABSTRACT
+            for ( Value<?> sup:supOC )
+            {
+                try
+                {
+                    String supName = (String)sup.get();
+                    
+                    ObjectClass superior = ocRegistry.lookup( supName );
 
-            		switch ( ocType )
-            		{
-	            		case ABSTRACT :
-	                		if ( !superior.isAbstract() )
-	                		{
-	                			String message = "An ABSTRACT ObjectClass cannot inherit from an objectClass which is not ABSTRACT";
-	                			LOG.error( message );
-	                			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-	                		}
-	                		
-	                		break;
-	
-	            		case AUXILIARY :
-	                		if ( !superior.isAbstract() && ! superior.isAuxiliary() )
-	                		{
-	                			String message = "An AUXILiARY ObjectClass cannot inherit from an objectClass which is not ABSTRACT or AUXILIARY";
-	                			LOG.error( message );
-	                			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-	                		}
-	                		
-	                		break;
+                    switch ( ocType )
+                    {
+                        case ABSTRACT :
+                            if ( !superior.isAbstract() )
+                            {
+                                String message = "An ABSTRACT ObjectClass cannot inherit from an objectClass which is not ABSTRACT";
+                                LOG.error( message );
+                                throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                            }
+                            
+                            break;
+    
+                        case AUXILIARY :
+                            if ( !superior.isAbstract() && ! superior.isAuxiliary() )
+                            {
+                                String message = "An AUXILiARY ObjectClass cannot inherit from an objectClass which is not ABSTRACT or AUXILIARY";
+                                LOG.error( message );
+                                throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                            }
+                            
+                            break;
 
-	            		case STRUCTURAL :
-	                		break;
-            		}
-        		}
-        		catch ( NamingException ne )
-        		{
-        			// The superior OC does not exist : this is an error
-        			String message = "Cannot have a superior which does not exist";
-        			LOG.error( message );
-        			throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-        		}
-        	}
+                        case STRUCTURAL :
+                            break;
+                    }
+                }
+                catch ( NamingException ne )
+                {
+                    // The superior OC does not exist : this is an error
+                    String message = "Cannot have a superior which does not exist";
+                    LOG.error( message );
+                    throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                }
+            }
         }
     }
 

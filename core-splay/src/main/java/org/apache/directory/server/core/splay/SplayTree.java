@@ -74,12 +74,12 @@ public class SplayTree<K>
         if( last == null )
         {
           first.next = n;
-	      n.previous = first;
+          n.previous = first;
         }
         else
         {
-        	last.next = n;
-        	n.previous = last;
+            last.next = n;
+            n.previous = last;
         }
         
         last = n;
@@ -134,24 +134,24 @@ public class SplayTree<K>
         
         if( deleteNode == first )
         {
-        	temp = first.next;
-        	
-        	if( temp != null )
-        	{
-        		first = temp;
-        	}
-        	else
-        	{
-        		first = last = null;
-        	}
-        	
+            temp = first.next;
+            
+            if( temp != null )
+            {
+                first = temp;
+            }
+            else
+            {
+                first = last = null;
+            }
+            
         }
         else if( deleteNode == last )
         {
-        	temp = last.previous;
-       		temp.next = null;
-       		
-        	last = temp;
+            temp = last.previous;
+               temp.next = null;
+               
+            last = temp;
         }
         else
         {
@@ -358,61 +358,61 @@ public class SplayTree<K>
 
 
     public LinkedBinaryNode<K> getRoot() {
-		return root;
-	}
+        return root;
+    }
 
 
     /**
      * Prints the contents of splay tree in pretty format
      */
     public void printTree() {
-    	
-    	if( isEmpty() )
-    	{
-    		System.out.println( "Tree is empty" );
-    		return;
-    	}
-    	
-		getRoot().setDepth( 0 );
+        
+        if( isEmpty() )
+        {
+            System.out.println( "Tree is empty" );
+            return;
+        }
+        
+        getRoot().setDepth( 0 );
 
-		System.out.println( getRoot() );
-		
-		visit( getRoot().getRight(), getRoot() );
-		
-		visit( getRoot().getLeft(), getRoot() );
-	}
-	
-	private void visit( LinkedBinaryNode<K> node, LinkedBinaryNode<K> parentNode ) 
-	{
-		if( node == null )
-		{
-			return;
-		}
-		
-		if( !node.isLeaf() )
-		{
-			node.setDepth( parentNode.getDepth() + 1 );
-		}
-		
-		for( int i=0; i < parentNode.getDepth(); i++ )
-		{
-			System.out.print( "|  " );
-		}
+        System.out.println( getRoot() );
+        
+        visit( getRoot().getRight(), getRoot() );
+        
+        visit( getRoot().getLeft(), getRoot() );
+    }
+    
+    private void visit( LinkedBinaryNode<K> node, LinkedBinaryNode<K> parentNode ) 
+    {
+        if( node == null )
+        {
+            return;
+        }
+        
+        if( !node.isLeaf() )
+        {
+            node.setDepth( parentNode.getDepth() + 1 );
+        }
+        
+        for( int i=0; i < parentNode.getDepth(); i++ )
+        {
+            System.out.print( "|  " );
+        }
 
-		System.out.println( "|--" + node );
-		
-		if ( node.getRight() != null )
-		{
-			visit( node.getRight(), node );
-		}
-		
-		if( node.getLeft() != null )
-		{
-			visit( node.getLeft(), node );
-		}
-	}
+        System.out.println( "|--" + node );
+        
+        if ( node.getRight() != null )
+        {
+            visit( node.getRight(), node );
+        }
+        
+        if( node.getLeft() != null )
+        {
+            visit( node.getLeft(), node );
+        }
+    }
 
-	// test code stolen from Weiss
+    // test code stolen from Weiss
     public static void main( String[] args )
     {
         SplayTree<Integer> t = new SplayTree<Integer>( new Comparator<Integer>() 

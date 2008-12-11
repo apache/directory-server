@@ -29,20 +29,15 @@ import junit.framework.Assert;
 
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.common.WriteFuture;
-import org.apache.mina.common.support.BaseIoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.session.DummySession;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.AbstractProtocolEncoderOutput;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -87,20 +82,20 @@ public abstract class AbstractMessageCodecTest
     @Test 
     public void testMessageCodec() throws Exception
     {
-        SimpleProtocolEncoderOutput encoderOut = new SimpleProtocolEncoderOutput()
+        AbstractProtocolEncoderOutput encoderOut = new AbstractProtocolEncoderOutput()
         {
-            protected WriteFuture doFlush( ByteBuffer buf )
+            public WriteFuture flush()
             {
                 return null;
             }
 
         };
         
-        IoSession session = new  DummySession();
+        IoSession session = new MitosisDummySession();
         
         session.setAttribute( "registries", service.getRegistries() );
         encoder.encode( session, message, encoderOut );
-        ByteBuffer buf = encoderOut.getBufferQueue().poll();
+        IoBuffer buf = (IoBuffer)encoderOut.getMessageQueue().poll();
 
         buf.mark();
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );
@@ -126,6 +121,9 @@ public abstract class AbstractMessageCodecTest
         public void flush()
         {
         }
+        
+        public void flush(NextFilter nextFilter, IoSession session) {
+        }
 
 
         public void write( Object message )
@@ -135,18 +133,9 @@ public abstract class AbstractMessageCodecTest
     }
 
 
-    protected static class DummySession extends BaseIoSession
+    protected static class MitosisDummySession extends DummySession
     {
         Object message;
-
-
-        @Override
-        public WriteFuture write( Object message )
-        {
-            this.message = message;
-
-            return super.write( message );
-        }
 
 
         protected Object getMessage()
@@ -155,54 +144,12 @@ public abstract class AbstractMessageCodecTest
         }
 
 
-        protected void updateTrafficMask()
-        {
-            // Do nothing.
-        }
-
-
-        public IoService getService()
-        {
-            return null;
-        }
-
-
-        public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportType getTransportType()
-        {
-            return null;
-        }
-
-
         public SocketAddress getRemoteAddress()
         {
             return new InetSocketAddress( 10088 );
         }
 
-
-        public SocketAddress getLocalAddress()
-        {
-            return null;
-        }
-
-
-        public IoSessionConfig getConfig()
-        {
-            return null;
-        }
-
-
+        
         public int getScheduledWriteRequests()
         {
             return 0;
@@ -213,17 +160,12 @@ public abstract class AbstractMessageCodecTest
         {
             return null;
         }
-
-
-        public IoServiceConfig getServiceConfig()
+        
+        
+        public WriteFuture write(Object message) 
         {
+            this.message = message;
             return null;
-        }
-
-
-        public int getScheduledWriteBytes()
-        {
-            return 0;
         }
     }
 }

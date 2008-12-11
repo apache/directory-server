@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -35,7 +35,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public abstract class ResourceRecordEncoder implements RecordEncoder
 {
-    public void put( ByteBuffer byteBuffer, ResourceRecord record ) throws IOException
+    public void put( IoBuffer byteBuffer, ResourceRecord record ) throws IOException
     {
         putDomainName( byteBuffer, record.getDomainName() );
         putRecordType( byteBuffer, record.getRecordType() );
@@ -47,10 +47,10 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     }
 
 
-    protected abstract void putResourceRecordData( ByteBuffer byteBuffer, ResourceRecord record );
+    protected abstract void putResourceRecordData( IoBuffer byteBuffer, ResourceRecord record );
 
 
-    protected void putResourceRecord( ByteBuffer byteBuffer, ResourceRecord record )
+    protected void putResourceRecord( IoBuffer byteBuffer, ResourceRecord record )
     {
         int startPosition = byteBuffer.position();
         byteBuffer.position( startPosition + 2 );
@@ -61,7 +61,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     }
 
 
-    protected void putDataSize( ByteBuffer byteBuffer, int startPosition )
+    protected void putDataSize( IoBuffer byteBuffer, int startPosition )
     {
         int endPosition = byteBuffer.position();
         short length = ( short ) ( endPosition - startPosition - 2 );
@@ -79,7 +79,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      * @param byteBuffer the ByteBuffer to encode the domain name into
      * @param domainName the domain name to encode
      */
-    protected void putDomainName( ByteBuffer byteBuffer, String domainName )
+    protected void putDomainName( IoBuffer byteBuffer, String domainName )
     {
         String[] labels = domainName.split( "\\." );
 
@@ -98,13 +98,13 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     }
 
 
-    protected void putRecordType( ByteBuffer byteBuffer, RecordType recordType )
+    protected void putRecordType( IoBuffer byteBuffer, RecordType recordType )
     {
         byteBuffer.putShort( recordType.convert() );
     }
 
 
-    protected void putRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
+    protected void putRecordClass( IoBuffer byteBuffer, RecordClass recordClass )
     {
         byteBuffer.putShort( recordClass.convert() );
     }
@@ -118,7 +118,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      * @param byteBuffer The byte buffer to encode the character string into.
      * @param characterString the character string to encode
      */
-    protected void putCharacterString( ByteBuffer byteBuffer, String characterString )
+    protected void putCharacterString( IoBuffer byteBuffer, String characterString )
     {
         byteBuffer.put( ( byte ) characterString.length() );
 

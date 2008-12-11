@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+ 
 
 /**
  * Tests the search() methods of the provider.
@@ -486,8 +486,8 @@ public class SearchIT
             {
                 SearchResult result = ( SearchResult ) list.next();
                 
-                // leep 201 ms before fetching the next element ...
-            	Thread.sleep( 201 );
+                // Sleep 201 ms before fetching the next element ...
+                Thread.sleep( 201 );
                 map.put( result.getName(), result.getAttributes() );
             }
             
@@ -1278,19 +1278,20 @@ public class SearchIT
 
         ctx = ( DirContext ) sysRoot.lookup( "cn=Sid Vicious" );
         assertNotNull( ctx );
-
+        
         Attributes attributes = ctx.getAttributes( "" );
-
+        
         assertEquals( "(sex*pis\\tols)", attributes.get( "description" ).get() );
 
         // Now, search for the description
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
+
         controls.setReturningAttributes( new String[]
-            { "*" } );
+                    { "*" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
+                     .getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration<SearchResult> list = sysRoot
@@ -1309,8 +1310,8 @@ public class SearchIT
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
     }
-
-
+    
+    
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {

@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.filter.SSLFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.filter.ssl.SslFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,15 +82,15 @@ public class StartTlsHandler implements ExtendedOperationHandler
         LOG.info( "Handling StartTLS request." );
         
         IoFilterChain chain = session.getIoSession().getFilterChain();
-        SSLFilter sslFilter = ( SSLFilter ) chain.get( "sslFilter" );
+        SslFilter sslFilter = ( SslFilter ) chain.get( "sslFilter" );
         if( sslFilter == null )
         {
-            sslFilter = new SSLFilter( sslContext );
+            sslFilter = new SslFilter( sslContext );
             chain.addFirst( "sslFilter", sslFilter );
         }
         else
         {
-            sslFilter.startSSL( session.getIoSession() );
+            sslFilter.startSsl( session.getIoSession() );
         }
         
         ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
@@ -100,7 +100,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         res.setResponse( new byte[ 0 ] );
 
         // Send a response.
-        session.getIoSession().setAttribute( SSLFilter.DISABLE_ENCRYPTION_ONCE );
+        session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );
         session.getIoSession().write( res );
     }
     
@@ -157,7 +157,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
         KeyManagerFactory keyManagerFactory = null;
         try
         {
-            keyManagerFactory = KeyManagerFactory.getInstance( "SunX509" );
+            keyManagerFactory = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
         }
         catch ( Exception e )
         {

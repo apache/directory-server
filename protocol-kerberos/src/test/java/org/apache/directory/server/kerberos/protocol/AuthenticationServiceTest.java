@@ -38,6 +38,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 
 /**
  * Tests the Authentication Service (AS) via the {@link KerberosProtocolHandler}.
@@ -50,18 +56,19 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
-    private DummySession session;
+    private KrbDummySession session;
 
 
     /**
      * Creates a new instance of {@link AuthenticationServiceTest}.
      */
-    public AuthenticationServiceTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
-        session = new DummySession();
+        session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
 
@@ -72,6 +79,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * This is the request archetype.
      */
+    @Test
     public void testRequestArchetype()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -96,6 +104,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     /**
      * Tests the protocol version number, which must be '5'.
      */
+    @Test
     public void testProtocolVersionNumber()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -117,6 +126,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * Tests that Kerberos reply messages sent to the KDC will be rejected with the
      * correct error message.
      */
+    @Test
     public void testIncorrectMessageDirection()
     {
         KdcRequest message = new KdcRequest( 5, KerberosMessageType.AS_REP, null, null );
@@ -142,6 +152,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * unknown because it doesn't exist in the KDC's principal database,
      * then an error message with a KDC_ERR_C_PRINCIPAL_UNKNOWN is returned."
      */
+    @Test
     public void testClientNotFound()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -168,6 +179,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testEncryptionTypeNoSupport() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -206,6 +218,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testServerNotFound() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -232,6 +245,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * Tests that when a client principal is not configured with Kerberos keys that
      * the correct error message is returned.
      */
+    @Test
     public void testClientNullKey()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -255,6 +269,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testServerNullKey() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -289,6 +304,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeAbsentNoPostdate() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -334,6 +350,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeInThePastNoPostdate() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -382,6 +399,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeAcceptableClockSkewNoPostdate() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -428,6 +446,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testStartTimeOrderNeverValid() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -472,6 +491,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testStartTimeMinimumNeverValid() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -513,6 +533,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeNoPostdated() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -564,6 +585,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testSpecificStartTime() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -618,6 +640,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testSpecificEndTime() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -661,6 +684,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testEndTimeExceedsMaximumAllowable() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -700,6 +724,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testEpochEndTime() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -738,6 +763,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testInitialServiceTicket() throws Exception
     {
         String servicePrincipalName = "ldap/ldap.example.com@EXAMPLE.COM";
@@ -788,6 +814,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableOk() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -838,6 +865,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testForwardableTicket() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -882,6 +910,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testAllowPostdate() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -926,6 +955,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testProxiableTicket() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -973,6 +1003,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableTicket() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1026,6 +1057,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableTicketExceedsMaximumAllowable() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1074,6 +1106,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionRenew() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1110,6 +1143,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionValidate() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1146,6 +1180,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionProxy() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1182,6 +1217,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionForwarded() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -1218,6 +1254,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionEncTktInSkey() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();

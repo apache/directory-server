@@ -406,8 +406,8 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#lookup(org.apache.directory.shared.ldap.name.LdapDN)
+    /**
+     * {@inheritDoc} 
      */
     public ClonedServerEntry lookup( LdapDN dn ) throws Exception
     {
@@ -416,8 +416,8 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#lookup(org.apache.directory.shared.ldap.name.LdapDN)
+    /**
+     * {@inheritDoc}
      */
     public ClonedServerEntry lookup( LdapDN dn, String[] attrId ) throws Exception
     {
@@ -634,16 +634,6 @@ public class DefaultCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( opContext );
         deleteRequest.getResultResponse().addAll( opContext.getResponseControls() );
-    }
-
-
-    public ClonedServerEntry lookup( LdapDN dn, Control[] requestControls, ReferralHandlingMode refMode,
-        LdapDN authorized ) throws Exception
-    {
-        LookupOperationContext opContext = new LookupOperationContext( this, dn );
-        opContext.addRequestControls( requestControls );
-        OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( opContext );
     }
 
 

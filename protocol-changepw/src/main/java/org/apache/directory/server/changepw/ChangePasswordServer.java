@@ -33,8 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,18 +267,16 @@ public class ChangePasswordServer extends DirectoryBackedService
         
         if ( getDatagramAcceptor() != null )
         {
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ),
-                    new ChangePasswordProtocolHandler( this, store ), udpConfig );
+            getDatagramAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
 
         if ( getSocketAcceptor() != null )
         {
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ),
-                    new ChangePasswordProtocolHandler( this, store ), tcpConfig );
+            getSocketAcceptor().setCloseOnDeactivation( false );
+            getSocketAcceptor().setReuseAddress( true );
+            getSocketAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
         }
         
         LOG.info( "ChangePassword service started." );

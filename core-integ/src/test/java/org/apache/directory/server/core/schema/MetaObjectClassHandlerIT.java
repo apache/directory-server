@@ -599,12 +599,12 @@ public class MetaObjectClassHandlerIT
         
         try
         {
-        	getSchemaContext( service ).createSubcontext( dn, attrs );
-        	fail();
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail();
         }
         catch ( NamingException ne )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
     
@@ -638,12 +638,12 @@ public class MetaObjectClassHandlerIT
         
         try
         {
-        	getSchemaContext( service ).createSubcontext( dn, attrs );
-        	fail();
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail();
         }
         catch ( NamingException ne )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
     
@@ -740,12 +740,12 @@ public class MetaObjectClassHandlerIT
         
         try
         {
-        	getSchemaContext( service ).createSubcontext( dn, attrs );
-        	fail();
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail();
         }
         catch ( NamingException ne )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 

@@ -38,7 +38,7 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
 import org.apache.directory.server.dns.messages.ResponseCode;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +82,7 @@ public class DnsMessageDecoder
      * @return The {@link DnsMessage}.
      * @throws IOException
      */
-    public DnsMessage decode( ByteBuffer in ) throws IOException
+    public DnsMessage decode( IoBuffer in ) throws IOException
     {
         DnsMessageModifier modifier = new DnsMessageModifier();
 
@@ -120,7 +120,7 @@ public class DnsMessageDecoder
     }
 
 
-    private List<ResourceRecord> getRecords( ByteBuffer byteBuffer, short recordCount ) throws IOException
+    private List<ResourceRecord> getRecords( IoBuffer byteBuffer, short recordCount ) throws IOException
     {
         List<ResourceRecord> records = new ArrayList<ResourceRecord>( recordCount );
 
@@ -141,7 +141,7 @@ public class DnsMessageDecoder
     }
 
 
-    private Map<String, Object> decode( ByteBuffer byteBuffer, RecordType type, short length ) throws IOException
+    private Map<String, Object> decode( IoBuffer byteBuffer, RecordType type, short length ) throws IOException
     {
         RecordDecoder recordDecoder = DEFAULT_DECODERS.get( type );
 
@@ -154,7 +154,7 @@ public class DnsMessageDecoder
     }
 
 
-    private List<QuestionRecord> getQuestions( ByteBuffer byteBuffer, short questionCount )
+    private List<QuestionRecord> getQuestions( IoBuffer byteBuffer, short questionCount )
     {
         List<QuestionRecord> questions = new ArrayList<QuestionRecord>( questionCount );
 
@@ -172,7 +172,7 @@ public class DnsMessageDecoder
     }
 
 
-    static String getDomainName( ByteBuffer byteBuffer )
+    static String getDomainName( IoBuffer byteBuffer )
     {
         StringBuffer domainName = new StringBuffer();
         recurseDomainName( byteBuffer, domainName );
@@ -181,7 +181,7 @@ public class DnsMessageDecoder
     }
 
 
-    static void recurseDomainName( ByteBuffer byteBuffer, StringBuffer domainName )
+    static void recurseDomainName( IoBuffer byteBuffer, StringBuffer domainName )
     {
         int length = byteBuffer.getUnsigned();
 
@@ -217,7 +217,7 @@ public class DnsMessageDecoder
     }
 
 
-    static void getLabel( ByteBuffer byteBuffer, StringBuffer domainName, int labelLength )
+    static void getLabel( IoBuffer byteBuffer, StringBuffer domainName, int labelLength )
     {
         for ( int jj = 0; jj < labelLength; jj++ )
         {

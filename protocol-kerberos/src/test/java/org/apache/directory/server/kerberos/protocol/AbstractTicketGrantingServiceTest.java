@@ -21,8 +21,6 @@ package org.apache.directory.server.kerberos.protocol;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosKey;
@@ -61,14 +59,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFl
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.common.WriteFuture;
-import org.apache.mina.common.support.BaseIoSession;
 
 
 /**
@@ -322,97 +312,5 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         principalName.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
 
         return principalName;
-    }
-
-    protected static class DummySession extends BaseIoSession
-    {
-        Object message;
-
-
-        @Override
-        public WriteFuture write( Object message )
-        {
-            this.message = message;
-
-            return super.write( message );
-        }
-
-
-        protected Object getMessage()
-        {
-            return message;
-        }
-
-
-        protected void updateTrafficMask()
-        {
-            // Do nothing.
-        }
-
-
-        public IoService getService()
-        {
-            return null;
-        }
-
-
-        public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportType getTransportType()
-        {
-            return null;
-        }
-
-
-        public SocketAddress getRemoteAddress()
-        {
-            return new InetSocketAddress( 10088 );
-        }
-
-
-        public SocketAddress getLocalAddress()
-        {
-            return null;
-        }
-
-
-        public IoSessionConfig getConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteRequests()
-        {
-            return 0;
-        }
-
-
-        public SocketAddress getServiceAddress()
-        {
-            return null;
-        }
-
-
-        public IoServiceConfig getServiceConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteBytes()
-        {
-            return 0;
-        }
     }
 }

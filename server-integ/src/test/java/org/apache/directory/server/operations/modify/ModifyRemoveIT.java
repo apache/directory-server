@@ -326,7 +326,7 @@ public class ModifyRemoveIT
         }
         catch ( NoSuchAttributeException e )
         {
-        	assertTrue( true );
+            assertTrue( true );
             // expected behaviour
         }
     }
@@ -354,7 +354,7 @@ public class ModifyRemoveIT
         Attribute attr2 = new BasicAttribute( "telephoneNumber", "7890" );
         Attributes attrs2 = new BasicAttributes( true );
         attrs2.put( attr2 );
-    	
+    
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
         
         // We shopuld not get an exception

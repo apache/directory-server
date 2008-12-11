@@ -30,6 +30,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Tests configuration of Authentication Service (AS) policy.
@@ -42,18 +46,19 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
-    private DummySession session;
+    private KrbDummySession session;
 
 
     /**
      * Creates a new instance of {@link AuthenticationPolicyTest}.
      */
-    public AuthenticationPolicyTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
-        session = new DummySession();
+        session = new KrbDummySession();
     }
 
 
@@ -63,6 +68,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testForwardableTicket() throws Exception
     {
         // Deny FORWARDABLE tickets in policy.
@@ -98,6 +104,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testProxiableTicket() throws Exception
     {
         // Deny PROXIABLE tickets in policy.
@@ -133,6 +140,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testAllowPostdate() throws Exception
     {
         // Deny POSTDATED tickets in policy.
@@ -168,6 +176,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testPostdate() throws Exception
     {
         // Deny POSTDATED tickets in policy.
@@ -203,6 +212,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableOk() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
@@ -238,6 +248,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableTicket() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
@@ -276,6 +287,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testEmptyAddresses() throws Exception
     {
         // Deny empty addresses in policy.

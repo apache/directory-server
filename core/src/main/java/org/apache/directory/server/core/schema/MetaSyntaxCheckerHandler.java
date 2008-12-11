@@ -103,7 +103,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, targetRegistries );
@@ -116,7 +116,10 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), targetEntry );
             syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
+            return SCHEMA_MODIFIED;
         }
+        
+        return SCHEMA_UNCHANGED;
     }
 
 

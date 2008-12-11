@@ -54,7 +54,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -62,6 +61,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 
 import org.slf4j.Logger;
@@ -92,15 +92,13 @@ public abstract class AbstractServerTest extends TestCase
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
-//    protected ApacheDS apacheDS = new ApacheDS();
-
     protected int port = -1;
 
     private static int start;
     private static long t0;
     protected static int nbTests = 10000;
     protected DirectoryService directoryService;
-    protected SocketAcceptor socketAcceptor;
+    protected NioSocketAcceptor socketAcceptor;
     protected LdapService ldapService;
 
 
@@ -254,11 +252,12 @@ public abstract class AbstractServerTest extends TestCase
         start++;
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
-        socketAcceptor = new SocketAcceptor( null );
+        socketAcceptor = new NioSocketAcceptor();
         ldapService = new LdapService();
         ldapService.setSocketAcceptor( socketAcceptor );
         ldapService.setDirectoryService( directoryService );
         ldapService.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
+        ldapService.setNbTcpThreads( 3 );
 
         setupSaslMechanisms( ldapService );
 

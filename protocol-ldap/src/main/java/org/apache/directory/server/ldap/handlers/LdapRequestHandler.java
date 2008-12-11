@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,19 +118,11 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     }
 
 
-    /**
-     * Handle a LDAP message received during a session.
-     * 
-     * @param session the user session created when the user first connected
-     * to the server
-     * @param message the LDAP message received. Can be any of the LDAP Request
-     * @throws Exception the thrown exception if something went wrong during 
-     * the message processing
-     */
-    public final void messageReceived( IoSession session, T message ) throws Exception
+    public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapService.getLdapSessionManager().getLdapSession( session );
         
+        //handle( ldapSession, message );
         // TODO - session you get from LdapService should have the ldapService 
         // member already set no?  Should remove these lines where ever they
         // may be if that's the case.
@@ -167,7 +159,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         // only if it's not a BindRequest
         if ( message instanceof BindRequest )
         {
-        	handle( ldapSession, message );
+            handle( ldapSession, message );
         }
         else
         {
@@ -197,7 +189,6 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             return;
         }
     }
-
     
     /**
      * Handle a Ldap message associated with a session

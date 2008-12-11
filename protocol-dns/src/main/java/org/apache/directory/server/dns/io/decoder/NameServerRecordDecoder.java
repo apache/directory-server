@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -52,7 +52,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class NameServerRecordDecoder implements RecordDecoder
 {
-    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException
+    public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.DOMAIN_NAME, DnsMessageDecoder.getDomainName( byteBuffer ) );

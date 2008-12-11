@@ -47,6 +47,11 @@ import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyMod
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 
 /**
  * Tests various facets of working with encryption types in the Authentication Service (AS).
@@ -59,18 +64,19 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
-    private DummySession session;
+    private KrbDummySession session;
 
 
     /**
      * Creates a new instance of {@link AuthenticationEncryptionTypeTest}.
      */
-    public AuthenticationEncryptionTypeTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
-        session = new DummySession();
+        session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
 
@@ -80,6 +86,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * 
      * @throws Exception
      */
+    @Test
     public void testRequestDesCbcMd5() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -117,6 +124,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * 
      * @throws Exception
      */
+    @Test
     public void testRequestAes128() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -168,6 +176,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * 
      * @throws Exception
      */
+    @Test
     public void testNonce() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -223,6 +232,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * 
      * @throws Exception
      */
+    @Test
     public void testAes128Configuration() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();

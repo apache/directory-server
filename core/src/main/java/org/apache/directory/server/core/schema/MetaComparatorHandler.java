@@ -75,7 +75,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
@@ -86,7 +86,11 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
             comparatorRegistry.unregister( oid );
             ComparatorDescription description = getComparatorDescription( schema.getSchemaName(), targetEntry );
             comparatorRegistry.register( description, comparator );
+            
+            return SCHEMA_MODIFIED;
         }
+        
+        return SCHEMA_UNCHANGED;
     }
 
     

@@ -24,11 +24,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
- * Encode keytab fields into a {@link ByteBuffer}.
+ * Encode keytab fields into a {@link IoBuffer}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -36,15 +36,15 @@ import org.apache.mina.common.ByteBuffer;
 class KeytabEncoder
 {
     /**
-     * Write the keytab version and entries into a {@link ByteBuffer}.
+     * Write the keytab version and entries into a {@link IoBuffer}.
      *
      * @param keytabVersion
      * @param entries
-     * @return The ByteBuffer.
+     * @return The IoBuffer.
      */
-    ByteBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
+    IoBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
     {
-        ByteBuffer buffer = ByteBuffer.allocate( 512 );
+        IoBuffer buffer = IoBuffer.allocate( 512 );
         putKeytabVersion( buffer, keytabVersion );
         putKeytabEntries( buffer, entries );
         buffer.flip();
@@ -57,7 +57,7 @@ class KeytabEncoder
      * Encode the 16-bit file format version.  This
      * keytab reader currently only support verision 5.2.
      */
-    private void putKeytabVersion( ByteBuffer buffer, byte[] version )
+    private void putKeytabVersion( IoBuffer buffer, byte[] version )
     {
         buffer.put( version );
     }
@@ -69,13 +69,13 @@ class KeytabEncoder
      * @param buffer
      * @param entries
      */
-    private void putKeytabEntries( ByteBuffer buffer, List<KeytabEntry> entries )
+    private void putKeytabEntries( IoBuffer buffer, List<KeytabEntry> entries )
     {
         Iterator<KeytabEntry> iterator = entries.iterator();
 
         while ( iterator.hasNext() )
         {
-            ByteBuffer entryBuffer = putKeytabEntry( iterator.next() );
+            IoBuffer entryBuffer = putKeytabEntry( iterator.next() );
             int size = entryBuffer.position();
 
             entryBuffer.flip();
@@ -90,9 +90,9 @@ class KeytabEncoder
      * Encode a "keytab entry," which consists of a principal name,
      * principal type, key version number, and key material.
      */
-    private ByteBuffer putKeytabEntry( KeytabEntry entry )
+    private IoBuffer putKeytabEntry( KeytabEntry entry )
     {
-        ByteBuffer buffer = ByteBuffer.allocate( 100 );
+        IoBuffer buffer = IoBuffer.allocate( 100 );
 
         putPrincipalName( buffer, entry.getPrincipalName() );
 
@@ -114,7 +114,7 @@ class KeytabEncoder
      * @param buffer
      * @param principalName
      */
-    private void putPrincipalName( ByteBuffer buffer, String principalName )
+    private void putPrincipalName( IoBuffer buffer, String principalName )
     {
         String[] split = principalName.split( "@" );
         String nameComponent = split[0];
@@ -138,7 +138,7 @@ class KeytabEncoder
     /**
      * Encode a 16-bit encryption type and symmetric key material.
      */
-    private void putKeyBlock( ByteBuffer buffer, EncryptionKey key )
+    private void putKeyBlock( IoBuffer buffer, EncryptionKey key )
     {
         buffer.putShort( ( short ) key.getKeyType().getOrdinal() );
         putCountedBytes( buffer, key.getKeyValue() );
@@ -149,7 +149,7 @@ class KeytabEncoder
      * Use a prefixed 16-bit length to encode a String.  Realm and name
      * components are ASCII encoded text with no zero terminator.
      */
-    private void putCountedString( ByteBuffer buffer, String string )
+    private void putCountedString( IoBuffer buffer, String string )
     {
         byte[] data = string.getBytes();
         buffer.putShort( ( short ) data.length );
@@ -160,7 +160,7 @@ class KeytabEncoder
     /**
      * Use a prefixed 16-bit length to encode raw bytes.
      */
-    private void putCountedBytes( ByteBuffer buffer, byte[] data )
+    private void putCountedBytes( IoBuffer buffer, byte[] data )
     {
         buffer.putShort( ( short ) data.length );
         buffer.put( data );

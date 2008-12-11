@@ -27,8 +27,6 @@ import java.security.SecureRandom;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -41,14 +39,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.common.WriteFuture;
-import org.apache.mina.common.support.BaseIoSession;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoService;
+import org.apache.mina.core.session.AbstractIoSession;
+import org.apache.mina.core.session.DummySession;
+import org.apache.mina.core.session.IoSessionConfig;
 
 
 /**
@@ -58,7 +54,7 @@ import org.apache.mina.common.support.BaseIoSession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractAuthenticationServiceTest extends TestCase
+public abstract class AbstractAuthenticationServiceTest
 {
     protected CipherTextHandler lockBox;
     protected static final SecureRandom random = new SecureRandom();
@@ -122,19 +118,34 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         return key;
     }
 
-    protected static class DummySession extends BaseIoSession
+    protected static class KrbDummySession extends DummySession
     {
         Object message;
+        
+        public KrbDummySession() 
+        {
+            super();
+        }
+        
+        public KrbDummySession( IoService service )
+        {
+            try
+            {
+                ((AbstractIoSession) this).setAttributeMap(service
+                        .getSessionDataStructureFactory().getAttributeMap(this));
+            }
+            catch( Exception e ) 
+            {
+                
+            }
+        }
 
-
-        @Override
         public WriteFuture write( Object message )
         {
             this.message = message;
-
-            return super.write( message );
+            
+            return null;
         }
-
 
         protected Object getMessage()
         {
@@ -155,18 +166,6 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
 
 
         public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportType getTransportType()
         {
             return null;
         }
@@ -199,18 +198,6 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
         public SocketAddress getServiceAddress()
         {
             return null;
-        }
-
-
-        public IoServiceConfig getServiceConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteBytes()
-        {
-            return 0;
         }
     }
 }

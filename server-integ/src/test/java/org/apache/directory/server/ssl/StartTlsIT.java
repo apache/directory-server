@@ -111,27 +111,27 @@ public class StartTlsIT
     @Before
     public void installKeyStoreWithCertificate() throws Exception
     {
-    	if ( ksFile != null && ksFile.exists() )
-    	{
-    		ksFile.delete();
-    	}
-    	
-    	ksFile = File.createTempFile( "testStore", "ks" );
-    	
-    	CoreSession session = ldapService.getDirectoryService().getAdminSession();
-    	ClonedServerEntry entry = session.lookup( new LdapDN( "uid=admin,ou=system" ), CERT_IDS );
-    	byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
-    	assertNotNull( userCertificate );
+        if ( ksFile != null && ksFile.exists() )
+        {
+            ksFile.delete();
+        }
+        
+        ksFile = File.createTempFile( "testStore", "ks" );
+        
+        CoreSession session = ldapService.getDirectoryService().getAdminSession();
+        ClonedServerEntry entry = session.lookup( new LdapDN( "uid=admin,ou=system" ), CERT_IDS );
+        byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
+        assertNotNull( userCertificate );
 
-    	ByteArrayInputStream in = new ByteArrayInputStream( userCertificate );
-    	CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-    	Certificate cert = factory.generateCertificate( in );
-    	KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-    	ks.load( null, null );
-    	ks.setCertificateEntry( "apacheds", cert );
-    	ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-    	LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-    	
+        ByteArrayInputStream in = new ByteArrayInputStream( userCertificate );
+        CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
+        Certificate cert = factory.generateCertificate( in );
+        KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+        ks.load( null, null );
+        ks.setCertificateEntry( "apacheds", cert );
+        ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
+        LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        
         oldConfidentialityRequiredValue = ldapService.isConfidentialityRequired();
     }
     
@@ -142,25 +142,25 @@ public class StartTlsIT
     @After
     public void deleteKeyStore() throws Exception
     {
-    	if ( ksFile != null && ksFile.exists() )
-    	{
-    		ksFile.delete();
-    	}
-    	
-    	LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
-    	ldapService.setConfidentialityRequired( oldConfidentialityRequiredValue );
+        if ( ksFile != null && ksFile.exists() )
+        {
+            ksFile.delete();
+        }
+        
+        LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
+        ldapService.setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
     
 
     private LdapContext getSecuredContext() throws Exception
     {
-    	System.setProperty ( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-    	System.setProperty ( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-    	System.setProperty ( "javax.net.ssl.keyStorePassword", "changeit" );
-    	LOG.debug( "testStartTls() test starting ... " );
-    	
-    	// Set up environment for creating initial context
-    	Hashtable<String, Object> env = new Hashtable<String,Object>();
+        System.setProperty ( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
+        System.setProperty ( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
+        System.setProperty ( "javax.net.ssl.keyStorePassword", "changeit" );
+        LOG.debug( "testStartTls() test starting ... " );
+        
+        // Set up environment for creating initial context
+        Hashtable<String, Object> env = new Hashtable<String,Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         
         // Must use the name of the server that is found in its certificate?
@@ -195,103 +195,103 @@ public class StartTlsIT
         ldapService.setConfidentialityRequired( true );
 
         // -------------------------------------------------------------------
-    	// Unsecured bind should fail
-    	// -------------------------------------------------------------------
+        // Unsecured bind should fail
+        // -------------------------------------------------------------------
 
-    	try
-    	{
-    		ServerIntegrationUtils.getWiredContext( ldapService );
-    		fail( "Should not get here due to violation of confidentiality requirements" );
-    	}
-    	catch( AuthenticationNotSupportedException e )
-    	{
-    	}
-    	
-    	// -------------------------------------------------------------------
-    	// get anonymous connection with StartTLS (no bind request sent)
-    	// -------------------------------------------------------------------
+        try
+        {
+            ServerIntegrationUtils.getWiredContext( ldapService );
+            fail( "Should not get here due to violation of confidentiality requirements" );
+        }
+        catch( AuthenticationNotSupportedException e )
+        {
+        }
+        
+        // -------------------------------------------------------------------
+        // get anonymous connection with StartTLS (no bind request sent)
+        // -------------------------------------------------------------------
 
-    	LdapContext ctx = getSecuredContext();
-    	assertNotNull( ctx );
-    	
-    	// -------------------------------------------------------------------
-    	// upgrade connection via bind request (same physical connection - TLS)
-    	// -------------------------------------------------------------------
+        LdapContext ctx = getSecuredContext();
+        assertNotNull( ctx );
+        
+        // -------------------------------------------------------------------
+        // upgrade connection via bind request (same physical connection - TLS)
+        // -------------------------------------------------------------------
 
-    	ctx.addToEnvironment( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-    	ctx.addToEnvironment( Context.SECURITY_CREDENTIALS, "secret" );
-    	ctx.addToEnvironment( Context.SECURITY_AUTHENTICATION, "simple" );
-    	ctx.reconnect( null );
-    	
-    	// -------------------------------------------------------------------
-    	// do a search and confirm
-    	// -------------------------------------------------------------------
+        ctx.addToEnvironment( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        ctx.addToEnvironment( Context.SECURITY_CREDENTIALS, "secret" );
+        ctx.addToEnvironment( Context.SECURITY_AUTHENTICATION, "simple" );
+        ctx.reconnect( null );
+        
+        // -------------------------------------------------------------------
+        // do a search and confirm
+        // -------------------------------------------------------------------
 
-    	NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(objectClass=*)", new SearchControls() );
-    	Set<String> names = new HashSet<String>();
-    	while( results.hasMore() )
-    	{
-    		names.add( results.next().getName() );
-    	}
-    	results.close();
-    	assertTrue( names.contains( "prefNodeName=sysPrefRoot" ) );
-    	assertTrue( names.contains( "ou=users" ) );
-    	assertTrue( names.contains( "ou=configuration" ) );
-    	assertTrue( names.contains( "uid=admin" ) );
-    	assertTrue( names.contains( "ou=groups" ) );
-    	
-    	// -------------------------------------------------------------------
-    	// do add and confirm
-    	// -------------------------------------------------------------------
+        NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(objectClass=*)", new SearchControls() );
+        Set<String> names = new HashSet<String>();
+        while( results.hasMore() )
+        {
+            names.add( results.next().getName() );
+        }
+        results.close();
+        assertTrue( names.contains( "prefNodeName=sysPrefRoot" ) );
+        assertTrue( names.contains( "ou=users" ) );
+        assertTrue( names.contains( "ou=configuration" ) );
+        assertTrue( names.contains( "uid=admin" ) );
+        assertTrue( names.contains( "ou=groups" ) );
+        
+        // -------------------------------------------------------------------
+        // do add and confirm
+        // -------------------------------------------------------------------
 
-    	Attributes attrs = new BasicAttributes( "objectClass", "person", true );
-    	attrs.put( "sn", "foo" );
-    	attrs.put( "cn", "foo bar" );
-    	ctx.createSubcontext( "cn=foo bar,ou=system", attrs );
-    	assertNotNull( ctx.lookup( "cn=foo bar,ou=system" ) );
-    	
-    	// -------------------------------------------------------------------
-    	// do modify and confirm
-    	// -------------------------------------------------------------------
+        Attributes attrs = new BasicAttributes( "objectClass", "person", true );
+        attrs.put( "sn", "foo" );
+        attrs.put( "cn", "foo bar" );
+        ctx.createSubcontext( "cn=foo bar,ou=system", attrs );
+        assertNotNull( ctx.lookup( "cn=foo bar,ou=system" ) );
+        
+        // -------------------------------------------------------------------
+        // do modify and confirm
+        // -------------------------------------------------------------------
 
-    	ModificationItem[] mods = new ModificationItem[] {
-    			new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
-    	};
-    	ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
-    	Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );
-    	assertTrue( reread.get( "cn" ).contains( "fbar" ) );
-    	
-    	// -------------------------------------------------------------------
-    	// do rename and confirm 
-    	// -------------------------------------------------------------------
+        ModificationItem[] mods = new ModificationItem[] {
+                new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
+        };
+        ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
+        Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );
+        assertTrue( reread.get( "cn" ).contains( "fbar" ) );
+        
+        // -------------------------------------------------------------------
+        // do rename and confirm 
+        // -------------------------------------------------------------------
 
-    	ctx.rename( "cn=foo bar,ou=system", "cn=fbar,ou=system" );
-    	try
-    	{
-    		ctx.getAttributes( "cn=foo bar,ou=system" );
-    		fail( "old name of renamed entry should not be found" );
-    	}
-    	catch ( NameNotFoundException e )
-    	{
-    	}
-    	reread = ( Attributes ) ctx.getAttributes( "cn=fbar,ou=system" );
-    	assertTrue( reread.get( "cn" ).contains( "fbar" ) );
-    	
-    	// -------------------------------------------------------------------
-    	// do delete and confirm
-    	// -------------------------------------------------------------------
+        ctx.rename( "cn=foo bar,ou=system", "cn=fbar,ou=system" );
+        try
+        {
+            ctx.getAttributes( "cn=foo bar,ou=system" );
+            fail( "old name of renamed entry should not be found" );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
+        reread = ( Attributes ) ctx.getAttributes( "cn=fbar,ou=system" );
+        assertTrue( reread.get( "cn" ).contains( "fbar" ) );
+        
+        // -------------------------------------------------------------------
+        // do delete and confirm
+        // -------------------------------------------------------------------
 
-    	ctx.destroySubcontext( "cn=fbar,ou=system" );
-    	try
-    	{
-    		ctx.getAttributes( "cn=fbar,ou=system" );
-    		fail( "deleted entry should not be found" );
-    	}
-    	catch ( NameNotFoundException e )
-    	{
-    	}
-    	
-    	ctx.close();
+        ctx.destroySubcontext( "cn=fbar,ou=system" );
+        try
+        {
+            ctx.getAttributes( "cn=fbar,ou=system" );
+            fail( "deleted entry should not be found" );
+        }
+        catch ( NameNotFoundException e )
+        {
+        }
+        
+        ctx.close();
     }
 
 

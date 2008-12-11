@@ -47,7 +47,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
      */
     public MoveAndRenameOperationContext( CoreSession session )
     {
-    	super( session );
+        super( session );
     }
 
 

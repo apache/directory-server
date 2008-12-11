@@ -183,6 +183,12 @@ public abstract class PartitionNexus implements Partition
     public abstract void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception;
 
 
+    /**
+     * Remove a partition from the server.
+     * 
+     * @param opContext The Remove Partition context
+     * @throws Exception If the removal can't be done
+     */
     public abstract void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception;
 
 

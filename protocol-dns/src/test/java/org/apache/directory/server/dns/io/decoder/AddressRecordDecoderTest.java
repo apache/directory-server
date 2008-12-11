@@ -27,7 +27,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -39,7 +39,7 @@ import org.apache.mina.common.ByteBuffer;
 public class AddressRecordDecoderTest extends TestCase
 {
     InetAddress address;
-    ByteBuffer inputBuffer;
+    IoBuffer inputBuffer;
 
     AddressRecordDecoder decoder;
 
@@ -47,7 +47,7 @@ public class AddressRecordDecoderTest extends TestCase
     public void setUp() throws Exception
     {
         address = InetAddress.getByName( "127.0.0.1" );
-        inputBuffer = ByteBuffer.allocate( address.getAddress().length );
+        inputBuffer = IoBuffer.allocate( address.getAddress().length );
         inputBuffer.put( address.getAddress() );
         inputBuffer.flip();
 

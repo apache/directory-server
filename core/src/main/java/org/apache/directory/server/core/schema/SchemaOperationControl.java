@@ -435,8 +435,13 @@ public class SchemaOperationControl
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            metaSchemaHandler.modify( opContext.getDn(), opContext.getModItems(), entry, targetEntry, doCascadeModify );
-            updateSchemaModificationAttributes( opContext );
+            boolean isSchemaModified = metaSchemaHandler.modify( opContext.getDn(), opContext.getModItems(), entry, targetEntry, doCascadeModify );
+            
+            if ( isSchemaModified )
+            {
+                updateSchemaModificationAttributes( opContext );
+            }
+            
             return;
         }
 
