@@ -69,6 +69,8 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.ldap.PagedResultsControl;
 
+import static java.lang.Math.min;
+
 
 /**
  * A handler for processing search requests.
@@ -278,21 +280,52 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     }
     
     
+    /**
+     * Return the server size limit
+     */
+    private int getServerSizeLimit( LdapSession session, SearchRequest request )
+    {
+        if ( session.getCoreSession().isAnAdministrator() )
+        {
+            if ( request.getSizeLimit() == NO_SIZE_LIMIT )
+            {
+                return Integer.MAX_VALUE;
+            }
+            else
+            {
+                return request.getSizeLimit();
+            }
+        }
+        else
+        {
+            if ( ldapService.getMaxSizeLimit() == NO_SIZE_LIMIT )
+            {
+                return Integer.MAX_VALUE;
+            }
+            else
+            {
+                return ldapService.getMaxSizeLimit();
+            }
+        }
+    }
+    
+    
     private int getSearchSizeLimits( SearchRequest req, LdapSession session )
     {
-        LOG.debug( "req size limit = {}, configured size limit = {}", req.getSizeLimit(), 
+        LOG.debug( "req size limit = {}, server size limit = {}", req.getSizeLimit(), 
             ldapService.getMaxSizeLimit() );
-        
-        // Don't bother setting size limits for administrators that don't ask for it
-        if ( session.getCoreSession().isAnAdministrator() && req.getSizeLimit() == NO_SIZE_LIMIT )
-        {
-            return Integer.MAX_VALUE;
-        }
         
         // Don't bother setting size limits for administrators that don't ask for it
         if ( session.getCoreSession().isAnAdministrator() )
         {
-            return req.getSizeLimit();
+            if ( req.getSizeLimit() == NO_SIZE_LIMIT )
+            {
+                return Integer.MAX_VALUE;
+            }
+            else
+            {
+                return req.getSizeLimit();
+            }
         }
         
         /*
@@ -340,13 +373,14 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     
     
     private SearchResponseDone readResults( LdapSession session, SearchRequest req, 
-        LdapResult ldapResult,  EntryFilteringCursor cursor, int sizeLimit, boolean isPaged, 
+        LdapResult ldapResult,  EntryFilteringCursor cursor, int requestLimit, int serverLimit, boolean isPaged, 
         PagedSearchCookie cookieInstance, PagedResultsControl pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapService, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
-        LOG.debug( "using {} for size limit", sizeLimit );
+        LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
         int cookieValue = 0;
+        int sizeLimit = min( requestLimit, serverLimit );
         
         int count = 0;
         
@@ -409,17 +443,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             }
             else
             {
-                int serverLimit = session.getCoreSession().getDirectoryService().getMaxSizeLimit();
-                
-                if ( serverLimit == 0 )
-                {
-                    serverLimit = Integer.MAX_VALUE;
-                }
-                
                 // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-                if ( count > serverLimit ) 
+                if ( ( count >= sizeLimit ) && ( cursor.next() ) )
                 {
-                    // Special case if the user has requested more elements than the limit
+                    // Move backward on the cursor to restore the previous position, as we moved forward
+                    // to check if there is one more entry available
+                    cursor.previous();
+                    // Special case if the user has requested more elements than the request size limit
                     ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
                 }
                 
@@ -428,11 +458,193 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         }
     }
     
+    
+    /**
+     * Manage the abandoned Paged Search (when paged size = 0). We have to
+     * remove the cookie and its associated cursor from the session.
+     */
+    private SearchResponseDone abandonPagedSearch( LdapSession session, SearchRequest req ) 
+        throws Exception
+    {
+        PagedResultsControl pagedResultsControl = null;
+        PagedSearchControl pagedSearchControl = 
+            ( PagedSearchControl )req.getControls().get( PagedSearchControl.CONTROL_OID );
+        byte [] cookie= pagedSearchControl.getCookie();
+        
+        if ( !StringTools.isEmpty( cookie ) )
+        {
+            // If the cookie is not null, we have to destroy the associated
+            // cursor stored into the session (if any)
+            int cookieValue = pagedSearchControl.getCookieValue();
+            PagedSearchCookie psCookie = 
+                (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
+            pagedResultsControl = new PagedResultsControl( 0, psCookie.getCookie(), true );
+            
+            // Close the cursor
+            EntryFilteringCursor cursor = psCookie.getCursor();
+            
+            if ( cursor != null )
+            {
+                cursor.close();
+            }
+        }
+        else
+        {
+            pagedResultsControl = new PagedResultsControl( 0, true );
+        }
+        
+        // and return
+        // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+        LdapResult ldapResult = req.getResultResponse().getLdapResult();
+        ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+        req.getResultResponse().add( pagedResultsControl );
+        return ( SearchResponseDone ) req.getResultResponse();
+    }
+    
+    
+    /**
+     * Handle a Paged Search.
+     */
+    private SearchResponseDone doPagedSearch( LdapSession session, SearchRequest req, PagedSearchControl control )
+    {
+        return null;
+        /*
+        PagedSearchControl pagedSearchControl = ( PagedSearchControl )control;
+        PagedResultsControl pagedResultsControl = null;
+        int serverLimit = ldapService.getMaxSizeLimit() == 0 ? 
+            Integer.MAX_VALUE : ldapService.getMaxSizeLimit();
+        int requestLimit = req.getSizeLimit() == 0 ?
+            Integer.MAX_VALUE : req.getSizeLimit();
+        int pagedLimit = pagedSearchControl.getSize();
+        EntryFilteringCursor cursor = null;
+        PagedSearchCookie cookieInstance = null;
+
+        // We have the following cases :
+        // 1) The SIZE is 0 and the cookie is the same than the previous one : this
+        // is a abandon request for this paged search.
+        // 2) The cookie is empty : this is a new request. If the requested
+        // size is above the serverLimit and the request limit, this is a normal
+        // search
+        // 3) The cookie is not empty and the request is the same, we return
+        // the next SIZE elements
+        // 4) The cookie is not empty, but the request is not the same : this is 
+        // a new request (we have to discard the cookie and do a new search from
+        // the beginning)
+        // 5) The SIZE is above the size-limit : the request is treated as if it
+        // was a simple search
+        
+        // Case 1
+        if ( pagedLimit == 0 )
+        {
+            // An abandoned paged search
+            return abandonPagedSearch( session, req );
+        }
+        
+        // Now, depending on the cookie, we will deal with case 2, 3, 4 and 5
+        pagedLimit = pagedSearchControl.getSize();
+        byte [] cookie= pagedSearchControl.getCookie();
+        
+        if ( StringTools.isEmpty( cookie ) )
+        {
+            // This is a new search.
+            if ( ( pagedLimit > serverLimit ) && ( pagedLimit > requestLimit ) )
+            {
+                // Normal search : create the cursor, and set pagedControl to false
+                try
+                {
+                    readResults( session, req, ldapResult, cursor, min( serverLimit, requestLimit ), true, cookieInstance, pagedResultsControl );
+                }
+                finally
+                {
+                    try
+                    {
+                        cursor.close();
+                    }
+                    catch ( NamingException e )
+                    {
+                        LOG.error( "failed on list.close()", e );
+                    }
+                }
+                
+                return ( SearchResponseDone ) req.getResultResponse();
+            }
+            // Case 2 : create the cookie
+            cookieInstance = new PagedSearchCookie( req );
+            cookie = cookieInstance.getCookie();
+            int cookieValue = cookieInstance.getCookieValue();
+
+            session.getIoSession().setAttribute( cookieValue, cookieInstance );
+            pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+        }
+        else
+        {
+            // Either case 3, 4 or 5
+            int cookieValue = pagedSearchControl.getCookieValue();
+            cookieInstance = 
+                (PagedSearchCookie)session.getIoSession().getAttribute( cookieValue );
+            
+            if ( cookieInstance.hasSameRequest( req, session ) )
+            {
+                // Case 3 : continue the search
+                cursor = cookieInstance.getCursor();
+                
+                // get the cookie
+                cookie = cookieInstance.getCookie();
+                sizeLimit = size;
+                pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+            }
+            else
+            {
+                // case 2 : create a new cursor
+                // We have to close the cursor
+                cursor = cookieInstance.getCursor();
+                
+                if ( cursor != null )
+                {
+                    cursor.close();
+                }
+                
+                // Now create a new cookie and stores it into the session
+                cookieInstance = new PagedSearchCookie( req );
+                cookie = cookieInstance.getCookie();
+                cookieValue = cookieInstance.getCookieValue();
+
+                session.getIoSession().setAttribute( cookieValue, cookieInstance );
+                pagedResultsControl = new PagedResultsControl( 0, cookie, true );
+            }
+        }
+        */
+    }
+
+    
     /**
      * Conducts a simple search across the result set returning each entry 
      * back except for the search response done.  This is calculated but not
      * returned so the persistent search mechanism can leverage this method
-     * along with standard search.
+     * along with standard search.<br>
+     * <br>
+     * The loop will stop when we have found all the entries, or if we 
+     * have reached the limit, or if we have reached the paged limit. The 
+     * following table describes the different possibilities (SL = server limit,
+     * RL = request limit, PL = paged limit)
+     * 
+     * 1) SL=0, RL=0, PL=0 => no limit
+     * 2) SL=0, RL=0, PL=x => loop until we have sent X entries, or until we don't have
+     * any more entries to send
+     * 3) SL=0, RL=x, PL=0 => loop until we don't have anymore entries, or break and 
+     * return an error if we reach the RL
+     * 4) SL=x, RL=0, PL=0 => loop until we don't have anymore entries, or break and 
+     * return an error if we reach the SL
+     * 5) SL=0, RL=x, PL=y => if x > y, default to case (1), otherwise default to 
+     * case (3)
+     * 6) SL=x, RL=0, PL=y => if x > y, default to case (1), otherwise default to 
+     * case (4)
+     * 7) SL=x, RL=y, PL=0 => loop until we don't have anymore entries, or break and 
+     * return an error if we reach the min(SL, RL)
+     * 8) SL=x, RL=y, PL=z => if z < min(x, y=, default to case 1, otherwise loop until 
+     * we don't have anymore entries, or break and return an error if we reach the
+     * min(SL, RL)
+     * 
      *
      * @param session the LDAP session object for this request
      * @param req the search request 
@@ -444,138 +656,30 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     {
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
         PagedResultsControl pagedResultsControl = null;
-        EntryFilteringCursor cursor = null;
-        int sizeLimit = getSearchSizeLimits( req, session );
-        boolean isPaged = false;
-        PagedSearchCookie cookieInstance = null;
+        
+        // Get the size limits
+        // Don't bother setting size limits for administrators that don't ask for it
+        int serverLimit = getServerSizeLimit( session, req );
+        
+        int requestLimit = req.getSizeLimit() == 0 ?
+            Integer.MAX_VALUE : req.getSizeLimit();
 
-        // Check that the PagedSearchControl is present or not.
         // Check if we are using the Paged Search Control
         Object control = req.getControls().get( PagedSearchControl.CONTROL_OID );
-        PagedSearchControl pagedSearchControl = null;
         
         if ( control != null )
         {
-            pagedSearchControl = ( PagedSearchControl )control;
+            // Let's deal with the pagedControl
+            return doPagedSearch( session, req, (PagedSearchControl)control );
         }
         
-        if ( pagedSearchControl != null )
-        {
-            // We have the following cases :
-            // 1) The SIZE is above the size-limit : the request is treated as if it
-            // was a simple search
-            // 2) The cookie is empty : this is a new request
-            // 3) The cookie is not empty, but the request is not the same : this is 
-            // a new request (we have to discard the cookie and do a new search from
-            // the beginning)
-            // 4) The cookie is not empty and the request is the same, we return
-            // the next SIZE elements
-            // 5) The SIZE is 0 and the cookie is the same than the previous one : this
-            // is a abandon request for this paged search.
-            int size = pagedSearchControl.getSize();
-            byte [] cookie= pagedSearchControl.getCookie();
-            
-            // Case 5
-            if ( size == 0 )
-            {
-                // Remove the cookie from the session, if it's not null
-                if ( !StringTools.isEmpty( cookie ) )
-                {
-                    int cookieValue = pagedSearchControl.getCookieValue();
-                    PagedSearchCookie psCookie = 
-                        (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
-                    pagedResultsControl = new PagedResultsControl( 0, psCookie.getCookie(), true );
-                    
-                    // Close the cursor
-                    cursor = psCookie.getCursor();
-                    
-                    if ( cursor != null )
-                    {
-                        cursor.close();
-                    }
-                }
-                else
-                {
-                    pagedResultsControl = new PagedResultsControl( 0, true );
-                }
-                
-                // and return
-                // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-                ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-                req.getResultResponse().add( pagedResultsControl );
-                return ( SearchResponseDone ) req.getResultResponse();
-            }
-            
-            if ( sizeLimit < size )
-            {
-                // Case 1
-                cursor = session.getCoreSession().search( req );
-            }
-            else
-            {
-                isPaged = true;
-                sizeLimit = size;
-                
-                // Now, depending on the cookie, we will deal with case 2, 3 and 4
-                if ( StringTools.isEmpty( cookie ) )
-                {
-                    // Case 2 : create the cookie
-                    cookieInstance = new PagedSearchCookie( req );
-                    cookie = cookieInstance.getCookie();
-                    int cookieValue = cookieInstance.getCookieValue();
-
-                    session.getIoSession().setAttribute( cookieValue, cookieInstance );
-                    pagedResultsControl = new PagedResultsControl( 0, cookie, true );
-                }
-                else
-                {
-                    int cookieValue = pagedSearchControl.getCookieValue();
-                    cookieInstance = 
-                        (PagedSearchCookie)session.getIoSession().getAttribute( cookieValue );
-                    
-                    if ( cookieInstance.hasSameRequest( req, session ) )
-                    {
-                        // Case 4 : continue the search
-                        cursor = cookieInstance.getCursor();
-                        
-                        // get the cookie
-                        cookie = cookieInstance.getCookie();
-                        isPaged = true;
-                        sizeLimit = size;
-                        pagedResultsControl = new PagedResultsControl( 0, cookie, true );
-                    }
-                    else
-                    {
-                        // case 3 : create a new cursor
-                        // We have to close the cursor
-                        cursor = cookieInstance.getCursor();
-                        
-                        if ( cursor != null )
-                        {
-                            cursor.close();
-                        }
-                        
-                        // Now create a new cookie and stores it into the session
-                        cookieInstance = new PagedSearchCookie( req );
-                        cookie = cookieInstance.getCookie();
-                        cookieValue = cookieInstance.getCookieValue();
-
-                        session.getIoSession().setAttribute( cookieValue, cookieInstance );
-                        pagedResultsControl = new PagedResultsControl( 0, cookie, true );
-                    }
-                }
-            }
-        }
-        
+        // A normal search
         // Check that we have a cursor or not. 
-        if ( cursor == null )
-        {
             // No cursor : do a search.
-            cursor = session.getCoreSession().search( req );
+        EntryFilteringCursor cursor = session.getCoreSession().search( req );
 
-            // Position the cursor at the beginning
-            cursor.beforeFirst();
-        }
+        // Position the cursor at the beginning
+        cursor.beforeFirst();
         
         /*
          * Iterate through all search results building and sending back responses
@@ -583,11 +687,11 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          */
         try
         {
-            readResults( session, req, ldapResult, cursor, sizeLimit, isPaged, cookieInstance, pagedResultsControl );
+            readResults( session, req, ldapResult, cursor, requestLimit, serverLimit, false, null, pagedResultsControl );
         }
         finally
         {
-            if ( ( cursor != null ) && !isPaged )
+            if ( cursor != null )
             {
                 try
                 {

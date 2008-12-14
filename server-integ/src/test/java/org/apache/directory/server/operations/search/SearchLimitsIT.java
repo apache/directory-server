@@ -34,7 +34,6 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -277,20 +276,12 @@ public class SearchLimitsIT
      * by request size limit value to cause a size limit exceeded exception on
      * the client.
      */
-    @Test
+    @Test (expected = SizeLimitExceededException.class)
     public void testRequestConstrainedUnlimitByConfigurationSize() throws Exception
     {
         ldapService.setMaxSizeLimit( LdapService.NO_SIZE_LIMIT );
         
-        try
-        {
-            getActorsWithLimit( "(objectClass=*)", LdapService.NO_TIME_LIMIT, 1 );
-            assertTrue( true );
-        }
-        catch ( SizeLimitExceededException slee )
-        {
-            fail();
-        }
+        getActorsWithLimit( "(objectClass=*)", LdapService.NO_TIME_LIMIT, 1 );
     }
     
 
@@ -299,19 +290,12 @@ public class SearchLimitsIT
      * which constrains size by request size limit value to cause a size limit 
      * exceeded exception on the client.
      */
-    @Test
+    @Test ( expected = SizeLimitExceededException.class )
     public void testRequestConstrainedLessThanConfigurationSize() throws Exception
     {
         ldapService.setMaxSizeLimit( 10000 ); 
 
-        try
-        {
-            getActorsWithLimit( "(objectClass=*)", LdapService.NO_TIME_LIMIT, 1 );
-        }
-        catch ( SizeLimitExceededException slee )
-        {
-            fail();
-        }
+        getActorsWithLimit( "(objectClass=*)", LdapService.NO_TIME_LIMIT, 1 );
     }
 
 
@@ -333,7 +317,7 @@ public class SearchLimitsIT
      * Sets up the server with shorter search size limit than the request's 
      * which constrains size by using server max limit value to cause a size 
      * limit exceeded exception on the client.
-     * TODO : reestablish this test
+     */
     @Test (expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestConstrainedGreaterThanConfigurationSize() throws Exception
     {
@@ -362,7 +346,7 @@ public class SearchLimitsIT
     /**
      * Sets up the server with limited search size with unlimited request
      * size limit.  Should not work for non administrative users.
-     * TODO : reestablish this test
+     */
     @Test ( expected = SizeLimitExceededException.class ) 
     public void testNonAdminRequestUnlimitedConfigurationLimitedSize() throws Exception
     {
@@ -382,7 +366,7 @@ public class SearchLimitsIT
      *  "sizeLimitExceeded (4)
      *   Indicates that the size limit specified by the client was
      *   exceeded before the operation could be completed."
-     * TODO : reestablish this test
+     */
     @Test ( expected = SizeLimitExceededException.class )
     public void testRequestConstraintedLessThanExpectedSize() throws Exception
     {
