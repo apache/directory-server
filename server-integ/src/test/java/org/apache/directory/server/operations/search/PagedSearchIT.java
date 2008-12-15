@@ -40,17 +40,70 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 /**
- * Test the PagedSearchControl
- *
+ * Test the PagedSearchControl. The following tables covers all the
+ * possible cases for both an admin and a simple user, combining the
+ * Server SizeLimit (SL), the requested SizeLimit (SL) and the paged
+ * size limit (PL). The 'X' column tells if we are supposed to receive
+ * a SizeLimitExceededException.<br>
+ * <br>
+ * Administrator<br>
+ * <pre>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ * |test   | SL | RL | PL | Nb of responses     | nb | X |<br>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ * |test1  | 0  | 0  | 3  | 4 ( 3 + 3 + 3 + 1 ) | 10 |   |<br>
+ * |test2  | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test3  | 3  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test4  | 0  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test5  | 5  | 0  | 3  | 4 ( 3 + 3 + 3 + 1 ) | 10 |   |<br>
+ * |test6  | 0  | 9  | 5  | 2 ( 5 + 4 )         | 5  | Y |<br>
+ * |test7  | 5  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test8  | 0  | 5  | 5  | 1 ( 5 )             | 5  | Y |<br>
+ * |test9  | 5  | 4  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test10 | 4  | 5  | 3  | 2 ( 3 + 2 )         | 5  | Y |<br>
+ * |test11 | 5  | 3  | 4  | 1 ( 3 )             | 3  | Y |<br>
+ * |test12 | 5  | 4  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test13 | 4  | 5  | 3  | 2 ( 3 + 2 )         | 5  | Y |<br>
+ * |test14 | 4  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test15 | 3  | 5  | 4  | 2 ( 4 + 1 )         | 5  | Y |<br>
+ * |test16 | 3  | 4  | 5  | 1 ( 4 )             | 4  | Y |<br>
+ * |test17 | 5  | 5  | 5  | 1 ( 5 )             | 5  | Y |<br>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ * <br>
+ * Simple user<br>
+ * <br>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ * |test   | SL | RL | PL | Nb of responses     | nb | X |<br>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ * |test18 | 0  | 0  | 3  | 4 ( 3 + 3 + 3 + 1 ) | 10 |   |<br>
+ * |test19  | 0  | 0  | 5  | 2 ( 5 + 5 )         | 10 |   |<br>
+ * |test20  | 3  | 0  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test21 | 0  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test22 | 5  | 0  | 3  | 2 ( 3 + 2 )         | 5  | Y |<br>
+ * |test23 | 0  | 9  | 5  | 2 ( 5 + 4 )         | 9  | Y |<br>
+ * |test24 | 5  | 0  | 5  | 1 ( 5 )             | 5  | Y |<br>
+ * |test25 | 0  | 5  | 5  | 1 ( 5 )             | 5  | Y |<br>
+ * |test26 | 5  | 4  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test27 | 4  | 5  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test28 | 5  | 3  | 4  | 1 ( 3 )             | 3  | Y |<br>
+ * |test29 | 5  | 4  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test30 | 4  | 5  | 3  | 2 ( 3 + 1 )         | 4  | Y |<br>
+ * |test31 | 4  | 3  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test32 | 3  | 5  | 4  | 1 ( 3 )             | 3  | Y |<br>
+ * |test33 | 3  | 4  | 5  | 1 ( 3 )             | 3  | Y |<br>
+ * |test34 | 5  | 5  | 5  | 1 ( 5 )             | 5  | Y |<br>
+ * +-------+----+----+----+---------------------+----+---+<br>
+ *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 545029 $
  */
@@ -121,6 +174,14 @@ import static org.junit.Assert.fail;
     "objectClass: person\n" +
     "cn: user9\n" +
     "sn: user 9\n" +
+    "\n" +
+    // Add another user for non admin tests
+    "dn: cn=user,ou=system\n" +
+    "objectClass: top\n" +
+    "objectClass: person\n" +
+    "cn: user\n" +
+    "userPassword: secret\n" +
+    "sn: user\n" +
     "\n"
     }
 )
@@ -138,7 +199,7 @@ public class PagedSearchIT
         controls.setCountLimit( sizeLimit );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         PagedSearchControl pagedSearchControl = new PagedSearchControl();
-        pagedSearchControl.setSize( 5 );
+        pagedSearchControl.setSize( pagedSize );
         
         ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
         
@@ -154,17 +215,163 @@ public class PagedSearchIT
     {
         PagedSearchControl pagedSearchControl = new PagedSearchControl();
         pagedSearchControl.setCookie( cookie );
-        pagedSearchControl.setSize( 5 );
+        pagedSearchControl.setSize( pagedSize );
         ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
     }
     
     
     /**
-     * Do a pagedSearch with a paged size of 5, and no limit otherwise
-     * @throws Exception
+     * Check that we got the correct result set
+     */
+    private void checkResults( List<SearchResult> results, int expectedSize ) throws NamingException
+    {
+        assertEquals( expectedSize, results.size() );
+        
+        // check that we have correctly read all the entries
+        for ( int i = 0; i < expectedSize; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    private void doLoop( DirContext ctx, SearchControls controls, int pagedSizeLimit, 
+        int expectedLoop, int expectedNbEntries, boolean expectedException ) throws NamingException
+    {
+        // Loop over all the elements
+        int loop = 0;
+        boolean hasSizeLimitException = false;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( true )
+        {
+            loop++;
+
+            try
+            {
+                NamingEnumeration<SearchResult> list = 
+                    ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+    
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = 
+                (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), pagedSizeLimit );
+        }
+        
+        assertEquals( expectedException, hasSizeLimitException );
+        assertEquals( expectedLoop, loop );
+        checkResults( results, expectedNbEntries );
+    }
+    
+    
+    /**
+     * Clear the server SizeLimit
+     */
+    @Before
+    public void reinitLdapServiceMaxSizeLimit()
+    {
+        ldapService.setMaxSizeLimit( LdapService.NO_SIZE_LIMIT );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = none<br>
+     * RL = none<br>
+     * PL = 3<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 3 + 3 + 3 + 1 )<br>
      */
     @Test
-    public void testSearchPagedSearch5Entries() throws Exception
+    public void testSearchPagedSearchtest1() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( true )
+        {
+            loop++;
+            
+            try
+            {
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 3 );
+        }
+        
+        assertEquals( 4, loop );
+        checkResults( results, 10 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = none<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 5 + 5 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest2() throws Exception
     {
         DirContext ctx = getWiredContext( ldapService );
         SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
@@ -220,11 +427,181 @@ public class PagedSearchIT
     
     
     /**
-     * Do a pagedSearch with a paged size of 5, and no limit otherwise
-     * @throws Exception
+     * Admin = yes <br>
+     * SL = 3<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10<br>
      */
     @Test
-    public void testSearchPagedSearch5EntriesSizeLimit9() throws Exception
+    public void testSearchPagedSearchTest3() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        
+        // Search the 5 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 5, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 0; i < 5; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+        
+        // Now read the 5 next ones
+        Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+        
+        PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+        assertEquals( 0, responseControl.getResultSize() );
+        
+        // Prepare the next iteration
+        createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        
+        list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 5, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 5; i < 10; i++ )
+        {
+            SearchResult entry = results.get( i-5 );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = none<br>
+     * RL = 3<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest4() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 3, 5 );
+        
+        // Search the 5 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        boolean hasSizeLimitException = false;
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                results.add( result );
+            }
+        }
+        catch ( SizeLimitExceededException slee )
+        {
+            hasSizeLimitException = true;
+        }
+        
+        assertEquals( 3, results.size() );
+        assertTrue( hasSizeLimitException );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 0; i < 3; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = none<br>
+     * PL = 3<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 3 + 3 + 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest5() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                results.add( result );
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 3 );
+        }
+        
+        assertEquals( 4, loop );
+        checkResults( results, 10 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = none<br>
+     * RL = 9<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 9 ( 5 + 4 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest6() throws Exception
     {
         DirContext ctx = getWiredContext( ldapService );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
@@ -289,5 +666,1034 @@ public class PagedSearchIT
             assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
         }
         
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 5 + 5 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest7() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        
+        // Search the 5 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 5, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 0; i < 5; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+        
+        // Now read the 5 next ones
+        Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+        
+        PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+        assertEquals( 0, responseControl.getResultSize() );
+        
+        // Prepare the next iteration
+        createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        
+        list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 5, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 5; i < 10; i++ )
+        {
+            SearchResult entry = results.get( i-5 );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = none<br>
+     * RL = 5<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest8() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 5, 5 );
+        
+        // Search the 5 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        boolean hasSizeLimitException = false;
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                results.add( result );
+            }
+        }
+        catch ( SizeLimitExceededException slee )
+        {
+            hasSizeLimitException = true;
+        }
+        
+        assertEquals( 5, results.size() );
+        assertTrue( hasSizeLimitException );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 0; i < 5; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = 4<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 2 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest9() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 4, 3 );
+        
+        // Search the 3 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 3, results.size() );
+        
+        // check that we have correctly read the 3 first entries
+        for ( int i = 0; i < 3; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+        
+        // Now read the last entry
+        Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+        
+        PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+        assertEquals( 0, responseControl.getResultSize() );
+
+        // Prepare the next iteration
+        createNextSearchControls( ctx, responseControl.getCookie(), 3 );
+        
+        list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        results = new ArrayList<SearchResult>();
+        
+        boolean hasSizeLimitException = false;
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                results.add( result );
+            }
+        }
+        catch ( SizeLimitExceededException slee )
+        {
+            hasSizeLimitException = true;
+        }
+        
+        // We must have had a sizeLimoit exception
+        assertTrue( hasSizeLimitException );
+        
+        assertEquals( 1, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 3; i < 4; i++ )
+        {
+            SearchResult entry = results.get( i-3 );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+        
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 4<br>
+     * RL = 5<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 ( 3 + 2 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest10() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 5, 3 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            try
+            {
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 3 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 2, loop );
+        checkResults( results, 5 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = 3<br>
+     * PL = 4<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest11() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 3, 4 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 4 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 1, loop );
+        checkResults( results, 3 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = 4<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 4 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest12() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 4, 3 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 3 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 2, loop );
+        checkResults( results, 4 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 4<br>
+     * RL = 5<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 ( 3 + 2 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest13() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 5, 3 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 4 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 2, loop );
+        checkResults( results, 5 );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 4<br>
+     * RL = 3<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest14() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 3, 5 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 1, loop );
+        checkResults( results, 3 );
+    }
+
+    
+    /**
+     * Admin = yes <br>
+     * SL = 3<br>
+     * RL = 5<br>
+     * PL = 4<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest15() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 5, 4 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 4 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 2, loop );
+        checkResults( results, 5 );
+    }
+
+    
+    /**
+     * Admin = yes <br>
+     * SL = 3<br>
+     * RL = 4<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 4 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest16() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 4, 5 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 1, loop );
+        checkResults( results, 4 );
+    }
+
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = 5<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest17() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 5, 5 );
+        
+        // Loop over all the elements
+        int loop = 0;
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        boolean hasSizeLimitException = false;
+        
+        while ( true )
+        {
+            loop++;
+
+            NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+
+            try
+            {
+                while ( list.hasMore() )
+                {
+                    SearchResult result = list.next();
+                    results.add( result );
+                }
+            }
+            catch ( Exception e )
+            {
+                hasSizeLimitException = true;
+                break;
+            }
+
+            // Now read the next ones
+            Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+            
+            PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+            assertEquals( 0, responseControl.getResultSize() );
+            
+            // check if this is over
+            byte[] cookie = responseControl.getCookie();
+            
+            if ( StringTools.isEmpty( cookie ) )
+            {
+                // If so, exit the loop
+                break;
+            }
+            
+            // Prepare the next iteration
+            createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        }
+        
+        assertTrue( hasSizeLimitException );
+        assertEquals( 1, loop );
+        checkResults( results, 5 );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = none<br>
+     * PL = 3<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 3 + 3 + 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest18() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        
+        doLoop( ctx, controls, 3, 4, 10, false );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 ( 5 + 5 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest19() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        
+        doLoop( ctx, controls, 5, 2, 10, false );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 3<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest20() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        
+        doLoop( ctx, controls, 5, 1, 3, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = 3<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest21() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 3, 5 );
+        
+        doLoop( ctx, controls, 5, 1, 3, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = none<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 ( 3 + 2 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest22() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 5, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = 9<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 9 ( 5 + 4 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest23() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 9, 5 );
+        
+        
+        doLoop( ctx, controls, 5, 2, 9, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = none<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest24() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        
+        doLoop( ctx, controls, 5, 1, 5, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = 5<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest25() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 5, 5 );
+        
+        
+        doLoop( ctx, controls, 5, 1, 5, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = 4<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 2 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchTest26() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 4, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 4, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 4<br>
+     * RL = 5<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 4 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest27() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 5, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 4, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = 3<br>
+     * PL = 4<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest28() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 3, 4 );
+        
+        doLoop( ctx, controls, 4, 1, 3, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = 4<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 4 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest29() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 4, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 4, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 4<br>
+     * RL = 5<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 4 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testSearchPagedSearchtest30() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 5, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 4, true );
+    }
+    
+    
+    /**
+     * Admin = no <br>
+     * SL = 4<br>
+     * RL = 3<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest31() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 3, 5 );
+        
+        doLoop( ctx, controls, 3, 1, 3, true );
+    }
+
+    
+    /**
+     * Admin = no <br>
+     * SL = 3<br>
+     * RL = 5<br>
+     * PL = 4<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest32() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 5, 4 );
+        
+        doLoop( ctx, controls, 3, 1, 3, true );
+    }
+
+    
+    /**
+     * Admin = no <br>
+     * SL = 3<br>
+     * RL = 4<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 3 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest33() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 4, 5 );
+        
+        doLoop( ctx, controls, 3, 1, 3, true );
+    }
+
+    
+    /**
+     * Admin = no <br>
+     * SL = 5<br>
+     * RL = 5<br>
+     * PL = 5<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 5 <br>
+     */
+    @Test
+    public void testSearchPagedSearchtest34() throws Exception
+    {
+        ldapService.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, 5, 5 );
+        
+        doLoop( ctx, controls, 5, 1, 5, true );
     }
 }

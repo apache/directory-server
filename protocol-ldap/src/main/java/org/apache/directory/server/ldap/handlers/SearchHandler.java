@@ -310,69 +310,39 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     }
     
     
-    private int getSearchSizeLimits( SearchRequest req, LdapSession session )
+    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
+    EntryFilteringCursor cursor, int sizeLimit ) throws Exception
     {
-        LOG.debug( "req size limit = {}, server size limit = {}", req.getSizeLimit(), 
-            ldapService.getMaxSizeLimit() );
-        
-        // Don't bother setting size limits for administrators that don't ask for it
-        if ( session.getCoreSession().isAnAdministrator() )
+        int count = 0;
+
+        while ( (count < sizeLimit ) && cursor.next() )
         {
-            if ( req.getSizeLimit() == NO_SIZE_LIMIT )
+            if ( session.getIoSession().isClosing() )
             {
-                return Integer.MAX_VALUE;
+                break;
             }
-            else
-            {
-                return req.getSizeLimit();
-            }
+            
+            ClonedServerEntry entry = cursor.get();
+            session.getIoSession().write( generateResponse( session, req, entry ) );
+            count++;
         }
         
-        /*
-         * Non administrator based searches are limited by size if the server 
-         * has been configured with unlimited size and the request specifies 
-         * unlimited search size
-         */
-        if ( ldapService.getMaxSizeLimit() == NO_SIZE_LIMIT && req.getSizeLimit() == NO_SIZE_LIMIT )
+        // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+        ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+
+        if ( ( count >= sizeLimit ) && ( cursor.next() ) )
         {
-            return Integer.MAX_VALUE;
+            // We have reached the limit
+            // Move backward on the cursor to restore the previous position, as we moved forward
+            // to check if there is one more entry available
+            cursor.previous();
+            // Special case if the user has requested more elements than the request size limit
+            ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
         }
-        
-        /*
-         * If the non-administrator user specifies unlimited size but the server 
-         * is configured to limit the search size then we limit by the max size
-         * allowed by the configuration 
-         */
-        if ( req.getSizeLimit() == NO_SIZE_LIMIT )
-        {
-            return ldapService.getMaxSizeLimit();
-        }
-        
-        if ( ldapService.getMaxSizeLimit() == NO_SIZE_LIMIT )
-        {
-            return req.getSizeLimit();
-        }
-        
-        /*
-         * If the non-administrative user specifies a size limit equal to or 
-         * less than the maximum limit configured in the server then we 
-         * constrain search by the amount specified in the request
-         */
-        if ( ldapService.getMaxSizeLimit() >= req.getSizeLimit() )
-        {
-            return req.getSizeLimit();
-        }
-        
-        /*
-         * Here the non-administrative user's requested size limit is greater 
-         * than what the server's configured maximum limit allows so we limit
-         * the search to the configured limit
-         */
-        return ldapService.getMaxSizeLimit();
     }
     
     
-    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,  
+    private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,  
         EntryFilteringCursor cursor, int sizeLimit, int pagedLimit, boolean isPaged, 
         PagedSearchCookie cookieInstance, PagedResultsControl pagedResultsControl ) throws Exception
     {
@@ -509,6 +479,22 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     
     
     /**
+     * Remove a cookie instance from the session, if it exists.
+     */
+    private PagedSearchCookie removeCookie( LdapSession session, PagedSearchCookie cookieInstance )
+    {
+        if ( cookieInstance == null )
+        {
+            return null;
+        }
+        
+        int cookieValue = cookieInstance.getCookieValue();
+        
+        return (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
+    }
+    
+    
+    /**
      * Handle a Paged Search request.
      */
     private SearchResponseDone doPagedSearch( LdapSession session, SearchRequest req, PagedSearchControl control )
@@ -570,7 +556,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                     // Position the cursor at the beginning
                     cursor.beforeFirst();
                     
-                    readResults( session, req, ldapResult, cursor, serverLimit, requestLimit, true, cookieInstance, pagedResultsControl );
+                    // And read the entries
+                    readResults( session, req, ldapResult, cursor, sizeLimit );
                 }
                 finally
                 {
@@ -584,6 +571,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                     }
                 }
                 
+                // If we had a cookie in the session, remove it
+                removeCookie( session, cookieInstance );
                 return ( SearchResponseDone ) req.getResultResponse();
             }
             else
@@ -651,7 +640,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          */
         try
         {
-            readResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, true, cookieInstance, pagedResultsControl );
+            readPagedResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, true, cookieInstance, pagedResultsControl );
         }
         catch ( Exception e )
         {
@@ -687,7 +676,6 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         throws Exception
     {
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
-        PagedResultsControl pagedResultsControl = null;
         
         // Check if we are using the Paged Search Control
         Object control = req.getControls().get( PagedSearchControl.CONTROL_OID );
@@ -723,6 +711,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             setTimeLimitsOnCursor( req, session, cursor );
             LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
             int sizeLimit = min( requestLimit, serverLimit );
+            
+            readResults( session, req, ldapResult, cursor, sizeLimit );
+            /*
             int count = 0;
             
             
@@ -750,6 +741,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 // Special case if the user has requested more elements than the request size limit
                 ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
             }
+            
+            */
         }
         finally
         {
