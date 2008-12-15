@@ -118,7 +118,14 @@ public class PagedSearchControlGrammar extends AbstractGrammar
                     try
                     {
                         // Check that the value is into the allowed interval
-                        int size = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+                        int size = IntegerDecoder.parse( value, Integer.MIN_VALUE, Integer.MAX_VALUE );
+                        
+                        // We allow negative value to absorb a bug in some M$ client.
+                        // Those negative values will be transformed to Integer.MAX_VALUE.
+                        if ( size < 0 )
+                        {
+                            size = Integer.MAX_VALUE;
+                        }
                         
                         if ( IS_DEBUG )
                         {
