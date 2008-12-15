@@ -20,46 +20,32 @@
 package org.apache.directory.server.operations.search;
 
  
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.ReferralException;
+import javax.naming.NamingException;
+import javax.naming.SizeLimitExceededException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.ManageReferralControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 
-import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.integ.SiRunner;
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
 import org.apache.directory.server.ldap.LdapService;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -142,18 +128,48 @@ public class PagedSearchIT
 {
     public static LdapService ldapService;
 
+    /**
+     * Create the searchControls with a paged size
+     */
+    private SearchControls createSearchControls( DirContext ctx, int sizeLimit, int pagedSize ) 
+        throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setCountLimit( sizeLimit );
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        PagedSearchControl pagedSearchControl = new PagedSearchControl();
+        pagedSearchControl.setSize( 5 );
+        
+        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+        
+        return controls;
+    }
     
+    
+    /**
+     * Create the searchControls with a paged size
+     */
+    private void createNextSearchControls( DirContext ctx, byte[] cookie, int pagedSize ) 
+        throws NamingException
+    {
+        PagedSearchControl pagedSearchControl = new PagedSearchControl();
+        pagedSearchControl.setCookie( cookie );
+        pagedSearchControl.setSize( 5 );
+        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+    }
+    
+    
+    /**
+     * Do a pagedSearch with a paged size of 5, and no limit otherwise
+     * @throws Exception
+     */
     @Test
     public void testSearchPagedSearch5Entries() throws Exception
     {
         DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        PagedSearchControl pagedSearchControl = new PagedSearchControl();
-        pagedSearchControl.setSize( 5 );
-
-        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
         
+        // Search the 5 first elements
         NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
         
         List<SearchResult> results = new ArrayList<SearchResult>();
@@ -177,8 +193,10 @@ public class PagedSearchIT
         Control[] responseControls = ((LdapContext)ctx).getResponseControls();
         
         PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
-        pagedSearchControl.setCookie( responseControl.getCookie() );
-        ((LdapContext)ctx).setRequestControls( new Control[] {pagedSearchControl} );
+        assertEquals( 0, responseControl.getResultSize() );
+        
+        // Prepare the next iteration
+        createNextSearchControls( ctx, responseControl.getCookie(), 5 );
         
         list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
         
@@ -194,6 +212,78 @@ public class PagedSearchIT
         
         // check that we have correctly read the 5 first entries
         for ( int i = 5; i < 10; i++ )
+        {
+            SearchResult entry = results.get( i-5 );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+    }
+    
+    
+    /**
+     * Do a pagedSearch with a paged size of 5, and no limit otherwise
+     * @throws Exception
+     */
+    @Test
+    public void testSearchPagedSearch5EntriesSizeLimit9() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService );
+        SearchControls controls = createSearchControls( ctx, 9, 5 );
+        
+        // Search the 5 first elements
+        NamingEnumeration<SearchResult> list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        List<SearchResult> results = new ArrayList<SearchResult>();
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result );
+        }
+        
+        assertEquals( 5, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 0; i < 5; i++ )
+        {
+            SearchResult entry = results.get( i );
+            assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
+        }
+        
+        // Now read the 5 next ones
+        Control[] responseControls = ((LdapContext)ctx).getResponseControls();
+        
+        PagedResultsResponseControl responseControl = (PagedResultsResponseControl)responseControls[0];
+        assertEquals( 0, responseControl.getResultSize() );
+
+        // Prepare the next iteration
+        createNextSearchControls( ctx, responseControl.getCookie(), 5 );
+        
+        list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
+        
+        results = new ArrayList<SearchResult>();
+        
+        boolean hasSizeLimitException = false;
+        
+        try
+        {
+            while ( list.hasMore() )
+            {
+                SearchResult result = list.next();
+                results.add( result );
+            }
+        }
+        catch ( SizeLimitExceededException slee )
+        {
+            hasSizeLimitException = true;
+        }
+        
+        // We must have had a sizeLimoit exception
+        assertTrue( hasSizeLimitException );
+        
+        assertEquals( 4, results.size() );
+        
+        // check that we have correctly read the 5 first entries
+        for ( int i = 5; i < 9; i++ )
         {
             SearchResult entry = results.get( i-5 );
             assertEquals( "user" + i, entry.getAttributes().get( "cn" ).get() );
