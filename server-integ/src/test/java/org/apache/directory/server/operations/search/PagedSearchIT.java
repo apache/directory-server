@@ -940,4 +940,22 @@ public class PagedSearchIT
         
         doLoop( ctx, controls, 5, 1, 5, true );
     }
+
+    
+    /**
+     * Admin = no <br>
+     * SL = none<br>
+     * RL = none<br>
+     * PL = -2<br>
+     * expected exception : no<br>
+     * expected number of entries returned : 10 <br>
+     */
+    @Test
+    public void testSearchPagedSearchWithNegativePL() throws Exception
+    {
+        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, -2 );
+        
+        doLoop( ctx, controls, -2, 1, 10, false );
+    }
 }
