@@ -603,6 +603,16 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             cookieInstance = 
                 (PagedSearchCookie)session.getIoSession().getAttribute( cookieValue );
             
+            if ( cookieInstance == null )
+            {
+                // We didn't found the cookie into the session : it must be invalid
+                // send an error.
+                ldapResult.setErrorMessage( "Invalid cookie for this PagedSearch request." );
+                ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
+                
+                return ( SearchResponseDone ) req.getResultResponse();
+            }
+            
             if ( cookieInstance.hasSameRequest( req, session ) )
             {
                 // Case 3 : continue the search
@@ -713,36 +723,6 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             int sizeLimit = min( requestLimit, serverLimit );
             
             readResults( session, req, ldapResult, cursor, sizeLimit );
-            /*
-            int count = 0;
-            
-            
-            while ( (count < sizeLimit ) && cursor.next() )
-            {
-                if ( session.getIoSession().isClosing() )
-                {
-                    break;
-                }
-                
-                ClonedServerEntry entry = cursor.get();
-                session.getIoSession().write( generateResponse( session, req, entry ) );
-                count++;
-            }
-            
-            // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
-
-            if ( ( count >= sizeLimit ) && ( cursor.next() ) )
-            {
-                // We have reached the limit
-                // Move backward on the cursor to restore the previous position, as we moved forward
-                // to check if there is one more entry available
-                cursor.previous();
-                // Special case if the user has requested more elements than the request size limit
-                ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
-            }
-            
-            */
         }
         finally
         {

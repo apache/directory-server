@@ -372,6 +372,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
+        
         if ( e instanceof LdapException )
         {
             code = ( ( LdapException ) e ).getResultCode();
