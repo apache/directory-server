@@ -191,12 +191,27 @@ public class PagedSearchControlTest extends TestCase
         try
         {
             decoder.decode( bb, container );
-            fail();
         }
         catch ( DecoderException de )
         {
-            assertTrue( true );
+            de.printStackTrace();
+            Assert.fail( de.getMessage() );
         }
+
+        PagedSearchControlCodec pagedSearch = container.getPagedSearchControl();
+        assertEquals( Integer.MAX_VALUE, pagedSearch.getSize() );
+        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "test" ), 
+            pagedSearch.getCookie() ) );
+            
+        String expected = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        PagedSearchControlCodec ctrl = new PagedSearchControlCodec();
+        ctrl.setSize( -1 );
+        ctrl.setCookie( StringTools.getBytesUtf8( "test" ) );
+        bb = ctrl.encode( null );
+        String decoded = StringTools.dumpBytes( bb.array() );
+        assertEquals( expected, decoded );
     }
     
     
