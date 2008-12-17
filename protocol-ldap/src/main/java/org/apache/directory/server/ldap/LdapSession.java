@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
@@ -82,6 +84,9 @@ public class LdapSession
      */
     private Map<String, Object> saslProperties;
     
+    /** A map containing all the paged search context */
+    private Map<Integer, PagedSearchContext> pagedSearchContexts;
+    
 
     /**
      * Creates a new instance of LdapSession associated with the underlying
@@ -96,6 +101,7 @@ public class LdapSession
         outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
         bindStatus = BindStatus.ANONYMOUS;
         saslProperties = new HashMap<String, Object>();
+        pagedSearchContexts = new HashMap<Integer, PagedSearchContext>();
     }
     
     
@@ -376,6 +382,67 @@ public class LdapSession
         this.ldapService = ldapService;
     }
     
+    
+    /**
+     * Add a new Paged Search context into the stored context. If some
+     * context with the same id already exists, it will be closed and 
+     * removed.
+     * 
+     * @param context The context to add
+     */
+    public void addPagedSearchContext( PagedSearchContext context ) throws Exception
+    {
+        synchronized ( pagedSearchContexts )
+        {
+            PagedSearchContext oldContext = pagedSearchContexts.put( context.getCookieValue(), context );
+            
+            if ( oldContext != null )
+            {
+                EntryFilteringCursor cursor = oldContext.getCursor();
+                
+                if ( cursor != null )
+                {
+                    try
+                    {
+                        cursor.close();
+                    }
+                    catch ( Exception e )
+                    {
+                        LOG.error( "Failing on cursor close : {}", e.getMessage() );
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    /**
+     * Remove a Paged Search context from the map storing all of them.
+     * 
+     * @param contextId The context ID to remove
+     * @return The removed context if any found
+     */
+    public PagedSearchContext removePagedSearchContext( int contextId )
+    {
+        synchronized ( pagedSearchContexts )
+        {
+            return pagedSearchContexts.remove( contextId );
+        }
+    }
+    
+    
+    /**
+     * Get paged search context associated with an ID 
+     * @param contextId The id for teh context we want to get 
+     * @return The associated context, if any
+     */
+    public PagedSearchContext getPagedSearchContext( int contextId )
+    {
+        synchronized ( pagedSearchContexts )
+        {
+            return pagedSearchContexts.get( contextId );
+        }
+    }
     
     /**
      * The principal and remote address associated with this session.

@@ -31,7 +31,7 @@ import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.controls.PagedSearchCookie;
+import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -344,14 +344,14 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     
     private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,  
         EntryFilteringCursor cursor, int sizeLimit, int pagedLimit, boolean isPaged, 
-        PagedSearchCookie cookieInstance, PagedResultsControl pagedResultsControl ) throws Exception
+        PagedSearchContext pagedContext, PagedResultsControl pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapService, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
         LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
         int cookieValue = 0;
         
-        int count = cookieInstance.getCurrentPosition();
+        int count = pagedContext.getCurrentPosition();
         int pageCount = 0;
         
         while ( ( count < sizeLimit ) && ( pageCount < pagedLimit ) && cursor.next() )
@@ -382,9 +382,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             // That means we don't have anymore entry
             // If we are here, it means we have returned all the entries
             // We have to remove the cookie from the session
-            cookieValue = cookieInstance.getCookieValue();
-            PagedSearchCookie psCookie = 
-                (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
+            cookieValue = pagedContext.getCookieValue();
+            PagedSearchContext psCookie = session.removePagedSearchContext( cookieValue );
             
             // Close the cursor if there is one
             if ( psCookie != null )
@@ -414,7 +413,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 req.getResultResponse().add( pagedResultsControl );
                 
                 // Stores the cursor current position 
-                cookieInstance.incrementCurrentPosition( pageCount );
+                pagedContext.incrementCurrentPosition( pageCount );
                 return;
             }
             else
@@ -427,7 +426,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                     cursor.close();
                 }
                 
-                session.getIoSession().removeAttribute( cookieValue );
+                session.removePagedSearchContext( cookieValue );
                 
                 return;
             }
@@ -452,8 +451,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             // If the cookie is not null, we have to destroy the associated
             // cursor stored into the session (if any)
             int cookieValue = pagedSearchControl.getCookieValue();
-            PagedSearchCookie psCookie = 
-                (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
+            PagedSearchContext psCookie =  session.removePagedSearchContext( cookieValue );
             pagedResultsControl = new PagedResultsControl( 0, psCookie.getCookie(), true );
             
             // Close the cursor
@@ -481,7 +479,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     /**
      * Remove a cookie instance from the session, if it exists.
      */
-    private PagedSearchCookie removeCookie( LdapSession session, PagedSearchCookie cookieInstance )
+    private PagedSearchContext removeContext( LdapSession session, PagedSearchContext cookieInstance )
     {
         if ( cookieInstance == null )
         {
@@ -490,7 +488,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         
         int cookieValue = cookieInstance.getCookieValue();
         
-        return (PagedSearchCookie)session.getIoSession().removeAttribute( cookieValue );
+        return session.removePagedSearchContext( cookieValue );
     }
     
     
@@ -513,7 +511,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
 
         int pagedLimit = pagedSearchControl.getSize();
         EntryFilteringCursor cursor = null;
-        PagedSearchCookie cookieInstance = null;
+        PagedSearchContext pagedContext = null;
 
         // We have the following cases :
         // 1) The SIZE is 0 and the cookie is the same than the previous one : this
@@ -572,17 +570,16 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 }
                 
                 // If we had a cookie in the session, remove it
-                removeCookie( session, cookieInstance );
+                removeContext( session, pagedContext );
                 return ( SearchResponseDone ) req.getResultResponse();
             }
             else
             {
-                // Case 2 : create the cookie
-                cookieInstance = new PagedSearchCookie( req );
-                cookie = cookieInstance.getCookie();
-                int cookieValue = cookieInstance.getCookieValue();
+                // Case 2 : create the context
+                pagedContext = new PagedSearchContext( req );
 
-                session.getIoSession().setAttribute( cookieValue, cookieInstance );
+                session.addPagedSearchContext( pagedContext );
+                cookie = pagedContext.getCookie();
                 pagedResultsControl = new PagedResultsControl( 0, cookie, true );
 
                 // No cursor : do a search.
@@ -592,7 +589,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 cursor.beforeFirst();
                 
                 // And stores the cursor into the session
-                cookieInstance.setCursor( cursor );
+                pagedContext.setCursor( cursor );
             }
         }
         else
@@ -600,10 +597,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             // We have a cookie
             // Either case 3, 4 or 5
             int cookieValue = pagedSearchControl.getCookieValue();
-            cookieInstance = 
-                (PagedSearchCookie)session.getIoSession().getAttribute( cookieValue );
+            pagedContext = session.getPagedSearchContext( cookieValue );
             
-            if ( cookieInstance == null )
+            if ( pagedContext == null )
             {
                 // We didn't found the cookie into the session : it must be invalid
                 // send an error.
@@ -613,32 +609,32 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 return ( SearchResponseDone ) req.getResultResponse();
             }
             
-            if ( cookieInstance.hasSameRequest( req, session ) )
+            if ( pagedContext.hasSameRequest( req, session ) )
             {
                 // Case 3 : continue the search
-                cursor = cookieInstance.getCursor();
+                cursor = pagedContext.getCursor();
                 
                 // get the cookie
-                cookie = cookieInstance.getCookie();
+                cookie = pagedContext.getCookie();
                 pagedResultsControl = new PagedResultsControl( 0, cookie, true );
             }
             else
             {
                 // case 2 : create a new cursor
                 // We have to close the cursor
-                cursor = cookieInstance.getCursor();
+                cursor = pagedContext.getCursor();
                 
                 if ( cursor != null )
                 {
                     cursor.close();
                 }
                 
-                // Now create a new cookie and stores it into the session
-                cookieInstance = new PagedSearchCookie( req );
-                cookie = cookieInstance.getCookie();
-                cookieValue = cookieInstance.getCookieValue();
+                // Now create a new context and stores it into the session
+                pagedContext = new PagedSearchContext( req );
 
-                session.getIoSession().setAttribute( cookieValue, cookieInstance );
+                session.addPagedSearchContext( pagedContext );
+                
+                cookie = pagedContext.getCookie();
                 pagedResultsControl = new PagedResultsControl( 0, cookie, true );
             }
         }
@@ -650,7 +646,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          */
         try
         {
-            readPagedResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, true, cookieInstance, pagedResultsControl );
+            readPagedResults( session, req, ldapResult, cursor, sizeLimit, pagedLimit, true, pagedContext, pagedResultsControl );
         }
         catch ( Exception e )
         {

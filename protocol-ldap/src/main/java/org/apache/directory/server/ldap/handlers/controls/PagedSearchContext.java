@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:  $
  */
-public class PagedSearchCookie
+public class PagedSearchContext
 {
     /** The previous search request */
     private SearchRequest previousSearchRequest;
@@ -61,7 +61,7 @@ public class PagedSearchCookie
     /**
      * Creates a new instance of this class, storing the Searchrequest into it.
      */
-    public PagedSearchCookie( SearchRequest searchRequest )
+    public PagedSearchContext( SearchRequest searchRequest )
     {
         previousSearchRequest = searchRequest;
         currentPosition = 0;
@@ -314,6 +314,14 @@ public class PagedSearchCookie
      */
     public String toString()
     {
-        return "PagedSearch cookie:" + StringTools.dumpBytes( cookie );
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "PagedSearch context : <" );
+        sb.append( StringTools.dumpBytes( cookie ) );
+        sb.append( ", " );
+        sb.append( currentPosition );
+        sb.append( ">" );
+        
+        return sb.toString();
     }
 }
