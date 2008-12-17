@@ -24,11 +24,6 @@
               xmlns:s="http://www.springframework.org/schema/beans"
               xmlns="http://apacheds.org/config/1.0">
               
-  <s:bean id="simpleAuthenticator" class="org.apache.directory.server.core.authn.SimpleAuthenticator">
-    <s:constructor-arg value="50"/>
-  </s:bean>
-  <s:bean id="strongAuthenticator" class="org.apache.directory.server.core.authn.StrongAuthenticator"/>
-
   <defaultDirectoryService id="directoryService" instanceId="default"
                            workingDirectory="example.com"
                            allowAnonymousAccess="true"
@@ -82,9 +77,12 @@
       <authenticationInterceptor>
         <s:property name="authenticators">
           <s:set>
-            <!--s:value>The supported authenticators</s:value-->
-            <s:ref bean="simpleAuthenticator"/>
-            <s:ref bean="strongAuthenticator"/>
+            <s:bean id="simpleAuthenticator" 
+                    class="org.apache.directory.server.core.authn.SimpleAuthenticator">
+              <s:constructor-arg value="50"/>
+            </s:bean>
+            <s:bean id="strongAuthenticator" 
+                    class="org.apache.directory.server.core.authn.StrongAuthenticator"/> 
           </s:set>
         </s:property>
       </authenticationInterceptor>
