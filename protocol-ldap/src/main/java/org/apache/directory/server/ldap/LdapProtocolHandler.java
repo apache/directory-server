@@ -79,13 +79,18 @@ class LdapProtocolHandler extends DemuxingIoHandler
     }
 
 
-    /*
-     * (non-Javadoc)LdapProtocolHandler
-     * @see org.apache.mina.common.IoHandlerAdapter#sessionClosed(org.apache.mina.common.IoSession)
+    /**
+     * This method is called when a session is closed. If we have some 
+     * cleanup to do, it's done there.
+     * 
+     * @param session the closing session
      */
     public void sessionClosed( IoSession session )
     {
+        // Get the associated LdapSession
         LdapSession ldapSession = ldapService.getLdapSessionManager().removeLdapSession( session );
+        
+        // Clean it up !
         cleanUpSession( ldapSession );
     }
 
@@ -104,8 +109,11 @@ class LdapProtocolHandler extends DemuxingIoHandler
             return;
         }
         
+        LOG.debug( "Cleaning the {} session", ldapSession );
+        
         if ( ldapSession != null )
         {
+            // Abandon all the requests
             ldapSession.abandonAllOutstandingRequests();
         }
         

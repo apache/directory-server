@@ -20,12 +20,14 @@
 package org.apache.directory.server.ldap;
 
 
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
@@ -34,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An object representing an LdapSession.  Any connection established with the
+ * An object representing an LdapSession. Any connection established with the
  * LDAP server forms a session.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -48,9 +50,10 @@ public class LdapSession
     /** A speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    
+    /** The list of requests we can abandon */
     private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
     
+    /** A lock to protect the abandonableRequests against concurrent access */
     private final String outstandingLock;
     
     /**
@@ -65,9 +68,8 @@ public class LdapSession
     /** A reference on the LdapService instance */
     private LdapService ldapService;
     
-    
+    /** A map of all the running requests */
     private Map<Integer, AbandonableRequest> outstandingRequests;
-    
     
     /** The current Bind status */
     private BindStatus bindStatus;
@@ -75,13 +77,12 @@ public class LdapSession
     /** The current mechanism used to authenticate the user */
     private String currentMechanism;
     
-    
     /**
      * A Map containing Objects used during the SASL negotiation
      */
     private Map<String, Object> saslProperties;
     
- 
+
     /**
      * Creates a new instance of LdapSession associated with the underlying
      * connection (MINA IoSession) to the server.
@@ -190,8 +191,10 @@ public class LdapSession
 
     /**
      * Abandons a specific request by messageId.
+     * 
+     * @param messageId The request ID to abandon
      */
-    public AbandonableRequest abandonOutstandingRequest( Integer messageId )
+    public AbandonableRequest abandonOutstandingRequest( int messageId )
     {
         AbandonableRequest request = null;
         
@@ -251,6 +254,9 @@ public class LdapSession
     }
     
     
+    /**
+     * @return A list of all the abandonable requests for this session. 
+     */
     public Map<Integer, AbandonableRequest> getOutstandingRequests()
     {
         synchronized( outstandingLock )
@@ -368,5 +374,44 @@ public class LdapSession
     public void setLdapServer( LdapService ldapService )
     {
         this.ldapService = ldapService;
+    }
+    
+    
+    /**
+     * The principal and remote address associated with this session.
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        if ( coreSession == null )
+        {
+            return "LdapSession : No Ldap session ...";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        
+        LdapPrincipal principal = coreSession.getAuthenticatedPrincipal(); 
+        SocketAddress address = coreSession.getClientAddress();
+        
+        sb.append( "LdapSession : <" );
+        
+        if ( principal != null )
+        {
+            sb.append( principal.getName() );
+            sb.append( "," );
+        }
+        
+        if ( address != null )
+        {
+            sb.append( address );
+        }
+        else
+        {
+            sb.append( "..." );
+        }
+        
+        sb.append( ">" );
+        
+        return sb.toString();
     }
 }
