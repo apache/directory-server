@@ -18,6 +18,9 @@
  */
 package org.apache.directory.server;
 
+import org.apache.directory.mitosis.common.Replica;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
@@ -31,6 +34,7 @@ import org.springframework.context.ApplicationContext;
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +64,7 @@ public class SpringServerTest
         apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
     }
 
+    
     /**
      * Test a server.xml with Authenticator in the authenticationInterceptor
      */
@@ -104,5 +109,60 @@ public class SpringServerTest
         }
         
         assertEquals( 0, count );
+    }
+
+    
+    /**
+     * Test a server.xml with replicationInterceptor validated
+     */
+    @Test
+    public void testSpringServerReplicationInterceptor() throws Exception {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        URL configURL = classLoader.getResource( "serverReplicationInterceptor.xml" );
+
+        File configF = new File( configURL.toURI() );
+        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURI().toURL().toString() );
+        ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
+        File workingDirFile = new File( configF.getParentFile(), "work" );
+        apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
+        
+        List<Interceptor> interceptors = apacheDS.getDirectoryService().getInterceptors();
+        
+        Map<String, Interceptor> map = new HashMap<String, Interceptor>();
+        
+        for ( Interceptor interceptor:interceptors )
+        {
+            map.put( interceptor.getName(), interceptor );
+        }
+        
+        Interceptor interceptor = map.get( "replicationService" );
+        assertNotNull( interceptor );
+        ReplicationInterceptor replicationInterceptor = (ReplicationInterceptor)interceptor;
+        assertNotNull( replicationInterceptor );
+        assertNotNull( replicationInterceptor.getConfiguration() );
+        
+        ReplicationConfiguration config = replicationInterceptor.getConfiguration();
+        assertEquals( 5, config.getLogMaxAge() );
+        assertEquals( "instance_a", config.getReplicaId() );
+        assertEquals( 2, config.getReplicationInterval() );
+        assertEquals( 10, config.getResponseTimeout() );
+        assertEquals( 10390, config.getServerPort() );
+        assertNotNull( config.getPeerReplicas() );
+        assertEquals( 2, config.getPeerReplicas().size() );
+        
+        Set<String> expectedReplicas = new HashSet<String>();
+        
+        expectedReplicas.add( "instance_b@localhost:1234" );
+        expectedReplicas.add( "instance_c@localhost:1234" );
+        
+        for ( Replica replica:config.getPeerReplicas() )
+        {
+            String peer = replica.getId() + '@' + replica.getAddress().getHostName() + ':' + replica.getAddress().getPort();
+            
+            assert( expectedReplicas.contains( peer ) );
+            expectedReplicas.remove( peer );
+        }
+        
+        assertEquals( 0, expectedReplicas.size() );
     }
 }
