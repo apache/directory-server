@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
@@ -107,7 +108,6 @@ public class LdapService extends DirectoryBackedService
 
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
-
     
     
     private static final long serialVersionUID = 3757127143811666817L;
@@ -150,6 +150,12 @@ public class LdapService extends DirectoryBackedService
 
     /** Whether LDAPS is enabled: disabled by default. */
     private boolean enableLdaps;
+    
+    /** If LDAPS is activated : the external Keystore file, if defined */
+    private String keystoreFile;
+    
+    /** If LDAPS is activated : the certificate password */
+    private String certificatePassword;
 
     /** Whether to allow anonymous access: enabled by default. */
     private boolean allowAnonymousAccess = true;
@@ -175,6 +181,7 @@ public class LdapService extends DirectoryBackedService
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
 
+    /** The potocol handlers */
     private LdapRequestHandler<AbandonRequest> abandonHandler;
     private LdapRequestHandler<AddRequest> addHandler;
     private LdapRequestHandler<BindRequest> bindHandler;
@@ -306,19 +313,34 @@ public class LdapService extends DirectoryBackedService
         
         if ( isEnableLdaps() )
         {
-            Provider provider = Security.getProvider( "SUN" );
-            LOG.debug( "provider = {}", provider );
-            CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
-            KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
-            try
+            KeyStore keyStore = null;
+            
+            if ( StringTools.isEmpty( keystoreFile ) )
             {
-                keyStore.load( null, null );
+                Provider provider = Security.getProvider( "SUN" );
+                LOG.debug( "provider = {}", provider );
+                CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
+                keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
+                
+                try
+                {
+                    keyStore.load( null, null );
+                }
+                catch ( Exception e )
+                {
+                    // nothing really happens with this keystore
+                }
             }
-            catch ( Exception e )
+            else
             {
-                // nothing really happens with this keystore
+                keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+                FileInputStream fis = new FileInputStream( keystoreFile );
+                
+                
+                keyStore.load( fis, null );
             }
-            chain = LdapsInitializer.init( keyStore );
+            
+            chain = LdapsInitializer.init( keyStore, certificatePassword );
         }
         else
         {
@@ -1091,5 +1113,43 @@ public class LdapService extends DirectoryBackedService
     public void setStarted( boolean started )
     {
         this.started = started;
+    }
+
+
+    /**
+     * @return The keystore path
+     */
+    public String getKeystoreFile()
+    {
+        return keystoreFile;
+    }
+
+
+    /**
+     * Set the external keystore path
+     * @param keystoreFile The external keystore path
+     */
+    public void setKeystoreFile( String keystoreFile )
+    {
+        this.keystoreFile = keystoreFile;
+    }
+
+
+    /**
+     * @return The certificate passord
+     */
+    public String getCertificatePassword()
+    {
+        return certificatePassword;
+    }
+
+
+    /**
+     * Set the certificate passord.
+     * @param certificatePassword the certificate passord
+     */
+    public void setCertificatePassword( String certificatePassword )
+    {
+        this.certificatePassword = certificatePassword;
     }
 }

@@ -29,6 +29,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -44,7 +45,7 @@ import org.apache.mina.filter.ssl.SslFilter;
  */
 public class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( KeyStore ks ) throws NamingException
+    public static IoFilterChainBuilder init( KeyStore ks, String certificatePassord ) throws NamingException
     {
         SSLContext sslCtx;
         try
@@ -58,7 +59,15 @@ public class LdapsInitializer
             }
             
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
-            kmf.init( ks, null );
+            
+            if ( StringTools.isEmpty( certificatePassord ) )
+            {
+                kmf.init( ks, null );
+            }
+            else
+            {
+                kmf.init( ks, certificatePassord.toCharArray() );
+            }
 
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
