@@ -87,6 +87,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>mitosis</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>3.4.3</version>
