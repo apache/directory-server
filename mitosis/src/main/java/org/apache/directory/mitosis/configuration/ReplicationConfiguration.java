@@ -169,6 +169,7 @@ public class ReplicationConfiguration
     /**                +
      * Sets the {@link CSNFactory} for generating {@link CSN}s.
      * The default factory is {@link DefaultCSNFactory}.
+     * @org.apache.xbean.Property hidden="true"
      */
     public void setCsnFactory( CSNFactory csnFactory )
     {
@@ -268,6 +269,7 @@ public class ReplicationConfiguration
      * Sets the {@link ReplicationStore} which stores the change log
      * of the replica this configuration is configuring.  The default
      * implementation is {@link DerbyReplicationStore}.
+     * @org.apache.xbean.Property hidden="true"
      */
     public void setStore( ReplicationStore store )
     {
