@@ -37,9 +37,16 @@ import java.util.Set;
  */
 public abstract class AbstractProtocolService implements ProtocolService
 {
+    /** A flag set to indicate if the server is started or not */ 
     private boolean started;
+    
+    /** A flag set to tell if the server is enabled or not */
     private boolean enabled;
+    
+    /** The server ID */
     private String serviceId;
+    
+    /** The service name */
     private String serviceName;
     
     /** The server IP address */
@@ -108,6 +115,11 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * 
+     * @param started The state of this server
+     */
     protected void setStarted( boolean started )
     {
         this.started = started;
@@ -132,18 +144,30 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setServiceId( String serviceId )
     {
         this.serviceId = serviceId;
     }
 
 
+    /**
+     * @return The server name
+     */
     public String getServiceName()
     {
         return serviceName;
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * 
+     * Set the current server's name.
+     * @param name The server name
+     */
     public void setServiceName( String name )
     {
         this.serviceName = name;
@@ -241,6 +265,9 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setTransportProtocols( Set<TransportProtocol> transportProtocols )
     {
         Set<TransportProtocol> copy = new HashSet<TransportProtocol>( transportProtocols.size() );
@@ -260,6 +287,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
+     * @org.apache.xbean.Property hidden="true"
      */
     public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
     {
@@ -278,6 +306,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
+     * @org.apache.xbean.Property hidden="true"
      */
     public void setSocketAcceptor( SocketAcceptor socketAcceptor )
     {
