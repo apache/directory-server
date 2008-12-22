@@ -734,7 +734,7 @@ public class BootstrapPlugin extends AbstractMojo
         entry.put( SchemaConstants.CN_AT, "schemaModifications" );
         entry.put( ApacheSchemaConstants.SUBSCHEMA_SUBENTRY_NAME_AT, "cn=schema" );
 
-        LdapDN normName = new LdapDN( "cn=schemaModifications,ou=schema" );
+        LdapDN normName = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         normName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         entry.setDn( normName );
         store.add( normName, entry );

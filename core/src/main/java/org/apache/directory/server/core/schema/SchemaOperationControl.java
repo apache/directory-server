@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
@@ -960,7 +961,7 @@ public class SchemaOperationControl
                 registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
                 modifiersName ) ) );
         
-        LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
+        LdapDN name = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
         opContext.modify( name, mods, SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );

@@ -218,7 +218,7 @@ public class SchemaInterceptor extends BaseInterceptor
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
+        schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         schemaModificationAttributesDN.normalize( atRegistry.getNormalizerMapping() );
 
         computeSuperiors();

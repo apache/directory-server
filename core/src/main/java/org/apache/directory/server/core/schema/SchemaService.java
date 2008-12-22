@@ -51,7 +51,7 @@ import java.util.Set;
 
 
 /**
- * Document me!
+ * This class manage the Schema's operations. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -59,8 +59,6 @@ import java.util.Set;
 public class SchemaService
 {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-    private static final String SCHEMA_TIMESTAMP_ENTRY_DN = "cn=schemaModifications,ou=schema";
-
 
     /** cached version of the schema subentry with all attributes in it */
     private ServerEntry schemaSubentry;
@@ -88,7 +86,7 @@ public class SchemaService
         this.schemaPartition = schemaPartition;
         this.schemaControl = schemaControl;
 
-        schemaModificationAttributesDN = new LdapDN( SCHEMA_TIMESTAMP_ENTRY_DN );
+        schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
