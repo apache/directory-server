@@ -55,7 +55,6 @@ import java.util.Set;
 /**
  * An abstract {@link Partition} that uses general BTree operations.
  *
- * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
