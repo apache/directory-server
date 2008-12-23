@@ -21,6 +21,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -45,6 +46,7 @@ import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 
 import javax.naming.NamingException;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -63,6 +65,9 @@ public class SchemaService
     /** cached version of the schema subentry with all attributes in it */
     private ServerEntry schemaSubentry;
     private final Object lock = new Object();
+    
+    /** The directory service instance */
+    private DirectoryService directoryService;
 
     /** a handle on the registries */
     private Registries registries;
@@ -79,10 +84,18 @@ public class SchemaService
     private LdapDN schemaModificationAttributesDN;
 
 
-
-    public SchemaService( Registries registries, JdbmPartition schemaPartition, SchemaOperationControl schemaControl ) throws NamingException
+    /**
+     * Create a new instance of the schemaService
+     * 
+     * @param registries The associated registries
+     * @param schemaPartition The schema partition reference
+     * @param schemaControl The schema control instance
+     * @throws NamingException If somethi,ng went wrong during initialization
+     */
+    public SchemaService( DirectoryService directoryService, JdbmPartition schemaPartition, SchemaOperationControl schemaControl ) throws NamingException
     {
-        this.registries = registries;
+        this.directoryService = directoryService;
+        this.registries = directoryService.getRegistries();
         this.schemaPartition = schemaPartition;
         this.schemaControl = schemaControl;
 
@@ -91,10 +104,17 @@ public class SchemaService
     }
 
 
+    /**
+     * Tells if the given DN is the schemaSubentry DN
+     * 
+     * @param dnString The DN we want to check
+     * @return <code>true</code> if the given DN is the Schema subentry DN
+     * @throws NamingException If the given DN is not valid
+     */
     public boolean isSchemaSubentry( String dnString ) throws NamingException
     {
-        if ( dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN ) ||
-             dnString.equalsIgnoreCase( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED ) )
+        if ( ServerDNConstants.CN_SCHEMA_DN.equalsIgnoreCase( dnString ) ||
+            ServerDNConstants.CN_SCHEMA_DN_NORMALIZED.equalsIgnoreCase( dnString ) )
         {
             return true;
         }
@@ -104,23 +124,30 @@ public class SchemaService
     }
 
 
+    /**
+     * @return The dirctoryService associated regirstries
+     */
     public Registries getRegistries()
     {
         return registries;
     }
 
 
+    /**
+     * Generate the comparators attribute from the registry
+     */
     private ServerAttribute generateComparators() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.COMPARATORS_AT ) );
 
-        Iterator<ComparatorDescription> list = registries.getComparatorRegistry().comparatorDescriptionIterator();
+        Iterator<ComparatorDescription> list = 
+            registries.getComparatorRegistry().comparatorDescriptionIterator();
         
         while ( list.hasNext() )
         {
             ComparatorDescription description = list.next();
-            attr.add( SchemaUtils.render( description ).toString() );
+            attr.add( SchemaUtils.render( description ) );
         }
 
         return attr;
@@ -137,7 +164,7 @@ public class SchemaService
         while ( list.hasNext() )
         {
             NormalizerDescription normalizer = list.next();
-            attr.add( SchemaUtils.render( normalizer ).toString() );
+            attr.add( SchemaUtils.render( normalizer ) );
         }
         
         return attr;
@@ -155,7 +182,7 @@ public class SchemaService
         while ( list.hasNext() )
         {
             SyntaxCheckerDescription syntaxCheckerDescription = list.next();
-            attr.add( SchemaUtils.render( syntaxCheckerDescription ).toString() );
+            attr.add( SchemaUtils.render( syntaxCheckerDescription ) );
         }
         
         return attr;

@@ -1403,7 +1403,7 @@ public class DefaultDirectoryService implements DirectoryService
         SchemaOperationControl schemaControl = new SchemaOperationControl( registries, schemaLoader,
             new SchemaPartitionDao( schemaPartition, registries ) );
 
-        schemaService = new SchemaService( registries, schemaPartition, schemaControl );
+        schemaService = new SchemaService( this, schemaPartition, schemaControl );
 
         adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
