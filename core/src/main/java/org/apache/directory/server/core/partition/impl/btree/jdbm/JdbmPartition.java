@@ -143,6 +143,9 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setRegistries( Registries registries ) throws Exception
     {
         initRegistries( registries );
@@ -284,6 +287,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception
     {
         store.setPresenceIndex( index );
@@ -296,6 +302,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception
     {
         store.setOneLevelIndex( index );
@@ -308,6 +317,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception
     {
         store.setAliasIndex( index );
@@ -320,6 +332,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws NamingException
     {
         store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
@@ -332,6 +347,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws NamingException
     {
             store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
@@ -344,6 +362,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setUpdnIndexOn( Index<String,ServerEntry> index ) throws NamingException
     {
         store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
@@ -356,6 +377,9 @@ public class JdbmPartition extends BTreePartition
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public final void setNdnIndexOn( Index<String,ServerEntry> index ) throws NamingException
     {
         store.setNdnIndex( ( Index<String,ServerEntry> ) index );
