@@ -27,23 +27,28 @@ import java.util.Set;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.CosineSchema;
+import org.apache.directory.server.schema.bootstrap.NisSchema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 
 /**
  * Tests methods in SchemaInterceptor.
  */
-public class SchemaServiceTest extends TestCase
+public class SchemaServiceTest
 {
-    DefaultRegistries registries;
-
-
+    private static DefaultRegistries registries;
+    
+    
+    @Before
     public void setUp() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -51,20 +56,25 @@ public class SchemaServiceTest extends TestCase
         loader.load( new SystemSchema(), registries, false );
         loader.load( new ApacheSchema(), registries, false );
         loader.load( new CoreSchema(), registries, false );
+        loader.load( new CosineSchema(), registries, false );
+        loader.load( new NisSchema(), registries, false );
     }
 
     
+    @Test
     public void testDescendants() throws Exception
     {
         AttributeTypeRegistry attrRegistry = registries.getAttributeTypeRegistry();
-        Iterator list = attrRegistry.descendants( "name" );
+        Iterator<AttributeType> list = attrRegistry.descendants( "name" );
         Set<String> nameAttrs = new HashSet<String>();
+        
         while ( list.hasNext() )
         {
-            AttributeType type = ( AttributeType ) list.next();
+            AttributeType type = list.next();
             nameAttrs.add( type.getName() );
         }
-        assertEquals( "size of attributes extending name", 13, nameAttrs.size() );
+        
+        assertEquals( "size of attributes extending name", 15, nameAttrs.size() );
         assertTrue( nameAttrs.contains( "dmdName" ) );
         assertTrue( nameAttrs.contains( "o" ) );
         assertTrue( nameAttrs.contains( "c" ) );
@@ -78,7 +88,6 @@ public class SchemaServiceTest extends TestCase
         assertTrue( nameAttrs.contains( "st" ) );
         assertTrue( nameAttrs.contains( "givenName" ) );
     }
-    
 /*
     public void testAlterObjectClassesBogusAttr() throws NamingException
     {
