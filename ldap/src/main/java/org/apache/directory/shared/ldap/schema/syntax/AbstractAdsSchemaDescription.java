@@ -31,9 +31,10 @@ package org.apache.directory.shared.ldap.schema.syntax;
  */
 public abstract class AbstractAdsSchemaDescription extends AbstractSchemaDescription
 {
-
+    /** The Full Qualified Class Name */
     private String fqcn;
 
+    /** The base64 encoded bytecode for this schema */
     private String bytecode;
 
 
