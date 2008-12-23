@@ -976,9 +976,17 @@ public class SchemaUtils
     }
 
 
-    public static StringBuffer render( AbstractAdsSchemaDescription description )
+    /**
+     * Returns a String description of a schema. The resulting String format is :
+     * <br>
+     * (OID [DESC '<description>'] FQCN <fcqn> [BYTECODE <bytecode>] X-SCHEMA '<schema>')
+     * <br>
+     * @param description The description to transform to a String
+     * @return
+     */
+    public static String render( AbstractAdsSchemaDescription description )
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append( "( " ).append( description.getNumericOid() ).append( " " );
 
         if ( description.getDescription() != null )
@@ -997,7 +1005,7 @@ public class SchemaUtils
         buf.append( getSchema( description ) );
         buf.append( "' )" );
 
-        return buf;
+        return buf.toString();
     }
 
 
