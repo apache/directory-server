@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -65,13 +66,13 @@ public abstract class BTreePartition implements Partition
     static
     {
         Set<String> set = new HashSet<String>();
-        set.add( Store.ALIAS );
-        set.add( Store.PRESENCE );
-        set.add( Store.ONELEVEL );
-        set.add( Store.NDN );
-        set.add( Store.ONEALIAS );
-        set.add( Store.SUBALIAS );
-        set.add( Store.UPDN );
+        set.add( ApacheSchemaConstants.APACHE_ALIAS_OID );
+        set.add( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
+        set.add( ApacheSchemaConstants.APACHE_HIERARCHY_OID );
+        set.add( ApacheSchemaConstants.APACHE_N_DN_OID );
+        set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
+        set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
+        set.add( ApacheSchemaConstants.APACHE_UP_DN_OID );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
 
@@ -165,6 +166,7 @@ public abstract class BTreePartition implements Partition
      * Registry changes require swapping out the search engine used by a partition 
      * since the registries are used by elements in the search engine.
      * 
+     * @org.apache.xbean.Property hidden="true"
      * @param registries the schema entity registries
      * @throws Exception 
      */
@@ -391,6 +393,7 @@ public abstract class BTreePartition implements Partition
      * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
      * 
+     * @org.apache.xbean.Property hidden="true"
      * @param index the index on the ALIAS_ATTRIBUTE
      * @throws Exception if there is a problem setting up the index
      */
@@ -400,6 +403,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Sets the attribute existance Index.
      *
+     * @org.apache.xbean.Property hidden="true"
      * @param index the attribute existance Index
      * @throws Exception if there is a problem setting up the index
      */
@@ -409,6 +413,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Sets the one level Index.
      *
+     * @org.apache.xbean.Property hidden="true"
      * @param index the one level Index
      * @throws Exception if there is a problem setting up the index
      */
@@ -419,6 +424,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Sets the user provided distinguished name Index.
      *
+     * @org.apache.xbean.Property hidden="true"
      * @param index the updn Index
      * @throws Exception if there is a problem setting up the index
      */
@@ -428,6 +434,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Sets the normalized distinguished name Index.
      *
+     * @org.apache.xbean.Property hidden="true"
      * @param index the ndn Index
      * @throws Exception if there is a problem setting up the index
      */
@@ -439,6 +446,7 @@ public abstract class BTreePartition implements Partition
      * children one level below them; this system index is used to dereference
      * aliases on one/single level scoped searches.
      * 
+     * @org.apache.xbean.Property hidden="true"
      * @param index a one level alias index
      * @throws Exception if there is a problem setting up the index
      */
@@ -450,6 +458,7 @@ public abstract class BTreePartition implements Partition
      * alias descendents; this system index is used to dereference aliases on 
      * subtree scoped searches.
      * 
+     * @org.apache.xbean.Property hidden="true"
      * @param index a subtree alias index
      * @throws Exception if there is a problem setting up the index
      */

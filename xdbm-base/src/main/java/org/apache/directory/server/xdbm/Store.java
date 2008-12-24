@@ -42,23 +42,9 @@ import java.util.List;
  */
 public interface Store<E>
 {
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.1) for apacheNdn op attrib */
-    String NDN = "1.3.6.1.4.1.18060.0.4.1.2.1";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.2) for apacheUpdn op attrib */
-    String UPDN = "1.3.6.1.4.1.18060.0.4.1.2.2";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.5) for apacheOneAlias index */
-    String ONEALIAS = "1.3.6.1.4.1.18060.0.4.1.2.5";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.6) for apacheSubAlias index */
-    String SUBALIAS = "1.3.6.1.4.1.18060.0.4.1.2.6";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.7) for apacheAlias index */
-    String ALIAS = "1.3.6.1.4.1.18060.0.4.1.2.7";
     /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.43) for apacheSubLevel index*/
     String SUBLEVEL = "1.3.6.1.4.1.18060.0.4.1.2.43";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.3) for apachePresence op attrib */
-    String PRESENCE = "1.3.6.1.4.1.18060.0.4.1.2.3";
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.4) for apacheOneLevel op attrib */
-    String ONELEVEL = "1.3.6.1.4.1.18060.0.4.1.2.4";
-
+    
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
      * ------------------------------------------------------

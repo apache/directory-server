@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -207,31 +208,31 @@ public class JdbmPartition extends BTreePartition
             
             if ( SYS_INDEX_OIDS.contains( registries.getOidRegistry().getOid( index.getAttributeId() ) ) )
             {
-                if ( oid.equals( Store.ALIAS ) )
+                if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_OID ) )
                 {
                     store.setAliasIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.PRESENCE ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTANCE_OID ) )
                 {
                     store.setPresenceIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.ONELEVEL ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_HIERARCHY_OID ) )
                 {
                     store.setOneLevelIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.NDN ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_OID ) )
                 {
                     store.setNdnIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.ONEALIAS ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID ) )
                 {
                     store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.SUBALIAS ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID ) )
                 {
                     store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( Store.UPDN ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_OID ) )
                 {
                     store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
                 }
