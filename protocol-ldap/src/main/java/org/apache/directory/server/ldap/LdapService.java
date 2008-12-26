@@ -959,6 +959,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The AbandonRequest handler
+     */
     public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
     {
         this.handler.removeReceivedMessageHandler( AbandonRequest.class );
@@ -974,6 +978,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The AddRequest handler
+     */
     public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
     {
         this.handler.removeReceivedMessageHandler( AddRequest.class );
@@ -989,6 +997,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The BindRequest handler
+     */
     public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
     {
         this.bindHandler = bindHandler;
@@ -1005,6 +1017,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The CompareRequest handler
+     */
     public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
     {
         this.handler.removeReceivedMessageHandler( CompareRequest.class );
@@ -1020,6 +1036,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The DeleteRequest handler
+     */
     public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
     {
         this.handler.removeReceivedMessageHandler( DeleteRequest.class );
@@ -1035,6 +1055,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The ExtendedRequest handler
+     */
     public void setExtendedHandler( LdapRequestHandler<ExtendedRequest> extendedHandler )
     {
         this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
@@ -1050,6 +1074,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The ModifyRequest handler
+     */
     public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
     {
         this.handler.removeReceivedMessageHandler( ModifyRequest.class );
@@ -1065,6 +1093,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The ModifyDNRequest handler
+     */
     public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
     {
         this.handler.removeReceivedMessageHandler( ModifyDnRequest.class );
@@ -1080,6 +1112,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The SearchRequest handler
+     */
     public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
     {
         this.handler.removeReceivedMessageHandler( SearchRequest.class );
@@ -1095,6 +1131,10 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     * @param abandonHandler The UnbindRequest handler
+     */
     public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
     {
         this.handler.removeReceivedMessageHandler( UnbindRequest.class );
@@ -1110,6 +1150,9 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setStarted( boolean started )
     {
         this.started = started;

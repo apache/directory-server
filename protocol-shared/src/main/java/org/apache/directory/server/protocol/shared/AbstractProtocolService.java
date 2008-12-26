@@ -103,6 +103,9 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setDirectoryService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
