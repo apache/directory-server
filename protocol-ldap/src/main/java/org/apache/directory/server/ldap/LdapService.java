@@ -727,7 +727,7 @@ public class LdapService extends DirectoryBackedService
 
 
     /**
-     * Sets the maximum time limit in miliseconds to conduct a search.
+     * Sets the maximum time limit in milliseconds to conduct a search.
      *
      * @param maxTimeLimit the maximum length of time in milliseconds for search
      */
@@ -738,7 +738,7 @@ public class LdapService extends DirectoryBackedService
 
 
     /**
-     * Returns the maximum time limit in milliseonds to conduct a search.
+     * Returns the maximum time limit in milliseconds to conduct a search.
      *
      * @return The maximum time limit in milliseconds for search
      */
@@ -947,6 +947,9 @@ public class LdapService extends DirectoryBackedService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setSupportedControls( Set<String> supportedControls )
     {
         this.supportedControls = supportedControls;

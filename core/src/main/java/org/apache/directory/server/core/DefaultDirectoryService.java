@@ -240,8 +240,6 @@ public class DefaultDirectoryService implements DirectoryService
     private boolean allowAnonymousAccess = true; // allow by default
     private boolean accessControlEnabled; // off by default
     private boolean denormalizeOpAttrsEnabled; // off by default
-    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
-    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
     private List<Interceptor> interceptors;
     private Partition systemPartition;
     private Set<Partition> partitions = new HashSet<Partition>();
@@ -468,29 +466,6 @@ public class DefaultDirectoryService implements DirectoryService
         return exitVmOnShutdown;
     }
 
-
-    public void setMaxSizeLimit( int maxSizeLimit )
-    {
-        this.maxSizeLimit = maxSizeLimit;
-    }
-
-
-    public int getMaxSizeLimit()
-    {
-        return maxSizeLimit;
-    }
-
-
-    public void setMaxTimeLimit( int maxTimeLimit )
-    {
-        this.maxTimeLimit = maxTimeLimit;
-    }
-
-
-    public int getMaxTimeLimit()
-    {
-        return maxTimeLimit;
-    }
 
     public void setSystemPartition( Partition systemPartition )
     {

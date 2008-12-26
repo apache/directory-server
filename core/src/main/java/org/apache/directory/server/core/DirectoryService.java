@@ -357,18 +357,6 @@ public interface DirectoryService extends ServerEntryFactory
     boolean isExitVmOnShutdown();
 
 
-    void setMaxSizeLimit( int maxSizeLimit );
-
-
-    int getMaxSizeLimit();
-
-
-    void setMaxTimeLimit( int maxTimeLimit );
-
-
-    int getMaxTimeLimit();
-
-
     void setSystemPartition( Partition systemPartition );
 
 
