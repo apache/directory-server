@@ -41,6 +41,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -164,5 +165,37 @@ public class SpringServerTest
         }
         
         assertEquals( 0, expectedReplicas.size() );
+    }
+
+    
+    /**
+     * Test a server.xml for JdbmPartition configuration
+     */
+    @Test
+    public void testSpringServerJdbmPartition() throws Exception {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        URL configURL = classLoader.getResource( "serverJdbmPartition.xml" );
+
+        File configF = new File( configURL.toURI() );
+        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURI().toURL().toString() );
+        ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
+        File workingDirFile = new File( configF.getParentFile(), "work" );
+        apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
+        
+        // Now, launch the server, and check that the ObjectClass index has been created in /tmp
+        apacheDS.startup();
+        
+        File tmpOCdb = new File( "/tmp/objectClass.db");
+        assertTrue( tmpOCdb.exists() );
+
+        File tmpOClg = new File( "/tmp/objectClass.lg");
+        assertTrue( tmpOClg.exists() );
+        
+        // Shutdown and cleanup
+        apacheDS.shutdown();
+        
+        // Clean the /tmp/objectClass.* files
+        tmpOCdb.delete();
+        tmpOClg.delete();
     }
 }
