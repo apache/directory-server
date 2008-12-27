@@ -38,7 +38,7 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
      */
     private String searchBaseDn = ServerDNConstants.USER_EXAMPLE_COM_DN;
     
-    /** determines if the search base is pointer to a catelog or a single entry point */
+    /** determines if the search base is pointer to a catalog or a single entry point */
     private boolean catelogBased;
 
 
@@ -63,10 +63,10 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
 
 
     /**
-     * Gets true if this service uses a catelog for searching different
+     * Gets true if this service uses a catalog for searching different
      * regions of the DIT for its data.
      *
-     * @return true if the search base dn is for a catelog, false otherwise
+     * @return true if the search base dn is for a catalog, false otherwise
      */
     public boolean isCatelogBased()
     {
@@ -75,10 +75,10 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
 
 
     /**
-     * Set true if this service uses a catelog for searching different
+     * Set true if this service uses a catalog for searching different
      * regions of the DIT for its data.
      *
-     * @param  catelogBased if the search base dn is for a catelog, false otherwise
+     * @param  catelogBased if the search base dn is for a catalog, false otherwise
      */
     public void setCatelogBased( boolean catelogBased )
     {
