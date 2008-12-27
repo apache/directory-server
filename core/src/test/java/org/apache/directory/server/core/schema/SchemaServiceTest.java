@@ -83,7 +83,7 @@ public class SchemaServiceTest
         assertTrue( nameAttrs.contains( "sn" ) );
         assertTrue( nameAttrs.contains( "title" ) );
         assertTrue( nameAttrs.contains( "l" ) );
-        assertTrue( nameAttrs.contains( "apachePresence" ) );
+        assertTrue( nameAttrs.contains( "apacheExistance" ) );
         assertTrue( nameAttrs.contains( "cn" ) );
         assertTrue( nameAttrs.contains( "st" ) );
         assertTrue( nameAttrs.contains( "givenName" ) );
