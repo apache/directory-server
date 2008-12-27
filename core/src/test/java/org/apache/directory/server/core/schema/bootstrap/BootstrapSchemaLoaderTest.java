@@ -28,6 +28,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
@@ -112,7 +113,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
         loader.load( apacheSchema, registries, false );
 
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_N_DN_AT );
         assertNotNull( type );
 
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
@@ -131,7 +132,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
 
         loader.loadWithDependencies( schemas, registries );
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_N_DN_AT );
         assertNotNull( type );
 
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );

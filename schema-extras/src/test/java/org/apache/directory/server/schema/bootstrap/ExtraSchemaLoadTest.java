@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
@@ -138,7 +139,7 @@ public class ExtraSchemaLoadTest extends TestCase
         loader.load( apacheSchema, registries, false );
 
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_N_DN_AT );
         assertNotNull( type );
 
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
@@ -159,7 +160,7 @@ public class ExtraSchemaLoadTest extends TestCase
 
         loader.loadWithDependencies( schemas, registries );
         AttributeType type;
-        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_N_DN_AT );
         assertNotNull( type );
 
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
@@ -246,7 +247,7 @@ public class ExtraSchemaLoadTest extends TestCase
         type = registries.getAttributeTypeRegistry().lookup( "apacheAlias" );
         assertNotNull( type );
 
-        type = registries.getAttributeTypeRegistry().lookup( "apacheNdn" );
+        type = registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_N_DN_AT );
         assertNotNull( type );
 
         type = registries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
