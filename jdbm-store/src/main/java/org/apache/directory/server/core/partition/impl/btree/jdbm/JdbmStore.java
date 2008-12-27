@@ -323,9 +323,9 @@ public class JdbmStore<E> implements Store<E>
         if ( oneLevelIdx == null )
         {
             oneLevelIdx = new JdbmIndex<Long,E>();
-            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_HIERARCHY_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_HIERARCHY_OID, oneLevelIdx );
-            oneLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_HIERARCHY_OID ), workingDirectory );
+            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID, oneLevelIdx );
+            oneLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID ), workingDirectory );
         }
 
         if ( oneAliasIdx == null )

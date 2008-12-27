@@ -38,7 +38,7 @@
           <jdbmIndex attributeId="apacheNdn" cacheSize="100"/>
           <jdbmIndex attributeId="apacheUpdn" cacheSize="100"/>
           <jdbmIndex attributeId="apacheExistance" cacheSize="100"/>
-          <jdbmIndex attributeId="apacheHierarchy" cacheSize="100"/>
+          <jdbmIndex attributeId="apacheOneLevel" cacheSize="100"/>
           <jdbmIndex attributeId="apacheOneAlias" cacheSize="10"/>
           <jdbmIndex attributeId="apacheSubAlias" cacheSize="10"/>
           <jdbmIndex attributeId="apacheAlias" cacheSize="10"/>
@@ -59,7 +59,7 @@
           <jdbmIndex attributeId="apacheNdn" cacheSize="100"/>
           <jdbmIndex attributeId="apacheUpdn" cacheSize="100"/>
           <jdbmIndex attributeId="apacheExistance" cacheSize="100"/>
-          <jdbmIndex attributeId="apacheHierarchy" cacheSize="100"/>
+          <jdbmIndex attributeId="apacheOneLevel" cacheSize="100"/>
           <jdbmIndex attributeId="apacheOneAlias" cacheSize="10"/>
           <jdbmIndex attributeId="apacheSubAlias" cacheSize="10"/>
           <jdbmIndex attributeId="apacheAlias" cacheSize="10"/>

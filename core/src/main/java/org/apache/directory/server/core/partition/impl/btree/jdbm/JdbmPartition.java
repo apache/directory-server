@@ -36,7 +36,6 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -216,7 +215,7 @@ public class JdbmPartition extends BTreePartition
                 {
                     store.setPresenceIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_HIERARCHY_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID ) )
                 {
                     store.setOneLevelIndex( ( Index<Long,ServerEntry> ) index );
                 }

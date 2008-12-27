@@ -96,9 +96,9 @@ public interface ApacheSchemaConstants
     String APACHE_EXISTANCE_AT                      = "apacheExistance";
     String APACHE_EXISTANCE_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.3";
     
-    // ApacheHierarchy
-    String APACHE_HIERARCHY_AT                      = "apacheHierarchy";
-    String APACHE_HIERARCHY_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.4";
+    // ApacheOneLevel
+    String APACHE_ONE_LEVEL_AT                      = "apacheOneLevel";
+    String APACHE_ONE_LEVEL_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.4";
     
     // ApacheOneAlias
     String APACHE_ONE_ALIAS_AT                      = "apacheOneAlias";

@@ -68,7 +68,7 @@ public abstract class BTreePartition implements Partition
         Set<String> set = new HashSet<String>();
         set.add( ApacheSchemaConstants.APACHE_ALIAS_OID );
         set.add( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
-        set.add( ApacheSchemaConstants.APACHE_HIERARCHY_OID );
+        set.add( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
         set.add( ApacheSchemaConstants.APACHE_N_DN_OID );
         set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
         set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
