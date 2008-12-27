@@ -92,6 +92,7 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -1350,7 +1351,20 @@ public class DefaultDirectoryService implements DirectoryService
                 JdbmPartition btpconf = ( JdbmPartition ) partition;
                 for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
                 {
-                    String schemaName = dao.findSchema( index.getAttributeId() );
+                    String schemaName = null;
+                    
+                    try
+                    {
+                        // Try to retrieve the AT in the registries
+                        AttributeType at = registries.getAttributeTypeRegistry().lookup( index.getAttributeId() );
+                        schemaName = dao.findSchema( at.getOid() );
+                    }
+                    catch ( Exception e )
+                    {
+                        // It does not exists: just use the attribute ID
+                        schemaName = dao.findSchema( index.getAttributeId() );
+                    }
+                    
                     if ( schemaName == null )
                     {
                         throw new NamingException( "Index on unidentified attribute: " + index.toString() );
