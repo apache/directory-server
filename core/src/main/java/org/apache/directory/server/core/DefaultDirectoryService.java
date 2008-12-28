@@ -253,6 +253,9 @@ public class DefaultDirectoryService implements DirectoryService
     private int maxPDUSize = Integer.MAX_VALUE;
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -444,6 +447,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         this.shutdownHookEnabled = shutdownHookEnabled;
@@ -877,7 +883,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Set the referralManager
-     * 
+     * @org.apache.xbean.Property hidden="true"
      * @param referralManager The initialized referralManager
      */
     public void setReferralManager( ReferralManager referralManager )
@@ -895,6 +901,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setRegistries( Registries registries )
     {
         this.registries = registries;
@@ -907,6 +916,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setSchemaService( SchemaService schemaService )
     {
         this.schemaService = schemaService;
@@ -1528,6 +1540,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
     public void setEventService( EventService eventService )
     {
         this.eventService = eventService;
