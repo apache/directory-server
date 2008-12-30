@@ -62,7 +62,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,8 +137,6 @@ public class ModifyReplaceIT
             ldapService.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.addExtendedOperationHandler( new StartTlsHandler() );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

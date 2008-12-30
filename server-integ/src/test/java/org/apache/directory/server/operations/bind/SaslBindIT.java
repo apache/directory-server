@@ -71,7 +71,6 @@ import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,9 +153,7 @@ public class SaslBindIT
              LdapService ldapService = new LdapService();
              int port = AvailablePortFinder.getNextAvailable( 1024 );
              ldapService.setTcpTransport( new TcpTransport( port ) );
-             ldapService.getTcpTransport().setNbThreads( 3 );
              ldapService.setDirectoryService( service );
-             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
              ldapService.setAllowAnonymousAccess( false );
              ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

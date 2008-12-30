@@ -62,7 +62,6 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
@@ -125,8 +124,6 @@ public class MiscBindIT
             ldapService.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.setAllowAnonymousAccess( true );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

@@ -51,7 +51,6 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,10 +144,8 @@ public class KeyDerivationServiceIT
              ldapService.setDirectoryService( service );
              int port = AvailablePortFinder.getNextAvailable( 1024 );
              ldapService.setTcpTransport( new TcpTransport( port ) );
-             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
              ldapService.setAllowAnonymousAccess( false );
              ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-             ldapService.getTcpTransport().setNbThreads( 3 );
 
              // Setup SASL Mechanisms
              

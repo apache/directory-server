@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,8 +96,6 @@ public class StoredProcedureIT
             ldapService.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.setEnabled( true );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
