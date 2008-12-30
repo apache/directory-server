@@ -136,9 +136,9 @@ public class ModifyReplaceIT
 
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
-            ldapService.setSocketAcceptor( new NioSocketAcceptor() );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             ldapService.setTcpTransport( new TcpTransport( port ) );
+            ldapService.setSocketAcceptor( new NioSocketAcceptor() );
             ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.addExtendedOperationHandler( new StartTlsHandler() );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
