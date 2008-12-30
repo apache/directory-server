@@ -21,7 +21,6 @@ package org.apache.directory.server.dns;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
@@ -80,8 +79,7 @@ public class DnsServer extends DirectoryBackedService
         if ( getDatagramAcceptor() != null )
         {
             getDatagramAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind( 
-                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getDatagramAcceptor().bind();
         }
 
         if ( getSocketAcceptor() != null )
@@ -89,8 +87,7 @@ public class DnsServer extends DirectoryBackedService
             getSocketAcceptor().setCloseOnDeactivation( false );
             getSocketAcceptor().setReuseAddress( true );
             getSocketAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getSocketAcceptor().bind(
-                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
+            getSocketAcceptor().bind();
         }
         
         LOG.info( "DSN service started." );
@@ -101,13 +98,12 @@ public class DnsServer extends DirectoryBackedService
     public void stop() {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( 
-                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getDatagramAcceptor().dispose();
         }
+        
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( 
-                new InetSocketAddress( getTcpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getSocketAcceptor().dispose();
         }
         
         LOG.info( "DSN service stopped." );

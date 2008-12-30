@@ -464,7 +464,6 @@ public class KdcServer extends DirectoryBackedService
             
             // Bind to the configured address
             udpAcceptor.bind();
-            System.out.println( "Bound UDP <" + udpAcceptor.getDefaultLocalAddress() + ">" );
         }
 
         Transport tcpTransport = getTcpTransport();
@@ -497,7 +496,6 @@ public class KdcServer extends DirectoryBackedService
             
             // Bind to the configured address
             tcpAcceptor.bind();
-            System.out.println( "Bound TCP <" + tcpAcceptor.getDefaultLocalAddress() + ">" );
         }
         
         LOG.info( "Kerberos service started." );
@@ -509,12 +507,11 @@ public class KdcServer extends DirectoryBackedService
     {
         if ( getDatagramAcceptor() != null )
         {
-            System.out.println( "Unbinding UDP <" + getDatagramAcceptor().getDefaultLocalAddress() + ">" );
             getDatagramAcceptor().dispose();
         }
+        
         if ( getSocketAcceptor() != null )
         {
-            System.out.println( "Unbinding TCP <" + getSocketAcceptor().getDefaultLocalAddress() + ">" );
             getSocketAcceptor().dispose();
         }
         

@@ -32,7 +32,6 @@ import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 
 /**
@@ -137,14 +136,12 @@ public class NtpServer extends AbstractProtocolService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( 
-                getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getDatagramAcceptor().dispose();
         }
         
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( 
-                getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
+            getSocketAcceptor().dispose();
         }
     }
     

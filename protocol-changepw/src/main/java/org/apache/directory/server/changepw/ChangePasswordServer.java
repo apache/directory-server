@@ -21,7 +21,6 @@ package org.apache.directory.server.changepw;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -271,8 +270,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         if ( getDatagramAcceptor() != null )
         {
             getDatagramAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind( 
-                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getDatagramAcceptor().bind();
         }
 
         if ( getSocketAcceptor() != null )
@@ -280,8 +278,7 @@ public class ChangePasswordServer extends DirectoryBackedService
             getSocketAcceptor().setCloseOnDeactivation( false );
             getSocketAcceptor().setReuseAddress( true );
             getSocketAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getSocketAcceptor().bind( 
-                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
+            getSocketAcceptor().bind();
         }
         
         LOG.info( "ChangePassword service started." );
@@ -293,13 +290,11 @@ public class ChangePasswordServer extends DirectoryBackedService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( 
-                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
+            getDatagramAcceptor().dispose(); 
         }
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( 
-                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
+            getSocketAcceptor().dispose(); 
         }
 
         LOG.info( "ChangePassword service stopped." );

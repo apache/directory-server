@@ -407,7 +407,7 @@ public class LdapService extends DirectoryBackedService
                 return;
             }
 
-            getSocketAcceptor().unbind();
+            getSocketAcceptor().dispose();
 
             if ( LOG.isInfoEnabled() )
             {
