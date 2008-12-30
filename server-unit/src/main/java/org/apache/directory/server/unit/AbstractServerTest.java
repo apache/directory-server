@@ -54,6 +54,7 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -252,12 +253,13 @@ public abstract class AbstractServerTest extends TestCase
         start++;
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
-        socketAcceptor = new NioSocketAcceptor();
+        port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapService = new LdapService();
+        ldapService.setTcpTransport( new TcpTransport( port ) );
+        ldapService.getTcpTransport().setNbThreads( 3 );
+        socketAcceptor = new NioSocketAcceptor();
         ldapService.setSocketAcceptor( socketAcceptor );
         ldapService.setDirectoryService( directoryService );
-        ldapService.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
-        ldapService.setNbTcpThreads( 3 );
 
         setupSaslMechanisms( ldapService );
 

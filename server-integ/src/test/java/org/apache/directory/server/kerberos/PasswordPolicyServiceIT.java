@@ -44,6 +44,7 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
@@ -131,9 +132,10 @@ public class PasswordPolicyServiceIT
 
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
+            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            ldapService.setTcpTransport( new TcpTransport( port ) );
             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapService.setNbTcpThreads( 3 );
+            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.setAllowAnonymousAccess( false );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
@@ -173,7 +175,7 @@ public class PasswordPolicyServiceIT
         Attributes attrs;
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getIpPort() + "/dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getPort() + "/dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

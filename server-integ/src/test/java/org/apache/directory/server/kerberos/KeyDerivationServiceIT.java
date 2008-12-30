@@ -49,6 +49,7 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
@@ -142,11 +143,12 @@ public class KeyDerivationServiceIT
 
              LdapService ldapService = new LdapService();
              ldapService.setDirectoryService( service );
+             int port = AvailablePortFinder.getNextAvailable( 1024 );
+             ldapService.setTcpTransport( new TcpTransport( port ) );
              ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-             ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
              ldapService.setAllowAnonymousAccess( false );
              ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-             ldapService.setNbTcpThreads( 3 );
+             ldapService.getTcpTransport().setNbThreads( 3 );
 
              // Setup SASL Mechanisms
              
@@ -225,7 +227,7 @@ public class KeyDerivationServiceIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -296,7 +298,7 @@ public class KeyDerivationServiceIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -434,7 +436,7 @@ public class KeyDerivationServiceIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -564,7 +566,7 @@ public class KeyDerivationServiceIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getIpPort() + "/ou=users,dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getPort() + "/ou=users,dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

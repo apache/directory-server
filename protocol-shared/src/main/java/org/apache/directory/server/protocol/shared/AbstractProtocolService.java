@@ -20,6 +20,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
 
@@ -49,49 +51,53 @@ public abstract class AbstractProtocolService implements ProtocolService
     /** The service name */
     private String serviceName;
     
+    protected TcpTransport tcpTransport;
+    
+    protected UdpTransport udpTransport;
+    
     /** The server IP address */
-    private String ipAddress;
+    //private String ipAddress;
     
     /** The service's port, if there is only one (TCP or UDP) */
-    private int ipPort = -1;
+    //private int ipPort = -1;
     
     /** The TCP port, if defined. */
-    private int tcpPort = -1;
+    //private int tcpPort = -1;
     
     /** The UDP port, if defined. */
-    private int udpPort = -1;
+    //private int udpPort = -1;
     
     private Set<TransportProtocol> transportProtocols;
     
     /** The IoAcceptor used to accept UDP requests */
-    private DatagramAcceptor datagramAcceptor;
+    //private DatagramAcceptor datagramAcceptor;
     
     /** The IoAcceptor used to accept TCP requests */
-    private SocketAcceptor socketAcceptor;
+    //private SocketAcceptor socketAcceptor;
     
     /** The number of threads to use for the IoAcceptor executor */
-    private int nbThreads;
+    //private int nbThreads;
     
     /** 
      * The number of threads to use for the TCP transport
      * protocol based IoAcceptor executor 
      **/
-    private int nbTcpThreads;
+    //private int nbTcpThreads;
     
     /** 
      * The number of threads to use for the UDP transport
      * protocol based IoAcceptor executor 
      **/
-    private int nbUdpThreads;
+    //private int nbUdpThreads;
     
     /** The backlog for all the transport services */
-    private int ipBacklog;
+    //private int ipBacklog;
     
     /** The backlog for the TCP transport services */
-    private int tcpBacklog;
+    //private int tcpBacklog;
     
     /** The backlog for the UDP transport services */
-    private int udpBacklog;
+    //private int udpBacklog;
     
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
@@ -177,6 +183,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /*
     public String getIpAddress()
     {
         return ipAddress;
@@ -191,7 +198,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
-     */
+     *
     public int getIpPort()
     {
         return ipPort;
@@ -200,7 +207,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
-     */
+     *
     public int getTcpPort()
     {
         return tcpPort;
@@ -209,16 +216,16 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
-     */
+     *
     public int getUdpPort()
     {
         return udpPort;
     }
-
+    */
 
     /**
      * {@inheritDoc}
-     */
+     *
     public void setIpPort( int ipPort )
     {
         if ( ( ipPort < 0 ) || ( ipPort > 65535 ) )
@@ -236,7 +243,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
-     */
+     *
     public void setTcpPort( int tcpPort )
     {
         if ( ( tcpPort < 0 ) || ( tcpPort > 65535 ) )
@@ -250,7 +257,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     
     /**
      * {@inheritDoc}
-     */
+     *
     public void setUdpPort( int udpPort )
     {
         if ( ( udpPort < 0 ) || ( udpPort > 65535 ) )
@@ -265,6 +272,45 @@ public abstract class AbstractProtocolService implements ProtocolService
     public Set<TransportProtocol> getTransportProtocols()
     {
         return transportProtocols;
+    }
+    */
+    
+    
+    /**
+     * @return the TCP transport
+     */
+    public TcpTransport getTcpTransport()
+    {
+        return tcpTransport;
+    }
+
+
+    /**
+     * Set the underlying TCP transport
+     * @param transport The TCP transport
+     */
+    public void setTcpTransport( TcpTransport transport )
+    {
+        tcpTransport = transport;
+    }
+    
+    
+    /**
+     * Set the underlying UDP transport
+     * @param transport The UDP transport
+     */
+    public void setUdpTransport( UdpTransport transport )
+    {
+        udpTransport = transport;
+    }
+    
+    
+    /**
+     * @return the UDP transport
+     */
+    public UdpTransport getUdpTransport()
+    {
+        return udpTransport;
     }
 
 
@@ -284,7 +330,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public DatagramAcceptor getDatagramAcceptor()
     {
-        return datagramAcceptor;
+        return (DatagramAcceptor)udpTransport.getAcceptor();
     }
 
 
@@ -294,7 +340,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
     {
-        this.datagramAcceptor = datagramAcceptor;
+        udpTransport.setAcceptor( datagramAcceptor );
     }
 
 
@@ -303,7 +349,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public SocketAcceptor getSocketAcceptor()
     {
-        return socketAcceptor;
+        return (SocketAcceptor)tcpTransport.getAcceptor();
     }
 
 
@@ -313,7 +359,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public void setSocketAcceptor( SocketAcceptor socketAcceptor )
     {
-        this.socketAcceptor = socketAcceptor;
+        tcpTransport.setAcceptor( socketAcceptor );
     }
 
     
@@ -322,7 +368,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      * used if no specific transport protocol is defined, and will be
      * overloaded by the specific NbUdpThreads or nbTcpThreads if those
      * transport protocols are defined.
-     */
+     *
     public int getNbThreads() 
     {
         return nbThreads;
@@ -332,7 +378,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * @return The number of thread used in the IoAcceptor executor for
      * a TCP transport protocol based Acceptor.
-     */
+     *
     public int getNbTcpThreads() 
     {
         return nbTcpThreads;
@@ -342,7 +388,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * @return The number of thread used in the IoAcceptor executor for
      * a UDP transport protocol based Acceptor.
-     */
+     *
     public int getNbUdpThreads() 
     {
         return nbUdpThreads;
@@ -353,7 +399,7 @@ public abstract class AbstractProtocolService implements ProtocolService
      * @param nbThreads The number of thread to affect to the IoAcceptor
      * executor. This number will be injected into the UDP and TCP
      * nbThreads value.
-     */
+     *
     public void setNbThreads(int nbThreads) 
     {
         this.nbThreads = nbThreads;
@@ -365,7 +411,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * @param nbThreads The number of thread to affect to the 
      * TCP transport protocol based IoAcceptor executor
-     */
+     *
     public void setNbTcpThreads(int nbTcpThreads) 
     {
         this.nbTcpThreads = nbTcpThreads;
@@ -375,7 +421,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * @param nbThreads The number of thread to affect to the 
      * UDP transport protocol based IoAcceptor executor
-     */
+     *
     public void setNbUdpThreads(int nbUdpThreads) 
     {
         this.nbUdpThreads = nbUdpThreads;
@@ -384,7 +430,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @return the ipBacklog
-     */
+     *
     public int getIpBacklog() {
         return ipBacklog;
     }
@@ -392,7 +438,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @param ipBacklog the ipBacklog to set
-     */
+     *
     public void setIpBacklog(int ipBacklog) {
         if ( ipBacklog < 0  )
         {
@@ -409,7 +455,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @return the tcpBacklog
-     */
+     *
     public int getTcpBacklog() {
         return tcpBacklog;
     }
@@ -417,7 +463,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @param tcpBacklog the tcpBacklog to set
-     */
+     *
     public void setTcpBacklog(int tcpBacklog) {
         this.tcpBacklog = tcpBacklog;
     }
@@ -425,7 +471,7 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @return the udpBacklog
-     */
+     *
     public int getUdpBacklog() {
         return udpBacklog;
     }
@@ -433,8 +479,8 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * @param udpBacklog the udpBacklog to set
-     */
+     *
     public void setUdpBacklog(int udpBacklog) {
         this.udpBacklog = udpBacklog;
-    }
+    }*/
 }

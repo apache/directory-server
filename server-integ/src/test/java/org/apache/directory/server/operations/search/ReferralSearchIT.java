@@ -130,14 +130,14 @@ public class ReferralSearchIT
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: europ\n" +
-        "ref: ldap://localhost:" + ldapService.getIpPort() + "/c=france,ou=system\n\n" +
+        "ref: ldap://localhost:" + ldapService.getPort() + "/c=france,ou=system\n\n" +
 
         "dn: c=america,ou=Countries,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: referral\n" +
         "objectClass: extensibleObject\n" +
         "c: america\n" +
-        "ref: ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system\n\n";
+        "ref: ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system\n\n";
 
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
         while ( reader.hasNext() )
@@ -314,7 +314,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??sub", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??sub", referral );
         }
     }
 
@@ -342,7 +342,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
     }
 
@@ -371,7 +371,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
         Control manageDsaItControl = new ManageReferralControl();
@@ -392,7 +392,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
     }
@@ -422,7 +422,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
         Control manageDsaItControl = new ManageReferralControl();
@@ -443,7 +443,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
     }
@@ -473,7 +473,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
         Control manageDsaItControl = new ManageReferralControl();
@@ -494,7 +494,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??base", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??base", referral );
         }
         
     }
@@ -523,7 +523,7 @@ public class ReferralSearchIT
         catch ( ReferralException re )
         {
             String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + ldapService.getIpPort() + "/c=usa,ou=system??one", referral );
+            assertEquals( "ldap://localhost:" + ldapService.getPort() + "/c=usa,ou=system??one", referral );
         }
     }
 }

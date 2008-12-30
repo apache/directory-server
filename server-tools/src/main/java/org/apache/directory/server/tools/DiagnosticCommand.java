@@ -130,7 +130,7 @@ public class DiagnosticCommand extends ToolCommand
         }
         else if ( getApacheDS() != null )
         {
-            port = getApacheDS().getLdapService().getIpPort();
+            port = getApacheDS().getLdapService().getPort();
 
             if ( isDebugEnabled() )
             {

@@ -128,82 +128,13 @@ public interface ProtocolService
 
 
     /**
-     * Gets the IP address of this service.
-     *
-     * @return the IP address for this service.
-     */
-    String getIpAddress();
-
-
-    /**
-     * Gets the IP address of this service.
-     *
-     * @param ipAddress the Internet Protocol address for this service.
-     */
-    void setIpAddress( String ipAddress );
-
-
-    /**
-     * Gets the IP port for this service. This is just a temporary
-     * storage for the service port, as we will move it to either
-     * TCP or UDP port.
-     *
-     * @return the IP port for this service
-     */
-    int getIpPort();
-
-
-    /**
-     * Gets the UDP port for this service.
-     *
-     * @return the UDP port for this service
-     */
-    int getUdpPort();
-
-
-    /**
-     * Gets the TCP port for this service.
-     *
-     * @return the TCP port for this service
-     */
-    int getTcpPort();
-
-
-    /**
-     * Sets the IP port for this service.
-     *
-     * @param ipPort the ip port for this service
-     * @throws IllegalArgumentException if the port number is not within a valid range
-     */
-    void setIpPort( int ipPort );
-
-
-    /**
-     * Sets the UDP port for this service.
-     *
-     * @param ipPort the udp port for this service
-     * @throws IllegalArgumentException if the port number is not within a valid range
-     */
-    void setUdpPort( int udpPort );
-
-
-    /**
-     * Sets the TCP port for this service.
-     *
-     * @param tcpPort the tcp port for this service
-     * @throws IllegalArgumentException if the port number is not within a valid range
-     */
-    void setTcpPort( int tcpPort );
-
-
-    /**
      * Gets the transport protocols used by this service. At this point services
      * which support more than one transport are configured to bind to that transport
      * on the same port.
      *
      * @return the transport protocols used by this service
      */
-    Set<TransportProtocol> getTransportProtocols();
+    //Set<TransportProtocol> getTransportProtocols();
 
 
     /**

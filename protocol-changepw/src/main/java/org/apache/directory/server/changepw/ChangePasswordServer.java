@@ -33,6 +33,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +61,7 @@ public class ChangePasswordServer extends DirectoryBackedService
     private static final String REALM_DEFAULT = "EXAMPLE.COM";
 
     /** The default change password port. */
-    private static final int IP_PORT_DEFAULT = 464;
+    private static final int DEFAULT_IP_PORT = 464;
 
     /** The default encryption types. */
     public static final String[] ENCRYPTION_TYPES_DEFAULT = new String[]
@@ -117,9 +119,10 @@ public class ChangePasswordServer extends DirectoryBackedService
     public ChangePasswordServer()
     {
         super.setServiceName( SERVICE_NAME_DEFAULT );
-        super.setIpPort( IP_PORT_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
+        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
+        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
 
         prepareEncryptionTypes();
     }
@@ -268,7 +271,8 @@ public class ChangePasswordServer extends DirectoryBackedService
         if ( getDatagramAcceptor() != null )
         {
             getDatagramAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            getDatagramAcceptor().bind( 
+                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
 
         if ( getSocketAcceptor() != null )
@@ -276,7 +280,8 @@ public class ChangePasswordServer extends DirectoryBackedService
             getSocketAcceptor().setCloseOnDeactivation( false );
             getSocketAcceptor().setReuseAddress( true );
             getSocketAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            getSocketAcceptor().bind( 
+                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
         }
         
         LOG.info( "ChangePassword service started." );
@@ -288,11 +293,13 @@ public class ChangePasswordServer extends DirectoryBackedService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( 
+                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( 
+                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
         }
 
         LOG.info( "ChangePassword service stopped." );

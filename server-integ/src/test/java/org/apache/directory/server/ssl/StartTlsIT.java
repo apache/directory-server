@@ -164,7 +164,7 @@ public class StartTlsIT
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         
         // Must use the name of the server that is found in its certificate?
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
 
         // Create initial context
         LOG.debug( "About to get initial context" );
@@ -364,7 +364,7 @@ public class StartTlsIT
             env.put( "java.naming.security.authentication", "simple" );
             
             // Must use the name of the server that is found in its certificate?
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getIpPort() );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
     
             // Create initial context
             LOG.debug( "About to get initial context" );

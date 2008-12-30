@@ -255,7 +255,7 @@ public class CompareIT
     {
         ldapService.getDirectoryService().setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
-        conn.connect( "localhost", ldapService.getIpPort() );
+        conn.connect( "localhost", ldapService.getPort() );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
         
         try

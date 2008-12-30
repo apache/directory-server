@@ -27,6 +27,8 @@ import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,7 @@ public class DnsServer extends DirectoryBackedService
     private static final Logger LOG = LoggerFactory.getLogger( DnsServer.class.getName() );
     
     /** The default IP port. */
-    private static final int IP_PORT_DEFAULT = 53;
+    private static final int DEFAULT_IP_PORT = 53;
 
     /** The default service pid. */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.dns";
@@ -61,9 +63,10 @@ public class DnsServer extends DirectoryBackedService
      */
     public DnsServer()
     {
-        super.setIpPort( IP_PORT_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
+        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
+        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
     }
 
 
@@ -77,7 +80,8 @@ public class DnsServer extends DirectoryBackedService
         if ( getDatagramAcceptor() != null )
         {
             getDatagramAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            getDatagramAcceptor().bind( 
+                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
 
         if ( getSocketAcceptor() != null )
@@ -85,7 +89,8 @@ public class DnsServer extends DirectoryBackedService
             getSocketAcceptor().setCloseOnDeactivation( false );
             getSocketAcceptor().setReuseAddress( true );
             getSocketAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ) );
+            getSocketAcceptor().bind(
+                new InetSocketAddress( getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
         }
         
         LOG.info( "DSN service started." );
@@ -96,11 +101,13 @@ public class DnsServer extends DirectoryBackedService
     public void stop() {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( 
+                new InetSocketAddress( getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( 
+                new InetSocketAddress( getTcpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
         
         LOG.info( "DSN service stopped." );

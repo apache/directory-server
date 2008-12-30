@@ -21,11 +21,14 @@ package org.apache.directory.server.dns;
 
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
@@ -70,7 +73,8 @@ public class Main
         dnsConfiguration.setSocketAcceptor( socketAcceptor );
         dnsConfiguration.setDirectoryService( directoryService );
         dnsConfiguration.setEnabled( true );
-        dnsConfiguration.setIpPort( 10053 );
+        dnsConfiguration.setTcpTransport( new TcpTransport( 10053 ) );
+        dnsConfiguration.setUdpTransport( new UdpTransport( 10053 ) );
         dnsConfiguration.start();
     }
 

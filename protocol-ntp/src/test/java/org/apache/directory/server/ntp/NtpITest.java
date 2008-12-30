@@ -21,12 +21,15 @@ package org.apache.directory.server.ntp;
 
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
@@ -52,12 +55,12 @@ public class NtpITest extends TestCase
     {
         NioDatagramAcceptor datagramAcceptor = new NioDatagramAcceptor( null );
         datagramAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
-        //datagramAcceptor.getFilterChain().addlast( "decoder", )
         ntpConfig = new NtpServer();
+        port = AvailablePortFinder.getNextAvailable( 10123 );
+        ntpConfig.setTcpTransport( new TcpTransport( port ) );
+        ntpConfig.setUdpTransport( new UdpTransport( port ) );
         ntpConfig.setDatagramAcceptor( datagramAcceptor );
         ntpConfig.setEnabled( true );
-        port = AvailablePortFinder.getNextAvailable( 10123 );
-        ntpConfig.setIpPort( port );
         ntpConfig.start();
 
     }

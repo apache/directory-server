@@ -36,6 +36,7 @@ import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.ssl.SSLSocketFactory;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -90,9 +91,10 @@ public class LdapsIT
 
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
+            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            ldapService.setTcpTransport( new TcpTransport( port ) );
             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapService.setNbTcpThreads( 3 );
+            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.setEnabled( true );
             ldapService.setEnableLdaps( true );
             ldapService.setConfidentialityRequired( true );
@@ -130,7 +132,7 @@ public class LdapsIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getIpPort() + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapService.getPort() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );

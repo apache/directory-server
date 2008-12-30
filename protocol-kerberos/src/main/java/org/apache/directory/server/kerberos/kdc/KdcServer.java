@@ -35,6 +35,9 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -157,9 +160,11 @@ public class KdcServer extends DirectoryBackedService
     public KdcServer()
     {
         super.setServiceName( DEFAULT_NAME );
-        super.setIpPort( DEFAULT_IP_PORT );
         super.setServiceId( DEFAULT_PID );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
+        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
+        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
+        
 
         prepareEncryptionTypes();
     }
@@ -440,11 +445,13 @@ public class KdcServer extends DirectoryBackedService
         // TODO - for now ignoring this catelog crap
         store = new DirectoryPrincipalStore( getDirectoryService() );
         
+        Transport udpTransport = getTcpTransport();
+
         // Kerberos can use UDP or TCP
-        if ( getUdpPort() != -1 )
+        if ( udpTransport != null )
         {
             // Actually, this is not used for Datagram. But it should !
-            int nbUdpThreads = getNbUdpThreads();
+            //int nbUdpThreads = getNbUdpThreads();
             
             // Create the acceptor
             DatagramAcceptor udpAcceptor = new NioDatagramAcceptor();
@@ -466,13 +473,15 @@ public class KdcServer extends DirectoryBackedService
             udpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
             
             // Bind to the configured address
-            udpAcceptor.bind( new InetSocketAddress( getUdpPort() ) );
+            udpAcceptor.bind( new InetSocketAddress( udpTransport.getPort() ) );
         }
 
-        if ( getTcpPort() != -1 )
+        Transport tcpTransport = getTcpTransport();
+
+        if ( tcpTransport != null )
         {
             // First, create the acceptor with the configured number of threads (if defined)
-            int nbTcpThreads = getNbTcpThreads();
+            int nbTcpThreads = tcpTransport.getNbThreads();
             SocketAcceptor tcpAcceptor;
             
             if ( nbTcpThreads > 0 )
@@ -509,7 +518,7 @@ public class KdcServer extends DirectoryBackedService
             tcpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
             
             // Bind to the configured address
-            tcpAcceptor.bind( new InetSocketAddress( getTcpPort() ) );
+            tcpAcceptor.bind( new InetSocketAddress( tcpTransport.getPort() ) );
         }
         
         LOG.info( "Kerberos service started." );
@@ -521,11 +530,11 @@ public class KdcServer extends DirectoryBackedService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( getUdpTransport().getPort() ));
         }
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( getTcpTransport().getPort() ));
         }
         
         LOG.info( "Kerberos service stopped." );

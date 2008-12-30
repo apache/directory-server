@@ -58,6 +58,7 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
@@ -136,8 +137,9 @@ public class ModifyReplaceIT
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
             ldapService.setSocketAcceptor( new NioSocketAcceptor() );
-            ldapService.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-            ldapService.setNbTcpThreads( 3 );
+            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            ldapService.setTcpTransport( new TcpTransport( port ) );
+            ldapService.getTcpTransport().setNbThreads( 3 );
             ldapService.addExtendedOperationHandler( new StartTlsHandler() );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 

@@ -506,7 +506,7 @@ public class AddIT
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:"+ ldapService.getIpPort() +"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:"+ ldapService.getPort() +"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry

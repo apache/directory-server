@@ -215,7 +215,6 @@ public class LdapService extends DirectoryBackedService
      */
     public LdapService()
     {
-        super.setTcpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
@@ -355,7 +354,7 @@ public class LdapService extends DirectoryBackedService
         // We use the same number of thread than the number of IoProcessor
         // (NOTE : this has to be double checked)
         ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
-                new ExecutorFilter( new OrderedThreadPoolExecutor( getNbTcpThreads() ), 
+                new ExecutorFilter( new OrderedThreadPoolExecutor( getTcpTransport().getNbThreads() ), 
                     IoEventType.WRITE ) );
 
         /*
@@ -365,7 +364,10 @@ public class LdapService extends DirectoryBackedService
          */ 
         installDefaultHandlers();      
 
-        startNetwork( getIpAddress(), getTcpPort(), getTcpBacklog(), chain );
+        startNetwork( 
+            getTcpTransport().getAddress(), 
+            getTcpTransport().getPort(), 
+            getTcpTransport().getBackLog(), chain );
         
         started = true;
         
@@ -403,15 +405,15 @@ public class LdapService extends DirectoryBackedService
             }
             catch ( IllegalArgumentException e )
             {
-                LOG.warn( "Seems like the LDAP service (" + getIpPort() + ") has already been unbound." );
+                LOG.warn( "Seems like the LDAP service (" + getPort() + ") has already been unbound." );
                 return;
             }
 
-            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
+            getSocketAcceptor().unbind( new InetSocketAddress( getPort() ) );
 
             if ( LOG.isInfoEnabled() )
             {
-                LOG.info( "Unbind of an LDAP service (" + getIpPort() + ") is complete." );
+                LOG.info( "Unbind of an LDAP service (" + getPort() + ") is complete." );
                 LOG.info( "Sending notice of disconnect to existing clients sessions." );
             }
 
@@ -474,7 +476,7 @@ public class LdapService extends DirectoryBackedService
         try
         {
             // First, create the acceptor with the configured number of threads (if defined)
-            int nbTcpThreads = getNbTcpThreads();
+            int nbTcpThreads = getTcpTransport().getNbThreads();
             SocketAcceptor acceptor;
             
             if ( nbTcpThreads > 0 )
@@ -1131,6 +1133,16 @@ public class LdapService extends DirectoryBackedService
     public LdapRequestHandler<UnbindRequest> getUnbindHandler()
     {
         return unbindHandler;
+    }
+    
+    
+    /**
+     * @return The underlying TCP transport port, or -1 if no transport has been 
+     * initialized
+     */
+    public int getPort()
+    {
+        return getTcpTransport() == null ? -1 : getTcpTransport().getPort();
     }
 
 

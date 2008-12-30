@@ -23,6 +23,9 @@ package org.apache.directory.server.ntp;
 import org.apache.directory.server.ntp.protocol.NtpProtocolCodecFactory;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -66,7 +69,6 @@ public class NtpServer extends AbstractProtocolService
      */
     public NtpServer()
     {
-        super.setIpPort( IP_PORT_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
@@ -87,10 +89,12 @@ public class NtpServer extends AbstractProtocolService
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
         
-        if ( getUdpPort() > 0 )
+        Transport udpTransport = getTcpTransport();
+        
+        if ( udpTransport != null )
         {
             // We have to create a DatagramAcceptor
-            DatagramAcceptor acceptor = new  NioDatagramAcceptor();
+            DatagramAcceptor acceptor = new NioDatagramAcceptor();
             setDatagramAcceptor( (NioDatagramAcceptor)acceptor );
         
             // Set the handler
@@ -101,12 +105,14 @@ public class NtpServer extends AbstractProtocolService
     
             // Inject the chain
             acceptor.setFilterChainBuilder( ntpChain );
-                
+            
             // Start the listener
-            acceptor.bind( new InetSocketAddress( getUdpPort() ) );
+            acceptor.bind( new InetSocketAddress( udpTransport.getAddress(), udpTransport.getPort() ) );
         }
+
+        Transport tcpTransport = getTcpTransport();
         
-        if ( getTcpPort() > 0 )
+        if ( tcpTransport != null )
         {
             // It's a SocketAcceptor
             SocketAcceptor acceptor = new NioSocketAcceptor();
@@ -127,9 +133,12 @@ public class NtpServer extends AbstractProtocolService
             acceptor.setFilterChainBuilder( ntpChain );
 
             setSocketAcceptor( acceptor );
-            
+
+            // Set the backlog size
+            acceptor.setBacklog( tcpTransport.getBackLog() );
+
             // Start the listener
-            acceptor.bind( new InetSocketAddress( getTcpPort() ) );
+            acceptor.bind( new InetSocketAddress( tcpTransport.getAddress(), tcpTransport.getPort() ) );
         }
     }
 
@@ -138,12 +147,14 @@ public class NtpServer extends AbstractProtocolService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( 
+                getUdpTransport().getAddress(), getUdpTransport().getPort() ) );
         }
         
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( 
+                getTcpTransport().getAddress(), getTcpTransport().getPort() ) );
         }
     }
     
@@ -157,14 +168,14 @@ public class NtpServer extends AbstractProtocolService
         
         sb.append( "NTPServer[" ).append( getServiceName() ).append( "] :" ).append( '\n' );
         
-        if ( getUdpPort() > 0 )
+        if ( getUdpTransport() != null )
         {
-            sb.append( "  Listening on UDP:" ).append( getUdpPort() ).append( '\n' );
+            sb.append( "  Listening on UDP:" ).append( getUdpTransport().getPort() ).append( '\n' );
         }
 
-        if ( getTcpPort() > 0 )
+        if ( getTcpTransport() != null )
         {
-            sb.append( "  Listening on TCP:" ).append( getTcpPort() ).append( '\n' );
+            sb.append( "  Listening on TCP:" ).append( getTcpTransport().getPort() ).append( '\n' );
         }
         
         return sb.toString();
