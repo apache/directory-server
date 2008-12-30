@@ -38,6 +38,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -72,6 +73,16 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     }
 
 
+    /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
     /**
      * Tests when the KDC configuration requires pre-authentication by encrypted
      * timestamp that an AS_REQ without pre-authentication is rejected with the

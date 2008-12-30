@@ -26,8 +26,6 @@ import java.security.SecureRandom;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
@@ -70,7 +68,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.types.Principa
 
 
  */
-public abstract class AbstractTicketGrantingServiceTest extends TestCase
+public abstract class AbstractTicketGrantingServiceTest
 {
     protected CipherTextHandler lockBox;
     protected static final SecureRandom random = new SecureRandom();

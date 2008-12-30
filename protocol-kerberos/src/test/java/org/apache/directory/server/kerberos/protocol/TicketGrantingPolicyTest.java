@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -40,6 +41,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -59,7 +64,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Creates a new instance of {@link TicketGrantingPolicyTest}.
      */
-    public TicketGrantingPolicyTest()
+    @Before
+    public void setUp() throws IOException
     {
         config = new KdcServer();
 
@@ -77,11 +83,22 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
 
     /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
+    /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwardable tickets fail with the correct error message.
      *
      * @throws Exception
      */
+    @Test
     public void testForwardableTicket() throws Exception
     {
         // Deny FORWARDABLE tickets in policy.
@@ -131,6 +148,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testForwardedTicket() throws Exception
     {
         // Deny FORWARDABLE tickets in policy.
@@ -180,6 +198,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testForwardedNoAddressesTicket() throws Exception
     {
         // Deny empty addresses tickets in policy.
@@ -234,6 +253,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testProxiableTicket() throws Exception
     {
         // Deny PROXIABLE tickets in policy.
@@ -283,6 +303,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testProxyTicket() throws Exception
     {
         // Deny PROXIABLE tickets in policy.
@@ -337,6 +358,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testProxyNoAddressesTicket() throws Exception
     {
         // Deny empty addresses tickets in policy.
@@ -391,6 +413,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testAllowPostdate() throws Exception
     {
         // Deny ALLOW_POSTDATE tickets in policy.
@@ -440,6 +463,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testPostdated() throws Exception
     {
         // Deny POSTDATED tickets in policy.
@@ -489,6 +513,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testValidateInvalidTicket() throws Exception
     {
         // Deny VALIDATE tickets in policy.
@@ -539,6 +564,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testRenewTicket() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
@@ -582,6 +608,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testRenewableOk() throws Exception
     {
         // Deny RENEWABLE tickets in policy.
@@ -631,6 +658,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testRenewableTicket() throws Exception
     {
         // Deny RENEWABLE tickets in policy.

@@ -30,6 +30,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -60,8 +61,18 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         handler = new KerberosProtocolHandler( config, store );
         session = new KrbDummySession();
     }
-
-
+    
+    
+    /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
     /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwardable tickets fail with the correct error message.

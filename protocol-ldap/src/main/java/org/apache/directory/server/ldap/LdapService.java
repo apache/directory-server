@@ -22,7 +22,6 @@ package org.apache.directory.server.ldap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
@@ -85,7 +84,6 @@ import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -409,7 +407,7 @@ public class LdapService extends DirectoryBackedService
                 return;
             }
 
-            getSocketAcceptor().unbind( new InetSocketAddress( getPort() ) );
+            getSocketAcceptor().unbind();
 
             if ( LOG.isInfoEnabled() )
             {
@@ -475,24 +473,8 @@ public class LdapService extends DirectoryBackedService
 
         try
         {
-            // First, create the acceptor with the configured number of threads (if defined)
-            int nbTcpThreads = getTcpTransport().getNbThreads();
-            SocketAcceptor acceptor;
+            SocketAcceptor acceptor = getSocketAcceptor();
             
-            if ( nbTcpThreads > 0 )
-            {
-                acceptor = new NioSocketAcceptor( nbTcpThreads );
-            }
-            else
-            {
-                acceptor = new NioSocketAcceptor();
-            }
-            
-            setSocketAcceptor( acceptor );
-            
-            // Set the service backlog
-            acceptor.setBacklog( backlog );
-                
             // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
             acceptor.setCloseOnDeactivation( false );
@@ -510,14 +492,7 @@ public class LdapService extends DirectoryBackedService
             acceptor.setHandler( getHandler() );
             
             // Bind to the configured address
-            if ( StringTools.isEmpty( hostname ) )
-            {
-                acceptor.bind( new InetSocketAddress( port ) );
-            }
-            else
-            {
-                acceptor.bind( new InetSocketAddress( hostname, port ) );
-            }
+            acceptor.bind();
             
             // We are done !
             started = true;

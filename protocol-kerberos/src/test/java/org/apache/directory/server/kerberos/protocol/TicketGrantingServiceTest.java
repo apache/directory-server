@@ -48,6 +48,13 @@ import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -67,7 +74,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
     /**
      * Creates a new instance of {@link TicketGrantingServiceTest}.
      */
-    public TicketGrantingServiceTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
 
@@ -85,6 +93,16 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
 
     /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
+    /**
      * Tests the default minimum request, which consists of as little as the
      * client name, service name, realm, till time, nonce, and encryption types.
      * 
@@ -101,6 +119,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRequestArchetype() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -134,6 +153,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests the protocol version number, which must be '5'.
      */
+    @Test
     public void testProtocolVersionNumber()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -155,6 +175,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testServerNotFound() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -197,6 +218,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testNoTicketFound() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -242,6 +264,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testInappropriateChecksum() throws Exception
     {
         config.setBodyChecksumVerified( true );
@@ -282,6 +305,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testChecksumTypeNoSupport() throws Exception
     {
         config.setBodyChecksumVerified( true );
@@ -325,6 +349,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testIntegrityCheckedFailed() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -363,6 +388,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testNotUs() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -402,6 +428,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewTicket() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -445,6 +472,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testValidateTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -495,6 +523,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testProxyTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -553,6 +582,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testForwardedTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -612,6 +642,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testExpiredTgt() throws Exception
     {
         // Get the mutable ticket part.
@@ -658,6 +689,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testExpiredRenewableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -706,6 +738,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testRenewableTicketNoRenew() throws Exception
     {
         long now = System.currentTimeMillis();
@@ -756,6 +789,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testRenewableTicketRenewal() throws Exception
     {
         long now = System.currentTimeMillis();
@@ -810,6 +844,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testEncryptionTypeNoSupport() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -843,6 +878,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testServerNullKey() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -888,6 +924,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeAbsentNoPostdate() throws Exception
     {
         // Get the mutable ticket part.
@@ -941,6 +978,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeInThePastNoPostdate() throws Exception
     {
         // Get the mutable ticket part.
@@ -997,6 +1035,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeAcceptableClockSkewNoPostdate() throws Exception
     {
         // Get the mutable ticket part.
@@ -1051,6 +1090,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testStartTimeOrderNeverValid() throws Exception
     {
         // Get the mutable ticket part.
@@ -1105,6 +1145,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testStartTimeMinimumNeverValid() throws Exception
     {
         // Get the mutable ticket part.
@@ -1157,6 +1198,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testStartTimeNoPostdated() throws Exception
     {
         // Get the mutable ticket part.
@@ -1218,6 +1260,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testSpecificStartTime() throws Exception
     {
         long now = System.currentTimeMillis();
@@ -1278,6 +1321,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testPreAuthenticationFlag() throws Exception
     {
         // Get the mutable ticket part.
@@ -1328,6 +1372,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testSpecificEndTime() throws Exception
     {
         // Get the mutable ticket part.
@@ -1378,6 +1423,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testEndTimeExceedsMaximumAllowable() throws Exception
     {
         // Get the mutable ticket part.
@@ -1426,6 +1472,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception
      */
+    @Test
     public void testEpochEndTime() throws Exception
     {
         // Get the mutable ticket part.
@@ -1480,6 +1527,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableOk() throws Exception
     {
         // Get the mutable ticket part.
@@ -1539,6 +1587,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testForwardableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1593,6 +1642,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testAllowPostdate() throws Exception
     {
         // Get the mutable ticket part.
@@ -1647,6 +1697,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testProxiableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1704,6 +1755,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableTicket() throws Exception
     {
         // Get the mutable ticket part.
@@ -1767,6 +1819,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testRenewableTicketExceedsMaximumAllowable() throws Exception
     {
         // Get the mutable ticket part.
@@ -1826,6 +1879,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *     
      * @throws Exception 
      */
+    @Test
     public void testAuthenticatorSubKey() throws Exception
     {
         // Get the mutable ticket part.
@@ -1874,6 +1928,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
      *
      * @throws Exception
      */
+    @Test
     public void testBadOptionReserved() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );

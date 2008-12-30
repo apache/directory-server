@@ -18,7 +18,11 @@
  */
 package org.apache.directory.server.protocol.shared.transport;
 
+import java.net.InetSocketAddress;
+
+import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 
 /**
  * @org.apache.xbean.XBean
@@ -39,22 +43,15 @@ public class UdpTransport extends AbstractTransport
     
     /**
      * Creates an instance of the UdpTransport class on localhost
-     * @param port The port
+     * @param udpPort The port
      */
-    public UdpTransport( int port )
+    public UdpTransport( int udpPort )
     {
-        super( port );
-    }
-    
-    
-    /**
-     * Creates an instance of the UdpTransport class 
-     * @param address The address
-     * @param port The port
-     */
-    public UdpTransport( String address, int port )
-    {
-        super( address, port );
+        super( udpPort );
+        
+        this.acceptor = createAcceptor( LOCAL_HOST, udpPort );
+        
+        System.out.println( "UDP Transport created : <localhost:" + udpPort + ", 3>" );
     }
     
     
@@ -62,15 +59,23 @@ public class UdpTransport extends AbstractTransport
      * Creates an instance of the UdpTransport class 
      * @param address The address
      * @param udpPort The port
-     * @param nbThreads The number of threads to create in the acceptor
-     * @param backlog The queue size for incoming messages, waiting for the
-     * acceptor to be ready
      */
-    UdpTransport( String address, int udpPort, int nbThreads, int backLog )
+    public UdpTransport( String address, int udpPort )
     {
-        super( address, udpPort, nbThreads, backLog );
+        super( address, udpPort );
+        
+        this.acceptor = createAcceptor( LOCAL_HOST, udpPort );
     }
     
+    
+    /**
+     * Initialize the Acceptor if needed
+     */
+    public void init()
+    {
+        acceptor = createAcceptor( this.getAddress(), this.getPort() );
+    }
+
     
     /**
      * @return The associated DatagramAcceptor
@@ -78,5 +83,18 @@ public class UdpTransport extends AbstractTransport
     public DatagramAcceptor getDatagramAcceptor()
     {
         return acceptor == null ? null : (DatagramAcceptor)acceptor;
+    }
+    
+    
+    /**
+     * Helper method to create an IoAcceptor
+     */
+    private IoAcceptor createAcceptor( String address, int port )
+    {
+        NioDatagramAcceptor acceptor = new NioDatagramAcceptor();
+        InetSocketAddress socketAddress = new InetSocketAddress( address, port ); 
+        acceptor.setDefaultLocalAddress( socketAddress );
+        
+        return acceptor;
     }
 }

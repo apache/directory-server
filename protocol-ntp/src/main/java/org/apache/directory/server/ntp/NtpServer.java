@@ -23,17 +23,13 @@ package org.apache.directory.server.ntp;
 import org.apache.directory.server.ntp.protocol.NtpProtocolCodecFactory;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
-import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -89,14 +85,13 @@ public class NtpServer extends AbstractProtocolService
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
         
-        Transport udpTransport = getTcpTransport();
+        Transport udpTransport = getUdpTransport();
         
         if ( udpTransport != null )
         {
             // We have to create a DatagramAcceptor
-            DatagramAcceptor acceptor = new NioDatagramAcceptor();
-            setDatagramAcceptor( (NioDatagramAcceptor)acceptor );
-        
+            DatagramAcceptor acceptor = (DatagramAcceptor)udpTransport.getAcceptor();
+
             // Set the handler
             acceptor.setHandler( ntpProtocolHandler );
     
@@ -107,7 +102,7 @@ public class NtpServer extends AbstractProtocolService
             acceptor.setFilterChainBuilder( ntpChain );
             
             // Start the listener
-            acceptor.bind( new InetSocketAddress( udpTransport.getAddress(), udpTransport.getPort() ) );
+            acceptor.bind();
         }
 
         Transport tcpTransport = getTcpTransport();
@@ -115,7 +110,7 @@ public class NtpServer extends AbstractProtocolService
         if ( tcpTransport != null )
         {
             // It's a SocketAcceptor
-            SocketAcceptor acceptor = new NioSocketAcceptor();
+            SocketAcceptor acceptor = (SocketAcceptor)tcpTransport.getAcceptor();
             
             // Set the handler
             acceptor.setHandler( ntpProtocolHandler );
@@ -132,13 +127,8 @@ public class NtpServer extends AbstractProtocolService
             // Inject the chain
             acceptor.setFilterChainBuilder( ntpChain );
 
-            setSocketAcceptor( acceptor );
-
-            // Set the backlog size
-            acceptor.setBacklog( tcpTransport.getBackLog() );
-
             // Start the listener
-            acceptor.bind( new InetSocketAddress( tcpTransport.getAddress(), tcpTransport.getPort() ) );
+            acceptor.bind();
         }
     }
 

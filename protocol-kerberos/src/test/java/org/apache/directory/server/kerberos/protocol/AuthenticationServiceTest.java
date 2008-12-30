@@ -38,6 +38,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -73,6 +74,16 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     }
 
 
+    /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
     /**
      * Tests the default minimum request, which consists of as little as the
      * client name, realm, till time, nonce, and encryption types.

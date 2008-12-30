@@ -34,6 +34,9 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -51,15 +54,15 @@ public class NtpITest extends TestCase
     /**
      * Set up a partition for EXAMPLE.COM and enable the NTP service.  The LDAP service is disabled.
      */
+    @Before
     public void setUp() throws Exception
     {
-        NioDatagramAcceptor datagramAcceptor = new NioDatagramAcceptor( null );
-        datagramAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
-        ntpConfig = new NtpServer();
+        ntpConfig = new NtpServer( );
         port = AvailablePortFinder.getNextAvailable( 10123 );
         ntpConfig.setTcpTransport( new TcpTransport( port ) );
         ntpConfig.setUdpTransport( new UdpTransport( port ) );
-        ntpConfig.setDatagramAcceptor( datagramAcceptor );
+        ntpConfig.getDatagramAcceptor().getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        ntpConfig.getSocketAcceptor().getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
         ntpConfig.setEnabled( true );
         ntpConfig.start();
 
@@ -70,6 +73,7 @@ public class NtpITest extends TestCase
      *
      * @throws Exception if there are errors
      */
+    @Test
     public void testNtp() throws Exception
     {
         long currentTime = System.currentTimeMillis();
@@ -93,6 +97,7 @@ public class NtpITest extends TestCase
     /**
      * Tear down.
      */
+    @After
     public void tearDown() throws Exception
     {
         ntpConfig.stop();

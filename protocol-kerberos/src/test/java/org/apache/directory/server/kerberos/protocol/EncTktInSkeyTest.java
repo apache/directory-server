@@ -35,6 +35,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -55,7 +59,8 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
     /**
      * Creates a new instance of {@link EncTktInSkeyTest}.
      */
-    public EncTktInSkeyTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
 
@@ -72,6 +77,16 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
     }
 
 
+    /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
     /**
      * If the ENC-TKT-IN-SKEY option has been specified and an additional ticket
      * has been included in the request, it indicates that the client is using
@@ -91,6 +106,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
      * 
      * @throws Exception 
      */
+    @Test
     public void testEncTktInSkey() throws Exception
     {
         // Get the mutable ticket part.

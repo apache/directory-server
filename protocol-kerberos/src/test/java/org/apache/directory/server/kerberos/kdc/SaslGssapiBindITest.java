@@ -32,6 +32,9 @@ import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -79,6 +82,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
      * Set up a partition for EXAMPLE.COM and add user and service principals to
      * test authentication with.
      */
+    @Before
     public void setUp() throws Exception
     {
         super.setUp();
@@ -87,7 +91,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
         ldapService.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
         KdcServer kdcConfig = new KdcServer();
-        kdcConfig.setSocketAcceptor( socketAcceptor );
         kdcConfig.setDirectoryService( directoryService );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
@@ -226,6 +229,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
     /**
      * Tests to make sure GSSAPI binds below the RootDSE work.
      */
+    @Test
     public void testSaslGssapiBind()
     {
         assertTrue( true );
@@ -235,6 +239,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
     /**
      * Tear down.
      */
+    @After
     public void tearDown() throws Exception
     {
         ctx.close();

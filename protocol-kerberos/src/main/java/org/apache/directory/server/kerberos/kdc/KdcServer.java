@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,10 +39,8 @@ import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
+import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.transport.socket.DatagramAcceptor;
-import org.apache.mina.transport.socket.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -442,22 +439,15 @@ public class KdcServer extends DirectoryBackedService
     {
         PrincipalStore store;
 
-        // TODO - for now ignoring this catelog crap
+        // TODO - for now ignoring this catalog crap
         store = new DirectoryPrincipalStore( getDirectoryService() );
         
-        Transport udpTransport = getTcpTransport();
+        Transport udpTransport = getUdpTransport();
 
         // Kerberos can use UDP or TCP
         if ( udpTransport != null )
         {
-            // Actually, this is not used for Datagram. But it should !
-            //int nbUdpThreads = getNbUdpThreads();
-            
-            // Create the acceptor
-            DatagramAcceptor udpAcceptor = new NioDatagramAcceptor();
-            
-            // Stores it
-            setDatagramAcceptor( udpAcceptor );
+            IoAcceptor udpAcceptor = udpTransport.getAcceptor();
             
             // Now, configure the acceptor
             // Inject the chain
@@ -473,28 +463,16 @@ public class KdcServer extends DirectoryBackedService
             udpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
             
             // Bind to the configured address
-            udpAcceptor.bind( new InetSocketAddress( udpTransport.getPort() ) );
+            udpAcceptor.bind();
+            System.out.println( "Bound UDP <" + udpAcceptor.getDefaultLocalAddress() + ">" );
         }
 
         Transport tcpTransport = getTcpTransport();
 
         if ( tcpTransport != null )
         {
-            // First, create the acceptor with the configured number of threads (if defined)
-            int nbTcpThreads = tcpTransport.getNbThreads();
-            SocketAcceptor tcpAcceptor;
-            
-            if ( nbTcpThreads > 0 )
-            {
-                tcpAcceptor = new NioSocketAcceptor( nbTcpThreads );
-            }
-            else
-            {
-                tcpAcceptor = new NioSocketAcceptor();
-            }
-                
-            setSocketAcceptor( tcpAcceptor );
-            
+            NioSocketAcceptor tcpAcceptor = (NioSocketAcceptor)tcpTransport.getAcceptor();
+
             // Now, configure the acceptor
             // Disable the disconnection of the clients on unbind
             tcpAcceptor.setCloseOnDeactivation( false );
@@ -518,7 +496,8 @@ public class KdcServer extends DirectoryBackedService
             tcpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
             
             // Bind to the configured address
-            tcpAcceptor.bind( new InetSocketAddress( tcpTransport.getPort() ) );
+            tcpAcceptor.bind();
+            System.out.println( "Bound TCP <" + tcpAcceptor.getDefaultLocalAddress() + ">" );
         }
         
         LOG.info( "Kerberos service started." );
@@ -530,11 +509,13 @@ public class KdcServer extends DirectoryBackedService
     {
         if ( getDatagramAcceptor() != null )
         {
-            getDatagramAcceptor().unbind( new InetSocketAddress( getUdpTransport().getPort() ));
+            System.out.println( "Unbinding UDP <" + getDatagramAcceptor().getDefaultLocalAddress() + ">" );
+            getDatagramAcceptor().dispose();
         }
         if ( getSocketAcceptor() != null )
         {
-            getSocketAcceptor().unbind( new InetSocketAddress( getTcpTransport().getPort() ));
+            System.out.println( "Unbinding TCP <" + getSocketAcceptor().getDefaultLocalAddress() + ">" );
+            getSocketAcceptor().dispose();
         }
         
         LOG.info( "Kerberos service stopped." );

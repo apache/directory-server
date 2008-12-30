@@ -256,9 +256,6 @@ public abstract class AbstractServerTest extends TestCase
         port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapService = new LdapService();
         ldapService.setTcpTransport( new TcpTransport( port ) );
-        ldapService.getTcpTransport().setNbThreads( 3 );
-        socketAcceptor = new NioSocketAcceptor();
-        ldapService.setSocketAcceptor( socketAcceptor );
         ldapService.setDirectoryService( directoryService );
 
         setupSaslMechanisms( ldapService );

@@ -292,6 +292,12 @@ public abstract class AbstractProtocolService implements ProtocolService
     public void setTcpTransport( TcpTransport transport )
     {
         tcpTransport = transport;
+
+        if ( ( transport != null ) && ( transport.getAcceptor() == null ) )
+        {
+            transport.init();
+        }
+        
     }
     
     
@@ -302,6 +308,12 @@ public abstract class AbstractProtocolService implements ProtocolService
     public void setUdpTransport( UdpTransport transport )
     {
         udpTransport = transport;
+
+        if ( ( transport != null ) && ( transport.getAcceptor() == null ) )
+        {
+            transport.init();
+        }
+        
     }
     
     
@@ -337,7 +349,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * {@inheritDoc}
      * @org.apache.xbean.Property hidden="true"
-     */
+     *
     public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
     {
         udpTransport.setAcceptor( datagramAcceptor );
@@ -356,7 +368,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     /**
      * {@inheritDoc}
      * @org.apache.xbean.Property hidden="true"
-     */
+     *
     public void setSocketAcceptor( SocketAcceptor socketAcceptor )
     {
         tcpTransport.setAcceptor( socketAcceptor );

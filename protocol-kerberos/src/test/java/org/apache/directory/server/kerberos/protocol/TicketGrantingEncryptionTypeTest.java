@@ -42,6 +42,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -61,7 +65,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     /**
      * Creates a new instance of {@link TicketGrantingEncryptionTypeTest}.
      */
-    public TicketGrantingEncryptionTypeTest()
+    @Before
+    public void setUp()
     {
         config = new KdcServer();
 
@@ -79,10 +84,21 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
 
     /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
+    /**
      * Tests a basic request using DES-CBC-MD5.
      *
      * @throws Exception
      */
+    @Test
     public void testRequestDesCbcMd5() throws Exception
     {
         // Get the mutable ticket part.
@@ -130,6 +146,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      *
      * @throws Exception
      */
+    @Test
     public void testRequestAes128() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -183,6 +200,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      *
      * @throws Exception
      */
+    @Test
     public void testRequestAes128TgtAndRequested() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -246,6 +264,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      *
      * @throws Exception
      */
+    @Test
     public void testNonce() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -312,6 +331,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      *
      * @throws Exception
      */
+    @Test
     public void testDecryptWithSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
@@ -376,6 +396,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      *
      * @throws Exception
      */
+    @Test
     public void testDecryptWithSubSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =

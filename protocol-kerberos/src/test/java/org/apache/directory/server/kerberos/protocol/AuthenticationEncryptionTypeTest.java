@@ -47,6 +47,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyMod
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -81,6 +82,16 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     }
 
 
+    /**
+     * Shutdown the Kerberos server
+     */
+    @After
+    public void shutDown()
+    {
+        config.stop();
+    }
+    
+    
     /**
      * Tests a basic request using DES-CBC-MD5.
      * 

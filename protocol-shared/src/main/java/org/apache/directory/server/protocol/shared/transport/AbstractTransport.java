@@ -37,13 +37,22 @@ public abstract class AbstractTransport implements Transport
     
     /** The IoAcceptor used to accept requests */
     protected IoAcceptor acceptor;
+    
+    protected static final int DEFAULT_BACKLOG_NB = 50;
+    
+    protected static final String LOCAL_HOST = "localhost";
+    
+    protected static final int DEFAULT_NB_THREADS = 3;
 
     /**
      * Creates an instance of an Abstract Transport class.
      */
     public AbstractTransport()
     {
-        address = "localHost";
+        address = LOCAL_HOST;
+        nbThreads = DEFAULT_NB_THREADS;
+        port = -1;
+        backlog = DEFAULT_BACKLOG_NB;
     }
     
     
@@ -57,6 +66,21 @@ public abstract class AbstractTransport implements Transport
     {
        this.address = "localhost";
        this.port = port;
+    }
+    
+    
+    /**
+     * Creates an instance of an Abstract Transport class, using localhost
+     * and port.
+     * 
+     * @param port The port
+     * @param nbThreads The number of threads to create in the acceptor
+     */
+    public AbstractTransport( int port, int nbThreads )
+    {
+       this.address = "localhost";
+       this.port = port;
+       this.nbThreads = nbThreads;
     }
     
     
@@ -108,6 +132,12 @@ public abstract class AbstractTransport implements Transport
     
     
     /**
+     * Initialize the Acceptor if needed
+     */
+    public abstract void init();
+
+    
+    /**
      * {@inheritDoc}
      */
     public int getPort()
@@ -157,7 +187,7 @@ public abstract class AbstractTransport implements Transport
     /**
      * Set the IoAcceptor
      * @param acceptor The IoAcceptor to set
-     */
+     *
     public void setAcceptor ( IoAcceptor acceptor )
     {
         this.acceptor = acceptor;
