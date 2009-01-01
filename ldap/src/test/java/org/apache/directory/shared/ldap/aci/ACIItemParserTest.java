@@ -508,8 +508,45 @@ public class ACIItemParserTest extends TestCase
         ACIItem item = parser.parse( spec );
         checkItemToString( spec, item );
     }
-    
-    
+
+
+    /**
+     * Test case for DIRSTUDIO-440
+     */
+    public void testPrecedenceOfUserFirst() throws Exception
+    {
+        String spec = "{ identificationTag \"test\", precedence 14, authenticationLevel simple, "
+            + "itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { { "
+            + "precedence 1, protectedItems { attributeType { userPassword } }, grantsAndDenials "
+            + "{ denyRead, denyReturnDN, denyBrowse } }, { precedence 2, protectedItems "
+            + "{ entry, allUserAttributeTypesAndValues }, grantsAndDenials "
+            + "{ grantReturnDN, grantRead, grantBrowse } } } } }";
+
+        ACIItem item = parser.parse( spec );
+        checkItemToString( spec, item );
+
+        UserFirstACIItem userFirstItem = ( UserFirstACIItem ) item;
+        int aciPrecedence = userFirstItem.getPrecedence();
+        assertEquals( 14, aciPrecedence );
+        for ( UserPermission permission : userFirstItem.getUserPermission() )
+        {
+            int precedence = permission.getPrecedence();
+            if ( precedence == 1 )
+            {
+                assertEquals( 1, precedence );
+            }
+            else if ( precedence == 2 )
+            {
+                assertEquals( 2, precedence );
+            }
+            else
+            {
+                fail( "Got precedence " + precedence + ", excpected precedence 1 or 2." );
+            }
+        }
+    }
+
+
     /**
      * Test case for DIRSERVER-891
      */

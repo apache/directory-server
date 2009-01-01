@@ -111,7 +111,7 @@ tokens
     // these are only used by three first order components
     private String identificationTag;
     private AuthenticationLevel authenticationLevel;
-    private int aciPrecedence;
+    private int aciPrecedence = -1;
     
     private boolean isItemFirstACIItem;
     
@@ -121,7 +121,7 @@ tokens
     private Set<UserClass> userClasses;
     private Map<String, UserClass> userClassesMap;
     private Set<ItemPermission> itemPermissions;
-    private int precedence;
+    private int precedence = -1;
     private Set<GrantAndDenial> grantsAndDenials;
     private Set<UserPermission> userPermissions;
     private Map<String, OidNormalizer> oidsMap;
@@ -212,7 +212,7 @@ theACIItem returns [ ACIItem ACIItem ]
         {
             ACIItem = new ItemFirstACIItem(
                     identificationTag,
-                    precedence,
+                    aciPrecedence,
                     authenticationLevel,
                     protectedItems,
                     itemPermissions );
@@ -277,6 +277,7 @@ aci_precedence
     precedence
     {
         aciPrecedence = precedence;
+        precedence = -1;
     }
     ;
 
@@ -733,6 +734,7 @@ itemPermission returns [ ItemPermission itemPermission ]
         }
         
         itemPermission = new ItemPermission( precedence, grantsAndDenials, userClasses );
+        precedence = -1;
     }
     ;
 
@@ -1002,7 +1004,8 @@ userPermission returns [ UserPermission userPermission ]
                      + userPermissionComponentsMonitor.getRemainingComponents() );
          }
          
-         userPermission = new UserPermission( aciPrecedence, grantsAndDenials, protectedItems );
+         userPermission = new UserPermission( precedence, grantsAndDenials, protectedItems );
+         precedence = -1;
      }
      ;
 
