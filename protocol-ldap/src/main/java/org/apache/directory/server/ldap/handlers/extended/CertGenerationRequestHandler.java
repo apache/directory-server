@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,11 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationObject;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
@@ -74,12 +80,25 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
 
     public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        CertGenerationRequest certGenReq = ( CertGenerationRequest ) req;
+        ByteBuffer bb = ByteBuffer.wrap( req.getPayload() );
+        Asn1Decoder decoder = new CertGenerationDecoder();
+        CertGenerationContainer container = new CertGenerationContainer();
         
-        ClonedServerEntry entry = session.getCoreSession().lookup( new LdapDN( certGenReq.getTargetDN() ) );
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch( DecoderException e )
+        {
+            throw e;
+        }
+        
+        CertGenerationObject certGenObj = container.getCertGenerationObject();
+        
+        ClonedServerEntry entry = session.getCoreSession().lookup( new LdapDN( certGenObj.getTargetDN() ) );
         if( entry != null )
         {
-            TlsKeyGenerator.addKeyPair( entry.getOriginalEntry(), certGenReq.getIssuerDN(), certGenReq.getSubjectDN(), certGenReq.getKeyAlgorithm() );
+            TlsKeyGenerator.addKeyPair( entry.getOriginalEntry(), certGenObj.getIssuerDN(), certGenObj.getSubjectDN(), certGenObj.getKeyAlgorithm() );
         }
     }
 
