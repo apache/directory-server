@@ -277,4 +277,85 @@ public class TlsKeyGenerator
         
         LOG.info( "Keys and self signed certificate successfully generated." );
     }
+    
+
+    /**
+     * @see #addKeyPair(ServerEntry)
+     * 
+     * TODO the code is duplicate atm, will eliminate this redundancy after finding
+     * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
+     */
+    public static void addKeyPair( ServerEntry entry, String issuerDN, String subjectDN, String keyAlgo ) throws NamingException
+    {
+        EntryAttribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
+        if ( objectClass == null )
+        {
+            entry.put( SchemaConstants.OBJECT_CLASS_AT, TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );
+        }
+        else
+        {
+            objectClass.add( TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );
+        }
+        
+        KeyPairGenerator generator = null;
+        try
+        {
+            generator = KeyPairGenerator.getInstance( keyAlgo );
+        }
+        catch ( NoSuchAlgorithmException e )
+        {
+            NamingException ne = new NamingException( "Cannot generate key pair for TLS" );
+            ne.setRootCause( e );
+            throw ne;
+        }
+
+        generator.initialize( KEY_SIZE );
+        KeyPair keypair = generator.genKeyPair();
+        entry.put( KEY_ALGORITHM_AT, keyAlgo );
+        
+        // Generate the private key attributes 
+        PrivateKey privateKey = keypair.getPrivate();
+        entry.put( PRIVATE_KEY_AT, privateKey.getEncoded() );
+        entry.put( PRIVATE_KEY_FORMAT_AT, privateKey.getFormat() );
+        LOG.debug( "PrivateKey: {}", privateKey );
+        
+        PublicKey publicKey = keypair.getPublic();
+        entry.put( PUBLIC_KEY_AT, publicKey.getEncoded() );
+        entry.put( PUBLIC_KEY_FORMAT_AT, publicKey.getFormat() );
+        LOG.debug( "PublicKey: {}", publicKey );
+        
+        // Generate the self-signed certificate
+        Date startDate = new Date(); 
+        Date expiryDate = new Date( System.currentTimeMillis() + YEAR_MILLIS ); 
+        BigInteger serialNumber = BigInteger.valueOf( System.currentTimeMillis() );
+
+        X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
+        X500Principal issuerName = new X500Principal( issuerDN );
+        X500Principal subjectName = new X500Principal( subjectDN );
+        
+        certGen.setSerialNumber( serialNumber );
+        certGen.setIssuerDN( issuerName );
+        certGen.setNotBefore( startDate );
+        certGen.setNotAfter( expiryDate );
+        certGen.setSubjectDN( subjectName );
+        certGen.setPublicKey( publicKey );
+        certGen.setSignatureAlgorithm( "SHA1With" + keyAlgo );
+
+        try
+        {
+            X509Certificate cert = certGen.generate( privateKey, "BC" );
+            entry.put( USER_CERTIFICATE_AT, cert.getEncoded() );
+            LOG.debug( "X509 Certificate: {}", cert );
+        }
+        catch ( Exception e )
+        {
+            NamingException ne = new NamingException( "Cannot generate self signed certificate." );
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        LOG.info( "Keys and self signed certificate successfully generated." );
+    }
+    
 }
