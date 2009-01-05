@@ -20,7 +20,10 @@
 package org.apache.directory.shared.ldap.codec.extended.operations;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 
 import java.nio.ByteBuffer;
 
@@ -94,7 +97,6 @@ public class CertGenerationRequestTest
         }
         catch ( DecoderException e )
         {
-            e.printStackTrace();
             fail( e.getMessage() );
         }
 
@@ -145,7 +147,6 @@ public class CertGenerationRequestTest
         }
         catch ( DecoderException e )
         {
-            e.printStackTrace();
             assertTrue( true );
         }
                 
@@ -169,18 +170,75 @@ public class CertGenerationRequestTest
         try
         {
             decoder.decode( bb, container );
+            fail();
         }
         catch ( DecoderException e )
         {
-            e.printStackTrace();
-            fail( e.getMessage() );
+            assertTrue( true );
         }
 
+        /*
         CertGenerationObject certGenObj = container.getCertGenerationObject();
         
         assertEquals( "x", certGenObj.getTargetDN() );
         assertNull( certGenObj.getIssuerDN() );
         assertNull( certGenObj.getSubjectDN() );
         assertNull( certGenObj.getKeyAlgorithm() );
+        */
+    }
+
+
+    @Test
+    public void testCertGenerationDecodeWithoutTargetDN()
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+
+        ByteBuffer bb = ByteBuffer.allocate( 5 );
+
+        bb.put( new byte[]
+            { 0x30, 0x03, // CertGenerateObject ::= SEQUENCE {
+              0x04, 0x01, ' ' } ); // empty targetDN value
+
+        String decodedPdu = StringTools.dumpBytes( bb.array() );
+        bb.flip();
+
+        CertGenerationContainer container = new CertGenerationContainer();
+
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "shouldn't accept the empty targetDN" );
+        }
+        catch ( DecoderException e )
+        {
+            assertTrue( true );
+        }
+                
+    }
+    
+    
+    @Test
+    public void testDecodeEmptySequence()
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+        
+        ByteBuffer bb = ByteBuffer.allocate( 2 );
+
+        bb.put( new byte[]
+            { 0x30, 0x00 }); // CertGenerateObject ::= SEQUENCE {
+
+        CertGenerationContainer container = new CertGenerationContainer();
+        bb.flip();
+
+        try
+        {
+            decoder.decode( bb, container );
+            // The PDU with an empty sequence is not allowed
+            fail();
+        }
+        catch ( DecoderException e )
+        {
+            assertTrue( true );
+        }
     }
 }

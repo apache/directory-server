@@ -91,7 +91,6 @@ public class CertGenerationGrammar extends AbstractGrammar
                     CertGenerationContainer certGenContainer = ( CertGenerationContainer ) container;
                     CertGenerationObject certGenerationObject = new CertGenerationObject();
                     certGenContainer.setCertGenerationObject( certGenerationObject );
-                    certGenContainer.grammarEndAllowed( true );
                 }
             } );
 
@@ -120,7 +119,7 @@ public class CertGenerationGrammar extends AbstractGrammar
                         LOG.debug( "Target DN = " + targetDN );
                     }
 
-                    if ( targetDN != null && ( targetDN.trim().length() > 0 ) )
+                    if ( ( targetDN != null ) && ( targetDN.trim().length() > 0 ) )
                     {
                         CertGenContainer.getCertGenerationObject().setTargetDN( targetDN );
                     }
@@ -131,8 +130,6 @@ public class CertGenerationGrammar extends AbstractGrammar
                         LOG.error( msg );
                         throw new DecoderException( msg );
                     }
-
-                    CertGenContainer.grammarEndAllowed( true );
                 }
             } );
 
@@ -162,11 +159,10 @@ public class CertGenerationGrammar extends AbstractGrammar
                         LOG.debug( "Issuer DN = " + issuerDN );
                     }
 
-                    if ( issuerDN != null && ( issuerDN.trim().length() > 0 ) )
+                    if ( ( issuerDN != null ) && ( issuerDN.trim().length() > 0 ) )
                     {
                         CertGenContainer.getCertGenerationObject().setIssuerDN( issuerDN );
                     }
-                    CertGenContainer.grammarEndAllowed( true );
                 }
             } );
 
@@ -196,12 +192,10 @@ public class CertGenerationGrammar extends AbstractGrammar
                         LOG.debug( "subject DN = " + subjectDN );
                     }
 
-                    if ( subjectDN != null && ( subjectDN.trim().length() > 0 ) )
+                    if ( ( subjectDN != null ) && ( subjectDN.trim().length() > 0 ) )
                     {
                         CertGenContainer.getCertGenerationObject().setSubjectDN( subjectDN );
                     }
-
-                    CertGenContainer.grammarEndAllowed( true );
                 }
             } );
 
@@ -210,7 +204,7 @@ public class CertGenerationGrammar extends AbstractGrammar
          *
          * CertGenerationObject ::= SEQUENCE { 
          *     ...
-         *     issuerDN IA5String
+         *     keyAlgorithm IA5String
          *     
          * Set the key algorithm value into the CertGenerationObject instance.
          */
