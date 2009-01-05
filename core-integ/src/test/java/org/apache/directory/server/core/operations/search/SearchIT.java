@@ -48,6 +48,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
@@ -64,6 +65,35 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@ApplyLdifs(
+    {
+        "dn: ou=testing00,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "ou: testing00\n" +
+        "\n" +
+        "dn: ou=testing01,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "ou: testing01\n" +
+        "\n" +
+        "dn: ou=testing02,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "ou: testing02\n" +
+        "\n" +
+        "dn: ou=subtest,ou=testing01,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "ou: subtest\n" +
+        "\n" +
+        "dn: cn=Heather Nova, ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: person\n" +
+        "cn: Heather Nova\n" +
+        "sn: Nova\n"
+    }
+)
 public class SearchIT
 {
     private static final String RDN = "cn=Heather Nova";
@@ -71,50 +101,31 @@ public class SearchIT
 
     public static DirectoryService service;
 
+    private static final String INTEGER_SYNTAX_OID = "1.3.6.1.4.1.1466.115.121.1.27";
+    
+    
     /**
-     * @todo put this into ldif and use ldif annotation to import
-     *
      * @param sysRoot the system root to add entries to
      * @throws NamingException on errors
      */
     protected void createData( LdapContext sysRoot ) throws Exception
     {
         /*
-         * create ou=testing00,ou=system
+         * Check ou=testing00,ou=system
          */
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing00" );
-
-        DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
+        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
         assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
+        Attributes attributes = ctx.getAttributes( "" );
         assertNotNull( attributes );
         assertEquals( "testing00", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
+        Attribute attribute = attributes.get( "objectClass" );
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
         /*
-         * create ou=testing01,ou=system
+         * check ou=testing01,ou=system
          */
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing01" );
-
-        ctx = sysRoot.createSubcontext( "ou=testing01", attributes );
-        assertNotNull( ctx );
-
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
         assertNotNull( ctx );
         attributes = ctx.getAttributes( "" );
@@ -126,17 +137,8 @@ public class SearchIT
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
         /*
-         * create ou=testing02,ou=system
+         * Check ou=testing02,ou=system
          */
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing02" );
-        ctx = sysRoot.createSubcontext( "ou=testing02", attributes );
-        assertNotNull( ctx );
-
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
         assertNotNull( ctx );
 
@@ -150,20 +152,8 @@ public class SearchIT
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
         /*
-         * create ou=subtest,ou=testing01,ou=system
+         * Check ou=subtest,ou=testing01,ou=system
          */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "subtest" );
-
-        ctx = ctx.createSubcontext( "ou=subtest", attributes );
-        assertNotNull( ctx );
-
         ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
         assertNotNull( ctx );
 
@@ -176,17 +166,9 @@ public class SearchIT
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-        // Create entry cn=Heather Nova, ou=system
-        Attributes heather = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        heather.put( ocls );
-        heather.put( "cn", "Heather Nova" );
-        heather.put( "sn", "Nova" );
-        ctx = sysRoot.createSubcontext( RDN, heather );
-        assertNotNull( ctx );
-
+        /*
+         *  Check entry cn=Heather Nova, ou=system
+         */
         ctx = ( DirContext ) sysRoot.lookup( RDN );
         assertNotNull( ctx );
 
@@ -199,6 +181,7 @@ public class SearchIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
+        
         if ( nisAttrs.get( "m-disabled" ) != null )
         {
             isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -216,7 +199,6 @@ public class SearchIT
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
         // -------------------------------------------------------------------
-
         addNisPosixGroup( "testGroup0", 0 );
         addNisPosixGroup( "testGroup1", 1 );
         addNisPosixGroup( "testGroup2", 2 );
@@ -225,6 +207,9 @@ public class SearchIT
     }
 
 
+    /**
+     * Create a NIS group
+     */
     private DirContext addNisPosixGroup( String name, int gid ) throws Exception
     {
         Attributes attrs = new BasicAttributes( "objectClass", "top", true );
@@ -1117,6 +1102,31 @@ public class SearchIT
     public Set<String> searchGroups( String filter ) throws Exception
     {
         return searchGroups( filter, null );
+    }
+
+
+    /**
+     *  Convenience method that performs a one level search using the
+     *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param controls the search controls
+     * @return the set of groups
+     * @throws NamingException if there are problems conducting the search
+     */
+    public Set<String> searchRevisions( String filter ) throws Exception
+    {
+        SearchControls controls = new SearchControls();
+
+        Set<String> results = new HashSet<String>();
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "", filter, controls );
+
+        while( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result.getName() );
+        }
+
+        return results;
     }
 
 
