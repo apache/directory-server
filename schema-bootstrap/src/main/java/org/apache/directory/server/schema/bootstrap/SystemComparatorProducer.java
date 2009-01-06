@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.ObjectIdentifierComparator;
+import org.apache.directory.shared.ldap.schema.comparator.IntegerOrderingComparator;
 
 
 /**
@@ -160,10 +161,10 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "2.5.13.14", comparator );
 
         /*
-         ( 2.5.13.14 NAME 'integerOrderingMatch'
+         ( 2.5.13.15 NAME 'integerOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
-        comparator = new ComparableComparator();
+        comparator = new IntegerOrderingComparator();
         cb.schemaObjectProduced( this, "2.5.13.15", comparator );
 
         /*
