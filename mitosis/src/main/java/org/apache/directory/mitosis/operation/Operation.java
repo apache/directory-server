@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 
 /**
  * Represents an operation performed on one or more entries in replicated
- * {@link Partition}.  Each {@link Operation} has its own {@link CSN} which
+ * {@link Partition}. Each {@link Operation} has its own {@link CSN} which
  * identifies itself.
  * <p>
  * An {@link Operation} is usually created by calling factory methods in
@@ -62,11 +62,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 public class Operation implements Externalizable
 {
     /**
-     * Declares the Serial Version Uid.
+     * Declares the Serial Version UID.
      *
      * @see <a
      *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
-     *      Declare Serial Version Uid</a>
+     *      Declare Serial Version UID</a>
      */
     private static final long serialVersionUID = 1L;
 
@@ -82,8 +82,8 @@ public class Operation implements Externalizable
 
     /**
      * Creates a new instance of Operation, for the entry which
-     * csn is given as a parameter. This constructor is not visible
-     * out of this package, as it's only used for the deserialization 
+     * CSN is given as a parameter. This constructor is not visible
+     * out of this package, as it's only used for the de-serialization 
      * process.
      *
      * @param registries the server registries
@@ -102,7 +102,7 @@ public class Operation implements Externalizable
      *
      * @param registries the server registries
      * @param operationType the operation type
-     * @param csn The entry's csn.
+     * @param csn The entry's CSN.
      */
     protected Operation( Registries registries, OperationType operationType, CSN csn )
     {
@@ -134,20 +134,20 @@ public class Operation implements Externalizable
     {
         synchronized ( nexus )
         {
-            execute0( nexus, store, coreSession );
+            applyOperation( nexus, store, coreSession );
             store.putLog( this );
         }
     }
 
     /**
-     * Not supported. We should neve call this method directly.
+     * Not supported. We should never call this method directly.
      * 
      * @param nexus the partition nexus
      * @param store the replication store
      * @param coreSession the current session
      * @throws Exception
      */
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
         throw new OperationNotSupportedException( nexus.getSuffixDn().toString() );
@@ -155,7 +155,7 @@ public class Operation implements Externalizable
 
     
     /**
-     * Deserialize an Attribute Operation
+     * De-serialize an Attribute Operation
      *
      * @param in the stream from which we will read an AttributeOperation
      * @param registries the server registries
@@ -179,7 +179,7 @@ public class Operation implements Externalizable
             // Get the AttributeType
             AttributeType at = registries.getAttributeTypeRegistry().lookup( id );
             
-            // Deserialize the attribute
+            // De-serialize the attribute
             DefaultServerAttribute attribute = new DefaultServerAttribute( id, at );
             attribute.deserialize( in );
             
@@ -197,11 +197,11 @@ public class Operation implements Externalizable
     
     
     /**
-     * Deserialize an operation. This is a recursive method, as we may have 
+     * De-serialize an operation. This is a recursive method, as we may have 
      * composite operations.
      *
      * @param registries The server registries
-     * @param in the stream wrom which we will read an operation
+     * @param in the stream from which we will read an operation
      * @return an operation
      * @throws ClassNotFoundException
      * @throws IOException

@@ -82,7 +82,7 @@ public class AddAttributeOperation extends AttributeOperation
      * @param nexus the partition which will be modified
      * @param coreSession the current session
      */
-    protected void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception
+    protected void modifyAttribute( PartitionNexus nexus, CoreSession coreSession ) throws Exception
     {
         DirectoryService ds = coreSession.getDirectoryService();
         ServerEntry serverEntry = ds.newEntry( LdapDN.EMPTY_LDAPDN );

@@ -45,11 +45,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class AddEntryOperation extends Operation
 {
     /**
-     * Declares the Serial Version Uid.
+     * Declares the Serial Version UID.
      *
      * @see <a
      *      href="http://c2.com/cgi/wiki?AlwaysDeclareSerialVersionUid">Always
-     *      Declare Serial Version Uid</a>
+     *      Declare Serial Version UID</a>
      */
     private static final long serialVersionUID = 2294492811671880570L;
 
@@ -60,7 +60,7 @@ public class AddEntryOperation extends Operation
     /**
      * Creates a new operation that adds the specified entry. This 
      * constructor will not be visible out of this package, as it is 
-     * only used for the deserialization process.
+     * only used for the de-serialization process.
      * 
      * @param registries the registries instance
      */
@@ -89,10 +89,10 @@ public class AddEntryOperation extends Operation
      * Inject the entry into the local server
      * 
      * @param nexus the local partition to update
-     * @param store not used... Just for inheritence sake.
+     * @param store not used... Just for inheritance sake.
      * @param coreSession the current session
      */
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession )
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession )
         throws Exception
     {
         if ( ! EntryUtil.isEntryUpdatable( coreSession, entry.getDn(), getCSN() ) )

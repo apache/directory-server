@@ -96,7 +96,7 @@ public abstract class AttributeOperation extends Operation
      * @param store the replication storage
      * @param coreSession the current session
      */
-    protected final void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+    protected final void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
         if ( ! EntryUtil.isEntryUpdatable( coreSession, dn, getCSN() ) )
@@ -106,7 +106,7 @@ public abstract class AttributeOperation extends Operation
         
         EntryUtil.createGlueEntries( coreSession, dn, true );
 
-        execute1( nexus, coreSession );
+        modifyAttribute( nexus, coreSession );
     }
 
 
@@ -117,7 +117,7 @@ public abstract class AttributeOperation extends Operation
      * @param coreSession the current session
      * @throws Exception 
      */
-    protected abstract void execute1( PartitionNexus nexus, CoreSession coreSession ) throws Exception;
+    protected abstract void modifyAttribute( PartitionNexus nexus, CoreSession coreSession ) throws Exception;
 
 
     /**

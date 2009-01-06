@@ -205,7 +205,7 @@ public class CompositeOperation extends Operation
      * @param store the replication store
      * @param coreSession the current session
      */
-    protected void execute0( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
         throws Exception
     {
         for ( Operation op : children )
