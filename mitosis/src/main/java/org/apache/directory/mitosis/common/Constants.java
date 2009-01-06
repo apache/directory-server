@@ -22,10 +22,10 @@ package org.apache.directory.mitosis.common;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 
 
 /**
@@ -36,24 +36,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 public class Constants
 {
     /**
-     * The name of the attribute that represents the {@link UUID} of an
-     * LDAP entry.
-     */
-    public static final String ENTRY_UUID = "entryUUID";
-    
-    /**
-     * The name of the attribute that represents the {@link CSN} of an LDAP
-     * entry.
-     */
-    public static final String ENTRY_CSN = "entryCSN";
-    
-    /**
-     * The name of the attribute that determines if an entry is actually
-     * deleted or not (even if it exists in a DIT.)
-     */
-    public static final String ENTRY_DELETED = "entryDeleted";
-    
-    /**
      * A {@link SearchResultFilter} that filters out the entries whose
      * {@link #ENTRY_DELETED} attribute is <tt>TRUE</tt>.
      */
@@ -62,9 +44,7 @@ public class Constants
         public boolean accept( SearchingOperationContext operation, ClonedServerEntry entry )
             throws NamingException
         {
-            EntryAttribute deleted = entry.get( ENTRY_DELETED );
-            Object value = deleted == null ? null : deleted.get();
-            return ( value == null || !"TRUE".equalsIgnoreCase( value.toString() ) );
+            return !entry.contains( ApacheSchemaConstants.ENTRY_DELETED_AT, "TRUE" );
         }
     };
 

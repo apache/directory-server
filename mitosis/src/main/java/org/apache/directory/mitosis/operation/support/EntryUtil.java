@@ -22,6 +22,7 @@ package org.apache.directory.mitosis.operation.support;
 
 import javax.naming.NameNotFoundException;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -54,7 +55,7 @@ public class EntryUtil
             return true;
         }
 
-        EntryAttribute entryCSNAttr = entry.get( Constants.ENTRY_CSN );
+        EntryAttribute entryCSNAttr = entry.get( ApacheSchemaConstants.ENTRY_CSN_AT );
 
         if ( entryCSNAttr == null )
         {

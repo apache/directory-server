@@ -24,6 +24,7 @@ import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
@@ -133,15 +134,15 @@ public class OperationFactory
 
         // Insert 'entryUUID' and 'entryDeleted'.
         ServerEntry cloneEntry = ( ServerEntry ) entry.clone();
-        cloneEntry.removeAttributes( Constants.ENTRY_UUID );
-        cloneEntry.removeAttributes( Constants.ENTRY_DELETED );
-        cloneEntry.put( Constants.ENTRY_UUID, UUID.randomUUID().toString() );
-        cloneEntry.put( Constants.ENTRY_DELETED, "FALSE" );
+        cloneEntry.removeAttributes( ApacheSchemaConstants.ENTRY_UUID_AT );
+        cloneEntry.removeAttributes( ApacheSchemaConstants.ENTRY_DELETED_AT );
+        cloneEntry.put( ApacheSchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        cloneEntry.put( ApacheSchemaConstants.ENTRY_DELETED_AT, "FALSE" );
 
         // NOTE: We inlined addDefaultOperations() because ApacheDS currently
         // creates an index entry only for ADD operation (and not for
         // MODIFY operation)
-        cloneEntry.put( Constants.ENTRY_CSN, csn.toOctetString() );
+        cloneEntry.put( ApacheSchemaConstants.ENTRY_CSN_AT, csn.toOctetString() );
 
         return new AddEntryOperation( registries, csn, cloneEntry );
     }
@@ -150,7 +151,7 @@ public class OperationFactory
     /**
      * Creates a new {@link Operation} that performs "delete" operation.
      * The created {@link Operation} doesn't actually delete the entry.
-     * Instead, it sets {@link Constants#ENTRY_DELETED} to "TRUE". 
+     * Instead, it sets {@link ApacheSchemaConstants.ENTRY_DELETED_AT} to "TRUE". 
      */
     public Operation newDelete( LdapDN normalizedName ) throws NamingException
     {
@@ -160,8 +161,8 @@ public class OperationFactory
         // Transform into replace operation.
         result.add( new ReplaceAttributeOperation( registries, csn, normalizedName, 
             new DefaultServerAttribute( 
-                Constants.ENTRY_DELETED, 
-                attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                ApacheSchemaConstants.ENTRY_DELETED_AT, 
+                attributeRegistry.lookup( ApacheSchemaConstants.ENTRY_DELETED_AT ),
                 "TRUE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
@@ -202,8 +203,8 @@ public class OperationFactory
                 csn, 
                 normalizedName, 
                 new DefaultServerAttribute( 
-                    Constants.ENTRY_DELETED,
-                    attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                    ApacheSchemaConstants.ENTRY_DELETED_AT,
+                    attributeRegistry.lookup( ApacheSchemaConstants.ENTRY_DELETED_AT ),
                     "FALSE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
@@ -303,8 +304,8 @@ public class OperationFactory
                     csn, 
                     oldEntryName, 
                     new DefaultServerAttribute( 
-                        Constants.ENTRY_DELETED,
-                        attributeRegistry.lookup( Constants.ENTRY_DELETED ),
+                        ApacheSchemaConstants.ENTRY_DELETED_AT,
+                        attributeRegistry.lookup( ApacheSchemaConstants.ENTRY_DELETED_AT ),
                         "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
@@ -384,7 +385,7 @@ public class OperationFactory
         if ( nexus.hasEntry( new EntryOperationContext( adminSession, newEntryName ) ) )
         {
             ServerEntry entry = nexus.lookup( new LookupOperationContext( adminSession, newEntryName ) );
-            EntryAttribute deleted = entry.get( Constants.ENTRY_DELETED );
+            EntryAttribute deleted = entry.get( ApacheSchemaConstants.ENTRY_DELETED_AT );
             Object value = deleted == null ? null : deleted.get();
 
             /*
@@ -416,8 +417,8 @@ public class OperationFactory
                 csn, 
                 normalizedName, 
                 new DefaultServerAttribute( 
-                    Constants.ENTRY_DELETED,
-                    attributeRegistry.lookup( Constants.ENTRY_CSN ),
+                    ApacheSchemaConstants.ENTRY_DELETED_AT,
+                    attributeRegistry.lookup( ApacheSchemaConstants.ENTRY_CSN_AT ),
                     csn.toOctetString() ) ) );
 
         return result;

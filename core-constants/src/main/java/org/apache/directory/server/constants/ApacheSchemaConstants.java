@@ -112,21 +112,9 @@ public interface ApacheSchemaConstants
     String APACHE_ALIAS_AT                          = "apacheAlias";
     String APACHE_ALIAS_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.7";
 
-    // entryDeleted
-    String ENTRY_DELETED_AT                         = "entryDeleted";
-    String ENTRY_DELETED_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.31";
-
-    // SchemaModifiersName
-    String SCHEMA_MODIFIERS_NAME_AT                 = "schemaModifiersName";
-    String SCHEMA_MODIFIERS_NAME_AT_OID             = "";
-    
-    // SchemaModifyTimestamp
-    String SCHEMA_MODIFY_TIMESTAMP_AT               = "schemaModifyTimestamp";
-    String SCHEMA_MODIFY_TIMESTAMP_AT_OID           = "";
-    
-    // SubschemaSubentryName
-    String SUBSCHEMA_SUBENTRY_NAME_AT               = "subschemaSubentryName";
-    String SUBSCHEMA_SUBENTRY_NAME_AT_OID           = "";
+    // PrefNodeName
+    String PREF_NODE_NAME_AT                        = "prefNodeName";
+    String PREF_NODE_NAME_AT_OID                    = "1.3.6.1.4.1.18060.0.4.1.2.8";
     
     // CatalogEntryName
     String APACHE_CATALOGUE_ENTRY_NAME_AT           = "apacheCatalogEntryName";
@@ -143,6 +131,27 @@ public interface ApacheSchemaConstants
     String UNIX_FILE_AT                             = "unixFilePath";
     String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
 
-    String PREF_NODE_NAME_AT                        = "prefNodeName";
-    String PREF_NODE_NAME_AT_OID                    = "1.3.6.1.4.1.18060.0.4.1.2.8";
+    // entryUUID
+    String ENTRY_UUID_AT                            = "entryUUID";
+    String ENTRY_UUID_OID                           = "1.3.6.1.4.1.18060.0.4.1.2.29";
+    
+    // entryCSN
+    String ENTRY_CSN_AT                             = "entryCSN";
+    String ENTRY_CSN_OID                            = "1.3.6.1.4.1.18060.0.4.1.2.30";
+    
+    // entryDeleted
+    String ENTRY_DELETED_AT                         = "entryDeleted";
+    String ENTRY_DELETED_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.31";
+    
+    // SchemaModifyTimestamp
+    String SCHEMA_MODIFY_TIMESTAMP_AT               = "schemaModifyTimestamp";
+    String SCHEMA_MODIFY_TIMESTAMP_AT_OID           = "1.3.6.1.4.1.18060.0.4.1.2.35";
+
+    // SchemaModifiersName
+    String SCHEMA_MODIFIERS_NAME_AT                 = "schemaModifiersName";
+    String SCHEMA_MODIFIERS_NAME_AT_OID             = "1.3.6.1.4.1.18060.0.4.1.2.36";
+    
+    // SubschemaSubentryName
+    String SUBSCHEMA_SUBENTRY_NAME_AT               = "subschemaSubentryName";
+    String SUBSCHEMA_SUBENTRY_NAME_AT_OID           = "1.3.6.1.4.1.18060.0.4.1.2.37";
 }

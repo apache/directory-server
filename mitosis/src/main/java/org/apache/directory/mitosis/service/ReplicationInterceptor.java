@@ -31,6 +31,7 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
@@ -366,7 +367,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     {
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
+        ctrl.setReturningAttributes( new String[] { "entryCSN", ApacheSchemaConstants.ENTRY_DELETED_AT } );
 
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -498,7 +499,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             // Look for 'entryDeleted' attribute is in attrIds.
             for ( String attrId:attrIds )
             {
-                if ( Constants.ENTRY_DELETED.equals( attrId ) )
+                if ( ApacheSchemaConstants.ENTRY_DELETED_AT.equalsIgnoreCase( attrId ) )
                 {
                     found = true;
                     break;
@@ -510,7 +511,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             {
                 String[] newAttrIds = new String[attrIds.length + 1];
                 System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
-                newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
+                newAttrIds[attrIds.length] = ApacheSchemaConstants.ENTRY_DELETED_AT;
                 lookupContext.setAttrsId( newAttrIds );
             }
         }
@@ -546,7 +547,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             String[] oldAttrIds = searchControls.getReturningAttributes();
             String[] newAttrIds = new String[oldAttrIds.length + 1];
             System.arraycopy( oldAttrIds, 0, newAttrIds, 0, oldAttrIds.length );
-            newAttrIds[oldAttrIds.length] = Constants.ENTRY_DELETED.toLowerCase();
+            newAttrIds[oldAttrIds.length] = ApacheSchemaConstants.ENTRY_DELETED_AT.toLowerCase();
             searchControls.setReturningAttributes( newAttrIds );
         }
 
@@ -577,7 +578,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             return true;
         }
 
-        return entry.contains( Constants.ENTRY_DELETED, "TRUE" );
+        return entry.contains( ApacheSchemaConstants.ENTRY_DELETED_AT, "TRUE" );
     }
 
 

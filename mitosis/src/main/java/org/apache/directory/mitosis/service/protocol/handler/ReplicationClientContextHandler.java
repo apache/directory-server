@@ -41,6 +41,7 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
@@ -405,7 +406,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 ServerEntry entry = cursor.get();
 
                 // Skip entries without entryCSN attribute.
-                EntryAttribute entryCSNAttr = entry.get( org.apache.directory.mitosis.common.Constants.ENTRY_CSN );
+                EntryAttribute entryCSNAttr = entry.get( ApacheSchemaConstants.ENTRY_CSN_AT );
 
                 if ( entryCSNAttr == null )
                 {
