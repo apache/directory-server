@@ -67,20 +67,59 @@ import org.junit.runner.RunWith;
 @RunWith ( CiRunner.class )
 @ApplyLdifs(
     {
+        "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema\n" +
+        "objectclass: metaAttributeType\n" +
+        "objectclass: metaTop\n" +
+        "objectclass: top\n" +
+        "m-oid: 2.2.0\n" +
+        "m-name: integerAttribute\n" +
+        "m-description: the precursor for all integer attributes\n" +
+        "m-equality: integerMatch\n" +
+        "m-ordering: integerOrderingMatch\n" +
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n" +
+        "m-length: 0\n" +
+        "\n" +
         "dn: ou=testing00,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
         "ou: testing00\n" +
+        "integerAttribute: 0\n" +
         "\n" +
         "dn: ou=testing01,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
         "ou: testing01\n" +
+        "integerAttribute: 1\n" +
         "\n" +
         "dn: ou=testing02,ou=system\n" +
         "objectClass: top\n" +
         "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
         "ou: testing02\n" +
+        "integerAttribute: 2\n" +
+        "\n" +
+        "dn: ou=testing03,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
+        "ou: testing03\n" +
+        "integerAttribute: 3\n" +
+        "\n" +
+        "dn: ou=testing04,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
+        "ou: testing04\n" +
+        "integerAttribute: 4\n" +
+        "\n" +
+        "dn: ou=testing05,ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: organizationalUnit\n" +
+        "objectClass: extensibleObject\n" +
+        "ou: testing05\n" +
+        "integerAttribute: 5\n" +
         "\n" +
         "dn: ou=subtest,ou=testing01,ou=system\n" +
         "objectClass: top\n" +
@@ -101,8 +140,6 @@ public class SearchIT
 
     public static DirectoryService service;
 
-    private static final String INTEGER_SYNTAX_OID = "1.3.6.1.4.1.1466.115.121.1.27";
-    
     
     /**
      * @param sysRoot the system root to add entries to
@@ -241,7 +278,7 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 6, map.size() );
+        assertEquals( "Expected number of results returned was incorrect!", 9, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
@@ -269,7 +306,7 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect", 11, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 14, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -330,8 +367,8 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
 
-        // 13 because it also matches organizationalPerson which the admin is
-        assertEquals( "Expected number of results returned was incorrect", 13, map.size() );
+        // 16 because it also matches organizationalPerson which the admin is
+        assertEquals( "Expected number of results returned was incorrect", 16, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=configuration,ou=system" ) );
         assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) );
@@ -533,7 +570,7 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
         
-        assertEquals( "size of results", 19, map.size() );
+        assertEquals( "size of results", 22, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -598,10 +635,13 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
         
-        assertEquals( "size of results", 3, map.size() );
+        assertEquals( "size of results", 6, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
-        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing02,ou=system" ) ); 
+        assertTrue( "contains ou=testing03,ou=system", map.containsKey( "ou=testing03,ou=system" ) ); 
+        assertTrue( "contains ou=testing04,ou=system", map.containsKey( "ou=testing04,ou=system" ) ); 
+        assertTrue( "contains ou=testing05,ou=system", map.containsKey( "ou=testing05,ou=system" ) ); 
     }
 
 
@@ -631,10 +671,13 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
         
-        assertEquals( "size of results", 3, map.size() );
+        assertEquals( "size of results", 6, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
-        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
+        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing02,ou=system" ) ); 
+        assertTrue( "contains ou=testing03,ou=system", map.containsKey( "ou=testing03,ou=system" ) ); 
+        assertTrue( "contains ou=testing04,ou=system", map.containsKey( "ou=testing04,ou=system" ) ); 
+        assertTrue( "contains ou=testing05,ou=system", map.containsKey( "ou=testing05,ou=system" ) ); 
     }
     
 
@@ -1129,6 +1172,35 @@ public class SearchIT
         return results;
     }
 
+    
+    /**
+     *  Convenience method that performs a one level search using the
+     *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param controls the search controls
+     * @param filter the filter expression
+     * @return the set of groups
+     * @throws NamingException if there are problems conducting the search
+     */
+    private Set<String> searchUnits( String filter, SearchControls controls ) throws Exception
+    {
+        if ( controls == null )
+        {
+            controls = new SearchControls();
+        }
+     
+        Set<String> results = new HashSet<String>();
+        NamingEnumeration<SearchResult> list = getSystemContext( service ).search( "", filter, controls );
+
+        while( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            results.add( result.getName() );
+        }
+
+        return results;
+    }
+
 
     @Test
     public void testSetup() throws Exception
@@ -1475,4 +1547,90 @@ public class SearchIT
         }
     }
     */
+    
+    
+    /**
+    * Added to test correct comparison of integer attribute types when searching.
+    * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
+    * Ref. DIRSERVER-1296
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testIntegerComparison() throws Exception {
+       LdapContext sysRoot = getSystemContext(service);
+       createData(sysRoot);
+       
+       Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute<=2))",null);
+       assertTrue(results.contains("ou=testing00,ou=system"));
+       assertTrue(results.contains("ou=testing01,ou=system"));
+       assertTrue(results.contains("ou=testing02,ou=system"));
+       assertFalse(results.contains("ou=testing03,ou=system"));
+       assertFalse(results.contains("ou=testing04,ou=system"));
+       assertFalse(results.contains("ou=testing05,ou=system"));
+   }
+   
+   
+   /**
+    * Added to test correct comparison of integer attribute types when searching.
+    * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
+    * Ref. DIRSERVER-1296
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testIntegerComparison2() throws Exception {
+       LdapContext sysRoot = getSystemContext(service);
+       createData(sysRoot);
+       Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute>=3))",null);
+       assertFalse(results.contains("ou=testing00,ou=system"));
+       assertFalse(results.contains("ou=testing01,ou=system"));
+       assertFalse(results.contains("ou=testing02,ou=system"));
+       assertTrue(results.contains("ou=testing03,ou=system"));
+       assertTrue(results.contains("ou=testing04,ou=system"));
+       assertTrue(results.contains("ou=testing05,ou=system"));
+   }
+   
+   
+   /**
+    * Added to test correct comparison of integer attribute types when searching.
+    * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
+    * Ref. DIRSERVER-1296
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testIntegerComparison3() throws Exception {
+       LdapContext sysRoot = getSystemContext(service);
+       createData(sysRoot);
+       
+       Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(integerAttribute<=42))",null);
+       assertTrue(results.contains("ou=testing00,ou=system"));
+       assertTrue(results.contains("ou=testing01,ou=system"));
+       assertTrue(results.contains("ou=testing02,ou=system"));
+       assertTrue(results.contains("ou=testing03,ou=system"));
+       assertTrue(results.contains("ou=testing04,ou=system"));
+       assertTrue(results.contains("ou=testing05,ou=system"));
+   }
+   
+   /**
+    * Added to test correct comparison of integer attribute types when searching.
+    * testGreaterThanSearch and testLesserThanSearch fail to detect the problem using values less than 10.
+    * Ref. DIRSERVER-1296
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testIntegerComparison4() throws Exception {
+       LdapContext sysRoot = getSystemContext(service);
+       createData(sysRoot);
+       
+       Set<String> results = searchUnits("(&(objectClass=organizationalUnit)(|(integerAttribute<=1)(integerAttribute>=5)))",null);
+       assertTrue(results.contains("ou=testing00,ou=system"));
+       assertTrue(results.contains("ou=testing01,ou=system"));
+       assertFalse(results.contains("ou=testing02,ou=system"));
+       assertFalse(results.contains("ou=testing03,ou=system"));
+       assertFalse(results.contains("ou=testing04,ou=system"));
+       assertTrue(results.contains("ou=testing05,ou=system"));
+   }
 }
