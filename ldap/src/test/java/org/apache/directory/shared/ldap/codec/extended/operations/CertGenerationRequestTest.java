@@ -125,7 +125,7 @@ public class CertGenerationRequestTest
 
 
     @Test
-    public void testCertGenrationDecodeWithoutTargetDN()
+    public void testCertGenerationDecodeTargetDN()
     {
         Asn1Decoder decoder = new LdapDecoder();
 
@@ -135,7 +135,6 @@ public class CertGenerationRequestTest
             { 0x30, 0x03, // CertGenerateObject ::= SEQUENCE {
               0x04, 0x01, ' ' } ); // empty targetDN value
 
-        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
         CertGenerationContainer container = new CertGenerationContainer();
@@ -150,19 +149,40 @@ public class CertGenerationRequestTest
             assertTrue( true );
         }
                 
+        String dn = "=sys";
+
+        bb = ByteBuffer.allocate( dn.length() + 2 + 2 );
+
+        bb.put( new byte[]
+            { 0x30, ( byte )( dn.length() + 2 ), // CertGenerateObject ::= SEQUENCE {
+              0x04, ( byte ) dn.length(), '=', 's', 'y', 's' } ); // empty targetDN value
+
+        bb.flip();
+
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "shouldn't accept the invalid targetDN" );
+        }
+        catch ( DecoderException e )
+        {
+            assertTrue( true );
+        }
+
     }
     
     
     @Test
-    public void testNullvalues()
+    public void testCertGenerationDecodeIssuerDN()
     {
         Asn1Decoder decoder = new LdapDecoder();
         
-        ByteBuffer bb = ByteBuffer.allocate( 5 );
+        ByteBuffer bb = ByteBuffer.allocate( 11 );
 
         bb.put( new byte[]
-            { 0x30, 0x03, // CertGenerateObject ::= SEQUENCE {
-              0x04, 0x01, 'x' } ); // non empty DN string
+            { 0x30, 0x09, // CertGenerateObject ::= SEQUENCE {
+              0x04, 0x04, 'c', 'n', '=', 'x', // target DN string 
+              0x04, 0x01, ' '} ); // empty issuer DN
 
         CertGenerationContainer container = new CertGenerationContainer();
         bb.flip();
@@ -177,43 +197,74 @@ public class CertGenerationRequestTest
             assertTrue( true );
         }
 
-        /*
-        CertGenerationObject certGenObj = container.getCertGenerationObject();
-        
-        assertEquals( "x", certGenObj.getTargetDN() );
-        assertNull( certGenObj.getIssuerDN() );
-        assertNull( certGenObj.getSubjectDN() );
-        assertNull( certGenObj.getKeyAlgorithm() );
-        */
-    }
 
-
-    @Test
-    public void testCertGenerationDecodeWithoutTargetDN()
-    {
-        Asn1Decoder decoder = new LdapDecoder();
-
-        ByteBuffer bb = ByteBuffer.allocate( 5 );
+        bb = ByteBuffer.allocate( 12 );
 
         bb.put( new byte[]
-            { 0x30, 0x03, // CertGenerateObject ::= SEQUENCE {
-              0x04, 0x01, ' ' } ); // empty targetDN value
+                         { 0x30, 0x10, // CertGenerateObject ::= SEQUENCE {
+                           0x04, 0x04, 'c', 'n', '=', 'x', // target DN string 
+                           0x04, 0x02, '=', 'x' } ); // empty issuer DN
 
-        String decodedPdu = StringTools.dumpBytes( bb.array() );
         bb.flip();
-
-        CertGenerationContainer container = new CertGenerationContainer();
 
         try
         {
             decoder.decode( bb, container );
-            fail( "shouldn't accept the empty targetDN" );
+            fail( "shouldn't accept the invalid issuerDN" );
         }
         catch ( DecoderException e )
         {
             assertTrue( true );
         }
-                
+    }
+
+
+    @Test
+    public void testCertGenerationDecodeWithoutSubjectDN()
+    {
+        Asn1Decoder decoder = new LdapDecoder();
+        
+        ByteBuffer bb = ByteBuffer.allocate( 17 );
+
+        bb.put( new byte[]
+            { 0x30, 0x15, // CertGenerateObject ::= SEQUENCE {
+              0x04, 0x04, 'c', 'n', '=', 'x', // target DN string 
+              0x04, 0x04, 'c', 'n', '=', 'x', // issuer DN
+              0x04, 0x01, ' ' } ); // empty subject DN
+
+        CertGenerationContainer container = new CertGenerationContainer();
+        bb.flip();
+
+        try
+        {
+            decoder.decode( bb, container );
+            fail();
+        }
+        catch ( DecoderException e )
+        {
+            assertTrue( true );
+        }
+
+
+        bb = ByteBuffer.allocate( 18 );
+
+        bb.put( new byte[]
+                         { 0x30, 0x16, // CertGenerateObject ::= SEQUENCE {
+                           0x04, 0x04, 'c', 'n', '=', 'x', // target DN string 
+                           0x04, 0x04, 'c', 'n', '=', 'x', // issuer DN
+                           0x04, 0x02, '=', 'x' } ); // invalid subject DN
+
+        bb.flip();
+
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "shouldn't accept the invalid subject DN" );
+        }
+        catch ( DecoderException e )
+        {
+            assertTrue( true );
+        }
     }
     
     

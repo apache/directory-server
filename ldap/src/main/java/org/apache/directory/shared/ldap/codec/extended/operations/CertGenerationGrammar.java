@@ -29,6 +29,7 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,13 @@ public class CertGenerationGrammar extends AbstractGrammar
 
                     if ( ( targetDN != null ) && ( targetDN.trim().length() > 0 ) )
                     {
+                        if( !LdapDN.isValid( targetDN ) )
+                        {
+                            String msg = "invalid target DN " +  targetDN;
+                            LOG.error( msg );
+                            throw new DecoderException( msg );
+                        }
+                        
                         CertGenContainer.getCertGenerationObject().setTargetDN( targetDN );
                     }
                     else
@@ -161,6 +169,13 @@ public class CertGenerationGrammar extends AbstractGrammar
 
                     if ( ( issuerDN != null ) && ( issuerDN.trim().length() > 0 ) )
                     {
+                        if( !LdapDN.isValid( issuerDN ) )
+                        {
+                            String msg = "invalid issuer DN " +  issuerDN;
+                            LOG.error( msg );
+                            throw new DecoderException( msg );
+                        }
+                        
                         CertGenContainer.getCertGenerationObject().setIssuerDN( issuerDN );
                     }
                 }
@@ -194,7 +209,21 @@ public class CertGenerationGrammar extends AbstractGrammar
 
                     if ( ( subjectDN != null ) && ( subjectDN.trim().length() > 0 ) )
                     {
+                        if( !LdapDN.isValid( subjectDN ) )
+                        {
+                            String msg = "invalid subject DN " +  subjectDN;
+                            LOG.error( msg );
+                            throw new DecoderException( msg );
+                        }
+
                         CertGenContainer.getCertGenerationObject().setSubjectDN( subjectDN );
+                    }
+                    else
+                    {
+                        String msg = "failed to decode the subject DN, it cannot be null or empty it is '"
+                            + StringTools.dumpBytes( value.getData() );
+                        LOG.error( msg );
+                        throw new DecoderException( msg );
                     }
                 }
             } );
@@ -221,7 +250,7 @@ public class CertGenerationGrammar extends AbstractGrammar
 
                     if ( IS_DEBUG )
                     {
-                        LOG.debug( "subject DN = " + keyAlgorithm );
+                        LOG.debug( "key algorithm = " + keyAlgorithm );
                     }
 
                     if ( keyAlgorithm != null && ( keyAlgorithm.trim().length() > 0 ) )
