@@ -43,14 +43,16 @@ import static org.junit.Assert.assertNull;
  */
 public class DIRSERVER1013ITest extends AbstractReplicationServiceTestCase
 {
-    @Before public void setUp() throws Exception
+    @Before 
+    public void setUp() throws Exception
     {
         // Create two replicas as we currently can't have the
         // replication service enabled without more than one.
         createReplicas( new String[] { "A", "B" } );
     }
     
-    @Test public void testNoRDNOID () throws Exception
+    @Test 
+    public void testNoRDNOID () throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
         

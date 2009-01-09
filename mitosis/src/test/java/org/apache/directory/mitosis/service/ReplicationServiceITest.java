@@ -52,7 +52,8 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 {
     private Map<String, OidNormalizer> oids;
     
-    @Before public void setUp() throws Exception
+    @Before 
+    public void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
 
@@ -69,7 +70,8 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
     }
 
     @Ignore
-    @Test public void testOneWay() throws Exception
+    @Test 
+    public void testOneWay() throws Exception
     {
         String dn1 = "cn=test,ou=system";
         String dn2 = "cn=test2,ou=system";
@@ -79,6 +81,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         testOneWayRename( dn2, dn1, false );
         testOneWayUnbind( dn1 );
     }
+    
     
     /**
      * Test that the entry created last will win in the case of a conflict.

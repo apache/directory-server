@@ -62,13 +62,15 @@ public abstract class AbstractReplicationServiceTestCase
     protected Map<String, ReplicationInterceptor> replicationServices = new HashMap<String, ReplicationInterceptor>();
 
 
-    @Before public void setUp() throws Exception
+    @Before 
+    public void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
     }
 
 
-    @After public void tearDown() throws Exception
+    @After 
+    public void tearDown() throws Exception
     {
         destroyAllReplicas();
     }

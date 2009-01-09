@@ -34,8 +34,11 @@ import java.util.UUID;
 import javax.naming.Name;
 import javax.naming.ldap.LdapName;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -59,9 +62,12 @@ import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.ReplaceAttributeOperation;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class DerbyReplicationStoreTest extends TestCase
+public class DerbyReplicationStoreTest
 {
     private static final String REPLICA_ID =  "TEST_REPLICA";
     private static final String OTHER_REPLICA_ID = "OTHER_REPLICA";
@@ -75,6 +81,7 @@ public class DerbyReplicationStoreTest extends TestCase
     private DefaultDirectoryService service;
 
 
+    @Before
     public void setUp() throws Exception
     {
         dropDatabase();
@@ -98,6 +105,7 @@ public class DerbyReplicationStoreTest extends TestCase
     }
 
 
+    @After
     public void tearDown() throws Exception
     {
         store.close();
@@ -116,6 +124,7 @@ public class DerbyReplicationStoreTest extends TestCase
     }
 
 
+    @Test
     public void testOperations() throws Exception
     {
         subTestReopen();
@@ -139,7 +148,7 @@ public class DerbyReplicationStoreTest extends TestCase
         try
         {
             startupDatabase( OTHER_REPLICA_ID );
-            Assert.fail( "Store cannot start up with wrong replica ID." );
+            fail( "Store cannot start up with wrong replica ID." );
         }
         catch ( ReplicationStoreException e )
         {
@@ -152,11 +161,11 @@ public class DerbyReplicationStoreTest extends TestCase
     {
         UUID uuid = UUID.randomUUID();
         Name name = new LdapName( "ou=a, ou=b" );
-        Assert.assertTrue( store.putUUID( uuid, name ) );
-        Assert.assertEquals( name, store.getDN( uuid ) );
-        Assert.assertTrue( store.removeUUID( uuid ) );
-        Assert.assertFalse( store.removeUUID( uuid ) );
-        Assert.assertNull( store.getDN( uuid ) );
+        assertTrue( store.putUUID( uuid, name ) );
+        assertEquals( name, store.getDN( uuid ) );
+        assertTrue( store.removeUUID( uuid ) );
+        assertFalse( store.removeUUID( uuid ) );
+        assertNull( store.getDN( uuid ) );
     }
 
 
@@ -165,19 +174,19 @@ public class DerbyReplicationStoreTest extends TestCase
         ReplicationLogIterator it;
 
         it = store.getLogs( csnFactory.newInstance( REPLICA_ID ), true );
-        Assert.assertFalse( it.next() );
+        assertFalse( it.next() );
         it.close();
         it = store.getLogs( csnFactory.newInstance( REPLICA_ID ), false );
-        Assert.assertFalse( it.next() );
+        assertFalse( it.next() );
         it.close();
         it = store.getLogs( csnFactory.newInstance( OTHER_REPLICA_ID ), true );
-        Assert.assertFalse( it.next() );
+        assertFalse( it.next() );
         it.close();
         it = store.getLogs( csnFactory.newInstance( OTHER_REPLICA_ID ), false );
-        Assert.assertFalse( it.next() );
+        assertFalse( it.next() );
         it.close();
 
-        Assert.assertEquals( 0, store.getLogSize() );
+        assertEquals( 0, store.getLogSize() );
     }
 
 
@@ -226,9 +235,9 @@ public class DerbyReplicationStoreTest extends TestCase
         store.putLog( op2 );
         testGetLogs( csn, op2 );
 
-        Assert.assertEquals( 2, store.getLogSize() );
-        Assert.assertEquals( 1, store.getLogSize( REPLICA_ID ) );
-        Assert.assertEquals( 1, store.getLogSize( OTHER_REPLICA_ID ) );
+        assertEquals( 2, store.getLogSize() );
+        assertEquals( 1, store.getLogSize( REPLICA_ID ) );
+        assertEquals( 1, store.getLogSize( OTHER_REPLICA_ID ) );
 
         // Test getLogs(CSNVector, true)
         List<Operation> expected = new ArrayList<Operation>();
@@ -284,20 +293,20 @@ public class DerbyReplicationStoreTest extends TestCase
         csn = it.getOperation( service.getRegistries() ).getCSN();
         it.close();
 
-        Assert.assertEquals( 0, store.removeLogs( csn, false ) );
-        Assert.assertEquals( 1, store.removeLogs( csn, true ) );
-        Assert.assertEquals( 0, store.getLogSize( REPLICA_ID ) );
+        assertEquals( 0, store.removeLogs( csn, false ) );
+        assertEquals( 1, store.removeLogs( csn, true ) );
+        assertEquals( 0, store.getLogSize( REPLICA_ID ) );
 
         it = store.getLogs( csnFactory.newInstance( 0, OTHER_REPLICA_ID, 0 ), false );
-        Assert.assertTrue( it.next() );
+        assertTrue( it.next() );
         csn = it.getOperation( service.getRegistries() ).getCSN();
         it.close();
 
-        Assert.assertEquals( 0, store.removeLogs( csn, false ) );
-        Assert.assertEquals( 1, store.removeLogs( csn, true ) );
-        Assert.assertEquals( 0, store.getLogSize( OTHER_REPLICA_ID ) );
+        assertEquals( 0, store.removeLogs( csn, false ) );
+        assertEquals( 1, store.removeLogs( csn, true ) );
+        assertEquals( 0, store.getLogSize( OTHER_REPLICA_ID ) );
 
-        Assert.assertEquals( 0, store.getLogSize() );
+        assertEquals( 0, store.getLogSize() );
     }
 
 
@@ -319,19 +328,19 @@ public class DerbyReplicationStoreTest extends TestCase
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID_2 );
 
-        Assert.assertEquals( expectedKnownReplicaIds, store.getKnownReplicaIds() );
+        assertEquals( expectedKnownReplicaIds, store.getKnownReplicaIds() );
 
         CSNVector expectedUpdateVector = new CSNVector();
         expectedUpdateVector.setCSN( csnB );
         expectedUpdateVector.setCSN( csnD );
 
-        Assert.assertEquals( expectedUpdateVector, store.getUpdateVector() );
+        assertEquals( expectedUpdateVector, store.getUpdateVector() );
 
         CSNVector expectedPurgeVector = new CSNVector();
         expectedPurgeVector.setCSN( csnA );
         expectedPurgeVector.setCSN( csnC );
 
-        Assert.assertEquals( expectedPurgeVector, store.getPurgeVector() );
+        assertEquals( expectedPurgeVector, store.getPurgeVector() );
     }
 
 
@@ -350,7 +359,7 @@ public class DerbyReplicationStoreTest extends TestCase
         testGetLogs( it, rit );
 
         rit = store.getLogs( csn, false );
-        Assert.assertFalse( rit.next() );
+        assertFalse( rit.next() );
         rit.close();
     }
 
@@ -368,13 +377,13 @@ public class DerbyReplicationStoreTest extends TestCase
         while ( expectedIt.hasNext() )
         {
             Operation expected = expectedIt.next();
-            Assert.assertTrue( actualIt.next() );
+            assertTrue( actualIt.next() );
 
             Operation actual = actualIt.getOperation( service.getRegistries() );
-            Assert.assertEquals( expected.getCSN(), actual.getCSN() );
-            assertEquals( expected, actual );
+            assertEquals( expected.getCSN(), actual.getCSN() );
+            assertEquals( expected.toString(), actual.toString() );
         }
-        Assert.assertFalse( actualIt.next() );
+        assertFalse( actualIt.next() );
         actualIt.close();
     }
 
@@ -390,11 +399,5 @@ public class DerbyReplicationStoreTest extends TestCase
         long endTime = System.currentTimeMillis();
         System.out.println( "Subtest #" + ( ++testCount ) + " [" + testName + "]: " + ( endTime - startTime ) + " ms" );
         startTime = System.currentTimeMillis();
-    }
-
-
-    private static void assertEquals( Operation expected, Operation actual )
-    {
-        Assert.assertEquals( expected.toString(), actual.toString() );
     }
 }
