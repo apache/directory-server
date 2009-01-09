@@ -95,10 +95,16 @@ public interface DirectoryService extends ServerEntryFactory
 
     void removePartition( Partition partition ) throws Exception;
 
-
+    /**
+     * @return The Directory Service registries
+     */
     Registries getRegistries();
 
 
+    /**
+     * Inject the registries into the directory service
+     * @param registries The new registries
+     */
     void setRegistries( Registries registries );
 
 
