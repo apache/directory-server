@@ -36,14 +36,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 
 
 public class EntryUtil
 {
     @SuppressWarnings("unchecked")
-    public static boolean isEntryUpdatable( CoreSession coreSession, LdapDN name, CSN newCSN ) 
+    public static boolean isEntryUpdatable( CSNFactory csnFactory, CoreSession coreSession, LdapDN name, CSN newCSN ) 
         throws Exception
     {
         PartitionNexus nexus = coreSession.getDirectoryService().getPartitionNexus();
@@ -71,11 +70,11 @@ public class EntryUtil
                 
                 if ( val instanceof byte[] )
                 {
-                    oldCSN = new DefaultCSN( StringTools.utf8ToString( (byte[])val ) );
+                    oldCSN = csnFactory.newInstance( StringTools.utf8ToString( (byte[])val ) );
                 }
                 else
                 {
-                    oldCSN = new DefaultCSN( (String)val );
+                    oldCSN = csnFactory.newInstance( (String)val );
                 }
             }
             catch ( IllegalArgumentException e )

@@ -20,8 +20,8 @@
 package org.apache.directory.mitosis.service.protocol.codec;
 
 
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.BeginLogEntriesAckMessageEncoder;
@@ -33,18 +33,19 @@ public class BeginLogEntriesAckMessageCodecTest extends AbstractMessageCodecTest
 
     private static final CSNVector PURGE_VECTOR = new CSNVector();
     private static final CSNVector UPDATE_VECTOR = new CSNVector();
+    private static CSNFactory csnFactory = new CSNFactory();
 
     static
     {
-        PURGE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() - 400, "replica0", 3456 ) );
-        PURGE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() - 300, "replica1", 9012 ) );
-        PURGE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() - 200, "replica2", 5678 ) );
-        PURGE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() - 100, "replica3", 1234 ) );
+        PURGE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() - 400, "replica0", 3456 ) );
+        PURGE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() - 300, "replica1", 9012 ) );
+        PURGE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() - 200, "replica2", 5678 ) );
+        PURGE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() - 100, "replica3", 1234 ) );
 
-        UPDATE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() + 000, "replica0", 1234 ) );
-        UPDATE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() + 100, "replica1", 5678 ) );
-        UPDATE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() + 200, "replica2", 9012 ) );
-        UPDATE_VECTOR.setCSN( new DefaultCSN( System.currentTimeMillis() + 300, "replica3", 3456 ) );
+        UPDATE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() + 000, "replica0", 1234 ) );
+        UPDATE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() + 100, "replica1", 5678 ) );
+        UPDATE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() + 200, "replica2", 9012 ) );
+        UPDATE_VECTOR.setCSN( csnFactory.newInstance( System.currentTimeMillis() + 300, "replica3", 3456 ) );
     }
 
 

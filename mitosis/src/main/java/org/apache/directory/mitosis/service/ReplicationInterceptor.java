@@ -21,8 +21,8 @@ package org.apache.directory.mitosis.service;
 
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -158,15 +158,30 @@ public class ReplicationInterceptor extends BaseInterceptor
      */
     private String name = DEFAULT_SERVICE_NAME;
 
+    /** The Directory service instance */
     private DirectoryService directoryService;
-    private ReplicationConfiguration configuration;
+    
+    /** The registries */
+    private Registries registries;
+
+    /** The directory nexus */
     private PartitionNexus nexus;
+
+    /** A reference to the replication configuration */
+    private ReplicationConfiguration configuration;
+    
+    
     private OperationFactory operationFactory;
     private ReplicationStore store;
     private NioSocketAcceptor registry;
     private final ClientConnectionManager clientConnectionManager = new ClientConnectionManager( this );
-    private Registries registries;
 
+    /** A unique CSN factory instance */
+    private CSNFactory csnFactory;
+    
+    
+    /** Stores the number of milli seconds per day */
+    private static final long MS_PER_DAY = 24L * 60L * 60L * 1000L;
 
     /**
      * Creates a new instance of ReplicationInterceptor.
@@ -229,6 +244,10 @@ public class ReplicationInterceptor extends BaseInterceptor
         // Initialize store and service
         store.open( directoryService, configuration );
         boolean serviceStarted = false;
+        
+        // Create the CSN factory
+        csnFactory = new CSNFactory();
+        
         try
         {
             startNetworking();
@@ -331,9 +350,9 @@ public class ReplicationInterceptor extends BaseInterceptor
             throw new NamingException( "No namingContexts attributes in rootDSE." );
         }
 
-        CSN purgeCSN = new DefaultCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
-            * 24L, // convert days to millis
-            "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
+        long timeout = System.currentTimeMillis() - configuration.getLogMaxAge() * MS_PER_DAY;
+        CSN purgeCSN = csnFactory.newInstance( timeout );
+        
         ExprNode filter;
 
         try
@@ -418,7 +437,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     {
         Operation op = operationFactory.newAdd( 
             addContext.getDn(), addContext.getEntry() );
-        op.execute( nexus, store, addContext.getSession() );
+        op.execute( nexus, store, addContext.getSession(), csnFactory );
     }
 
 
@@ -426,14 +445,14 @@ public class ReplicationInterceptor extends BaseInterceptor
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws Exception
     {
         Operation op = operationFactory.newDelete( deleteContext.getDn() );
-        op.execute( nexus, store, deleteContext.getSession() );
+        op.execute( nexus, store, deleteContext.getSession(), csnFactory );
     }
 
 
     public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws Exception
     {
         Operation op = operationFactory.newModify( modifyContext );
-        op.execute( nexus, store, modifyContext.getSession() );
+        op.execute( nexus, store, modifyContext.getSession(), csnFactory );
     }
 
 
@@ -441,7 +460,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     public void move( NextInterceptor next, MoveOperationContext moveOpContext ) throws Exception
     {
         Operation op = operationFactory.newMove( moveOpContext.getDn(), moveOpContext.getParent() );
-        op.execute( nexus, store, moveOpContext.getSession() );
+        op.execute( nexus, store, moveOpContext.getSession(), csnFactory );
     }
 
 
@@ -451,7 +470,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(),
                 moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(),
                 moveAndRenameOpContext.getDelOldDn() );
-        op.execute( nexus, store, moveAndRenameOpContext.getSession() );
+        op.execute( nexus, store, moveAndRenameOpContext.getSession(), csnFactory );
     }
 
 
@@ -459,7 +478,7 @@ public class ReplicationInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameOpContext ) throws Exception
     {
         Operation op = operationFactory.newModifyRn( renameOpContext.getDn(), renameOpContext.getNewRdn(), renameOpContext.getDelOldDn() );
-        op.execute( nexus, store, renameOpContext.getSession() );
+        op.execute( nexus, store, renameOpContext.getSession(), csnFactory );
     }
 
 
@@ -581,7 +600,16 @@ public class ReplicationInterceptor extends BaseInterceptor
         return entry.contains( ApacheSchemaConstants.ENTRY_DELETED_AT, "TRUE" );
     }
 
+    
+    /**
+     * @return The CSNFactory
+     */
+    public CSNFactory getCsnFactory()
+    {
+        return csnFactory;
+    }
 
+    
     public DirectoryService getDirectoryService()
     {
         return directoryService;

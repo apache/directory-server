@@ -25,8 +25,21 @@ package org.apache.directory.mitosis.common;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface CSNFactory
+public class CSNFactory
 {
+    /** The last timestamp */
+    private static volatile long lastTimestamp;
+    
+    /** The integer used to disambiguate CSN generated at the same time */
+    private static volatile int operationSequence;
+
+
+    public CSNFactory()
+    {
+        operationSequence = 0;
+    }
+
+
     /**
      * Returns a new {@link CSN}.
      * Generated CSN can be duplicate if user generates CSNs more than 2G 
@@ -35,5 +48,49 @@ public interface CSNFactory
      * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
      *        string.
      */
-    CSN newInstance( String replicaId );
+    public CSN newInstance( String replicaId )
+    {
+        long newTimestamp = System.currentTimeMillis();
+        
+        // We will be able to generate 2 147 483 647 CSNs each 10 ms max
+        if ( lastTimestamp == newTimestamp )
+        {
+            operationSequence ++;
+        }
+        else
+        {
+            lastTimestamp = newTimestamp;
+            operationSequence = 0;
+        }
+
+        return new CSN( lastTimestamp, replicaId, operationSequence );
+    }
+
+
+
+
+    /**
+     * Returns a new {@link CSN} created from the given values.
+     * 
+     * This method is <b>not</b> to be used except for test purposes.
+     * 
+     * @param timestamp The timestamp to use
+     * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
+     * string.
+     * @param operationSequence The operation sequence to use
+     */
+    public CSN newInstance( long timestamp, String replicaId, int operationSequence )
+    {
+        return new CSN( timestamp, replicaId, operationSequence );
+    }
+    /**
+     * Generates a CSN used to purge data. Its replicaID is not associated
+     * to a server. 
+     * 
+     * @param expirationDate The time up to the first CSN we want to keep 
+     */
+    public CSN newInstance( long expirationDate )
+    {
+        return new CSN( expirationDate, "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
+    }
 }

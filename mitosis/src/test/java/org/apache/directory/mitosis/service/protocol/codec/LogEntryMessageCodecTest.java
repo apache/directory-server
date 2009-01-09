@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
-import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.operation.AddAttributeOperation;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageDecoder;
 import org.apache.directory.mitosis.service.protocol.codec.LogEntryMessageEncoder;
@@ -45,6 +45,8 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
 
     private static DefaultDirectoryService service;
     
+    private static CSNFactory csnFactory = new CSNFactory();
+    
     static 
     {
         oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
@@ -62,7 +64,7 @@ public class LogEntryMessageCodecTest extends AbstractMessageCodecTest
                 1234, 
                 new AddAttributeOperation( 
                     service.getRegistries(),
-                    new DefaultCSN( System.currentTimeMillis(),
+                    csnFactory.newInstance( System.currentTimeMillis(),
                         "testReplica0", 1234 ), 
                     new LdapDN( "ou=system" ).normalize( oids ),
                     new DefaultServerAttribute( "ou", 

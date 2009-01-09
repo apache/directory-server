@@ -22,7 +22,6 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
@@ -422,11 +421,11 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
                     if ( val instanceof byte[] )
                     {
-                        csn = new DefaultCSN( StringTools.utf8ToString( ( byte[] ) val ) );
+                        csn = new CSN( StringTools.utf8ToString( ( byte[] ) val ) );
                     }
                     else
                     {
-                        csn = new DefaultCSN( ( String ) val );
+                        csn = new CSN( ( String ) val );
                     }
                 }
                 catch ( IllegalArgumentException ex )

@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultCSNFactoryTest extends TestCase
+public class CSNFactoryTest extends TestCase
 {
     private static final int NUM_GENERATES = 10;
 
@@ -41,7 +41,7 @@ public class DefaultCSNFactoryTest extends TestCase
     public void testUnique()
     {
         String replicaID = "test";
-        DefaultCSNFactory defaultCSNFactory = new DefaultCSNFactory();
+        CSNFactory defaultCSNFactory = new CSNFactory();
 
         CSN[] csns = new CSN[NUM_GENERATES];
 

@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.DefaultCSNFactory;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
@@ -69,7 +69,7 @@ public class ReplicationConfiguration
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
     /** Factories */
-    private CSNFactory csnFactory = new DefaultCSNFactory();
+    private CSNFactory csnFactory = new CSNFactory();
     private ReplicationStore store = new DerbyReplicationStore();
     
     /** The longest period of time before a stored entry is removed from storage */
@@ -158,7 +158,7 @@ public class ReplicationConfiguration
 
     /**
      * Returns the {@link CSNFactory} for generating {@link CSN}s.
-     * The default factory is {@link DefaultCSNFactory}.
+     * The default factory is {@link CSNFactory}.
      */
     public CSNFactory getCsnFactory()
     {
@@ -168,7 +168,7 @@ public class ReplicationConfiguration
 
     /**                +
      * Sets the {@link CSNFactory} for generating {@link CSN}s.
-     * The default factory is {@link DefaultCSNFactory}.
+     * The default factory is {@link CSNFactory}.
      * @org.apache.xbean.Property hidden="true"
      */
     public void setCsnFactory( CSNFactory csnFactory )

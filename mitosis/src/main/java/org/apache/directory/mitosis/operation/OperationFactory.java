@@ -114,6 +114,8 @@ public class OperationFactory
     /**
      * Creates a new {@link Operation} that performs LDAP "add" operation
      * with a newly generated {@link CSN}.
+     * 
+     * @param normalizedName The entry DN
      */
     public Operation newAdd( LdapDN normalizedName, ServerEntry entry ) throws Exception
     {
@@ -134,8 +136,6 @@ public class OperationFactory
 
         // Insert 'entryUUID' and 'entryDeleted'.
         ServerEntry cloneEntry = ( ServerEntry ) entry.clone();
-        cloneEntry.removeAttributes( ApacheSchemaConstants.ENTRY_UUID_AT );
-        cloneEntry.removeAttributes( ApacheSchemaConstants.ENTRY_DELETED_AT );
         cloneEntry.put( ApacheSchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
         cloneEntry.put( ApacheSchemaConstants.ENTRY_DELETED_AT, "FALSE" );
 

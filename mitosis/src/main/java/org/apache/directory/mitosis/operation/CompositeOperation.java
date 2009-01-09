@@ -21,6 +21,7 @@ package org.apache.directory.mitosis.operation;
 
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
@@ -204,13 +205,14 @@ public class CompositeOperation extends Operation
      * @param nexus the partition on which the modification will be done
      * @param store the replication store
      * @param coreSession the current session
+     * @param csnFactory The CSN Factory
      */
-    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession, CSNFactory csnFactory ) 
         throws Exception
     {
         for ( Operation op : children )
         {
-            op.execute( nexus, DUMMY_STORE, coreSession );
+            op.execute( nexus, DUMMY_STORE, coreSession, csnFactory );
         }
     }
     

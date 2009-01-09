@@ -26,6 +26,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
 
@@ -96,10 +97,10 @@ public abstract class AttributeOperation extends Operation
      * @param store the replication storage
      * @param coreSession the current session
      */
-    protected final void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
+    protected final void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession, CSNFactory csnFactory ) 
         throws Exception
     {
-        if ( ! EntryUtil.isEntryUpdatable( coreSession, dn, getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( csnFactory, coreSession, dn, getCSN() ) )
         {
             return;
         }

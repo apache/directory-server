@@ -20,10 +20,12 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
+import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
@@ -35,6 +37,8 @@ import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,10 +197,14 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
         Operation op = message.getOperation();
         LogEntryAckMessage ack = null;
+        
         try
         {
-            op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
-                        ctx.getDirectoryService().getSession() );
+            DirectoryService directoryService = ctx.getDirectoryService();
+            Interceptor interceptorInstance = directoryService.getInterceptor( ReplicationInterceptor.class.getName() ); 
+            CSNFactory csnFactory = ((ReplicationInterceptor)interceptorInstance).getCsnFactory();
+            op.execute( directoryService.getPartitionNexus(), ctx.getConfiguration().getStore(),
+                directoryService.getSession(), csnFactory );
             
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }

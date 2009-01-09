@@ -20,23 +20,28 @@
 package org.apache.directory.mitosis.common;
 
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
  * 
- * Test for the SimpleCSN class
+ * Test for the CSN class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultCSNTest extends TestCase
+public class CSNTest
 {
 
+    @Test
     public void testCSN()
     {
         long ts = System.currentTimeMillis();
 
-        CSN csn = new DefaultCSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
+        CSN csn = new CSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
 
         assertEquals( ts, csn.getTimestamp() );
         assertEquals( 1, csn.getOperationSequence() );
@@ -44,11 +49,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNEmpty()
     {
         try
         {
-            new DefaultCSN( "" );
+            new CSN( "" );
             fail();
         }
         catch ( AssertionError ae )
@@ -62,11 +68,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNTSOnly()
     {
         try
         {
-            new DefaultCSN( "123" );
+            new CSN( "123" );
             fail();
         }
         catch ( AssertionError ae )
@@ -80,11 +87,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNInvalidTS()
     {
         try
         {
-            new DefaultCSN( "zzz:abc:1" );
+            new CSN( "zzz:abc:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -98,11 +106,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNNoTS()
     {
         try
         {
-            new DefaultCSN( ":abc:1" );
+            new CSN( ":abc:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -116,11 +125,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNInavlidReplica()
     {
         try
         {
-            new DefaultCSN( "123:*:1" );
+            new CSN( "123:*:1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -134,11 +144,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNNoReplica()
     {
         try
         {
-            new DefaultCSN( "123::1" );
+            new CSN( "123::1" );
             fail();
         }
         catch ( AssertionError ae )
@@ -152,11 +163,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNInavlidOpSeq()
     {
         try
         {
-            new DefaultCSN( "123:abc:zzz" );
+            new CSN( "123:abc:zzz" );
             fail();
         }
         catch ( AssertionError ae )
@@ -170,11 +182,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNEmptyOpSeq()
     {
         try
         {
-            new DefaultCSN( "123:abc:" );
+            new CSN( "123:abc:" );
             fail();
         }
         catch ( AssertionError ae )
@@ -188,11 +201,12 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNNoOpSeq()
     {
         try
         {
-            new DefaultCSN( "123:abc" );
+            new CSN( "123:abc" );
             fail();
         }
         catch ( AssertionError ae )
@@ -206,9 +220,10 @@ public class DefaultCSNTest extends TestCase
     }
 
 
+    @Test
     public void testCSNToBytes()
     {
-        CSN csn = new DefaultCSN( "0123456789abcdef:test:5678cdef" );
+        CSN csn = new CSN( "0123456789abcdef:test:5678cdef" );
 
         byte[] bytes = csn.toBytes();
 
@@ -227,7 +242,7 @@ public class DefaultCSNTest extends TestCase
 
         assertEquals( "test", new String( bytes, 12, bytes.length - 12 ) );
 
-        CSN deserializedCSN = new DefaultCSN( bytes );
+        CSN deserializedCSN = new CSN( bytes );
         assertEquals( csn, deserializedCSN );
     }
 }

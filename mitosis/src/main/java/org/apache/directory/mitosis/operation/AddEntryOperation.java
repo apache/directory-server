@@ -21,6 +21,7 @@ package org.apache.directory.mitosis.operation;
 
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.CoreSession;
@@ -92,10 +93,10 @@ public class AddEntryOperation extends Operation
      * @param store not used... Just for inheritance sake.
      * @param coreSession the current session
      */
-    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession )
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession, CSNFactory csnFactory )
         throws Exception
     {
-        if ( ! EntryUtil.isEntryUpdatable( coreSession, entry.getDn(), getCSN() ) )
+        if ( ! EntryUtil.isEntryUpdatable( csnFactory, coreSession, entry.getDn(), getCSN() ) )
         {
             return;
         }

@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.DefaultCSN;
+import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.service.protocol.Constants;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
 import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
@@ -87,7 +87,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
                 throw new ProtocolDecoderException( "Invalid replicaId", e );
             }
 
-            updateVector.setCSN( new DefaultCSN( in.getLong(), replicaId, in.getInt() ) );
+            updateVector.setCSN( new CSN( in.getLong(), replicaId, in.getInt() ) );
         }
     }
 

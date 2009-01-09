@@ -83,6 +83,7 @@ public class CSNVector
     public void setAllCSN( CSNVector vector )
     {
         Iterator<CSN> i = vector.csns.values().iterator();
+        
         while ( i.hasNext() )
         {
             setCSN( i.next() );

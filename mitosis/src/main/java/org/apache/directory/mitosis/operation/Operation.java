@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.CoreSession;
@@ -72,10 +73,10 @@ public class Operation implements Externalizable
 
     /** The entry CSN */
     protected CSN csn;
-    
+
     /** The operation type */
     protected OperationType operationType;
-    
+
     /** A reference on the server registries */
     protected Registries registries;
 
@@ -89,13 +90,13 @@ public class Operation implements Externalizable
      * @param registries the server registries
      * @param operationType the operation type
      */
-    /* no qualifier */ Operation( Registries registries, OperationType operationType )
+    /* no qualifier */Operation( Registries registries, OperationType operationType )
     {
         this.registries = registries;
         this.operationType = operationType;
     }
 
-    
+
     /**
      * Creates a new instance of Operation, for the entry which
      * csn is given as a parameter.
@@ -128,16 +129,17 @@ public class Operation implements Externalizable
      * @param nexus the partition nexus
      * @param store the replication store
      * @param coreSession the current session
+     * @param csnFactory The CSN Factory
      */
-    public final void execute( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
-        throws Exception
+    public final void execute( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession, CSNFactory csnFactory ) throws Exception
     {
         synchronized ( nexus )
         {
-            applyOperation( nexus, store, coreSession );
+            applyOperation( nexus, store, coreSession, csnFactory );
             store.putLog( this );
         }
     }
+
 
     /**
      * Not supported. We should never call this method directly.
@@ -145,15 +147,16 @@ public class Operation implements Externalizable
      * @param nexus the partition nexus
      * @param store the replication store
      * @param coreSession the current session
+     * @param csnFactory The CSN Factory
      * @throws Exception
      */
-    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession ) 
-        throws Exception
+    protected void applyOperation( PartitionNexus nexus, ReplicationStore store, CoreSession coreSession,
+        CSNFactory csnFactory ) throws Exception
     {
         throw new OperationNotSupportedException( nexus.getSuffixDn().toString() );
     }
 
-    
+
     /**
      * De-serialize an Attribute Operation
      *
@@ -164,38 +167,38 @@ public class Operation implements Externalizable
      * @throws ClassNotFoundException 
      * @throws IOException
      */
-    private static Operation readAttributeOperation( ObjectInput in, Registries registries, 
-        Operation operation ) throws ClassNotFoundException, IOException
+    private static Operation readAttributeOperation( ObjectInput in, Registries registries, Operation operation )
+        throws ClassNotFoundException, IOException
     {
-        AttributeOperation attributeOperation = (AttributeOperation)operation;
+        AttributeOperation attributeOperation = ( AttributeOperation ) operation;
         // Read the DN
         LdapDN dn = LdapDNSerializer.deserialize( in );
-        
+
         // Read the Attribute ID
         String id = in.readUTF();
-        
+
         try
         {
             // Get the AttributeType
             AttributeType at = registries.getAttributeTypeRegistry().lookup( id );
-            
+
             // De-serialize the attribute
             DefaultServerAttribute attribute = new DefaultServerAttribute( id, at );
             attribute.deserialize( in );
-            
+
             // Store the read data into the operation 
             attributeOperation.dn = dn;
-            attributeOperation.attribute = attribute; 
-                
+            attributeOperation.attribute = attribute;
+
             return operation;
         }
         catch ( NamingException ne )
         {
-            throw new IOException( "Cannot find the '" + id + "' attributeType" ); 
+            throw new IOException( "Cannot find the '" + id + "' attributeType" );
         }
     }
-    
-    
+
+
     /**
      * De-serialize an operation. This is a recursive method, as we may have 
      * composite operations.
@@ -206,92 +209,93 @@ public class Operation implements Externalizable
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    public static Operation deserialize( Registries registries, ObjectInput in ) throws ClassNotFoundException, IOException
+    public static Operation deserialize( Registries registries, ObjectInput in ) throws ClassNotFoundException,
+        IOException
     {
         // Read the operation type
         int opTypeValue = in.readInt();
         OperationType opType = OperationType.get( opTypeValue );
-        
+
         // Read the CSN
-        CSN csn = (CSN)in.readObject();
-        
+        CSN csn = ( CSN ) in.readObject();
+
         Operation operation = null;
 
         switch ( opType )
         {
-            case ADD_ATTRIBUTE :
+            case ADD_ATTRIBUTE:
                 // Create a new AddAttribute operation
                 operation = new AddAttributeOperation( registries );
-                
+
                 // Set the CSN
                 operation.csn = csn;
-                
+
                 // Read it
                 readAttributeOperation( in, registries, operation );
-                
+
                 return operation;
-                
-            case DELETE_ATTRIBUTE :
+
+            case DELETE_ATTRIBUTE:
                 // Create a new DeleteAttribute operation
                 operation = new DeleteAttributeOperation( registries );
-                
+
                 // Set the CSN
                 operation.csn = csn;
-                
+
                 // Read it
                 readAttributeOperation( in, registries, operation );
-                
+
                 return operation;
-        
-            case REPLACE_ATTRIBUTE :
+
+            case REPLACE_ATTRIBUTE:
                 // Create a new ReplaceAttribute operation
                 operation = new ReplaceAttributeOperation( registries );
-                
+
                 // Set the CSN
                 operation.csn = csn;
-                
+
                 // Read it
                 readAttributeOperation( in, registries, operation );
-                
+
                 return operation;
-        
-            case ADD_ENTRY :
+
+            case ADD_ENTRY:
                 // Create a new AddEntry operation
                 operation = new AddEntryOperation( registries );
-                
+
                 // Set the CSN
                 operation.csn = csn;
-                
+
                 DefaultServerEntry entry = new DefaultServerEntry( registries );
                 entry.deserialize( in );
-                ((AddEntryOperation)operation).setEntry( entry );
-                
+                ( ( AddEntryOperation ) operation ).setEntry( entry );
+
                 return operation;
-        
-            case COMPOSITE_OPERATION :
+
+            case COMPOSITE_OPERATION:
                 // Create a new Composite operation
                 operation = new CompositeOperation( registries );
-                
+
                 // Set the CSN
                 operation.csn = csn;
 
                 // Read the number of operations to deserialize
                 int nbOperations = in.readInt();
-                
+
                 for ( int i = 0; i < nbOperations; i++ )
                 {
                     Operation child = deserialize( registries, in );
                     child.csn = csn;
-                    ((CompositeOperation)operation).add( child );
+                    ( ( CompositeOperation ) operation ).add( child );
                 }
-            
+
                 return operation;
-            
-            default :
+
+            default:
                 throw new IOException( "Cannot read the unkown operation" );
         }
     }
-    
+
 
     /**
      * Serialize an operation. This is a recursive method, as an operation
@@ -305,49 +309,49 @@ public class Operation implements Externalizable
     public static void serialize( Operation operation, ObjectOutput out ) throws ClassNotFoundException, IOException
     {
         OperationType opType = operation.operationType;
-        
+
         // Write the operation type
         out.writeInt( opType.ordinal() );
-        
+
         // Write the CSN
         out.writeObject( operation.csn );
-        
+
         switch ( opType )
         {
-            case REPLACE_ATTRIBUTE :
-            case DELETE_ATTRIBUTE :
-            case ADD_ATTRIBUTE :
-                AttributeOperation attrOp = (AttributeOperation)operation;
-                
+            case REPLACE_ATTRIBUTE:
+            case DELETE_ATTRIBUTE:
+            case ADD_ATTRIBUTE:
+                AttributeOperation attrOp = ( AttributeOperation ) operation;
+
                 // Write the DN
                 LdapDNSerializer.serialize( attrOp.dn, out );
-                
+
                 // Write the attribute ID
-                out.writeUTF( ((AttributeOperation)operation).attribute.getId() );
-                
+                out.writeUTF( ( ( AttributeOperation ) operation ).attribute.getId() );
+
                 // Write the attribute
-                DefaultServerAttribute attr = (DefaultServerAttribute)(attrOp.attribute);
+                DefaultServerAttribute attr = ( DefaultServerAttribute ) ( attrOp.attribute );
                 attr.serialize( out );
                 return;
-                
-            case ADD_ENTRY :
-                ((DefaultServerEntry)((AddEntryOperation)operation).getEntry()).serialize( out );
+
+            case ADD_ENTRY:
+                ( ( DefaultServerEntry ) ( ( AddEntryOperation ) operation ).getEntry() ).serialize( out );
                 return;
-                
-            case COMPOSITE_OPERATION :
-                out.writeInt( ((CompositeOperation)operation).size() );
-                
+
+            case COMPOSITE_OPERATION:
+                out.writeInt( ( ( CompositeOperation ) operation ).size() );
+
                 // Loop on all the operations
-                for ( Operation child:((CompositeOperation)operation).getChildren() )
+                for ( Operation child : ( ( CompositeOperation ) operation ).getChildren() )
                 {
                     serialize( child, out );
                 }
-                
+
                 return;
         }
     }
-    
-    
+
+
     /**
      * Read the CSN from an input stream
      * 
@@ -357,17 +361,17 @@ public class Operation implements Externalizable
      */
     public void readExternal( ObjectInput in ) throws ClassNotFoundException, IOException
     {
-        csn = (CSN)in.readObject();
+        csn = ( CSN ) in.readObject();
     }
-    
-    
+
+
     /**
      * Write the CSN to an output stream
      * 
      * @param out the output stream in which the CSN is written
      * @throws IOException if we can't write to the stream
      */
-    public void writeExternal( ObjectOutput out) throws IOException
+    public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeObject( csn );
     }

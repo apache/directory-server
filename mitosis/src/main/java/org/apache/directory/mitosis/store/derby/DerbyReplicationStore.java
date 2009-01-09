@@ -23,7 +23,6 @@ package org.apache.directory.mitosis.store.derby;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
@@ -550,7 +549,7 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             for ( String knownReplicaId : knownReplicaIds )
             {
-                newUV.setCSN( new DefaultCSN( 0, knownReplicaId, 0 ) );
+                newUV.setCSN( new CSN( 0, knownReplicaId, 0 ) );
             }
         }
 
@@ -717,7 +716,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 
                 if ( rs.next() )
                 {
-                    result.setCSN( new DefaultCSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
+                    result.setCSN( new CSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
                 }
                 
                 rs.close();
