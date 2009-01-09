@@ -645,5 +645,11 @@ public class InterceptorChainTest extends TestCase
         {
             // Do nothing
         }
+
+        
+        public Interceptor getInterceptor( String interceptorName )
+        {
+            return null;
+        }
     }
 }

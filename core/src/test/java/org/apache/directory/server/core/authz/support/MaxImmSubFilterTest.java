@@ -836,6 +836,12 @@ public class MaxImmSubFilterTest
         {
             // Do nothing
         }
+
+        
+        public Interceptor getInterceptor( String interceptorName )
+        {
+            return null;
+        }
     }
 
     

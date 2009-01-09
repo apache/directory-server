@@ -422,4 +422,12 @@ public interface DirectoryService extends ServerEntryFactory
      * null value will be transformed to {@link Integer#MAX_VALUE}
      */
     void setMaxPDUSize( int maxPDUSize );
+    
+    
+    /**
+     * Get an Interceptor instance from its name
+     * @param interceptorName The interceptor's name for which we want the instance 
+     * @return
+     */
+    Interceptor getInterceptor( String interceptorName );
 }

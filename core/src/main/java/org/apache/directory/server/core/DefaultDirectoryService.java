@@ -1590,4 +1590,21 @@ public class DefaultDirectoryService implements DirectoryService
         
         this.maxPDUSize = maxPDUSize;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Interceptor getInterceptor( String interceptorName )
+    {
+        for ( Interceptor interceptor:interceptors )
+        {
+            if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
+            {
+                return interceptor;
+            }
+        }
+        
+        return null;
+    }
 }
