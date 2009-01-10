@@ -103,7 +103,7 @@ public class DerbyReplicationStore implements ReplicationStore
         // Create database if not exists.
         try
         {
-            Class.forName( DRIVER_NAME );
+            Class.forName( DRIVER_NAME ).newInstance();
             Connection con = DriverManager.getConnection( dbURI + ";create=true" );
             con.close();
         }
