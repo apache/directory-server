@@ -233,7 +233,9 @@ public class ReplicationInterceptor extends BaseInterceptor
      */
     public void init( DirectoryService directoryService ) throws Exception
     {
+        // First check the configuration
         configuration.validate();
+        
         // and then preserve frequently used ones
         this.directoryService = directoryService;
         registries = directoryService.getRegistries();
@@ -248,6 +250,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         // Create the CSN factory
         csnFactory = new CSNFactory();
         
+        // Start the network mayer
         try
         {
             startNetworking();
@@ -266,6 +269,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
         }
 
+        // Finally, purge old entries
         purgeAgedData();
     }
 
