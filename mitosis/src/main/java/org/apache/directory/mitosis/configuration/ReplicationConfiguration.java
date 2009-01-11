@@ -31,7 +31,6 @@ import java.util.TreeSet;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.CSNFactory;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
