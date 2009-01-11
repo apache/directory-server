@@ -366,6 +366,7 @@ class ClientConnectionManager
                     ClientConnectionManager.this.configuration.getReplicaId(), replica.getId() );
 
             IoSession session;
+            
             try
             {
                 connector.setConnectTimeoutMillis( configuration.getResponseTimeout() );

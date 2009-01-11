@@ -21,7 +21,7 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.service.DefaultReplicationContext;
+import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.server.core.DirectoryService;
@@ -71,7 +71,7 @@ public class ReplicationProtocolHandler implements IoHandler
     public void sessionCreated( IoSession session ) throws Exception
     {
         session.setAttribute( CONTEXT,
-                new DefaultReplicationContext( interceptor, directoryService, configuration, session ) );
+                new ReplicationContext( interceptor, directoryService, configuration, session ) );
     }
 
 
