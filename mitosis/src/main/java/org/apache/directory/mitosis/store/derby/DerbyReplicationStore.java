@@ -37,6 +37,7 @@ import javax.naming.Name;
 import javax.naming.ldap.LdapName;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,6 +68,11 @@ public class DerbyReplicationStore implements ReplicationStore
     private Set<String> knownReplicaIds;
     private final Object knownReplicaIdsLock = new Object();
     private final OperationCodec operationCodec = new OperationCodec();
+    
+    /** Define the Derby table names */
+    private static final String METADATA_TABLE = "REPLICATION_METADATA";
+    private static final String UUID_TABLE = "REPLICATION_UUID";
+    private static final String LOG_TABLE = "REPLICATION_LOG";
 
 
     public String getTablePrefix()
@@ -128,6 +134,26 @@ public class DerbyReplicationStore implements ReplicationStore
         initSchema();
         loadMetadata();
     }
+    
+    
+    /**
+     * Find the defined table for the replication schema
+     */
+    private Set<String> getTables( Connection con ) throws SQLException
+    {
+        DatabaseMetaData meta = con.getMetaData();
+        ResultSet res = meta.getTables( null, null, null, new String[]
+            { "TABLE" } );
+
+        Set<String> tables = new HashSet<String>();
+
+        while ( res.next() )
+        {
+            tables.add( res.getString( "TABLE_NAME" ) );
+        }
+        
+        return tables;
+    }
 
 
     private void initSchema()
@@ -140,40 +166,24 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             con = dataSource.getConnection();
             con.setAutoCommit( true );
+            
+            Set<String> tables = getTables( con );
 
             stmt = con.createStatement();
 
-            try
-            {
-                rs = stmt.executeQuery( "SELECT M_KEY FROM " + metadataTableName + " WHERE M_KEY IS NULL" );
-                rs.close();
-                rs = null;
-            }
-            catch ( SQLException e )
+            if ( !tables.contains( metadataTableName ) )
             {
                 stmt.executeUpdate( "CREATE TABLE " + metadataTableName + " ("
                     + "    M_KEY VARCHAR(30) NOT NULL PRIMARY KEY," + "    M_VALUE VARCHAR(100) NOT NULL )" );
             }
 
-            try
-            {
-                rs = stmt.executeQuery( "SELECT UUID FROM " + uuidTableName + " WHERE UUID IS NULL" );
-                rs.close();
-                rs = null;
-            }
-            catch ( SQLException e )
+            if ( !tables.contains( uuidTableName ) )
             {
                 stmt.executeUpdate( "CREATE TABLE " + uuidTableName + " (" + "    UUID CHAR(36) NOT NULL PRIMARY KEY,"
                     + "    DN CLOB NOT NULL" + ")" );
             }
 
-            try
-            {
-                rs = stmt.executeQuery( "SELECT CSN_REPLICA_ID FROM " + logTableName + " WHERE CSN_REPLICA_ID IS NULL" );
-                rs.close();
-                rs = null;
-            }
-            catch ( SQLException e )
+            if ( !tables.contains( logTableName ) )
             {
                 stmt.executeUpdate( "CREATE TABLE " + logTableName + " (" + "    CSN_REPLICA_ID VARCHAR(16) NOT NULL,"
                     + "    CSN_TIMESTAMP BIGINT NOT NULL," + "    CSN_OP_SEQ INTEGER NOT NULL,"
