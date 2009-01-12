@@ -3177,4 +3177,14 @@ public class LdapDNTest
         assertEquals( dn, LdapDNSerializer.deserialize( in ) );
         assertEquals( dn, deserializeDN( serializeDN( dn ) ) );
     }
+    
+    @Test
+    public void testCompositeRDN() throws InvalidNameException
+    {
+        assertTrue( LdapDN.isValid( "a=b+c=d+e=f,g=h" ) );
+
+        LdapDN dn = new LdapDN( "a=b+c=d+e=f,g=h" );
+        
+        assertEquals( "a=b+c=d+e=f,g=h", dn.toString() );
+    }
 }
