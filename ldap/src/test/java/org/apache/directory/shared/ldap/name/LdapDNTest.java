@@ -3187,4 +3187,14 @@ public class LdapDNTest
         
         assertEquals( "a=b+c=d+e=f,g=h", dn.toString() );
     }
+
+    @Test
+    public void testCompositeRDNOids() throws InvalidNameException
+    {
+        assertTrue( LdapDN.isValid( "1.2.3.4.5=0+1.2.3.4.6=0+1.2.3.4.7=omnischmomni,2.5.4.3=subtree,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com" ) );
+
+        LdapDN dn = new LdapDN( "1.2.3.4.5=0+1.2.3.4.6=0+1.2.3.4.7=omnischmomni,2.5.4.3=subtree,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com" );
+        
+        assertEquals( "1.2.3.4.5=0+1.2.3.4.6=0+1.2.3.4.7=omnischmomni,2.5.4.3=subtree,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com", dn.toString() );
+    }
 }
