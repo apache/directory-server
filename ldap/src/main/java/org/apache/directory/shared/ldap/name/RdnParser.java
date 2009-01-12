@@ -785,6 +785,7 @@ public class RdnParser
             if ( StringTools.isCharASCII( bytes, pos.end, '+' ) )
             {
                 pos.start++;
+                pos.length = 0;
             }
             else
             {
