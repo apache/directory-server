@@ -26,10 +26,9 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 
@@ -216,11 +215,8 @@ public class ObjectClassHolder extends SchemaElementImpl
         String dn = "m-oid=" + oid + ", ou=objectClasses" + ", cn=" + Rdn.escapeValue( schemaName ) + ", ou=schema";
 
         // First dump the DN only
-        Entry entry = new DefaultClientEntry();
-        EntryAttribute attribute = new DefaultClientAttribute( "dn", dn );
-
-        entry.put( attribute );
-        sb.append( LdifUtils.convertToLdif( entry ) );
+        Entry entry = new DefaultClientEntry( new LdapDN( dn ) );
+        sb.append( LdifUtils.convertEntryToLdif( entry ) );
 
         return sb.toString();
     }

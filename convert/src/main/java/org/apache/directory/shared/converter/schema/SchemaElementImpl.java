@@ -157,7 +157,7 @@ public abstract class SchemaElementImpl implements SchemaElement
             
             entry.put( attribute );
             
-            return LdifUtils.convertToLdif( entry );
+            return LdifUtils.convertAttributesToLdif( entry );
         }
     }
     
@@ -177,7 +177,7 @@ public abstract class SchemaElementImpl implements SchemaElement
 
             entry.put( attribute );
             
-            return LdifUtils.convertToLdif( entry );
+            return LdifUtils.convertAttributesToLdif( entry );
         }
     }
     
@@ -206,7 +206,7 @@ public abstract class SchemaElementImpl implements SchemaElement
             attribute.add( extension );
         }
 
-        sb.append( LdifUtils.convertToLdif( entry ) );
+        sb.append( LdifUtils.convertAttributesToLdif( entry ) );
         
         return sb.toString();
     }

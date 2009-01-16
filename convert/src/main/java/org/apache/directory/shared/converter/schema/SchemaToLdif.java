@@ -133,7 +133,7 @@ public class SchemaToLdif
         // Iterate through each schema elemnts
         for ( SchemaElement element:elements )
         {
-            out.write(  element.toLdif( schema.getName() ) );
+            out.write( element.toLdif( schema.getName() ) );
             
             out.write( '\n' );
         }
