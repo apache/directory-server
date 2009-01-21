@@ -27,8 +27,8 @@ import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.parser.ConsoleParserMonitor;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
 
 
 /**

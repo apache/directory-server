@@ -18,54 +18,49 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 /**
- * An ApacheDS specific schema description. 
- * It contains a full qualified class name and optional 
- * the BASE64 encoded bytecode of the class.
+ * RFC 4512 - 4.1.3. Matching Rule Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AbstractAdsSchemaDescription extends AbstractSchemaDescription
+public class MatchingRuleDescription extends AbstractSchemaDescription
 {
-    /** The Full Qualified Class Name */
-    private String fqcn;
-
-    /** The base64 encoded bytecode for this schema */
-    private String bytecode;
+    /** The matching rule's description */
+    private String syntax;
 
 
-    protected AbstractAdsSchemaDescription()
+    /**
+     * 
+     * Creates a new instance of MatchingRuleDescription.
+     *
+     */
+    public MatchingRuleDescription()
     {
-        fqcn = "";
-        bytecode = null;
+        syntax = null;
     }
 
 
-    public String getBytecode()
+    /**
+     * @return The matchingRule's syntax description
+     */
+    public String getSyntax()
     {
-        return bytecode;
+        return syntax;
     }
 
 
-    public void setBytecode( String bytecode )
+    /**
+     * Set the matchingRule's syntax description
+     *
+     * @param syntax The description
+     */
+    public void setSyntax( String syntax )
     {
-        this.bytecode = bytecode;
-    }
-
-
-    public String getFqcn()
-    {
-        return fqcn;
-    }
-
-
-    public void setFqcn( String fqcn )
-    {
-        this.fqcn = fqcn;
+        this.syntax = syntax;
     }
 
 }

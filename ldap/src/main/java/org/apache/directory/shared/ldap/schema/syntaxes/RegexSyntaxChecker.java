@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
+
 
 /**
  * A SyntaxChecker implemented using Perl5 regular expressions to constrain
@@ -79,7 +81,7 @@ public class RegexSyntaxChecker extends AbstractSyntaxChecker
     }
     
     /**
-     * @see org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker#isValidSyntax(java.lang.Object)
+     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
      * 
      * @param value the value of some attribute with the syntax
      * @return true if the value is in the valid syntax, false otherwise

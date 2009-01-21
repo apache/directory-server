@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.schema.parsers;
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
 
 
 /**

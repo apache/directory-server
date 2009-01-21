@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -61,7 +62,7 @@ public class SubtreeSpecificationSyntaxChecker extends AbstractSyntaxChecker
     }
     
     /**
-     * @see org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker#isValidSyntax(Object)
+     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(Object)
      * 
      * @param value the value of some attribute with the syntax
      * @return true if the value is in the valid syntax, false otherwise

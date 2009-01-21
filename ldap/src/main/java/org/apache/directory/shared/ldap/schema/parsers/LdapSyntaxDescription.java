@@ -18,49 +18,50 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
+
+
+import java.util.LinkedHashMap;
+import java.util.List;
 
 
 /**
- * RFC 4512 - 4.1.3. Matching Rule Description
+ * RFC 4512 - 4.1.5. LDAP Syntaxes
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MatchingRuleDescription extends AbstractSchemaDescription
+public class LdapSyntaxDescription extends AbstractSchemaDescription
 {
-    /** The matching rule's description */
-    private String syntax;
+    /**
+     * Creates a new instance of LdapSyntaxDescription with empty string values.
+     */
+    public LdapSyntaxDescription()
+    {
+        this.numericOid = "";
+        description = "";
+        extensions = new LinkedHashMap<String, List<String>>();
+    }
 
 
     /**
+     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
      * 
-     * Creates a new instance of MatchingRuleDescription.
-     *
+     * @throws UnsupportedOperationException every time
      */
-    public MatchingRuleDescription()
+    public boolean isObsolete()
     {
-        syntax = null;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
 
 
     /**
-     * @return The matchingRule's syntax description
+     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
+     * 
+     * @throws UnsupportedOperationException every time
      */
-    public String getSyntax()
+    public void setObsolete( boolean isObsolete )
     {
-        return syntax;
+        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
-
-
-    /**
-     * Set the matchingRule's syntax description
-     *
-     * @param syntax The description
-     */
-    public void setSyntax( String syntax )
-    {
-        this.syntax = syntax;
-    }
-
 }

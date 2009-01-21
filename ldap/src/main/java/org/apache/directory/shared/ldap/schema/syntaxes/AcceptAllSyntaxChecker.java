@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+
 
 /**
  * A SyntaxChecker implementation which accepts all values as valid.

@@ -36,7 +36,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 

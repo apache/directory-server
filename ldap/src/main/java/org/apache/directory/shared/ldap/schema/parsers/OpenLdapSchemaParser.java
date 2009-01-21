@@ -31,9 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 

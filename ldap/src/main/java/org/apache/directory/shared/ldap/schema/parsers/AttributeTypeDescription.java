@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import org.apache.directory.shared.ldap.schema.UsageEnum;

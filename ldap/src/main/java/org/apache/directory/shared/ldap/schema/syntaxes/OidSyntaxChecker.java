@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

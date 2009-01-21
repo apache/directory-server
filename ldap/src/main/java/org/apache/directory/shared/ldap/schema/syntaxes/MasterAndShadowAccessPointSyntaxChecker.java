@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
+
 
 /**
  * A SyntaxChecker which verifies that a value is a 
@@ -54,7 +56,7 @@ public class MasterAndShadowAccessPointSyntaxChecker extends AbstractSyntaxCheck
     }
     
     /**
-     * @see org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker#isValidSyntax(Object)
+     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(Object)
      * 
      * @param value the value of some attribute with the syntax
      * @return true if the value is in the valid syntax, false otherwise

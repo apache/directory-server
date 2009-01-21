@@ -18,45 +18,16 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
-
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 /**
- * RFC 4512 - 4.1.4. Matching Rule Use Description
+ * An ApacheDS specific schema description for a Comparator.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MatchingRuleUseDescription extends AbstractSchemaDescription
+public class ComparatorDescription extends AbstractAdsSchemaDescription
 {
-    private List<String> applicableAttributes;
-
-
-    public MatchingRuleUseDescription()
-    {
-        numericOid = "";
-        names = new ArrayList<String>();
-        description = "";
-        isObsolete = false;
-        applicableAttributes = new ArrayList<String>();
-        extensions = new LinkedHashMap<String, List<String>>();
-    }
-
-
-    public List<String> getApplicableAttributes()
-    {
-        return applicableAttributes;
-    }
-
-
-    public void setApplicableAttributes( List<String> applicableAttributes )
-    {
-        this.applicableAttributes = applicableAttributes;
-    }
 
 }

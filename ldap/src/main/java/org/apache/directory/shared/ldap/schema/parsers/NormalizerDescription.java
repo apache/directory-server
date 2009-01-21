@@ -18,16 +18,16 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 /**
- * An ApacheDS specific schema description for a Comparator.
+ * An ApacheDS specific schema description for a Normalizer.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ComparatorDescription extends AbstractAdsSchemaDescription
+public class NormalizerDescription extends AbstractAdsSchemaDescription
 {
 
 }

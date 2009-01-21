@@ -24,8 +24,8 @@ import java.text.ParseException;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleDescription;
 
 
 /**

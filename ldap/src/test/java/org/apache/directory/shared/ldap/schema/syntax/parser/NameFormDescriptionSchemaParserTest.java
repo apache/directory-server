@@ -24,8 +24,8 @@ import java.text.ParseException;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.shared.ldap.schema.parsers.NameFormDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.NameFormDescription;
 
 
 /**

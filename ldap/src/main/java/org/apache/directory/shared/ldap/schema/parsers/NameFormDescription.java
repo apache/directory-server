@@ -18,36 +18,32 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-
 
 /**
- * RFC 4512 - 4.1.1. Object Class Description
+ * RFC 4512 - 4.1.7.2.  Name Form Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ObjectClassDescription extends AbstractSchemaDescription
+public class NameFormDescription extends AbstractSchemaDescription
 {
-    private List<String> superiorObjectClasses;
 
-    private ObjectClassTypeEnum kind;
-
+    private String structuralObjectClass;
+    
     private List<String> mustAttributeTypes;
 
     private List<String> mayAttributeTypes;
 
 
-    public ObjectClassDescription()
+    public NameFormDescription()
     {
-        superiorObjectClasses = new ArrayList<String>();
-        kind = ObjectClassTypeEnum.STRUCTURAL;
+        structuralObjectClass = null;
         mustAttributeTypes = new ArrayList<String>();
         mayAttributeTypes = new ArrayList<String>();
     }
@@ -77,36 +73,6 @@ public class ObjectClassDescription extends AbstractSchemaDescription
     }
 
 
-    public List<String> getSuperiorObjectClasses()
-    {
-        return superiorObjectClasses;
-    }
-
-
-    public void setSuperiorObjectClasses( List<String> superiorObjectClasses )
-    {
-        this.superiorObjectClasses = superiorObjectClasses;
-    }
-
-
-    public ObjectClassTypeEnum getKind()
-    {
-        return kind;
-    }
-
-
-    public void setKind( ObjectClassTypeEnum kind )
-    {
-        this.kind = kind;
-    }
-
-
-    public void addSuperiorObjectClass( String oid )
-    {
-        superiorObjectClasses.add( oid );
-    }
-
-
     public void addMustAttributeType( String oid )
     {
         mustAttributeTypes.add( oid );
@@ -116,6 +82,18 @@ public class ObjectClassDescription extends AbstractSchemaDescription
     public void addMayAttributeType( String oid )
     {
         mayAttributeTypes.add( oid );
+    }
+
+
+    public String getStructuralObjectClass()
+    {
+        return structuralObjectClass;
+    }
+
+
+    public void setStructuralObjectClass( String structuralObjectClass )
+    {
+        this.structuralObjectClass = structuralObjectClass;
     }
 
 }

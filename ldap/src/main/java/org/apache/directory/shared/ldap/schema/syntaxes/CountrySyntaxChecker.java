@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

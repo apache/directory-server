@@ -24,8 +24,8 @@ import java.text.ParseException;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescription;
 
 
 /**

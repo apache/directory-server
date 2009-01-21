@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.StringTools;
 

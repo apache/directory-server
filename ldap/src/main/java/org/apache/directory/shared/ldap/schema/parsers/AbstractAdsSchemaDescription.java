@@ -18,16 +18,54 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 /**
- * An ApacheDS specific schema description for a Normalizer.
+ * An ApacheDS specific schema description. 
+ * It contains a full qualified class name and optional 
+ * the BASE64 encoded bytecode of the class.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NormalizerDescription extends AbstractAdsSchemaDescription
+public abstract class AbstractAdsSchemaDescription extends AbstractSchemaDescription
 {
+    /** The Full Qualified Class Name */
+    private String fqcn;
+
+    /** The base64 encoded bytecode for this schema */
+    private String bytecode;
+
+
+    protected AbstractAdsSchemaDescription()
+    {
+        fqcn = "";
+        bytecode = null;
+    }
+
+
+    public String getBytecode()
+    {
+        return bytecode;
+    }
+
+
+    public void setBytecode( String bytecode )
+    {
+        this.bytecode = bytecode;
+    }
+
+
+    public String getFqcn()
+    {
+        return fqcn;
+    }
+
+
+    public void setFqcn( String fqcn )
+    {
+        this.fqcn = fqcn;
+    }
 
 }

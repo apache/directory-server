@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.util.regex.Pattern;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

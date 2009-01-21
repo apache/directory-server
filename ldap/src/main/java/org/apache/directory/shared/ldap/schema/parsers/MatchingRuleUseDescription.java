@@ -18,50 +18,45 @@
  *  
  */
 
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 
 /**
- * RFC 4512 - 4.1.5. LDAP Syntaxes
+ * RFC 4512 - 4.1.4. Matching Rule Use Description
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdapSyntaxDescription extends AbstractSchemaDescription
+public class MatchingRuleUseDescription extends AbstractSchemaDescription
 {
-    /**
-     * Creates a new instance of LdapSyntaxDescription with empty string values.
-     */
-    public LdapSyntaxDescription()
+    private List<String> applicableAttributes;
+
+
+    public MatchingRuleUseDescription()
     {
-        this.numericOid = "";
+        numericOid = "";
+        names = new ArrayList<String>();
         description = "";
+        isObsolete = false;
+        applicableAttributes = new ArrayList<String>();
         extensions = new LinkedHashMap<String, List<String>>();
     }
 
 
-    /**
-     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
-     * 
-     * @throws UnsupportedOperationException every time
-     */
-    public boolean isObsolete()
+    public List<String> getApplicableAttributes()
     {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
+        return applicableAttributes;
     }
 
 
-    /**
-     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
-     * 
-     * @throws UnsupportedOperationException every time
-     */
-    public void setObsolete( boolean isObsolete )
+    public void setApplicableAttributes( List<String> applicableAttributes )
     {
-        throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
+        this.applicableAttributes = applicableAttributes;
     }
+
 }

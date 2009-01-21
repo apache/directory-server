@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.schema.parsers;
 
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.DITContentRuleDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;

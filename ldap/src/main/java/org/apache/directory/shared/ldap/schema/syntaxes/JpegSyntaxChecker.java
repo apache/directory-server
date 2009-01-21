@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
+
 
 /**
  * A SyntaxChecker which verifies that a value is a Jpeg according to RFC 4517.

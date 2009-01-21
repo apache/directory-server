@@ -17,10 +17,11 @@
  *   under the License.
  *
  */
-package org.apache.directory.shared.ldap.schema.syntaxes;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.util.List;
+
 
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SchemaDescriptionUtils
+public class ParserDescriptionUtils
 {
     /**
      * Checks two schema objectClass descriptions for an exact match.

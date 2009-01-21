@@ -31,9 +31,9 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractAdsSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.parsers.AbstractAdsSchemaDescription;
+import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
