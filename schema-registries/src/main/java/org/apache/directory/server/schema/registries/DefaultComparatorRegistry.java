@@ -29,7 +29,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

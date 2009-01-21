@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.ObjectIdentifierComparator;
-import org.apache.directory.shared.ldap.schema.comparator.IntegerOrderingComparator;
+import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
 
 
 /**

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
 
 

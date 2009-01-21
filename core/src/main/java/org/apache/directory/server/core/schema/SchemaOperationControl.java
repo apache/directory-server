@@ -72,10 +72,10 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import org.slf4j.Logger;

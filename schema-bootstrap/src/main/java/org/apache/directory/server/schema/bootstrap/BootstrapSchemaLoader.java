@@ -55,10 +55,10 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

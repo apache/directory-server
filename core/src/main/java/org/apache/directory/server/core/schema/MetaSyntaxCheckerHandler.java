@@ -40,8 +40,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
 
 

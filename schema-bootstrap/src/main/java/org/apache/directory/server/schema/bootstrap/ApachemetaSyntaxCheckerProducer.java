@@ -23,11 +23,11 @@ package org.apache.directory.server.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.syntax.NumberSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectNameSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.NumberSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassTypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.ObjectNameSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
 
 
 

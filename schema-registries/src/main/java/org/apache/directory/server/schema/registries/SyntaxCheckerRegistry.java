@@ -24,8 +24,8 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 
 
 /**

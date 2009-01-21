@@ -42,18 +42,6 @@ import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntax.DITContentRuleDescription;
-import org.apache.directory.shared.ldap.schema.syntax.DITStructureRuleDescription;
-import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
-import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
-import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleUseDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NameFormDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.DITContentRuleDescriptionSchemaParser;
@@ -65,6 +53,18 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.NameFormDescription
 import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.DITContentRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleUseDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NameFormDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 
 
 /**
