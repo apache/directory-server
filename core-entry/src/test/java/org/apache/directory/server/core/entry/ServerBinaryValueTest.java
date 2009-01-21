@@ -30,8 +30,8 @@ import java.util.Arrays;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 

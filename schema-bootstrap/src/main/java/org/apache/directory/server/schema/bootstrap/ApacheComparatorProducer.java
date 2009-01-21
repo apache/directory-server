@@ -28,7 +28,7 @@ import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.ComparableComparator;
+import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 //import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 import org.apache.directory.shared.ldap.util.LongComparator;
 
