@@ -17,18 +17,18 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.comparator;
+package org.apache.directory.shared.ldap.schema.comparators;
 
 
 import java.util.Comparator;
 
 /**
- * A class for the BooleanComparator matchingRule (RFC 4517, par. 4.2.2)
+ * A class for the IntegerOrderingComparator matchingRule (RFC 4517, par. 4.2.20)
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437007 $
  */
-public class BooleanComparator implements Comparator<Object>
+public class IntegerOrderingComparator implements Comparator<Object>
 {
     /**
      * Implementation of the Compare method
@@ -45,7 +45,7 @@ public class BooleanComparator implements Comparator<Object>
         
         // Then, deal with one of o1 or o2 being null
         // Both can't be null, because then they would 
-        // have been catched by the previous test
+        // have been caught by the previous test
         if ( ( backendValue == null ) || ( assertValue == null ) )
         {
             return ( backendValue == null ? -1 : 1 );
@@ -54,13 +54,19 @@ public class BooleanComparator implements Comparator<Object>
         // Both object must be stored as String for boolean
         // values. If this is not the case, we have a pb...
         // However, the method will then throw a ClassCastException
-        String b1 = (String)backendValue;
+        int b1 = Integer.parseInt( (String)backendValue );
+        int b2 = Integer.parseInt( (String)assertValue );
+        
+        if ( b1 == b2 )
+        {
+            return 0;
+        }
 
         // The boolean should have been stored as 'TRUE' or 'FALSE'
         // into the server, and the compare method will be called
         // with normalized booleans, so no need to uppercase them.
         // We don't need to check the assertion value, because we
         // are dealing with booleans.
-        return ( b1.equals( "TRUE" ) ? 1 : -1 );
+        return ( b1 > b2 ? 1 : -1 );
     }
 }
