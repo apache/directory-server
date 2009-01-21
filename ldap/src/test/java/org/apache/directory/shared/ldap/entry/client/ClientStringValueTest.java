@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.OctetStringSyntaxChecker;
 import org.junit.Test;

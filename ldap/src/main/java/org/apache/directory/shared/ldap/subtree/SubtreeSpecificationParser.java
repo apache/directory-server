@@ -26,7 +26,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
-import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;

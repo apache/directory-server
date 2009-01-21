@@ -21,6 +21,8 @@ package org.apache.directory.shared.ldap.schema;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
+
 import junit.framework.TestCase;
 
 //import org.apache.directory.shared.ldap.util.StringTools;

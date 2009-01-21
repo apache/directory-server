@@ -17,30 +17,30 @@
  *  under the License.
  *
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.normalizers;
 
 
 import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.PrepareString;
+import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * Normalizer which normalize a time following those rules :
- * - if minutes are ommited, then they are replaced by 00
- * - if seconds are ommited, then they are replaced by 00
- * - if fraction is 0, it is removed
- * - the time is supposed to be expressed in Zulu (GMT), so 
- * increment is applied to hours/days/yeah, and a Z is added at the end.
+ * Normalizer which trims down whitespace replacing multiple whitespace
+ * characters on the edges and within the string with a single space character
+ * thereby preserving tokenization order.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 491034 $
+ * @version $Rev$
  */
-public class GeneralizedTimeNormalizer implements Normalizer
+public class DeepTrimNormalizer implements Normalizer
 {
-   static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
    public Object normalize( Object value ) throws NamingException
    {

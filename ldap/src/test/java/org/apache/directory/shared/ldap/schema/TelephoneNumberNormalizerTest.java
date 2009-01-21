@@ -21,6 +21,8 @@ package org.apache.directory.shared.ldap.schema;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.normalizers.TelephoneNumberNormalizer;
+
 import junit.framework.TestCase;
 
 /**

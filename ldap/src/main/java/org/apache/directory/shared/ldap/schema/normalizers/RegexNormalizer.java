@@ -17,11 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.normalizers;
 
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
