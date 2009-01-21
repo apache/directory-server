@@ -34,8 +34,8 @@ import java.io.ObjectOutputStream;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.syntax.Ia5StringSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.OctetStringSyntaxChecker;
 import org.junit.Test;
 
 /**
@@ -419,7 +419,7 @@ public class ClientStringValueTest
 
 
     /**
-     * Test method for {@link org.apache.directory.shared.ldap.entry.client.ClientStringValue#isValid(org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker)}.
+     * Test method for {@link org.apache.directory.shared.ldap.entry.client.ClientStringValue#isValid(org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker)}.
      */
     @Test
     public void testIsValid() throws NamingException

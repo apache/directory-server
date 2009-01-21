@@ -26,7 +26,7 @@ import javax.naming.NamingException;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
 
 
 /**

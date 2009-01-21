@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
+import org.apache.directory.shared.ldap.schema.syntaxes.EnhancedGuideSyntaxChecker;
+
 import junit.framework.TestCase;
 
 /**

@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassTypeSyntaxChecker;
 
 import junit.framework.TestCase;
 

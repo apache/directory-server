@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 
 import java.math.BigInteger;
 
+import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
+
 /**
  * Test cases for IntegerSyntaxChecker.
  *

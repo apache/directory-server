@@ -25,7 +25,7 @@ import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
 import org.apache.directory.shared.ldap.schema.parser.ParserMonitorAdapter;
-import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
 
 
 /**

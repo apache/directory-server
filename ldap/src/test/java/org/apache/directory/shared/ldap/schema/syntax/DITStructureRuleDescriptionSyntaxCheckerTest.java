@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
+import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescriptionSyntaxChecker;
+
 import junit.framework.TestCase;
 
 

@@ -29,7 +29,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.syntax.OpenLdapObjectIdentifierMacro;
+import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
 
 
 /**

@@ -31,11 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
-import org.apache.directory.shared.ldap.schema.syntax.OpenLdapObjectIdentifierMacro;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AbstractSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 import antlr.RecognitionException;

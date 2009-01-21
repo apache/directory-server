@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntax;
 
 
-import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.NumericOidSyntaxChecker;
 
 import junit.framework.TestCase;
 
