@@ -33,11 +33,8 @@ import java.util.List;
  */
 public class LdapSyntaxDescription extends AbstractSchemaDescription
 {
-
     /**
-     * 
-     * Creates a new instance of LdapSyntaxDescription.
-     *
+     * Creates a new instance of LdapSyntaxDescription with empty string values.
      */
     public LdapSyntaxDescription()
     {
@@ -47,15 +44,24 @@ public class LdapSyntaxDescription extends AbstractSchemaDescription
     }
 
 
+    /**
+     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
+     * 
+     * @throws UnsupportedOperationException every time
+     */
     public boolean isObsolete()
     {
         throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
 
 
+    /**
+     * LDAP Syntax Descriptions do not support the OBSOLETE keyword.
+     * 
+     * @throws UnsupportedOperationException every time
+     */
     public void setObsolete( boolean isObsolete )
     {
         throw new UnsupportedOperationException( "Not supported by LdapSyntaxDescription" );
     }
-
 }
