@@ -17,42 +17,51 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.comparators;
 
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 /**
- * No op (pass through or do nothing) normalizer returning what its given.
+ * A comparator for the objectIdentifierMatch matchingRule.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NoOpNormalizer implements Normalizer, Serializable
+public class ObjectIdentifierComparator implements Comparator, Serializable
 {
-    public static final NoOpNormalizer INSTANCE = new NoOpNormalizer();
-    static final long serialVersionUID = -7817763636668562489L;
-    
+    private static final long serialVersionUID = -2374941241008282707L;
 
-    /**
-     * Creates a do nothing normalizer.
-     */
-    public NoOpNormalizer()
+
+    public int compare( Object o1, Object o2 )
     {
-    }
+        if ( o1 == null )
+        {
+            return ( o2 == null ) ? 0 : -1;
+        }
+        else if ( o2 == null )
+        {
+            return 1;
+        }
 
+        if ( o1.equals( o2 ) )
+        {
+            return 0;
+        }
 
-    /**
-     * Returns the value argument as-is without alterations all the time.
-     * 
-     * @param value
-     *            any value
-     * @return the value argument returned as-is
-     * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
-     */
-    public Object normalize( Object value )
-    {
-        return value;
+        if ( !( o1 instanceof String && o2 instanceof String ) )
+        {
+            if ( o1.equals( o2 ) )
+            {
+                return 0;
+            }
+
+            return -1;
+        }
+
+        String s1 = ( ( String ) o1 ).trim().toLowerCase(), s2 = ( ( String ) o2 ).trim().toLowerCase();
+        return s1.compareTo( s2 );
     }
 }

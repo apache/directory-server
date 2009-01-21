@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
+
 import junit.framework.TestCase;
 
 

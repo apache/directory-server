@@ -17,12 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema;
+package org.apache.directory.shared.ldap.schema.comparators;
 
 
 import java.util.Comparator;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
