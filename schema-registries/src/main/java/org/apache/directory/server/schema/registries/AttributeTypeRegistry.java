@@ -21,7 +21,7 @@ package org.apache.directory.server.schema.registries;
 
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 
 import javax.naming.NamingException;
 import java.util.Iterator;

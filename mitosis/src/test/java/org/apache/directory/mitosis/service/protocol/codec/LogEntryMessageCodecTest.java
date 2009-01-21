@@ -35,8 +35,8 @@ import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 
 
 public class LogEntryMessageCodecTest extends AbstractMessageCodecTest

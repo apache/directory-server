@@ -30,13 +30,13 @@ import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.ComparableComparator;
-import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.ObjectIdentifierComparator;
 import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
+import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 
 
 /**
