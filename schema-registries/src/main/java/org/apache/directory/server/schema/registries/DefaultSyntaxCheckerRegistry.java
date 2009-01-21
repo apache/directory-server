@@ -28,8 +28,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

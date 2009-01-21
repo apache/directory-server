@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
 
 
 /**

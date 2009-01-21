@@ -25,11 +25,11 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaByteSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaLongSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaShortSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
 
 
 

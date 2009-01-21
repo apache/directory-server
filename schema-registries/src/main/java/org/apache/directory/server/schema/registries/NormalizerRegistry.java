@@ -25,7 +25,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 
 
 /**

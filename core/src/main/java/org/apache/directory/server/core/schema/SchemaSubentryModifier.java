@@ -50,10 +50,10 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
 
 

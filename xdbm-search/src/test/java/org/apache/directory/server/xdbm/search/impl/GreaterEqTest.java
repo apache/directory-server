@@ -37,7 +37,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.*;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;

@@ -26,12 +26,12 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.NumericStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassTypeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectNameSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.OidSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
 
 
 /**

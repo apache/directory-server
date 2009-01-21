@@ -41,9 +41,9 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 
 import javax.naming.NamingException;
 

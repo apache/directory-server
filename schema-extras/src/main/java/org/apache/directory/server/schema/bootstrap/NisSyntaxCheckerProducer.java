@@ -26,8 +26,8 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer;
 import org.apache.directory.server.schema.bootstrap.ProducerCallback;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker;
 
 
 /**
