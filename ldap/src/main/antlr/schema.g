@@ -26,7 +26,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
+import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
+import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
+import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NameFormDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.ParserMonitor;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 

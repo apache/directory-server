@@ -23,7 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+import org.apache.directory.shared.ldap.schema.parsers.ParserMonitor;
 
 }
 

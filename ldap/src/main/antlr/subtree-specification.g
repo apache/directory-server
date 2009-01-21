@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
-import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
