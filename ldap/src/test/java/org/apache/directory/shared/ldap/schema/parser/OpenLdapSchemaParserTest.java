@@ -29,6 +29,9 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeLiteral;
+import org.apache.directory.shared.ldap.schema.parsers.ObjectClassLiteral;
+import org.apache.directory.shared.ldap.schema.parsers.OpenLdapSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
 
 

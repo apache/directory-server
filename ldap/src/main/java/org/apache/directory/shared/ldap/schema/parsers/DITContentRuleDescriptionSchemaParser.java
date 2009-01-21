@@ -17,80 +17,81 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.NameFormDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.DITContentRuleDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 name form descriptons
+ * A parser for RFC 4512 DIT content rule descriptons
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NameFormDescriptionSchemaParser extends AbstractSchemaParser
+public class DITContentRuleDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public NameFormDescriptionSchemaParser()
+    public DITContentRuleDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a name form description according to RFC 4512:
+     * Parses a DIT content rule description according to RFC 4512:
      * 
      * <pre>
-     * NameFormDescription = LPAREN WSP
+     * DITContentRuleDescription = LPAREN WSP
      *    numericoid                 ; object identifier
      *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
      *    [ SP "DESC" SP qdstring ]  ; description
      *    [ SP "OBSOLETE" ]          ; not active
-     *    SP "OC" SP oid             ; structural object class
-     *    SP "MUST" SP oids          ; attribute types
+     *    [ SP "AUX" SP oids ]       ; auxiliary object classes
+     *    [ SP "MUST" SP oids ]      ; attribute types
      *    [ SP "MAY" SP oids ]       ; attribute types
+     *    [ SP "NOT" SP oids ]       ; attribute types
      *    extensions WSP RPAREN      ; extensions
      * </pre>
      * 
-     * @param nameFormDescription the name form description to be parsed
-     * @return the parsed NameFormDescription bean
+     * @param ditContentRuleDescription the DIT content rule description to be parsed
+     * @return the parsed DITContentRuleDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized NameFormDescription parseNameFormDescription( String nameFormDescription )
+    public synchronized DITContentRuleDescription parseDITContentRuleDescription( String ditContentRuleDescription )
         throws ParseException
     {
 
-        if ( nameFormDescription == null )
+        if ( ditContentRuleDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( nameFormDescription ); // reset and initialize the parser / lexer pair
+        reset( ditContentRuleDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            NameFormDescription nfd = parser.nameFormDescription();
-            return nfd;
+            DITContentRuleDescription dcrd = parser.ditContentRuleDescription();
+            return dcrd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on name form description:\n\t" + nameFormDescription;
+            String msg = "Parser failure on DIT content rule description:\n\t" + ditContentRuleDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on name form description:\n\t" + nameFormDescription;
+            String msg = "Parser failure on DIT content rule description:\n\t" + ditContentRuleDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -100,7 +101,7 @@ public class NameFormDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseNameFormDescription( schemaDescription );
+        return parseDITContentRuleDescription( schemaDescription );
     }
 
 }

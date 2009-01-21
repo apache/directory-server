@@ -17,81 +17,85 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.DITContentRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 DIT content rule descriptons
+ * A parser for ApacheDS syntax checker descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DITContentRuleDescriptionSchemaParser extends AbstractSchemaParser
+public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public DITContentRuleDescriptionSchemaParser()
+    public SyntaxCheckerDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a DIT content rule description according to RFC 4512:
+     * Parses a syntax checker description:
      * 
      * <pre>
-     * DITContentRuleDescription = LPAREN WSP
-     *    numericoid                 ; object identifier
-     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *    [ SP "DESC" SP qdstring ]  ; description
-     *    [ SP "OBSOLETE" ]          ; not active
-     *    [ SP "AUX" SP oids ]       ; auxiliary object classes
-     *    [ SP "MUST" SP oids ]      ; attribute types
-     *    [ SP "MAY" SP oids ]       ; attribute types
-     *    [ SP "NOT" SP oids ]       ; attribute types
-     *    extensions WSP RPAREN      ; extensions
+     * SyntaxCheckerDescription = LPAREN WSP
+     *     numericoid                           ; object identifier
+     *     [ SP "DESC" SP qdstring ]            ; description
+     *     SP "FQCN" SP fqcn                    ; fully qualified class name
+     *     [ SP "BYTECODE" SP base64 ]          ; optional base64 encoded bytecode
+     *     extensions WSP RPAREN                ; extensions
+     * 
+     * base64          = *(4base64-char)
+     * base64-char     = ALPHA / DIGIT / "+" / "/"
+     * fqcn = fqcnComponent 1*( DOT fqcnComponent )
+     * fqcnComponent = ???
+     * 
+     * extensions = *( SP xstring SP qdstrings )
+     * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
      * </pre>
      * 
-     * @param ditContentRuleDescription the DIT content rule description to be parsed
-     * @return the parsed DITContentRuleDescription bean
+     * @param syntaxCheckerDescription the syntax checker description to be parsed
+     * @return the parsed SyntaxCheckerDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized DITContentRuleDescription parseDITContentRuleDescription( String ditContentRuleDescription )
+    public synchronized SyntaxCheckerDescription parseSyntaxCheckerDescription( String syntaxCheckerDescription )
         throws ParseException
     {
 
-        if ( ditContentRuleDescription == null )
+        if ( syntaxCheckerDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( ditContentRuleDescription ); // reset and initialize the parser / lexer pair
+        reset( syntaxCheckerDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            DITContentRuleDescription dcrd = parser.ditContentRuleDescription();
-            return dcrd;
+            SyntaxCheckerDescription scd = parser.syntaxCheckerDescription();
+            return scd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on DIT content rule description:\n\t" + ditContentRuleDescription;
+            String msg = "Parser failure on syntax checker description:\n\t" + syntaxCheckerDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on DIT content rule description:\n\t" + ditContentRuleDescription;
+            String msg = "Parser failure on syntax checker description:\n\t" + syntaxCheckerDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -101,7 +105,7 @@ public class DITContentRuleDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseDITContentRuleDescription( schemaDescription );
+        return parseSyntaxCheckerDescription( schemaDescription );
     }
 
 }

@@ -17,81 +17,83 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleUseDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 matching rule use descriptions.
+ * A parser for RFC 4512 DIT structure rule descriptons
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
+public class DITStructureRuleDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public MatchingRuleUseDescriptionSchemaParser()
+    public DITStructureRuleDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a matching rule use description according to RFC 4512:
+     * Parses a DIT structure rule description according to RFC 4512:
      * 
      * <pre>
-     * MatchingRuleUseDescription = LPAREN WSP
-     *    numericoid                 ; object identifier
-     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *    [ SP "DESC" SP qdstring ]  ; description
-     *    [ SP "OBSOLETE" ]          ; not active
-     *    SP "APPLIES" SP oids       ; attribute types
-     *    extensions WSP RPAREN      ; extensions
-     * 
-     * extensions = *( SP xstring SP qdstrings )
-     * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
+     * DITStructureRuleDescription = LPAREN WSP
+     *   ruleid                     ; rule identifier
+     *   [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *   [ SP "DESC" SP qdstring ]  ; description
+     *   [ SP "OBSOLETE" ]          ; not active
+     *   SP "FORM" SP oid           ; NameForm
+     *   [ SP "SUP" ruleids ]       ; superior rules
+     *   extensions WSP RPAREN      ; extensions
+     *
+     * ruleids = ruleid / ( LPAREN WSP ruleidlist WSP RPAREN )
+     * ruleidlist = ruleid *( SP ruleid )
+     * ruleid = numbers
      * </pre>
      * 
-     * @param matchingRuleUseDescription the matching rule use description to be parsed
-     * @return the parsed MatchingRuleUseDescription bean
+     * @param ditStructureRuleDescription the DIT structure rule description to be parsed
+     * @return the parsed DITStructureRuleDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized MatchingRuleUseDescription parseMatchingRuleUseDescription( String matchingRuleUseDescription )
+    public synchronized DITStructureRuleDescription parseDITStructureRuleDescription( String ditStructureRuleDescription )
         throws ParseException
     {
 
-        if ( matchingRuleUseDescription == null )
+        if ( ditStructureRuleDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( matchingRuleUseDescription ); // reset and initialize the parser / lexer pair
+        reset( ditStructureRuleDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            MatchingRuleUseDescription mrud = parser.matchingRuleUseDescription();
-            return mrud;
+            DITStructureRuleDescription dsrd = parser.ditStructureRuleDescription();
+            return dsrd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
+            String msg = "Parser failure on DIT structure rule description:\n\t" + ditStructureRuleDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
+            String msg = "Parser failure on DIT structure rule description:\n\t" + ditStructureRuleDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -101,7 +103,7 @@ public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseMatchingRuleUseDescription( schemaDescription );
+        return parseDITStructureRuleDescription( schemaDescription );
     }
 
 }

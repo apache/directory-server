@@ -17,22 +17,28 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 /**
- * A monitor for the OpenLdap parser.
+ * Document me.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437016 $
  */
-public interface ParserMonitor
+public class ParserMonitorAdapter implements ParserMonitor
 {
-    void matchedProduction( String prod );
+    public void matchedProduction( String prod )
+    {
+    }
 
 
-    void startedParse( String s );
+    public void startedParse( String s )
+    {
+    }
 
 
-    void finishedParse( String s );
+    public void finishedParse( String s )
+    {
+    }
 }

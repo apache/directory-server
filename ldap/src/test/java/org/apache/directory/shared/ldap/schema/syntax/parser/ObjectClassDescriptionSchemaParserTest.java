@@ -26,6 +26,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;
 
 

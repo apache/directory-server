@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.parser;
 
-import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
+import org.apache.directory.shared.ldap.schema.parsers.ParserMonitor;
 
 
 /**

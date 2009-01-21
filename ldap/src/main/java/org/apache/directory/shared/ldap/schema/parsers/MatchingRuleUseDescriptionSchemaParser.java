@@ -17,85 +17,81 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleUseDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for ApacheDS comparator descriptions.
+ * A parser for RFC 4512 matching rule use descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ComparatorDescriptionSchemaParser extends AbstractSchemaParser
+public class MatchingRuleUseDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public ComparatorDescriptionSchemaParser()
+    public MatchingRuleUseDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses an comparator description:
+     * Parses a matching rule use description according to RFC 4512:
      * 
      * <pre>
-     * ComparatorDescription = LPAREN WSP
-     *     numericoid                           ; object identifier
-     *     [ SP "DESC" SP qdstring ]            ; description
-     *     SP "FQCN" SP fqcn                    ; fully qualified class name
-     *     [ SP "BYTECODE" SP base64 ]          ; optional base64 encoded bytecode
-     *     extensions WSP RPAREN                ; extensions
-     * 
-     * base64          = *(4base64-char)
-     * base64-char     = ALPHA / DIGIT / "+" / "/"
-     * fqcn = fqcnComponent 1*( DOT fqcnComponent )
-     * fqcnComponent = ???
+     * MatchingRuleUseDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    [ SP "OBSOLETE" ]          ; not active
+     *    SP "APPLIES" SP oids       ; attribute types
+     *    extensions WSP RPAREN      ; extensions
      * 
      * extensions = *( SP xstring SP qdstrings )
      * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
      * </pre>
      * 
-     * @param comparatorDescription the comparator description to be parsed
-     * @return the parsed ComparatorDescription bean
+     * @param matchingRuleUseDescription the matching rule use description to be parsed
+     * @return the parsed MatchingRuleUseDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized ComparatorDescription parseComparatorDescription( String comparatorDescription )
+    public synchronized MatchingRuleUseDescription parseMatchingRuleUseDescription( String matchingRuleUseDescription )
         throws ParseException
     {
 
-        if ( comparatorDescription == null )
+        if ( matchingRuleUseDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( comparatorDescription ); // reset and initialize the parser / lexer pair
+        reset( matchingRuleUseDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            ComparatorDescription cd = parser.comparatorDescription();
-            return cd;
+            MatchingRuleUseDescription mrud = parser.matchingRuleUseDescription();
+            return mrud;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on comparator description:\n\t" + comparatorDescription;
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on comparator description:\n\t" + comparatorDescription;
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleUseDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -105,7 +101,7 @@ public class ComparatorDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseComparatorDescription( schemaDescription );
+        return parseMatchingRuleUseDescription( schemaDescription );
     }
 
 }

@@ -17,86 +17,81 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 object class descriptons
+ * A parser for RFC 4512 matching rule descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ObjectClassDescriptionSchemaParser extends AbstractSchemaParser
+public class MatchingRuleDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public ObjectClassDescriptionSchemaParser()
+    public MatchingRuleDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a object class definition according to RFC 4512:
+     * Parses a matching rule description according to RFC 4512:
      * 
      * <pre>
-     * ObjectClassDescription = LPAREN WSP
-     *     numericoid                 ; object identifier
-     *     [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *     [ SP "DESC" SP qdstring ]  ; description
-     *     [ SP "OBSOLETE" ]          ; not active
-     *     [ SP "SUP" SP oids ]       ; superior object classes
-     *     [ SP kind ]                ; kind of class
-     *     [ SP "MUST" SP oids ]      ; attribute types
-     *     [ SP "MAY" SP oids ]       ; attribute types
-     *     extensions WSP RPAREN
-     *
-     * kind = "ABSTRACT" / "STRUCTURAL" / "AUXILIARY"
+     * MatchingRuleDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    [ SP "OBSOLETE" ]          ; not active
+     *    SP "SYNTAX" SP numericoid  ; assertion syntax
+     *    extensions WSP RPAREN      ; extensions
      * 
      * extensions = *( SP xstring SP qdstrings )
      * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
      * </pre>
      * 
-     * @param objectClassDescription the object class description to be parsed
-     * @return the parsed ObjectClassDescription bean
+     * @param matchingRuleDescription the matching rule description to be parsed
+     * @return the parsed MatchingRuleDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized ObjectClassDescription parseObjectClassDescription( String objectClassDescription )
+    public synchronized MatchingRuleDescription parseMatchingRuleDescription( String matchingRuleDescription )
         throws ParseException
     {
 
-        if ( objectClassDescription == null )
+        if ( matchingRuleDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( objectClassDescription ); // reset and initialize the parser / lexer pair
+        reset( matchingRuleDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            ObjectClassDescription ocd = parser.objectClassDescription();
-            return ocd;
+            MatchingRuleDescription mrd = parser.matchingRuleDescription();
+            return mrd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on object class description:\n\t" + objectClassDescription;
+            String msg = "Parser failure on matching rule description:\n\t" + matchingRuleDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -106,7 +101,7 @@ public class ObjectClassDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseObjectClassDescription( schemaDescription );
+        return parseMatchingRuleDescription( schemaDescription );
     }
 
 }

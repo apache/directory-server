@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;

@@ -17,14 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.io.StringReader;
 import java.text.ParseException;
 
-import org.apache.directory.shared.ldap.schema.parser.ParserMonitor;
-import org.apache.directory.shared.ldap.schema.parser.ParserMonitorAdapter;
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
 
 

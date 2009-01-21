@@ -17,40 +17,40 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.ComparatorDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for ApacheDS syntax checker descriptions.
+ * A parser for ApacheDS comparator descriptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
+public class ComparatorDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public SyntaxCheckerDescriptionSchemaParser()
+    public ComparatorDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a syntax checker description:
+     * Parses an comparator description:
      * 
      * <pre>
-     * SyntaxCheckerDescription = LPAREN WSP
+     * ComparatorDescription = LPAREN WSP
      *     numericoid                           ; object identifier
      *     [ SP "DESC" SP qdstring ]            ; description
      *     SP "FQCN" SP fqcn                    ; fully qualified class name
@@ -66,36 +66,36 @@ public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
      * xstring = "X" HYPHEN 1*( ALPHA / HYPHEN / USCORE ) 
      * </pre>
      * 
-     * @param syntaxCheckerDescription the syntax checker description to be parsed
-     * @return the parsed SyntaxCheckerDescription bean
+     * @param comparatorDescription the comparator description to be parsed
+     * @return the parsed ComparatorDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized SyntaxCheckerDescription parseSyntaxCheckerDescription( String syntaxCheckerDescription )
+    public synchronized ComparatorDescription parseComparatorDescription( String comparatorDescription )
         throws ParseException
     {
 
-        if ( syntaxCheckerDescription == null )
+        if ( comparatorDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( syntaxCheckerDescription ); // reset and initialize the parser / lexer pair
+        reset( comparatorDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            SyntaxCheckerDescription scd = parser.syntaxCheckerDescription();
-            return scd;
+            ComparatorDescription cd = parser.comparatorDescription();
+            return cd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on syntax checker description:\n\t" + syntaxCheckerDescription;
+            String msg = "Parser failure on comparator description:\n\t" + comparatorDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on syntax checker description:\n\t" + syntaxCheckerDescription;
+            String msg = "Parser failure on comparator description:\n\t" + comparatorDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -105,7 +105,7 @@ public class SyntaxCheckerDescriptionSchemaParser extends AbstractSchemaParser
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseSyntaxCheckerDescription( schemaDescription );
+        return parseComparatorDescription( schemaDescription );
     }
 
 }

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.io.File;
@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.schema.syntax.parser.AbstractSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassDescription;

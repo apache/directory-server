@@ -17,83 +17,80 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.schema.syntax.parser;
+package org.apache.directory.shared.ldap.schema.parsers;
 
 
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescription;
+import org.apache.directory.shared.ldap.schema.syntaxes.NameFormDescription;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
 
 /**
- * A parser for RFC 4512 DIT structure rule descriptons
+ * A parser for RFC 4512 name form descriptons
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DITStructureRuleDescriptionSchemaParser extends AbstractSchemaParser
+public class NameFormDescriptionSchemaParser extends AbstractSchemaParser
 {
 
     /**
      * Creates a schema parser instance.
      */
-    public DITStructureRuleDescriptionSchemaParser()
+    public NameFormDescriptionSchemaParser()
     {
     }
 
 
     /**
-     * Parses a DIT structure rule description according to RFC 4512:
+     * Parses a name form description according to RFC 4512:
      * 
      * <pre>
-     * DITStructureRuleDescription = LPAREN WSP
-     *   ruleid                     ; rule identifier
-     *   [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
-     *   [ SP "DESC" SP qdstring ]  ; description
-     *   [ SP "OBSOLETE" ]          ; not active
-     *   SP "FORM" SP oid           ; NameForm
-     *   [ SP "SUP" ruleids ]       ; superior rules
-     *   extensions WSP RPAREN      ; extensions
-     *
-     * ruleids = ruleid / ( LPAREN WSP ruleidlist WSP RPAREN )
-     * ruleidlist = ruleid *( SP ruleid )
-     * ruleid = numbers
+     * NameFormDescription = LPAREN WSP
+     *    numericoid                 ; object identifier
+     *    [ SP "NAME" SP qdescrs ]   ; short names (descriptors)
+     *    [ SP "DESC" SP qdstring ]  ; description
+     *    [ SP "OBSOLETE" ]          ; not active
+     *    SP "OC" SP oid             ; structural object class
+     *    SP "MUST" SP oids          ; attribute types
+     *    [ SP "MAY" SP oids ]       ; attribute types
+     *    extensions WSP RPAREN      ; extensions
      * </pre>
      * 
-     * @param ditStructureRuleDescription the DIT structure rule description to be parsed
-     * @return the parsed DITStructureRuleDescription bean
+     * @param nameFormDescription the name form description to be parsed
+     * @return the parsed NameFormDescription bean
      * @throws ParseException if there are any recognition errors (bad syntax)
      */
-    public synchronized DITStructureRuleDescription parseDITStructureRuleDescription( String ditStructureRuleDescription )
+    public synchronized NameFormDescription parseNameFormDescription( String nameFormDescription )
         throws ParseException
     {
 
-        if ( ditStructureRuleDescription == null )
+        if ( nameFormDescription == null )
         {
             throw new ParseException( "Null", 0 );
         }
 
-        reset( ditStructureRuleDescription ); // reset and initialize the parser / lexer pair
+        reset( nameFormDescription ); // reset and initialize the parser / lexer pair
 
         try
         {
-            DITStructureRuleDescription dsrd = parser.ditStructureRuleDescription();
-            return dsrd;
+            NameFormDescription nfd = parser.nameFormDescription();
+            return nfd;
         }
         catch ( RecognitionException re )
         {
-            String msg = "Parser failure on DIT structure rule description:\n\t" + ditStructureRuleDescription;
+            String msg = "Parser failure on name form description:\n\t" + nameFormDescription;
             msg += "\nAntlr message: " + re.getMessage();
             msg += "\nAntlr column: " + re.getColumn();
             throw new ParseException( msg, re.getColumn() );
         }
         catch ( TokenStreamException tse )
         {
-            String msg = "Parser failure on DIT structure rule description:\n\t" + ditStructureRuleDescription;
+            String msg = "Parser failure on name form description:\n\t" + nameFormDescription;
             msg += "\nAntlr message: " + tse.getMessage();
             throw new ParseException( msg, 0 );
         }
@@ -103,7 +100,7 @@ public class DITStructureRuleDescriptionSchemaParser extends AbstractSchemaParse
 
     public AbstractSchemaDescription parse( String schemaDescription ) throws ParseException
     {
-        return parseDITStructureRuleDescription( schemaDescription );
+        return parseNameFormDescription( schemaDescription );
     }
 
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.AbstractSchemaDescription;
 
 

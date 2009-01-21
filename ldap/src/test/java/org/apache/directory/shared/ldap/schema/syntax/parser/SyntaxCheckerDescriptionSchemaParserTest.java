@@ -24,6 +24,7 @@ import java.text.ParseException;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.SyntaxCheckerDescription;
 
 
