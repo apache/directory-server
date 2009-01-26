@@ -85,6 +85,6 @@ public class TelephoneNumberComparator implements Comparator<String>
         telephoneNumber1 = strip( telephoneNumber1 );
         telephoneNumber2 = strip( telephoneNumber2 );
         
-        return ( telephoneNumber1.compareTo( telephoneNumber2 ) );
+        return ( telephoneNumber1.compareToIgnoreCase( telephoneNumber2 ) );
     }
 }
