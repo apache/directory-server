@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
 import org.apache.directory.shared.ldap.schema.comparators.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ObjectIdentifierComparator;
+import org.apache.directory.shared.ldap.schema.comparators.TelephoneNumberComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -192,7 +193,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          ( 2.5.13.20 NAME 'telephoneNumberMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
          */
-        comparator = new ComparableComparator();
+        comparator = new TelephoneNumberComparator();
         cb.schemaObjectProduced( this, "2.5.13.20", comparator );
 
         /*

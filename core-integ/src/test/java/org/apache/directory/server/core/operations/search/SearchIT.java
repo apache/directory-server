@@ -130,7 +130,8 @@ import org.junit.runner.RunWith;
         "objectClass: top\n" +
         "objectClass: person\n" +
         "cn: Heather Nova\n" +
-        "sn: Nova\n"
+        "sn: Nova\n" +
+        "telephoneNumber: 1 801 555 1212 \n"
     }
 )
 public class SearchIT
@@ -1632,5 +1633,29 @@ public class SearchIT
        assertFalse(results.contains("ou=testing03,ou=system"));
        assertFalse(results.contains("ou=testing04,ou=system"));
        assertTrue(results.contains("ou=testing05,ou=system"));
+   }
+
+
+   @Test
+   public void testSearchTelephoneNumber() throws Exception
+   {
+       LdapContext sysRoot = getSystemContext( service );
+       createData( sysRoot );
+
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(telephoneNumber=18015551212)", controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+       assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) );
    }
 }
