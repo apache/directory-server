@@ -203,7 +203,6 @@ public class DefaultDirectoryService implements DirectoryService
         bootstrapSchemas.add( new CoreSchema() );
         bootstrapSchemas.add( new SystemSchema() );
         
-        
         try
         {
             loader.loadWithDependencies( bootstrapSchemas, registries );
@@ -215,6 +214,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         // run referential integrity tests
         List<Throwable> errors = registries.checkRefInteg();
+        
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
@@ -1420,6 +1420,7 @@ public class DefaultDirectoryService implements DirectoryService
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
+        // Initialize the changeLog if it's enabled
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );
