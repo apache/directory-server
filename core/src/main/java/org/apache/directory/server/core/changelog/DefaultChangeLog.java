@@ -25,21 +25,44 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * The default ChangeLog service implementation.
- *
- * @org.apache.xbean.XBean
+ * The default ChangeLog service implementation. It stores operations 
+ * in memory.
+ * 
+ * Entries are stored into a dedicated partition, named ou=changelog, under which
+ * we have two other sub-entries : ou=tags and ou= revisions :
+ * 
+ *  ou=changelog
+ *    |
+ *    +-- ou=revisions
+ *    |
+ *    +-- ou=tags
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class DefaultChangeLog implements ChangeLog
 {
+    /** The class logger */
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLog.class );
+
+    /** Tells if the service is activated or not */ 
     private boolean enabled;
+    
+    /** The latest tag set */
     private Tag latest;
-    private ChangeLogStore store = new MemoryChangeLogStore();
+    
+    /** 
+     * The default store is a InMemory store.
+     **/
+    private ChangeLogStore store;
+    
+    /** A volatile flag used to avoid store switching when in use */
+    private volatile boolean storeInitialized = false;
 
     private boolean exposeChangeLog;
 
@@ -49,21 +72,42 @@ public class DefaultChangeLog implements ChangeLog
     private String tagContainerName = "ou=tags";
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLogStore getChangeLogStore()
     {
         return store;
     }
 
 
+    /**
+     * {@inheritDoc}
+     * 
+     * If there is an existing changeLog store, we don't switch it 
+     */
     public void setChangeLogStore( ChangeLogStore store )
     {
-        this.store = store;
+        if ( storeInitialized )
+        {
+            LOG.error(  "Cannot set a changeLog store when one is already active" );
+        }
+        else
+        {
+            this.store = store;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public long getCurrentRevision() throws Exception
     {
-        return store.getCurrentRevision();
+        synchronized( store )
+        {
+            return store.getCurrentRevision();
+        }
     }
 
 
@@ -95,24 +139,36 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isLogSearchSupported()
     {
         return store instanceof SearchableChangeLogStore;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isTagSearchSupported()
     {
         return store instanceof TaggableSearchableChangeLogStore;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isTagStorageSupported()
     {
         return store instanceof TaggableChangeLogStore;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLogSearchEngine getChangeLogSearchEngine()
     {
         if ( isLogSearchSupported() )
@@ -125,6 +181,9 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public TagSearchEngine getTagSearchEngine()
     {
         if ( isTagSearchSupported() )
@@ -137,6 +196,9 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag( long revision, String description ) throws Exception
     {
         if ( revision < 0 )
@@ -158,36 +220,54 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag( long revision ) throws Exception
     {
         return tag( revision, null );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag( String description ) throws Exception
     {
         return tag( store.getCurrentRevision(), description );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag() throws Exception
     {
         return tag( store.getCurrentRevision(), null );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setEnabled( boolean enabled )
     {
         this.enabled = enabled;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isEnabled()
     {
         return enabled;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag getLatest() throws Exception
     {
         if ( latest != null )
@@ -204,10 +284,19 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * Initialize the ChangeLog system. We will initialize the associated store.
+     */
     public void init( DirectoryService service ) throws Exception
     {
         if ( enabled )
         {
+            if ( store == null )
+            {
+                // If no store has been defined, create an In Memory store
+                store = new MemoryChangeLogStore();
+            }
+            
             store.init( service );
 
             if ( exposeChangeLog && isTagSearchSupported() )
@@ -222,9 +311,15 @@ public class DefaultChangeLog implements ChangeLog
                 service.addPartition( partition );
             }
         }
+        
+        // Flip the protection flag
+        storeInitialized = true;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sync() throws Exception
     {
         if ( enabled )
@@ -234,12 +329,17 @@ public class DefaultChangeLog implements ChangeLog
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void destroy() throws Exception
     {
         if ( enabled )
         {
             store.destroy();
         }
+        
+        storeInitialized = false;
     }
 
 

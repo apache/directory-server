@@ -45,12 +45,23 @@ public interface ChangeLog
     boolean isEnabled();
 
 
+    /**
+     * Enable or disable the ChangeLog service
+     * @param enabled true to enable the service, flase to disable it
+     */
     void setEnabled( boolean enabled );
     
 
+    /**
+     * @return The underlying storage
+     */
     ChangeLogStore getChangeLogStore();
 
 
+    /**
+     * Set the underlying storage
+     * @param store The storage
+     */
     void setChangeLogStore( ChangeLogStore store );
 
 
@@ -185,12 +196,30 @@ public interface ChangeLog
      */
     Tag tag() throws Exception;
 
+    /**
+     * @return The latest tag
+     * @throws Exception if there is a problem taking the latest tag
+     */
     Tag getLatest() throws Exception;
 
+    /**
+     * Initialize the ChangeLog system.
+     * 
+     * @param service The associated DirectoryService
+     * @throws Exception
+     */
     void init( DirectoryService service ) throws Exception;
 
+    /**
+     * Flush the changes to disk
+     * @throws Exception If the flush failed
+     */
     void sync() throws Exception;
 
+    /**
+     * Destroy the changeLog
+     * @throws Exception 
+     */
     void destroy() throws Exception;
     
     /**
@@ -200,6 +229,10 @@ public interface ChangeLog
      */
     void setExposeChangeLog( boolean exposeChangeLog );
     
+    /**
+     * DODO: Add Javadoc
+     * @return
+     */
     boolean isExposeChangeLog();
     
     /**

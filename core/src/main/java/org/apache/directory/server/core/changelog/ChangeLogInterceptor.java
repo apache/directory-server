@@ -84,6 +84,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
     // -----------------------------------------------------------------------
 
 
+    /**
+     * The init method will initialize the local variables and load the 
+     * entryDeleted AttributeType.
+     */
     public void init( DirectoryService directoryService ) throws Exception
     {
         super.init( directoryService );

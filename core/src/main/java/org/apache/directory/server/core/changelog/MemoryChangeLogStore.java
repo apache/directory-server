@@ -54,17 +54,27 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {
+    
     private static final String REV_FILE = "revision";
     private static final String TAG_FILE = "tags";
     private static final String CHANGELOG_FILE = "changelog.dat";
 
+    /** An incremental number giving the current revision */
     private long currentRevision;
+    
+    /** The latest tag */
     private Tag latest;
+    
+    /** A Map of tags and revisions */
     private final Map<Long,Tag> tags = new HashMap<Long,Tag>( 100 );
+    
     private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
     private File workingDirectory;
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag( long revision ) throws Exception
     {
         if ( tags.containsKey( revision ) )
@@ -78,9 +88,12 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tag tag() throws Exception
     {
-        if ( latest != null && latest.getRevision() == currentRevision )
+        if ( ( latest != null) && ( latest.getRevision() == currentRevision ) )
         {
             return latest;
         }
@@ -93,7 +106,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     public Tag tag( String description ) throws Exception
     {
-        if ( latest != null && latest.getRevision() == currentRevision )
+        if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
         {
             return latest;
         }
@@ -116,9 +129,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
+        
         if ( revFile.exists() )
         {
             BufferedReader reader = null;
+            
             try
             {
                 reader = new BufferedReader( new FileReader( revFile ) );
@@ -150,12 +165,14 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
+        
         if ( revFile.exists() )
         {
             revFile.delete();
         }
 
         PrintWriter out = null;
+        
         try
         {
             out = new PrintWriter( new FileWriter( revFile ) );
@@ -179,20 +196,24 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveTags() throws Exception
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
+        
         if ( tagFile.exists() )
         {
             tagFile.delete();
         }
 
         FileOutputStream out = null;
+        
         try
         {
             out = new FileOutputStream( tagFile );
 
             Properties props = new Properties();
+            
             for ( Tag tag : tags.values() )
             {
                 String key = String.valueOf( tag.getRevision() );
+                
                 if ( tag.getDescription() == null )
                 {
                     props.setProperty( key, "null" );
@@ -230,15 +251,18 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadTags() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
+        
         if ( revFile.exists() )
         {
             Properties props = new Properties();
             FileInputStream in = null;
+            
             try
             {
                 in = new FileInputStream( revFile );
                 props.load( in );
                 ArrayList<Long> revList = new ArrayList<Long>();
+                
                 for ( Object key : props.keySet() )
                 {
                     revList.add( Long.valueOf( ( String ) key ) );
@@ -249,6 +273,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
                 // @todo need some serious syncrhoization here on tags
                 tags.clear();
+                
                 for ( Long lkey : revList )
                 {
                     String rev = String.valueOf( lkey );
@@ -340,6 +365,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
+        
         if ( file.exists() )
         {
             file.delete();
@@ -398,6 +424,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * Save logs, tags and revision on disk, and clean everything in memory
+     */
     public void destroy() throws Exception
     {
         saveRevision();

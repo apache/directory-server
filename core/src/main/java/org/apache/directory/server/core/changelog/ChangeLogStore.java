@@ -33,17 +33,35 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
  * A store for change events on the directory which exposes methods for 
  * managing, querying and in general performing legal operations on the log.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface ChangeLogStore 
 {
+    /**
+     * Initialize the store.
+     * 
+     * @param service The associated DirectoryService
+     * @throws Exception If the initialization failed
+     */
     void init( DirectoryService service ) throws Exception;
 
 
+    /**
+     * Write the changes on disk
+     * 
+     * @throws Exception If the write failed
+     */
     void sync() throws Exception;
 
 
+    /**
+     * Destroy the logs. 
+     * 
+     * @throws Exception If we can't destroy the logs
+     */
     void destroy() throws Exception;
 
 
