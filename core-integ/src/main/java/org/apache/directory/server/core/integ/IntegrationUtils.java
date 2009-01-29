@@ -101,6 +101,23 @@ public class IntegrationUtils
         {
             service.getAdminSession().add( 
                 new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+            if ( entry.isChangeAdd() )
+            {
+                service.getAdminSession().add( 
+                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
+            }
+            else if ( entry.isChangeModify() )
+            {
+                service.getAdminSession().modify( 
+                    entry.getDn(), entry.getModificationItems() );
+            }
+            else
+            {
+                String message = "Unsupported changetype found in LDIF: " + 
+                    entry.getChangeType();
+                LOG.error( message );
+                throw new NamingException( message );
+            }
         }
     }
 
