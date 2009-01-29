@@ -99,8 +99,6 @@ public class IntegrationUtils
 
         for ( LdifEntry entry : entries )
         {
-            service.getAdminSession().add( 
-                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
             if ( entry.isChangeAdd() )
             {
                 service.getAdminSession().add( 
