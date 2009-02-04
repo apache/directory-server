@@ -28,8 +28,6 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.Mode;
-
-
 import org.junit.runner.Description;
 
 
@@ -236,7 +234,7 @@ public class InheritableSettings
 
         ApplyLdifFiles annotation = description.getAnnotation( ApplyLdifFiles.class );
         
-        if ( annotation != null && annotation.value() != null )
+        if ( ( annotation != null ) && ( annotation.value() != null ) )
         {
             ldifFiles.addAll( Arrays.asList( annotation.value() ) );
         }

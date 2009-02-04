@@ -19,8 +19,11 @@
 package org.apache.directory.server.core.integ.state;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,7 +180,38 @@ public abstract class AbstractState implements TestServiceState
     protected void injectLdifs( DirectoryService service, InheritableSettings settings )
     {
         List<String> ldifs = new ArrayList<String>();
+        List<String> ldifFiles = new ArrayList<String>();
 
+        // First inject the LDIF files if any
+        ldifFiles = settings.getLdifFiles( ldifFiles );
+        
+        if ( ldifFiles.size() != 0 )
+        {
+            for ( String ldifFile:ldifFiles )
+            {
+                try
+                {
+                    String className = settings.getParent().getDescription().getDisplayName();
+                    Class<?> clazz = Class.forName( className );
+                    URL url = clazz.getResource( ldifFile );
+                    URI uri = url.toURI();
+                    File file = new File( uri );
+
+                    LdifReader ldifReader = new LdifReader( file ); 
+    
+                    for ( LdifEntry entry : ldifReader )
+                    {
+                        service.getAdminSession().add( 
+                            new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                        LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldifFile, e.getMessage() );
+                }
+            }
+        }
         ldifs =  settings.getLdifs( ldifs );
         
         if ( ldifs.size() != 0 )

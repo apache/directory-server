@@ -236,7 +236,7 @@ public class InheritableServerSettings
 
         ApplyLdifFiles annotation = description.getAnnotation( ApplyLdifFiles.class );
         
-        if ( annotation != null && annotation.value() != null )
+        if ( ( annotation != null ) && ( annotation.value() != null ) )
         {
             ldifFiles.addAll( Arrays.asList( annotation.value() ) );
         }
