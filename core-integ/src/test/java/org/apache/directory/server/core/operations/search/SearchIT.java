@@ -131,7 +131,17 @@ import org.junit.runner.RunWith;
         "objectClass: person\n" +
         "cn: Heather Nova\n" +
         "sn: Nova\n" +
-        "telephoneNumber: 1 801 555 1212 \n"
+        "telephoneNumber: 1 801 555 1212 \n" +
+        "\n" +
+        "dn: cn=with-dn, ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: person\n" +
+        "objectClass: organizationalPerson\n" +
+        "objectClass: inetorgPerson\n" +
+        "cn: singer\n" +
+        "sn: manager\n" +
+        "telephoneNumber: 1 801 555 1212 \n" +
+        "manager: cn=Heather Nova, ou=system\n"
     }
 )
 public class SearchIT
@@ -369,7 +379,7 @@ public class SearchIT
         }
 
         // 16 because it also matches organizationalPerson which the admin is
-        assertEquals( "Expected number of results returned was incorrect", 16, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 17, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=configuration,ou=system" ) );
         assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) );
@@ -571,7 +581,7 @@ public class SearchIT
             map.put( result.getName(), result.getAttributes() );
         }
         
-        assertEquals( "size of results", 22, map.size() );
+        assertEquals( "size of results", 23, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -1655,7 +1665,34 @@ public class SearchIT
            map.put( result.getName(), result.getAttributes() );
        }
 
-       assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+       assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
        assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) );
+   }
+
+
+   @Test
+   public void testSearchDN() throws Exception
+   {
+       LdapContext sysRoot = getSystemContext( service );
+       createData( sysRoot );
+
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+       controls.setDerefLinkFlag( false );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+    
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", "(manager=cn=Heather Nova, ou=system)", controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+
+       assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
+       assertTrue( map.containsKey( "cn=with-dn, ou=system" ) );
    }
 }
