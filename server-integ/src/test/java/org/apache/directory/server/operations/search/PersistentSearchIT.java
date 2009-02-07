@@ -50,8 +50,8 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 
 import org.junit.Test;
