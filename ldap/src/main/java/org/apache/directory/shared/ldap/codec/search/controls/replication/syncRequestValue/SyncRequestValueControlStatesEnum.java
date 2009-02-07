@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls.pSearch;
+package org.apache.directory.shared.ldap.codec.search.controls.replication.syncRequestValue;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
@@ -25,53 +25,53 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the PSearchControl's grammar constants. It is also used for
+ * This class store the SyncRequestValueControl's grammar constants. It is also used for
  * debugging purposes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$, 
+ * @version $Rev: 741888 $, $Date: 2009-02-07 13:57:03 +0100 (Sat, 07 Feb 2009) $, 
  */
-public class PSearchControlStatesEnum implements IStates
+public class SyncRequestValueControlStatesEnum implements IStates
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
     // =========================================================================
-    // Persistent search control grammar states
+    // SyncRequestValue control grammar states
     // =========================================================================
     /** Initial state */
     public static final int START_STATE = 0;
 
     /** Sequence Value */
-    public static final int PSEARCH_SEQUENCE_STATE = 1;
+    public static final int SYNC_REQUEST_VALUE_SEQUENCE_STATE = 1;
 
-    /** changeTypes Value */
-    public static final int CHANGE_TYPES_STATE = 2;
+    /** mode Value */
+    public static final int MODE_STATE = 2;
     
-    /** changesOnly Value */
-    public static final int CHANGES_ONLY_STATE = 3;
+    /** cookie Value */
+    public static final int COOKIE_STATE = 3;
 
-    /** returnECs Value */
-    public static final int RETURN_ECS_STATE = 4;
+    /** reloadHint Value */
+    public static final int RELOAD_HINT_STATE = 4;
 
     /** terminal state */
-    public static final int LAST_PSEARCH_STATE = 5;
+    public static final int LAST_SYNC_REQUEST_VALUE_STATE = 5;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
-    private static String[] PSearchString = new String[]
+    private static String[] syncRequestValueString = new String[]
         { 
         "START_STATE", 
-        "PSEARCH_SEQUENCE_VALUE", 
-        "CHANGE_TYPES_STATE",
-        "CHANGES_ONLY_STATE", 
-        "RETURN_ECS_STATE" 
+        "SYNC_REQUEST_VALUE_SEQUENCE_STATE", 
+        "MODE_STATE",
+        "COOKIE_STATE", 
+        "RELOAD_HINT_STATE" 
         };
 
     /** The instance */
-    private static PSearchControlStatesEnum instance = new PSearchControlStatesEnum();
+    private static SyncRequestValueControlStatesEnum instance = new SyncRequestValueControlStatesEnum();
 
 
     // ~ Constructors
@@ -80,7 +80,7 @@ public class PSearchControlStatesEnum implements IStates
     /**
      * This is a private constructor. This class is a singleton
      */
-    private PSearchControlStatesEnum()
+    private SyncRequestValueControlStatesEnum()
     {
     }
 
@@ -107,7 +107,7 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        return "PSEARCH_GRAMMAR";
+        return "SYNC_REQUEST_VALUE_GRAMMAR";
     }
 
 
@@ -119,9 +119,9 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( IGrammar grammar )
     {
-        if ( grammar instanceof PSearchControlGrammar )
+        if ( grammar instanceof SyncRequestValueControlGrammar )
         {
-            return "PSEARCH_GRAMMAR";
+            return "SYNC_REQUEST_VALUE_GRAMMAR";
         }
 
         return "UNKNOWN GRAMMAR";
@@ -136,6 +136,6 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getState( int state )
     {
-        return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
+        return ( ( state == GRAMMAR_END ) ? "SYNC_REQUEST_VALUE_END_STATE" : syncRequestValueString[state] );
     }
 }
