@@ -143,6 +143,9 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
                         }
 
                         SyncRequestValueContainer.getSyncRequestValueControl().setMode( modeEnum );
+
+                        // We can have an END transition
+                        SyncRequestValueContainer.grammarEndAllowed( true );
                     }
                     catch ( IntegerDecoderException e )
                     {
