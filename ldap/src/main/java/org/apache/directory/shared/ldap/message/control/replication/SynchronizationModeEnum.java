@@ -40,8 +40,8 @@ public enum SynchronizationModeEnum
 {
     UNUSED(0),
     REFRESH_ONLY(1),
-    RESERVED(3),
-    REFRESH_AND_PERSIST(4);
+    RESERVED(2),
+    REFRESH_AND_PERSIST(3);
     
     /** The internal value */
     private int value;
