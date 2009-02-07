@@ -60,7 +60,7 @@ public class SyncRequestValueControl extends AbstractMutableControlImpl
     /** The synchronization type */
     private SynchronizationModeEnum mode;
     
-    /** The Sync cookie */
+    /** The cookie */
     private byte[] cookie;
     
     /** The reloadHint flag */
@@ -121,6 +121,9 @@ public class SyncRequestValueControl extends AbstractMutableControlImpl
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncRequestValueControlCodec syncRequestValueCtlCodec = new SyncRequestValueControlCodec();
