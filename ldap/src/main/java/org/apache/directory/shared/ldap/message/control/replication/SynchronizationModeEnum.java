@@ -74,7 +74,7 @@ public enum SynchronizationModeEnum
      * @param value The value we want the enum element from
      * @return The enum element associated with this integer
      */
-    public SynchronizationModeEnum getsyncMode( int value )
+    public SynchronizationModeEnum getSyncMode( int value )
     {
         if ( value == REFRESH_AND_PERSIST.getValue() )
         {

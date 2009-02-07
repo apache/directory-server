@@ -20,10 +20,8 @@
 package org.apache.directory.shared.ldap.message.control.replication;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
 import org.apache.directory.shared.ldap.message.control.AbstractMutableControlImpl;
-import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
