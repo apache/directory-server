@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls.replication.syncRequestValue;
+package org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
