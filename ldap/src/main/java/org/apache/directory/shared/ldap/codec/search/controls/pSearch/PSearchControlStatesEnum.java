@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.pSearch;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
@@ -25,42 +25,53 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the SubEntryControl's grammar constants. It is also used for
+ * This class store the PSearchControl's grammar constants. It is also used for
  * debugging purposes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class SubEntryControlStatesEnum implements IStates
+public class PSearchControlStatesEnum implements IStates
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
     // =========================================================================
-    // Sub entry control grammar states
+    // Persistent search control grammar states
     // =========================================================================
-
-    /** Starting state */
+    /** Initial state */
     public static final int START_STATE = 0;
 
-    /** Visibility Value */
-    public static final int SUB_ENTRY_VISIBILITY_STATE = 1;
+    /** Sequence Value */
+    public static final int PSEARCH_SEQUENCE_STATE = 1;
+
+    /** changeTypes Value */
+    public static final int CHANGE_TYPES_STATE = 3;
+    
+    /** changesOnly Value */
+    public static final int CHANGES_ONLY_STATE = 5;
+
+    /** returnECs Value */
+    public static final int RETURN_ECS_STATE = 7;
 
     /** terminal state */
-    public static final int LAST_SUB_ENTRY_STATE = 2;
+    public static final int LAST_PSEARCH_STATE = 8;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
-    private static String[] SubEntryString = new String[]
+    private static String[] PSearchString = new String[]
         { 
         "START_STATE", 
-        "SUB_ENTRY_VISIBILITY_STATE" 
+        "PSEARCH_SEQUENCE_VALUE", 
+        "CHANGE_TYPES_STATE",
+        "CHANGES_ONLY_STATE", 
+        "RETURN_ECS_STATE" 
         };
 
     /** The instance */
-    private static SubEntryControlStatesEnum instance = new SubEntryControlStatesEnum();
+    private static PSearchControlStatesEnum instance = new PSearchControlStatesEnum();
 
 
     // ~ Constructors
@@ -69,7 +80,7 @@ public class SubEntryControlStatesEnum implements IStates
     /**
      * This is a private constructor. This class is a singleton
      */
-    private SubEntryControlStatesEnum()
+    private PSearchControlStatesEnum()
     {
     }
 
@@ -96,7 +107,7 @@ public class SubEntryControlStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        return "SUB_ENTRY_GRAMMAR";
+        return "PSEARCH_GRAMMAR";
     }
 
 
@@ -108,9 +119,9 @@ public class SubEntryControlStatesEnum implements IStates
      */
     public String getGrammarName( IGrammar grammar )
     {
-        if ( grammar instanceof SubEntryControlGrammar )
+        if ( grammar instanceof PSearchControlGrammar )
         {
-            return "SUB_ENTRY_GRAMMAR";
+            return "PSEARCH_GRAMMAR";
         }
 
         return "UNKNOWN GRAMMAR";
@@ -125,6 +136,6 @@ public class SubEntryControlStatesEnum implements IStates
      */
     public String getState( int state )
     {
-        return ( ( state == GRAMMAR_END ) ? "SUB_ENTRY_END_STATE" : SubEntryString[state] );
+        return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
     }
 }

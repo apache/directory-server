@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.entryChange;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -27,42 +27,41 @@ import org.apache.directory.shared.asn1.ber.AbstractContainer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class PSearchControlContainer extends AbstractContainer
+public class EntryChangeControlContainer extends AbstractContainer
 {
-    /** PSearchControl */
-    private PSearchControlCodec control;
+    /** EntryChangeControl */
+    private EntryChangeControlCodec control;
 
 
     /**
-     * Creates a new PSearchControlContainer object. We will store one grammar,
-     * it's enough ...
+     * Creates a new EntryChangeControlContainer object. We will store one
+     * grammar, it's enough ...
      */
-    public PSearchControlContainer()
+    public EntryChangeControlContainer()
     {
         super();
         stateStack = new int[1];
-        grammar = PSearchControlGrammar.getInstance();
-        states = PSearchControlStatesEnum.getInstance();
+        grammar = EntryChangeControlGrammar.getInstance();
+        states = EntryChangeControlStatesEnum.getInstance();
     }
 
 
     /**
-     * @return Returns the persistent search control.
+     * @return Returns the EntryChangeControl.
      */
-    public PSearchControlCodec getPSearchControl()
+    public EntryChangeControlCodec getEntryChangeControl()
     {
-
         return control;
     }
 
 
     /**
-     * Set a PSearchControl Object into the container. It will be completed by
-     * the ldapDecoder.
+     * Set a EntryChangeControl Object into the container. It will be completed
+     * by the ldapDecoder.
      * 
-     * @param control the PSearchControl to set.
+     * @param control the EntryChangeControl to set.
      */
-    public void setPSearchControl( PSearchControlCodec control )
+    public void setEntryChangeControl( EntryChangeControlCodec control )
     {
         this.control = control;
     }

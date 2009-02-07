@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.bind.BindResponse;
-import org.apache.directory.shared.ldap.codec.search.controls.PagedSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.subEntry;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
@@ -25,54 +25,42 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the EntryChangeControl's grammar constants. It is also used
- * for debugging purposes.
+ * This class store the SubEntryControl's grammar constants. It is also used for
+ * debugging purposes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class EntryChangeControlStatesEnum implements IStates
+public class SubEntryControlStatesEnum implements IStates
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
     // =========================================================================
-    // Entry change control grammar states
+    // Sub entry control grammar states
     // =========================================================================
 
-    /** Sequence Tag */
+    /** Starting state */
     public static final int START_STATE = 0;
 
-    /** Sequence */
-    public static final int EC_SEQUENCE_STATE = 1;
-
-    /** changeType */
-    public static final int CHANGE_TYPE_STATE = 2;
-
-    /** previousDN */
-    public static final int PREVIOUS_DN_STATE = 3;
-
-    /** changeNumber */
-    public static final int CHANGE_NUMBER_STATE = 4;
+    /** Visibility Value */
+    public static final int SUB_ENTRY_VISIBILITY_STATE = 1;
 
     /** terminal state */
-    public static final int LAST_EC_STATE = 5;
+    public static final int LAST_SUB_ENTRY_STATE = 2;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
-    private static String[] EcString = new String[]
+    private static String[] SubEntryString = new String[]
         { 
-        "START_STATE",
-        "EC_SEQUENCE_STATE", 
-        "CHANGE_TYPE_STATE",
-        "PREVIOUS_DN_STATE", 
-        "CHANGE_NUMBER_STATE" 
+        "START_STATE", 
+        "SUB_ENTRY_VISIBILITY_STATE" 
         };
 
     /** The instance */
-    private static EntryChangeControlStatesEnum instance = new EntryChangeControlStatesEnum();
+    private static SubEntryControlStatesEnum instance = new SubEntryControlStatesEnum();
 
 
     // ~ Constructors
@@ -81,7 +69,7 @@ public class EntryChangeControlStatesEnum implements IStates
     /**
      * This is a private constructor. This class is a singleton
      */
-    private EntryChangeControlStatesEnum()
+    private SubEntryControlStatesEnum()
     {
     }
 
@@ -108,7 +96,7 @@ public class EntryChangeControlStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        return "EC_GRAMMAR";
+        return "SUB_ENTRY_GRAMMAR";
     }
 
 
@@ -120,9 +108,9 @@ public class EntryChangeControlStatesEnum implements IStates
      */
     public String getGrammarName( IGrammar grammar )
     {
-        if ( grammar instanceof EntryChangeControlGrammar )
+        if ( grammar instanceof SubEntryControlGrammar )
         {
-            return "EC_GRAMMAR";
+            return "SUB_ENTRY_GRAMMAR";
         }
 
         return "UNKNOWN GRAMMAR";
@@ -137,6 +125,6 @@ public class EntryChangeControlStatesEnum implements IStates
      */
     public String getState( int state )
     {
-        return ( ( state == GRAMMAR_END ) ? "EC_END_STATE" : EcString[state] );
+        return ( ( state == GRAMMAR_END ) ? "SUB_ENTRY_END_STATE" : SubEntryString[state] );
     }
 }

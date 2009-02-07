@@ -24,9 +24,9 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlCodec;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlContainer;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import junit.framework.Assert;

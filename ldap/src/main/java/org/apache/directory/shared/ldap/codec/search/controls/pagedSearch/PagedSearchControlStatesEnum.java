@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.pagedSearch;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
@@ -25,53 +25,49 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the PSearchControl's grammar constants. It is also used for
+ * This class store the PagedSearchControl's grammar constants. It is also used for
  * debugging purposes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$, 
+ * @version $Rev: 664290 $, $Date: 2008-06-07 08:28:06 +0200 (Sat, 07 Jun 2008) $, 
  */
-public class PSearchControlStatesEnum implements IStates
+public class PagedSearchControlStatesEnum implements IStates
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
     // =========================================================================
-    // Persistent search control grammar states
+    // Paged search control grammar states
     // =========================================================================
     /** Initial state */
     public static final int START_STATE = 0;
 
     /** Sequence Value */
-    public static final int PSEARCH_SEQUENCE_STATE = 1;
+    public static final int PAGED_SEARCH_SEQUENCE_STATE = 1;
 
-    /** changeTypes Value */
-    public static final int CHANGE_TYPES_STATE = 3;
+    /** Size Value */
+    public static final int SIZE_STATE = 3;
     
-    /** changesOnly Value */
-    public static final int CHANGES_ONLY_STATE = 5;
-
-    /** returnECs Value */
-    public static final int RETURN_ECS_STATE = 7;
+    /** Cookie Value */
+    public static final int COOKIE_STATE = 5;
 
     /** terminal state */
-    public static final int LAST_PSEARCH_STATE = 8;
+    public static final int LAST_PAGED_SEARCH_STATE = 8;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
-    private static String[] PSearchString = new String[]
+    private static String[] PagedSearchString = new String[]
         { 
         "START_STATE", 
-        "PSEARCH_SEQUENCE_VALUE", 
-        "CHANGE_TYPES_STATE",
-        "CHANGES_ONLY_STATE", 
-        "RETURN_ECS_STATE" 
+        "PAGED_SEARCH_SEQUENCE_VALUE", 
+        "SIZE_STATE",
+        "COOKIE_STATE" 
         };
 
     /** The instance */
-    private static PSearchControlStatesEnum instance = new PSearchControlStatesEnum();
+    private static PagedSearchControlStatesEnum instance = new PagedSearchControlStatesEnum();
 
 
     // ~ Constructors
@@ -80,7 +76,7 @@ public class PSearchControlStatesEnum implements IStates
     /**
      * This is a private constructor. This class is a singleton
      */
-    private PSearchControlStatesEnum()
+    private PagedSearchControlStatesEnum()
     {
     }
 
@@ -107,7 +103,7 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        return "PSEARCH_GRAMMAR";
+        return "PAGED_SEARCH_GRAMMAR";
     }
 
 
@@ -119,9 +115,9 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( IGrammar grammar )
     {
-        if ( grammar instanceof PSearchControlGrammar )
+        if ( grammar instanceof PagedSearchControlGrammar )
         {
-            return "PSEARCH_GRAMMAR";
+            return "PAGEDSEARCH_GRAMMAR";
         }
 
         return "UNKNOWN GRAMMAR";
@@ -136,6 +132,6 @@ public class PSearchControlStatesEnum implements IStates
      */
     public String getState( int state )
     {
-        return ( ( state == GRAMMAR_END ) ? "PSEARCH_END_STATE" : PSearchString[state] );
+        return ( ( state == GRAMMAR_END ) ? "PAGED_SEARCH_END_STATE" : PagedSearchString[state] );
     }
 }

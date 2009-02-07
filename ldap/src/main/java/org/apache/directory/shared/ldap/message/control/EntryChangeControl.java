@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.message.control;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

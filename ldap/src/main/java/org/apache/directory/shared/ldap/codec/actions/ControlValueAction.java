@@ -33,9 +33,9 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.PagedSearchControlDecoder;
-import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlDecoder;
+import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;

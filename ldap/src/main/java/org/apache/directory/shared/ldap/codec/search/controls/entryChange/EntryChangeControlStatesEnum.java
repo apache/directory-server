@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.entryChange;
 
 
 import org.apache.directory.shared.asn1.ber.grammar.IGrammar;
@@ -25,49 +25,54 @@ import org.apache.directory.shared.asn1.ber.grammar.IStates;
 
 
 /**
- * This class store the PagedSearchControl's grammar constants. It is also used for
- * debugging purposes.
+ * This class store the EntryChangeControl's grammar constants. It is also used
+ * for debugging purposes.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664290 $, $Date: 2008-06-07 08:28:06 +0200 (Sat, 07 Jun 2008) $, 
+ * @version $Rev$, $Date$, 
  */
-public class PagedSearchControlStatesEnum implements IStates
+public class EntryChangeControlStatesEnum implements IStates
 {
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
 
     // =========================================================================
-    // Paged search control grammar states
+    // Entry change control grammar states
     // =========================================================================
-    /** Initial state */
+
+    /** Sequence Tag */
     public static final int START_STATE = 0;
 
-    /** Sequence Value */
-    public static final int PAGED_SEARCH_SEQUENCE_STATE = 1;
+    /** Sequence */
+    public static final int EC_SEQUENCE_STATE = 1;
 
-    /** Size Value */
-    public static final int SIZE_STATE = 3;
-    
-    /** Cookie Value */
-    public static final int COOKIE_STATE = 5;
+    /** changeType */
+    public static final int CHANGE_TYPE_STATE = 2;
+
+    /** previousDN */
+    public static final int PREVIOUS_DN_STATE = 3;
+
+    /** changeNumber */
+    public static final int CHANGE_NUMBER_STATE = 4;
 
     /** terminal state */
-    public static final int LAST_PAGED_SEARCH_STATE = 8;
+    public static final int LAST_EC_STATE = 5;
 
     // =========================================================================
     // States debug strings
     // =========================================================================
     /** A string representation of all the states */
-    private static String[] PagedSearchString = new String[]
+    private static String[] EcString = new String[]
         { 
-        "START_STATE", 
-        "PAGED_SEARCH_SEQUENCE_VALUE", 
-        "SIZE_STATE",
-        "COOKIE_STATE" 
+        "START_STATE",
+        "EC_SEQUENCE_STATE", 
+        "CHANGE_TYPE_STATE",
+        "PREVIOUS_DN_STATE", 
+        "CHANGE_NUMBER_STATE" 
         };
 
     /** The instance */
-    private static PagedSearchControlStatesEnum instance = new PagedSearchControlStatesEnum();
+    private static EntryChangeControlStatesEnum instance = new EntryChangeControlStatesEnum();
 
 
     // ~ Constructors
@@ -76,7 +81,7 @@ public class PagedSearchControlStatesEnum implements IStates
     /**
      * This is a private constructor. This class is a singleton
      */
-    private PagedSearchControlStatesEnum()
+    private EntryChangeControlStatesEnum()
     {
     }
 
@@ -103,7 +108,7 @@ public class PagedSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( int grammar )
     {
-        return "PAGED_SEARCH_GRAMMAR";
+        return "EC_GRAMMAR";
     }
 
 
@@ -115,9 +120,9 @@ public class PagedSearchControlStatesEnum implements IStates
      */
     public String getGrammarName( IGrammar grammar )
     {
-        if ( grammar instanceof PagedSearchControlGrammar )
+        if ( grammar instanceof EntryChangeControlGrammar )
         {
-            return "PAGEDSEARCH_GRAMMAR";
+            return "EC_GRAMMAR";
         }
 
         return "UNKNOWN GRAMMAR";
@@ -132,6 +137,6 @@ public class PagedSearchControlStatesEnum implements IStates
      */
     public String getState( int state )
     {
-        return ( ( state == GRAMMAR_END ) ? "PAGED_SEARCH_END_STATE" : PagedSearchString[state] );
+        return ( ( state == GRAMMAR_END ) ? "EC_END_STATE" : EcString[state] );
     }
 }

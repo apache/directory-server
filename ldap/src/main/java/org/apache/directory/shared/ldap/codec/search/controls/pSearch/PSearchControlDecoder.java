@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.pSearch;
 
 
 import java.nio.ByteBuffer;
@@ -29,21 +29,23 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 
 
 /**
- * A decoder for SubEntryControls.
+ * A decoder for PSearchControls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecoder
+public class PSearchControlDecoder extends Asn1Decoder implements ControlDecoder
 {
-    /** The sub entry OID */
-    private final static String CONTROL_TYPE_OID = "1.3.6.1.4.1.4203.1.10.1";
+    /** The persistence search OID */
+    private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.3";
 
-    /** The sub entry decoder */
+    /** An instance of this decoder */
     private static final Asn1Decoder decoder = new Asn1Decoder();
 
     /**
-     * @return the sub entry OID
+     * Return the persistence search OID
+     * 
+     * @see org.apache.directory.shared.ldap.codec.ControlDecoder#getControlType()
      */
     public String getControlType()
     {
@@ -51,11 +53,11 @@ public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecode
     }
 
     /**
-     * Decode the sub entry control
+     * Decode the persistence search control
      * 
-     * @param controlBytes The bytes array which contains the encoded sub entry
+     * @param controlBytes The bytes array which contains the encoded persistence search
      * 
-     * @return A valid SubEntry object
+     * @return A valid PersistenceSearch object
      * 
      * @throws DecoderException If the decoding found an error
      * @throws NamingException It will never be throw by this method
@@ -63,8 +65,8 @@ public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecode
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
-        SubEntryControlContainer container = new SubEntryControlContainer();
+        PSearchControlContainer container = new PSearchControlContainer();
         decoder.decode( bb, container );
-        return container.getSubEntryControl();
+        return container.getPSearchControl();
     }
 }

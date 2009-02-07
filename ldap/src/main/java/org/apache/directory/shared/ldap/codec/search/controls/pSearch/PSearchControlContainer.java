@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.pSearch;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -27,46 +27,48 @@ import org.apache.directory.shared.asn1.ber.AbstractContainer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class SubEntryControlContainer extends AbstractContainer
+public class PSearchControlContainer extends AbstractContainer
 {
     /** PSearchControl */
-    private SubEntryControlCodec control;
+    private PSearchControlCodec control;
 
 
     /**
-     * Creates a new SubEntryControlContainer object. 
+     * Creates a new PSearchControlContainer object. We will store one grammar,
+     * it's enough ...
      */
-    public SubEntryControlContainer()
+    public PSearchControlContainer()
     {
         super();
         stateStack = new int[1];
-        grammar = SubEntryControlGrammar.getInstance();
-        states = SubEntryControlStatesEnum.getInstance();
+        grammar = PSearchControlGrammar.getInstance();
+        states = PSearchControlStatesEnum.getInstance();
     }
 
 
     /**
      * @return Returns the persistent search control.
      */
-    public SubEntryControlCodec getSubEntryControl()
+    public PSearchControlCodec getPSearchControl()
     {
+
         return control;
     }
 
 
     /**
-     * Set a SubEntryControl Object into the container. It will be completed by
+     * Set a PSearchControl Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control the SubEntryControl to set.
+     * @param control the PSearchControl to set.
      */
-    public void setSubEntryControl( SubEntryControlCodec control )
+    public void setPSearchControl( PSearchControlCodec control )
     {
         this.control = control;
     }
 
     /**
-     * Clean the current container
+     * Clean the container
      */
     public void clean()
     {

@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.codec.search.NotFilter;
 import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;

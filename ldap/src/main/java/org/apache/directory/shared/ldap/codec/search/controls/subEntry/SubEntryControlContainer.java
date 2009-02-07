@@ -17,60 +17,56 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.subEntry;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 
 
 /**
- * A container for the Paged Search Control.
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 664290 $, $Date: 2008-06-07 08:28:06 +0200 (Sat, 07 Jun 2008) $, 
+ * @version $Rev$, $Date$, 
  */
-public class PagedSearchControlContainer extends AbstractContainer
+public class SubEntryControlContainer extends AbstractContainer
 {
-    /** PagedSearchControl */
-    private PagedSearchControlCodec control;
+    /** PSearchControl */
+    private SubEntryControlCodec control;
 
 
     /**
-     * Creates a new PagedSearchControl container object. We will store one grammar,
-     * it's enough ...
+     * Creates a new SubEntryControlContainer object. 
      */
-    public PagedSearchControlContainer()
+    public SubEntryControlContainer()
     {
         super();
         stateStack = new int[1];
-        grammar = PagedSearchControlGrammar.getInstance();
-        states = PagedSearchControlStatesEnum.getInstance();
+        grammar = SubEntryControlGrammar.getInstance();
+        states = SubEntryControlStatesEnum.getInstance();
     }
 
 
     /**
-     * @return Returns the paged search control.
+     * @return Returns the persistent search control.
      */
-    public PagedSearchControlCodec getPagedSearchControl()
+    public SubEntryControlCodec getSubEntryControl()
     {
-
         return control;
     }
 
 
     /**
-     * Set a PagedSearchControl Object into the container. It will be completed by
+     * Set a SubEntryControl Object into the container. It will be completed by
      * the ldapDecoder.
      * 
-     * @param control the PagedSearchControl to set.
+     * @param control the SubEntryControl to set.
      */
-    public void setPagedSearchControl( PagedSearchControlCodec control )
+    public void setSubEntryControl( SubEntryControlCodec control )
     {
         this.control = control;
     }
 
     /**
-     * Clean the container
+     * Clean the current container
      */
     public void clean()
     {

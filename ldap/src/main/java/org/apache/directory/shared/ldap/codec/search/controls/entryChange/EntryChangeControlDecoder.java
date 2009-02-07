@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.entryChange;
 
 
 import java.nio.ByteBuffer;
@@ -29,23 +29,21 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 
 
 /**
- * A decoder for PSearchControls.
+ * A decoder for EntryChangeControls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class PSearchControlDecoder extends Asn1Decoder implements ControlDecoder
+public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDecoder
 {
-    /** The persistence search OID */
-    private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.3";
+    /** The entry change OID */
+    private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.7";
 
     /** An instance of this decoder */
     private static final Asn1Decoder decoder = new Asn1Decoder();
 
     /**
-     * Return the persistence search OID
-     * 
-     * @see org.apache.directory.shared.ldap.codec.ControlDecoder#getControlType()
+     * @return The Entry Change controm OID
      */
     public String getControlType()
     {
@@ -53,20 +51,21 @@ public class PSearchControlDecoder extends Asn1Decoder implements ControlDecoder
     }
 
     /**
-     * Decode the persistence search control
+     * Decode the entry change control
      * 
-     * @param controlBytes The bytes array which contains the encoded persistence search
+     * @param controlBytes The bytes array which contains the encoded entry change
      * 
-     * @return A valid PersistenceSearch object
+     * @return A valid EntryChange object
      * 
      * @throws DecoderException If the decoding found an error
      * @throws NamingException It will never be throw by this method
      */
+    
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
-        PSearchControlContainer container = new PSearchControlContainer();
+        EntryChangeControlContainer container = new EntryChangeControlContainer();
         decoder.decode( bb, container );
-        return container.getPSearchControl();
+        return container.getEntryChangeControl();
     }
 }

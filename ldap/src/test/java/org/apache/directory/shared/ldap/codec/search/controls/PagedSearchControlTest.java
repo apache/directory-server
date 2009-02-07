@@ -25,6 +25,9 @@ import java.util.Arrays;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlContainer;
+import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 

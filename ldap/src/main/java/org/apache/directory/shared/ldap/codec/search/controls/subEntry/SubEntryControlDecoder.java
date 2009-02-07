@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.subEntry;
 
 
 import java.nio.ByteBuffer;
@@ -29,21 +29,21 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 
 
 /**
- * A decoder for EntryChangeControls.
+ * A decoder for SubEntryControls.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$, 
  */
-public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDecoder
+public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecoder
 {
-    /** The entry change OID */
-    private final static String CONTROL_TYPE_OID = "2.16.840.1.113730.3.4.7";
+    /** The sub entry OID */
+    private final static String CONTROL_TYPE_OID = "1.3.6.1.4.1.4203.1.10.1";
 
-    /** An instance of this decoder */
+    /** The sub entry decoder */
     private static final Asn1Decoder decoder = new Asn1Decoder();
 
     /**
-     * @return The Entry Change controm OID
+     * @return the sub entry OID
      */
     public String getControlType()
     {
@@ -51,21 +51,20 @@ public class EntryChangeControlDecoder extends Asn1Decoder implements ControlDec
     }
 
     /**
-     * Decode the entry change control
+     * Decode the sub entry control
      * 
-     * @param controlBytes The bytes array which contains the encoded entry change
+     * @param controlBytes The bytes array which contains the encoded sub entry
      * 
-     * @return A valid EntryChange object
+     * @return A valid SubEntry object
      * 
      * @throws DecoderException If the decoding found an error
      * @throws NamingException It will never be throw by this method
      */
-    
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
-        EntryChangeControlContainer container = new EntryChangeControlContainer();
+        SubEntryControlContainer container = new SubEntryControlContainer();
         decoder.decode( bb, container );
-        return container.getEntryChangeControl();
+        return container.getSubEntryControl();
     }
 }

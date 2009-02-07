@@ -17,51 +17,54 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec.search.controls;
+package org.apache.directory.shared.ldap.codec.search.controls.pagedSearch;
 
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 
 
 /**
+ * A container for the Paged Search Control.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$, 
+ * @version $Rev: 664290 $, $Date: 2008-06-07 08:28:06 +0200 (Sat, 07 Jun 2008) $, 
  */
-public class EntryChangeControlContainer extends AbstractContainer
+public class PagedSearchControlContainer extends AbstractContainer
 {
-    /** EntryChangeControl */
-    private EntryChangeControlCodec control;
+    /** PagedSearchControl */
+    private PagedSearchControlCodec control;
 
 
     /**
-     * Creates a new EntryChangeControlContainer object. We will store one
-     * grammar, it's enough ...
+     * Creates a new PagedSearchControl container object. We will store one grammar,
+     * it's enough ...
      */
-    public EntryChangeControlContainer()
+    public PagedSearchControlContainer()
     {
         super();
         stateStack = new int[1];
-        grammar = EntryChangeControlGrammar.getInstance();
-        states = EntryChangeControlStatesEnum.getInstance();
+        grammar = PagedSearchControlGrammar.getInstance();
+        states = PagedSearchControlStatesEnum.getInstance();
     }
 
 
     /**
-     * @return Returns the EntryChangeControl.
+     * @return Returns the paged search control.
      */
-    public EntryChangeControlCodec getEntryChangeControl()
+    public PagedSearchControlCodec getPagedSearchControl()
     {
+
         return control;
     }
 
 
     /**
-     * Set a EntryChangeControl Object into the container. It will be completed
-     * by the ldapDecoder.
+     * Set a PagedSearchControl Object into the container. It will be completed by
+     * the ldapDecoder.
      * 
-     * @param control the EntryChangeControl to set.
+     * @param control the PagedSearchControl to set.
      */
-    public void setEntryChangeControl( EntryChangeControlCodec control )
+    public void setPagedSearchControl( PagedSearchControlCodec control )
     {
         this.control = control;
     }
