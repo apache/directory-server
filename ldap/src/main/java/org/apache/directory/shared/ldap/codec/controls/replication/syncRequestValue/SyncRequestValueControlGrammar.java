@@ -62,10 +62,10 @@ import org.slf4j.LoggerFactory;
 public class SyncRequestValueControlGrammar extends AbstractGrammar
 {
     /** The logger */
-    static final Logger log = LoggerFactory.getLogger( SyncRequestValueControlGrammar.class );
+    static final Logger LOG = LoggerFactory.getLogger( SyncRequestValueControlGrammar.class );
 
     /** Speedup for logs */
-    static final boolean IS_DEBUG = log.isDebugEnabled();
+    static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** The instance of grammar. SyncRequestValueControlGrammar is a singleton */
     private static IGrammar instance = new SyncRequestValueControlGrammar();
@@ -139,7 +139,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
                         
                         if ( IS_DEBUG )
                         {
-                            log.debug( "Mode = " + modeEnum );
+                            LOG.debug( "Mode = " + modeEnum );
                         }
 
                         SyncRequestValueContainer.getSyncRequestValueControl().setMode( modeEnum );
@@ -150,7 +150,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
                     catch ( IntegerDecoderException e )
                     {
                         String msg = "failed to decode the mode for SyncRequestValueControl";
-                        log.error( msg, e );
+                        LOG.error( msg, e );
                         throw new DecoderException( msg );
                     }
                 }
@@ -180,7 +180,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
 
                     if ( IS_DEBUG )
                     {
-                        log.debug( "cookie = " + StringTools.dumpBytes( cookie ) );
+                        LOG.debug( "cookie = " + StringTools.dumpBytes( cookie ) );
                     }
 
                     SyncRequestValueContainer.getSyncRequestValueControl().setCookie( cookie );
@@ -216,7 +216,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
 
                         if ( IS_DEBUG )
                         {
-                            log.debug( "reloadHint = " + reloadHint );
+                            LOG.debug( "reloadHint = " + reloadHint );
                         }
 
                         SyncRequestValueContainer.getSyncRequestValueControl().setReloadHint( reloadHint );
@@ -227,7 +227,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
                     catch ( BooleanDecoderException e )
                     {
                         String msg = "failed to decode the reloadHint flag for SyncRequestValueControl";
-                        log.error( msg, e );
+                        LOG.error( msg, e );
                         throw new DecoderException( msg );
                     }
                 }
@@ -259,7 +259,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
 
                         if ( IS_DEBUG )
                         {
-                            log.debug( "reloadHint = " + reloadHint );
+                            LOG.debug( "reloadHint = " + reloadHint );
                         }
 
                         SyncRequestValueContainer.getSyncRequestValueControl().setReloadHint( reloadHint );
@@ -270,7 +270,7 @@ public class SyncRequestValueControlGrammar extends AbstractGrammar
                     catch ( BooleanDecoderException e )
                     {
                         String msg = "failed to decode the reloadHint flag for SyncRequestValueControl";
-                        log.error( msg, e );
+                        LOG.error( msg, e );
                         throw new DecoderException( msg );
                     }
                 }
