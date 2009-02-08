@@ -990,7 +990,39 @@ public class GeneralizedTimeTest extends TestCase
         GeneralizedTime generalizedTime = new GeneralizedTime( calendar );
         String result = generalizedTime.toGeneralizedTime();
         assertEquals( "20080102121314Z", result );
+    }
 
+
+    /**
+     * Tests a complete round trip.
+     */
+    public void testRoundTrip() throws ParseException
+    {
+        Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
+        calendar.setTimeInMillis( 123456789000L ); // default format is without millis
+
+        // create form calendar
+        GeneralizedTime generalizedTime1 = new GeneralizedTime( calendar );
+
+        // get the string value
+        String gt1 = generalizedTime1.toGeneralizedTime();
+        Calendar calendar1 = generalizedTime1.getCalendar();
+
+        // create from string value
+        GeneralizedTime generalizedTime2 = new GeneralizedTime( gt1 );
+
+        // get the calendar value 
+        Calendar calendar2 = generalizedTime2.getCalendar();
+        String gt2 = generalizedTime2.toGeneralizedTime();
+
+        // assert that all are equal
+        assertEquals( calendar, calendar1 );
+        assertEquals( calendar, calendar2 );
+        assertEquals( calendar1, calendar2 );
+        assertEquals( gt1, gt2 );
+        assertTrue( calendar.isLenient() );
+        assertTrue( calendar1.isLenient() );
+        assertTrue( calendar2.isLenient() );
     }
 
 
@@ -1040,4 +1072,5 @@ public class GeneralizedTimeTest extends TestCase
         assertFalse( generalizedTime1.equals( generalizedTime3 ) );
         assertFalse( generalizedTime1.equals( null ) );
     }
+
 }

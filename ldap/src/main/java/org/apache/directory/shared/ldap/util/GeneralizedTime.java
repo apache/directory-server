@@ -317,6 +317,8 @@ public class GeneralizedTime implements Comparable<GeneralizedTime>
         {
             throw new ParseException( "Invalid date/time values.", 0 );
         }
+
+        calendar.setLenient( true );
     }
 
 
