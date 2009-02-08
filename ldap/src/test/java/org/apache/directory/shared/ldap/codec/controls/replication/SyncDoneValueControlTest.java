@@ -20,11 +20,17 @@
 package org.apache.directory.shared.ldap.codec.controls.replication;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
@@ -49,8 +55,10 @@ public class SyncDoneValueControlTest
         ByteBuffer bb = ByteBuffer.allocate( 11 );
 
         bb.put( new byte[]
-            { 0x30, 0x09, 0x04, 0x04, 'x', 'k', 'c', 'd', // the cookie 
-                0x01, 0x01, 0x01 // refreshDeletes flag TRUE
+            { 
+              0x30, 0x09, 
+              0x04, 0x04, 'x', 'k', 'c', 'd', // the cookie 
+              0x01, 0x01, ( byte ) 0xFF // refreshDeletes flag TRUE
             } );
 
         bb.flip();
@@ -69,6 +77,20 @@ public class SyncDoneValueControlTest
         SyncDoneValueControlCodec control = container.getSyncDoneValueControl();
         assertEquals( "xkcd", StringTools.utf8ToString( control.getCookie() ) );
         assertTrue( control.isRefreshDeletes() );
+        
+        // test encoding
+        try
+        {
+            ByteBuffer encodedBuf = control.encode( null );
+            encodedBuf.flip();
+            bb.flip();
+            
+            assertTrue( Arrays.equals( encodedBuf.array(), bb.array() ) );
+        }
+        catch( EncoderException e )
+        {
+            fail( e.getMessage() );
+        }
     }
 
 
@@ -76,11 +98,13 @@ public class SyncDoneValueControlTest
     public void testSyncDoneValueControlWithoutCookie()
     {
         Asn1Decoder decoder = new SyncDoneValueControlDecoder();
-        ByteBuffer bb = ByteBuffer.allocate( 7 );
+        ByteBuffer bb = ByteBuffer.allocate( 5 );
 
         bb.put( new byte[]
-            { 0x30, 0x05, 0x04, 0x00, // null cookie
-                0x01, 0x01, 0x00 // refreshDeletes flag FALSE
+            { 
+              0x30, 0x03, 
+              // null cookie
+              0x01, 0x01, 0x00 // refreshDeletes flag FALSE
             } );
 
         bb.flip();
@@ -99,6 +123,20 @@ public class SyncDoneValueControlTest
         SyncDoneValueControlCodec control = container.getSyncDoneValueControl();
         assertNull( control.getCookie() );
         assertFalse( control.isRefreshDeletes() );
+
+        // test encoding
+        try
+        {
+            ByteBuffer encodedBuf = control.encode( null );
+            encodedBuf.flip();
+            bb.flip();
+            
+            assertTrue( Arrays.equals( encodedBuf.array(), bb.array() ) );
+        }
+        catch( EncoderException e )
+        {
+            fail( e.getMessage() );
+        }
     }
 
 }

@@ -126,8 +126,38 @@ public class SyncDoneValueControlGrammar extends AbstractGrammar
                 }
             } );
 
+        GrammarAction refreshDeletesTagAction = new GrammarAction( "set SyncDoneValueControl refreshDeletes flag" )
+        {
+            public void action( IAsn1Container container ) throws DecoderException
+            {
+                SyncDoneValueControlContainer syncDoneValueContainer = ( SyncDoneValueControlContainer ) container;
+                Value value = syncDoneValueContainer.getCurrentTLV().getValue();
+
+                try
+                {
+                    boolean refreshDeletes = BooleanDecoder.parse( value );
+
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( "refreshDeletes = {}", refreshDeletes );
+                    }
+
+                    syncDoneValueContainer.getSyncDoneValueControl().setRefreshDeletes( refreshDeletes );
+
+                    // the END transition for grammar
+                    syncDoneValueContainer.grammarEndAllowed( true );
+                }
+                catch ( BooleanDecoderException be )
+                {
+                    String msg = "failed to decode the refreshDeletes flag for SyncDoneValueControl";
+                    LOG.error( msg, be );
+                    throw new DecoderException( msg );
+                }
+
+            }
+        }; 
         /**
-         * transition from cookie
+         * transition from cookie to refreshDeletes
          * {
          *    ....
          *    refreshDeletes BOOLEAN DEFAULT FALSE
@@ -135,36 +165,19 @@ public class SyncDoneValueControlGrammar extends AbstractGrammar
          */
         super.transitions[SyncDoneValueControlStatesEnum.COOKIE_STATE][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
             SyncDoneValueControlStatesEnum.COOKIE_STATE, SyncDoneValueControlStatesEnum.REFRESH_DELETES_STATE,
-            UniversalTag.BOOLEAN_TAG, new GrammarAction( "set SyncDoneValueControl refreshDeletes flag" )
-            {
-                public void action( IAsn1Container container ) throws DecoderException
-                {
-                    SyncDoneValueControlContainer syncDoneValueContainer = ( SyncDoneValueControlContainer ) container;
-                    Value value = syncDoneValueContainer.getCurrentTLV().getValue();
+            UniversalTag.BOOLEAN_TAG, refreshDeletesTagAction );
+        
+        /**
+         * transition from SEQUENCE to refreshDeletes
+         * {
+         *    ....
+         *    refreshDeletes BOOLEAN DEFAULT FALSE
+         * }
+         */
+        super.transitions[SyncDoneValueControlStatesEnum.SYNC_DONE_VALUE_SEQUENCE_STATE][UniversalTag.BOOLEAN_TAG] = new GrammarTransition(
+            SyncDoneValueControlStatesEnum.SYNC_DONE_VALUE_SEQUENCE_STATE, SyncDoneValueControlStatesEnum.REFRESH_DELETES_STATE,
+            UniversalTag.BOOLEAN_TAG, refreshDeletesTagAction );
 
-                    try
-                    {
-                        boolean refreshDeletes = BooleanDecoder.parse( value );
-
-                        if ( IS_DEBUG )
-                        {
-                            LOG.debug( "refreshDeletes = {}", refreshDeletes );
-                        }
-
-                        syncDoneValueContainer.getSyncDoneValueControl().setRefreshDeletes( refreshDeletes );
-
-                        // the END transition for grammar
-                        syncDoneValueContainer.grammarEndAllowed( true );
-                    }
-                    catch ( BooleanDecoderException be )
-                    {
-                        String msg = "failed to decode the refreshDeletes flag for SyncDoneValueControl";
-                        LOG.error( msg, be );
-                        throw new DecoderException( msg );
-                    }
-
-                }
-            } );
     }
 
 

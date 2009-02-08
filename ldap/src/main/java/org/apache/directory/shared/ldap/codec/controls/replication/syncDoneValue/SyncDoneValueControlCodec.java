@@ -66,7 +66,7 @@ public class SyncDoneValueControlCodec extends AbstractAsn1Object
         }
 
         // the refreshDeletes flag length
-        syncDoneValueLength = 1 + 1 + 1;
+        syncDoneValueLength += 1 + 1 + 1;
 
         return 1 + TLV.getNbBytes( syncDoneValueLength ) + syncDoneValueLength;
     }
