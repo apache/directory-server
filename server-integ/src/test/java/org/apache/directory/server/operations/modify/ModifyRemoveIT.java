@@ -41,11 +41,13 @@ import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
 import org.apache.directory.server.ldap.LdapService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -77,6 +79,36 @@ public class ModifyRemoveIT
     
     public static LdapService ldapService;
     
+    /**
+     * Enable the krb5kdc schema.
+     */
+     @Before
+    public void setUp() throws Exception
+    {
+        DirContext schemaRoot = ( DirContext ) getWiredContext( ldapService ).lookup( "ou=schema" );
+
+        // -------------------------------------------------------------------
+        // Enable the krb5kdc schema
+        // -------------------------------------------------------------------
+
+        // check if krb5kdc is disabled
+        Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
+        boolean isKrb5KdcDisabled = false;
+        
+        if ( krb5kdcAttrs.get( "m-disabled" ) != null )
+        {
+            isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
+        }
+
+        // if krb5kdc is disabled then enable it
+        if ( isKrb5KdcDisabled )
+        {
+            Attribute disabled = new BasicAttribute( "m-disabled" );
+            ModificationItem[] mods = new ModificationItem[]
+                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
+        }
+    }
 
     /**
      * Creation of required attributes of a person entry.
@@ -591,5 +623,38 @@ public class ModifyRemoveIT
         }
 
         ctx.destroySubcontext(rdn);
+    }
+    
+    /**
+     * Test for DIRSERVER-1308:
+     * Remove an objectClass and a mandatory attribute.
+     * 
+     * Expected result: After successful deletion, both the objectClass
+     * and the attribute are not present in entry.
+     */
+    @Test
+    public void testRemoveObjectClassAndMandatoryAttribute() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        
+        // add objectClass:krb5Principal and krb5PrincipalName:test to entry
+        Attributes tn = new BasicAttributes();
+        tn.put( new BasicAttribute( "objectClass", "krb5Principal", true ) );
+        tn.put( new BasicAttribute( "krb5PrincipalName", "test", true ) );
+        ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
+
+        // remove objectClass:krb5Principal and krb5PrincipalName
+        Attributes attrs = new BasicAttributes( true );
+        attrs.put( new BasicAttribute( "objectClass", "krb5Principal", true ) );
+        attrs.put( new BasicAttribute( "krb5PrincipalName" ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
+
+        // Verify, that attributes are deleted
+        attrs = ctx.getAttributes( RDN );
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertFalse( attrs.get( "objectClass" ).contains( "krb5Principal" ) );
+        assertNull( attrs.get( "krb5PrincipalName" ) );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "sn" ) );
     }
 }

@@ -1353,6 +1353,12 @@ public class SchemaInterceptor extends BaseInterceptor
                             LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
+                        
+                        attr = tmpEntry.get( change.getUpId() );
+                        if ( attr != null )
+                        {
+                            tmpEntry.removeAttributes( change.getUpId() );
+                        }
                     }
                     else
                     {
