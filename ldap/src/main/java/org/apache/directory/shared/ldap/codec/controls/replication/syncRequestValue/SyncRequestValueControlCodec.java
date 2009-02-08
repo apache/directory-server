@@ -145,8 +145,12 @@ public class SyncRequestValueControlCodec extends AbstractAsn1Object
         bb.put( UniversalTag.SEQUENCE_TAG );
         bb.put( TLV.getBytes( syncRequestValueLength ) );
 
-        Value.encode( bb, mode.getValue() );
-        
+        // The mode
+        bb.put(  UniversalTag.ENUMERATED_TAG );
+        bb.put( (byte)0x01 );
+        bb.put( Value.getBytes( mode.getValue() ) );
+
+        // The cookie
         if ( cookie != null )
         {
             Value.encode( bb, cookie );

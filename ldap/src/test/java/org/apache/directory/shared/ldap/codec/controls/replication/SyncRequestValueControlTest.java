@@ -20,9 +20,11 @@
 package org.apache.directory.shared.ldap.codec.controls.replication;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlDecoder;
@@ -62,6 +64,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+        
         try
         {
             decoder.decode( bb, container );
@@ -76,6 +79,19 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_ONLY, syncRequestValue.getMode() );
         assertEquals( "abc", StringTools.utf8ToString( syncRequestValue.getCookie() ) );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            assertTrue( Arrays.equals( bb.array(), encoded.array() ) );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -99,6 +115,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+       
         try
         {
             decoder.decode( bb, container );
@@ -113,6 +130,19 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertEquals( "abc", StringTools.utf8ToString( syncRequestValue.getCookie() ) );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            assertTrue( Arrays.equals( bb.array(), encoded.array() ) );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -135,6 +165,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+        
         try
         {
             decoder.decode( bb, container );
@@ -149,6 +180,19 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertNull( syncRequestValue.getCookie() );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            assertTrue( Arrays.equals( bb.array(), encoded.array() ) );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -172,6 +216,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+        
         try
         {
             decoder.decode( bb, container );
@@ -186,6 +231,19 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertNull( syncRequestValue.getCookie() );
         assertEquals( true, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            assertTrue( Arrays.equals( bb.array(), encoded.array() ) );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -208,6 +266,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+        
         try
         {
             decoder.decode( bb, container );
@@ -222,6 +281,23 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertNull( syncRequestValue.getCookie() );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            SyncRequestValueControlCodec redecoded = container.getSyncRequestValueControl();
+            
+            assertEquals( syncRequestValue.getMode(), redecoded.getMode() );
+            assertTrue( Arrays.equals( syncRequestValue.getCookie(), redecoded.getCookie() ) );
+            assertEquals( syncRequestValue.isReloadHint(), redecoded.isReloadHint() );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -244,6 +320,7 @@ public class SyncRequestValueControlTest
         bb.flip();
 
         SyncRequestValueControlContainer container = new SyncRequestValueControlContainer();
+        
         try
         {
             decoder.decode( bb, container );
@@ -258,6 +335,23 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertEquals( "abc", StringTools.utf8ToString( syncRequestValue.getCookie() ) );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            SyncRequestValueControlCodec redecoded = container.getSyncRequestValueControl();
+            
+            assertEquals( syncRequestValue.getMode(), redecoded.getMode() );
+            assertTrue( Arrays.equals( syncRequestValue.getCookie(), redecoded.getCookie() ) );
+            assertEquals( syncRequestValue.isReloadHint(), redecoded.isReloadHint() );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
@@ -294,6 +388,23 @@ public class SyncRequestValueControlTest
         assertEquals( SynchronizationModeEnum.REFRESH_AND_PERSIST, syncRequestValue.getMode() );
         assertEquals( "", StringTools.utf8ToString( syncRequestValue.getCookie() ) );
         assertEquals( false, syncRequestValue.isReloadHint() );
+
+        // Check the encoding
+        try
+        {
+            ByteBuffer encoded = syncRequestValue.encode( null );
+            encoded.flip();
+            bb.flip();
+            SyncRequestValueControlCodec redecoded = container.getSyncRequestValueControl();
+            
+            assertEquals( syncRequestValue.getMode(), redecoded.getMode() );
+            assertTrue( Arrays.equals( syncRequestValue.getCookie(), redecoded.getCookie() ) );
+            assertEquals( syncRequestValue.isReloadHint(), redecoded.isReloadHint() );
+        }
+        catch ( EncoderException ee )
+        {
+            fail();
+        }
     }
 
 
