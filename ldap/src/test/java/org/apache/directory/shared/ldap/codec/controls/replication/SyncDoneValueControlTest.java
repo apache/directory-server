@@ -139,4 +139,82 @@ public class SyncDoneValueControlTest
         }
     }
 
+    
+    @Test
+    public void testSyncDoneValueWithSequenceOnly()
+    {
+        Asn1Decoder decoder = new SyncDoneValueControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 2 );
+
+        bb.put( new byte[]
+            { 
+              0x30, 0x00 
+            } );
+
+        bb.flip();
+
+        SyncDoneValueControlContainer container = new SyncDoneValueControlContainer();
+
+        try
+        {
+            decoder.decode( bb, container );
+            fail( "shouldn't reach this" );
+        }
+        catch ( Exception e )
+        {
+            assertTrue( true );
+        }
+
+    }
+
+    
+    @Test
+    public void testSyncDoneValueControlWithEmptyCookie()
+    {
+        Asn1Decoder decoder = new SyncDoneValueControlDecoder();
+        ByteBuffer bb = ByteBuffer.allocate( 7 );
+
+        bb.put( new byte[]
+            { 
+              0x30, 0x05, 
+              0x04, 0x00,      // empty cookie
+              0x01, 0x01, 0x00 // refreshDeletes flag FALSE
+            } );
+
+        bb.flip();
+
+        SyncDoneValueControlContainer container = new SyncDoneValueControlContainer();
+
+        try
+        {
+            decoder.decode( bb, container );
+        }
+        catch ( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+
+        SyncDoneValueControlCodec control = container.getSyncDoneValueControl();
+        assertEquals( "", StringTools.utf8ToString( control.getCookie() ) );
+        assertFalse( control.isRefreshDeletes() );
+
+        // test encoding
+        try
+        {
+            ByteBuffer encodedBuf = control.encode( null );
+            encodedBuf.flip();
+            bb.flip();
+            
+            decoder.decode( encodedBuf, container );
+            SyncDoneValueControlCodec redecoded = container.getSyncDoneValueControl();
+            
+            assertEquals( control.isRefreshDeletes(), redecoded.isRefreshDeletes() );
+            assertTrue( Arrays.equals( control.getCookie(), redecoded.getCookie() ) );
+        }
+        catch( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
 }
