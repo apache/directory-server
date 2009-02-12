@@ -36,7 +36,7 @@
 
   <properties>
     <projectName>Apache Directory Server</projectName>
-    <distributionManagement.site.url>scpexe://vm094.oxylos.org/var/www/html/projects/apacheds/</distributionManagement.site.url>
+    <!--<siteId>apacheds</siteId>-->
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -288,7 +288,7 @@
   <distributionManagement>
     <site>
       <id>apache.directory.apacheds</id>
-      <url>${distributionManagement.site.url}</url>
+      <url>scpexe://vm094.oxylos.org/var/www/html/projects/apacheds/</url>
     </site>
   </distributionManagement>
 
