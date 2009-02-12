@@ -32,14 +32,13 @@
 
   <properties>
     <projectName>ApacheDS-Shared</projectName>
-    <!--<siteId>apacheds-shared</siteId>-->
+    <distributionManagement.site.url>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</distributionManagement.site.url>
   </properties>
   
   <distributionManagement>
     <site>
       <id>apache.directory.shared</id>
-      <!--<url>${staging.siteURL}/${siteId}/${version}</url>-->
-      <url>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</url>
+      <url>${distributionManagement.site.url}</url>
     </site>
   </distributionManagement>
 
