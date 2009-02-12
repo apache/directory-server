@@ -419,7 +419,7 @@ public class ClientStringValueTest
 
 
     /**
-     * Test method for {@link org.apache.directory.shared.ldap.entry.client.ClientStringValue#isValid(org.apache.directory.shared.ldap.schema.syntaxes.SyntaxChecker)}.
+     * Test method for {@link org.apache.directory.shared.ldap.entry.client.ClientStringValue#isValid(org.apache.directory.shared.ldap.schema.SyntaxChecker)}.
      */
     @Test
     public void testIsValid() throws NamingException
