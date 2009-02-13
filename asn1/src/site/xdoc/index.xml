@@ -26,6 +26,13 @@
   <body>
     <section name="Overview">
       <p>
+        <note>
+          <strong>
+            This section is deprecated and must be updated
+          </strong>
+        </note>
+      </p>
+      <p>
         The Apache ASN.1 runtime is a high performance non-blocking replacement for 
         the Snacc4J runtime and eventually its Java stub compiler for ASN.1.  It 
         is designed from the ground up to work with NIO constructs like Channels and 
