@@ -19,11 +19,11 @@
 -->
 <project name="${project.name}">
   <body>
+    <menu ref="parent" />
     <menu name="Apache ASN.1">
       <item name="Overview" href="/index.html"/>
       <item name="Refactor" href="/refactor.html"/>
     </menu>
-    <menu ref="parent" />
     <menu ref="reports" />
   </body>
 </project>
