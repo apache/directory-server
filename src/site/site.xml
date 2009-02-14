@@ -24,6 +24,11 @@
     <href>http://directory.apache.org/</href>
     <name>${project.name}</name>
   </bannerLeft>
+  <skin>
+    <groupId>org.apache.directory.skins</groupId>
+    <artifactId>apacheds-skin</artifactId>
+    <version>${skin.version}</version>
+  </skin>
   <publishDate position="navigation-bottom" format="dd-MM-yyyy HH:mm"/>
   <version position="right"/>
   <body>
