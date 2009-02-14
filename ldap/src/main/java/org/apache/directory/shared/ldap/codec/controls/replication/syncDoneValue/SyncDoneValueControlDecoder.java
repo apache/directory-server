@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.ControlDecoder;
-import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueContol;
+import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
 
 
 /**
@@ -69,7 +69,7 @@ public class SyncDoneValueControlDecoder extends Asn1Decoder implements ControlD
      */
     public String getControlType()
     {
-        return SyncDoneValueContol.CONTROL_OID;
+        return SyncDoneValueControl.CONTROL_OID;
     }
 
 }
