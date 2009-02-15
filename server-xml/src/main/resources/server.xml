@@ -25,6 +25,7 @@
               xmlns="http://apacheds.org/config/1.0">
 
   <defaultDirectoryService id="directoryService" instanceId="default"
+                           replicaId="1"
                            workingDirectory="example.com"
                            allowAnonymousAccess="true"
                            accessControlEnabled="false"

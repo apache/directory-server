@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.server.core.CSN;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -650,6 +651,24 @@ public class InterceptorChainTest extends TestCase
         public Interceptor getInterceptor( String interceptorName )
         {
             return null;
+        }
+        
+        
+        public CSN getCSN()
+        {
+            return null;
+        }
+        
+        
+        public int getReplicaId()
+        {
+            return 0;
+        }
+        
+        
+        public void setReplicaId( int replicaId )
+        {
+            
         }
     }
 }

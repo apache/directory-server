@@ -430,4 +430,23 @@ public interface DirectoryService extends ServerEntryFactory
      * @return
      */
     Interceptor getInterceptor( String interceptorName );
+    
+    
+    /**
+     * Get a new CSN
+     * @return The CSN generated for this directory service
+     */
+    CSN getCSN();
+
+
+    /**
+     * @return the replicaId
+     */
+    int getReplicaId();
+
+
+    /**
+     * @param replicaId the replicaId to set
+     */
+    void setReplicaId( int replicaId );
 }

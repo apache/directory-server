@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -1169,7 +1168,7 @@ public class SearchIT
         
         // ensure that all operational attributes are returned
         // and no user attributes
-        assertEquals( 2, attrs.size() );
+        assertEquals( 4, attrs.size() );
         assertNull( attrs.get( "cn" ) );
         assertNull( attrs.get( "sn" ) );
         assertNull( attrs.get( "objectClass" ) );
@@ -1177,6 +1176,8 @@ public class SearchIT
         assertNull( attrs.get( "description" ) );
         assertNotNull( attrs.get( "createtimestamp" ) );
         assertNotNull( attrs.get( "creatorsname" ) );
+        assertNotNull( attrs.get( "entryuuid" ) );
+        assertNotNull( attrs.get( "entrycsn" ) );
     }
     
 
@@ -1201,7 +1202,7 @@ public class SearchIT
         Attributes attrs = result.getAttributes();
         
         // ensure that all user attributes are returned
-        assertEquals( 8, attrs.size() );
+        assertEquals( 10, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
@@ -1210,6 +1211,8 @@ public class SearchIT
         assertNotNull( attrs.get( "description" ) );
         assertNotNull( attrs.get( "createtimestamp" ) );
         assertNotNull( attrs.get( "creatorsname" ) );
+        assertNotNull( attrs.get( "entryuuid" ) );
+        assertNotNull( attrs.get( "entrycsn" ) );
     }
 
 
@@ -1402,7 +1405,6 @@ public class SearchIT
             { "(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)", "(description=*\\5C*)" };
         for ( String filter : filters )
         {
-            HashMap<String, Attributes> map = new HashMap<String, Attributes>();
             NamingEnumeration<SearchResult> res = ctx.search( "", filter, controls );
             assertTrue( res.hasMore() );
             SearchResult result = res.next();

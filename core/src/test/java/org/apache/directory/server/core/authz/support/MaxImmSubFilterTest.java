@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import org.apache.directory.server.core.CSN;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -841,6 +842,24 @@ public class MaxImmSubFilterTest
         public Interceptor getInterceptor( String interceptorName )
         {
             return null;
+        }
+        
+        
+        public CSN getCSN()
+        {
+            return null;
+        }
+        
+        
+        public int getReplicaId()
+        {
+            return 0;
+        }
+        
+        
+        public void setReplicaId( int replicaId )
+        {
+            
         }
     }
 

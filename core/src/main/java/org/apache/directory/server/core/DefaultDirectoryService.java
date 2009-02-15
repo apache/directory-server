@@ -166,6 +166,12 @@ public class DefaultDirectoryService implements DirectoryService
     
     /** A flag to tell if the userPassword attribute's value must be hidden */
     private boolean passwordHidden = false;
+    
+    /** The service's CSN factory */
+    private CSNFactory csnFactory;
+    
+    /** The directory instance replication ID */
+    private int replicaId;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -223,6 +229,8 @@ public class DefaultDirectoryService implements DirectoryService
         }
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        
+        csnFactory = new CSNFactory();
     }
 
 
@@ -1607,5 +1615,33 @@ public class DefaultDirectoryService implements DirectoryService
         }
         
         return null;
+    }
+
+
+    /**
+     * Get a new CSN
+     * @return The CSN generated for this directory service
+     */
+    public CSN getCSN()
+    {
+        return csnFactory.newInstance( replicaId );
+    }
+
+
+    /**
+     * @return the replicaId
+     */
+    public int getReplicaId()
+    {
+        return replicaId;
+    }
+
+
+    /**
+     * @param replicaId the replicaId to set
+     */
+    public void setReplicaId( int replicaId )
+    {
+        this.replicaId = replicaId;
     }
 }

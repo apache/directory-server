@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -64,6 +65,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
  
@@ -155,6 +157,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     /**
      * Adds extra operational attributes to the entry before it is added.
+     * 
+     * We add thos attributes :
+     * - creatorsName
+     * - createTimestamp
+     * - entryCSN
+     * - entryUUID 
      */
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext )
         throws Exception
@@ -165,9 +173,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
         
-        EntryAttribute createTimeStamp = new DefaultServerAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE );
-        
-        if ( opContext.getEntry().contains( createTimeStamp ) )
+        if ( opContext.getEntry().containsAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE ) )
         {
             // As we already have a CreateTimeStamp value in the context, use it, but only if
             // the principal is admin
@@ -187,6 +193,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
+        
+        // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
+        // its String value
+        entry.put( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
+        entry.put( ApacheSchemaConstants.ENTRY_CSN_AT, service.getCSN().getBytes() );
         
         nextInterceptor.add( opContext );
     }
