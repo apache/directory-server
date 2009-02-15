@@ -70,6 +70,10 @@ import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -233,6 +237,11 @@ public class LdapService extends DirectoryBackedService
         this.supportedControls.add( ManageDsaITControl.CONTROL_OID );
         this.supportedControls.add( CascadeControl.CONTROL_OID );
         this.supportedControls.add( PagedSearchControl.CONTROL_OID );
+        // Replication controls
+        this.supportedControls.add( SyncDoneValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncInfoValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncRequestValueControl.CONTROL_OID );
+        this.supportedControls.add( SyncStateValueControl.CONTROL_OID );
     }
 
 

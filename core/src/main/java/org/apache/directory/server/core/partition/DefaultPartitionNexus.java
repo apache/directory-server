@@ -74,6 +74,10 @@ import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -170,13 +174,20 @@ public class DefaultPartitionNexus extends PartitionNexus
         rootDSE.put( SchemaConstants.SUPPORTED_EXTENSION_AT, NoticeOfDisconnect.EXTENSION_OID );
 
         // Add the supported controls
-        rootDSE.put( SchemaConstants.SUPPORTED_CONTROL_AT, 
+        rootDSE.put( 
+            SchemaConstants.SUPPORTED_CONTROL_AT, 
             PersistentSearchControl.CONTROL_OID,
             EntryChangeControl.CONTROL_OID,
             SubentriesControl.CONTROL_OID,
             ManageDsaITControl.CONTROL_OID,
             CascadeControl.CONTROL_OID,
-            PagedSearchControl.CONTROL_OID);
+            PagedSearchControl.CONTROL_OID,
+            // Replication controls
+            SyncDoneValueControl.CONTROL_OID,
+            SyncInfoValueControl.CONTROL_OID,
+            SyncRequestValueControl.CONTROL_OID,
+            SyncStateValueControl.CONTROL_OID 
+            );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,
