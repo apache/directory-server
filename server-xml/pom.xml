@@ -33,6 +33,15 @@
     A single authoritative server.xml file.
   </description>
 
+  <build>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+  </build>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>

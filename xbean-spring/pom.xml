@@ -150,7 +150,7 @@
         <executions>
           <execution>
             <configuration>
-              <namespace>http://apacheds.org/config/1.0</namespace>
+              <namespace>http://apacheds.org/config/${project.version}</namespace>
               <schema>target/xbean/${pom.artifactId}.xsd</schema>
             </configuration>
             <goals>
