@@ -25,12 +25,12 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
@@ -164,9 +164,12 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         
         sb.append("ModifyContext for DN '").append( getDn().getUpName() ).append( "', modifications :\n" );
         
-        for ( Modification mod:modItems )
+        if ( modItems != null )
         {
-            sb.append( mod ).append( '\n' );
+            for ( Modification mod:modItems )
+            {
+                sb.append( mod ).append( '\n' );
+            }
         }
         
         return sb.toString();
