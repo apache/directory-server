@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.ConfigurationException;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -57,8 +59,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.ConfigurationException;
 
 
 /**
@@ -510,6 +510,7 @@ public class InterceptorChain
         }
 
         OperationContext opContext = InvocationStack.getInstance().peek();
+        
         if ( !opContext.hasBypass() )
         {
             return head;
@@ -521,6 +522,7 @@ public class InterceptorChain
         }
 
         Entry next = head;
+        
         while ( next != tail )
         {
             if ( opContext.isBypassed( next.getName() ) )
