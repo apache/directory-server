@@ -56,12 +56,14 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.LdapURL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -72,6 +74,13 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
  */
 public class DefaultOperationManager implements OperationManager
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultOperationManager.class );
+
+    /** A logger specifically for change operations */
+    private static final Logger LOG_CHANGES = LoggerFactory.getLogger( "LOG_CHANGES" );
+
+    /** The directory service instance */
     private final DirectoryService directoryService;
 
 
@@ -118,73 +127,73 @@ public class DefaultOperationManager implements OperationManager
     
     private LdapReferralException buildReferralExceptionForSearch( 
         ServerEntry parentEntry, LdapDN childDn, SearchScope scope ) 
-    throws NamingException, LdapURLEncodingException
-{
-    // Get the Ref attributeType
-    EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
-    
-    List<String> urls = new ArrayList<String>();
-    
-    // manage each Referral, building the correct URL for each of them
-    for ( Value<?> url:refs )
+        throws NamingException, LdapURLEncodingException
     {
-        // we have to replace the parent by the referral
-        try
+        // Get the Ref attributeType
+        EntryAttribute refs = parentEntry.get( SchemaConstants.REF_AT );
+        
+        List<String> urls = new ArrayList<String>();
+        
+        // manage each Referral, building the correct URL for each of them
+        for ( Value<?> url:refs )
         {
-            LdapURL ldapUrl = new LdapURL( (String)url.get() );
-            
-            StringBuilder urlString = new StringBuilder();
-
-            if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == LdapDN.EMPTY_LDAPDN) )
+            // we have to replace the parent by the referral
+            try
             {
-                ldapUrl.setDn( parentEntry.getDn() );
-            }
-            else
-            {
-                // We have a problem with the DN : we can't use the UpName,
-                // as we may have some spaces around the ',' and '+'.
-                // So we have to take the RDN one by one, and create a 
-                // new DN with the type and value UP form
+                LdapURL ldapUrl = new LdapURL( (String)url.get() );
                 
-                LdapDN urlDn = (LdapDN)ldapUrl.getDn().addAll( childDn );
+                StringBuilder urlString = new StringBuilder();
+    
+                if ( ( ldapUrl.getDn() == null ) || ( ldapUrl.getDn() == LdapDN.EMPTY_LDAPDN) )
+                {
+                    ldapUrl.setDn( parentEntry.getDn() );
+                }
+                else
+                {
+                    // We have a problem with the DN : we can't use the UpName,
+                    // as we may have some spaces around the ',' and '+'.
+                    // So we have to take the RDN one by one, and create a 
+                    // new DN with the type and value UP form
+                    
+                    LdapDN urlDn = (LdapDN)ldapUrl.getDn().addAll( childDn );
+                    
+                    ldapUrl.setDn( urlDn );
+                }
                 
-                ldapUrl.setDn( urlDn );
+                urlString.append( ldapUrl.toString() ).append( "??" );
+                
+                switch ( scope )
+                {
+                    case OBJECT :
+                        urlString.append( "base" );
+                        break;
+                        
+                    case SUBTREE :
+                        urlString.append( "sub" );
+                        break;
+                        
+                    case ONELEVEL :
+                        urlString.append( "one" );
+                        break;
+                }
+                
+                urls.add( urlString.toString() );
             }
-            
-            urlString.append( ldapUrl.toString() ).append( "??" );
-            
-            switch ( scope )
+            catch ( LdapURLEncodingException luee )
             {
-                case OBJECT :
-                    urlString.append( "base" );
-                    break;
-                    
-                case SUBTREE :
-                    urlString.append( "sub" );
-                    break;
-                    
-                case ONELEVEL :
-                    urlString.append( "one" );
-                    break;
+                // The URL is not correct, returns it as is
+                urls.add( (String)url.get() );
             }
-            
-            urls.add( urlString.toString() );
         }
-        catch ( LdapURLEncodingException luee )
-        {
-            // The URL is not correct, returns it as is
-            urls.add( (String)url.get() );
-        }
+        
+        // Return with an exception
+        LdapReferralException lre = new LdapReferralException( urls );
+        lre.setRemainingName( childDn );
+        lre.setResolvedName( parentEntry.getDn() );
+        lre.setResolvedObj( parentEntry );
+        
+        return lre;
     }
-    
-    // Return with an exception
-    LdapReferralException lre = new LdapReferralException( urls );
-    lre.setRemainingName( childDn );
-    lre.setResolvedName( parentEntry.getDn() );
-    lre.setResolvedObj( parentEntry );
-    
-    return lre;
-}
 
 
     private PartialResultException buildPartialResultException( LdapDN childDn )
@@ -203,6 +212,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> AddOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> AddOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -252,6 +264,9 @@ public class DefaultOperationManager implements OperationManager
         {
             pop();
         }
+
+        LOG.debug( "<< AddOperation successfull" );
+        LOG_CHANGES.debug( "<< AddOperation successfull" );
     }
 
 
@@ -260,6 +275,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public void bind( BindOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> BindOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -270,6 +287,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< BindOperation successful" );
         }
     }
 
@@ -279,6 +298,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean compare( CompareOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> CompareOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -345,6 +366,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< CompareOperation successful" );
         }
     }
 
@@ -354,6 +377,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> DeleteOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> DeleteOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -422,6 +448,9 @@ public class DefaultOperationManager implements OperationManager
         {
             pop();
         }
+
+        LOG.debug( "<< DeleteOperation successful" );
+        LOG_CHANGES.debug( "<< DeleteOperation successful" );
     }
 
 
@@ -430,6 +459,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> GetMatchedNameOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -440,6 +471,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< GetMatchedNameOperation successful" );
         }
     }
 
@@ -450,6 +483,8 @@ public class DefaultOperationManager implements OperationManager
     public ClonedServerEntry getRootDSE( GetRootDSEOperationContext opContext ) 
         throws Exception
     {
+        LOG.debug( ">> GetRootDSEOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -460,6 +495,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< getRootDSEOperation successful" );
         }
     }
 
@@ -469,6 +506,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> GetSuffixOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -479,6 +518,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< GetSuffixOperation successful" );
         }
     }
 
@@ -488,6 +529,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> hasEntryOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -498,6 +541,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< HasEntryOperation successful" );
         }
     }
 
@@ -507,6 +552,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> ListOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -517,6 +564,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< ListOperation successful" );
         }
     }
 
@@ -527,6 +576,8 @@ public class DefaultOperationManager implements OperationManager
     public Set<String> listSuffixes( ListSuffixOperationContext opContext ) 
         throws Exception
     {
+        LOG.debug( ">> ListSuffixesOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -537,6 +588,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< ListSuffixesOperation successful" );
         }
     }
 
@@ -546,6 +599,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public ClonedServerEntry lookup( LookupOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> LookupOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -556,6 +611,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< LookupOperation successful" );
         }
     }
 
@@ -565,6 +622,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> ModifyOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> ModifyOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -633,6 +693,9 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< ModifyOperation successful" );
+            LOG_CHANGES.debug( "<< ModifyOperation successful" );
         }
     }
 
@@ -642,6 +705,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void move( MoveOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> MoveOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> MoveOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -729,6 +795,9 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< MoveOperation successful" );
+            LOG_CHANGES.debug( "<< MoveOperation successful" );
         }
     }
 
@@ -738,6 +807,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> MoveAndRenameOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -827,6 +899,9 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< MoveAndRenameOperation successful" );
+            LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
         }
     }
 
@@ -836,6 +911,9 @@ public class DefaultOperationManager implements OperationManager
      */
     public void rename( RenameOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> RenameOperation : {}", opContext );
+        LOG_CHANGES.debug( ">> RenameOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -904,6 +982,9 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< RenameOperation successful" );
+            LOG_CHANGES.debug( "<< RenameOperation successful" );
         }
     }
 
@@ -913,6 +994,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> SearchOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -981,6 +1064,8 @@ public class DefaultOperationManager implements OperationManager
         finally
         {
             pop();
+
+            LOG.debug( "<< SearchOperation successful" );
         }
     }
 
@@ -990,6 +1075,8 @@ public class DefaultOperationManager implements OperationManager
      */
     public void unbind( UnbindOperationContext opContext ) throws Exception
     {
+        LOG.debug( ">> UnbindOperation : {}", opContext );
+        
         ensureStarted();
         push( opContext );
         
@@ -1001,6 +1088,8 @@ public class DefaultOperationManager implements OperationManager
         {
             pop();
         }
+
+        LOG.debug( "<< UnbindOperation successful" );
     }
 
 
