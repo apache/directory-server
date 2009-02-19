@@ -219,10 +219,27 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public LdapDN getMatchedName( GetMatchedNameOperationContext opContext ) throws Exception
     {
-        return getMatchedName( opContext, null );
+        ensureStarted();
+        push( opContext );
+        
+        try
+        {
+            return service.getInterceptorChain().getMatchedName( opContext );
+        }
+        finally
+        {
+            pop();
+        }
     }
     
     
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> byPassed ) throws Exception
+    {
+        opContext.setByPassed( byPassed );
+        return getMatchedName( opContext );
+    }
+
+
     private void push( OperationContext opContext )
     {
         InvocationStack.getInstance().push( opContext );
@@ -235,33 +252,9 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> byPassed ) throws Exception
-    {
-        ensureStarted();
-        opContext.setByPassed( byPassed );
-        push( opContext );
-        
-        try
-        {
-            return service.getInterceptorChain().getMatchedName( opContext );
-        }
-        finally
-        {
-            pop();
-        }
-    }
-
-
     public LdapDN getSuffix( GetSuffixOperationContext opContext ) throws Exception
     {
-        return getSuffix( opContext, null );
-    }
-
-
-    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
-    {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -275,16 +268,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
+    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        return listSuffixes( opContext, null );
+        opContext.setByPassed( byPassed );
+        return getSuffix( opContext );
     }
 
 
-    public Set<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -298,16 +291,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean compare( CompareOperationContext opContext ) throws Exception
+    public Set<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        return compare( opContext, null );
+        opContext.setByPassed( byPassed );
+        return listSuffixes( opContext );
     }
 
 
-    public boolean compare( CompareOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public boolean compare( CompareOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -321,16 +314,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void delete( DeleteOperationContext opContext ) throws Exception
+    public boolean compare( CompareOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        delete( opContext, null );
+        opContext.setByPassed( byPassed );
+        return compare( opContext );
     }
 
 
-    public void delete( DeleteOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void delete( DeleteOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -344,16 +337,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void add( AddOperationContext opContext ) throws Exception
+    public void delete( DeleteOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        add( opContext, null );
+        opContext.setByPassed( byPassed );
+        delete( opContext );
     }
 
 
-    public void add( AddOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void add( AddOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -367,16 +360,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modify( ModifyOperationContext opContext ) throws Exception
+    public void add( AddOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        modify( opContext, null );
+        opContext.setByPassed( byPassed );
+        add( opContext );
     }
 
 
-    public void modify( ModifyOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void modify( ModifyOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -390,16 +383,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
+    public void modify( ModifyOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        return list( opContext, null );
+        opContext.setByPassed( byPassed );
+        modify( opContext );
     }
 
 
-    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -410,6 +403,13 @@ public class PartitionNexusProxy extends PartitionNexus
         {
             pop();
         }
+    }
+
+
+    public EntryFilteringCursor list( ListOperationContext opContext, Collection<String> byPassed ) throws Exception
+    {
+        opContext.setByPassed( byPassed );
+        return list( opContext );
     }
 
 
@@ -531,14 +531,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public boolean hasEntry( EntryOperationContext opContext ) throws Exception
     {
-        return hasEntry( opContext, null );
-    }
-
-
-    public boolean hasEntry( EntryOperationContext opContext, Collection<String> byPassed ) throws Exception
-    {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -552,16 +545,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void rename( RenameOperationContext opContext ) throws Exception
+    public boolean hasEntry( EntryOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        rename( opContext, null );
+        opContext.setByPassed( byPassed );
+        return hasEntry( opContext );
     }
 
 
-    public void rename( RenameOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void rename( RenameOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -575,16 +568,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void move( MoveOperationContext opContext ) throws Exception
+    public void rename( RenameOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        move( opContext, null );
+        opContext.setByPassed( byPassed );
+        rename( opContext );
     }
 
 
-    public void move( MoveOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void move( MoveOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -598,17 +591,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
+    public void move( MoveOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        moveAndRename( opContext, null );
+        opContext.setByPassed( byPassed );
+        move( opContext );
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> byPassed )
-            throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -621,35 +613,18 @@ public class PartitionNexusProxy extends PartitionNexus
         }
     }
 
-    /**
-     * TODO : check if we can find another way to protect ourselves from recursion.
-     *
-     * @param opContext The operation context
-     * @param byPassed bypass instructions to skip interceptors
-     * @throws Exception if bind fails
-     */
-    public void bind( BindOperationContext opContext, Collection<String> byPassed )
+
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> byPassed )
             throws Exception
     {
-        ensureStarted();
         opContext.setByPassed( byPassed );
-        push( opContext );
-        
-        try
-        {
-            service.getInterceptorChain().bind( opContext );
-        }
-        finally
-        {
-            pop();
-        }
+        moveAndRename( opContext );
     }
 
 
-    public void unbind( UnbindOperationContext opContext, Collection<String> byPassed ) throws Exception
+    public void unbind( UnbindOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -663,15 +638,41 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void bind( BindOperationContext opContext ) throws Exception
+    public void unbind( UnbindOperationContext opContext, Collection<String> byPassed ) throws Exception
     {
-        bind( opContext, null );
+        opContext.setByPassed( byPassed );
+        unbind( opContext );
     }
 
 
-    public void unbind( UnbindOperationContext opContext ) throws Exception
+    /**
+     * TODO : check if we can find another way to protect ourselves from recursion.
+     *
+     * @param opContext The operation context
+     * @param byPassed bypass instructions to skip interceptors
+     * @throws Exception if bind fails
+     */
+    public void bind( BindOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
-        unbind( opContext, null );
+        opContext.setByPassed( byPassed );
+        bind( opContext );
+    }
+
+    
+    public void bind( BindOperationContext opContext ) throws Exception
+    {
+        ensureStarted();
+        push( opContext );
+        
+        try
+        {
+            service.getInterceptorChain().bind( opContext );
+        }
+        finally
+        {
+            pop();
+        }
     }
 
 
@@ -714,15 +715,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public void addContextPartition( AddContextPartitionOperationContext opContext ) throws Exception
     {
-        addContextPartition( opContext, null );
-    }
-
-
-    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> byPassed )
-            throws Exception
-    {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -736,17 +729,17 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
+    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> byPassed )
+            throws Exception
     {
-        removeContextPartition( opContext, null );
+        opContext.setByPassed( byPassed );
+        addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> byPassed )
-            throws Exception
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         ensureStarted();
-        opContext.setByPassed( byPassed );
         push( opContext );
         
         try
@@ -757,6 +750,14 @@ public class PartitionNexusProxy extends PartitionNexus
         {
             pop();
         }
+    }
+
+
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> byPassed )
+            throws Exception
+    {
+        opContext.setByPassed( byPassed );
+        removeContextPartition( opContext );
     }
 
 
