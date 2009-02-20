@@ -29,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
@@ -118,9 +119,7 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( ServerEntry entry ) throws Exception
     {
-        AddOperationContext opContext = new AddOperationContext( this, entry );
-        OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.add( opContext );
+        add( entry, LogChange.TRUE );
     }
 
 
@@ -129,8 +128,32 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( ServerEntry entry, boolean ignoreReferral ) throws Exception
     {
+        add( entry, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void add( ServerEntry entry, LogChange log ) throws Exception
+    {
         AddOperationContext opContext = new AddOperationContext( this, entry );
+
+        opContext.setLogChange( log );
         
+        OperationManager operationManager = directoryService.getOperationManager();
+        operationManager.add( opContext );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void add( ServerEntry entry, boolean ignoreReferral, LogChange log ) throws Exception
+    {
+        AddOperationContext opContext = new AddOperationContext( this, entry );
+
+        opContext.setLogChange( log );
         setReferralHandling( opContext, ignoreReferral );
         
         OperationManager operationManager = directoryService.getOperationManager();
@@ -143,7 +166,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void add( AddRequest addRequest ) throws Exception
     {
+        add( addRequest, LogChange.TRUE );
+    }
+
+    
+    /**
+     * {@inheritDoc} 
+     */
+    public void add( AddRequest addRequest, LogChange log ) throws Exception
+    {
         AddOperationContext opContext = new AddOperationContext( this, addRequest );
+
+        opContext.setLogChange( log );
+        
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.add( opContext );
         addRequest.getResultResponse().addAll( opContext.getResponseControls() );
@@ -225,8 +260,21 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( LdapDN dn ) throws Exception
     {
+        delete( dn, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( LdapDN dn, LogChange log ) throws Exception
+    {
+        DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
+
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.delete( new DeleteOperationContext( this, dn ) );
+        operationManager.delete( opContext );
     }
 
 
@@ -235,8 +283,18 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( LdapDN dn, boolean ignoreReferral  ) throws Exception
     {
+        delete( dn, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( LdapDN dn, boolean ignoreReferral, LogChange log ) throws Exception
+    {
         DeleteOperationContext opContext = new DeleteOperationContext( this, dn );
         
+        opContext.setLogChange( log );
         setReferralHandling( opContext, ignoreReferral );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -432,6 +490,15 @@ public class DefaultCoreSession implements CoreSession
      */
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
+        modify( dn, mods, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( LdapDN dn, List<Modification> mods, LogChange log ) throws Exception
+    {
         if ( mods == null )
         {
             return;
@@ -444,8 +511,12 @@ public class DefaultCoreSession implements CoreSession
             serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
         }
         
+        ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
+
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.modify( new ModifyOperationContext( this, dn, serverModifications ) );
+        operationManager.modify( opContext );
     }
 
 
@@ -453,6 +524,15 @@ public class DefaultCoreSession implements CoreSession
      * {@inheritDoc}
      */
     public void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral ) throws Exception
+    {
+        modify( dn, mods, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws Exception
     {
         if ( mods == null )
         {
@@ -469,6 +549,7 @@ public class DefaultCoreSession implements CoreSession
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
         
         setReferralHandling( opContext, ignoreReferral );
+        opContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.modify( opContext );
@@ -480,8 +561,21 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( LdapDN dn, LdapDN newParent ) throws Exception
     {
+        move( dn, newParent, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void move( LdapDN dn, LdapDN newParent, LogChange log ) throws Exception
+    {
+        MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
+        
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.move( new MoveOperationContext( this, dn, newParent ) );
+        operationManager.move( opContext );
     }
 
 
@@ -490,10 +584,20 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( LdapDN dn, LdapDN newParent, boolean ignoreReferral ) throws Exception
     {
+        move( dn, newParent, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void move( LdapDN dn, LdapDN newParent, boolean ignoreReferral, LogChange log ) throws Exception
+    {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveOperationContext opContext = new MoveOperationContext( this, dn, newParent );
         
         setReferralHandling( opContext, ignoreReferral );
+        opContext.setLogChange( log );
 
         operationManager.move( opContext );
     }
@@ -504,9 +608,22 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
+        moveAndRename( dn, newParent, newRdn, deleteOldRdn, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    {
+        MoveAndRenameOperationContext opContext = 
+            new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
+        
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.moveAndRename( 
-            new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn ) );
+        operationManager.moveAndRename( opContext );
     }
 
 
@@ -515,9 +632,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
+        moveAndRename( dn, newParent, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void moveAndRename( LdapDN dn, LdapDN newParent, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    {
         OperationManager operationManager = directoryService.getOperationManager();
         MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, dn, newParent, newRdn, deleteOldRdn );
         
+        opContext.setLogChange( log );
         setReferralHandling( opContext, ignoreReferral );
 
         operationManager.moveAndRename( opContext );
@@ -529,8 +656,21 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws Exception
     {
+        rename( dn, newRdn, deleteOldRdn, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, LogChange log ) throws Exception
+    {
+        RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
+        
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
-        operationManager.rename( new RenameOperationContext( this, dn, newRdn, deleteOldRdn ) );
+        operationManager.rename( opContext );
     }
 
 
@@ -539,9 +679,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral ) throws Exception
     {
+        rename( dn, newRdn, deleteOldRdn, ignoreReferral, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn, boolean ignoreReferral, LogChange log ) throws Exception
+    {
         OperationManager operationManager = directoryService.getOperationManager();
         RenameOperationContext opContext = new RenameOperationContext( this, dn, newRdn, deleteOldRdn );
         
+        opContext.setLogChange( log );
         setReferralHandling( opContext, ignoreReferral );
 
         operationManager.rename( opContext );
@@ -630,7 +780,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void delete( DeleteRequest deleteRequest ) throws Exception
     {
+        delete( deleteRequest, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( DeleteRequest deleteRequest, LogChange log ) throws Exception
+    {
         DeleteOperationContext opContext = new DeleteOperationContext( this, deleteRequest );
+        
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.delete( opContext );
         deleteRequest.getResultResponse().addAll( opContext.getResponseControls() );
@@ -650,7 +812,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void modify( ModifyRequest modifyRequest ) throws Exception
     {
+        modify( modifyRequest, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void modify( ModifyRequest modifyRequest, LogChange log ) throws Exception
+    {
         ModifyOperationContext opContext = new ModifyOperationContext( this, modifyRequest );
+
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.modify( opContext );
         modifyRequest.getResultResponse().addAll( opContext.getResponseControls() );
@@ -662,7 +836,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void move( ModifyDnRequest modifyDnRequest ) throws Exception
     {
+        move( modifyDnRequest, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    {
         MoveOperationContext opContext = new MoveOperationContext( this, modifyDnRequest );
+        
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.move( opContext );
         modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
@@ -674,7 +860,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception
     {
+        moveAndRename( modifyDnRequest, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc} 
+     */
+    public void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    {
         MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
+
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.moveAndRename( opContext );
         modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );
@@ -686,7 +884,19 @@ public class DefaultCoreSession implements CoreSession
      */
     public void rename( ModifyDnRequest modifyDnRequest ) throws Exception
     {
+        rename( modifyDnRequest, LogChange.TRUE );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    {
         RenameOperationContext opContext = new RenameOperationContext( this, modifyDnRequest );
+
+        opContext.setLogChange( log );
+
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.rename( opContext );
         modifyDnRequest.getResultResponse().addAll( opContext.getResponseControls() );

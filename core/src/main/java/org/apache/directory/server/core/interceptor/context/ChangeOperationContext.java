@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 
 
@@ -39,4 +40,19 @@ public interface ChangeOperationContext extends OperationContext
      * @return the ChangeLogEvent associated with this operation, or null
      */
     ChangeLogEvent getChangeLogEvent();
+    
+    
+    /**
+     * Set the flag which tells the server to log the changes into
+     * the changeLog file
+     * 
+     * @param log The flag
+     */
+    void setLogChange( LogChange log );
+
+    
+    /**
+     * @return True if the changes are logged into the changeLog
+     */
+    boolean isLogChange();
 }

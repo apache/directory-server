@@ -180,6 +180,14 @@ public class DefaultDirectoryService implements DirectoryService
             "changes are made by the admin user.\n Furthermore the used controls are not at " +
             "all taken into account";
 
+    
+    /** A structure telling the changeLog what to do with the incoming change */
+    public enum LogChange
+    {
+        TRUE,  // The change must me stored 
+        FALSE  // The change must not be stred
+    };
+   
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------

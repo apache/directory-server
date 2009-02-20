@@ -21,6 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -35,6 +36,9 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
 {
     private ChangeLogEvent changeLogEvent;
     
+    /** The flag used to tell the server to store the change sinto the changeLog */
+    protected LogChange logChange;
+
     
     public AbstractChangeOperationContext( CoreSession session )
     {
@@ -60,5 +64,23 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     public void setChangeLogEvent( ChangeLogEvent changeLogEvent )
     {
         this.changeLogEvent = changeLogEvent;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setLogChange( LogChange logChange )
+    {
+        this.logChange = logChange;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLogChange()
+    {
+        return logChange != logChange.FALSE;
     }
 }

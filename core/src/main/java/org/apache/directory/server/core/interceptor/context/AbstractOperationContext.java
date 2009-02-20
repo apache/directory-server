@@ -73,7 +73,8 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** A flag used to tell if we should consider referrals as standard entries */
     protected boolean throwReferral;
-
+    
+    
     /**
      * Creates a new instance of AbstractOperationContext.
      */
