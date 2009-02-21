@@ -21,7 +21,6 @@ package org.apache.directory.server.ntp;
 
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import junit.framework.Assert;
@@ -32,7 +31,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
 import org.junit.Before;
