@@ -217,7 +217,7 @@ public class OrNode extends BranchNode
         for ( int i = 0; i < children.size(); i++ )
         {
             ExprNode child = children.get( i );
-            ExprNode otherChild = children.get( i );
+            ExprNode otherChild = otherChildren.get( i );
             
             if ( !child.equals( otherChild ) )
             {
