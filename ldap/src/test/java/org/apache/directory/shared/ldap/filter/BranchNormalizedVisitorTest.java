@@ -114,4 +114,20 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         assertEquals( normalizedFilter1, normalizedFilter2 );
     }
+
+   public void testBranchNormalizedVisitor4() throws Exception
+   {
+       ExprNode ori = FilterParser.parse( "(&(!(sn=Bob))(ou=Human Resources)(uid=akarasulu))" );
+
+       ExprNode altered = FilterParser.parse( "(&(ou=Human Resources)(uid=akarasulu)(!(sn=Bob)))" );
+
+       BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
+
+       visitor.visit( altered );
+
+       assertTrue( ori.toString().equals( altered.toString() ) );
+       
+   }
+     
+    
 }

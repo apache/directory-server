@@ -43,7 +43,17 @@ public class LeafNode extends AbstractExprNode
         super( assertionType );
         this.attribute = attribute;
     }
-
+    
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
+    }
+    
 
     /**
      * Gets whether this node is a leaf - the answer is always true here.
@@ -135,7 +145,7 @@ public class LeafNode extends AbstractExprNode
         {
             return false;
         }
-
+            
         return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
     }
 }

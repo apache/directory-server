@@ -93,6 +93,23 @@ public class ExtensibleNode extends LeafNode
         this.dnAttributes = dnAttributes;
     }
 
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        ExprNode clone = (ExprNode)super.clone();
+        
+        // Copy the value
+        if ( value != null )
+        {
+            ((ExtensibleNode)clone).value = value.clone();
+        }
+        
+        return clone;
+    }
 
     /**
      * Gets the Dn attributes.

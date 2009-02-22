@@ -28,7 +28,7 @@ package org.apache.directory.shared.ldap.filter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public interface ExprNode
+public interface ExprNode extends Cloneable
 {
     /**
      * Gets an annotation on the tree by key.
@@ -86,4 +86,11 @@ public interface ExprNode
      * @return the modified element
      */
     Object accept( FilterVisitor visitor );
+    
+    
+    /**
+     * Clone the object
+     * @return
+     */
+    ExprNode clone();
 }

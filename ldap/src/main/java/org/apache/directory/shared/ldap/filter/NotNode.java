@@ -64,6 +64,16 @@ public class NotNode extends BranchNode
         }
     }
 
+    
+    /**
+     * Clone the Node
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
+    }
+    
+
 
     /**
      * Creates an empty NotNode

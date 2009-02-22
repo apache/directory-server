@@ -33,7 +33,7 @@ public class LessEqNode<T> extends SimpleNode<T>
 {
     /**
      * Creates a new LessEqNode object.
-     *
+     * 
      * @param attribute the attribute name
      * @param value the value to test for
      */
@@ -42,6 +42,15 @@ public class LessEqNode<T> extends SimpleNode<T>
         super( attribute, value, AssertionType.LESSEQ );
     }
 
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
+    }
 
     /**
      * @see Object#toString()

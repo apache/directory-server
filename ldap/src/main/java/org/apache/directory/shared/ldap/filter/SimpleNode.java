@@ -57,6 +57,20 @@ public abstract class SimpleNode<T> extends LeafNode
         this.value = value;
     }
 
+    
+    /**
+     * Clone the Node
+     */
+    @Override public ExprNode clone()
+    {
+        ExprNode clone = super.clone();
+        
+        // Clone the value
+        ((SimpleNode<T>)clone).value = value.clone(); 
+        
+        return clone;
+    }
+
 
     /**
      * Gets the value.

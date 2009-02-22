@@ -52,11 +52,6 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         BranchNode branch = ( BranchNode ) node;
 
-        if ( branch instanceof NotNode )
-        {
-            return null;
-        }
-
         Comparator<ExprNode> nodeComparator = new NodeComparator();
 
         Set<ExprNode> set = new TreeSet<ExprNode>( nodeComparator );

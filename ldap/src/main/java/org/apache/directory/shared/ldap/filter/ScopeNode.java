@@ -57,6 +57,16 @@ public class ScopeNode extends AbstractExprNode
         this.aliasDerefAliases = aliasDerefAliases;
     }
 
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
+    }    
+
 
     /**
      * Always returns true since a scope node has no children.

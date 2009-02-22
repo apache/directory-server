@@ -100,6 +100,29 @@ public class BranchNode extends AbstractExprNode
         return false;
     }
 
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        ExprNode clone = (ExprNode)super.clone();
+        
+        // Clone the children
+        if ( children != null )
+        {
+            ((BranchNode)clone).children = new ArrayList<ExprNode>();
+            
+            for ( ExprNode child : children )
+            {
+                ((BranchNode)clone).children.add( (ExprNode)child.clone() );
+            }
+        }
+        
+        return clone;
+    }
+
 
     /**
      * Adds a child node to this branch node node

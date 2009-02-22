@@ -39,6 +39,14 @@ public final class PresenceNode extends LeafNode
         super( attribute, AssertionType.PRESENCE );
     }
 
+    
+    /**
+     * Clone the Node
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
+    }
 
     /**
      * @see java.lang.Object#toString()

@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public interface Assertion
+public interface Assertion extends Cloneable
 {
     /**
      * Checks to see if a candidate is valid by asserting an arbitrary predicate

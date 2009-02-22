@@ -64,6 +64,26 @@ public class SubstringNode extends LeafNode
         this.initialPattern = initialPattern;
     }
 
+    
+    /**
+     * Clone the Node
+     */
+    @Override public ExprNode clone()
+    {
+        ExprNode clone = (ExprNode)super.clone();
+        
+        if ( anyPattern != null )
+        {
+            ((SubstringNode)clone).anyPattern = new ArrayList<String>();
+            
+            for ( String any:anyPattern )
+            {
+                ((SubstringNode)clone).anyPattern.add( any );
+            }
+        }
+        
+        return clone;
+    }
 
     /**
      * Creates a new SubstringNode object without any value

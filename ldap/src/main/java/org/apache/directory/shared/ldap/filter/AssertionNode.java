@@ -30,7 +30,7 @@ package org.apache.directory.shared.ldap.filter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class AssertionNode extends AbstractExprNode
+public abstract class AssertionNode extends AbstractExprNode
 {
     /** The assertion or predicate to apply */
     private final Assertion assertion;
@@ -76,6 +76,17 @@ public class AssertionNode extends AbstractExprNode
         set( "count", Long.MAX_VALUE );
     }
 
+    /**
+     * Makes a full clone in new memory space of the current node and children
+     * 
+     * @return the clone
+     */
+    @Override public ExprNode clone()
+    {
+        return (ExprNode)super.clone();
+    }
+    
+
 
     /**
      * Gets the Assertion used by this assertion node.
@@ -89,7 +100,7 @@ public class AssertionNode extends AbstractExprNode
 
 
     // ------------------------------------------------------------------------
-    // A B S T R A C T    M E T H O D    I M P L E M E N T A T I O N S
+    // A B S T R A C T M E T H O D I M P L E M E N T A T I O N S
     // ------------------------------------------------------------------------
 
     

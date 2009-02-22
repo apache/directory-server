@@ -41,7 +41,6 @@ public class AndNode extends BranchNode
         super( AssertionType.AND, childList );
     }
 
-
     /**
      * Creates a AndNode using a logical operator and a list of children.
      * 
@@ -50,6 +49,15 @@ public class AndNode extends BranchNode
     public AndNode( ExprNode... childList )
     {
         super( AssertionType.AND, childList );
+    }
+
+    
+    /**
+     * Clone the AndNode
+     */
+    @Override public ExprNode clone()
+    {
+        return super.clone();
     }
 
 
@@ -209,7 +217,7 @@ public class AndNode extends BranchNode
         for ( int i = 0; i < children.size(); i++ )
         {
             ExprNode child = children.get( i );
-            ExprNode otherChild = children.get( i );
+            ExprNode otherChild = otherChildren.get( i );
             
             if ( !child.equals( otherChild ) )
             {

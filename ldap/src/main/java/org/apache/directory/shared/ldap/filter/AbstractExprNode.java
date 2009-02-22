@@ -210,13 +210,45 @@ public abstract class AbstractExprNode implements ExprNode
     {
         throw new UnsupportedOperationException( "ScopeNode can't be part of a refinement" );
     }
+    
+    
+    /**
+     * Clone the object
+     */
+    @Override public ExprNode clone()
+    {
+        try
+        {
+            ExprNode clone = (ExprNode)super.clone();
+            
+            if ( annotations != null )
+            {
+                for ( String key:annotations.keySet() )
+                {
+                    Object value = annotations.get( key );
+                    
+                    // Note : the value aren't cloned ! 
+                    ((AbstractExprNode)clone).annotations.put( key, value );
+                }
+            }
+            
+            return clone;
+        }
+        catch ( CloneNotSupportedException cnse )
+        {
+            return null;
+        }
+    }
 
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
+        if ( ( null != annotations ) && annotations.containsKey( "count" ) )
         {
-            return ":[" + getAnnotations().get( "count" ) + "]";
+            return ":[" + annotations.get( "count" ) + "]";
         }
         else 
         {
