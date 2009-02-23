@@ -20,6 +20,7 @@ package org.apache.directory.server.integ.state;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -190,8 +191,36 @@ public abstract class AbstractState implements TestServerState
             for ( String ldifFile:ldifFiles )
             {
                 String className = settings.getParent().getDescription().getDisplayName();
-                Class<?> clazz = Class.forName( className );
+                
+                if ( className == null )
+                {
+                    String message = "Cannot inject a LDIF file with a null name";
+                    LOG.error( message );
+                    throw new FileNotFoundException( message );
+                }
+                
+                Class<?> clazz = null;
+                
+                try
+                {
+                    clazz = Class.forName( className );
+                }
+                catch ( ClassNotFoundException cnfe )
+                {
+                    String message = "Cannot inject a LDIF file for this class : " + className;
+                    LOG.error( message );
+                    throw new FileNotFoundException( message );
+                }
+                
                 URL url = clazz.getResource( ldifFile );
+
+                if ( url == null )
+                {
+                    String message = "Cannot inject a LDIF for the file " + ldifFile;
+                    LOG.error( message );
+                    throw new FileNotFoundException( message );
+                }
+                
                 URI uri = url.toURI();
                 File file = new File( uri );
                 
