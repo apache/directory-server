@@ -34,15 +34,5 @@
     Shared libraries for client side JNDI handling that may be used 
     both in the server and in studio.
   </description>
-  
-  <!--
-  <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
-    </site>
-  </distributionManagement>
-  -->
-
 </project>
 

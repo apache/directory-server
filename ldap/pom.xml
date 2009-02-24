@@ -35,21 +35,11 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
-  <!--
-  <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
-    </site>
-  </distributionManagement>
-  -->
-
   <description>
     Common LDAP packages used by clients and servers.
   </description>
 
   <dependencies>
-
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -80,7 +70,6 @@
 
   <build>
     <plugins>
-
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
@@ -120,6 +109,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 

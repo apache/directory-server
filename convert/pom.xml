@@ -35,21 +35,11 @@
     <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
 
-  <!--
-  <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/subprojects/ldap/common</url>
-    </site>
-  </distributionManagement>
-  -->
-
   <description>
     Common LDAP converters : LDIF, DSML, CSV, etc
   </description>
 
   <dependencies>
-
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
@@ -60,12 +50,10 @@
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
     </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -106,6 +94,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 
