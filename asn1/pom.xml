@@ -29,15 +29,5 @@
   <artifactId>shared-asn1</artifactId>
   <name>Apache Directory ASN.1 Shared</name>
   <packaging>jar</packaging>  
-  
-  <!--
-  <distributionManagement>
-    <site>
-      <id>apacheds.websites</id>
-      <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/asn1/</url>
-    </site>
-  </distributionManagement>
-  -->
-
 </project>
 
