@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>14</version>
+    <version>15</version>
   </parent>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-parent</artifactId>
@@ -32,14 +32,14 @@
 
   <properties>
     <projectName>ApacheDS-Shared</projectName>
-    <distributionManagement.site.url>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</distributionManagement.site.url>
+    <distMgmtSiteUrl>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</distMgmtSiteUrl>
     <skin.version>1.0.0-SNAPSHOT</skin.version>
   </properties>
   
   <distributionManagement>
     <site>
       <id>apache.directory.shared</id>
-      <url>${distributionManagement.site.url}</url>
+      <url>${distMgmtSiteUrl}</url>
     </site>
   </distributionManagement>
 
@@ -124,18 +124,6 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antlr-plugin</artifactId>
-          <version>2.0-beta-1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
   <reporting>
     <excludeDefaults>true</excludeDefaults>
     <plugins>
@@ -197,7 +185,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.5</version>
         <configuration>
           <aggregate>true</aggregate>
           <linksource>true</linksource>
@@ -206,7 +193,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>1.1.1</version>
         <configuration>
           <xmlOutput>false</xmlOutput>
           <!--
@@ -232,7 +218,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.2</version>
       </plugin>
     </plugins>
   </reporting>
@@ -244,6 +229,7 @@
   </scm>
 
   <repositories>
+    <!-- Remove me when ASF CI can deploy Snapshots -->
     <repository>
       <id>apache.directory.snapshot.repo</id>
       <name>Snapshot repository for the Apache Directory project</name>
@@ -253,5 +239,4 @@
       </releases>
     </repository>
   </repositories>
-
 </project>

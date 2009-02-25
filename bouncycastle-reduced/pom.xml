@@ -28,10 +28,12 @@
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-bouncycastle-reduced</artifactId>
   <name>Apache Directory Reduced Bouncycastle (repackaged)</name>
+
   <description>
     Repackages the BouncyCastle jar including only those files we require
     rather than everything which includes patented algorithms like IDEA.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>bouncycastle</groupId>
@@ -45,16 +47,8 @@
       </exclusions>
     </dependency>
   </dependencies>
+
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>1.1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
