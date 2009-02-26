@@ -38,6 +38,10 @@ import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.compare.CompareRequest;
 import org.apache.directory.shared.ldap.codec.compare.CompareResponse;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
 import org.apache.directory.shared.ldap.codec.del.DelRequest;
 import org.apache.directory.shared.ldap.codec.del.DelResponse;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedRequest;
@@ -109,6 +113,13 @@ import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueNewCookieControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueRefreshDeleteControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueRefreshPresentControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncInfoValueSyncIdSetControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
+import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -945,6 +956,87 @@ public class TwixTransformer
                     neutralPagedSearchControl.setCookie( twixPagedSearchControl.getCookie() );
                     neutralPagedSearchControl.setSize( twixPagedSearchControl.getSize() );
                     neutralPagedSearchControl.setCritical( twixControl.getCriticality() );
+                }
+                else if ( twixControl.getControlValue() instanceof SyncDoneValueControlCodec )
+                {
+                    SyncDoneValueControl neutralSyncDoneValueControl = new SyncDoneValueControl();
+                    SyncDoneValueControlCodec twixSyncDoneValueControl = (SyncDoneValueControlCodec)twixControl.getControlValue();
+                    neutralControl = neutralSyncDoneValueControl;
+                    neutralSyncDoneValueControl.setCritical( twixControl.getCriticality() );
+                    neutralSyncDoneValueControl.setCookie( twixSyncDoneValueControl.getCookie() );
+                    neutralSyncDoneValueControl.setRefreshDeletes( twixSyncDoneValueControl.isRefreshDeletes() );
+                }
+                else if ( twixControl.getControlValue() instanceof SyncInfoValueControlCodec )
+                {
+                    SyncInfoValueControlCodec twixSyncInfoValueControlCodec = (SyncInfoValueControlCodec)twixControl.getControlValue();
+                    
+                    switch ( twixSyncInfoValueControlCodec.getType() )
+                    {
+                        case NEW_COOKIE :
+                            SyncInfoValueNewCookieControl neutralSyncInfoValueNewCookieControl = new SyncInfoValueNewCookieControl();
+                            neutralControl = neutralSyncInfoValueNewCookieControl; 
+                            neutralSyncInfoValueNewCookieControl.setCritical( twixControl.getCriticality() );
+                            neutralSyncInfoValueNewCookieControl.setCookie( twixSyncInfoValueControlCodec.getCookie() );
+                            
+                            break;
+                            
+                        case REFRESH_DELETE :
+                            SyncInfoValueRefreshDeleteControl neutralSyncInfoValueRefreshDeleteControl = new SyncInfoValueRefreshDeleteControl();
+                            neutralControl = neutralSyncInfoValueRefreshDeleteControl; 
+                            neutralSyncInfoValueRefreshDeleteControl.setCritical( twixControl.getCriticality() );
+                            neutralSyncInfoValueRefreshDeleteControl.setCookie( twixSyncInfoValueControlCodec.getCookie() );
+                            neutralSyncInfoValueRefreshDeleteControl.setRefreshDone( twixSyncInfoValueControlCodec.isRefreshDone() );
+                            
+                            break;
+                            
+                        case REFRESH_PRESENT :
+                            SyncInfoValueRefreshPresentControl neutralSyncInfoValueRefreshPresentControl = new SyncInfoValueRefreshPresentControl();
+                            neutralControl = neutralSyncInfoValueRefreshPresentControl; 
+                            neutralSyncInfoValueRefreshPresentControl.setCritical( twixControl.getCriticality() );
+                            neutralSyncInfoValueRefreshPresentControl.setCookie( twixSyncInfoValueControlCodec.getCookie() );
+                            neutralSyncInfoValueRefreshPresentControl.setRefreshDone( twixSyncInfoValueControlCodec.isRefreshDone() );
+                            
+                            break;
+                            
+                        case SYNC_ID_SET :
+                            SyncInfoValueSyncIdSetControl neutralSyncInfoValueSyncIdSetControl = new SyncInfoValueSyncIdSetControl();
+                            neutralControl = neutralSyncInfoValueSyncIdSetControl; 
+                            neutralSyncInfoValueSyncIdSetControl.setCritical( twixControl.getCriticality() );
+                            neutralSyncInfoValueSyncIdSetControl.setCookie( twixSyncInfoValueControlCodec.getCookie() );
+                            neutralSyncInfoValueSyncIdSetControl.setRefreshDeletes( twixSyncInfoValueControlCodec.isRefreshDeletes() );
+                            
+                            List<byte[]> uuids = twixSyncInfoValueControlCodec.getSyncUUIDs();
+                            
+                            if ( uuids != null )
+                            {
+                                for ( byte[] uuid:uuids )
+                                {
+                                    neutralSyncInfoValueSyncIdSetControl.addSyncUUID( uuid );
+                                }
+                            }
+                            
+                            break;
+                    }
+                }
+                else if ( twixControl.getControlValue() instanceof SyncRequestValueControlCodec )
+                {
+                    SyncRequestValueControl neutralSyncRequestValueControl = new SyncRequestValueControl();
+                    SyncRequestValueControlCodec twixSyncDoneValueControlCodec = (SyncRequestValueControlCodec)twixControl.getControlValue();
+                    neutralControl = neutralSyncRequestValueControl;
+                    neutralSyncRequestValueControl.setCritical( twixControl.getCriticality() );
+                    neutralSyncRequestValueControl.setMode( twixSyncDoneValueControlCodec.getMode() );
+                    neutralSyncRequestValueControl.setCookie( twixSyncDoneValueControlCodec.getCookie() );
+                    neutralSyncRequestValueControl.setReloadHint( twixSyncDoneValueControlCodec.isReloadHint() );
+                }
+                else if ( twixControl.getControlValue() instanceof SyncStateValueControl )
+                {
+                    SyncStateValueControl neutralSyncStateValueControl = new SyncStateValueControl();
+                    SyncStateValueControlCodec twixSyncStateValueControlCodec = (SyncStateValueControlCodec)twixControl.getControlValue();
+                    neutralControl = neutralSyncStateValueControl;
+                    neutralSyncStateValueControl.setCritical( twixControl.getCriticality() );
+                    neutralSyncStateValueControl.setSyncStateType( twixSyncStateValueControlCodec.getSyncStateType() );
+                    neutralSyncStateValueControl.setEntryUUID( twixSyncStateValueControlCodec.getEntryUUID() );
+                    neutralSyncStateValueControl.setCookie( twixSyncStateValueControlCodec.getCookie() );
                 }
                 else if ( twixControl.getControlValue() instanceof byte[] )
                 {
