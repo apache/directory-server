@@ -98,6 +98,16 @@ public class SyncDoneValueControl extends AbstractMutableControlImpl
     /**
      * {@inheritDoc}
      */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncDoneValueControlCodec codec = new SyncDoneValueControlCodec();

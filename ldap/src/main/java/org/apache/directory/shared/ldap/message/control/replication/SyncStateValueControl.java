@@ -129,6 +129,16 @@ public class SyncStateValueControl extends AbstractMutableControlImpl
     /**
      * {@inheritDoc}
      */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncStateValueControlCodec syncStateValueCtlCodec = new SyncStateValueControlCodec();

@@ -99,6 +99,16 @@ public class SyncInfoValueRefreshPresentControl extends AbstractMutableControlIm
     /**
      * {@inheritDoc}
      */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncInfoValueControlCodec syncInfoValueCtlCodec = 

@@ -123,6 +123,16 @@ public class SyncInfoValueSyncIdSetControl extends AbstractMutableControlImpl im
     /**
      * {@inheritDoc}
      */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncInfoValueControlCodec syncInfoValueCtlCodec = 

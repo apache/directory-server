@@ -124,6 +124,16 @@ public class SyncRequestValueControl extends AbstractMutableControlImpl
     /**
      * {@inheritDoc}
      */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public byte[] getEncodedValue()
     {
         SyncRequestValueControlCodec syncRequestValueCtlCodec = new SyncRequestValueControlCodec();

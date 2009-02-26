@@ -68,8 +68,18 @@ public class SyncInfoValueNewCookieControl extends AbstractMutableControlImpl im
     {
         this.newCookie = newCookie;
     }
+
     
-    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getID()
+    {
+        return CONTROL_OID;
+    }
+
+
     /**
      * {@inheritDoc}
      */
