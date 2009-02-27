@@ -150,8 +150,16 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 // this is OK
             }
 
-            if ( principalEntry == null || 
-                 principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
+            if ( principalEntry == null )
+            {
+                LdapResult result = bindRequest.getResultResponse().getLdapResult();
+                result.setErrorMessage( "Bind principalDn has not been found in the server." );
+                result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
+                ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+                return;
+            }
+            
+            if (principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
                      SchemaConstants.REFERRAL_OC ) )
             {
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
