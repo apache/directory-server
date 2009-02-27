@@ -33,6 +33,10 @@ import org.apache.directory.shared.ldap.codec.ControlDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlDecoder;
@@ -76,6 +80,18 @@ public class ControlValueAction extends GrammarAction
         controlDecoders.put( decoder.getControlType(), decoder );
 
         decoder = new PagedSearchControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+        
+        decoder = new SyncDoneValueControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+        
+        decoder = new SyncInfoValueControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+        
+        decoder = new SyncRequestValueControlDecoder();
+        controlDecoders.put( decoder.getControlType(), decoder );
+        
+        decoder = new SyncStateValueControlDecoder();
         controlDecoders.put( decoder.getControlType(), decoder );
     }
 
