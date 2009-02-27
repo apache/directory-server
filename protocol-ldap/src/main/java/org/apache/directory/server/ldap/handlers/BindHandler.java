@@ -152,8 +152,9 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
             if ( principalEntry == null )
             {
+                LOG.info( "The {} principalDN cannot be found in the server : bind failure.", bindRequest.getName() );
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
-                result.setErrorMessage( "Bind principalDn has not been found in the server." );
+                result.setErrorMessage( "cannot bind the principalDn." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
                 return;
@@ -162,6 +163,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             if (principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
                      SchemaConstants.REFERRAL_OC ) )
             {
+                LOG.info( "Bind principalDn points to referral." );
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setErrorMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
