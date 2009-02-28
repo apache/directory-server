@@ -228,15 +228,4 @@
     <url>http://svn.apache.org/viewvc/directory/shared/trunk</url>
   </scm>
 
-  <repositories>
-    <!-- Remove me when ASF CI can deploy Snapshots -->
-    <repository>
-      <id>apache.directory.snapshot.repo</id>
-      <name>Snapshot repository for the Apache Directory project</name>
-      <url>http://vm094.oxylos.org/mirror-maven2/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
 </project>
