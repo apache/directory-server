@@ -320,7 +320,8 @@ public class LdifUtils
         sb.append( '\n' );
         
         // Dump the ChangeType
-        sb.append( stripLineToNChars( "changeType: " + entry.getChangeType(), length ) );
+        String changeType = entry.getChangeType().toString().toLowerCase();
+        sb.append( stripLineToNChars( "changetype: " + changeType, length ) );
         
         sb.append( '\n' );
 
@@ -355,6 +356,11 @@ public class LdifUtils
                     throw new NamingException( "Invalid Entry : a modifyDN operation entry should not contain attributes" );
                 }
                 
+                
+                // Stores the new RDN
+                EntryAttribute newRdn = new DefaultClientAttribute( "newrdn", entry.getNewRdn() );
+                sb.append( convertToLdif( newRdn, length ) );
+
                 // Stores the deleteoldrdn flag
                 sb.append( "deleteoldrdn: " );
                 
@@ -375,10 +381,6 @@ public class LdifUtils
                     EntryAttribute newSuperior = new DefaultClientAttribute( "newsuperior", entry.getNewSuperior() );
                     sb.append( convertToLdif( newSuperior, length ) );
                 }
-                
-                // Stores the new RDN
-                EntryAttribute newRdn = new DefaultClientAttribute( "newrdn", entry.getNewRdn() );
-                sb.append( convertToLdif( newRdn, length ) );
                 
                 break;
                 
