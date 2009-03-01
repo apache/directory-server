@@ -93,6 +93,8 @@ public class SyncDoneValueControlGrammar extends AbstractGrammar
                     SyncDoneValueControlContainer syncDoneValueContainer = ( SyncDoneValueControlContainer ) container;
                     SyncDoneValueControlCodec control = new SyncDoneValueControlCodec();
                     syncDoneValueContainer.setSyncDoneValueControl( control );
+                    
+                    syncDoneValueContainer.grammarEndAllowed( true );
                 }
             } );
 
@@ -121,8 +123,7 @@ public class SyncDoneValueControlGrammar extends AbstractGrammar
 
                     syncDoneValueContainer.getSyncDoneValueControl().setCookie( cookie );
 
-                    // there is still a boolean flag left in the sequence
-                    syncDoneValueContainer.grammarEndAllowed( false );
+                    syncDoneValueContainer.grammarEndAllowed( true );
                 }
             } );
 

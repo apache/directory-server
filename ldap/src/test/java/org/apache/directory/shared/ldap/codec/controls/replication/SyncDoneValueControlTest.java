@@ -158,13 +158,15 @@ public class SyncDoneValueControlTest
         try
         {
             decoder.decode( bb, container );
-            fail( "shouldn't reach this" );
         }
         catch ( Exception e )
         {
-            assertTrue( true );
+            fail( "shouldn't reach this" );
         }
 
+        SyncDoneValueControlCodec control = container.getSyncDoneValueControl();
+        assertNull( control.getCookie() );
+        assertFalse( control.isRefreshDeletes() );
     }
 
     
