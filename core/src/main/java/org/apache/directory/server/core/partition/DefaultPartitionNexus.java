@@ -843,6 +843,12 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     public void modify( ModifyOperationContext modifyContext ) throws Exception
     {
+        // Special case : if we don't have any modification to apply, just return
+        if ( modifyContext.getModItems().size() == 0 )
+        {
+            return;
+        }
+        
         Partition backend = getPartition( modifyContext.getDn() );
         backend.modify( modifyContext );
     }
