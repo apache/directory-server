@@ -3038,7 +3038,7 @@ public class LdapMessageGrammar extends AbstractGrammar
             new ControlsInitAction() );
 
         // --------------------------------------------------------------------------------------------
-        // Transition from MessageId to ExtendedRequest Message.
+        // Transition from MessageId to ExtendedResponse Message.
         // --------------------------------------------------------------------------------------------
         // LdapMessage ::= ... ExtendedResponse ...
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
@@ -3060,7 +3060,7 @@ public class LdapMessageGrammar extends AbstractGrammar
             } );
 
         // --------------------------------------------------------------------------------------------
-        // Transition from ExtendedRequest Message to Result Code ER
+        // Transition from ExtendedResponse Message to Result Code ER
         // --------------------------------------------------------------------------------------------
         // LdapMessage ::= ... ExtendedResponse ...
         // ExtendedResponse ::= [APPLICATION 24] SEQUENCE {
