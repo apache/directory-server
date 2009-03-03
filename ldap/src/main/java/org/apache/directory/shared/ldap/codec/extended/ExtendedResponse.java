@@ -196,7 +196,7 @@ public class ExtendedResponse extends LdapResponse
 
         try
         {
-            // The BindResponse Tag
+            // The ExtendedResponse Tag
             buffer.put( LdapConstants.EXTENDED_RESPONSE_TAG );
             buffer.put( TLV.getBytes( extendedResponseLength ) );
 
