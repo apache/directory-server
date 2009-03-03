@@ -99,6 +99,8 @@ public class LdapConstants
 
     public static final byte EXTENDED_RESPONSE_TAG = 0x78;
 
+    public static final byte INTERMEDIATE_RESPONSE_TAG = 0x79;
+
     // The following tags are ints, because bytes above 127 are negative
     // numbers, and we can't use them as array indexes.
     public static final int BIND_REQUEST_SIMPLE_TAG = 0x80;
@@ -134,6 +136,10 @@ public class LdapConstants
     public static final int CONTROLS_TAG = 0xA0;
 
     public static final int AND_FILTER_TAG = 0xA0;
+
+    public static final int INTERMEDIATE_RESPONSE_NAME_TAG = 0x80;
+
+    public static final int INTERMEDIATE_RESPONSE_VALUE_TAG = 0x81;
 
     public static final int OR_FILTER_TAG = 0xA1;
 
@@ -195,6 +201,8 @@ public class LdapConstants
     public static final int SEARCH_RESULT_REFERENCE = 18;
 
     public static final int UNBIND_REQUEST = 19;
+    
+    public static final int INTERMEDIATE_RESPONSE = 20;
 
     public static final int UNKNOWN = -1; // Just in case ...
 }

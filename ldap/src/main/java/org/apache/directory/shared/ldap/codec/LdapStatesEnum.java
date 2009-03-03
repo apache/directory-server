@@ -147,8 +147,12 @@ public class LdapStatesEnum implements IStates
     public static final int CONTROL_TYPE_STATE =                109;
     public static final int CRITICALITY_STATE =                 110;
     public static final int CONTROL_VALUE_STATE =               111;
+    public static final int INTERMEDIATE_RESPONSE_STATE =       112;
+    public static final int INTERMEDIATE_RESPONSE_NAME_STATE =  113;
+    public static final int INTERMEDIATE_RESPONSE_VALUE_STATE = 114;
     
-    public static final int LAST_LDAP_STATE = 112;
+    
+    public static final int LAST_LDAP_STATE = 115;
 
     // =========================================================================
     // States debug strings
@@ -269,6 +273,9 @@ public class LdapStatesEnum implements IStates
         "CONTROL_TYPE_STATE",
         "CRITICALITY_STATE",
         "CONTROL_VALUE_STATE",
+        "INTERMEDIATE_RESPONSE_STATE",
+        "INTERMEDIATE_RESPONSE_NAME_STATE",
+        "INTERMEDIATE_RESPONSE_VALUE_STATE",
         "LAST_LDAP_STATE",
         };
 

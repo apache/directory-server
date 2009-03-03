@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.codec.del.DelRequest;
 import org.apache.directory.shared.ldap.codec.del.DelResponse;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedRequest;
 import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
+import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.codec.modify.ModifyResponse;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
@@ -216,44 +217,67 @@ public class LdapMessage extends AbstractAsn1Object
         {
             case LdapConstants.ABANDON_REQUEST:
                 return "ABANDON_REQUEST";
+                
             case LdapConstants.ADD_REQUEST:
                 return "ADD_REQUEST";
+                
             case LdapConstants.ADD_RESPONSE:
                 return "ADD_RESPONSE";
+                
             case LdapConstants.BIND_REQUEST:
                 return "BIND_REQUEST";
+                
             case LdapConstants.BIND_RESPONSE:
                 return "BIND_RESPONSE";
+                
             case LdapConstants.COMPARE_REQUEST:
                 return "COMPARE_REQUEST";
+                
             case LdapConstants.COMPARE_RESPONSE:
                 return "COMPARE_RESPONSE";
+                
             case LdapConstants.DEL_REQUEST:
                 return "DEL_REQUEST";
+                
             case LdapConstants.DEL_RESPONSE:
                 return "DEL_RESPONSE";
+                
             case LdapConstants.EXTENDED_REQUEST:
                 return "EXTENDED_REQUEST";
+                
             case LdapConstants.EXTENDED_RESPONSE:
                 return "EXTENDED_RESPONSE";
+                
+            case LdapConstants.INTERMEDIATE_RESPONSE:
+                return "INTERMEDIATE_RESPONSE";
+                
             case LdapConstants.MODIFYDN_REQUEST:
                 return "MODIFYDN_REQUEST";
+                
             case LdapConstants.MODIFYDN_RESPONSE:
                 return "MODIFYDN_RESPONSE";
+                
             case LdapConstants.MODIFY_REQUEST:
                 return "MODIFY_REQUEST";
+                
             case LdapConstants.MODIFY_RESPONSE:
                 return "MODIFY_RESPONSE";
+                
             case LdapConstants.SEARCH_REQUEST:
                 return "SEARCH_REQUEST";
+                
             case LdapConstants.SEARCH_RESULT_DONE:
                 return "SEARCH_RESULT_DONE";
+                
             case LdapConstants.SEARCH_RESULT_ENTRY:
                 return "SEARCH_RESULT_ENTRY";
+                
             case LdapConstants.SEARCH_RESULT_REFERENCE:
                 return "SEARCH_RESULT_REFERENCE";
+                
             case LdapConstants.UNBIND_REQUEST:
                 return "UNBIND_REQUEST";
+                
             default:
                 return "UNKNOWN";
         }
@@ -400,6 +424,18 @@ public class LdapMessage extends AbstractAsn1Object
     public ExtendedResponse getExtendedResponse()
     {
         return ( ExtendedResponse ) protocolOp;
+    }
+
+
+    /**
+     * Get a IntermediateResponse ldapObject, assuming that the caller knows that it
+     * is the LdapMessage exact type.
+     * 
+     * @return Returns the IntermediateResponse ldapObject.
+     */
+    public IntermediateResponse getIntermediateResponse()
+    {
+        return ( IntermediateResponse ) protocolOp;
     }
 
 

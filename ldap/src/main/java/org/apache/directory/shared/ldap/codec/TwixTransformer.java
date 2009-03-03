@@ -899,15 +899,16 @@ public class TwixTransformer
                 snickersMessage = transformBindResponse( twixMessage, messageId );
                 break;
 
-            case ( LdapConstants.SEARCH_RESULT_ENTRY  ):
-            case ( LdapConstants.SEARCH_RESULT_DONE  ):
-            case ( LdapConstants.SEARCH_RESULT_REFERENCE  ):
-            case ( LdapConstants.MODIFY_RESPONSE  ):
-            case ( LdapConstants.ADD_RESPONSE  ):
-            case ( LdapConstants.DEL_RESPONSE  ):
-            case ( LdapConstants.MODIFYDN_RESPONSE  ):
-            case ( LdapConstants.COMPARE_RESPONSE  ):
-            case ( LdapConstants.EXTENDED_RESPONSE  ):
+            case ( LdapConstants.SEARCH_RESULT_ENTRY ):
+            case ( LdapConstants.SEARCH_RESULT_DONE ):
+            case ( LdapConstants.SEARCH_RESULT_REFERENCE ):
+            case ( LdapConstants.MODIFY_RESPONSE ):
+            case ( LdapConstants.ADD_RESPONSE ):
+            case ( LdapConstants.DEL_RESPONSE ):
+            case ( LdapConstants.MODIFYDN_RESPONSE ):
+            case ( LdapConstants.COMPARE_RESPONSE ):
+            case ( LdapConstants.EXTENDED_RESPONSE ):
+            case ( LdapConstants.INTERMEDIATE_RESPONSE ):
                 // Nothing to do !
                 break;
 
