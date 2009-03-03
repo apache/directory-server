@@ -85,6 +85,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     public void messageReceived( ReplicationContext ctx, Object message ) throws Exception
     {
+        System.out.println( "Message received : " + message );
+        
         if ( ctx.getState() == State.READY )
         {
             if ( message instanceof LogEntryMessage )

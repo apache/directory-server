@@ -20,6 +20,10 @@
 package org.apache.directory.mitosis.common;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,17 +39,34 @@ import static org.junit.Assert.fail;
  */
 public class CSNTest
 {
+    private SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHH:mm:ss'z'" );
 
     @Test
     public void testCSN()
     {
         long ts = System.currentTimeMillis();
 
-        CSN csn = new CSN( Long.toString( ts, 16 ) + ":abcdefghi0123:" + 1 );
+        CSN csn = new CSN( sdf.format( new Date( ts ) ) + "#0x0000#abcdefghi0123#0x0001" );
 
-        assertEquals( ts, csn.getTimestamp() );
-        assertEquals( 1, csn.getOperationSequence() );
-        assertEquals( "abcdefghi0123", csn.getReplicaId().toString() );
+        assertEquals( ts/1000, csn.getTimestamp()/1000 );
+        assertEquals( 0, csn.getChangeCount() );
+        assertEquals( 1, csn.getOperationNumber() );
+        assertEquals( "abcdefghi0123", csn.getReplicaId() );
+    }
+
+
+    @Test
+    public void testCSNNull()
+    {
+        try
+        {
+            new CSN( (String)null );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
     }
 
 
@@ -57,10 +78,6 @@ public class CSNTest
             new CSN( "" );
             fail();
         }
-        catch ( AssertionError ae )
-        {
-            assertTrue( true );
-        }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
@@ -69,16 +86,12 @@ public class CSNTest
 
 
     @Test
-    public void testCSNTSOnly()
+    public void testCSNTimestampOnly()
     {
         try
         {
-            new CSN( "123" );
+            new CSN( sdf.format( new Date( System.currentTimeMillis() ) ) );
             fail();
-        }
-        catch ( AssertionError ae )
-        {
-            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -92,12 +105,53 @@ public class CSNTest
     {
         try
         {
-            new CSN( "zzz:abc:1" );
+            // A missing 'z'
+            new CSN( "2000010100:00:00#0x1#abc#0x1" );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( InvalidCSNException ice )
         {
             assertTrue( true );
+        }
+        
+        try
+        {
+            // Missing seconds
+            new CSN( "2000010100:00:z#0x1#abc#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+
+        try
+        {
+            // Missing minutes
+            new CSN( "2000010100::00z#0x1#abc#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+
+        try
+        {
+            // Missing hours
+            new CSN( "2000010100::00z#0x1#abc#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+
+        try
+        {
+            // Invalid date
+            new CSN( "200A010100::00z#0x1#abc#0x1" );
+            fail();
         }
         catch ( InvalidCSNException ice )
         {
@@ -107,16 +161,12 @@ public class CSNTest
 
 
     @Test
-    public void testCSNNoTS()
+    public void testCSNNoTimestamp()
     {
         try
         {
-            new CSN( ":abc:1" );
+            new CSN( "#0x1#abc#0x1" );
             fail();
-        }
-        catch ( AssertionError ae )
-        {
-            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -126,16 +176,12 @@ public class CSNTest
 
 
     @Test
-    public void testCSNInavlidReplica()
+    public void testCSNNoChangeCount()
     {
         try
         {
-            new CSN( "123:*:1" );
+            new CSN( "2000010100:00:00z##a#0x1" );
             fail();
-        }
-        catch ( AssertionError ae )
-        {
-            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
@@ -144,17 +190,63 @@ public class CSNTest
     }
 
 
+    @Test
+    public void testCSNInvalidChangeCount()
+    {
+        try
+        {
+            new CSN( "2000010100:00:00z#00#a#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+
+        try
+        {
+            new CSN( "2000010100:00:00z#0x#a#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+        
+        try
+        {
+            new CSN( "2000010100:00:00z#0x0G#a#0x1" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+    }
+    
+    
     @Test
     public void testCSNNoReplica()
     {
         try
         {
-            new CSN( "123::1" );
+            new CSN( "2000010100:00:00z#0x1##0x1" );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( InvalidCSNException ice )
         {
             assertTrue( true );
+        }
+    }
+    
+    
+    @Test
+    public void testCSNInvalidReplica()
+    {
+        try
+        {
+            new CSN( "2000010100:00:00z#0x1#a12-b3é#0x1" );
+            fail();
         }
         catch ( InvalidCSNException ice )
         {
@@ -164,16 +256,22 @@ public class CSNTest
 
 
     @Test
-    public void testCSNInavlidOpSeq()
+    public void testCSNNoOpNumber()
     {
         try
         {
-            new CSN( "123:abc:zzz" );
+            new CSN( "2001010100:00:00z#0x0#abc" );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( InvalidCSNException ice )
         {
             assertTrue( true );
+        }
+        
+        try
+        {
+            new CSN( "2001010100:00:00z#0x0#abc#  " );
+            fail();
         }
         catch ( InvalidCSNException ice )
         {
@@ -183,35 +281,42 @@ public class CSNTest
 
 
     @Test
-    public void testCSNEmptyOpSeq()
+    public void testCSNInvalidOpNumber()
     {
         try
         {
-            new CSN( "123:abc:" );
+            new CSN( "2001010100:00:00z#0x0#abc#zzz" );
             fail();
-        }
-        catch ( AssertionError ae )
-        {
-            assertTrue( true );
         }
         catch ( InvalidCSNException ice )
         {
             assertTrue( true );
         }
-    }
 
-
-    @Test
-    public void testCSNNoOpSeq()
-    {
         try
         {
-            new CSN( "123:abc" );
+            new CSN( "2001010100:00:00z#0x0#abc#0x" );
             fail();
         }
-        catch ( AssertionError ae )
+        catch ( InvalidCSNException ice )
         {
             assertTrue( true );
+        }
+
+        try
+        {
+            new CSN( "2001010100:00:00z#0x0#abc#000" );
+            fail();
+        }
+        catch ( InvalidCSNException ice )
+        {
+            assertTrue( true );
+        }
+
+        try
+        {
+            new CSN( "2001010100:00:00z#0x0#abc#0x0G" );
+            fail();
         }
         catch ( InvalidCSNException ice )
         {
@@ -223,24 +328,19 @@ public class CSNTest
     @Test
     public void testCSNToBytes()
     {
-        CSN csn = new CSN( "0123456789abcdef:test:5678cdef" );
+        CSN csn = new CSN( "2001010100:00:00z#0x0#abc#0x1" );
 
         byte[] bytes = csn.toBytes();
 
-        assertEquals( 0x01, bytes[0] );
-        assertEquals( 0x23, bytes[1] );
-        assertEquals( 0x45, bytes[2] );
-        assertEquals( 0x67, bytes[3] );
-        assertEquals( ( byte ) 0x89, bytes[4] );
-        assertEquals( ( byte ) 0xAB, bytes[5] );
-        assertEquals( ( byte ) 0xCD, bytes[6] );
-        assertEquals( ( byte ) 0xEF, bytes[7] );
-        assertEquals( 0x56, bytes[8] );
-        assertEquals( 0x78, bytes[9] );
-        assertEquals( ( byte ) 0xCD, bytes[10] );
-        assertEquals( ( byte ) 0xEF, bytes[11] );
-
-        assertEquals( "test", new String( bytes, 12, bytes.length - 12 ) );
+        byte[] expected = new byte[]
+            { 
+                '2', '0', '0', '1', '0', '1', '0', '1', 
+                '0', '0', ':', '0', '0', ':', '0', '0', 
+                'z', '#', '0', 'x', '0', '#', 'a', 'b', 
+                'c', '#', '0', 'x', '1' 
+            };
+        
+        assertTrue( Arrays.equals( expected, bytes ) );
 
         CSN deserializedCSN = new CSN( bytes );
         assertEquals( csn, deserializedCSN );

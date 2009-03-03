@@ -39,6 +39,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -79,6 +80,7 @@ public abstract class AbstractMessageCodecTest
     }
 
 
+    @Ignore
     @Test 
     public void testMessageCodec() throws Exception
     {

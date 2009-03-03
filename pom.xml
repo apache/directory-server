@@ -343,6 +343,7 @@
     <module>core-shared</module>
     <module>core-plugin</module>
     <module>core-unit</module>
+    <module>core-utils</module>
     <module>core-integ</module>
     <module>core-entry</module>
     <module>core-cursor</module>

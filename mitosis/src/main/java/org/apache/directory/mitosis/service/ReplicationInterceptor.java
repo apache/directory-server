@@ -361,7 +361,7 @@ public class ReplicationInterceptor extends BaseInterceptor
 
         try
         {
-            filter = FilterParser.parse( "(&(" + ENTRY_CSN_OID + "<=" + purgeCSN.toOctetString() + ")(" + ENTRY_DELETED_OID
+            filter = FilterParser.parse( "(&(" + ENTRY_CSN_OID + "<=" + purgeCSN.toBytes() + ")(" + ENTRY_DELETED_OID
                 + "=TRUE))" );
         }
         catch ( ParseException e )

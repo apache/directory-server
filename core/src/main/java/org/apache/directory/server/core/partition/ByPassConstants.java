@@ -32,6 +32,7 @@ import org.apache.directory.server.core.collective.CollectiveAttributeIntercepto
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
@@ -98,6 +99,7 @@ public class ByPassConstants
         c.add( SchemaInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
@@ -110,6 +112,7 @@ public class ByPassConstants
         c.add( SchemaInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         HAS_ENTRY_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
@@ -122,6 +125,7 @@ public class ByPassConstants
         c.add( SchemaInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         LOOKUP_COLLECTIVE_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
@@ -132,6 +136,7 @@ public class ByPassConstants
         c.add( OperationalAttributeInterceptor.class.getName() );
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
@@ -143,6 +148,7 @@ public class ByPassConstants
         c.add( SubentryInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
         c.add( TriggerInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
         
         c = new HashSet<String>();
@@ -157,6 +163,7 @@ public class ByPassConstants
         c.add( CollectiveAttributeInterceptor.class.getName() );
         c.add( EventInterceptor.class.getName() );
         c.add( TriggerInterceptor.class.getName() );
+        c.add( JournalInterceptor.class.getName() );
         GET_ROOT_DSE_BYPASS = Collections.unmodifiableCollection( c );
     }
 }

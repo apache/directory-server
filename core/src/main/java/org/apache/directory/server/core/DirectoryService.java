@@ -27,6 +27,7 @@ import org.apache.directory.server.core.entry.ServerEntryFactory;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaService;
@@ -378,11 +379,20 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Gets the ChangeLog service for this DirectoryService used for tracking
      * changes (revisions) to the server and using them to revert the server
-     * to earier revisions.
+     * to earlier revisions.
      *
      * @return the change log service
      */
     ChangeLog getChangeLog();
+
+
+    /**
+     * Gets the Journal service for this DirectoryService used for tracking
+     * changes to the server.
+     *
+     * @return the journal service
+     */
+    Journal getJournal();
 
 
     /**

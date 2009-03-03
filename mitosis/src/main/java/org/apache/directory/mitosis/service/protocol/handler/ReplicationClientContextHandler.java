@@ -45,6 +45,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -413,20 +414,13 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
 
                 // Get entryCSN of the entry.  Skip if entryCSN value is invalid. 
-                CSN csn;
+                CSN csn = null;
 
                 try
                 {
-                    Object val = entryCSNAttr.get();
-
-                    if ( val instanceof byte[] )
-                    {
-                        csn = new CSN( StringTools.utf8ToString( ( byte[] ) val ) );
-                    }
-                    else
-                    {
-                        csn = new CSN( ( String ) val );
-                    }
+                    byte[] csnBytes = entryCSNAttr.getBytes();
+                    
+                    csn = new CSN( StringTools.utf8ToString( csnBytes ) );
                 }
                 catch ( IllegalArgumentException ex )
                 {

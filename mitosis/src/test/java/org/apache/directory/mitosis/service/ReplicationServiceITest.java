@@ -91,7 +91,9 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
      *
      * @throws Exception on failure
      */
-    public void disabled_testTwoWayBind() throws Exception
+    @Ignore
+    @Test
+    public void testTwoWayBind() throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
         LdapContext ctxB = getReplicaContext( "B" );
@@ -157,7 +159,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 
         replicationServices.get( "A" ).replicate();
         
-        Thread.sleep( 5000 );
+        Thread.sleep( 500000 );
 
         Assert.assertNotNull( ctxA.lookup( dn ) );
         Assert.assertNotNull( ctxB.lookup( dn ) );

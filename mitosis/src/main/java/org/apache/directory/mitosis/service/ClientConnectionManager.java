@@ -200,6 +200,7 @@ class ClientConnectionManager
             while ( !timeToShutdown )
             {
                 connectUnconnected();
+                
                 try
                 {
                     Thread.sleep( 1000 );
@@ -221,6 +222,7 @@ class ClientConnectionManager
                 // Someone might have modified the configuration,
                 // and therefore we try to detect newly added replicas.
                 Connection con = sessions.get( replica.getId() );
+                
                 if ( con == null )
                 {
                     con = new Connection();
@@ -260,6 +262,7 @@ class ClientConnectionManager
                     else
                     {
                         con.delay *= 2;
+                        
                         if ( con.delay > 60 )
                         {
                             con.delay = 60;
@@ -268,10 +271,12 @@ class ClientConnectionManager
                 }
 
                 Connector connector = new Connector( replica, con );
+                
                 synchronized ( con )
                 {
                     con.connector = connector;
                 }
+                
                 connector.start();
             }
         }
@@ -345,6 +350,9 @@ class ClientConnectionManager
 
         public void run()
         {
+            System.out.println( System.currentTimeMillis() + "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId() + 
+                "] Connecting to replica-" + replica.getId() +", delay = " + con.delay );
+            
             if ( con.delay > 0 )
             {
                 if ( LOG.isInfoEnabled() )
@@ -369,12 +377,22 @@ class ClientConnectionManager
             
             try
             {
-                connector.setConnectTimeoutMillis( configuration.getResponseTimeout() );
-                connector.setHandler( new ReplicationClientProtocolHandler( interceptor )  );
+                if ( !connector.isActive() )
+                {
+                    System.out.println( System.currentTimeMillis() + 
+                        "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId() + 
+                        "] Connection to "+ replica.getId() + ", Connector inactive --> Activating it" );
+                    connector.setConnectTimeoutMillis( configuration.getResponseTimeout() );
+                    connector.setHandler( new ReplicationClientProtocolHandler( interceptor )  );
+                }
+                
                 ConnectFuture future = connector.connect( replica.getAddress() );
 
                 future.awaitUninterruptibly();
                 session = future.getSession();
+                
+                System.out.println( System.currentTimeMillis() + "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId()
+                    + "] is successfully connected to replica-" + replica.getId());
 
                 synchronized ( con )
                 {
@@ -386,8 +404,10 @@ class ClientConnectionManager
             }
             catch ( RuntimeIoException e )
             {
-                LOG.warn( "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId()
-                        + "] Failed to connect to replica-" + replica.getId(), e );
+                String message = System.currentTimeMillis() + "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId()
+                + "] Failed to connect to replica-" + replica.getId();
+                System.out.println( message + ", message = " + e.getMessage() );
+                LOG.warn( message, e );
             }
             finally
             {

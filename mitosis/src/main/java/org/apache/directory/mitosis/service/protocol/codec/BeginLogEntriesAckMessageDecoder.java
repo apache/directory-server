@@ -87,7 +87,7 @@ public class BeginLogEntriesAckMessageDecoder extends ResponseMessageDecoder
                 throw new ProtocolDecoderException( "Invalid replicaId", e );
             }
 
-            updateVector.setCSN( new CSN( in.getLong(), replicaId, in.getInt() ) );
+            updateVector.setCSN( new CSN( in.getLong(), in.getInt(), replicaId, in.getInt() ) );
         }
     }
 

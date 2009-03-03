@@ -31,12 +31,12 @@ public class CSNFactory
     private static volatile long lastTimestamp;
     
     /** The integer used to disambiguate CSN generated at the same time */
-    private static volatile int operationSequence;
+    private static volatile int changeCount;
 
 
     public CSNFactory()
     {
-        operationSequence = 0;
+        changeCount = 0;
     }
 
 
@@ -55,18 +55,16 @@ public class CSNFactory
         // We will be able to generate 2 147 483 647 CSNs each 10 ms max
         if ( lastTimestamp == newTimestamp )
         {
-            operationSequence ++;
+            changeCount ++;
         }
         else
         {
             lastTimestamp = newTimestamp;
-            operationSequence = 0;
+            changeCount = 0;
         }
 
-        return new CSN( lastTimestamp, replicaId, operationSequence );
+        return new CSN( lastTimestamp, changeCount, replicaId, 0 );
     }
-
-
 
 
     /**
@@ -77,12 +75,14 @@ public class CSNFactory
      * @param timestamp The timestamp to use
      * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
      * string.
-     * @param operationSequence The operation sequence to use
+     * @param changeCount The change count to use
      */
-    public CSN newInstance( long timestamp, String replicaId, int operationSequence )
+    public CSN newInstance( long timestamp, String replicaId, int changeCount )
     {
-        return new CSN( timestamp, replicaId, operationSequence );
+        return new CSN( timestamp, changeCount, replicaId, 0 );
     }
+    
+    
     /**
      * Generates a CSN used to purge data. Its replicaID is not associated
      * to a server. 
@@ -91,6 +91,6 @@ public class CSNFactory
      */
     public CSN newInstance( long expirationDate )
     {
-        return new CSN( expirationDate, "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
+        return new CSN( expirationDate, Integer.MAX_VALUE, "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
     }
 }

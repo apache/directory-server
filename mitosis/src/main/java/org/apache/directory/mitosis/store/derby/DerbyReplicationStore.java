@@ -452,7 +452,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 + " (CSN_REPLICA_ID, CSN_TIMESTAMP, CSN_OP_SEQ, OPERATION) VALUES(?,?,?,?)" );
             ps.setString( 1, csn.getReplicaId() );
             ps.setLong( 2, csn.getTimestamp() );
-            ps.setInt( 3, csn.getOperationSequence() );
+            ps.setInt( 3, csn.getChangeCount() );
             ps.setBytes( 4, encodedOp );
             if ( ps.executeUpdate() != 1 )
             {
@@ -536,7 +536,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 CSN csn = updateVector.getCSN( replicaId );
                 ps.setString( paramIdx++, replicaId );
                 ps.setLong( paramIdx++, csn.getTimestamp() );
-                ps.setInt( paramIdx++, csn.getOperationSequence() );
+                ps.setInt( paramIdx++, csn.getChangeCount() );
                 ps.setLong( paramIdx++, csn.getTimestamp() );
             }
             
@@ -559,7 +559,7 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             for ( String knownReplicaId : knownReplicaIds )
             {
-                newUV.setCSN( new CSN( 0, knownReplicaId, 0 ) );
+                newUV.setCSN( new CSN( 0, 0, knownReplicaId, 0 ) );
             }
         }
 
@@ -589,7 +589,7 @@ public class DerbyReplicationStore implements ReplicationStore
                     + "ORDER BY CSN_TIMESTAMP ASC, CSN_OP_SEQ ASC" );
             ps.setString( 1, fromCSN.getReplicaId() );
             ps.setLong( 2, fromCSN.getTimestamp() );
-            ps.setInt( 3, fromCSN.getOperationSequence() );
+            ps.setInt( 3, fromCSN.getChangeCount() );
             ps.setLong( 4, fromCSN.getTimestamp() );
             rs = ps.executeQuery();
 
@@ -620,7 +620,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 + " ? OR CSN_TIMESTAMP < ?)" );
             ps.setString( 1, toCSN.getReplicaId() );
             ps.setLong( 2, toCSN.getTimestamp() );
-            ps.setInt( 3, toCSN.getOperationSequence() );
+            ps.setInt( 3, toCSN.getChangeCount() );
             ps.setLong( 4, toCSN.getTimestamp() );
             return ps.executeUpdate();
         }
@@ -726,7 +726,7 @@ public class DerbyReplicationStore implements ReplicationStore
                 
                 if ( rs.next() )
                 {
-                    result.setCSN( new CSN( rs.getLong( 1 ), replicaId, rs.getInt( 2 ) ) );
+                    result.setCSN( new CSN( rs.getLong( 1 ), rs.getInt( 2 ), replicaId, 0 ) );
                 }
                 
                 rs.close();

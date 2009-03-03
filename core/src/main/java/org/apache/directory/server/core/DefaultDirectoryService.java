@@ -46,6 +46,9 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.journal.DefaultJournal;
+import org.apache.directory.server.core.journal.Journal;
+import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
@@ -149,6 +152,9 @@ public class DefaultDirectoryService implements DirectoryService
     /** the change log service */
     private ChangeLog changeLog;
     
+    /** the journal service */
+    private Journal journal;
+    
     /** 
      * the interface used to perform various operations on this 
      * DirectoryService
@@ -200,6 +206,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
+        journal = new DefaultJournal();
         
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -514,15 +521,39 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLog getChangeLog()
     {
         return changeLog;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public Journal getJournal()
+    {
+        return journal;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void setChangeLog( ChangeLog changeLog )
     {
         this.changeLog = changeLog;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setJournal( Journal journal )
+    {
+        this.journal = journal;
     }
 
 
@@ -579,6 +610,7 @@ public class DefaultDirectoryService implements DirectoryService
         list.add( new CollectiveAttributeInterceptor() );
         list.add( new EventInterceptor() );
         list.add( new TriggerInterceptor() );
+        list.add( new JournalInterceptor() );
 
         setInterceptors( list );
     }
@@ -878,13 +910,20 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        this.changeLog.sync();
-        this.changeLog.destroy();
+        // Shutdown the changelog
+        changeLog.sync();
+        changeLog.destroy();
+        
+        // Shutdown the journal
+        journal.destroy();
 
-        this.partitionNexus.sync();
-        this.partitionNexus.destroy();
-        this.interceptorChain.destroy();
-        this.started = false;
+        // Shutdown the partition
+        partitionNexus.sync();
+        partitionNexus.destroy();
+        
+        // And shutdown the server
+        interceptorChain.destroy();
+        started = false;
         setDefaultInterceptorConfigurations();
     }
 
@@ -1446,6 +1485,12 @@ public class DefaultDirectoryService implements DirectoryService
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition().getSuffix();
                 partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
+        }
+        
+        // Initialize the journal if it's enabled
+        //if ( journal.isEnabled() )
+        {
+            journal.init( this );
         }
 
         if ( LOG.isDebugEnabled() )

@@ -142,7 +142,7 @@ public class OperationFactory
         // NOTE: We inlined addDefaultOperations() because ApacheDS currently
         // creates an index entry only for ADD operation (and not for
         // MODIFY operation)
-        cloneEntry.put( ApacheSchemaConstants.ENTRY_CSN_AT, csn.toOctetString() );
+        cloneEntry.put( ApacheSchemaConstants.ENTRY_CSN_AT, csn.toBytes() );
 
         return new AddEntryOperation( registries, csn, cloneEntry );
     }
@@ -419,7 +419,7 @@ public class OperationFactory
                 new DefaultServerAttribute( 
                     ApacheSchemaConstants.ENTRY_DELETED_AT,
                     attributeRegistry.lookup( ApacheSchemaConstants.ENTRY_CSN_AT ),
-                    csn.toOctetString() ) ) );
+                    csn.toBytes() ) ) );
 
         return result;
     }

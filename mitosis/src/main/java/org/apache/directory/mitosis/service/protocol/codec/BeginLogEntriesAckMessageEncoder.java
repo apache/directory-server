@@ -77,7 +77,7 @@ public class BeginLogEntriesAckMessageEncoder extends ResponseMessageEncoder
                 out.putString( replicaId, utf8encoder );
                 out.put( ( byte ) 0x00 );
                 out.putLong( csn.getTimestamp() );
-                out.putInt( csn.getOperationSequence() );
+                out.putInt( csn.getChangeCount() );
             }
             catch ( CharacterCodingException e )
             {

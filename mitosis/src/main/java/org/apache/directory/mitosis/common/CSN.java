@@ -21,6 +21,13 @@ package org.apache.directory.mitosis.common;
 
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,16 +36,15 @@ import java.io.Serializable;
  * A CSN is a composition of a timestamp, a replica ID and a 
  * operation sequence number.
  * 
- * It's described in http://tools.ietf.org/html/draft-sermersheim-ldap-csn-02.
+ * It's described in http://tools.ietf.org/html/draft-ietf-ldup-model-09.
  * 
- * The ASN.1 syntax is :
+ * The CSN syntax is :
  * <pre>
- * ChangeSequenceNumber ::= SEQUENCE {
- *     time GeneralizedTime,
- *     timeCount INTEGER (0 ..  MaxInt),
- *     replicaID UTF8String,
- *     changeCount INTEGER (0 ..  MaxInt)
- * }
+ * <CSN>            ::= <timestamp> # <changeCount> # <replicaId> # <modifierNumber>
+ * <timestamp>      ::= A GMT based time, YYYYMMDDhh:mm:ssz
+ * <changeCount>    ::= [0-9a-zA-Z]+
+ * <replicaId>      ::= IA5String
+ * <modifierNumber> ::= [0-9a-zA-Z]+
  * </pre>
  *  
  * It distinguishes a change made on an object on a server,
@@ -58,14 +64,20 @@ public class CSN implements Serializable, Comparable<CSN>
      */
     private static final long serialVersionUID = 1L;
 
+    /** The logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( CSN.class );
+
     /** The timeStamp of this operation */
     private final long timestamp;
 
     /** The server identification */
     private final String replicaId;
 
-    /** The operation number in the same timestamp */
-    private final int operationSequence;
+    /** The operation number in a modification operation */
+    private final int operationNumber;
+    
+    /** The changeCount to distinguish operations done in the same second */
+    private final int changeCount;  
 
     /** Stores the String representation of the CSN */
     private transient String csnStr;
@@ -73,20 +85,25 @@ public class CSN implements Serializable, Comparable<CSN>
     /** Stores the byte array representation of the CSN */
     private transient byte[] bytes;
 
+    /** The Timestamp syntax. The last 'z' is _not_ the Time Zone */
+    private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHH:mm:ss'z'" );
+
 
     /**
      * Creates a new instance.
      * <b>This method should be used only for deserializing a CSN</b> 
      * 
      * @param timestamp GMT timestamp of modification
+     * @param changeCount The operation increment
      * @param replicaId Replica ID where modification occurred (<tt>[-_A-Za-z0-9]{1,16}</tt>)
-     * @param operationSequence Operation sequence
+     * @param operationNumber Operation number in a modification operation
      */
-    public CSN( long timestamp, String replicaId, int operationSequence )
+    public CSN( long timestamp, int changeCount, String replicaId, int operationNumber )
     {
         this.timestamp = timestamp;
         this.replicaId = replicaId;
-        this.operationSequence = operationSequence;
+        this.operationNumber = operationNumber;
+        this.changeCount = changeCount;
     }
 
 
@@ -94,51 +111,131 @@ public class CSN implements Serializable, Comparable<CSN>
      * Creates a new instance of SimpleCSN from a String.
      * 
      * The string format must be :
-     * &lt;timestamp> : &lt;replica ID> : &lt;operation sequence>
+     * &lt;timestamp> # &lt;changeCount> # &lt;replica ID> # &lt;operation number>
      *
      * @param value The String containing the CSN
      */
     public CSN( String value ) throws InvalidCSNException
     {
-        assert value != null;
-
-        int sepTS = value.indexOf( ':' );
-
-        assert sepTS > 0;
-
-        int sepID = value.lastIndexOf( ':' );
-
-        if ( ( sepID == -1 ) || ( sepID == sepTS ) | ( sepID - sepTS < 2 ) )
+        if ( StringTools.isEmpty( value ) )
         {
-            throw new InvalidCSNException();
+            String message = "The CSN must not be null or empty";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
         }
 
+        // Get the Timestamp
+        int sepTS = value.indexOf( '#' );
+        
+        if ( sepTS < 0 )
+        {
+            String message = "Cannot find a '#' in the CSN '" + value + "'";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        String timestampStr = value.substring( 0, sepTS ).trim();
+        
+        synchronized ( sdf )
+        {
+            try
+            {
+                timestamp = sdf.parse( timestampStr ).getTime();
+            }
+            catch ( ParseException pe )
+            {
+                String message = "Cannot parse the timestamp: '" + timestampStr + "'";
+                LOG.error( message );
+                throw new InvalidCSNException( message );
+            }
+        }
+
+        // Get the changeCount. It should be an hex number prefixed with '0x'
+        int sepCC = value.indexOf( '#', sepTS + 1 );
+        
+        if ( sepCC < 0 )
+        {
+            String message = "Missing a '#' in the CSN '" + value + "'";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+
+        String changeCountStr = value.substring( sepTS + 1, sepCC ).trim();
+        
+        if ( !changeCountStr.startsWith( "0x" ) )
+        {
+            String message = "The changeCount '" + changeCountStr + "' is not a valid number";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
         try
         {
-            timestamp = Long.parseLong( value.substring( 0, sepTS ), 16 );
+            changeCount = Integer.parseInt( changeCountStr.substring( 2 ), 16 ); 
         }
-        catch ( NumberFormatException ife )
+        catch ( NumberFormatException nfe )
         {
-            throw new InvalidCSNException();
+            String message = "The changeCount '" + changeCountStr + "' is not a valid number";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        // Get the replicaID
+        int sepRI = value.indexOf( '#', sepCC + 1 );
+        
+        if ( sepRI < 0 )
+        {
+            String message = "Missing a '#' in the CSN '" + value + "'";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
         }
 
+        replicaId = value.substring( sepCC + 1, sepRI).trim();
+        
+        if ( StringTools.isEmpty( replicaId ) )
+        {
+            String message = "The replicaID must not be null or empty";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        if ( !StringTools.isIA5String( replicaId ) )
+        {
+            String message = "The replicaID must contains only alphanumeric characters";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        // Get the modification number
+        if ( sepCC == value.length() )
+        {
+            String message = "The operationNumber is absent";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        String operationNumberStr = value.substring( sepRI + 1 ).trim();
+        
+        if ( !operationNumberStr.startsWith( "0x" ) )
+        {
+            String message = "The operationNumber '" + operationNumberStr + "' is not a valid number";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
         try
         {
-            replicaId = value.substring( sepTS + 1, sepID );
+            operationNumber = Integer.parseInt( operationNumberStr.substring( 2 ), 16 ); 
         }
-        catch ( IllegalArgumentException iae )
+        catch ( NumberFormatException nfe )
         {
-            throw new InvalidCSNException();
+            String message = "The operationNumber '" + operationNumberStr + "' is not a valid number";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
         }
-
-        try
-        {
-            operationSequence = Integer.parseInt( value.substring( sepID + 1 ), 16 );
-        }
-        catch ( NumberFormatException ife )
-        {
-            throw new InvalidCSNException();
-        }
+        
+        csnStr = value;
+        bytes = toBytes();
     }
 
 
@@ -149,53 +246,20 @@ public class CSN implements Serializable, Comparable<CSN>
      */
     /** Package protected */ CSN( byte[] value )
     {
-        timestamp = ( ( long ) ( value[0] & 0x00FF ) << 56 ) | ( ( long ) ( value[1] & 0x00FF ) << 48 )
-            | ( ( long ) ( value[2] & 0x00FF ) << 40 ) | ( ( long ) ( value[3] & 0x00FF ) << 32 )
-            | ( ( value[4] << 24 ) & 0x00000000FF000000L ) | ( ( value[5] << 16 ) & 0x0000000000FF0000L )
-            | ( ( value[6] << 8 ) & 0x000000000000FF00L ) | ( value[7] & 0x00000000000000FFL );
-
-        operationSequence = ( ( value[8] & 0x00FF ) << 24 ) + ( ( value[9] & 0x00FF ) << 16 )
-            + ( ( value[10] & 0x00FF ) << 8 ) + ( value[11] & 0x00FF );
-
-        char[] chars = new char[value.length - 12];
-
-        for ( int i = 12; i < value.length; i++ )
-        {
-            chars[i - 12] = ( char ) ( value[i] & 0x00FF );
-        }
-
-        replicaId = new String( chars );
-        bytes = value;
-    }
-
-
-    /**
-     * Return the CSN as a formated string. The used format is :
-     * &lt;timestamp> ':' &lt;replicaId> ':' &lt;operation sequence>
-     * 
-     * @return The CSN as a String
-     */
-    public String toOctetString()
-    {
-        if ( csnStr == null )
-        {
-            StringBuilder buf = new StringBuilder( 40 );
-            buf.append( timestamp );
-            buf.append( ':' );
-            buf.append( replicaId );
-            buf.append( ':' );
-            buf.append( operationSequence );
-            csnStr = buf.toString();
-        }
-
-        return csnStr;
+        csnStr = StringTools.utf8ToString( value );
+        CSN csn = new CSN( csnStr );
+        timestamp = csn.timestamp;
+        changeCount = csn.changeCount;
+        replicaId = csn.replicaId;
+        operationNumber = csn.operationNumber;
+        bytes = toBytes();
     }
 
 
     /**
      * Get the CSN as a byte array. The data are stored as :
      * bytes 1 to 8  : timestamp, big-endian
-     * bytes 9 to 12 : operation sequence, big-endian
+     * bytes 9 to 12 : change count, big endian
      * bytes 13 to ... : ReplicaId 
      * 
      * @return A byte array representing theCSN
@@ -204,28 +268,7 @@ public class CSN implements Serializable, Comparable<CSN>
     {
         if ( bytes == null )
         {
-            String id = replicaId;
-            byte[] bb = new byte[8 + id.length() + 4];
-
-            bb[0] = ( byte ) ( timestamp >> 56 );
-            bb[1] = ( byte ) ( timestamp >> 48 );
-            bb[2] = ( byte ) ( timestamp >> 40 );
-            bb[3] = ( byte ) ( timestamp >> 32 );
-            bb[4] = ( byte ) ( timestamp >> 24 );
-            bb[5] = ( byte ) ( timestamp >> 16 );
-            bb[6] = ( byte ) ( timestamp >> 8 );
-            bb[7] = ( byte ) timestamp;
-            bb[8] = ( byte ) ( ( operationSequence >> 24 ) );
-            bb[9] = ( byte ) ( ( operationSequence >> 16 ) );
-            bb[10] = ( byte ) ( ( operationSequence >> 8 ) );
-            bb[11] = ( byte ) ( operationSequence );
-
-            for ( int i = 0; i < id.length(); i++ )
-            {
-                bb[12 + i] = ( byte ) id.charAt( i );
-            }
-
-            bytes = bb;
+            bytes = StringTools.getBytesUtf8( csnStr );
         }
 
         return bytes;
@@ -242,6 +285,15 @@ public class CSN implements Serializable, Comparable<CSN>
 
 
     /**
+     * @return The changeCount
+     */
+    public int getChangeCount()
+    {
+        return changeCount;
+    }
+
+
+    /**
      * @return The replicaId
      */
     public String getReplicaId()
@@ -251,11 +303,11 @@ public class CSN implements Serializable, Comparable<CSN>
 
 
     /**
-     * @return The operation sequence
+     * @return The operation number
      */
-    public int getOperationSequence()
+    public int getOperationNumber()
     {
-        return operationSequence;
+        return operationNumber;
     }
 
 
@@ -264,7 +316,25 @@ public class CSN implements Serializable, Comparable<CSN>
      */
     public String toString()
     {
-        return toOctetString();
+        if ( csnStr == null )
+        {
+            StringBuilder buf = new StringBuilder( 40 );
+            
+            synchronized( sdf )
+            {
+                buf.append( sdf.format( new Date( timestamp ) ) );
+            }
+            
+            buf.append( '#' );
+            buf.append( "0x" ).append( Integer.toHexString( changeCount ) );
+            buf.append( '#' );
+            buf.append( replicaId );
+            buf.append( '#' );
+            buf.append( "0x" ).append( Integer.toHexString( operationNumber ) );
+            csnStr = buf.toString();
+        }
+        
+        return csnStr;
     }
 
 
@@ -275,7 +345,14 @@ public class CSN implements Serializable, Comparable<CSN>
      */
     public int hashCode()
     {
-        return replicaId.hashCode() ^ ( int ) timestamp ^ operationSequence;
+        int h = 37;
+        
+        h = h*17 + (int)(timestamp ^ (timestamp >>> 32));
+        h = h*17 + changeCount;
+        h = h*17 + replicaId.hashCode();
+        h = h*17 + operationNumber;
+        
+        return h;
     }
 
 
@@ -300,8 +377,11 @@ public class CSN implements Serializable, Comparable<CSN>
 
         CSN that = ( CSN ) o;
 
-        return ( timestamp == that.getTimestamp() ) && ( replicaId.equals( that.getReplicaId() ) )
-            && ( operationSequence == that.getOperationSequence() );
+        return 
+            ( timestamp == that.timestamp ) &&
+            ( changeCount == that.changeCount ) &&
+            ( replicaId.equals( that.replicaId ) ) &&
+            ( operationNumber == that.operationNumber );
     }
 
 
@@ -321,31 +401,40 @@ public class CSN implements Serializable, Comparable<CSN>
             return 1;
         }
         
-        long thatTimestamp = csn.getTimestamp();
-
-        if ( this.timestamp < thatTimestamp )
+        // Compares the timestamp first
+        if ( this.timestamp < csn.timestamp )
         {
             return -1;
         }
-        else if ( this.timestamp > thatTimestamp )
+        else if ( this.timestamp > csn.timestamp )
         {
             return 1;
         }
 
-        int replicaIdCompareResult = this.replicaId.compareTo( csn.getReplicaId() );
+        // Then the change count
+        if ( this.changeCount < csn.changeCount )
+        {
+            return -1;
+        }
+        else if ( this.changeCount > csn.changeCount )
+        {
+            return 1;
+        }
+
+        // Then the replicaId
+        int replicaIdCompareResult = this.replicaId.compareTo( csn.replicaId );
 
         if ( replicaIdCompareResult != 0 )
         {
             return replicaIdCompareResult;
         }
 
-        int thatSequence = csn.getOperationSequence();
-
-        if ( this.operationSequence < thatSequence )
+        // Last, not least, compares the operation number
+        if ( this.operationNumber < csn.operationNumber )
         {
             return -1;
         }
-        else if ( this.operationSequence > thatSequence )
+        else if ( this.operationNumber > csn.operationNumber )
         {
             return 1;
         }
