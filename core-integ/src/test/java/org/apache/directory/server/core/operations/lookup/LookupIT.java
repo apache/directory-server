@@ -91,7 +91,7 @@ public class LookupIT
         assertNotNull( entry );
         
         // We should have 5 attributes
-        assertEquals( 5, entry.size() ); 
+        assertEquals( 7, entry.size() ); 
 
         // Check that all the user attributes are present
         assertEquals( "test", entry.get( "cn" ).getString() );
