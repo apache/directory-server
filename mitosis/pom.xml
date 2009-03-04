@@ -117,6 +117,13 @@
       <artifactId>apacheds-core-cursor</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    
   </dependencies>
 
   <build>
