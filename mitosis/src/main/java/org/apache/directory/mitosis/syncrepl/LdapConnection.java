@@ -76,20 +76,16 @@ public interface LdapConnection
      * @param baseObject The base for the search. It must be a valid
      * DN, and can't be emtpy
      * @param filter The filter to use for this search. It can't be empty
-     * @return An Object array of size 2 containing the result entries
-     * at the 0th index and the syncdone value at 1st index
      */
-    Object[] search( String baseObject, String filter ) throws Exception;
+    void search( String baseObject, String filter ) throws Exception;
     
     
     /**
      * Send the already built SearchRequest to the server.
      *  
      * @param searchRequest the SearchRequest object to send to the server
-     * @return An Object array of size 2 containing the result entries
-     * at the 0th index and the syncdone value at 1st index
      */
-    Object[] search( SearchRequest searchRequest ) throws Exception;
+    void search( SearchRequest searchRequest ) throws Exception;
     
     /*
     void search( String baseObject, SearchScope scope, int derefAlias,
@@ -121,4 +117,13 @@ public interface LdapConnection
      * @return The last request response
      */
     LdapMessage getResponse();
+    
+    
+    /**
+     * 
+     * adds a type of ConsumerCalllback which can handle the results of a syncrepl search request.
+     *
+     * @param consumer an instance of ConsumerCalllback implementation.
+     */
+    void addConsumer( ConsumerCalllback consumer );
 }

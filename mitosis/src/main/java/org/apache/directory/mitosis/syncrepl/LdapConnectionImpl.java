@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.TwixTransformer;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
+import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
 import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
@@ -50,6 +51,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -124,7 +126,8 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
     /** An operation mutex to guarantee the operation order */
     private Semaphore operationMutex;
     
-    
+    /** the agent which created this connection */
+    private ConsumerCalllback consumer;
 
     //------------------------- The constructors --------------------------//
     /**
@@ -474,7 +477,7 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
     /**
      * {@inheritDoc}
      */
-    public Object[] search( String baseObject, String filterString ) throws Exception
+    public void search( String baseObject, String filterString ) throws Exception
     {
         // If the session has not been establish, or is closed, we get out immediately
         checkSession();
@@ -522,14 +525,14 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         searchRequest.setTypesOnly( false );
         searchRequest.addAttribute( SchemaConstants.ALL_USER_ATTRIBUTES );
 
-        return search( searchRequest );
+        search( searchRequest );
     }
     
 
     /**
      * {@inheritDoc}
      */
-    public Object[] search( SearchRequest searchRequest ) throws Exception
+    public void search( SearchRequest searchRequest ) throws Exception
     {
         // First check the session
         checkSession();
@@ -575,15 +578,24 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
             i++;
 
             // Print the response
-            LOG.info( "Result[" + i + "]" + response );
+            System.out.println( "Result[" + i + "]" + response );
+            System.out.println( "Result[" + i + "]" + response.getMessageType() + ":" + response.getMessageTypeName() );
+            
+            if( response.getMessageType() == LdapConstants.INTERMEDIATE_RESPONSE )
+            {
+                consumer.handleSyncInfo( response.getIntermediateResponse() );
+                operationMutex.release(); // FIXME lock will be held for a long time?
+                return;
+            }
             
             if ( response.getMessageType() == LdapConstants.SEARCH_RESULT_DONE )
             {
                 SearchResultDone resDone = response.getSearchResultDone();
                 resDone.addControl( response.getCurrentControl() );
-                operationMutex.release();
                 
-                return new Object[]{ searchResults, resDone };
+                consumer.handleSearchResult( searchResults, resDone);
+                operationMutex.release(); // FIXME lock will be held for a long time?
+                return;
             }
             
             SearchResultEntry sre = response.getSearchResultEntry();
@@ -695,6 +707,15 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         
         // Store the response into the responseQueue
         responseQueue.add( response );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addConsumer( ConsumerCalllback consumer )
+    {
+        this.consumer = consumer;
     }
     
     

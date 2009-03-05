@@ -35,12 +35,16 @@ import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.Control;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.LdapResult;
 import org.apache.directory.shared.ldap.codec.TwixTransformer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
+import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
@@ -69,7 +73,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyncreplConsumer
+public class SyncreplConsumer implements ConsumerCalllback
 {
 
     /** the syncrepl configuration */
@@ -93,6 +97,8 @@ public class SyncreplConsumer
     /** a reference to the directoryservice */
     private DirectoryService directoryService;
 
+
+    private SyncInfoValueControlDecoder decoder = new SyncInfoValueControlDecoder();
     
     /**
      * @return the config
@@ -162,6 +168,7 @@ public class SyncreplConsumer
             }
             else
             {
+                connection.addConsumer( this );
                 return connected;
             }
         }
@@ -289,6 +296,100 @@ public class SyncreplConsumer
 
 
     /**
+     * {@inheritDoc}
+     * atm does nothinng except examinig and printing the content of syncinfovalue control
+     */
+    public void handleSyncInfo( IntermediateResponse response )
+    {
+        try
+        {
+            LOG.info( "============ inside handleSyncInfo ======================" );
+            String name = response.getResponseName();
+            byte[] value = response.getResponseValue();
+            
+            SyncInfoValueControlCodec syncInfoValue = ( SyncInfoValueControlCodec ) decoder.decode( value );
+            
+            byte[] cookie = syncInfoValue.getCookie();
+            
+            if( cookie != null )
+            {
+                LOG.info( "setting the cookie: " + StringTools.utf8ToString( value ) );
+                syncCookie = cookie;
+            }
+            
+            List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
+            
+            LOG.info( "The uuid list " + uuidList );// receives a list of UUIDs of the entries what to do with them???
+            LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
+            LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
+        }
+        catch ( DecoderException de )
+        {
+            LOG.error( "Failed to handle syncinfo message" );
+            de.printStackTrace();
+        }
+
+
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone )
+    {
+        try
+        {
+            SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone
+            .getCurrentControl().getControlValue();
+            
+            if( syncDoneCtrl.getCookie() != null )
+            {
+                syncCookie = syncDoneCtrl.getCookie();
+            }
+            {
+                LOG.info( "cookie in syncdone message is null" );
+            }
+
+            LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
+            
+            if ( syncResList != null )
+            {
+                System.out.println( "sync state results..." + syncResList.size() );
+                for ( SearchResultEntry entry : syncResList )
+                {
+                    Entry clientEntry = entry.getEntry();
+                    SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry
+                    .getCurrentControl().getControlValue();
+                    
+                    SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
+                    
+                    LOG.info( state.name() + ": " + clientEntry.getDn() );
+                    
+                    if ( state == SyncStateTypeEnum.ADD )
+                    {
+                        directoryService.getAdminSession().add(
+                            new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+                    }
+                    else if ( state == SyncStateTypeEnum.DELETE )
+                    {
+                        directoryService.getAdminSession().delete( clientEntry.getDn() );
+                    }
+                    else if ( state == SyncStateTypeEnum.MODIFY )
+                    {
+                        LOG.error( "FIXME yet to implement modification" );
+                    }
+                }
+            }   
+        }
+        catch( Exception e )
+        {
+            LOG.error( e.getMessage(), e );
+        }
+    }
+    
+    
+    /**
      * starts the syn operation
      * 
      * TODO should run in a separate thread
@@ -312,45 +413,7 @@ public class SyncreplConsumer
             try
             {
                 System.out.println( "searching with searchRequest..." );
-                Object[] result = connection.search( searchRequest );
-                
-                SearchResultDone searchDone = ( SearchResultDone ) result[1];
-                
-                SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone
-                .getCurrentControl().getControlValue();
-                syncCookie = syncDoneCtrl.getCookie();
-                LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
-                
-                List<SearchResultEntry> syncResList = ( List<SearchResultEntry> ) result[0];
-                
-                if ( syncResList != null )
-                {
-                    System.out.println( "sync state results..." + syncResList.size() );
-                    for ( SearchResultEntry entry : syncResList )
-                    {
-                        Entry clientEntry = entry.getEntry();
-                        SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry
-                        .getCurrentControl().getControlValue();
-                        
-                        SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
-                        
-                        System.out.println( "==================" + state.name() + ": " + clientEntry.getDn() );
-                        
-                        if ( state == SyncStateTypeEnum.ADD )
-                        {
-                            directoryService.getAdminSession().add(
-                                new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
-                        }
-                        else if ( state == SyncStateTypeEnum.DELETE )
-                        {
-                            directoryService.getAdminSession().delete( clientEntry.getDn() );
-                        }
-                        else if ( state == SyncStateTypeEnum.MODIFY )
-                        {
-                            LOG.error( "FIXME yet to implement modification" );
-                        }
-                    }
-                }
+                connection.search( searchRequest );
                 
                 Thread.sleep( config.getConsumerInterval() );
                 
@@ -400,9 +463,10 @@ public class SyncreplConsumer
             ldapService.setDirectoryService( directoryService );
 
             LdapDN suffix = new LdapDN( config.getBaseDn() );
-            Partition partition = new JdbmPartition();
+            JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( suffix.getUpName() );
             partition.setId( "syncrepl" );
+            partition.setSyncOnWrite( true );
             partition.init( directoryService );
 
             directoryService.addPartition( partition );
