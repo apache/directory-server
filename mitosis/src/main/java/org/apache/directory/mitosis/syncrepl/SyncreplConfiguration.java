@@ -46,7 +46,7 @@ public class SyncreplConfiguration
     private boolean refreshPersist = false;
 
     /** time interval for successive sync requests */
-    private long consumerInterval = 60 * 1000;
+    private long consumerInterval = 5 * 1000;
 
     /** the base DN whose content will be searched for syncing */
     private String baseDn;
