@@ -402,30 +402,85 @@ public class SyncreplConsumer implements ConsumerCalllback
             return;
         }
 
-        while ( true )
+        try
         {
-            if ( syncCookie != null )
-            {
-                syncReq.setCookie( syncCookie );
-                searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
-            }
-            
-            try
-            {
-                System.out.println( "searching with searchRequest..." );
-                connection.search( searchRequest );
-                
-                Thread.sleep( config.getConsumerInterval() );
-                
-                LOG.info( "--------------------- syncing again ------------------" );
-            }
-            catch ( Exception e )
-            {
-                LOG.error( "Failed to sync", e );
-                //FIXME should be removed while integrating
-                System.exit(1);
-            }
-        }// end of while loop
+        	int pass = 1;
+        	
+	        while ( true )
+	        {
+	            if ( syncCookie != null )
+	            {
+	                syncReq.setCookie( syncCookie );
+	                searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
+	            }
+	            
+	            try
+	            {
+	            	System.out.println( "======================================================== Pass #" + pass + "==========" 
+);
+	            	pass++;
+	                System.out.println( "searching with searchRequest..." );
+	                Object[] result = connection.search( searchRequest );
+	                
+	                SearchResultDone searchDone = ( SearchResultDone ) result[1];
+	                
+	                SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone
+	                .getCurrentControl().getControlValue();
+	                syncCookie = syncDoneCtrl.getCookie();
+	                System.out.println( "Cookie : " + StringTools.utf8ToString( syncCookie ) );
+	                LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
+	                
+	                List<SearchResultEntry> syncResList = ( List<SearchResultEntry> ) result[0];
+	                
+	                if ( syncResList != null )
+	                {
+	                    System.out.println( "sync state results..." + syncResList.size() );
+	                    for ( SearchResultEntry entry : syncResList )
+	                    {
+	                        Entry clientEntry = entry.getEntry();
+	                        SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry
+	                        .getCurrentControl().getControlValue();
+	                        
+	                        SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
+	                        
+	                        System.out.println( ">>>==================" + state.name() + ": " + clientEntry.getDn() );
+	                        
+	                        if ( state == SyncStateTypeEnum.ADD )
+	                        {
+	                            directoryService.getAdminSession().add(
+	                                new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+	                        }
+	                        else if ( state == SyncStateTypeEnum.DELETE )
+	                        {
+	                            directoryService.getAdminSession().delete( clientEntry.getDn() );
+	                        }
+	                        else if ( state == SyncStateTypeEnum.MODIFY )
+	                        {
+	                            LOG.error( "FIXME yet to implement modification" );
+	                        }
+	                    }
+	                }
+	                
+	                
+	                LOG.info( "--------------------- Sleep for a little while ------------------" );
+
+	                Thread.sleep( config.getConsumerInterval() );
+	                
+	                LOG.info( "--------------------- syncing again ------------------" );
+	            }
+	            catch ( Exception e )
+	            {
+	            	//e.printStackTrace();
+	                LOG.error( "Failed to sync", e );
+	                //FIXME should be removed while integrating
+	                //System.exit(1);
+	            }
+	        }// end of while loop
+        }
+        catch ( Exception e )
+        {
+        	e.printStackTrace();
+        }
     }
 
 
@@ -500,10 +555,11 @@ public class SyncreplConsumer implements ConsumerCalllback
         SyncreplConfiguration config = new SyncreplConfiguration();
         config.setProviderHost( "localhost" );
         config.setPort( 389 );
-        config.setBindDn( "cn=Manager,dc=my-domain,dc=com" );
+        config.setBindDn( "cn=admin,dc=nodomain" );
         config.setCredentials( "secret" );
-        config.setBaseDn( "dc=my-domain,dc=com" );
+        config.setBaseDn( "dc=test,dc=nodomain" );
         config.setFilter( "(objectclass=*)" );
+        config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
 
         agent.setConfig( config );
         
