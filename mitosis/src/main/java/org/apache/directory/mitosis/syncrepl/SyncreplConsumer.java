@@ -29,7 +29,6 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
@@ -416,50 +415,10 @@ public class SyncreplConsumer implements ConsumerCalllback
 	            
 	            try
 	            {
-	            	System.out.println( "======================================================== Pass #" + pass + "==========" 
-);
+	            	System.out.println( "======================================================== Pass #" + pass + "==========" );
 	            	pass++;
 	                System.out.println( "searching with searchRequest..." );
-	                Object[] result = connection.search( searchRequest );
-	                
-	                SearchResultDone searchDone = ( SearchResultDone ) result[1];
-	                
-	                SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone
-	                .getCurrentControl().getControlValue();
-	                syncCookie = syncDoneCtrl.getCookie();
-	                System.out.println( "Cookie : " + StringTools.utf8ToString( syncCookie ) );
-	                LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
-	                
-	                List<SearchResultEntry> syncResList = ( List<SearchResultEntry> ) result[0];
-	                
-	                if ( syncResList != null )
-	                {
-	                    System.out.println( "sync state results..." + syncResList.size() );
-	                    for ( SearchResultEntry entry : syncResList )
-	                    {
-	                        Entry clientEntry = entry.getEntry();
-	                        SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry
-	                        .getCurrentControl().getControlValue();
-	                        
-	                        SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
-	                        
-	                        System.out.println( ">>>==================" + state.name() + ": " + clientEntry.getDn() );
-	                        
-	                        if ( state == SyncStateTypeEnum.ADD )
-	                        {
-	                            directoryService.getAdminSession().add(
-	                                new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
-	                        }
-	                        else if ( state == SyncStateTypeEnum.DELETE )
-	                        {
-	                            directoryService.getAdminSession().delete( clientEntry.getDn() );
-	                        }
-	                        else if ( state == SyncStateTypeEnum.MODIFY )
-	                        {
-	                            LOG.error( "FIXME yet to implement modification" );
-	                        }
-	                    }
-	                }
+	                connection.search( searchRequest );
 	                
 	                
 	                LOG.info( "--------------------- Sleep for a little while ------------------" );
@@ -555,9 +514,15 @@ public class SyncreplConsumer implements ConsumerCalllback
         SyncreplConfiguration config = new SyncreplConfiguration();
         config.setProviderHost( "localhost" );
         config.setPort( 389 );
-        config.setBindDn( "cn=admin,dc=nodomain" );
+        
+        config.setBindDn( "cn=Manager,dc=my-domain,dc=com" );
+        // ELE config : config.setBindDn( "cn=admin,dc=nodomain" );
+        
         config.setCredentials( "secret" );
-        config.setBaseDn( "dc=test,dc=nodomain" );
+        
+        config.setBaseDn( "dc=my-domain,dc=com" );
+        // ELE config : config.setBaseDn( "dc=test,dc=nodomain" );
+        
         config.setFilter( "(objectclass=*)" );
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
 
