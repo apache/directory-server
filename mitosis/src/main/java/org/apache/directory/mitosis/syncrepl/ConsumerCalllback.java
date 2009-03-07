@@ -31,20 +31,12 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
  * 
  * A callback interface used by the SyncreplConsumer to get notified
  * by LdapConnection when a search request is completed.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface ConsumerCalllback
 {
-    /**
-     * 
-     * handles a SyncInfoValueControl which will come as a IntermediateResponse.
-     *
-     * @param response the IntermediateResponse which contains SyncInfoValueControl 
-     */
-    void handleSyncInfo( IntermediateResponse response );
-
 
     /**
      * 
@@ -53,7 +45,8 @@ public interface ConsumerCalllback
      *
      * @param syncResList the list of SearchResultEntry obect with SyncStateValueCOntrol
      * @param searchDone the SearchResultDone message containing the SyncDoneValueCOntrol
+     * @param intermresponse the intermediate response if present else null
      */
-    void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone );
+    void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone, IntermediateResponse intermresponse );
 
 }

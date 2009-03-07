@@ -22,13 +22,16 @@ package org.apache.directory.mitosis.syncrepl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
@@ -49,6 +52,9 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -77,7 +83,7 @@ public class SyncreplConsumer implements ConsumerCalllback
 
     /** the syncrepl configuration */
     private SyncreplConfiguration config;
-    
+
     /** the sync cookie sent by the server */
     private byte[] syncCookie;
 
@@ -96,9 +102,10 @@ public class SyncreplConsumer implements ConsumerCalllback
     /** a reference to the directoryservice */
     private DirectoryService directoryService;
 
-
+    /** the decoder for syncinfovalue control */
     private SyncInfoValueControlDecoder decoder = new SyncInfoValueControlDecoder();
-    
+
+
     /**
      * @return the config
      */
@@ -134,7 +141,7 @@ public class SyncreplConsumer implements ConsumerCalllback
     {
         if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
         {
-            System.out.println( "failed to bind on the server : " + ldapResult );
+            LOG.debug( "failed to bind on the server : " + ldapResult );
             quit( connection );
         }
     }
@@ -220,7 +227,7 @@ public class SyncreplConsumer implements ConsumerCalllback
     {
 
         String baseDn = config.getBaseDn();
-        
+
         searchRequest = new SearchRequest();
         try
         {
@@ -300,24 +307,33 @@ public class SyncreplConsumer implements ConsumerCalllback
      */
     public void handleSyncInfo( IntermediateResponse response )
     {
+        if ( response == null )
+        {
+            return;
+        }
+
         try
         {
-            LOG.info( "============ inside handleSyncInfo ======================" );
+            LOG.debug( "============ inside handleSyncInfo ======================" );
             String name = response.getResponseName();
             byte[] value = response.getResponseValue();
-            
+
             SyncInfoValueControlCodec syncInfoValue = ( SyncInfoValueControlCodec ) decoder.decode( value );
-            
+
             byte[] cookie = syncInfoValue.getCookie();
-            
-            if( cookie != null )
+
+            if ( cookie != null )
             {
-                LOG.info( "setting the cookie: " + StringTools.utf8ToString( value ) );
+                LOG.debug( "setting the cookie from the sync info: " + StringTools.utf8ToString( value ) );
                 syncCookie = cookie;
             }
-            
+
+            SearchResultEntry searchResult = response.getSearchResultEntry();
+
+            LOG.debug( "searchResult: " + searchResult );
+
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
-            
+
             LOG.info( "The uuid list " + uuidList );// receives a list of UUIDs of the entries what to do with them???
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
             LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
@@ -328,66 +344,103 @@ public class SyncreplConsumer implements ConsumerCalllback
             de.printStackTrace();
         }
 
+        LOG.debug( "============ END handleSyncInfo ======================" );
 
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone )
+    public void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone,
+        IntermediateResponse intermResponse )
     {
+
+        handleSyncInfo( intermResponse );
+
+        LOG.debug( "================ starting handleSearchResult ==============" );
         try
         {
-            SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone
-            .getCurrentControl().getControlValue();
-            
-            if( syncDoneCtrl.getCookie() != null )
+            SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone.getCurrentControl()
+                .getControlValue();
+
+            if ( syncDoneCtrl.getCookie() != null )
             {
                 syncCookie = syncDoneCtrl.getCookie();
+                LOG.debug( "assigning cookie from sync done value control: " + StringTools.utf8ToString( syncCookie ) );
             }
             {
                 LOG.info( "cookie in syncdone message is null" );
             }
 
             LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
-            
+
             if ( syncResList != null )
             {
-                System.out.println( "sync state results..." + syncResList.size() );
+                LOG.debug( "sync state results..." + syncResList.size() );
                 for ( SearchResultEntry entry : syncResList )
                 {
                     Entry clientEntry = entry.getEntry();
-                    SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry
-                    .getCurrentControl().getControlValue();
-                    
+                    SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry.getCurrentControl()
+                        .getControlValue();
+
+                    if ( syncStateCtrl.getCookie() != null )
+                    {
+                        syncCookie = syncStateCtrl.getCookie();
+                        LOG.debug( "assigning the cookie from sync state value control: "
+                            + StringTools.utf8ToString( syncCookie ) );
+                    }
+
                     SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
-                    
-                    LOG.info( state.name() + ": " + clientEntry.getDn() );
-                    
+
+                    LOG.debug( "state name {}" + state.name() );
+                    LOG.debug( "entryUUID = " + clientEntry.get( "entryUUID" ) );
+                    CoreSession session = directoryService.getAdminSession();
+
                     if ( state == SyncStateTypeEnum.ADD )
                     {
-                        directoryService.getAdminSession().add(
-                            new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+
+                        if ( !session.exists( clientEntry.getDn() ) )
+                        {
+                            LOG.debug( "adding entry with dn {}", clientEntry.getDn().getUpName() );
+                            LOG.debug( clientEntry.toString() );
+                            session.add( new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+                        }
+                        else
+                        {
+                            // WARN FIXME inefficient delta calculation
+                            // FIXME won't work for deleted attributes
+                            LOG.debug( "modifying entry with dn {}", clientEntry.getDn().getUpName() );
+
+                            List<Modification> mods = new ArrayList<Modification>();
+                            Iterator<EntryAttribute> itr = clientEntry.iterator();
+                            while ( itr.hasNext() )
+                            {
+                                Modification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, itr
+                                    .next() );
+                                mods.add( mod );
+                            }
+
+                            session.modify( clientEntry.getDn(), mods );
+                        }
                     }
                     else if ( state == SyncStateTypeEnum.DELETE )
                     {
+                        LOG.debug( "deleting entry with dn {}" + clientEntry.getDn().getUpName() );
                         directoryService.getAdminSession().delete( clientEntry.getDn() );
                     }
-                    else if ( state == SyncStateTypeEnum.MODIFY )
-                    {
-                        LOG.error( "FIXME yet to implement modification" );
-                    }
                 }
-            }   
+            }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.error( e.getMessage(), e );
         }
+
+        LOG.debug( "================ END starting handleSearchResult ==============" );
     }
-    
-    
+
+
     /**
      * starts the syn operation
      * 
@@ -403,47 +456,44 @@ public class SyncreplConsumer implements ConsumerCalllback
 
         try
         {
-        	int pass = 1;
-        	
-	        while ( true )
-	        {
-	            if ( syncCookie != null )
-	            {
-	                syncReq.setCookie( syncCookie );
-	                searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
-	            }
-	            
-	            try
-	            {
-	            	System.out.println( "======================================================== Pass #" + pass + "==========" );
-	            	pass++;
-	                System.out.println( "searching with searchRequest..." );
-	                connection.search( searchRequest );
-	                
-	                
-	                LOG.info( "--------------------- Sleep for a little while ------------------" );
 
-	                Thread.sleep( config.getConsumerInterval() );
-	                
-	                LOG.info( "--------------------- syncing again ------------------" );
-	            }
-	            catch ( Exception e )
-	            {
-	            	//e.printStackTrace();
-	                LOG.error( "Failed to sync", e );
-	                //FIXME should be removed while integrating
-	                //System.exit(1);
-	            }
-	        }// end of while loop
+            int pass = 1;
+
+            while ( true )
+            {
+
+                if ( syncCookie != null )
+                {
+                    syncReq.setCookie( syncCookie );
+                    searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
+                }
+
+                try
+                {
+                    LOG.debug( "======================================================== Pass #" + pass + "==========" );
+                    pass++;
+                    LOG.debug( "searching with searchRequest..." + StringTools.utf8ToString( syncReq.getCookie() ) );
+                    connection.search( searchRequest );
+
+                    LOG.info( "--------------------- Sleep for a little while ------------------" );
+
+                    Thread.sleep( config.getConsumerInterval() );
+
+                    LOG.debug( "--------------------- syncing again ------------------" );
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "Failed to sync", e );
+                }
+            }// end of while loop
         }
         catch ( Exception e )
         {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
 
-    // -javaagent:~/jip/profile/profile.jar -Dprofile.properties=~/jip/profile/profile-add.properties
     public void disconnet()
     {
         try
@@ -487,11 +537,6 @@ public class SyncreplConsumer implements ConsumerCalllback
 
             directoryService.startup();
 
-            ServerEntry contextEntry = new DefaultServerEntry( directoryService.getRegistries(), suffix );
-            contextEntry.add( "objectclass", "domain" );
-            contextEntry.add( "dc", "my-domain" );
-            directoryService.getSession().add( contextEntry );
-
             ldapService.addExtendedOperationHandler( new StartTlsHandler() );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
@@ -510,27 +555,21 @@ public class SyncreplConsumer implements ConsumerCalllback
     public static void main( String[] args ) throws Exception
     {
         final SyncreplConsumer agent = new SyncreplConsumer();
-     
+
         SyncreplConfiguration config = new SyncreplConfiguration();
         config.setProviderHost( "localhost" );
         config.setPort( 389 );
-        
-        config.setBindDn( "cn=Manager,dc=my-domain,dc=com" );
-        // ELE config : config.setBindDn( "cn=admin,dc=nodomain" );
-        
+        config.setBindDn( "cn=admin,dc=nodomain" );
         config.setCredentials( "secret" );
-        
-        config.setBaseDn( "dc=my-domain,dc=com" );
-        // ELE config : config.setBaseDn( "dc=test,dc=nodomain" );
-        
+        config.setBaseDn( "dc=test,dc=nodomain" );
         config.setFilter( "(objectclass=*)" );
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
 
         agent.setConfig( config );
-        
+
         final File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/work" );
 
-        if( workDir.exists() )
+        if ( workDir.exists() )
         {
             FileUtils.forceDelete( workDir );
         }
@@ -538,7 +577,7 @@ public class SyncreplConsumer implements ConsumerCalllback
         {
             workDir.mkdirs();
         }
-        
+
         agent.startEmbeddedServer( workDir );
 
         agent.connect();

@@ -560,6 +560,8 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         
         // Now wait for the responses
         // Loop until we got all the responses
+        
+        IntermediateResponse intermResponse = null;
         do
         {
             // If we get out before the timeout, check that the response 
@@ -579,13 +581,11 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
 
             // Print the response
             System.out.println( "Result[" + i + "]" + response );
-            System.out.println( "Result[" + i + "]" + response.getMessageType() + ":" + response.getMessageTypeName() );
             
             if( response.getMessageType() == LdapConstants.INTERMEDIATE_RESPONSE )
             {
-                consumer.handleSyncInfo( response.getIntermediateResponse() );
-                operationMutex.release(); // FIXME lock will be held for a long time?
-                return;
+                intermResponse = response.getIntermediateResponse();
+                continue; // this will avoid an 'instance of' check at the end on SearchResultEntry
             }
             
             if ( response.getMessageType() == LdapConstants.SEARCH_RESULT_DONE )
@@ -593,8 +593,9 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
                 SearchResultDone resDone = response.getSearchResultDone();
                 resDone.addControl( response.getCurrentControl() );
                 
-                consumer.handleSearchResult( searchResults, resDone);
-                operationMutex.release(); // FIXME lock will be held for a long time?
+                operationMutex.release();
+                consumer.handleSearchResult( searchResults, resDone, intermResponse );
+                
                 return;
             }
             
