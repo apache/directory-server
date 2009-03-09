@@ -20,7 +20,8 @@
 -->
 
 
-<beans xmlns="http://apacheds.org/config/${pom.version}"
+<spring:beans xmlns="http://apacheds.org/config/${pom.version}"
+       xmlns:spring="http://xbean.apache.org/schemas/spring/1.0"
        xmlns:s="http://www.springframework.org/schema/beans">
 
   <defaultDirectoryService id="directoryService" instanceId="default"
@@ -248,4 +249,4 @@
     <ldapService>#ldapService</ldapService>
     <ldapsService>#ldapsService</ldapsService>
   </apacheDS>
-</beans>
+</spring:beans>
