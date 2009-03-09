@@ -25,6 +25,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -32,8 +33,10 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerStringValue;
 
 import java.util.Iterator;
 import java.util.Comparator;
@@ -53,7 +56,16 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
+    
+    /** The comparator to use */
     private final Comparator comparator;
+    
+    /** The default byte[] comparator if no comparator has been defined */
+    private static final Comparator<byte[]> BINARY_COMPARATOR = ByteArrayComparator.INSTANCE;
+    
+    /** The default String comparator if no comparator has been defined */
+    private static final Comparator<String> STRING_COMPARATOR = StringComparator.INSTANCE;
+    
     private final Index<T,ServerEntry> idx;
 
 
@@ -82,7 +94,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             if ( mr == null )
             {
                 normalizer = NoOpNormalizer.INSTANCE;
-                comparator = ByteArrayComparator.INSTANCE;
+                comparator = null;
             }
             else
             {
@@ -168,9 +180,9 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
 
         return evaluate ( db.lookup( id ) );
     }
-
-
-    // TODO - determine if comaparator and index entry should have the Value
+    
+    
+    // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( ServerAttribute attribute ) throws Exception
     {
@@ -180,14 +192,52 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        for ( Value value : attribute )
+        for ( Value<?> value : attribute )
         {
             value.normalize( normalizer );
-
+            
             //noinspection unchecked
-            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) == 0 )
+            if ( value.isBinary() )
             {
-                return true;
+                // Deal with a binary value
+                byte[] serverValue = ((Value<byte[]>)value).getNormalizedValue();
+                byte[] nodeValue = ((Value<byte[]>)node.getValue()).getNormalizedValue();
+                
+                if ( comparator != null )
+                {
+                    if ( ( comparator.compare( serverValue, nodeValue ) == 0 ) )
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if ( BINARY_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                // Deal with a String value
+                String serverValue = ((Value<String>)value).getNormalizedValue();
+                String nodeValue = ((Value<String>)node.getValue()).getNormalizedValue();
+                
+                if ( comparator != null )
+                {
+                    if ( comparator.compare( serverValue, nodeValue ) == 0 )
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if ( STRING_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
+                    {
+                        return true;
+                    }
+                }
             }
         }
 
