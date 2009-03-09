@@ -182,13 +182,13 @@ public class SpringServerTest
         File workingDirFile = new File( configF.getParentFile(), "work" );
         apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
         
-        // Now, launch the server, and check that the ObjectClass index has been created in /tmp
+        // Now, launch the server, and check that the ObjectClass index has been created in OS' tmp directory
         apacheDS.startup();
         
-        File tmpOCdb = new File( "/tmp/objectClass.db");
+        File tmpOCdb = new File( getTmpDir(), "objectClass.db" );
         assertTrue( tmpOCdb.exists() );
 
-        File tmpOClg = new File( "/tmp/objectClass.lg");
+        File tmpOClg = new File( getTmpDir(), "objectClass.lg" );
         assertTrue( tmpOClg.exists() );
         
         // Shutdown and cleanup
@@ -197,5 +197,16 @@ public class SpringServerTest
         // Clean the /tmp/objectClass.* files
         tmpOCdb.delete();
         tmpOClg.delete();
+    }
+    
+    /**
+     * Get tmp dir
+     * 
+     * @return
+     *      The OS specific tmp dir
+     */
+    private File getTmpDir()
+    {
+        return new File( System.getProperty( "java.io.tmpdir" ) );
     }
 }
