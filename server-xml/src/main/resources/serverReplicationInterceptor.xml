@@ -20,9 +20,8 @@
 -->
 
 
-<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0" 
-              xmlns:s="http://www.springframework.org/schema/beans"
-              xmlns="http://apacheds.org/config/${pom.version}">
+<beans xmlns="http://apacheds.org/config/${pom.version}"
+       xmlns:s="http://www.springframework.org/schema/beans">
               
   <defaultDirectoryService id="directoryService" instanceId="default"
                            workingDirectory="example.com"
@@ -254,15 +253,4 @@
     <ldapService>#ldapService</ldapService>
     <ldapsService>#ldapsService</ldapsService>
   </apacheDS>
-
-  <!-- another bean I didn't convert -->
-  <spring:bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-    <spring:property name="customEditors">
-      <spring:map>
-        <spring:entry key="javax.naming.directory.Attributes">
-          <spring:bean class="org.apache.directory.server.core.configuration.AttributesPropertyEditor"/>
-        </spring:entry>
-      </spring:map>
-    </spring:property>
-  </spring:bean>
-</spring:beans>
+</beans>
