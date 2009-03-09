@@ -31,7 +31,10 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.File;
@@ -48,6 +51,9 @@ import java.io.IOException;
  */
 public class JdbmIndex<K,O> implements Index<K,O>
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
+
     /**
      * default duplicate limit before duplicate keys switch to using a btree for values
      */
@@ -55,46 +61,56 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
+    
     /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
 
     /** the attribute type resolved for this JdbmIndex */
     private AttributeType attribute;
+
     /**
      * the forward btree where the btree key is the value of the indexed attribute and
      * the value of the btree is the entry id of the entry containing an attribute with
      * that value
      */
     protected JdbmTable<K, Long> forward;
+    
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
     protected JdbmTable<Long,K> reverse;
+    
     /**
      * the JDBM record manager for the file containing this index
      */
     protected RecordManager recMan;
+    
     /**
      * the normalized value cache for this index
      * @todo I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
     protected SynchronizedLRUMap keyCache;
+    
     /** the size (number of index entries) for the cache */
     protected int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
+    
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
      */
     protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    
     /**
      * the attribute identifier set at configuration time for this index which may not
      * be the OID but an alias name for the attributeType associated with this Index
      */
     private String attributeId;
+    
     /** whether or not this index has been initialized */
     protected boolean initialized;
+    
     /** a customm working directory path when specified in configuration */
     protected File wkDirPath;
 
@@ -136,8 +152,10 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
     public void init( AttributeType attributeType, File wkDirPath ) throws IOException
     {
-        this.keyCache = new SynchronizedLRUMap( cacheSize );
-        this.attribute = attributeType;
+        LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+        
+        keyCache = new SynchronizedLRUMap( cacheSize );
+        attribute = attributeType;
 
         if ( attributeId == null )
         {
@@ -182,7 +200,9 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         try
         {
-            comp = new SerializableComparator<K>( attribute.getEquality().getOid() );
+            MatchingRule mr = attribute.getEquality();
+            
+            comp = new SerializableComparator<K>( mr.getOid() );
         }
         catch ( NamingException e )
         {
@@ -469,8 +489,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
     // Index Cursor Operations
     // ------------------------------------------------------------------------
-
-
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O> reverseCursor() throws Exception
     {
@@ -514,8 +532,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
     // Value Assertion (a.k.a Index Lookup) Methods //
     // ------------------------------------------------------------------------
-
-    
     /**
      * @see Index#forward(Object)
      */
@@ -626,8 +642,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
     // ------------------------------------------------------------------------
     // Maintenance Methods 
     // ------------------------------------------------------------------------
-
-
     /**
      * @see org.apache.directory.server.xdbm.Index#close()
      */

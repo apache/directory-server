@@ -64,6 +64,7 @@ import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -372,9 +373,23 @@ public class JdbmStore<E> implements Store<E>
             for ( Index<?,E> index : userIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
-                tmp.put( oid, index );
-                ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                AttributeType attributeType = attributeTypeRegistry.lookup( oid );
+                
+                // Check that the attributeType has an EQUALITY matchingRule
+                MatchingRule mr = attributeType.getEquality();
+                
+                if ( mr != null )
+                {
+                    ( ( JdbmIndex ) index ).init( attributeTypeRegistry.lookup( oid ), workingDirectory );
+                    tmp.put( oid, index );
+                }
+                else
+                {
+                    LOG.error( "Cannot build an index for attribute '{}', no EQUALITY MatchingRule defined",
+                        attributeType.getName() );
+                }
             }
+            
             userIndices = tmp;
         }
         else
