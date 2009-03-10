@@ -131,6 +131,11 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+
     <!-- replication interceptor xbean config metadata -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -182,6 +187,46 @@
                   <type>xsd.html</type>
                 </artifact>
               </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-sample-configurations</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.directory.server</groupId>
+                  <artifactId>apacheds-server-xml</artifactId>
+                  <type>jar</type>
+                  <version>${pom.version}</version>
+                  <outputDirectory>target/test-classes</outputDirectory>
+                  <includes>**/server.xml, **/serverAuthenticatorInAuthenticationInterceptor.xml, **/serverJdbmPartition.xml, **/serverReplicationInterceptor.xml</includes>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.xbean</groupId>
+                  <artifactId>xbean-spring</artifactId>
+                  <type>jar</type>
+                  <outputDirectory>target/test-classes</outputDirectory>
+                  <includes>**/*.xsd</includes>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.springframework</groupId>
+                  <artifactId>spring-beans</artifactId>
+                  <type>jar</type>
+                  <outputDirectory>target/test-classes</outputDirectory>
+                  <includes>**/*.xsd</includes>
+                </artifactItem>
+              </artifactItems>
             </configuration>
           </execution>
         </executions>
