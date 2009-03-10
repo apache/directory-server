@@ -23,6 +23,8 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @org.apache.xbean.XBean
@@ -32,6 +34,9 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  */
 public class TcpTransport extends AbstractTransport
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( TcpTransport.class );
+
     /**
      * Creates an instance of the TcpTransport class 
      */
@@ -47,9 +52,11 @@ public class TcpTransport extends AbstractTransport
      */
     public TcpTransport( int tcpPort )
     {
-        super( LOCAL_HOST, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+        super( null, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
         
-        this.acceptor = createAcceptor( LOCAL_HOST, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+        this.acceptor = createAcceptor( null, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+        
+        LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
     
     
@@ -60,9 +67,11 @@ public class TcpTransport extends AbstractTransport
      */
     public TcpTransport( int tcpPort, int nbThreads )
     {
-        super( LOCAL_HOST, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
+        super( null, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
         
-        this.acceptor = createAcceptor( LOCAL_HOST, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
+        this.acceptor = createAcceptor( null, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
+        
+        LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
     
     
@@ -71,10 +80,12 @@ public class TcpTransport extends AbstractTransport
      * @param address The address
      * @param port The port
      */
-    public TcpTransport( String address, int port )
+    public TcpTransport( String address, int tcpPort )
     {
-        super( address, port, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
-        this.acceptor = createAcceptor( address, port, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+        super( address, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+        this.acceptor = createAcceptor( address, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
+
+        LOG.debug( "TCP Transport created : <{}:{}>", address, tcpPort );
     }
     
     
@@ -88,7 +99,9 @@ public class TcpTransport extends AbstractTransport
     public TcpTransport( int tcpPort, int nbThreads, int backLog )
     {
         super( LOCAL_HOST, tcpPort, nbThreads, backLog );
-        this.acceptor = createAcceptor( LOCAL_HOST, tcpPort, nbThreads, backLog );
+        this.acceptor = createAcceptor( null, tcpPort, nbThreads, backLog );
+
+        LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
     
     
@@ -104,6 +117,8 @@ public class TcpTransport extends AbstractTransport
     {
         super( address, tcpPort, nbThreads, backLog );
         this.acceptor = createAcceptor( address, tcpPort, nbThreads, backLog );
+
+        LOG.debug( "TCP Transport created : <{}:{},>", address, tcpPort );
     }
     
     
@@ -112,7 +127,7 @@ public class TcpTransport extends AbstractTransport
      */
     public void init()
     {
-        acceptor = createAcceptor( this.getAddress(), this.getPort(), this.getNbThreads(), this.getBackLog() );
+        acceptor = createAcceptor( getAddress(), getPort(), getNbThreads(), getBackLog() );
     }
     
     
@@ -123,7 +138,20 @@ public class TcpTransport extends AbstractTransport
     {
         NioSocketAcceptor acceptor = new NioSocketAcceptor( nbThreads );
         acceptor.setBacklog( backLog );
-        InetSocketAddress socketAddress = new InetSocketAddress( address, port ); 
+        
+        InetSocketAddress socketAddress = null;
+        
+        // The address can be null here, if one want to connect using the wildcard address
+        if ( address == null )
+        {
+            // Create a socket listening on the wildcard address
+            socketAddress = new InetSocketAddress( port );
+        }
+        else
+        {
+            socketAddress = new InetSocketAddress( address, port );
+        }
+        
         acceptor.setDefaultLocalAddress( socketAddress );
         
         return acceptor;

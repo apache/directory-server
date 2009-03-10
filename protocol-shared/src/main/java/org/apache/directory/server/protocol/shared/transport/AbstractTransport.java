@@ -49,7 +49,7 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport()
     {
-        address = LOCAL_HOST;
+        address = null;
         nbThreads = DEFAULT_NB_THREADS;
         port = -1;
         backlog = DEFAULT_BACKLOG_NB;

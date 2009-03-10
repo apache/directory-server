@@ -23,6 +23,8 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @org.apache.xbean.XBean
@@ -32,6 +34,9 @@ import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
  */
 public class UdpTransport extends AbstractTransport
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( UdpTransport.class );
+
     /**
      * Creates an instance of the UdpTransport class 
      */
@@ -49,9 +54,9 @@ public class UdpTransport extends AbstractTransport
     {
         super( udpPort );
         
-        this.acceptor = createAcceptor( LOCAL_HOST, udpPort );
+        this.acceptor = createAcceptor( null, udpPort );
         
-        System.out.println( "UDP Transport created : <localhost:" + udpPort + ", 3>" );
+        LOG.debug( "UDP Transport created : <*:{},>", udpPort );
     }
     
     
@@ -64,7 +69,9 @@ public class UdpTransport extends AbstractTransport
     {
         super( address, udpPort );
         
-        this.acceptor = createAcceptor( LOCAL_HOST, udpPort );
+        this.acceptor = createAcceptor( address, udpPort );
+
+        LOG.debug( "UDP Transport created : <{}:{},>", address, udpPort );
     }
     
     
@@ -73,7 +80,8 @@ public class UdpTransport extends AbstractTransport
      */
     public void init()
     {
-        acceptor = createAcceptor( this.getAddress(), this.getPort() );
+        acceptor = createAcceptor( getAddress(), getPort() );
+        LOG.debug( "UDP Transport created : <{}:{},>", getAddress(), getPort() );
     }
 
     
@@ -92,7 +100,20 @@ public class UdpTransport extends AbstractTransport
     private IoAcceptor createAcceptor( String address, int port )
     {
         NioDatagramAcceptor acceptor = new NioDatagramAcceptor();
-        InetSocketAddress socketAddress = new InetSocketAddress( address, port ); 
+        
+        InetSocketAddress socketAddress =  null;
+        
+        // The address can be null here, if one want to connect using the wildcard address
+        if ( address == null )
+        {
+            // Create a socket listening on the wildcard address
+            socketAddress = new InetSocketAddress( port );
+        }
+        else
+        {
+            socketAddress = new InetSocketAddress( address, port );
+        }
+        
         acceptor.setDefaultLocalAddress( socketAddress );
         
         return acceptor;
