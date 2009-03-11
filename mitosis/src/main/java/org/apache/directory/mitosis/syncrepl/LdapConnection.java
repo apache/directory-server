@@ -125,5 +125,5 @@ public interface LdapConnection
      *
      * @param consumer an instance of ConsumerCalllback implementation.
      */
-    void addConsumer( ConsumerCalllback consumer );
+    void addConsumer( ConsumerCallback consumer );
 }
