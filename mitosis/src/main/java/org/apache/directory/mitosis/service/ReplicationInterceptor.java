@@ -94,16 +94,17 @@ import java.util.List;
  * for replication.  The transformation process is actually just calling a
  * respective factory method in {@link OperationFactory}.  The methods in
  * {@link OperationFactory} returns a new {@link Operation} instance.
+ * </p>
  * <p>
  * The newly created {@link Operation} is used for three purposes.
  * <ul>
- * <li>To perform the requested operation to the local {@link PartitionNexus}
+ * <li>To perform the requested operation to the local {@link PartitionNexus}</li>
  * <li>To store the created {@link Operation} itself to
  *     {@link ReplicationStore} so that it can be retrieved later by
- *     {@link ReplicationLogCleanJob} and {@link ReplicationClientContextHandler}
+ *     {@link ReplicationLogCleanJob} and {@link ReplicationClientContextHandler}</li>
  * <li>To transfer itself to other {@link ReplicaId}s via TCP/IP communication
  *     between {@link ReplicationClientContextHandler} and
- *     {@link ReplicationServerContextHandler}
+ *     {@link ReplicationServerContextHandler}</li>
  * </ul>
  * The first two actions (modifying the local DIT and storing the
  * {@link Operation} to {@link ReplicationStore}) are performed automatically
@@ -111,9 +112,11 @@ import java.util.List;
  * {@link Operation#execute(PartitionNexus, ReplicationStore, Registries)}
  * method is invoked.  {@link ReplicationInterceptor} always call it instead of
  * forwarding the requested operation to the next {@link Interceptor}.
+ * </p>
  * <p>
  * The last action takes place by {@link ReplicationClientContextHandler},
  * which handles TCP/IP connection managed by {@link ClientConnectionManager}.
+ * </p>
  * <p>
  * There are two special attributes in the entries to be replicated:
  * <ul>
@@ -136,6 +139,7 @@ import java.util.List;
  *     operations are overrided to ignore entries with <tt>entryDeleted</tt>
  *     set to <tt>TRUE</tt>.</li>
  * </ul>
+ * </p>
  *
  * @org.apache.xbean.XBean
  *
