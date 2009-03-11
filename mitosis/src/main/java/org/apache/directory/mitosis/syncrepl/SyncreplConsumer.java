@@ -450,12 +450,10 @@ public class SyncreplConsumer implements ConsumerCallback
 
         try
         {
-
             int pass = 1;
 
             do
             {
-
                 if( config.isRefreshPersist() )
                 {
                     syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
@@ -472,7 +470,16 @@ public class SyncreplConsumer implements ConsumerCallback
                 {
                     LOG.debug( "======================================================== Pass #" + pass + "==========" );
                     pass++;
-                    LOG.debug( "searching with searchRequest..." + StringTools.utf8ToString( syncReq.getCookie() ) );
+                    
+                    if ( ( syncReq.getCookie() == null ) || ( syncReq.getCookie().length == 0 ) )
+                    {
+                    	LOG.debug( "First search (no cookie)" );
+                    }
+                    else
+                    {
+                    	LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncReq.getCookie() ) );
+                    }
+                    
                     connection.search( searchRequest );
 
                     LOG.info( "--------------------- Sleep for a little while ------------------" );

@@ -714,7 +714,7 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         // Feed the response and store it into the session
         LdapMessage response = (LdapMessage)message;
 
-        LOG.debug( "-------> Messagessage received <-------" + response );
+        LOG.debug( "-------> {} Message received <-------", response.getMessageTypeName() );
         
         switch( response.getMessageType() )
         {

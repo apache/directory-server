@@ -65,7 +65,7 @@ public class LdapProtocolDecoder implements ProtocolDecoder
         Asn1Decoder ldapDecoder = new LdapDecoder();
         IAsn1Container ldapMessageContainer = (LdapMessageContainer)session.getAttribute( "LDAP-Container" );
     	ByteBuffer buf = buffer.buf();
-
+    	int currentPos = 0;
         
         while ( buf.hasRemaining() )
         {
@@ -77,11 +77,12 @@ public class LdapProtocolDecoder implements ProtocolDecoder
                 {
                     LOG.debug( "Decoding the PDU : " );
                 	int size = buf.capacity();
+                	int pos = buf.position();
                 	
-                	byte[] b = new byte[size];
+                	byte[] b = new byte[pos-currentPos];
                 	
-                	System.arraycopy( buf.array(), 0, b, 0, size );
-                	
+                	System.arraycopy( buf.array(), currentPos, b, 0, pos-currentPos );
+                	currentPos = pos;
                 	System.out.println( "Received buffer : " + StringTools.dumpBytes( b ) );
                 }
                 
