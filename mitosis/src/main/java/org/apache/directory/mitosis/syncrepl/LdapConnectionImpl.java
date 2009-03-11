@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
+import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -127,7 +128,7 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
     private Semaphore operationMutex;
     
     /** the agent which created this connection */
-    private ConsumerCalllback consumer;
+    private ConsumerCallback consumer;
 
     //------------------------- The constructors --------------------------//
     /**
@@ -547,22 +548,22 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         message.setProtocolOP( searchRequest );
         message.addControl( searchRequest.getCurrentControl() );
         
-        LOG.debug( "-----------------------------------------------------------------" );
-        LOG.debug( "Sending request \n{}", message );
+        //LOG.debug( "-----------------------------------------------------------------" );
+        //LOG.debug( "Sending request \n{}", message );
     
         // Loop and get all the responses
         // Send the request to the server
         ldapSession.write( message );
-        
-        int i = 0;
-        
-        List<SearchResultEntry> searchResults = new ArrayList<SearchResultEntry>();
+
+        operationMutex.release();
+//        int i = 0;
+//        
+//        List<SearchResultEntry> searchResults = new ArrayList<SearchResultEntry>();
         
         // Now wait for the responses
         // Loop until we got all the responses
         
-        IntermediateResponse intermResponse = null;
-        do
+/*        do
         {
             // If we get out before the timeout, check that the response 
             // is there, and get it
@@ -580,12 +581,11 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
             i++;
 
             // Print the response
-            System.out.println( "Result[" + i + "]" + response );
+//            System.out.println( "Result[" + i + "]" + response );
             
             if( response.getMessageType() == LdapConstants.INTERMEDIATE_RESPONSE )
             {
-                intermResponse = response.getIntermediateResponse();
-                continue; // this will avoid an 'instance of' check at the end on SearchResultEntry
+                consumer.handleSyncInfo( response.getIntermediateResponse().getResponseValue() );
             }
             
             if ( response.getMessageType() == LdapConstants.SEARCH_RESULT_DONE )
@@ -594,18 +594,28 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
                 resDone.addControl( response.getCurrentControl() );
                 
                 operationMutex.release();
-                consumer.handleSearchResult( searchResults, resDone, intermResponse );
+                consumer.handleSearchDone( resDone );
                 
                 return;
             }
+       
+            if( response.getMessageType() == LdapConstants.SEARCH_RESULT_ENTRY )
+            {
+                SearchResultEntry sre = response.getSearchResultEntry();
+                sre.addControl( response.getCurrentControl() );
+                consumer.handleSearchResult( sre );
+            }
             
-            SearchResultEntry sre = response.getSearchResultEntry();
-            sre.addControl( response.getCurrentControl() );
-            
-            searchResults.add( sre  );
+            if( response.getMessageType() == LdapConstants.SEARCH_RESULT_REFERENCE )
+            {
+                SearchResultReference searchRef = response.getSearchResultReference();
+                searchRef.addControl( response.getCurrentControl() );
+                
+                consumer.handleSearchReference( searchRef );
+            }
         }
         while ( true );
-    }
+*/    }
 
     /**
      * A helper method to set the useSsl flag
@@ -704,20 +714,51 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
         // Feed the response and store it into the session
         LdapMessage response = (LdapMessage)message;
 
-        LOG.debug( "-------> Message received <-------" + response );
+        LOG.debug( "-------> Messagessage received <-------" + response );
         
-        // Store the response into the responseQueue
-        responseQueue.add( response );
+        switch( response.getMessageType() )
+        {
+            case LdapConstants.BIND_RESPONSE: 
+                       
+                       responseQueue.add( response ); // Store the response into the responseQueue
+                       break;
+
+            case LdapConstants.INTERMEDIATE_RESPONSE:
+            
+                       consumer.handleSyncInfo( response.getIntermediateResponse().getResponseValue() );
+                       break;
+            
+            case LdapConstants.SEARCH_RESULT_DONE:
+            
+                       SearchResultDone resDone = response.getSearchResultDone();
+                       resDone.addControl( response.getCurrentControl() );
+                       consumer.handleSearchDone( resDone );
+                       break;
+            
+            case LdapConstants.SEARCH_RESULT_ENTRY:
+            
+                       SearchResultEntry sre = response.getSearchResultEntry();
+                       sre.addControl( response.getCurrentControl() );
+                       consumer.handleSearchResult( sre );
+                       break;
+                       
+            case LdapConstants.SEARCH_RESULT_REFERENCE:
+            
+                       SearchResultReference searchRef = response.getSearchResultReference();
+                       searchRef.addControl( response.getCurrentControl() );
+                       consumer.handleSearchReference( searchRef );
+                       break;
+                       
+             default: LOG.error( "~~~~~~~~~~~~~~~~~~~~~ Unknown message type {} ~~~~~~~~~~~~~~~~~~~~~", response.getMessageTypeName() );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void addConsumer( ConsumerCalllback consumer )
+    public void addConsumer( ConsumerCallback consumer )
     {
         this.consumer = consumer;
     }
-    
-    
 }
