@@ -340,7 +340,7 @@ public class SyncreplConsumer implements ConsumerCallback
 
         try
         {
-            Entry clientEntry = syncResult.getEntry();
+            Entry remoteEntry = syncResult.getEntry();
 
             Control ctrl = syncResult.getCurrentControl();
             SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) ctrl.getControlValue();
@@ -361,33 +361,57 @@ public class SyncreplConsumer implements ConsumerCallback
             if ( state == SyncStateTypeEnum.ADD )
             {
 
-                if ( !session.exists( clientEntry.getDn() ) )
+                if ( !session.exists( remoteEntry.getDn() ) )
                 {
-                    LOG.debug( "adding entry with dn {}", clientEntry.getDn().getUpName() );
-                    LOG.debug( clientEntry.toString() );
-                    session.add( new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+                    LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getUpName() );
+                    LOG.debug( remoteEntry.toString() );
+                    session.add( new DefaultServerEntry( directoryService.getRegistries(), remoteEntry ) );
                 }
             }
             else if ( state == SyncStateTypeEnum.MODIFY )
             {
-                // WARN FIXME inefficient delta calculation
-                // FIXME won't work for deleted attributes
-                LOG.debug( "modifying entry with dn {}", clientEntry.getDn().getUpName() );
+                
+                Entry localEntry = session.lookup( remoteEntry.getDn() );
+                LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
 
                 List<Modification> mods = new ArrayList<Modification>();
-                Iterator<EntryAttribute> itr = clientEntry.iterator();
+                Iterator<EntryAttribute> itr = localEntry.iterator();
+             
                 while ( itr.hasNext() )
                 {
-                    Modification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, itr.next() );
+                    EntryAttribute localAttr = itr.next();
+                    String attrId = localAttr.getId();
+                    Modification mod;
+                    EntryAttribute remoteAttr = remoteEntry.get( attrId );
+                    
+                    if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
+                    {
+                        mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
+                    }
+                    else
+                    {
+                        mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
+                    }
+                
+                    remoteEntry.remove( remoteAttr );
                     mods.add( mod );
                 }
 
-                session.modify( clientEntry.getDn(), mods );
+                if( remoteEntry.size() > 0 )
+                {
+                    itr = remoteEntry.iterator();
+                    while( itr.hasNext() )
+                    {
+                        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
+                    }
+                }
+                
+                session.modify( remoteEntry.getDn(), mods );
             }
             else if ( state == SyncStateTypeEnum.DELETE )
             {
-                LOG.debug( "deleting entry with dn {}", clientEntry.getDn().getUpName() );
-                directoryService.getAdminSession().delete( clientEntry.getDn() );
+                LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getUpName() );
+                directoryService.getAdminSession().delete( remoteEntry.getDn() );
             }
         }
         catch ( Exception e )
@@ -482,11 +506,13 @@ public class SyncreplConsumer implements ConsumerCallback
                     
                     connection.search( searchRequest );
 
-                    LOG.info( "--------------------- Sleep for a little while ------------------" );
+                    if ( !config.isRefreshPersist() )
+                    {
+                        LOG.info( "--------------------- Sleep for a little while ------------------" );
+                        Thread.sleep( config.getConsumerInterval() );
+                        LOG.debug( "--------------------- syncing again ------------------" );
+                    }
 
-                    Thread.sleep( config.getConsumerInterval() );
-
-                    LOG.debug( "--------------------- syncing again ------------------" );
                 }
                 catch ( Exception e )
                 {
