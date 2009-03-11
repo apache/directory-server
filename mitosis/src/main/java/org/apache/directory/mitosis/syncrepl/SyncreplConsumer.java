@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
+import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -78,7 +79,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyncreplConsumer implements ConsumerCalllback
+public class SyncreplConsumer implements ConsumerCallback
 {
 
     /** the syncrepl configuration */
@@ -301,36 +302,122 @@ public class SyncreplConsumer implements ConsumerCalllback
     }
 
 
+    public void handleSearchDone( SearchResultDone searchDone )
+    {
+        LOG.debug( "///////////////// handleSearchDone //////////////////" );
+        Control ctrl = searchDone.getCurrentControl();
+        SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) ctrl.getControlValue();
+
+        if ( !config.isRefreshPersist() )
+        {
+            config.setRefreshPersist( true );
+        }
+
+        if ( syncDoneCtrl.getCookie() != null )
+        {
+            syncCookie = syncDoneCtrl.getCookie();
+            LOG.debug( "assigning cookie from sync done value control: " + StringTools.utf8ToString( syncCookie ) );
+        }
+        else
+        {
+            LOG.info( "cookie in syncdone message is null" );
+        }
+
+        LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
+    }
+
+
+    public void handleSearchReference( SearchResultReference searchRef )
+    {
+        LOG.error( "!!!!!!!!!!!!!!!!! TODO handle SearchReference messages !!!!!!!!!!!!!!!!" );
+    }
+
+
+    public void handleSearchResult( SearchResultEntry syncResult )
+    {
+
+        LOG.debug( "------------- starting handleSearchResult ------------" );
+
+        try
+        {
+            Entry clientEntry = syncResult.getEntry();
+
+            Control ctrl = syncResult.getCurrentControl();
+            SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) ctrl.getControlValue();
+
+            if ( syncStateCtrl.getCookie() != null )
+            {
+                syncCookie = syncStateCtrl.getCookie();
+                LOG.debug( "assigning the cookie from sync state value control: "
+                    + StringTools.utf8ToString( syncCookie ) );
+            }
+
+            SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
+
+            LOG.debug( "state name {}" + state.name() );
+            LOG.debug( "entryUUID = " + StringTools.utf8ToString( syncStateCtrl.getEntryUUID() ) );
+            CoreSession session = directoryService.getAdminSession();
+
+            if ( state == SyncStateTypeEnum.ADD )
+            {
+
+                if ( !session.exists( clientEntry.getDn() ) )
+                {
+                    LOG.debug( "adding entry with dn {}", clientEntry.getDn().getUpName() );
+                    LOG.debug( clientEntry.toString() );
+                    session.add( new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
+                }
+            }
+            else if ( state == SyncStateTypeEnum.MODIFY )
+            {
+                // WARN FIXME inefficient delta calculation
+                // FIXME won't work for deleted attributes
+                LOG.debug( "modifying entry with dn {}", clientEntry.getDn().getUpName() );
+
+                List<Modification> mods = new ArrayList<Modification>();
+                Iterator<EntryAttribute> itr = clientEntry.iterator();
+                while ( itr.hasNext() )
+                {
+                    Modification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, itr.next() );
+                    mods.add( mod );
+                }
+
+                session.modify( clientEntry.getDn(), mods );
+            }
+            else if ( state == SyncStateTypeEnum.DELETE )
+            {
+                LOG.debug( "deleting entry with dn {}", clientEntry.getDn().getUpName() );
+                directoryService.getAdminSession().delete( clientEntry.getDn() );
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.error( e.getMessage(), e );
+        }
+
+        LOG.debug( "------------- starting handleSearchResult ------------" );
+    }
+
+
     /**
      * {@inheritDoc}
      * atm does nothinng except examinig and printing the content of syncinfovalue control
      */
-    public void handleSyncInfo( IntermediateResponse response )
+    public void handleSyncInfo( byte[] syncinfo )
     {
-        if ( response == null )
-        {
-            return;
-        }
-
         try
         {
-            LOG.debug( "============ inside handleSyncInfo ======================" );
-            String name = response.getResponseName();
-            byte[] value = response.getResponseValue();
+            LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValueControlCodec syncInfoValue = ( SyncInfoValueControlCodec ) decoder.decode( value );
+            SyncInfoValueControlCodec syncInfoValue = ( SyncInfoValueControlCodec ) decoder.decode( syncinfo );
 
             byte[] cookie = syncInfoValue.getCookie();
 
             if ( cookie != null )
             {
-                LOG.debug( "setting the cookie from the sync info: " + StringTools.utf8ToString( value ) );
+                LOG.debug( "setting the cookie from the sync info: " + StringTools.utf8ToString( cookie ) );
                 syncCookie = cookie;
             }
-
-            SearchResultEntry searchResult = response.getSearchResultEntry();
-
-            LOG.debug( "searchResult: " + searchResult );
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
 
@@ -344,100 +431,7 @@ public class SyncreplConsumer implements ConsumerCalllback
             de.printStackTrace();
         }
 
-        LOG.debug( "============ END handleSyncInfo ======================" );
-
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void handleSearchResult( List<SearchResultEntry> syncResList, SearchResultDone searchDone,
-        IntermediateResponse intermResponse )
-    {
-
-        handleSyncInfo( intermResponse );
-
-        LOG.debug( "================ starting handleSearchResult ==============" );
-        try
-        {
-            SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) searchDone.getCurrentControl()
-                .getControlValue();
-
-            if ( syncDoneCtrl.getCookie() != null )
-            {
-                syncCookie = syncDoneCtrl.getCookie();
-                LOG.debug( "assigning cookie from sync done value control: " + StringTools.utf8ToString( syncCookie ) );
-            }
-            {
-                LOG.info( "cookie in syncdone message is null" );
-            }
-
-            LOG.info( "synccookie {}", StringTools.utf8ToString( syncCookie ) );
-
-            if ( syncResList != null )
-            {
-                LOG.debug( "sync state results..." + syncResList.size() );
-                for ( SearchResultEntry entry : syncResList )
-                {
-                    Entry clientEntry = entry.getEntry();
-                    SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) entry.getCurrentControl()
-                        .getControlValue();
-
-                    if ( syncStateCtrl.getCookie() != null )
-                    {
-                        syncCookie = syncStateCtrl.getCookie();
-                        LOG.debug( "assigning the cookie from sync state value control: "
-                            + StringTools.utf8ToString( syncCookie ) );
-                    }
-
-                    SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
-
-                    LOG.debug( "state name {}" + state.name() );
-                    LOG.debug( "entryUUID = " + clientEntry.get( "entryUUID" ) );
-                    CoreSession session = directoryService.getAdminSession();
-
-                    if ( state == SyncStateTypeEnum.ADD )
-                    {
-
-                        if ( !session.exists( clientEntry.getDn() ) )
-                        {
-                            LOG.debug( "adding entry with dn {}", clientEntry.getDn().getUpName() );
-                            LOG.debug( clientEntry.toString() );
-                            session.add( new DefaultServerEntry( directoryService.getRegistries(), clientEntry ) );
-                        }
-                        else
-                        {
-                            // WARN FIXME inefficient delta calculation
-                            // FIXME won't work for deleted attributes
-                            LOG.debug( "modifying entry with dn {}", clientEntry.getDn().getUpName() );
-
-                            List<Modification> mods = new ArrayList<Modification>();
-                            Iterator<EntryAttribute> itr = clientEntry.iterator();
-                            while ( itr.hasNext() )
-                            {
-                                Modification mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, itr
-                                    .next() );
-                                mods.add( mod );
-                            }
-
-                            session.modify( clientEntry.getDn(), mods );
-                        }
-                    }
-                    else if ( state == SyncStateTypeEnum.DELETE )
-                    {
-                        LOG.debug( "deleting entry with dn {}" + clientEntry.getDn().getUpName() );
-                        directoryService.getAdminSession().delete( clientEntry.getDn() );
-                    }
-                }
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.error( e.getMessage(), e );
-        }
-
-        LOG.debug( "================ END starting handleSearchResult ==============" );
+        LOG.debug( ".................... END handleSyncInfo ..............." );
     }
 
 
@@ -459,15 +453,21 @@ public class SyncreplConsumer implements ConsumerCalllback
 
             int pass = 1;
 
-            while ( true )
+            do
             {
+
+                if( config.isRefreshPersist() )
+                {
+                    syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
+                }
 
                 if ( syncCookie != null )
                 {
                     syncReq.setCookie( syncCookie );
-                    searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
                 }
-
+                
+                searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
+                
                 try
                 {
                     LOG.debug( "======================================================== Pass #" + pass + "==========" );
@@ -485,7 +485,10 @@ public class SyncreplConsumer implements ConsumerCalllback
                 {
                     LOG.error( "Failed to sync", e );
                 }
-            }// end of while loop
+            }
+            while( syncReq.getMode() != SynchronizationModeEnum.REFRESH_AND_PERSIST );// end of while loop
+            
+            LOG.debug( "**************** exiting the while loop ***************" );
         }
         catch ( Exception e )
         {
