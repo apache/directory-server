@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.CoreSession;
@@ -46,7 +47,6 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
-import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
@@ -310,7 +310,9 @@ public class SyncreplConsumer implements ConsumerCallback
 
         if ( !config.isRefreshPersist() )
         {
+        	// Now, switch to refreshAndPresist
             config.setRefreshPersist( true );
+            LOG.debug( "Swithing to RefreshAndPersist" );
         }
 
         if ( syncDoneCtrl.getCookie() != null )
@@ -355,63 +357,65 @@ public class SyncreplConsumer implements ConsumerCallback
             SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
 
             LOG.debug( "state name {}" + state.name() );
-            LOG.debug( "entryUUID = " + StringTools.utf8ToString( syncStateCtrl.getEntryUUID() ) );
+            LOG.debug( "entryUUID = " + UUID.nameUUIDFromBytes( syncStateCtrl.getEntryUUID() ) );
             CoreSession session = directoryService.getAdminSession();
 
-            if ( state == SyncStateTypeEnum.ADD )
+            switch ( state )
             {
+            	case ADD :
+	                if ( !session.exists( remoteEntry.getDn() ) )
+	                {
+	                    LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getUpName() );
+	                    LOG.debug( remoteEntry.toString() );
+	                    session.add( new DefaultServerEntry( directoryService.getRegistries(), remoteEntry ) );
+	                }
+	                
+	                break;
+            
+            	case MODIFY :
+	                Entry localEntry = session.lookup( remoteEntry.getDn() );
+	                LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
+	
+	                List<Modification> mods = new ArrayList<Modification>();
+	                Iterator<EntryAttribute> itr = localEntry.iterator();
+	             
+	                while ( itr.hasNext() )
+	                {
+	                    EntryAttribute localAttr = itr.next();
+	                    String attrId = localAttr.getId();
+	                    Modification mod;
+	                    EntryAttribute remoteAttr = remoteEntry.get( attrId );
+	                    
+	                    if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
+	                    {
+	                        mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
+	                    }
+	                    else
+	                    {
+	                        mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
+	                    }
+	                
+	                    remoteEntry.remove( remoteAttr );
+	                    mods.add( mod );
+	                }
+	
+	                if( remoteEntry.size() > 0 )
+	                {
+	                    itr = remoteEntry.iterator();
+	                    while( itr.hasNext() )
+	                    {
+	                        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
+	                    }
+	                }
+	                
+	                session.modify( remoteEntry.getDn(), mods );
+	                
+	                break;
 
-                if ( !session.exists( remoteEntry.getDn() ) )
-                {
-                    LOG.debug( "adding entry with dn {}", remoteEntry.getDn().getUpName() );
-                    LOG.debug( remoteEntry.toString() );
-                    session.add( new DefaultServerEntry( directoryService.getRegistries(), remoteEntry ) );
-                }
-            }
-            else if ( state == SyncStateTypeEnum.MODIFY )
-            {
-                
-                Entry localEntry = session.lookup( remoteEntry.getDn() );
-                LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
-
-                List<Modification> mods = new ArrayList<Modification>();
-                Iterator<EntryAttribute> itr = localEntry.iterator();
-             
-                while ( itr.hasNext() )
-                {
-                    EntryAttribute localAttr = itr.next();
-                    String attrId = localAttr.getId();
-                    Modification mod;
-                    EntryAttribute remoteAttr = remoteEntry.get( attrId );
-                    
-                    if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
-                    {
-                        mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
-                    }
-                    else
-                    {
-                        mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
-                    }
-                
-                    remoteEntry.remove( remoteAttr );
-                    mods.add( mod );
-                }
-
-                if( remoteEntry.size() > 0 )
-                {
-                    itr = remoteEntry.iterator();
-                    while( itr.hasNext() )
-                    {
-                        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
-                    }
-                }
-                
-                session.modify( remoteEntry.getDn(), mods );
-            }
-            else if ( state == SyncStateTypeEnum.DELETE )
-            {
-                LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getUpName() );
-                directoryService.getAdminSession().delete( remoteEntry.getDn() );
+            	case DELETE :
+	                LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getUpName() );
+	                directoryService.getAdminSession().delete( remoteEntry.getDn() );
+	                break;
             }
         }
         catch ( Exception e )
@@ -419,7 +423,7 @@ public class SyncreplConsumer implements ConsumerCallback
             LOG.error( e.getMessage(), e );
         }
 
-        LOG.debug( "------------- starting handleSearchResult ------------" );
+        LOG.debug( "------------- Ending handleSearchResult ------------" );
     }
 
 
@@ -492,8 +496,14 @@ public class SyncreplConsumer implements ConsumerCallback
                 
                 try
                 {
-                    LOG.debug( "======================================================== Pass #" + pass + "==========" );
-                    pass++;
+                	if ( config.isRefreshPersist() )
+                	{
+                		LOG.debug( "==================== Refresh And Persist ==========" );
+                	}
+                	else
+                	{
+                		LOG.debug( "==================== Initial Content ==========" );
+                	}
                     
                     if ( ( syncReq.getCookie() == null ) || ( syncReq.getCookie().length == 0 ) )
                     {
@@ -521,7 +531,7 @@ public class SyncreplConsumer implements ConsumerCallback
             }
             while( syncReq.getMode() != SynchronizationModeEnum.REFRESH_AND_PERSIST );// end of while loop
             
-            LOG.debug( "**************** exiting the while loop ***************" );
+            LOG.debug( "**************** Done with the sync ***************" );
         }
         catch ( Exception e )
         {
@@ -619,6 +629,10 @@ public class SyncreplConsumer implements ConsumerCallback
         agent.connect();
         agent.bind();
         agent.prepareSyncSearchRequest();
+        
+        // Do the initial content sync
         agent.startSync();
+        
+        
     }
 }

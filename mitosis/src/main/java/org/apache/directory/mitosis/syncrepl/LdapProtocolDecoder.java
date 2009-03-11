@@ -76,7 +76,6 @@ public class LdapProtocolDecoder implements ProtocolDecoder
                 if ( IS_DEBUG )
                 {
                     LOG.debug( "Decoding the PDU : " );
-                	int size = buf.capacity();
                 	int pos = buf.position();
                 	
                 	byte[] b = new byte[pos-currentPos];

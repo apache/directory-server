@@ -20,12 +20,10 @@
 package org.apache.directory.mitosis.syncrepl;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
 
 
 /**
