@@ -40,6 +40,7 @@ import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtende
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapResponse;
 import org.apache.directory.shared.ldap.codec.LdapResult;
 import org.apache.directory.shared.ldap.codec.TwixTransformer;
@@ -170,8 +171,6 @@ public class SyncreplConsumer implements ConsumerCallback
             if ( !connected )
             {
                 LOG.warn( "Failed to connect to the syncrepl provder host {} running at port {}", providerHost, port );
-                // FIXME rmove this at the time of integration with ADS
-                //System.exit( 2 );
             }
             else
             {
@@ -224,6 +223,11 @@ public class SyncreplConsumer implements ConsumerCallback
     }
 
 
+    /**
+     * 
+     *  prepares a SearchRequest for syncing DIT content.
+     *
+     */
     public void prepareSyncSearchRequest()
     {
 
@@ -257,8 +261,8 @@ public class SyncreplConsumer implements ConsumerCallback
 
         searchRequest.setSizeLimit( config.getSearchSizeLimit() );
         searchRequest.setTimeLimit( config.getSearchTimeout() );
-        //TODO openLdap cries if this flag is set 
-        // searchRequest.setDerefAliases( LdapConstants.DEREF_ALWAYS );
+        // the only valid values are NEVER_DEREF_ALIASES and DEREF_FINDING_BASE_OBJ
+        searchRequest.setDerefAliases( LdapConstants.NEVER_DEREF_ALIASES );
         searchRequest.setScope( SearchScope.getSearchScope( config.getSearchScope() ) );
         searchRequest.setTypesOnly( false );
 
@@ -308,13 +312,6 @@ public class SyncreplConsumer implements ConsumerCallback
         Control ctrl = searchDone.getCurrentControl();
         SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) ctrl.getControlValue();
 
-        if ( !config.isRefreshPersist() )
-        {
-        	// Now, switch to refreshAndPresist
-            config.setRefreshPersist( true );
-            LOG.debug( "Swithing to RefreshAndPersist" );
-        }
-
         if ( syncDoneCtrl.getCookie() != null )
         {
             syncCookie = syncDoneCtrl.getCookie();
@@ -323,6 +320,32 @@ public class SyncreplConsumer implements ConsumerCallback
         else
         {
             LOG.info( "cookie in syncdone message is null" );
+        }
+
+        if ( !config.isRefreshPersist() )
+        {
+            // Now, switch to refreshAndPresist
+            config.setRefreshPersist( true );
+            LOG.debug( "Swithing to RefreshAndPersist" );
+         
+            try
+            {
+                // the below call is required to send the updated cookie
+                // and refresh mode change (i.e to refreshAndPersist stage)
+                // cause while the startSync() method sleeps even after the 'sync done'
+                // message arrives as part of initial searchRequest with 'refreshOnly' mode.
+                // During this sleep time any 'modifications' happened on the server 
+                // to already fetched entries will be sent as SearchResultEntries with
+                // SyncState value as 'ADD' which will conflict with the DNs of initially received entries
+                
+                // TODO thinking of alternative ways to implement this in case of large DITs 
+                // where the modification to entry(ies) can happen before the initial sync is done
+                doSyncSearch();
+            }
+            catch( Exception e )
+            {
+                LOG.error( "Failed to send a search request with RefreshAndPersist mode", e );
+            }
         }
 
         LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
@@ -356,8 +379,8 @@ public class SyncreplConsumer implements ConsumerCallback
 
             SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
 
-            LOG.debug( "state name {}" + state.name() );
-            LOG.debug( "entryUUID = " + UUID.nameUUIDFromBytes( syncStateCtrl.getEntryUUID() ) );
+            LOG.debug( "state name {}", state.name() );
+            LOG.debug( "entryUUID = {}", UUID.nameUUIDFromBytes( syncStateCtrl.getEntryUUID() ) );
             CoreSession session = directoryService.getAdminSession();
 
             switch ( state )
@@ -389,13 +412,13 @@ public class SyncreplConsumer implements ConsumerCallback
 	                    if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
 	                    {
 	                        mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
+	                        remoteEntry.remove( remoteAttr );
 	                    }
 	                    else
 	                    {
 	                        mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
 	                    }
 	                
-	                    remoteEntry.remove( remoteAttr );
 	                    mods.add( mod );
 	                }
 	
@@ -465,9 +488,6 @@ public class SyncreplConsumer implements ConsumerCallback
 
     /**
      * starts the syn operation
-     * 
-     * TODO should run in a separate thread
-     * 
      */
     public void startSync()
     {
@@ -476,70 +496,73 @@ public class SyncreplConsumer implements ConsumerCallback
             return;
         }
 
-        try
+        int pass = 1;
+
+        // continue till refreshAndPersist mode is not set
+        while( !config.isRefreshPersist() )
         {
-            int pass = 1;
-
-            do
-            {
-                if( config.isRefreshPersist() )
-                {
-                    syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
-                }
-
-                if ( syncCookie != null )
-                {
-                    syncReq.setCookie( syncCookie );
-                }
-                
-                searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
-                
-                try
-                {
-                	if ( config.isRefreshPersist() )
-                	{
-                		LOG.debug( "==================== Refresh And Persist ==========" );
-                	}
-                	else
-                	{
-                		LOG.debug( "==================== Initial Content ==========" );
-                	}
-                    
-                    if ( ( syncReq.getCookie() == null ) || ( syncReq.getCookie().length == 0 ) )
-                    {
-                    	LOG.debug( "First search (no cookie)" );
-                    }
-                    else
-                    {
-                    	LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncReq.getCookie() ) );
-                    }
-                    
-                    connection.search( searchRequest );
-
-                    if ( !config.isRefreshPersist() )
-                    {
-                        LOG.info( "--------------------- Sleep for a little while ------------------" );
-                        Thread.sleep( config.getConsumerInterval() );
-                        LOG.debug( "--------------------- syncing again ------------------" );
-                    }
-
-                }
-                catch ( Exception e )
-                {
-                    LOG.error( "Failed to sync", e );
-                }
-            }
-            while( syncReq.getMode() != SynchronizationModeEnum.REFRESH_AND_PERSIST );// end of while loop
             
-            LOG.debug( "**************** Done with the sync ***************" );
+            try
+            {
+                if ( config.isRefreshPersist() )
+                {
+                    LOG.debug( "==================== Refresh And Persist ==========" );
+                }
+                else
+                {
+                    LOG.debug( "==================== Initial Content ==========" );
+                }
+                
+                if ( ( syncReq.getCookie() == null ) || ( syncReq.getCookie().length == 0 ) )
+                {
+                    LOG.debug( "First search (no cookie)" );
+                }
+                else
+                {
+                    LOG.debug( "searching with searchRequest, cookie '{}'", StringTools.utf8ToString( syncReq.getCookie() ) );
+                }
+                
+                doSyncSearch();
+
+                LOG.info( "--------------------- Sleep for a little while ------------------" );
+                Thread.sleep( config.getConsumerInterval() );
+                LOG.debug( "--------------------- syncing again ------------------" );
+
+            }
+            catch ( Exception e )
+            {
+                LOG.error( "Failed to sync with refresh only mode", e );
+            }
         }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
+        
+        LOG.debug( "**************** Done with the initial sync ***************" );
     }
 
+    
+    /**
+     * 
+     * performs a search on connection with updated syncrequest control.
+     *
+     * @throws Exception in case of any problems encountered while searching
+     */
+    private void doSyncSearch() throws Exception
+    {
+        if( config.isRefreshPersist() )
+        {
+            syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
+        }
 
+        if ( syncCookie != null )
+        {
+            syncReq.setCookie( syncCookie );
+        }
+        
+        searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
+
+        connection.search( searchRequest );
+    }
+
+    
     public void disconnet()
     {
         try
