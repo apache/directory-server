@@ -1073,4 +1073,15 @@ public class GeneralizedTimeTest extends TestCase
         assertFalse( generalizedTime1.equals( null ) );
     }
 
+    /**
+     * Tests DIRSHARED-29 (GeneralizedTime.toString() generates wrong output 
+     * when TimeZone has hours < 10 and minutes > 10).
+     */
+    public void testDIRSHARED29() throws ParseException
+    {
+        String gt = "20090312123456+0130";
+        GeneralizedTime generalizedTime = new GeneralizedTime( gt );
+        String result = generalizedTime.toGeneralizedTime();
+        assertEquals( gt, result );
+    }
 }

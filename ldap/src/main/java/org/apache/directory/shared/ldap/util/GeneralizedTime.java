@@ -677,7 +677,7 @@ public class GeneralizedTime implements Comparable<GeneralizedTime>
 
             if ( timeZoneFormat == TimeZoneFormat.DIFF_HOUR_MINUTE || timeZoneFormat == TimeZoneFormat.Z )
             {
-                if ( hour < 10 )
+                if ( minute < 10 )
                 {
                     sb.append( '0' );
                 }
