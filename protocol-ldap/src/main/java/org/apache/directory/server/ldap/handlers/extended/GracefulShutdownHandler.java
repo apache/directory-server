@@ -201,7 +201,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             try
             {
-                future.join( 1000 );
+                future.awaitUninterruptibly( 1000 );
             }
             catch ( Exception e )
             {
@@ -253,7 +253,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             try
             {
-                future.join( 1000 );
+                future.awaitUninterruptibly( 1000 );
                 sessionIt.next().close( true );
             }
             catch ( Exception e )
