@@ -111,14 +111,14 @@ public class BootstrapPlugin extends AbstractMojo
     /**
      * The package to put the db file entry listing info as well as the partition.
      *
-     * @parameter expression="org.apache.directory.server.schema.bootstrap.partition"
+     * @parameter default-value="org.apache.directory.server.schema.bootstrap.partition"
      */
     private String outputPackage;
 
     /**
      * The file name to use for the package listing.
      *
-     * @parameter expression="DBFILES"
+     * @parameter default-value="DBFILES"
      */
     private String listingFileName;
 
@@ -126,7 +126,7 @@ public class BootstrapPlugin extends AbstractMojo
      * The target directory into which the plugin generates schema partion files
      * within the specified outputPackage.
      *
-     * @parameter expression="target/classes"
+     * @parameter expression="${project.build.outputDirectory}" default-value="${project.build.outputDirectory}"
      */
     private File outputDirectory;
 

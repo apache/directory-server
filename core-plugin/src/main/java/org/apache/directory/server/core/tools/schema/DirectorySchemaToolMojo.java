@@ -58,25 +58,25 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 {
     /**
      * The directory containing the OpenLDAP schema files.
-     * @parameter expression="src/main/schema"
+     * @parameter default-value="${project.basedir}/src/main/schema"
      */
     private File sourceDirectory;
 
     /**
      * The target directory into which the plugin generates schema java sources.
-     * @parameter expression="target/generated-sources"
+     * @parameter default-value="${project.build.directory}/generated-sources"
      */
     private File outputDirectory;
 
     /**
      * The default package to use for generated schema classes.
-     * @parameter expression="org.apache.directory.server.schema.bootstrap"
+     * @parameter default-value="org.apache.directory.server.schema.bootstrap"
      */
     private String defaultPackage;
 
     /**
      * The distinguished name of the default schema owner.
-     * @parameter expression="uid=admin,ou=system"
+     * @parameter default-value="uid=admin,ou=system"
      */
     private String defaultOwner;
 
@@ -88,13 +88,13 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
     /**
      * Toggles verbose output.
-     * @parameter expression="true"
+     * @parameter default-value="true"
      */
     private boolean verboseOutput;
 
     /**
      * POM
-     * @parameter expression="${project}"
+     * @parameter expression="${project}" default-value="${project}"
      * @required
      */
     private MavenProject project;
