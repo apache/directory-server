@@ -351,6 +351,34 @@ public interface SchemaConstants
     // DisplayName
     String DISPLAY_NAME_AT = "displayName";
     String DISPLAY_NAME_AT_OID = "2.16.840.1.113730.3.1.241";
+
+    // governingStructureRule
+    String GOVERNING_STRUCTURE_RULE_AT = "governingStructureRule";
+    String GOVERNING_STRUCTURE_RULE_AT_OID = "2.5.21.10";
+
+    // entryUUID
+    String ENTRY_UUID_AT = "entryUUID";
+    String ENTRY_UUID_AT_OID = "1.3.6.1.1.16.4";
+
+    // entryCSN
+    String ENTRY_CSN_AT = "entryCSN";
+    // no official OID in RFCs
+
+    // entryDN
+    String ENTRY_DN_AT = "entryDN";
+    String ENTRY_DN_AT_OID = "1.3.6.1.1.20";
+
+    // hasSubordinates
+    String HAS_SUBORDINATES_AT = "hasSubordinates";
+    String HAS_SUBORDINATES_AT_OID = "2.5.18.9";
+
+    // numSubordinates, by Sun
+    String NUM_SUBORDINATES_AT = "numSubordinates";
+    // no official OID in RFCs
+
+    // subordinateCount, by Novell
+    String SUBORDINATE_COUNT_AT = "subordinateCount";
+    // no official OID in RFCs
     
     // ---- Syntaxes -----------------------------------------------------
 
