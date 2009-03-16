@@ -72,7 +72,10 @@ public class DefaultJournalStore implements JournalStore
      */
     public void init( DirectoryService service ) throws Exception
     {
-        workingDirectory = service.getWorkingDirectory();
+        if ( workingDirectory == null )
+        {
+            workingDirectory = service.getWorkingDirectory();
+        }
 
         /** Load or create the journal file */
         if ( fileName == null )
@@ -223,5 +226,14 @@ public class DefaultJournalStore implements JournalStore
     public void setFileName( String fileName )
     {
         this.fileName = fileName;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setWorkingDirectory( String workingDirectoryName )
+    {
+        this.workingDirectory = new File( workingDirectoryName );
     }
 }

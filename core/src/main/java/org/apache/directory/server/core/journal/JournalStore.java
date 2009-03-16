@@ -98,4 +98,17 @@ public interface JournalStore
      * @throws Exception if there are problems logging the nack
      */
     boolean nack( long revision );
+    
+    
+    /**
+     * @param fileName the fileName to set
+     */
+    void setFileName( String fileName );
+    
+    
+    /**
+     * @param workingDirectory The working directory in which the journal file
+     * will be stored
+     */
+    void setWorkingDirectory( String workingDirectory );
 }

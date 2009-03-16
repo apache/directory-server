@@ -18,8 +18,6 @@
  */
 package org.apache.directory.server.core.journal;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
