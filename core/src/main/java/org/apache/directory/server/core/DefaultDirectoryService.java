@@ -257,16 +257,41 @@ public class DefaultDirectoryService implements DirectoryService
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
     public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
+    /** The instance Id */
     private String instanceId;
+    
+    /** The server working directory */
     private File workingDirectory = new File( "server-work" );
+    
+    /** 
+     * A flag used to shutdown the VM when stopping the server. Useful
+     * when the server is standalone. If the server is embedded, we don't
+     * want to shutdown the VM
+     */
     private boolean exitVmOnShutdown = true; // allow by default
+    
+    /** A flag used to indicate that a shutdown hook has been installed */
     private boolean shutdownHookEnabled = true; // allow by default
+    
+    /** Manage anonymous access to entries other than the RootDSE */
     private boolean allowAnonymousAccess = true; // allow by default
+    
+    /** Manage the basic access control checks */
     private boolean accessControlEnabled; // off by default
+    
+    /** Manage the operational attributes denormalization */
     private boolean denormalizeOpAttrsEnabled; // off by default
+    
+    /** The list of declared interceptors */
     private List<Interceptor> interceptors;
+    
+    /** The System partition */
     private Partition systemPartition;
+    
+    /** The set of all declared partitions */
     private Set<Partition> partitions = new HashSet<Partition>();
+    
+    /** A list of LDIF entries to inject at startup */
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
     private EventService eventService;
 
@@ -509,12 +534,19 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * return true if the operational attributes must be normalized when returned
+     */
     public boolean isDenormalizeOpAttrsEnabled()
     {
         return denormalizeOpAttrsEnabled;
     }
 
 
+    /**
+     * Sets whether the operational attributes are denormalized when returned
+     * @param denormalizeOpAttrsEnabled The flag value
+     */
     public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
     {
         this.denormalizeOpAttrsEnabled = denormalizeOpAttrsEnabled;
@@ -1695,6 +1727,14 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void setReplicaId( int replicaId )
     {
-        this.replicaId = replicaId;
+        if ( ( replicaId < 0 ) || ( replicaId > 999 ) )
+        {
+            LOG.error( "The replicaId must be in [0, 999]" );
+            this.replicaId = 0;
+        }
+        else
+        {
+            this.replicaId = replicaId;
+        }
     }
 }
