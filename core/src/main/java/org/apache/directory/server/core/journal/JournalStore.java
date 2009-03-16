@@ -101,12 +101,16 @@ public interface JournalStore
     
     
     /**
+     * The file name to use as the journal file. Default to 
+     * 'journal.ldif'
      * @param fileName the fileName to set
      */
     void setFileName( String fileName );
     
     
     /**
+     * The working directory on which the journal file will be stored. Default
+     * to 'server-work'
      * @param workingDirectory The working directory in which the journal file
      * will be stored
      */
