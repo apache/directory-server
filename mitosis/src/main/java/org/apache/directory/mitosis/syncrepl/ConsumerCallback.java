@@ -70,4 +70,11 @@ public interface ConsumerCallback
      * @param searchRef the SearchResultReference message
      */
     void handleSearchReference( SearchResultReference searchRef );
+    
+    
+    /**
+     * tries to reconnect and resume sync operation with the configured master server
+     * when an existing session is closed.
+     */
+    void handleSessionClosed();
 }

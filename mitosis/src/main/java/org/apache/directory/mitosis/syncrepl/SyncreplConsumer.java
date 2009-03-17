@@ -487,32 +487,60 @@ public class SyncreplConsumer implements ConsumerCallback
 
 
     /**
+     * {@inheritDoc}
+     */
+    public void handleSessionClosed()
+    {
+        boolean connected = false;
+        
+        while( !connected )
+        {
+            try
+            {
+                Thread.sleep( config.getConsumerInterval() );
+            }
+            catch( InterruptedException e )
+            {
+                LOG.error( "Interrupted while sleeping before trying to reconnect", e );
+            }
+
+            LOG.debug( "Trying to reconnect" );
+            connected = connect();
+        }
+        
+        bind();
+        startSync();
+    }
+
+
+    /**
      * starts the syn operation
      */
     public void startSync()
     {
-        if ( searchRequest == null )
+        if( config.isRefreshPersist() )
         {
+            try
+            {
+                LOG.debug( "==================== Refresh And Persist ==========" );
+                doSyncSearch();    
+            }
+            catch( Exception e )
+            {
+                LOG.error( "Failed to sync with refreshAndPersist mode", e );
+            }
+            
             return;
         }
-
-        int pass = 1;
-
+        
         // continue till refreshAndPersist mode is not set
         while( !config.isRefreshPersist() )
         {
             
+            LOG.debug( "==================== Refresh Only ==========" );
+            
             try
             {
-                if ( config.isRefreshPersist() )
-                {
-                    LOG.debug( "==================== Refresh And Persist ==========" );
-                }
-                else
-                {
-                    LOG.debug( "==================== Initial Content ==========" );
-                }
-                
                 if ( ( syncReq.getCookie() == null ) || ( syncReq.getCookie().length == 0 ) )
                 {
                     LOG.debug( "First search (no cookie)" );

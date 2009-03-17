@@ -699,6 +699,7 @@ public class LdapConnectionImpl extends IoHandlerAdapter implements LdapConnecti
     public void sessionClosed(IoSession session) throws Exception 
     {
         LOG.debug( "-------> Session Closed <-------" );
+        consumer.handleSessionClosed();
     }
 
     
