@@ -43,7 +43,7 @@ public class SyncreplConfiguration
     private String credentials;
 
     /** flag to represent refresh and persist or refreh only mode */
-    private boolean refreshPersist = false;
+    private boolean refreshPersist = true;
 
     /** time interval for successive sync requests */
     private long consumerInterval = 5 * 1000;

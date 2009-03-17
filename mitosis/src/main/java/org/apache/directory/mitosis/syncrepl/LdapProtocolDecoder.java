@@ -100,7 +100,11 @@ public class LdapProtocolDecoder implements ProtocolDecoder
                     // Clean the container for the next decoding
                     ( ( LdapMessageContainer ) ldapMessageContainer).clean();
                     
-                    System.out.println( "Decoded message : " + message );
+                    if( IS_DEBUG )
+                    {
+//                        LOG.debug( "######################Decoded message : " + message );
+//                        LOG.debug( "####################################################" );
+                    }
                     
                     // Send back the message
                     out.write( message );
