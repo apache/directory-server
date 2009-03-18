@@ -104,6 +104,8 @@ public class SyncreplConsumer implements ConsumerCallback
     /** the cookie file */
     private File cookieFile;
     
+    /** flag to indicate whether the consumer was diconncted */
+    private boolean disconnected;
     
     /**
      * @return the config
@@ -394,7 +396,7 @@ public class SyncreplConsumer implements ConsumerCallback
 	                    LOG.debug( remoteEntry.toString() );
 	                    session.add( new DefaultServerEntry( directoryService.getRegistries(), remoteEntry ) );
 	                }
-	                
+
 	                break;
             
             	case MODIFY :
@@ -493,6 +495,11 @@ public class SyncreplConsumer implements ConsumerCallback
      */
     public void handleSessionClosed()
     {
+        if( disconnected )
+        {
+            return;
+        }
+        
         boolean connected = false;
         
         while( !connected )
@@ -598,6 +605,8 @@ public class SyncreplConsumer implements ConsumerCallback
     
     public void disconnet()
     {
+        disconnected = true;
+
         try
         {
             connection.unBind();
@@ -613,6 +622,7 @@ public class SyncreplConsumer implements ConsumerCallback
         {
             LOG.error( "Failed to close the connection", e );
         }
+        
     }
 
 
