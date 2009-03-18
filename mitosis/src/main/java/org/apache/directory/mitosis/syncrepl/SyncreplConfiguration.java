@@ -68,6 +68,9 @@ public class SyncreplConfiguration
     /** the search scope */
     private int searchScope = SearchScope.ONELEVEL.getJndiScope();
 
+    /** the replica's id */
+    private int replicaId;
+    
     /**
      * @return the providerHost
      */
@@ -258,6 +261,22 @@ public class SyncreplConfiguration
     public void setSearchScope( int searchScope )
     {
         this.searchScope = searchScope;
+    }
+
+    /**
+     * @return the replicaId
+     */
+    public int getReplicaId()
+    {
+        return replicaId;
+    }
+
+    /**
+     * @param replicaId the replicaId to set
+     */
+    public void setReplicaId( int replicaId )
+    {
+        this.replicaId = replicaId;
     }
 
     

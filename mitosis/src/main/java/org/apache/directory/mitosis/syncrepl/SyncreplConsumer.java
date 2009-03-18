@@ -21,23 +21,18 @@ package org.apache.directory.mitosis.syncrepl;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.ldap.LdapService;
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.Control;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
@@ -66,7 +61,6 @@ import org.apache.directory.shared.ldap.message.control.replication.SyncStateTyp
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +101,10 @@ public class SyncreplConsumer implements ConsumerCallback
     /** the decoder for syncinfovalue control */
     private SyncInfoValueControlDecoder decoder = new SyncInfoValueControlDecoder();
 
-
+    /** the cookie file */
+    private File cookieFile;
+    
+    
     /**
      * @return the config
      */
@@ -152,6 +149,11 @@ public class SyncreplConsumer implements ConsumerCallback
     public void init( DirectoryService directoryservice )
     {
         this.directoryService = directoryservice;
+
+        File cookieDir = new File( "cookies" );
+        cookieDir.mkdir();
+        
+        cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
     }
 
 
@@ -518,6 +520,9 @@ public class SyncreplConsumer implements ConsumerCallback
      */
     public void startSync()
     {
+        // read the cookie if persisted
+        readCookie();
+        
         if( config.isRefreshPersist() )
         {
             try
@@ -601,8 +606,8 @@ public class SyncreplConsumer implements ConsumerCallback
             connection.close();
             LOG.info( "Connection closed for the server {}", config.getProviderHost() );
 
-            directoryService.shutdown();
-            LOG.info( "stopped directory service" );
+            // persist the cookie
+            storeCookie();
         }
         catch ( Exception e )
         {
@@ -611,79 +616,65 @@ public class SyncreplConsumer implements ConsumerCallback
     }
 
 
-    private void startEmbeddedServer( File workDir )
+    /**
+     * stores the cookie in a file.
+     */
+    private void storeCookie()
+    {
+        if( syncCookie == null )
+        {
+            return;
+        }
+        
+        try
+        {
+            FileOutputStream fout = new FileOutputStream( cookieFile );
+            fout.write( syncCookie.length );
+            fout.write( syncCookie );
+            fout.close();
+            
+            LOG.debug( "stored the cookie" );
+        }
+        catch( Exception e )
+        {
+            LOG.error( "Failed to store the cookie", e );
+        }
+    }
+    
+
+    /**
+     * read the cookie from a file(if exists).
+     */
+    private void readCookie()
     {
         try
         {
-            directoryService = new DefaultDirectoryService();
-            directoryService.setShutdownHookEnabled( false );
-            directoryService.setWorkingDirectory( workDir );
-            int consumerPort = AvailablePortFinder.getNextAvailable( 1024 );
-            LdapService ldapService = new LdapService();
-            ldapService.setTcpTransport( new TcpTransport( consumerPort ) );
-            ldapService.setDirectoryService( directoryService );
-
-            LdapDN suffix = new LdapDN( config.getBaseDn() );
-            JdbmPartition partition = new JdbmPartition();
-            partition.setSuffix( suffix.getUpName() );
-            partition.setId( "syncrepl" );
-            partition.setSyncOnWrite( true );
-            partition.init( directoryService );
-
-            directoryService.addPartition( partition );
-
-            directoryService.startup();
-
-            ldapService.addExtendedOperationHandler( new StartTlsHandler() );
-            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
-
-            ldapService.start();
+            if( cookieFile.exists() && cookieFile.length() > 0 )
+            {
+                FileInputStream fin = new FileInputStream( cookieFile );
+                syncCookie = new byte[ fin.read() ];
+                fin.read( syncCookie );
+                fin.close();
+                
+                LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
+            }
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
-            e.printStackTrace();
+            LOG.error( "Failed to read the cookie", e );
         }
     }
 
-
+    
     /**
-     * The main starting point
+     * deletes the cookie file(if exists) 
      */
-    public static void main( String[] args ) throws Exception
+    public void deleteCookieFile()
     {
-        final SyncreplConsumer agent = new SyncreplConsumer();
-
-        SyncreplConfiguration config = new SyncreplConfiguration();
-        config.setProviderHost( "localhost" );
-        config.setPort( 389 );
-        config.setBindDn( "cn=admin,dc=nodomain" );
-        config.setCredentials( "secret" );
-        config.setBaseDn( "dc=test,dc=nodomain" );
-        config.setFilter( "(objectclass=*)" );
-        config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
-
-        agent.setConfig( config );
-
-        final File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/work" );
-
-        if ( workDir.exists() )
+        if( cookieFile.exists() )
         {
-            FileUtils.forceDelete( workDir );
+            LOG.debug( "deleting the cookie file" );
+            cookieFile.delete();
         }
-        else
-        {
-            workDir.mkdirs();
-        }
-
-        agent.startEmbeddedServer( workDir );
-
-        agent.connect();
-        agent.bind();
-        agent.prepareSyncSearchRequest();
-        
-        // Do the initial content sync
-        agent.startSync();
-        
-        
     }
 }
