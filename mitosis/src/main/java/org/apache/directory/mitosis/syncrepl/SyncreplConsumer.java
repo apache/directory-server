@@ -150,7 +150,7 @@ public class SyncreplConsumer implements ConsumerCallback
     {
         this.directoryService = directoryservice;
 
-        File cookieDir = new File( "cookies" );
+        File cookieDir = new File( directoryservice.getWorkingDirectory(), "cookies" );
         cookieDir.mkdir();
         
         cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
@@ -671,7 +671,7 @@ public class SyncreplConsumer implements ConsumerCallback
      */
     public void deleteCookieFile()
     {
-        if( cookieFile.exists() )
+        if( cookieFile != null && cookieFile.exists() )
         {
             LOG.debug( "deleting the cookie file" );
             cookieFile.delete();
