@@ -28,7 +28,7 @@
   </parent>
   <artifactId>apacheds-all</artifactId>
   <name>ApacheDS All</name>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
@@ -36,63 +36,16 @@
       <artifactId>apacheds-server-jndi</artifactId>
       <version>${pom.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-ntp</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-dns</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-dhcp</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
       <version>${pom.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.osgi.core</artifactId>
-      <version>1.2.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <exclusions>
-          <exclusion>
-              <groupId>commons-logging</groupId>
-              <artifactId>commons-logging</artifactId>
-          </exclusion>
-      </exclusions>
-    </dependency>
-      <dependency>
-          <groupId>org.springframework.osgi</groupId>
-          <artifactId>spring-osgi-extender</artifactId>
-          <version>1.2.0-rc1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-          <groupId>org.springframework.osgi</groupId>
-          <artifactId>spring-osgi-core</artifactId>
-          <version>1.2.0-rc1-SNAPSHOT</version>
-      </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
-<!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -134,35 +87,7 @@
           </execution>
         </executions>
       </plugin>
--->
 
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.0.0</version>
-        <extensions>true</extensions>
-          <configuration>
-              <instructions>
-                  <Bundle-Name>Apache Directory Server</Bundle-Name>
-                  <Bundle-Description>Apache Directory Server - An LDAP v3 Server implementation</Bundle-Description>
-                  <Bundle-SymbolicName>org.apache.directory.server</Bundle-SymbolicName>
-                  <Export-Package>jdbm.*,
-                      org.apache.directory.*;version=${pom.version},
-                      '=META-INF.services.org.apache.xbean.spring.http.apacheds.org.config'
-                  </Export-Package>
-                  <Import-Package>
-                      org.apache.xbean*;resolution:=optional,
-                      org.apache.xbean.spring.context.v2,
-                      org.springframework.beans.factory.xml;resolution:=optional,
-                      org.springframework*;resolution:=optional,
-                      org.bouncycastle*;resolution:=optional,
-                      *
-                  </Import-Package>
-                  <_failok>true</_failok>
-              </instructions>
-              <unpackBundle>true</unpackBundle>
-          </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
