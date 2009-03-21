@@ -106,6 +106,9 @@ public class SyncreplConsumer implements ConsumerCallback
     
     /** flag to indicate whether the consumer was diconncted */
     private boolean disconnected;
+
+    /** the core session */
+    private CoreSession session;
     
     /**
      * @return the config
@@ -148,7 +151,7 @@ public class SyncreplConsumer implements ConsumerCallback
     }
 
 
-    public void init( DirectoryService directoryservice )
+    public void init( DirectoryService directoryservice ) throws Exception
     {
         this.directoryService = directoryservice;
 
@@ -156,6 +159,8 @@ public class SyncreplConsumer implements ConsumerCallback
         cookieDir.mkdir();
         
         cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
+        
+        session = directoryService.getAdminSession();
     }
 
 
@@ -385,7 +390,6 @@ public class SyncreplConsumer implements ConsumerCallback
 
             LOG.debug( "state name {}", state.name() );
             LOG.debug( "entryUUID = {}", UUID.nameUUIDFromBytes( syncStateCtrl.getEntryUUID() ) );
-            CoreSession session = directoryService.getAdminSession();
 
             switch ( state )
             {
@@ -400,48 +404,12 @@ public class SyncreplConsumer implements ConsumerCallback
 	                break;
             
             	case MODIFY :
-	                Entry localEntry = session.lookup( remoteEntry.getDn() );
-	                LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
-	
-	                List<Modification> mods = new ArrayList<Modification>();
-	                Iterator<EntryAttribute> itr = localEntry.iterator();
-	             
-	                while ( itr.hasNext() )
-	                {
-	                    EntryAttribute localAttr = itr.next();
-	                    String attrId = localAttr.getId();
-	                    Modification mod;
-	                    EntryAttribute remoteAttr = remoteEntry.get( attrId );
-	                    
-	                    if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
-	                    {
-	                        mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
-	                        remoteEntry.remove( remoteAttr );
-	                    }
-	                    else
-	                    {
-	                        mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
-	                    }
-	                
-	                    mods.add( mod );
-	                }
-	
-	                if( remoteEntry.size() > 0 )
-	                {
-	                    itr = remoteEntry.iterator();
-	                    while( itr.hasNext() )
-	                    {
-	                        mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
-	                    }
-	                }
-	                
-	                session.modify( remoteEntry.getDn(), mods );
-	                
+	                modify( remoteEntry );
 	                break;
 
             	case DELETE :
 	                LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getUpName() );
-	                directoryService.getAdminSession().delete( remoteEntry.getDn() );
+	                session.delete( remoteEntry.getDn() );
 	                break;
             }
         }
@@ -476,8 +444,27 @@ public class SyncreplConsumer implements ConsumerCallback
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
 
-            LOG.info( "The uuid list " + uuidList );// receives a list of UUIDs of the entries what to do with them???
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
+            if( uuidList != null )
+            {
+                for( byte[] uuid : uuidList )
+                {
+                    LOG.info( "uuid: {}", StringTools.utf8ToString( uuid ) );
+                }
+            }
+
+            // if refreshDeletes set to true then delete all the entries with entryUUID
+            // present in the syncIdSet 
+            if( syncInfoValue.isRefreshDeletes() && ( uuidList != null ) )
+            {
+                for( byte[] uuid : uuidList )
+                {
+                    // TODO similar to delete based on DN there should be 
+                    // a method to delete an Entry based on entryUUID
+                    LOG.debug( "FIXME deleting the entry with entryUUID: {}", UUID.nameUUIDFromBytes( uuid ) );
+                }
+            }
+            
             LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
         }
         catch ( DecoderException de )
@@ -665,7 +652,6 @@ public class SyncreplConsumer implements ConsumerCallback
                 syncCookie = new byte[ fin.read() ];
                 fin.read( syncCookie );
                 fin.close();
-                
                 LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
             }
         }
@@ -686,5 +672,47 @@ public class SyncreplConsumer implements ConsumerCallback
             LOG.debug( "deleting the cookie file" );
             cookieFile.delete();
         }
+    }
+    
+    
+    private void modify( Entry remoteEntry ) throws Exception 
+    {
+        LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getUpName() );
+        
+        Entry localEntry = session.lookup( remoteEntry.getDn() );
+        
+        List<Modification> mods = new ArrayList<Modification>();
+        Iterator<EntryAttribute> itr = localEntry.iterator();
+     
+        while ( itr.hasNext() )
+        {
+            EntryAttribute localAttr = itr.next();
+            String attrId = localAttr.getId();
+            Modification mod;
+            EntryAttribute remoteAttr = remoteEntry.get( attrId );
+            
+            if (  remoteAttr != null ) // would be better if we compare the values also? or will it consume more time?
+            {
+                mod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, remoteAttr );
+                remoteEntry.remove( remoteAttr );
+            }
+            else
+            {
+                mod = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, localAttr );
+            }
+        
+            mods.add( mod );
+        }
+
+        if( remoteEntry.size() > 0 )
+        {
+            itr = remoteEntry.iterator();
+            while( itr.hasNext() )
+            {
+                mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, itr.next() ) );
+            }
+        }
+        
+        session.modify( remoteEntry.getDn(), mods );
     }
 }
