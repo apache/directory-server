@@ -28,6 +28,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -62,6 +63,8 @@ public class SyncreplRunnerUI implements ActionListener
     
     private DirectoryService dirService;
     
+    private LdapService ldapService;
+    
     private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class );
     
     // UI components
@@ -90,18 +93,26 @@ public class SyncreplRunnerUI implements ActionListener
     
     public void start()
     {
-        if ( ! workDir.exists() )
+        try
         {
-            workDir.mkdirs();
+            if ( ! workDir.exists() )
+            {
+                workDir.mkdirs();
+            }
+            
+            dirService = startEmbeddedServer( workDir );
+            
+            agent.init( dirService );
+            agent.connect();
+            agent.bind();
+            agent.prepareSyncSearchRequest();
+            agent.startSync();
         }
-
-        dirService = startEmbeddedServer( workDir );
-        
-        agent.init( dirService );
-        agent.connect();
-        agent.bind();
-        agent.prepareSyncSearchRequest();
-        agent.startSync();
+        catch( Exception e )
+        {
+            LOG.error( "Failed to start the embedded server & syncrepl consumer", e );
+            throw new RuntimeException( e );
+        }
     }
 
     public void stop()
@@ -110,6 +121,7 @@ public class SyncreplRunnerUI implements ActionListener
         {
             agent.disconnet();
             dirService.shutdown();
+            ldapService.stop();
         }
         catch( Exception e )
         {
@@ -144,7 +156,7 @@ public class SyncreplRunnerUI implements ActionListener
             dirService.setShutdownHookEnabled( false );
             dirService.setWorkingDirectory( workDir );
             int consumerPort = AvailablePortFinder.getNextAvailable( 1024 );
-            LdapService ldapService = new LdapService();
+            ldapService = new LdapService();
             ldapService.setTcpTransport( new TcpTransport( consumerPort ) );
             ldapService.setDirectoryService( dirService );
 
@@ -177,6 +189,7 @@ public class SyncreplRunnerUI implements ActionListener
     {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        frame.setTitle( "Syncrepl consumer UI" );
         
         btnStart = new JButton( "Start" );
         btnStart.setMnemonic( 'S' );
@@ -220,13 +233,26 @@ public class SyncreplRunnerUI implements ActionListener
         {
             btnStart.setEnabled( false );
             btnCleanStart.setEnabled( false );
-            start();
+            SwingUtilities.invokeLater( new Runnable()
+            {
+                public void run()
+                {
+                    start();
+                }
+            } );
             btnStop.setEnabled( true );
         }
         else if( src == btnStop )
         {
             btnStop.setEnabled( false );
-            stop();
+            SwingUtilities.invokeLater( new Runnable()
+            {
+                public void run()
+                {
+                    stop();
+                }
+            } );
+
             btnStart.setEnabled( true );
             btnCleanStart.setEnabled( true );
         }
@@ -235,7 +261,13 @@ public class SyncreplRunnerUI implements ActionListener
             btnCleanStart.setEnabled( false );
             btnStart.setEnabled( false );
 
-            cleanStart();
+            SwingUtilities.invokeLater( new Runnable()
+            {
+                public void run()
+                {
+                    cleanStart();
+                }
+            } );
             btnStop.setEnabled( true );
         }
     }
