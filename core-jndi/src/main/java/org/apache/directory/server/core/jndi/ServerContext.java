@@ -21,7 +21,6 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.event.DirectoryListener;
 import org.apache.directory.server.core.event.NotificationCriteria;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.impl.DefaultCoreSession;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;

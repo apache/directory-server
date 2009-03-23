@@ -20,8 +20,8 @@
 package org.apache.directory.server.operations.extended;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;

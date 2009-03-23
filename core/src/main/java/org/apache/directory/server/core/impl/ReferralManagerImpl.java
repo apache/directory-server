@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.impl;
 
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -25,6 +25,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;

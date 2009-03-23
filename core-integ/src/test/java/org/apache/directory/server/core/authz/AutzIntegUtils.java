@@ -21,8 +21,8 @@ package org.apache.directory.server.core.authz;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;

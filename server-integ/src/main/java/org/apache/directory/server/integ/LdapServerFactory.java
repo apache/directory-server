@@ -22,8 +22,8 @@ package org.apache.directory.server.integ;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;

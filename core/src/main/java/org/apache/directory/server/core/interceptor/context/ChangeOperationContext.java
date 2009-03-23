@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.impl.DefaultDirectoryService.LogChange;
 
 
 /**

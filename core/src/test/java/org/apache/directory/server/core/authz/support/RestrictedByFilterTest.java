@@ -28,12 +28,12 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RestrictedByFilter;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;

@@ -22,8 +22,6 @@ package org.apache.directory.server.core.authz.support;
 
 import org.apache.directory.server.core.CSN;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultCoreSession;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralHandlingMode;
@@ -39,6 +37,8 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.impl.DefaultCoreSession;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;

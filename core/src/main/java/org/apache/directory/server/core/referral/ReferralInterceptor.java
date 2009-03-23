@@ -23,9 +23,9 @@ package org.apache.directory.server.core.referral;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.ReferralManagerImpl;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
+import org.apache.directory.server.core.impl.ReferralManagerImpl;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;

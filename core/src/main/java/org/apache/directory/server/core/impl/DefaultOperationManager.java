@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.impl;
 
 
 import java.util.ArrayList;
@@ -29,6 +29,8 @@ import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.ServiceUnavailableException;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;

@@ -19,8 +19,8 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 
 
 /**

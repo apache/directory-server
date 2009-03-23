@@ -27,11 +27,11 @@ import java.util.Set;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.impl.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;

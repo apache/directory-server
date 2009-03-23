@@ -17,10 +17,16 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.impl;
 
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CSN;
+import org.apache.directory.server.core.CSNFactory;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
+import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;

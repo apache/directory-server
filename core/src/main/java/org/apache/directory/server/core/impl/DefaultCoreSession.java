@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core;
+package org.apache.directory.server.core.impl;
 
 
 import java.net.SocketAddress;
@@ -29,7 +29,9 @@ import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
@@ -37,6 +39,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.impl.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.interceptor.context.AbstractOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;

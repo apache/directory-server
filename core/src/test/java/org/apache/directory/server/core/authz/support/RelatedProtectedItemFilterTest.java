@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RelatedProtectedItemFilter;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;

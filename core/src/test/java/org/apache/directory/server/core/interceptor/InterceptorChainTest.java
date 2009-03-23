@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 
 import org.apache.directory.server.core.CSN;
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralManager;
@@ -32,6 +31,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.impl.DefaultCoreSession;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.ByPassConstants;

@@ -24,8 +24,8 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.impl.DefaultDirectoryService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.slf4j.Logger;
