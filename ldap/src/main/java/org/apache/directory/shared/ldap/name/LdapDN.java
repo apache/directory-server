@@ -629,10 +629,11 @@ public class LdapDN implements Name, Externalizable
 
             // Ok, iterate through all the RDN of the name,
             // starting a the end of the current list.
+            int starting = size() - name.size();
 
             for ( int i = name.size() - 1; i >= 0; i-- )
             {
-                Rdn ldapRdn = rdns.get( rdns.size() - i - 1 );
+                Rdn ldapRdn = rdns.get( i + starting );
                 Rdn nameRdn = null;
 
                 try

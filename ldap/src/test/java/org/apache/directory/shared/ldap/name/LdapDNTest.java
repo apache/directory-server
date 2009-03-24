@@ -2067,6 +2067,15 @@ public class LdapDNTest
         assertTrue( !name0.startsWith( name6 ) );
         assertTrue( !name0.startsWith( name7 ) );
         assertTrue( !name0.startsWith( name8 ) );
+
+        assertTrue( "Starting DN fails with ADS LdapDN", 
+            new LdapDN( "ou=foo,dc=apache,dc=org" ).startsWith( new LdapDN( "dc=apache,dc=org" ) ) );
+        
+        assertTrue( "Starting DN fails with Java LdapName", 
+            new LdapDN( "ou=foo,dc=apache,dc=org" ).startsWith( new LdapName( "dc=apache,dc=org" ) ) );
+
+        assertTrue( "Starting DN fails with Java LdapName", 
+            new LdapDN( "dc=apache,dc=org" ).startsWith( new LdapName( "dc=apache,dc=org" ) ) );
     }
 
 
