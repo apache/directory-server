@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.authn;
+package org.apache.directory.server.core;
 
 
 import java.io.Externalizable;

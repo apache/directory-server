@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
