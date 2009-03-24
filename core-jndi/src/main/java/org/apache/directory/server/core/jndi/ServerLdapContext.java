@@ -30,7 +30,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;

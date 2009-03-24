@@ -22,8 +22,8 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
