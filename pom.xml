@@ -348,6 +348,7 @@
     <module>core-service</module>
     <module>core-jndi</module>
     <module>core-constants</module>
+    <module>core-interceptor</module>
     <module>core-shared</module>
     <module>core-plugin</module>
     <module>core-unit</module>

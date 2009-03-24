@@ -187,13 +187,6 @@ public class DefaultDirectoryService implements DirectoryService
             "all taken into account";
 
     
-    /** A structure telling the changeLog what to do with the incoming change */
-    public enum LogChange
-    {
-        TRUE,  // The change must me stored 
-        FALSE  // The change must not be stred
-    };
-   
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------

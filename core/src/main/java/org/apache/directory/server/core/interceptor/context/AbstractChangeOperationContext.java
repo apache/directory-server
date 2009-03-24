@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.changelog.ChangeLogEvent;
-import org.apache.directory.server.core.impl.DefaultDirectoryService.LogChange;
+import org.apache.directory.server.core.CoreSession.LogChange;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 

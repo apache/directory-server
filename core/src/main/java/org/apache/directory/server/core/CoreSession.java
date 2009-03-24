@@ -31,7 +31,6 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.impl.DefaultDirectoryService.LogChange;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -63,6 +62,13 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
  */
 public interface CoreSession
 {
+    /** A structure telling the changeLog what to do with the incoming change */
+    public enum LogChange
+    {
+        TRUE,  // The change must me stored 
+        FALSE  // The change must not be stred
+    };
+   
     /**
      * Gets the DirectoryService this session is bound to.
      *
