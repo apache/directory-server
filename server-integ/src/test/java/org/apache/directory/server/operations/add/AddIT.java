@@ -50,7 +50,7 @@ import netscape.ldap.LDAPSearchConstraints;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
