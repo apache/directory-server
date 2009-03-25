@@ -40,7 +40,7 @@ import java.util.Set;
 
 
 /**
- * Provides JNDI service to {@link AbstractContextFactory}.
+ * The core, non-networked interface for accessing LDAP entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

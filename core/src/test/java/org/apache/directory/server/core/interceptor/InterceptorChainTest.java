@@ -39,6 +39,7 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.DefaultSchemaService;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -613,15 +614,12 @@ public class InterceptorChainTest extends TestCase
 
         public EventService getEventService()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
 
         public void setEventService( EventService eventService )
         {
-            // TODO Auto-generated method stub
-            
         }
 
         
@@ -668,7 +666,11 @@ public class InterceptorChainTest extends TestCase
         
         public void setReplicaId( int replicaId )
         {
-            
+        }
+
+
+        public void setSchemaService( SchemaService schemaService )
+        {
         }
     }
 }

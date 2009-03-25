@@ -345,7 +345,6 @@
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
     <module>core</module>
-    <module>core-service</module>
     <module>core-service-api</module>
     <module>core-jndi</module>
     <module>core-constants</module>
