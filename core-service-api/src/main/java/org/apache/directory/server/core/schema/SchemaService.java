@@ -53,5 +53,4 @@ public interface SchemaService
      * @throws NamingException if there are failures during schema info access
      */
     public abstract ServerEntry getSubschemaEntry( String[] ids ) throws Exception;
-
 }

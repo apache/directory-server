@@ -81,6 +81,6 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      */
     public boolean isLogChange()
     {
-        return logChange != logChange.FALSE;
+        return logChange != LogChange.FALSE;
     }
 }

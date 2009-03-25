@@ -31,7 +31,7 @@ import javax.naming.ldap.Control;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.ReferralHandlingMode;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;

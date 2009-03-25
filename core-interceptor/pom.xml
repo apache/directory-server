@@ -35,13 +35,11 @@
   </description>
 
   <dependencies>
-    <!--
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>xxxxxxxx</artifactId>
+      <artifactId>apacheds-core-service-api</artifactId>
       <version>${pom.version}</version>
     </dependency>
-    -->
   </dependencies>
 
   <build>

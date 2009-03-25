@@ -62,6 +62,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
@@ -1419,7 +1420,7 @@ public class DefaultDirectoryService implements DirectoryService
         SchemaOperationControl schemaControl = new SchemaOperationControl( registries, schemaLoader,
             new SchemaPartitionDao( schemaPartition, registries ) );
 
-        schemaService = new SchemaService( this, schemaPartition, schemaControl );
+        schemaService = new DefaultSchemaService( this, schemaPartition, schemaControl );
 
         adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );

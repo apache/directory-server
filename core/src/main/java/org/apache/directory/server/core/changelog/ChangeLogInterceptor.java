@@ -40,7 +40,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.schema.DefaultSchemaService;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -74,7 +74,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private ChangeLog changeLog;
     
     /** we need the schema service to deal with special conditions */
-    private DefaultSchemaService schemaService;
+    private SchemaService schemaService;
 
     /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
     private static final String REV_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
