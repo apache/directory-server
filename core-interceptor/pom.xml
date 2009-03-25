@@ -37,7 +37,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-service-api</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>

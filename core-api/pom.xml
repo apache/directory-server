@@ -26,8 +26,8 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.5-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-core-service-api</artifactId>
-  <name>ApacheDS Core Service API</name>
+  <artifactId>apacheds-core-api</artifactId>
+  <name>ApacheDS Core API</name>
   <packaging>jar</packaging>
 
   <description>
