@@ -167,7 +167,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private SchemaOperationControl schemaManager;
 
-    private SchemaService schemaService;
+    private DefaultSchemaService schemaService;
 
     // the base DN (normalized) of the schema partition
     private LdapDN schemaBaseDN;

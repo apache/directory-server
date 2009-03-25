@@ -40,6 +40,12 @@
       <artifactId>apacheds-core-entry</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-cursor</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

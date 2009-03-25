@@ -38,7 +38,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
-import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
@@ -323,13 +323,13 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public SchemaService getSchemaService()
+        public DefaultSchemaService getSchemaService()
         {
             return null;
         }
 
 
-        public void setSchemaService( SchemaService schemaService )
+        public void setSchemaService( DefaultSchemaService schemaService )
         {
 
         }
