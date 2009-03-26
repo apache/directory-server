@@ -51,9 +51,6 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -63,6 +60,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -363,44 +361,11 @@ public class DefaultPartitionNexus extends PartitionNexus
                         + override.getId() + "'." );
             }
             
-            // add all attribute oids of index configs to a hashset
-            if ( override instanceof JdbmPartition )
-            {
-                Set<Index<?,ServerEntry>> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
-                Set<String> indexOids = new HashSet<String>();
-                OidRegistry registry = registries.getOidRegistry();
-
-                for ( Index<?,ServerEntry> index : indices )
-                {
-                    indexOids.add( registry.getOid( index.getAttributeId() ) );
-                }
-
-                if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
-                {
-                    LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
-                            "in the system partition configuration.  This will lead to poor " +
-                            "performance.  The server is automatically adding this index for you." );
-                    JdbmIndex<?,ServerEntry> index = new JdbmIndex<Object,ServerEntry>();
-                    index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
-                    indices.add( index );
-                }
-
-                ( ( JdbmPartition ) override ).setIndexedAttributes( indices );
-            }
-
             system = override;
         }
         else
         {
-            system = new JdbmPartition();
-            system.setId( "system" );
-            system.setCacheSize( 500 );
-            system.setSuffix( ServerDNConstants.SYSTEM_DN );
-    
-            // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
-            ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
+            throw new LdapConfigurationException( "No system partition found" );
         }
 
         system.init( directoryService );
