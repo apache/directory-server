@@ -42,6 +42,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -234,6 +235,10 @@ public class JdbmPartition extends BTreePartition
                 else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_OID ) )
                 {
                     store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
+                }
+                else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+                {
+                    store.addIndex( ( Index<String,ServerEntry> ) index );
                 }
                 else
                 {
