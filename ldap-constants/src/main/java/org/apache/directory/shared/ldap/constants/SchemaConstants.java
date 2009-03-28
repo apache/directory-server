@@ -51,10 +51,18 @@ public interface SchemaConstants
     // Alias
     String ALIAS_OC = "alias";
     String ALIAS_OC_OID = "2.5.6.1";
-    
+
     // Country
     String COUNTRY_OC = "country";
     String COUNTRY_OC_OID = "2.5.6.2";
+
+    // Domain
+    String DOMAIN_OC = "domain";
+    String DOMAIN_OC_OID = "0.9.2342.19200300.100.4.13";
+
+    // DcObject
+    String DC_OBJECT_OC = "dcObject";
+    String DC_OBJECT_OC_OID = "1.3.6.1.4.1.1466.344";
 
     // Locality
     String LOCALITY_OC = "locality";
@@ -71,6 +79,14 @@ public interface SchemaConstants
     // Person
     String PERSON_OC = "person";
     String PERSON_OC_OID = "2.5.6.6";
+
+    // PosixAccount
+    String POSIX_ACCOUNT_OC = "posicAccount";
+    String POSIX_ACCOUNT_OC_OID = "1.3.6.1.1.1.2.0";
+
+    // PosixGroup
+    String POSIX_GROUP_OC = "posixGroup";
+    String POSIX_GROUP_OC_OID = "1.3.6.1.1.1.2.2";
     
     // OrganizationalPerson
     String ORGANIZATIONAL_PERSON_OC = "organizationalPerson";
@@ -120,6 +136,35 @@ public interface SchemaConstants
     String EXTENSIBLE_OBJECT_OC = "extensibleObject";
     String EXTENSIBLE_OBJECT_OC_OID = "1.3.6.1.4.1.1466.101.120.111";
 
+    // Apache Meta Schema
+    String META_TOP_OC = "metaTop";
+    String META_TOP_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.1";
+    String META_OBJECT_CLASS_OC = "metaObjectClass";
+    String META_OBJECT_CLASS_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.2";
+    String META_ATTRIBUTE_TYPE_OC = "metaAttributeType";
+    String META_ATTRIBUTE_TYPE_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.3";
+    String META_SYNTAX_OC = "metaSyntax";
+    String META_SYNTAX_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.4";
+    String META_MATCHING_RULE_OC = "metaMatchingRule";
+    String META_MATCHING_RULE_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.5";
+    String META_DIT_STRUCTURE_RULE_OC = "metaDITStructureRule";
+    String META_DIT_STRUCTURE_RULE_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.6";
+    String META_NAME_FORM_OC = "metaNameForm";
+    String META_NAME_FORM_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.7";
+    String META_MATCHING_RULE_USE_OC = "metaMatchingRuleUse";
+    String META_MATCHING_RULE_USE_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.8";
+    String META_DIT_CONTENT_RULE_OC = "metaDITContentRule";
+    String META_DIT_CONTENT_RULE_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.9";
+    String META_SYNTAX_CHECKER_OC = "metaSyntaxChecker";
+    String META_SYNTAX_CHECKER_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.10";
+    String META_SCHEMA_OC = "metaSchema";
+    String META_SCHEMA_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.11";
+    String META_NORMALIZER_OC = "metaNormalizer";
+    String META_NORMALIZER_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.12";
+    String META_COMPARATOR_OC = "metaComparator";
+    String META_COMPARATOR_OC_OID = "1.3.6.1.4.1.18060.0.4.0.3.13";
+    
+    
     // ---- AttributeTypes ----------------------------------------------------
     // ObjectClass
     String OBJECT_CLASS_AT = "objectClass";
