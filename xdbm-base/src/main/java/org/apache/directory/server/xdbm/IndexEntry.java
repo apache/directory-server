@@ -73,7 +73,7 @@ public interface IndexEntry<V,O>
      *
      * @return the underlying tuple
      */
-    Tuple getTuple();
+    Tuple<V,O> getTuple();
 
 
     /**

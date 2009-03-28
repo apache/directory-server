@@ -93,6 +93,7 @@ public class ReverseIndexEntry<V,O> implements IndexEntry<V,O>
     }
 
 
+    @SuppressWarnings("unchecked")
     public Tuple getTuple()
     {
         return tuple;

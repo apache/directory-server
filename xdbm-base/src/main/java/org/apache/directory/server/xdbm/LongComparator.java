@@ -16,52 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.server.schema.SerializableComparator;
 
 
 /**
- * The default implementation of a pair of comparators which compares both
- * keys and values of a Tuple.
+ * A serializable comparator for long values.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultTupleComparator<K,V> implements TupleComparator<K,V>
+public class LongComparator extends SerializableComparator<Long>
 {
-    SerializableComparator<K> keyComparator;
-    SerializableComparator<V> valueComparator;
+    public static final LongComparator INSTANCE = new LongComparator();
+    private static final long serialVersionUID = 3690478030414165816L;
 
 
-    public DefaultTupleComparator( SerializableComparator<K> keyComparator, SerializableComparator<V> valueComparator )
+    public LongComparator()
     {
-        this.keyComparator = keyComparator;
-        this.valueComparator = valueComparator;
+        super( "1.3.6.1.4.1.18060.0.4.1.1.2" );
     }
 
 
-    public SerializableComparator<K> getKeyComparator()
+    public int compare( Long l1, Long l2 )
     {
-        return keyComparator;
-    }
-
-
-    public SerializableComparator<V> getValueComparator()
-    {
-        return valueComparator;
-    }
-
-
-    public int compareKey( K key1, K key2 )
-    {
-        return keyComparator.compare( key1, key2 );
-    }
-
-
-    public int compareValue( V value1, V value2 )
-    {
-        return valueComparator.compare( value1, value2 );
+        return ( l1 < l2 ? -1 : ( l1.equals( l2 ) ? 0 : 1 ) );
     }
 }

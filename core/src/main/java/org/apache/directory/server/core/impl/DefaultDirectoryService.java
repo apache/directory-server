@@ -57,7 +57,7 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.XdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -1374,7 +1374,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         for ( Partition partition : partitions )
         {
-            if ( partition instanceof BTreePartition )
+            if ( partition instanceof XdbmPartition )
             {
                 JdbmPartition btpconf = ( JdbmPartition ) partition;
                 for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )

@@ -36,7 +36,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.XdbmPartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
@@ -102,9 +102,9 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             LdapDN dn = new LdapDN( suffix );
             Partition partition = nexus.getPartition( dn );
             
-            if ( partition instanceof BTreePartition )
+            if ( partition instanceof XdbmPartition )
             {
-                BTreePartition btPartition = ( BTreePartition ) partition;
+                XdbmPartition btPartition = ( XdbmPartition ) partition;
                 PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
                 Point pos = getCenteredPosition( frame );
                 pos.y = launchedWindowCount * 20 + pos.y;

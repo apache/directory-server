@@ -32,7 +32,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.XdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -64,7 +64,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JdbmPartition extends BTreePartition
+public class JdbmPartition extends XdbmPartition
 {
     private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
@@ -416,7 +416,7 @@ public class JdbmPartition extends BTreePartition
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.BTreePartition#getUserIndex(String)
+     * @see org.apache.directory.server.core.partition.impl.btree.XdbmPartition#getUserIndex(String)
      */
     public final Index<?,ServerEntry> getUserIndex( String id ) throws IndexNotFoundException
     {
@@ -425,7 +425,7 @@ public class JdbmPartition extends BTreePartition
 
 
     /**
-     * @see BTreePartition#getEntryId(String)
+     * @see XdbmPartition#getEntryId(String)
      */
     public final Index<?,ServerEntry> getSystemIndex( String id ) throws IndexNotFoundException
     {

@@ -60,7 +60,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class BTreePartition implements Partition
+public abstract class XdbmPartition implements Partition
 {
     protected static final Set<String> SYS_INDEX_OIDS;
 
@@ -101,7 +101,7 @@ public abstract class BTreePartition implements Partition
     /**
      * Creates a B-tree based context partition.
      */
-    protected BTreePartition()
+    protected XdbmPartition()
     {
     }
 

@@ -28,6 +28,8 @@ import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursorAdaptor;
+import org.apache.directory.server.xdbm.LongComparator;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;

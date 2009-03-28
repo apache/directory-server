@@ -23,7 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.gui;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.XdbmPartition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +40,13 @@ public class PartitionViewer
     private static final Logger LOG = LoggerFactory.getLogger( PartitionViewer.class );
 
     /** A handle on the atomic partition */
-    private BTreePartition partition;
+    private XdbmPartition partition;
     
     /** A handle on the global registries */
     private Registries registries;
 
 
-    public PartitionViewer( BTreePartition db, Registries registries )
+    public PartitionViewer( XdbmPartition db, Registries registries )
     {
         this.partition = db;
         this.registries = registries;

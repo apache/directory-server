@@ -17,10 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.core.cursor.ClosureMonitor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.CursorIterator;

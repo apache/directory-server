@@ -17,58 +17,38 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition.impl.btree;
+package org.apache.directory.server.xdbm;
 
+
+import java.io.Serializable;
 
 import org.apache.directory.server.schema.SerializableComparator;
 
 
 /**
- * TupleComparator for index records.
- *
+ * Used to compare the sorting order of binary data.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 539571 $
+ * @version $Rev$
  */
-public class ForwardIndexComparator<K> implements TupleComparator<K,Long>
+public interface TupleComparator<K,V> extends Serializable
 {
-    private static final long serialVersionUID = 3257283621751633459L;
-
-    /** The key comparison to use */
-    private final SerializableComparator<K> keyComparator;
-
-
     /**
-     * Creates an IndexComparator.
-     *
-     * @param keyComparator the table comparator to use for keys
-     */
-    public ForwardIndexComparator( SerializableComparator<K> keyComparator )
-    {
-        this.keyComparator = keyComparator;
-    }
-
-
-    /**
-     * Gets the comparator used to compare keys.
+     * Gets the comparator used to compare keys.  May be null in which
+     * case the compareKey method will throw an UnsupportedOperationException.
      *
      * @return the comparator for comparing keys.
      */
-    public SerializableComparator<K> getKeyComparator()
-    {
-        return keyComparator;
-    }
+    SerializableComparator<K> getKeyComparator();
 
 
     /**
-     * Gets the binary comparator used to compare values which are the indices
-     * into the master table.
+     * Gets the binary comparator used to compare valuess.  May be null in which
+     * case the compareValue method will throw an UnsupportedOperationException.
      *
      * @return the binary comparator for comparing values.
      */
-    public SerializableComparator<Long> getValueComparator()
-    {
-        return LongComparator.INSTANCE;
-    }
+    SerializableComparator<V> getValueComparator();
 
 
     /**
@@ -81,24 +61,18 @@ public class ForwardIndexComparator<K> implements TupleComparator<K,Long>
      * is less than the second, or a postive value if the first is greater than
      * the second byte array.
      */
-    public int compareKey( K key1, K key2 )
-    {
-        return getKeyComparator().compare( key1, key2 );
-    }
+    int compareKey( K key1, K key2 );
 
 
     /**
      * Comparse value Objects to determine their sorting order returning a
      * value = to, < or > than 0.
      *
-     * @param l1 the first Long value to compare
-     * @param l2 the other Long value to compare to the first
+     * @param value1 the first value to compare
+     * @param value2 the other value to compare to the first
      * @return 0 if both are equal, a negative value less than 0 if the first
      * is less than the second, or a postive value if the first is greater than
      * the second Object.
      */
-    public int compareValue( Long l1, Long l2 )
-    {
-        return ( l1 < l2 ? -1 : ( l1.equals( l2 ) ? 0 : 1 ) );
-    }
+    int compareValue( V value1, V value2 );
 }
