@@ -51,6 +51,7 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
@@ -60,7 +61,6 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -360,16 +360,18 @@ public class DefaultPartitionNexus extends PartitionNexus
                 throw new ConfigurationException( "System partition has wrong name: should be 'system' not '"
                         + override.getId() + "'." );
             }
-            
-            system = override;
         }
         else
         {
-            throw new LdapConfigurationException( "No system partition found" );
+            system = new JdbmPartition();
+            system.setId( "system" );
+            system.setCacheSize( 500 );
+            system.setSuffix( ServerDNConstants.SYSTEM_DN );
+//            throw new LdapConfigurationException( "No system partition found" );
         }
 
+        system = override;
         system.init( directoryService );
-        
         
         // Add root context entry for system partition
         LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
