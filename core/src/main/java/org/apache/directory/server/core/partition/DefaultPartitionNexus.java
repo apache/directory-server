@@ -360,6 +360,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 throw new ConfigurationException( "System partition has wrong name: should be 'system' not '"
                         + override.getId() + "'." );
             }
+            system = override;
         }
         else
         {
@@ -370,7 +371,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 //            throw new LdapConfigurationException( "No system partition found" );
         }
 
-        system = override;
         system.init( directoryService );
         
         // Add root context entry for system partition
