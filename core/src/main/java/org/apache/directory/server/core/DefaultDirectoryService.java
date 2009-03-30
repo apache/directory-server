@@ -32,7 +32,6 @@ import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -83,6 +82,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -301,9 +301,6 @@ public class DefaultDirectoryService implements DirectoryService
     private int maxPDUSize = Integer.MAX_VALUE;
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -319,7 +316,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Gets the {@link Partition}s used by this DirectoryService.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @return the set of partitions used
      */
     public Set<? extends Partition> getPartitions()
@@ -333,7 +329,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Sets {@link Partition}s used by this DirectoryService.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @param partitions the partitions to used
      */
     public void setPartitions( Set<? extends Partition> partitions )
@@ -420,7 +415,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Sets the interceptors in the server.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.interceptor.Interceptor"
      * @param interceptors the interceptors to be used in the server.
      */
     public void setInterceptors( List<Interceptor> interceptors ) 
@@ -444,7 +438,6 @@ public class DefaultDirectoryService implements DirectoryService
      * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @return test entries to load during bootstrapping
      */
     public List<LdifEntry> getTestEntries()
@@ -459,7 +452,6 @@ public class DefaultDirectoryService implements DirectoryService
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
     public void setTestEntries( List<? extends LdifEntry> testEntries )
@@ -495,9 +487,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         this.shutdownHookEnabled = shutdownHookEnabled;
@@ -970,7 +959,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Set the referralManager
-     * @org.apache.xbean.Property hidden="true"
      * @param referralManager The initialized referralManager
      */
     public void setReferralManager( ReferralManager referralManager )
@@ -988,9 +976,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setRegistries( Registries registries )
     {
         this.registries = registries;
@@ -1003,9 +988,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setSchemaService( SchemaService schemaService )
     {
         this.schemaService = schemaService;
@@ -1634,9 +1616,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setEventService( EventService eventService )
     {
         this.eventService = eventService;

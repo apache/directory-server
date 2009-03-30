@@ -30,9 +30,6 @@ import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.cursor.ClosureMonitor;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -71,6 +68,9 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -865,6 +865,11 @@ public class MaxImmSubFilterTest
         
         
         public void setReplicaId( int replicaId )
+        {
+            
+        }
+
+        public void setJournal( Journal journal )
         {
             
         }

@@ -19,8 +19,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
-
-import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 
 
 /**

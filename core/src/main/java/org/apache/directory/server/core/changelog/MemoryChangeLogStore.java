@@ -37,8 +37,8 @@ import java.util.Properties;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.ListCursor;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 

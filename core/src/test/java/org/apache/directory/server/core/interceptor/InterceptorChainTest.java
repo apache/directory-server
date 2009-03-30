@@ -678,5 +678,12 @@ public class InterceptorChainTest extends TestCase
         {
             
         }
+
+
+        public void setJournal( Journal journal )
+        {
+            // TODO Auto-generated method stub
+            
+        }
     }
 }
