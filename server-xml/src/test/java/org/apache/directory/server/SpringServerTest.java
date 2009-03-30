@@ -18,15 +18,13 @@
  */
 package org.apache.directory.server;
 
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -115,7 +113,7 @@ public class SpringServerTest
     
     /**
      * Test a server.xml with replicationInterceptor validated
-     */
+     *
     @Test
     public void testSpringServerReplicationInterceptor() throws Exception {
         ClassLoader classLoader = this.getClass().getClassLoader();
@@ -142,7 +140,7 @@ public class SpringServerTest
         assertNotNull( replicationInterceptor );
         assertNotNull( replicationInterceptor.getConfiguration() );
         
-        ReplicationConfiguration config = replicationInterceptor.getConfiguration();
+        SyncreplConfiguration config = replicationInterceptor.getConfiguration();
         assertEquals( 5, config.getLogMaxAge() );
         assertEquals( "instance_a", config.getReplicaId() );
         assertEquals( 2, config.getReplicationInterval() );
