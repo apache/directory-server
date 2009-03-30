@@ -22,8 +22,8 @@ package org.apache.directory.server.ldap.handlers;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.directory.server.core.cursor.ClosureMonitor;
-import org.apache.directory.server.core.cursor.CursorClosedException;
+import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 
 
