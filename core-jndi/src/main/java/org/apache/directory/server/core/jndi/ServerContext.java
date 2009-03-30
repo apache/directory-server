@@ -25,8 +25,6 @@ import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.cursor.EmptyCursor;
-import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -52,6 +50,8 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
