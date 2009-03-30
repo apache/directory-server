@@ -345,7 +345,6 @@
     <module>core-unit</module>
     <module>core-integ</module>
     <module>core-entry</module>
-    <module>core-cursor</module>
     <module>core-splay</module>
     <module>core-avl</module>
     <module>protocol-shared</module>
@@ -369,7 +368,7 @@
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
     <module>interceptor-kerberos</module>
-    <module>mitosis</module>
+    <module>syncrepl</module>
     <module>server-replication</module>
     <module>xbean-spring</module>
   </modules>
