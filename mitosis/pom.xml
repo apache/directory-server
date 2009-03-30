@@ -26,7 +26,7 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.5-SNAPSHOT</version>
   </parent>
-  <artifactId>mitosis</artifactId>
+  <artifactId>syncrepl</artifactId>
   <name>ApacheDS replication</name>
   <packaging>jar</packaging>
 

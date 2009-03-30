@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.mitosis.syncrepl;
+package org.apache.directory.mitosis.syncrepl.configuration;
 
 import org.apache.directory.shared.ldap.filter.SearchScope;
 

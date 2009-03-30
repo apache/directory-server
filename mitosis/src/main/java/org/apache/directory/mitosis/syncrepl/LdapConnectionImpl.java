@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import javax.naming.InvalidNameException;
 import javax.net.ssl.SSLContext;
 
+import org.apache.directory.mitosis.syncrepl.protocol.LdapProtocolCodecFactory;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessage;

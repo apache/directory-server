@@ -17,24 +17,30 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.mitosis.service.protocol.handler;
+package org.apache.directory.mitosis.syncrepl.configuration;
 
+import java.util.List;
 
-import org.apache.directory.mitosis.service.ReplicationInterceptor;
 
 /**
- * A {@link ReplicationProtocolHandler} for client-side, which uses
- * {@link ReplicationClientContextHandler}.  This class is actually 
- * a shortcut to creating a {@link ReplicationProtocolHandler} with a
- * new {@link ReplicationClientContextHandler}.
- * 
- * @author The Apache Directory Project (dev@directory.apache.org)
+ * The replication sub-system.
+ *
+ * @org.apache.xbean.XBean
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ReplicationClientProtocolHandler extends ReplicationProtocolHandler
+public class ReplicationSystem
 {
-    public ReplicationClientProtocolHandler( ReplicationInterceptor interceptor )
+    /** The list of servers this server is connected to */
+    private List<ReplicaPeerConfiguration> replicaPeers;
+    
+    /**
+     * Set the list of replica peers this server is connected to
+     *
+     * @param replicaPeers The list of replicas
+     */
+    public void setReplicaPeers( List<ReplicaPeerConfiguration> replicaPeers )
     {
-        super( interceptor, new ReplicationClientContextHandler() );
+        this.replicaPeers = replicaPeers;
     }
 }

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.mitosis.syncrepl;
+package org.apache.directory.mitosis.syncrepl.protocol;
 
 import java.nio.ByteBuffer;
 
