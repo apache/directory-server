@@ -34,9 +34,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <version>${pom.version}</version>
-      <artifactId>apacheds-core-cursor</artifactId>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${apache.directory.shared.version}</version>
+      <artifactId>shared-cursor</artifactId>
     </dependency>
   </dependencies>
   
