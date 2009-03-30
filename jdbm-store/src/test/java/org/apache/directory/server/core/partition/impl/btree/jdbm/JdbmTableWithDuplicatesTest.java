@@ -28,9 +28,9 @@ import static org.junit.Assert.*;
 
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
 
 import java.io.File;

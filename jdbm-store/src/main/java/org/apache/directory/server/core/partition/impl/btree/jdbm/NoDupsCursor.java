@@ -19,9 +19,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 import java.io.IOException;
 

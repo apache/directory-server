@@ -23,10 +23,10 @@ import jdbm.btree.BTree;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
-import org.apache.directory.server.core.cursor.AbstractCursor;
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-
 import java.util.Comparator;
+
+import org.apache.directory.shared.ldap.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 
 /**
