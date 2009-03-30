@@ -19,10 +19,10 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.cursor.AbstractCursor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 import java.util.Arrays;
 import java.util.List;

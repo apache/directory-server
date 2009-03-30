@@ -20,11 +20,11 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.server.core.cursor.ClosureMonitor;
-import org.apache.directory.server.core.cursor.CursorIterator;
-import org.apache.directory.server.core.cursor.DefaultClosureMonitor;
-
 import java.util.Iterator;
+
+import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.cursor.DefaultClosureMonitor;
 
 
 /**
