@@ -41,6 +41,12 @@
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
+    
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <version>${org.apache.directory.shared.version}</version>
+        <artifactId>shared-cursor</artifactId>
+      </dependency>
   </dependencies>
 
   <packaging>jar</packaging>
