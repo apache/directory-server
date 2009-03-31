@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -37,6 +38,7 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
@@ -435,12 +437,12 @@ public class KdcServer extends DirectoryBackedService
     /**
      * @throws IOException if we cannot bind to the sockets
      */
-    public void start() throws IOException
+    public void start() throws IOException, InvalidNameException
     {
         PrincipalStore store;
 
         // TODO - for now ignoring this catalog crap
-        store = new DirectoryPrincipalStore( getDirectoryService() );
+        store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
         Transport udpTransport = getUdpTransport();
 

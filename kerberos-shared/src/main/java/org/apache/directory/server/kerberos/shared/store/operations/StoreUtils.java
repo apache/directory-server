@@ -103,9 +103,9 @@ public class StoreUtils
      */
     private static ExprNode getFilter( AttributeTypeRegistry registry, String principal ) throws Exception
     {
-        AttributeType type = registry.lookup( "krb5Principal" );
+        AttributeType type = registry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
         Value<String> value = new ServerStringValue( type, principal );
-        return new EqualityNode<String>( "krb5Principal", value );
+        return new EqualityNode<String>( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, value );
     }
     
 

@@ -28,6 +28,7 @@ import org.apache.directory.server.kerberos.shared.store.operations.DeletePrinci
 import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -42,13 +43,15 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 class SingleBaseSearch implements PrincipalStore
 {
     private final CoreSession session;
+    private final LdapDN searchBaseDn;
 
 
-    SingleBaseSearch( DirectoryService directoryService )
+    SingleBaseSearch( DirectoryService directoryService, LdapDN searchBaseDn )
     {
         try
         {
-            session = directoryService.getSession();
+            session = directoryService.getAdminSession();
+            this.searchBaseDn = searchBaseDn;
         } 
         catch ( Exception e )
         {
@@ -78,7 +81,7 @@ class SingleBaseSearch implements PrincipalStore
 
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( session, null );
+        return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( session, searchBaseDn );
     }
 
 

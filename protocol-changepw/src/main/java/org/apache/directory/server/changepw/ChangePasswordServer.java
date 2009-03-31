@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
@@ -34,6 +35,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -263,9 +265,9 @@ public class ChangePasswordServer extends DirectoryBackedService
     /**
      * @throws IOException if we cannot bind to the specified ports
      */
-    public void start() throws IOException
+    public void start() throws IOException, InvalidNameException
     {
-        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService() );
+        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
         if ( getDatagramAcceptor() != null )
         {

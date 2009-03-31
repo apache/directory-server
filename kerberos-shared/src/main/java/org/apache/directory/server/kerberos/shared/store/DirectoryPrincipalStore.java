@@ -24,6 +24,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -38,6 +39,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
 {
     /** The directory service backing store for this PrincipalStore. */
     private DirectoryService directoryService;
+    private LdapDN searchBaseDn;
     
     
     /**
@@ -45,9 +47,10 @@ public class DirectoryPrincipalStore implements PrincipalStore
      *
      * @param directoryService backing store for this PrincipalStore
      */
-    public DirectoryPrincipalStore( DirectoryService directoryService )
+    public DirectoryPrincipalStore( DirectoryService directoryService, LdapDN searchBaseDn )
     {
         this.directoryService = directoryService;
+        this.searchBaseDn = searchBaseDn;
     }
     
     
@@ -92,6 +95,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
      */
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        throw new NotImplementedException();
+        SingleBaseSearch singleBaseSearch = new SingleBaseSearch (directoryService, searchBaseDn);
+        return singleBaseSearch.getPrincipal (principal);
     }
 }
