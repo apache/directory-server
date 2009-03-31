@@ -33,7 +33,7 @@
   <properties>
     <projectName>ApacheDS-Shared</projectName>
     <distMgmtSiteUrl>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</distMgmtSiteUrl>
-    <skin.version>1.0.0-SNAPSHOT</skin.version>
+    <skin.version>1.0.0</skin.version>
   </properties>
   
   <distributionManagement>
