@@ -63,13 +63,14 @@ public class AvlTreeMapTest
 
         };
     
-        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator );
+        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, true );
     }
 
 
     @Test
     public void testEmpty()
     {
+        assertTrue( tree.isDupsAllowed() );
         assertTrue( tree.isEmpty() );
         assertNull( tree.getFirst() );
         assertNull( tree.getLast() );

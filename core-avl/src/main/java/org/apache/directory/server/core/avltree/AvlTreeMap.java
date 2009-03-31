@@ -49,19 +49,29 @@ public class AvlTreeMap<K,V>
     
     /** node representing the end of the doubly linked list formed with the tree nodes */
     private LinkedAvlMapNode<K,V> last;
+    
+    /** flag to allow storing duplicate keys */
+    private boolean allowDuplicates;
 
 
     /**
-     * Creates a new instance of AVLTree.
+     * Creates a new instance of AVLTreeMap without support for duplicate keys.
      *
      * @param comparator1 the comparator to be used for comparing keys
      */
     public AvlTreeMap( Comparator<K> keyComparator, Comparator<V> valueComparator )
     {
-        this.keyComparator = keyComparator;
-        this.valueComparator = valueComparator;
+        this( keyComparator, valueComparator, false );
     }
     
+
+    public AvlTreeMap( Comparator<K> keyComparator, Comparator<V> valueComparator, boolean allowDuplicates )
+    {
+        this.keyComparator = keyComparator;
+        this.valueComparator = valueComparator;
+        this.allowDuplicates = allowDuplicates;
+    }
+
     
     /**
      * @return the key comparator associated with this tree 
@@ -117,7 +127,14 @@ public class AvlTreeMap<K,V>
             
             if( c == 0 )
             {
-                return insertDupKey( key, value, temp ); // key already exists add another value
+                if( allowDuplicates )
+                {
+                    return insertDupKey( key, value, temp ); // key already exists add another value
+                }
+                else
+                {
+                    return key;
+                }
             }
             
             if( c < 0 )
@@ -1076,5 +1093,11 @@ public class AvlTreeMap<K,V>
         {
             visit( node.getLeft(), node );
         }
+    }
+
+
+    public boolean isDupsAllowed()
+    {
+        return allowDuplicates;
     }
 }
