@@ -40,7 +40,7 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -93,7 +93,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
             sslFilter.startSsl( session.getIoSession() );
         }
         
-        ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
+        InternalExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );

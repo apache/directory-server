@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedur
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
 import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -106,7 +106,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
+        ( ( InternalExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
         
     }

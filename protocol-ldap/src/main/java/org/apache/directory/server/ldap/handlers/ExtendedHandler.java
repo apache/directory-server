@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -64,7 +64,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
             result.setErrorMessage( ResultCodeEnum.OTHER  
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-            ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
+            InternalExtendedResponse resp = ( InternalExtendedResponse ) req.getResultResponse();
             resp.setResponse( new byte[0] );
             session.getIoSession().write( req.getResultResponse() );
         }

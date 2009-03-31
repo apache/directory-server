@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -303,7 +303,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
-                BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
+                InternalBindResponse resp = ( InternalBindResponse ) bindRequest.getResultResponse();
 
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
@@ -394,7 +394,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     private void sendBindSuccess( LdapSession ldapSession, InternalBindRequest bindRequest, byte[] tokenBytes )
     {
         // Return the successful response
-        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+        InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
         response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         response.setServerSaslCreds( tokenBytes );
         

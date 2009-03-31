@@ -27,7 +27,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -77,7 +77,7 @@ public class SimpleMechanismHandler implements MechanismHandler
             ldapSession.setCoreSession( opContext.getSession() );
             
             // Return the successful response
-            BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+            InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             LdapProtocolUtils.setResponseControls( opContext, response );
             
