@@ -61,7 +61,7 @@ public class AvlTreeMapNoDupsCursorTest
 
         };
 
-        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator );
+        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, true );
 
         cursor = new AvlTreeMapNoDupsCursor<Integer, Integer>( tree );
     }
@@ -186,8 +186,6 @@ public class AvlTreeMapNoDupsCursorTest
         tree.insert( 10, 10 );
         tree.insert( 11, 11 );
 
-        tree.insert( 3, 2 ); // try inserting a duplicate
-
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
         assertTrue( cursor.isElementReused() );
@@ -289,4 +287,36 @@ public class AvlTreeMapNoDupsCursorTest
         cursor.beforeValue( 0, 0 );
     }
 
+    
+    @Test
+    public void testCursorWithDupValues() throws Exception
+    {
+        tree.insert( 3, 3 );
+        tree.insert( 3, 7 );
+        tree.insert( 3, 10 );
+        tree.insert( 11, 11 );
+
+        cursor.next();
+        Tuple t = cursor.get();
+     
+        assertEquals( 3, t.getKey() );
+        
+        assertEquals( AvlTree.class, t.getValue().getClass() );
+        
+        AvlTree dupsTree = ( AvlTree ) t.getValue();
+        assertEquals( 3, dupsTree.getSize() );
+        
+        AvlTreeCursor valCursor = new AvlTreeCursor<Integer>( dupsTree );
+        
+        assertTrue( valCursor.next() );
+        assertEquals( 3, valCursor.get() );
+        
+        assertTrue( valCursor.next() );
+        assertEquals( 7, valCursor.get() );
+        
+        assertTrue( valCursor.next() );
+        assertEquals( 10, valCursor.get() );
+
+        assertFalse( valCursor.next() );
+    }
 }
