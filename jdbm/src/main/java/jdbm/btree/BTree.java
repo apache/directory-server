@@ -368,7 +368,7 @@ public class BTree
             _height -= 1;
             dirty = true;
 
-            // TODO:  check contract for BPages to be removed from recman.
+            _recman.delete(_root);
             if ( _height == 0 ) {
                 _root = 0;
             } else {
