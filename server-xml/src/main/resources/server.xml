@@ -130,7 +130,7 @@
   +============================================================+
   -->
   <!--  missing atou=users,dc=example,dc=com
-  <kdcServer>
+  <kdcServer id="kdcServer">
     <tcpTransport>
       <tcpTransport port="60088" nbThreads="4" backLog="50"/>
     </tcpTransport>

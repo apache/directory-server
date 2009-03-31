@@ -81,17 +81,6 @@ public class KerberosProtocolHandler implements IoHandler
         {
             log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
         }
-
-        if ( session.getTransportMetadata().isConnectionless() )
-        {
-            session.getFilterChain().addFirst( "codec",
-                new ProtocolCodecFilter( KerberosUdpProtocolCodecFactory.getInstance() ) );
-        }
-        else
-        {
-            session.getFilterChain().addFirst( "codec",
-                new ProtocolCodecFilter( KerberosTcpProtocolCodecFactory.getInstance() ) );
-        }
     }
 
 
