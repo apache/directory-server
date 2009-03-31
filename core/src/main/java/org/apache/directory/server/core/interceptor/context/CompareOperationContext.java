@@ -24,7 +24,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -106,7 +106,7 @@ public class CompareOperationContext extends AbstractOperationContext
     }
 
     
-    public CompareOperationContext( CoreSession session, CompareRequest compareRequest )
+    public CompareOperationContext( CoreSession session, InternalCompareRequest compareRequest )
     {
         super( session, compareRequest.getName() );
         this.oid = compareRequest.getAttributeId();
