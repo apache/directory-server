@@ -45,8 +45,8 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResult;
 import org.apache.directory.shared.ldap.codec.add.AddRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.del.DelRequest;
@@ -169,9 +169,9 @@ public class ImportCommand extends ToolCommand
                 {
                     messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-                    if ( messageResp instanceof BindResponse )
+                    if ( messageResp instanceof BindResponseCodec )
                     {
-                        BindResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                        BindResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getBindResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -513,7 +513,7 @@ public class ImportCommand extends ToolCommand
      */
     private void bind( int messageId ) throws NamingException, EncoderException, DecoderException, IOException
     {
-        BindRequest bindRequest = new BindRequest();
+        BindRequestCodec bindRequest = new BindRequestCodec();
         LdapMessage message = new LdapMessage();
         LdapAuthentication authentication = null;
 
