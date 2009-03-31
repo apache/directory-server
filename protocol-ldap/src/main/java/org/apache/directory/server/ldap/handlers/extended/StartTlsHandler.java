@@ -39,7 +39,7 @@ import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -77,7 +77,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
     
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
         

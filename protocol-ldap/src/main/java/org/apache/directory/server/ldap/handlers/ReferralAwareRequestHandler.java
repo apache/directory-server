@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -93,7 +93,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
             switch ( req.getType() )
             {
                 case SEARCH_REQUEST:
-                    handleWithReferrals( session, ( ( SearchRequest ) req ).getBase(), req );
+                    handleWithReferrals( session, ( ( InternalSearchRequest ) req ).getBase(), req );
                     break;
 
                 case EXTENDED_REQ:
@@ -287,7 +287,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req, 
+    public Referral getReferralOnAncestorForSearch( LdapSession session, InternalSearchRequest req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );

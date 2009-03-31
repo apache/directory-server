@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -30,14 +30,14 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 
 /**
-* A single reply handler for {@link ExtendedRequest}s.
+* A single reply handler for {@link InternalExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
+public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
 {
-    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handle( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getOid() );
 

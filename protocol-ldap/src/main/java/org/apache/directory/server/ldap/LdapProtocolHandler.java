@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap;
 
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.Request;
@@ -161,14 +161,14 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
             req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
             req.setPayload( "UNSECURED".getBytes( "ISO-8859-1" ) );
             message = req;

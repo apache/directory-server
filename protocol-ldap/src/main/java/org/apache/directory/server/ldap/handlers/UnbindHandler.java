@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
+import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +29,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A no reply protocol handler implementation for LDAP {@link
- * org.apache.directory.shared.ldap.message.UnbindRequest}s.
+ * org.apache.directory.shared.ldap.message.InternalUnbindRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664463 $
  */
-public class UnbindHandler extends LdapRequestHandler<UnbindRequest>
+public class UnbindHandler extends LdapRequestHandler<InternalUnbindRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( UnbindHandler.class );
 
 
-    public void handle( LdapSession session, UnbindRequest request ) throws Exception
+    public void handle( LdapSession session, InternalUnbindRequest request ) throws Exception
     {
         try
         {

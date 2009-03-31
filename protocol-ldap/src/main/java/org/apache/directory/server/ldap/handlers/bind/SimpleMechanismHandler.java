@@ -26,7 +26,7 @@ import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -53,7 +53,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
     
-    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.

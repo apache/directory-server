@@ -24,7 +24,7 @@ import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public abstract class AbstractSaslServer implements SaslServer 
 {
     /** The associated BindRequest */
-    private final BindRequest bindRequest;
+    private final InternalBindRequest bindRequest;
     
     /** The associated LdapSession instance */
     private final LdapSession ldapSession;
@@ -47,7 +47,7 @@ public abstract class AbstractSaslServer implements SaslServer
     private CoreSession adminSession;
     
     
-    public AbstractSaslServer( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
+    public AbstractSaslServer( LdapSession ldapSession, CoreSession adminSession, InternalBindRequest bindRequest )
     {
         this.bindRequest = bindRequest;
         this.ldapSession = ldapSession;
@@ -80,7 +80,7 @@ public abstract class AbstractSaslServer implements SaslServer
     /**
      *  @return the associated BindRequest object
      */
-    public BindRequest getBindRequest()
+    public InternalBindRequest getBindRequest()
     {
         return bindRequest;
     }

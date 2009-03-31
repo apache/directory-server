@@ -28,9 +28,9 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
@@ -131,10 +131,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         // protect against insecure conns when confidentiality is required 
         if ( ! isConfidentialityRequirementSatisfied( session ) )
         {
-            if ( message instanceof ExtendedRequest )
+            if ( message instanceof InternalExtendedRequest )
             {
                 // Reject all extended operations except StartTls  
-                ExtendedRequest req = ( ExtendedRequest ) message;
+                InternalExtendedRequest req = ( InternalExtendedRequest ) message;
                 if ( ! req.getID().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
                     rejectWithoutConfidentiality( session, req.getResultResponse() );
@@ -157,7 +157,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         // We should check that the server allows anonymous requests
         // only if it's not a BindRequest
-        if ( message instanceof BindRequest )
+        if ( message instanceof InternalBindRequest )
         {
             handle( ldapSession, message );
         }
@@ -180,7 +180,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
 
-            if ( message instanceof AbandonRequest )
+            if ( message instanceof InternalAbandonRequest )
             {
                 return;
             }

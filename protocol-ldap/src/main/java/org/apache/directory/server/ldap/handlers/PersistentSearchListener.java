@@ -34,7 +34,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.control.EntryChangeControl;
@@ -61,11 +61,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 {
     private static final Logger LOG = LoggerFactory.getLogger( PersistentSearchListener.class );
     final LdapSession session;
-    final SearchRequest req;
+    final InternalSearchRequest req;
     final PersistentSearchControl control;
 
 
-    PersistentSearchListener( LdapSession session, SearchRequest req )
+    PersistentSearchListener( LdapSession session, InternalSearchRequest req )
     {
         this.session = session;
         this.req = req;

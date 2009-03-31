@@ -27,7 +27,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -80,7 +80,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     protected final DirectoryService directoryService;
     
     /** The associated BindRequest */
-    protected final BindRequest bindRequest;
+    protected final InternalBindRequest bindRequest;
 
 
     /**
@@ -88,7 +88,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      *
      * @param directoryService
      */
-    protected AbstractSaslCallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
+    protected AbstractSaslCallbackHandler( DirectoryService directoryService, InternalBindRequest bindRequest )
     {
         this.directoryService = directoryService;
         this.bindRequest = bindRequest;
@@ -229,7 +229,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * @param env An environment to be used to acquire an {@link LdapContext}.
      * @return An {@link LdapContext} for the client.
      */
-    protected LdapContext getContext( IoSession session, BindRequest bindRequest, Hashtable<String, Object> env )
+    protected LdapContext getContext( IoSession session, InternalBindRequest bindRequest, Hashtable<String, Object> env )
     {
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
 

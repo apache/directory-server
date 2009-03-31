@@ -29,7 +29,7 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class PagedSearchContext
 {
     /** The previous search request */
-    private SearchRequest previousSearchRequest;
+    private InternalSearchRequest previousSearchRequest;
     
     /** The current position in the cursor */
     private int currentPosition;
@@ -61,7 +61,7 @@ public class PagedSearchContext
     /**
      * Creates a new instance of this class, storing the Searchrequest into it.
      */
-    public PagedSearchContext( SearchRequest searchRequest )
+    public PagedSearchContext( InternalSearchRequest searchRequest )
     {
         previousSearchRequest = searchRequest;
         currentPosition = 0;
@@ -112,7 +112,7 @@ public class PagedSearchContext
     /**
      * Build a set of OIDs from the list of attributes we have in the search request
      */
-    private Set<String> buildAttributeSet( SearchRequest request, LdapSession session, 
+    private Set<String> buildAttributeSet( InternalSearchRequest request, LdapSession session, 
         AttributeTypeRegistry atRegistry )
     {
         Set<String> requestSet = new HashSet<String>();
@@ -149,7 +149,7 @@ public class PagedSearchContext
      * @param request The new SearchRequest
      * @return true if both request are equal.
      */
-    public boolean hasSameRequest( SearchRequest request, LdapSession session )
+    public boolean hasSameRequest( InternalSearchRequest request, LdapSession session )
     {
         // Compares the scope
         if ( request.getScope() != previousSearchRequest.getScope() )
@@ -284,7 +284,7 @@ public class PagedSearchContext
     /**
      * @return The previous search request
      */
-    public SearchRequest getPreviousSearchRequest()
+    public InternalSearchRequest getPreviousSearchRequest()
     {
         return previousSearchRequest;
     }

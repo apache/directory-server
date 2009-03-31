@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonRequest;
 
 
 /**
@@ -30,13 +30,13 @@ import org.apache.directory.shared.ldap.message.AbandonRequest;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AbandonHandler extends LdapRequestHandler<AbandonRequest>
+public class AbandonHandler extends LdapRequestHandler<InternalAbandonRequest>
 {
     /**
      * @see org.apache.directory.server.ldap.handlers.LdapRequestHandler#
      * handle(org.apache.directory.server.ldap.LdapSession, org.apache.directory.shared.ldap.message.Request)
      */
-    public void handle( LdapSession session, AbandonRequest request ) throws Exception
+    public void handle( LdapSession session, InternalAbandonRequest request ) throws Exception
     {
         int abandonedId = request.getAbandoned();
 
