@@ -38,6 +38,11 @@
       <version>${pom.version}</version>
       <artifactId>apacheds-core-cursor</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-xdbm-base</artifactId>
+    </dependency>
   </dependencies>
   
 </project>
