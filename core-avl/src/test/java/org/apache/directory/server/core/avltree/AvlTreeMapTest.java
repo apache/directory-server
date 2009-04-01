@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,20 +49,20 @@ public class AvlTreeMapTest
 
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
 
+    Comparator<Integer> comparator  = new Comparator<Integer>()
+    {
 
+        public int compare( Integer i1, Integer i2 )
+        {
+            return i1.compareTo( i2 );
+        }
+
+    };
+
+    
     @Before
     public void createTree()
     {
-        Comparator<Integer> comparator = new Comparator<Integer>()
-        {
-
-            public int compare( Integer i1, Integer i2 )
-            {
-                return i1.compareTo( i2 );
-            }
-
-        };
-    
         tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, true );
     }
 
@@ -115,9 +114,11 @@ public class AvlTreeMapTest
 
 
     @Test
-    @Ignore ( "insert() contract is not observed on replacement" )
     public void testInsertWithReplace()
     {
+        // to override the value tree should disable duplicate keys
+        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, false );
+        
         assertNull( tree.insert( 43, 891 ) );
         assertEquals( 891, tree.find( 43 ).getValue().intValue() );
         

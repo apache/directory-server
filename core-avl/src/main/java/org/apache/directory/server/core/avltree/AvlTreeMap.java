@@ -97,8 +97,7 @@ public class AvlTreeMap<K,V>
      * @param key the item to be inserted
      * @return the replaced key if it already exists
      * TODO - should we not return the value if the key already existed?
-     * TODO - insert has no effect if the key already exists and dups are not allowed.
-     * Note: Ignores if a node with the given key already exists.
+     * Note: Replaces a nodes value if duplicate keys are not allowed.
      */
     public K insert( K key, V value )
     {
@@ -135,6 +134,8 @@ public class AvlTreeMap<K,V>
                 }
                 else
                 {
+                    // replcae the existing value with the new value
+                    temp.value = value;
                     return key;
                 }
             }
