@@ -26,8 +26,10 @@ import java.util.Comparator;
 
 
 /**
- * A wrapper interface around BTree implementations used to abstract away
- * implementation details.
+ * An abstraction representing a data structure holding key value pairs in 
+ * Tuples (a.k.a. Entries) where keys and values are ordered and duplicate
+ * keys may or may not be allowed.  Table normalizes implementation interfaces
+ * so a common view of information is presented to the search engine.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -35,11 +37,9 @@ import java.util.Comparator;
 public interface Table<K, V>
 {
     /**
-     * Gets the key comparator used by this Table: may be null if this Table
-     * was not initialized with one.
+     * Gets the key comparator used by this Table.
      *
-     * @return the key comparator or null if this Table was not created with
-     * one.
+     * @return the key comparator (cannot be null) 
      */
     Comparator<K> getKeyComparator();
 
@@ -63,7 +63,7 @@ public interface Table<K, V>
 
 
     /**
-     * Checks to see if this Table has allows for duplicate keys (a.k.a.
+     * Checks to see if this Table allows for duplicate keys (a.k.a.
      * multiple values for the same key).
      *
      * @return true if duplicate keys are enabled, false otherwise
@@ -73,7 +73,7 @@ public interface Table<K, V>
     
     /**
      * Checks whether or not calls to count the number of keys greater than or
-     * less than the key are exact.
+     * less than the key are exact or approximated.
      * 
      * Checking to see the number of values greater than or less than some key
      * may be excessively costly.  Since this is not a critical function but 
