@@ -96,6 +96,8 @@ public class AvlTreeMap<K,V>
      *
      * @param key the item to be inserted
      * @return the replaced key if it already exists
+     * TODO - should we not return the value if the key already existed?
+     * TODO - insert has no effect if the key already exists and dups are not allowed.
      * Note: Ignores if a node with the given key already exists.
      */
     public K insert( K key, V value )
@@ -167,6 +169,7 @@ public class AvlTreeMap<K,V>
     }
     
     
+    @SuppressWarnings("unchecked")
     private K insertDupKey( K key, V value, LinkedAvlMapNode existingNode )
     {
         AvlTree<V> dupsTree = null;
@@ -269,6 +272,7 @@ public class AvlTreeMap<K,V>
      *              including any values having the same key
      * @return the removed key, if any, or null if the key does not exist
      */
+    @SuppressWarnings("unchecked")
     public K remove( K key, V value )
     {
         LinkedAvlMapNode<K,V> temp = null;
@@ -905,6 +909,7 @@ public class AvlTreeMap<K,V>
     }
     
 
+    @SuppressWarnings("unchecked")
     public LinkedAvlMapNode<K,V> find( K key, V value )
     {
         if( key == null || value == null )
