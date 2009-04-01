@@ -26,6 +26,7 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
