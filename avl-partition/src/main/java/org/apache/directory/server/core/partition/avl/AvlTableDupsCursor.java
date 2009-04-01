@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition.ldif;
+package org.apache.directory.server.core.partition.avl;
 
 
 import org.apache.directory.server.core.avltree.AvlTree;
