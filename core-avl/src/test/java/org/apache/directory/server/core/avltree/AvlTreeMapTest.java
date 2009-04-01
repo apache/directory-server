@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,18 @@ public class AvlTreeMapTest
 
 
     @Test
+    @Ignore ( "insert() contract is not observed on replacement" )
+    public void testInsertWithReplace()
+    {
+        assertNull( tree.insert( 43, 891 ) );
+        assertEquals( 891, tree.find( 43 ).getValue().intValue() );
+        
+        assertNotNull( tree.insert( 43, 16 ) );
+        assertEquals( 16, tree.find( 43 ).getValue().intValue() );
+    }
+    
+
+    @Test
     public void testInsert()
     {
         assertNull( tree.insert( 3, 1 ) );
@@ -155,6 +168,7 @@ public class AvlTreeMapTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testDuplicateKeyInsert()
     {
