@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -231,7 +231,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      */
     protected LdapContext getContext( IoSession session, InternalBindRequest bindRequest, Hashtable<String, Object> env )
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
         LdapContext ctx = null;
 

@@ -24,7 +24,7 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
@@ -46,7 +46,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
-            LdapResult result = req.getResultResponse().getLdapResult();
+            InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
@@ -59,7 +59,7 @@ public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
         }
         catch ( Exception e )
         {
-            LdapResult result = req.getResultResponse().getLdapResult();
+            InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
             result.setErrorMessage( ResultCodeEnum.OTHER  
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getOid()

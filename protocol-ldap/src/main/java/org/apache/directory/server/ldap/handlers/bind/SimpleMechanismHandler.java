@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -89,7 +89,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
-            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+            InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
             if ( e instanceof LdapException )
             {

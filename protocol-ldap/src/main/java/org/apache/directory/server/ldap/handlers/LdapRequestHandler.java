@@ -31,13 +31,13 @@ import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.message.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.Referral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.InternalRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 541827 $
  */
-public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
+public abstract class LdapRequestHandler<T extends InternalRequest> implements MessageHandler<T>
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
@@ -108,9 +108,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     }
 
     
-    public void rejectWithoutConfidentiality( IoSession session, ResultResponse resp ) 
+    public void rejectWithoutConfidentiality( IoSession session, InternalResultResponse resp ) 
     {
-        LdapResult result = resp.getLdapResult();
+        InternalLdapResult result = resp.getLdapResult();
         result.setResultCode( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         result.setErrorMessage( "Confidentiality (TLS secured connection) is required." );
         session.write( resp );
@@ -143,10 +143,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
                 
                 // Allow StartTls extended operations to go through
             }
-            else if ( message instanceof ResultResponseRequest )
+            else if ( message instanceof InternalResultResponseRequest )
             {
                 // Reject all other operations that have a result response  
-                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message ).getResultResponse() );
+                rejectWithoutConfidentiality( session, ( ( InternalResultResponseRequest ) message ).getResultResponse() );
                 return;
             }
             else // Just return from unbind, and abandon immediately
@@ -203,9 +203,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
+    public void handleException( LdapSession session, InternalResultResponseRequest req, Exception e )
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
 
         /*
          * Set the result code or guess the best option.

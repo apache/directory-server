@@ -50,7 +50,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.InternalBindResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -153,7 +153,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             if ( principalEntry == null )
             {
                 LOG.info( "The {} principalDN cannot be found in the server : bind failure.", bindRequest.getName() );
-                LdapResult result = bindRequest.getResultResponse().getLdapResult();
+                InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setErrorMessage( "cannot bind the principalDn." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
@@ -164,7 +164,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                      SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );
-                LdapResult result = bindRequest.getResultResponse().getLdapResult();
+                InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setErrorMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
@@ -196,7 +196,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
-            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+            InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
             if ( e instanceof LdapException )
             {
@@ -267,7 +267,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
      */
     private void generateSaslChallenge( LdapSession ldapSession, SaslServer ss, InternalBindRequest bindRequest )
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
@@ -344,7 +344,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         ldapSession.setAnonymous();
         
         // And send the response to the client
-        LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+        InternalLdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
         bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
         bindResult.setErrorMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": " 
             + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
@@ -362,7 +362,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
      */
     private void sendInvalidCredentials( LdapSession ldapSession, InternalBindRequest bindRequest, Exception e )
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
         
         String message = "";
         
@@ -706,7 +706,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         if ( ! bindRequest.getVersion3() )
         {
             LOG.error( "Bind error : Only LDAP v3 is supported." );
-            LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+            InternalLdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             bindResult.setErrorMessage( "Only LDAP v3 is supported." );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
