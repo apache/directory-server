@@ -60,7 +60,7 @@ public class JdbmTableNoDuplicatesTest
     @Before
     public void createTable() throws Exception
     {
-        destryTable();
+        destroyTable();
         File tmpDir = null;
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
@@ -78,7 +78,7 @@ public class JdbmTableNoDuplicatesTest
 
 
     @After
-    public void destryTable() throws Exception
+    public void destroyTable() throws Exception
     {
         if ( table != null )
         {
@@ -269,8 +269,8 @@ public class JdbmTableNoDuplicatesTest
             table.put( ii, ii );
         }
         assertEquals( SIZE, table.count() );
-        table.put( 0, 0 );
-        assertTrue( table.has( 0, 0 ) );
+        table.put( 0, 2345 );
+        assertTrue( table.has( 0, 2345 ) );
     }
     
 
@@ -338,7 +338,7 @@ public class JdbmTableNoDuplicatesTest
     
     private class MockComparatorRegistry implements ComparatorRegistry
     {
-        private Comparator comparator = new Comparator<Integer>()
+        private Comparator<Integer> comparator = new Comparator<Integer>()
         {
             public int compare( Integer i1, Integer i2 )
             {
@@ -353,12 +353,13 @@ public class JdbmTableNoDuplicatesTest
         }
 
 
+        @SuppressWarnings("unchecked")
         public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
         {
         }
 
 
-        public Comparator lookup( String oid ) throws NamingException
+        public Comparator<Integer> lookup( String oid ) throws NamingException
         {
             return comparator;
         }
