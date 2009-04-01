@@ -207,7 +207,8 @@ public interface Table<K, V>
 
 
     /**
-     * Puts a record into this Table.  Null is not allowed for keys or values
+     * Puts a record into this Table replacing any Tuple[s] previously 
+     * associated with the key.  Null is not allowed for keys or values
      * and should result in an IllegalArgumentException.
      *
      * @param key the key of the record
