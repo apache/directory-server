@@ -11,13 +11,13 @@ public interface AvlTreeMap<K, V>
     /**
      * @return the key comparator associated with this tree 
      */
-    public abstract Comparator<K> getKeyComparator();
+    Comparator<K> getKeyComparator();
 
 
     /**
      * @return the value comparator associated with this tree 
      */
-    public abstract Comparator<V> getValueComparator();
+    Comparator<V> getValueComparator();
 
 
     /**
@@ -27,7 +27,7 @@ public interface AvlTreeMap<K, V>
      * @return the replaced key if it already exists
      * Note: Replaces a nodes value if duplicate keys are not allowed.
      */
-    public abstract K insert( K key, V value );
+    V insert( K key, V value );
 
 
     /**
@@ -38,15 +38,19 @@ public interface AvlTreeMap<K, V>
      *              including any values having the same key
      * @return the removed key, if any, or null if the key does not exist
      */
-    public abstract K remove( K key, V value );
+    V remove( K key, V value );
 
+    
+    // ------ NEW ------
+    SingletonOrOrderedSet<V> remove( K key );
 
+    
     /**
      * Tests if the tree is logically empty.
      * 
      * @return true if the tree is empty, false otherwise
      */
-    public abstract boolean isEmpty();
+    boolean isEmpty();
 
 
     /**
@@ -54,39 +58,38 @@ public interface AvlTreeMap<K, V>
      * 
      * @return the number of nodes present in this tree
      */
-    //NOTE: This method is internally used by AVLTreeMarshaller
-    public abstract int getSize();
+    int getSize();
 
 
     /**
-     * @return the root element of this tree (ie, not the first, but the
+     * @return the root element of this tree (i.e., not the first, but the
      * topmost element)
      */
-    public abstract LinkedAvlMapNode<K, V> getRoot();
+    LinkedAvlMapNode<K, V> getRoot();
 
 
     /**
      * @return a list of the stored keys in this tree
      */
-    public abstract List<K> getKeys();
+    List<K> getKeys();
 
 
     /**
      * Prints the contents of AVL tree in pretty format
      */
-    public abstract void printTree();
+    void printTree();
 
 
     /**
      * @return The first element of this tree
      */
-    public abstract LinkedAvlMapNode<K, V> getFirst();
+    LinkedAvlMapNode<K, V> getFirst();
 
 
     /**
      * @return The last element in this tree
      */
-    public abstract LinkedAvlMapNode<K, V> getLast();
+    LinkedAvlMapNode<K, V> getLast();
 
 
     /**
@@ -96,7 +99,7 @@ public interface AvlTreeMap<K, V>
      * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
-    public abstract LinkedAvlMapNode<K, V> findGreater( K key );
+    LinkedAvlMapNode<K, V> findGreater( K key );
 
 
     /**
@@ -106,7 +109,7 @@ public interface AvlTreeMap<K, V>
      * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
-    public abstract LinkedAvlMapNode<K, V> findGreaterOrEqual( K key );
+    LinkedAvlMapNode<K, V> findGreaterOrEqual( K key );
 
 
     /**
@@ -116,7 +119,7 @@ public interface AvlTreeMap<K, V>
      * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
-    public abstract LinkedAvlMapNode<K, V> findLess( K key );
+    LinkedAvlMapNode<K, V> findLess( K key );
 
 
     /**
@@ -126,7 +129,7 @@ public interface AvlTreeMap<K, V>
      * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
-    public abstract LinkedAvlMapNode<K, V> findLessOrEqual( K key );
+    LinkedAvlMapNode<K, V> findLessOrEqual( K key );
 
 
     /**
@@ -136,12 +139,12 @@ public interface AvlTreeMap<K, V>
      * @param key the key to find
      * @return the list of traversed LinkedAvlNode.
      */
-    public abstract LinkedAvlMapNode<K, V> find( K key );
+    LinkedAvlMapNode<K, V> find( K key );
 
 
-    public abstract LinkedAvlMapNode<K, V> find( K key, V value );
+    LinkedAvlMapNode<K, V> find( K key, V value );
 
 
-    public abstract boolean isDupsAllowed();
+    boolean isDupsAllowed();
 
 }

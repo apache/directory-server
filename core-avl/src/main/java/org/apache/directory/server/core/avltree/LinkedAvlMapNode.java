@@ -32,7 +32,7 @@ public class LinkedAvlMapNode<K, V>
     K key;
     
     /** the value stored in the node */
-    V value;
+    SingletonOrOrderedSet<V> value;
 
     /** The left child */
     LinkedAvlMapNode<K, V> left;
@@ -61,7 +61,7 @@ public class LinkedAvlMapNode<K, V>
     public LinkedAvlMapNode( K theKey, V theValue )
     {
         key = theKey;
-        value = theValue;
+        value = new SingletonOrOrderedSet<V>( theValue );
         left = null;
         right = null;
     }
@@ -109,7 +109,7 @@ public class LinkedAvlMapNode<K, V>
     }
 
 
-    public V getValue()
+    public SingletonOrOrderedSet<V> getValue()
     {
         return value;
     }
