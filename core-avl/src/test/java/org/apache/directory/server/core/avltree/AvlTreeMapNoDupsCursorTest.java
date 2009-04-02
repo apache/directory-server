@@ -301,9 +301,9 @@ public class AvlTreeMapNoDupsCursorTest
      
         assertEquals( 3, t.getKey() );
         
-        assertEquals( AvlTree.class, t.getValue().getClass() );
+        assertEquals( AvlTreeImpl.class, t.getValue().getClass() );
         
-        AvlTree dupsTree = ( AvlTree ) t.getValue();
+        AvlTreeImpl dupsTree = ( AvlTreeImpl ) t.getValue();
         assertEquals( 3, dupsTree.getSize() );
         
         AvlTreeCursor valCursor = new AvlTreeCursor<Integer>( dupsTree );
