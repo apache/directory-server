@@ -261,9 +261,41 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
+    /**
+     * removes a node associated with a key
+     * The entire node will be removed irrespective of whether duplicate keys
+     * are enabled or not
+     */
     public SingletonOrOrderedSet<V> remove( K key )
     {
-        throw new NotImplementedException();
+        if( key == null )
+        {
+            throw new IllegalArgumentException( "key cannot be null" );
+        }
+        
+        LinkedAvlMapNode<K,V> temp = null;
+        
+        List<LinkedAvlMapNode<K,V>> treePath = new ArrayList<LinkedAvlMapNode<K,V>>();
+        
+        treePath = find( key, root, treePath);
+        
+        if( treePath == null )
+        {
+            return null;
+        }
+        
+        temp = treePath.remove( 0 );
+       
+        if( temp.isLeaf() && ( temp == root ) )
+        {
+            root = null;
+        }
+        else
+        {
+            balanceNodesAfterRemove( treePath, temp );
+        }
+        
+       return temp.value;
     }
     
     
@@ -272,8 +304,12 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
      */
     public V remove( K key, V value )
     {
+        if( key == null || value == null )
+        {
+            throw new IllegalArgumentException( "key or value cannot be null" );
+        }
+        
         LinkedAvlMapNode<K,V> temp = null;
-        LinkedAvlMapNode<K,V> y = null;
         
         List<LinkedAvlMapNode<K,V>> treePath = new ArrayList<LinkedAvlMapNode<K,V>>();
         
@@ -287,7 +323,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         temp = treePath.remove( 0 );
 
         // check if the value matches
-        if( value != null )
+        if( allowDuplicates )
         {
             if( temp.value.isOrderedSet() )
             {
@@ -302,7 +338,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 // further down in this function
                 if( ( removedVal != null ) && ! dupsTree.isEmpty() )
                 {
-                    return value;//no need to balance
+                    return removedVal;//no need to balance
                 }
             }
             else
@@ -313,33 +349,61 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 }
             }
         }
-        
-        // remove from the doubly linked
-        removeFromList( temp );        
-        
-        if( temp.isLeaf() )
+
+        if( temp.isLeaf() && ( temp == root ) )
         {
-            if( temp == root )
+            if( allowDuplicates )
             {
-              root = null;
-              return key;
+                if( temp.value.isSingleton() || temp.value.getOrderedSet().isEmpty() )
+                {
+                    root = null;
+                }
+            }
+            else // if dups are not allowed set root to null
+            {
+                root = null;
             }
             
+            return value;
+        }
+
+       balanceNodesAfterRemove( treePath, temp );
+        
+       return value;
+    }
+
+    
+    /**
+     * changes the order of nodes after a delete operation and then 
+     * balances the tree
+     *
+     * @param treePath the path traversed to find the node temp 
+     * @param delNode the node to be deleted
+     */
+    private void balanceNodesAfterRemove( List<LinkedAvlMapNode<K,V>> treePath, LinkedAvlMapNode<K,V> delNode )
+    {
+        LinkedAvlMapNode<K,V> y = null;
+        
+        // remove from the doubly linked
+        removeFromList( delNode );        
+
+        if( delNode.isLeaf() )
+        {
             if( !treePath.isEmpty() )
             {
-                detachNodes( temp, treePath.get( 0 ) );
+                detachNodes( delNode, treePath.get( 0 ) );
             }
         }
         else
         {
-            if( temp.left != null )
+            if( delNode.left != null )
             {
-                List<LinkedAvlMapNode<K,V>> leftTreePath = findMax( temp.left );
+                List<LinkedAvlMapNode<K,V>> leftTreePath = findMax( delNode.left );
                 y = leftTreePath.remove( 0 );
                 
                 if( leftTreePath.isEmpty() ) // y is the left child of root and y is a leaf
                 {
-                    detachNodes( y, temp );
+                    detachNodes( y, delNode );
                 }
                 else
                 {
@@ -349,26 +413,26 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 leftTreePath.addAll( treePath );
                 treePath = leftTreePath;
                 
-                y.right = temp.right; // assign the right here left will be assigned in replaceNode()
+                y.right = delNode.right; // assign the right here left will be assigned in replaceNode()
 
-                if( temp == root )
+                if( delNode == root )
                 {
-                    y.left = temp.left;
+                    y.left = delNode.left;
                     root = y;
                 }
                 else
                 {
-                    replaceNode( temp, y, treePath.get( 0 ) );
+                    replaceNode( delNode, y, treePath.get( 0 ) );
                 }
             }
-            else if( temp.right != null )
+            else if( delNode.right != null )
             {
-                List<LinkedAvlMapNode<K,V>> rightTreePath = findMin( temp.right );
+                List<LinkedAvlMapNode<K,V>> rightTreePath = findMin( delNode.right );
                 y = rightTreePath.remove( 0 );
                 
                 if( rightTreePath.isEmpty() )
                 {
-                    detachNodes( y, temp ); // y is the right child of root and y is a leaf
+                    detachNodes( y, delNode ); // y is the right child of root and y is a leaf
                 }
                 else
                 {
@@ -378,24 +442,22 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 rightTreePath.addAll( treePath );
                 treePath = rightTreePath;
                 
-                y.right = temp.right; // assign the right here left will be assigned in replaceNode()
+                y.right = delNode.right; // assign the right here left will be assigned in replaceNode()
                 
-                if( temp == root )
+                if( delNode == root )
                 {
-                    y.right = temp.right;
+                    y.right = delNode.right;
                     root = y;
                 }
                 else
                 {
-                    replaceNode( temp, y, treePath.get( 0 ) );
+                    replaceNode( delNode, y, treePath.get( 0 ) );
                 }
             }
         }
        
        treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
        balance( treePath );
-       
-       return key;
     }
     
     
