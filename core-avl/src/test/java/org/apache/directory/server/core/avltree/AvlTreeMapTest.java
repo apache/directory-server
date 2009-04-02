@@ -191,7 +191,7 @@ public class AvlTreeMapTest
      
         assertTrue( node.value.getClass() ==  AvlTreeImpl.class );
         
-        AvlTreeImpl dupsTree = ( AvlTreeImpl ) node.value;
+        AvlTree dupsTree = ( AvlTree ) node.value;
         assertEquals( 3, dupsTree.getSize() );
     }
     

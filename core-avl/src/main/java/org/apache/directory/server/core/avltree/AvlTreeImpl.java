@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlTreeImpl<K>
+public class AvlTreeImpl<K> implements AvlTree<K>
 {
     /** the root of the tree */
     private LinkedAvlNode<K> root;
@@ -57,8 +57,8 @@ public class AvlTreeImpl<K>
     }
     
     
-    /**
-     * @return the comparator associated with this tree 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getComparator()
      */
     public Comparator<K> getComparator()
     {
@@ -66,12 +66,8 @@ public class AvlTreeImpl<K>
     }
     
     
-    /**
-     * Inserts a LinkedAvlNode with the given key.
-     *
-     * @param key the item to be inserted
-     * @return the replaced key if it already exists
-     * Note: Ignores if a node with the given key already exists.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#insert(K)
      */
     public K insert( K key )
     {
@@ -201,11 +197,8 @@ public class AvlTreeImpl<K>
     }
     
     
-    /**
-     * Removes the LinkedAvlNode present in the tree with the given key value
-     *
-     * @param key the value of the node to be removed
-     * @return the removed key, if any, or null if the key does not exist
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#remove(K)
      */
     public K remove( K key )
     {
@@ -367,10 +360,8 @@ public class AvlTreeImpl<K>
     }
     
 
-    /**
-     * Tests if the tree is logically empty.
-     * 
-     * @return true if the tree is empty, false otherwise
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#isEmpty()
      */
     public boolean isEmpty()
     {
@@ -378,10 +369,8 @@ public class AvlTreeImpl<K>
     }
 
     
-    /**
-     * returns the number of nodes present in this tree.
-     * 
-     * @return the number of nodes present in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getSize()
      */
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
@@ -447,9 +436,8 @@ public class AvlTreeImpl<K>
     }
 
 
-    /**
-     * @return the root element of this tree (ie, not the first, but the
-     * topmost element)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getRoot()
      */
     public LinkedAvlNode<K> getRoot()
     {
@@ -457,8 +445,8 @@ public class AvlTreeImpl<K>
     }
     
     
-    /**
-     * @return a list of the stored keys in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getKeys()
      */
     public List<K> getKeys()
     {
@@ -474,8 +462,8 @@ public class AvlTreeImpl<K>
         return keys;
     }
 
-    /**
-     * Prints the contents of AVL tree in pretty format
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#printTree()
      */
     public void printTree() 
     {
@@ -495,8 +483,8 @@ public class AvlTreeImpl<K>
     }
     
 
-    /**
-     * @return The first element of this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getFirst()
      */
     public LinkedAvlNode<K> getFirst()
     {
@@ -504,8 +492,8 @@ public class AvlTreeImpl<K>
     }
 
     
-    /**
-     * @return The last element in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#getLast()
      */
     public LinkedAvlNode<K> getLast()
     {
@@ -677,12 +665,8 @@ public class AvlTreeImpl<K>
     }
 
 
-    /**
-     * Finds a LinkedAvlNode<K> whose key is higher than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
-     *         null if there is no node with a higher key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#findGreater(K)
      */
     public LinkedAvlNode<K> findGreater( K key )
     {
@@ -701,12 +685,8 @@ public class AvlTreeImpl<K>
     }
 
 
-    /**
-     * Finds a LinkedAvlNode<K> whose key is higher than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
-     *         null if there is no node with a higher key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#findGreaterOrEqual(K)
      */
     public LinkedAvlNode<K> findGreaterOrEqual( K key )
     {
@@ -725,12 +705,8 @@ public class AvlTreeImpl<K>
     }
 
 
-    /**
-     * Finds a LinkedAvlNode<K> whose key is lower than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
-     *         null if there is no node with a lower key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#findLess(K)
      */
     public LinkedAvlNode<K> findLess( K key )
     {
@@ -749,12 +725,8 @@ public class AvlTreeImpl<K>
     }
 
 
-    /**
-     * Finds a LinkedAvlNode<K> whose key is lower than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
-     *         null if there is no node with a lower key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#findLessOrEqual(K)
      */
     public LinkedAvlNode<K> findLessOrEqual( K key )
     {
@@ -802,12 +774,8 @@ public class AvlTreeImpl<K>
         return startNode;
     }
     
-    /**
-     * 
-     * Find a LinkedAvlNode with the given key value in the tree.
-     *
-     * @param key the key to find
-     * @return the list of traversed LinkedAvlNode.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTree#find(K)
      */
     public LinkedAvlNode<K> find( K key )
     {

@@ -91,7 +91,7 @@ public class AvlTreeMarshallerTest
     Comparator<Integer> comparator;
     AvlTreeMarshaller<Integer> treeMarshaller;
     
-    static AvlTreeImpl<Integer> savedTree;
+    static AvlTree<Integer> savedTree;
     
     static File treeFile = new File( System.getProperty( "java.io.tmpdir" ) + File.separator + "avl.tree");
     
@@ -140,7 +140,7 @@ public class AvlTreeMarshallerTest
          */
 
         AvlTreeMarshaller<Long> treeMarshaller = new AvlTreeMarshaller<Long>( comparator, new LongMarshaller() );
-        AvlTreeImpl<Long> tree = treeMarshaller.deserialize( SERIALIZED_AVLTREE_PRE_REMOVE );
+        AvlTree<Long> tree = treeMarshaller.deserialize( SERIALIZED_AVLTREE_PRE_REMOVE );
         
         for ( long key : AVLTREE_KEYS_PRE_REMOVE )
         {
@@ -165,7 +165,7 @@ public class AvlTreeMarshallerTest
     public void testMarshalEmptyTree() throws IOException
     {
         byte[] bites = treeMarshaller.serialize( new AvlTreeImpl<Integer>( comparator ) );
-        AvlTreeImpl<Integer> tree = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> tree = treeMarshaller.deserialize( bites );
         assertNotNull( tree );
     }
 
@@ -175,7 +175,7 @@ public class AvlTreeMarshallerTest
     {
         AvlTreeImpl<Integer> original = new AvlTreeImpl<Integer>( comparator );
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertTrue( deserialized.isEmpty() );
     }
 
@@ -186,7 +186,7 @@ public class AvlTreeMarshallerTest
         AvlTreeImpl<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 1, deserialized.getSize() );
         assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
@@ -199,7 +199,7 @@ public class AvlTreeMarshallerTest
         AvlTreeImpl<Integer> original = new AvlTreeImpl<Integer>( comparator );
         original.insert( 0 );
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 1, deserialized.getSize() );
         assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
@@ -226,7 +226,7 @@ public class AvlTreeMarshallerTest
         original.insert( 0 );
         original.insert( 1 );
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 2, deserialized.getSize() );
         assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
@@ -241,7 +241,7 @@ public class AvlTreeMarshallerTest
         original.insert( 0 );
         original.insert( 1 );
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 2, deserialized.getSize() );
         assertEquals( 0, ( int ) deserialized.getFirst().getKey() );
@@ -271,7 +271,7 @@ public class AvlTreeMarshallerTest
             original.insert( ii );
         }
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 100, deserialized.getSize() );
 
@@ -294,7 +294,7 @@ public class AvlTreeMarshallerTest
             original.insert( ii );
         }
         byte[] bites = treeMarshaller.serialize( original );
-        AvlTreeImpl<Integer> deserialized = treeMarshaller.deserialize( bites );
+        AvlTree<Integer> deserialized = treeMarshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 100, deserialized.getSize() );
 
@@ -340,7 +340,7 @@ public class AvlTreeMarshallerTest
 
         AvlTreeMarshaller<Bar> marshaller = new AvlTreeMarshaller<Bar>( barComparator );
         byte[] bites = marshaller.serialize( original );
-        AvlTreeImpl<Bar> deserialized = marshaller.deserialize( bites );
+        AvlTree<Bar> deserialized = marshaller.deserialize( bites );
         assertFalse( deserialized.isEmpty() );
         assertEquals( 100, deserialized.getSize() );
 
@@ -412,7 +412,7 @@ public class AvlTreeMarshallerTest
         byte[] data = new byte[ ( int )treeFile.length() ];
         fin.read( data );
         
-        AvlTreeImpl<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
+        AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
         
         if( LOG.isDebugEnabled() )
         {

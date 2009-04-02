@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
-import org.apache.directory.server.core.avltree.AvlTreeImpl;
+import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 
 
@@ -49,7 +49,7 @@ public class KeyTupleAvlCursor<K,V> extends AbstractTupleCursor<K,V>
      * @param avlTree the AvlTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      */
-    public KeyTupleAvlCursor( AvlTreeImpl<V> avlTree, K key )
+    public KeyTupleAvlCursor( AvlTree<V> avlTree, K key )
     {
         this.key = key;
         this.wrapped = new AvlTreeCursor<V>( avlTree );

@@ -32,14 +32,14 @@ import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
  */
 public class AvlTreeCursor<K> extends AbstractCursor<K>
 {
-    private AvlTreeImpl<K> tree;
+    private AvlTree<K> tree;
     private LinkedAvlNode<K> node;
     private boolean onNode = false;
     private boolean isAfterLast = false;
     private boolean isBeforeFirst = true;
  
     
-    public AvlTreeCursor( AvlTreeImpl<K> tree )
+    public AvlTreeCursor( AvlTree<K> tree )
     {
         this.tree = tree;
     }

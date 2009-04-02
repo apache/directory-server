@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.avltree.AvlTreeImpl;
+import org.apache.directory.server.core.avltree.AvlTree;
 
 
 /**
@@ -34,11 +34,11 @@ import org.apache.directory.server.core.avltree.AvlTreeImpl;
  */
 public class DupsContainer<V>
 {
-    private final AvlTreeImpl<V> avlTree;
+    private final AvlTree<V> avlTree;
     private final BTreeRedirect btreeRedirect;
 
 
-    DupsContainer( AvlTreeImpl<V> avlTree )
+    DupsContainer( AvlTree<V> avlTree )
     {
         this.avlTree = avlTree;
         btreeRedirect = null;
@@ -64,7 +64,7 @@ public class DupsContainer<V>
     }
 
 
-    final AvlTreeImpl<V> getAvlTree()
+    final AvlTree<V> getAvlTree()
     {
         if ( avlTree == null )
         {

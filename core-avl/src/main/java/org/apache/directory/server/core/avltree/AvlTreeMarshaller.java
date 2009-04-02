@@ -35,7 +35,7 @@ import java.util.Comparator;
  * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
-public class AvlTreeMarshaller<E> implements Marshaller<AvlTreeImpl<E>>
+public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 {
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_TREE = new byte[1];
@@ -78,7 +78,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTreeImpl<E>>
      * Marshals the given tree to bytes
      * @param tree the tree to be marshalled
      */
-    public byte[] serialize( AvlTreeImpl<E> tree )
+    public byte[] serialize( AvlTree<E> tree )
     {
         if( tree.isEmpty() )
         {
@@ -162,7 +162,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTreeImpl<E>>
      * 
      * @param data byte array to be converted into AVLTree  
      */
-    public AvlTreeImpl<E> deserialize( byte[] data ) throws IOException
+    public AvlTree<E> deserialize( byte[] data ) throws IOException
     {
         if ( data == null || data.length == 0 )
         {

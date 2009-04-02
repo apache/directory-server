@@ -24,12 +24,12 @@ import java.io.*;
 
 
 /**
- * A marshaller which uses default Java Serialization.
+ * A Marshaller which uses default Java Serialization.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultMarshaller implements Marshaller
+public class DefaultMarshaller implements Marshaller<Object>
 {
     public static final DefaultMarshaller INSTANCE = new DefaultMarshaller();
 

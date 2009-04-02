@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Comparator;
 
+import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeImpl;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.Tuple;
@@ -40,7 +41,7 @@ import org.junit.Test;
 public class KeyTupleAvlCursorTest
 {
 
-    AvlTreeImpl<Integer> tree;
+    AvlTree<Integer> tree;
     Comparator<Integer> comparator;
     KeyTupleAvlCursor<Integer, Integer> cursor;
     
