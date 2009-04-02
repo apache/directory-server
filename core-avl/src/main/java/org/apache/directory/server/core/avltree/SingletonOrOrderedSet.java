@@ -86,6 +86,23 @@ public class SingletonOrOrderedSet<V>
         return orderedSet != null;
     }
     
+
+    /**
+     * Gets the singleton value.
+     *
+     * @return the singleton value
+     * @exception RuntimeException if not in singleton mode
+     */
+    public V getSingleton()
+    {
+        if ( singleton != null )
+        {
+            return singleton;
+        }
+        
+        throw new RuntimeException( "Cannot request singleton when in ordered set mode." );
+    }
+    
     
     /**
      * Sets the singleton if in singleton mode.
@@ -136,6 +153,23 @@ public class SingletonOrOrderedSet<V>
         this.orderedSet = null;
         this.singleton = singleton;
         return retval;
+    }
+    
+    
+    /**
+     * Gets the ordered set.
+     * 
+     * @return the ordered set
+     * @exception RuntimeException if in singleton mode
+     */
+    public AvlTree<V> getOrderedSet()
+    {
+        if ( orderedSet != null )
+        {
+            return orderedSet;
+        }
+        
+        throw new RuntimeException( "Cannot get ordered set in singleton mode." );
     }
     
     

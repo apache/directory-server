@@ -100,7 +100,7 @@ public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
         if ( onNode )
         {
             returnedTuple.setKey( node.key );
-            returnedTuple.setValue( node.value );
+            returnedTuple.setValue( node.value.getSingleton() );
             return returnedTuple;
         }
         

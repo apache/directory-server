@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.NotImplementedException;
+
 
 /**
  * An AVL tree implementation with support to store both key and value.
@@ -94,7 +96,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.avltree.AvlTreeMap#insert(K, V)
      */
-    public K insert( K key, V value )
+    public V insert( K key, V value )
     {
         LinkedAvlMapNode<K,V> node, temp;
         LinkedAvlMapNode<K,V> parent = null;
@@ -129,9 +131,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 }
                 else
                 {
-                    // replcae the existing value with the new value
-                    temp.value = value;
-                    return key;
+                    // replace the existing value with the new value
+                    return temp.value.setSingleton( value );
                 }
             }
             
@@ -165,26 +166,26 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
-    @SuppressWarnings("unchecked")
-    private K insertDupKey( K key, V value, LinkedAvlMapNode existingNode )
+    private V insertDupKey( K key, V value, LinkedAvlMapNode<K,V> existingNode )
     {
         AvlTree<V> dupsTree = null;
         
-        if( existingNode.value instanceof AvlTree )
+        if( existingNode.value.isOrderedSet() )
         {
-            dupsTree = ( AvlTree<V> ) existingNode.value;
+            dupsTree = existingNode.value.getOrderedSet();
         }
         else
         {
+            // create avlTree, insert singleton into it, then switch modes 
             dupsTree = new AvlTreeImpl<V>( valueComparator );
-            dupsTree.insert( ( V ) existingNode.value );
-            existingNode.value = dupsTree;
+            dupsTree.insert( existingNode.value.getSingleton() );
+            existingNode.value.switchToOrderedSet( dupsTree );
         }
         
         // check if value already exists
         if( dupsTree.find( value ) != null )
         {
-        	return key;
+        	return value;
         }
         
         // insert value into duplicate key holder
@@ -260,11 +261,16 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
+    public SingletonOrOrderedSet<V> remove( K key )
+    {
+        throw new NotImplementedException();
+    }
+    
+    
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.avltree.AvlTreeMap#remove(K, V)
      */
-    @SuppressWarnings("unchecked")
-    public K remove( K key, V value )
+    public V remove( K key, V value )
     {
         LinkedAvlMapNode<K,V> temp = null;
         LinkedAvlMapNode<K,V> y = null;
@@ -283,9 +289,9 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         // check if the value matches
         if( value != null )
         {
-            if( temp.value instanceof AvlTree )
+            if( temp.value.isOrderedSet() )
             {
-                AvlTree<V> dupsTree = ( AvlTree<V> ) temp.value;
+                AvlTree<V> dupsTree = temp.value.getOrderedSet();
                 V removedVal = dupsTree.remove( value );
                 
                 // if the removal is successful and the tree is not empty
@@ -296,12 +302,12 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 // further down in this function
                 if( ( removedVal != null ) && ! dupsTree.isEmpty() )
                 {
-                    return key;//no need to balance
+                    return value;//no need to balance
                 }
             }
             else
             {
-                if( valueComparator.compare( temp.value, value ) != 0 )
+                if( valueComparator.compare( temp.value.getSingleton(), value ) != 0 )
                 {
                     return null;// no need to balance
                 }
@@ -309,7 +315,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         }
         
         // remove from the doubly linked
-        removeFromList(temp);        
+        removeFromList( temp );        
         
         if( temp.isLeaf() )
         {
@@ -878,7 +884,6 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.avltree.AvlTreeMap#find(K, V)
      */
-    @SuppressWarnings("unchecked")
     public LinkedAvlMapNode<K,V> find( K key, V value )
     {
         if( key == null || value == null )
@@ -886,16 +891,16 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
             return null;
         }
         
-        LinkedAvlMapNode<K,V> node = find( key, root);
+        LinkedAvlMapNode<K,V> node = find( key, root );
         
         if( node == null )
         {
             return null;
         }
         
-        if( node.value instanceof AvlTree )
+        if( node.value.isOrderedSet() )
         {
-            AvlTree<V> dupsTree = ( AvlTree<V> ) node.value;
+            AvlTree<V> dupsTree = node.value.getOrderedSet();
             
             if( dupsTree.find( value ) == null )
             {
@@ -904,7 +909,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         }
         else
         {
-            if( valueComparator.compare( node.value, value ) != 0 )
+            if( valueComparator.compare( node.value.getSingleton(), value ) != 0 )
             {
                 return null;
             }
