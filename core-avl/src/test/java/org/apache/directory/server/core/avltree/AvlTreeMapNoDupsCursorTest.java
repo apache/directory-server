@@ -43,7 +43,7 @@ import org.junit.Test;
  */
 public class AvlTreeMapNoDupsCursorTest
 {
-    AvlTreeMap<Integer, Integer> tree;
+    AvlTreeMapImpl<Integer, Integer> tree;
 
     AvlTreeMapNoDupsCursor<Integer, Integer> cursor;
 
@@ -61,7 +61,7 @@ public class AvlTreeMapNoDupsCursorTest
 
         };
 
-        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, true );
+        tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
 
         cursor = new AvlTreeMapNoDupsCursor<Integer, Integer>( tree );
     }

@@ -33,14 +33,14 @@ import org.apache.directory.server.xdbm.Tuple;
  */
 public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
 {
-    private AvlTreeMap<K,V> tree;
+    private AvlTreeMapImpl<K,V> tree;
     private LinkedAvlMapNode<K,V> node;
     private boolean onNode = false;
     private boolean isAfterLast = false;
     private boolean isBeforeFirst = true;
     private Tuple<K,V> returnedTuple = new Tuple<K,V>();
     
-    public AvlTreeMapNoDupsCursor( AvlTreeMap<K,V> tree )
+    public AvlTreeMapNoDupsCursor( AvlTreeMapImpl<K,V> tree )
     {
         this.tree = tree;
     }

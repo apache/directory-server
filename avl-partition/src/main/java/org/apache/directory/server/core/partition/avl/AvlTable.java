@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
-import org.apache.directory.server.core.avltree.AvlTreeMap;
+import org.apache.directory.server.core.avltree.AvlTreeMapImpl;
 import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
 import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
 import org.apache.directory.server.core.avltree.LinkedAvlMapNode;
@@ -43,7 +43,7 @@ import org.apache.directory.server.xdbm.Tuple;
  */
 public class AvlTable<K, V> implements Table<K, V>
 {
-    private final AvlTreeMap<K, V> avl;
+    private final AvlTreeMapImpl<K, V> avl;
     private final String name;
     private final Comparator<K> keyComparator;
     private final Comparator<V> valComparator;
@@ -55,7 +55,7 @@ public class AvlTable<K, V> implements Table<K, V>
         this.name = name;
         this.keyComparator = keyComparator;
         this.valComparator = valComparator;
-        this.avl = new AvlTreeMap<K, V>( keyComparator, valComparator, dupsEnabled );
+        this.avl = new AvlTreeMapImpl<K, V>( keyComparator, valComparator, dupsEnabled );
     }
     
 
@@ -449,7 +449,7 @@ public class AvlTable<K, V> implements Table<K, V>
      *
      * @return AvlTreeMap used to store Tuples
      */
-    AvlTreeMap<K,V> getAvlTreeMap()
+    AvlTreeMapImpl<K,V> getAvlTreeMap()
     {
         return avl;
     }

@@ -33,7 +33,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlTreeMap<K,V>
+public class AvlTreeMapImpl<K,V>
 {
     /** the root of the tree */
     private LinkedAvlMapNode<K,V> root;
@@ -59,13 +59,13 @@ public class AvlTreeMap<K,V>
      *
      * @param comparator1 the comparator to be used for comparing keys
      */
-    public AvlTreeMap( Comparator<K> keyComparator, Comparator<V> valueComparator )
+    public AvlTreeMapImpl( Comparator<K> keyComparator, Comparator<V> valueComparator )
     {
         this( keyComparator, valueComparator, false );
     }
     
 
-    public AvlTreeMap( Comparator<K> keyComparator, Comparator<V> valueComparator, boolean allowDuplicates )
+    public AvlTreeMapImpl( Comparator<K> keyComparator, Comparator<V> valueComparator, boolean allowDuplicates )
     {
         this.keyComparator = keyComparator;
         this.valueComparator = valueComparator;

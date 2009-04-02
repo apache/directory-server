@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class AvlTreeMapTest
 {
 
-    AvlTreeMap<Integer, Integer> tree;
+    AvlTreeMapImpl<Integer, Integer> tree;
 
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
 
@@ -63,7 +63,7 @@ public class AvlTreeMapTest
     @Before
     public void createTree()
     {
-        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, true );
+        tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
     }
 
 
@@ -117,7 +117,7 @@ public class AvlTreeMapTest
     public void testInsertWithReplace()
     {
         // to override the value tree should disable duplicate keys
-        tree = new AvlTreeMap<Integer, Integer>( comparator, comparator, false );
+        tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         
         assertNull( tree.insert( 43, 891 ) );
         assertEquals( 891, tree.find( 43 ).getValue().intValue() );
