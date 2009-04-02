@@ -33,7 +33,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
@@ -94,7 +94,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
 
     
-    public void requestAbandoned( AbandonableRequest req )
+    public void requestAbandoned( InternalAbandonableRequest req )
     {
         try
         {
