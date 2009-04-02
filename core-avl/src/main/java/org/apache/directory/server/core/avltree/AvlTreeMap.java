@@ -1,10 +1,35 @@
+/*
+ *   Licensed to the Apache Software Foundation (ASF) under one
+ *   or more contributor license agreements.  See the NOTICE file
+ *   distributed with this work for additional information
+ *   regarding copyright ownership.  The ASF licenses this file
+ *   to you under the Apache License, Version 2.0 (the
+ *   "License"); you may not use this file except in compliance
+ *   with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ *
+ */
 package org.apache.directory.server.core.avltree;
 
 
 import java.util.Comparator;
 import java.util.List;
 
-
+/**
+ * An interface to the AVL tree based map. The implementations
+ * should hold a value(s) along with a key  
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
+ */
 public interface AvlTreeMap<K, V>
 {
 
@@ -24,8 +49,10 @@ public interface AvlTreeMap<K, V>
      * Inserts a LinkedAvlMapNode with the given key and value.
      *
      * @param key the item to be inserted
-     * @return the replaced key if it already exists
-     * Note: Replaces a nodes value if duplicate keys are not allowed.
+     * @param value the value associated with the key
+     * @return the replaced value if any exists else null
+     * Note: Replaces a nodes value if duplicate keys are not allowed and the new value is
+     *       not equal to the existing value.
      */
     V insert( K key, V value );
 
@@ -34,14 +61,22 @@ public interface AvlTreeMap<K, V>
      * Removes the LinkedAvlMapNode present in the tree with the given key and value
      *
      * @param key the key of the node to be removed
-     * @param value the value of the node, if null the entire node will be removed 
-     *              including any values having the same key
-     * @return the removed key, if any, or null if the key does not exist
+     * @param value the value of the node
+     * @return the removed value, if any, or null if the key or value does not exist
+     * @throws IllegalArgumentException if key or value is null
      */
     V remove( K key, V value );
 
-    
-    // ------ NEW ------
+
+    /**
+     * Removes a node associated with the given key
+     * The entire node will be removed irrespective of whether duplicate keys
+     * are enabled or not
+     * 
+     * @param key the key of the node to be removed
+     * @return a SingletonOrOrderedSet
+     * @throws IllegalArgumentException if key is null
+     */
     SingletonOrOrderedSet<V> remove( K key );
 
     
@@ -134,17 +169,30 @@ public interface AvlTreeMap<K, V>
 
     /**
      * 
-     * Find a LinkedAvlNode with the given key value in the tree.
+     * Find a LinkedAvlMapNode with the given key value in the tree.
      *
      * @param key the key to find
-     * @return the list of traversed LinkedAvlNode.
+     * @return the list of traversed LinkedAvlMapNode.
      */
     LinkedAvlMapNode<K, V> find( K key );
 
 
+    /**
+     * 
+     * Find a LinkedAvlMapNode with the given key and value in the tree.
+     *
+     * @param key the key of the node
+     * @param value the value of the node
+     * @return LinkedAvlMapNode having the given key and value
+     */
     LinkedAvlMapNode<K, V> find( K key, V value );
 
 
+    /**
+     * tells if the duplicate keys are supported or not. 
+     *
+     * @return true if duplicate keys are allowed, false otherwise
+     */
     boolean isDupsAllowed();
 
 }

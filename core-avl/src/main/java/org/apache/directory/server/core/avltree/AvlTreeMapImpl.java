@@ -26,7 +26,7 @@ import java.util.List;
 
 
 /**
- * An AVL tree implementation with support to store both key and value.
+ * An AvlTreeMap implementation with support to store both key and value.
  * This implementation also supports duplicate keys. The values of a same key
  * will be stored in a AvlTree.
  *
@@ -73,8 +73,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getKeyComparator()
+    /**
+     * {@inheritDoc}
      */
     public Comparator<K> getKeyComparator()
     {
@@ -82,8 +82,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getValueComparator()
+    /**
+     * {@inheritDoc}
      */
     public Comparator<V> getValueComparator()
     {
@@ -91,8 +91,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#insert(K, V)
+    /**
+     * {@inheritDoc}
      */
     public V insert( K key, V value )
     {
@@ -260,9 +260,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     
     
     /**
-     * removes a node associated with a key
-     * The entire node will be removed irrespective of whether duplicate keys
-     * are enabled or not
+     * {@inheritDoc}
      */
     public SingletonOrOrderedSet<V> remove( K key )
     {
@@ -297,8 +295,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#remove(K, V)
+    /**
+     * {@inheritDoc}
      */
     public V remove( K key, V value )
     {
@@ -468,7 +466,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
      * For an excellent info please read the 
      * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
      * 
-     * @param treePath the traversed list of LinkedAvlNodes after performing an insert/delete operation.
+     * @param treePath the traversed list of LinkedAvlMapNodes after performing an insert/delete operation.
      */
     private void balance( List<LinkedAvlMapNode<K,V>> treePath )
     {
@@ -518,8 +516,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#isEmpty()
+    /**
+     * {@inheritDoc}
      */
     public boolean isEmpty()
     {
@@ -527,8 +525,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getSize()
+    /**
+     * {@inheritDoc}
      */
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
@@ -594,8 +592,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getRoot()
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> getRoot()
     {
@@ -603,8 +601,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getKeys()
+    /**
+     * {@inheritDoc}
      */
     public List<K> getKeys()
     {
@@ -620,8 +618,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         return keys;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#printTree()
+    /**
+     * {@inheritDoc}
      */
     public void printTree() 
     {
@@ -641,8 +639,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getFirst()
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> getFirst()
     {
@@ -650,8 +648,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getLast()
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> getLast()
     {
@@ -662,8 +660,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     /**
      * Rotate the node left side once.
      *
-     * @param node the LinkedAvlNode to be rotated
-     * @param parentNode parent LinkedAvlNode of node
+     * @param node the LinkedAvlMapNode to be rotated
+     * @param parentNode parent LinkedAvlMapNode of node
      */
     private void rotateSingleLeft(LinkedAvlMapNode<K,V> node, LinkedAvlMapNode<K,V> parentNode)
     {
@@ -695,8 +693,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     /**
      * Rotate the node right side once.
      *
-     * @param node the LinkedAvlNode to be rotated
-     * @param parentNode parent LinkedAvlNode of node
+     * @param node the LinkedAvlMapNode to be rotated
+     * @param parentNode parent LinkedAvlMapNode of node
      */
     private void rotateSingleRight(LinkedAvlMapNode<K,V> node, LinkedAvlMapNode<K,V> parentNode)
     {
@@ -738,10 +736,10 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         
 
     /**
-     * Detach a LinkedAvlNode from its parent
+     * Detach a LinkedAvlMapNode from its parent
      *
-     * @param node the LinkedAvlNode to be detached
-     * @param parentNode the parent LinkedAvlNode of the node
+     * @param node the LinkedAvlMapNode to be detached
+     * @param parentNode the parent LinkedAvlMapNode of the node
      */
     private void detachNodes(LinkedAvlMapNode<K,V> node, LinkedAvlMapNode<K,V> parentNode)
     {
@@ -761,11 +759,11 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
 
     /**
      * 
-     * Replace a LinkedAvlNode to be removed with a new existing LinkedAvlNode 
+     * Replace a LinkedAvlMapNode to be removed with a new existing LinkedAvlMapNode 
      *
-     * @param deleteNode the LinkedAvlNode to be deleted
-     * @param replaceNode the LinkedAvlNode to replace the deleteNode
-     * @param parentNode the parent LinkedAvlNode of deleteNode
+     * @param deleteNode the LinkedAvlMapNode to be deleted
+     * @param replaceNode the LinkedAvlMapNode to replace the deleteNode
+     * @param parentNode the parent LinkedAvlMapNode of deleteNode
      */
     private void replaceNode(LinkedAvlMapNode<K,V> deleteNode, LinkedAvlMapNode<K,V> replaceNode, LinkedAvlMapNode<K,V> parentNode)
     {
@@ -787,12 +785,12 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     
     /**
      * 
-     * Find a LinkedAvlNode with the given key value in the tree starting from the startNode.
+     * Find a LinkedAvlMapNode with the given key value in the tree starting from the startNode.
      *
      * @param key the key to find
      * @param startNode starting node of a subtree/tree
      * @param path the list to be filled with traversed nodes
-     * @return the list of traversed LinkedAvlNodes.
+     * @return the list of traversed LinkedAvlMapNodes.
      */
     private List<LinkedAvlMapNode<K,V>> find( K key, LinkedAvlMapNode<K,V> startNode, List<LinkedAvlMapNode<K,V>> path )
     {
@@ -823,8 +821,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findGreater(K)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> findGreater( K key )
     {
@@ -843,8 +841,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findGreaterOrEqual(K)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> findGreaterOrEqual( K key )
     {
@@ -863,8 +861,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findLess(K)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> findLess( K key )
     {
@@ -883,8 +881,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findLessOrEqual(K)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> findLessOrEqual( K key )
     {
@@ -932,8 +930,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         return startNode;
     }
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#find(K)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> find( K key )
     {
@@ -941,8 +939,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#find(K, V)
+    /**
+     * {@inheritDoc}
      */
     public LinkedAvlMapNode<K,V> find( K key, V value )
     {
@@ -1006,10 +1004,10 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     
     
     /**
-     * Find the LinkedAvlNode having the max key value in the tree starting from the startNode.
+     * Find the LinkedAvlMapNode having the max key value in the tree starting from the startNode.
      *
      * @param startNode starting node of a subtree/tree
-     * @return the list of traversed LinkedAvlNodes.
+     * @return the list of traversed LinkedAvlMapNodes.
      */
     private List<LinkedAvlMapNode<K,V>> findMax( LinkedAvlMapNode<K,V> startNode )
     {
@@ -1042,10 +1040,10 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
 
     
     /**
-     * Find the LinkedAvlNode having the min key value in the tree starting from the startNode.
+     * Find the LinkedAvlMapNode having the min key value in the tree starting from the startNode.
      *
      * @param startNode starting node of a subtree/tree
-     * @return the list of traversed LinkedAvlNodes.
+     * @return the list of traversed LinkedAvlMapNodes.
      */
     private List<LinkedAvlMapNode<K,V>> findMin( LinkedAvlMapNode<K,V> startNode )
     {
@@ -1078,9 +1076,9 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
    
     
     /**
-     * Get balance-factor of the given LinkedAvlNode.
+     * Get balance-factor of the given LinkedAvlMapNode.
      *
-     * @param node a LinkedAvlNode 
+     * @param node a LinkedAvlMapNode 
      * @return balance-factor of the node
      */
     private int getBalance( LinkedAvlMapNode<K,V> node )
@@ -1135,8 +1133,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.avltree.AvlTreeMap#isDupsAllowed()
+    /**
+     * {@inheritDoc}
      */
     public boolean isDupsAllowed()
     {
