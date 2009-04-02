@@ -120,10 +120,10 @@ public class AvlTreeMapTest
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         
         assertNull( tree.insert( 43, 891 ) );
-        assertEquals( 891, tree.find( 43 ).getValue().intValue() );
+        assertEquals( 891, tree.find( 43 ).getValue().getSingleton().intValue() );
         
         assertNotNull( tree.insert( 43, 16 ) );
-        assertEquals( 16, tree.find( 43 ).getValue().intValue() );
+        assertEquals( 16, tree.find( 43 ).getValue().getSingleton().intValue() );
     }
     
 
@@ -189,7 +189,7 @@ public class AvlTreeMapTest
         LinkedAvlMapNode node = tree.find( 3 );
         assertNotNull( node );
      
-        assertTrue( node.value.getClass() ==  AvlTreeImpl.class );
+        assertTrue( node.value.getOrderedSet().getClass() ==  AvlTreeImpl.class );
         
         AvlTree dupsTree = ( AvlTree ) node.value;
         assertEquals( 3, dupsTree.getSize() );
