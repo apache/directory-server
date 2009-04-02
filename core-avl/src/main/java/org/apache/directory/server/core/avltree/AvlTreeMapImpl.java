@@ -33,7 +33,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlTreeMapImpl<K,V>
+public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
 {
     /** the root of the tree */
     private LinkedAvlMapNode<K,V> root;
@@ -73,8 +73,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
     
-    /**
-     * @return the key comparator associated with this tree 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getKeyComparator()
      */
     public Comparator<K> getKeyComparator()
     {
@@ -82,8 +82,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
 
-    /**
-     * @return the value comparator associated with this tree 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getValueComparator()
      */
     public Comparator<V> getValueComparator()
     {
@@ -91,13 +91,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
     
-    /**
-     * Inserts a LinkedAvlMapNode with the given key and value.
-     *
-     * @param key the item to be inserted
-     * @return the replaced key if it already exists
-     * TODO - should we not return the value if the key already existed?
-     * Note: Replaces a nodes value if duplicate keys are not allowed.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#insert(K, V)
      */
     public K insert( K key, V value )
     {
@@ -265,13 +260,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
     
-    /**
-     * Removes the LinkedAvlMapNode present in the tree with the given key and value
-     *
-     * @param key the key of the node to be removed
-     * @param value the value of the node, if null the entire node will be removed 
-     *              including any values having the same key
-     * @return the removed key, if any, or null if the key does not exist
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#remove(K, V)
      */
     @SuppressWarnings("unchecked")
     public K remove( K key, V value )
@@ -462,10 +452,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
 
-    /**
-     * Tests if the tree is logically empty.
-     * 
-     * @return true if the tree is empty, false otherwise
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#isEmpty()
      */
     public boolean isEmpty()
     {
@@ -473,10 +461,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
     
-    /**
-     * returns the number of nodes present in this tree.
-     * 
-     * @return the number of nodes present in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getSize()
      */
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
@@ -542,9 +528,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
-    /**
-     * @return the root element of this tree (ie, not the first, but the
-     * topmost element)
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getRoot()
      */
     public LinkedAvlMapNode<K,V> getRoot()
     {
@@ -552,8 +537,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
     
-    /**
-     * @return a list of the stored keys in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getKeys()
      */
     public List<K> getKeys()
     {
@@ -569,8 +554,8 @@ public class AvlTreeMapImpl<K,V>
         return keys;
     }
 
-    /**
-     * Prints the contents of AVL tree in pretty format
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#printTree()
      */
     public void printTree() 
     {
@@ -590,8 +575,8 @@ public class AvlTreeMapImpl<K,V>
     }
     
 
-    /**
-     * @return The first element of this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getFirst()
      */
     public LinkedAvlMapNode<K,V> getFirst()
     {
@@ -599,8 +584,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
     
-    /**
-     * @return The last element in this tree
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#getLast()
      */
     public LinkedAvlMapNode<K,V> getLast()
     {
@@ -772,12 +757,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
-    /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is higher than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
-     *         null if there is no node with a higher key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findGreater(K)
      */
     public LinkedAvlMapNode<K,V> findGreater( K key )
     {
@@ -796,12 +777,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
-    /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is higher than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
-     *         null if there is no node with a higher key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findGreaterOrEqual(K)
      */
     public LinkedAvlMapNode<K,V> findGreaterOrEqual( K key )
     {
@@ -820,12 +797,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
-    /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is lower than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
-     *         null if there is no node with a lower key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findLess(K)
      */
     public LinkedAvlMapNode<K,V> findLess( K key )
     {
@@ -844,12 +817,8 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
-    /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is lower than the given key.
-     *
-     * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
-     *         null if there is no node with a lower key than the given key.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#findLessOrEqual(K)
      */
     public LinkedAvlMapNode<K,V> findLessOrEqual( K key )
     {
@@ -897,12 +866,8 @@ public class AvlTreeMapImpl<K,V>
         return startNode;
     }
     
-    /**
-     * 
-     * Find a LinkedAvlNode with the given key value in the tree.
-     *
-     * @param key the key to find
-     * @return the list of traversed LinkedAvlNode.
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#find(K)
      */
     public LinkedAvlMapNode<K,V> find( K key )
     {
@@ -910,6 +875,9 @@ public class AvlTreeMapImpl<K,V>
     }
     
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#find(K, V)
+     */
     @SuppressWarnings("unchecked")
     public LinkedAvlMapNode<K,V> find( K key, V value )
     {
@@ -1102,6 +1070,9 @@ public class AvlTreeMapImpl<K,V>
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.avltree.AvlTreeMap#isDupsAllowed()
+     */
     public boolean isDupsAllowed()
     {
         return allowDuplicates;

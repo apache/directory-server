@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class AvlTreeMapTest
 {
 
-    AvlTreeMapImpl<Integer, Integer> tree;
+    AvlTreeMap<Integer, Integer> tree;
 
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
 
