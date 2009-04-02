@@ -29,6 +29,7 @@ import org.apache.directory.server.core.avltree.AvlTreeMapImpl;
 import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
 import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
 import org.apache.directory.server.core.avltree.LinkedAvlMapNode;
+import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.EmptyCursor;
 import org.apache.directory.server.core.cursor.SingletonCursor;
@@ -82,7 +83,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public int count( K key ) throws Exception
     {
         if ( key == null )
@@ -96,10 +96,10 @@ public class AvlTable<K, V> implements Table<K, V>
             return 0;
         }
         
-        V val = node.getValue();
-        if ( val instanceof AvlTree )
+        SingletonOrOrderedSet<V> val = node.getValue();
+        if ( val.isOrderedSet() )
         {
-            return ( ( AvlTree ) val ).getSize();
+            return val.getOrderedSet().getSize();
         }
         
         return 1;
@@ -109,7 +109,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public V get( K key ) throws Exception
     {
         if ( key == null )
@@ -123,13 +122,13 @@ public class AvlTable<K, V> implements Table<K, V>
             return null;
         }
         
-        V val = node.getValue();
-        if ( val instanceof AvlTree )
+        SingletonOrOrderedSet<V> val = node.getValue();
+        if ( val.isOrderedSet() )
         {
-            return ( ( AvlTree<V> ) val ).getFirst().getKey();
+            return val.getOrderedSet().getFirst().getKey();
         }
         
-        return val;
+        return val.getSingleton();
     }
 
     
@@ -214,7 +213,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean hasGreaterOrEqual( K key, V val ) throws Exception
     {
         if ( key == null )
@@ -228,13 +226,13 @@ public class AvlTable<K, V> implements Table<K, V>
             return false;
         }
         
-        if ( node.getValue() instanceof AvlTree )
+        if ( node.getValue().isOrderedSet() )
         {
-            AvlTree<V> values = ( AvlTree<V> ) node.getValue();
+            AvlTree<V> values = node.getValue().getOrderedSet();
             return values.findGreaterOrEqual( val ) != null;
         }
         
-        return valComparator.compare( node.getValue(), val ) >= 0;
+        return valComparator.compare( node.getValue().getSingleton(), val ) >= 0;
     }
 
     
@@ -255,7 +253,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean hasLessOrEqual( K key, V val ) throws Exception
     {
         if ( key == null )
@@ -269,13 +266,13 @@ public class AvlTable<K, V> implements Table<K, V>
             return false;
         }
         
-        if ( node.getValue() instanceof AvlTree )
+        if ( node.getValue().isOrderedSet() )
         {
-            AvlTree<V> values = ( AvlTree<V> ) node.getValue();
+            AvlTree<V> values = node.getValue().getOrderedSet();
             return values.findLessOrEqual( val ) != null;
         }
         
-        return valComparator.compare( node.getValue(), val ) <= 0;
+        return valComparator.compare( node.getValue().getSingleton(), val ) <= 0;
     }
 
 
@@ -326,7 +323,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void remove( K key ) throws Exception
     {
         if ( key == null )
@@ -334,31 +330,18 @@ public class AvlTable<K, V> implements Table<K, V>
             return;
         }
         
-        if ( ! avl.isDupsAllowed() )
-        {
-            if ( avl.remove( key, null ) != null )
-            {
-                count--;
-            }
-            return;
-        }
-        
-        LinkedAvlMapNode<K, V> node = avl.find( key );
-        if ( node == null )
+        SingletonOrOrderedSet<V> value = avl.remove( key );
+        if ( value == null )
         {
             return;
         }
-        
-        V value = node.getValue();
-        
-        if ( value instanceof AvlTree )
+
+        if ( value.isOrderedSet() )
         {
-            count -= ( ( AvlTree ) value ).getSize();
-            avl.remove( key, null );
+            count -= value.getOrderedSet().getSize();
         }
         else
         {
-            avl.remove( key, null );
             count --;
         }
     }
@@ -393,7 +376,6 @@ public class AvlTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public Cursor<Tuple<K, V>> cursor( K key ) throws Exception
     {
         if ( key == null )
@@ -407,20 +389,18 @@ public class AvlTable<K, V> implements Table<K, V>
             return new EmptyCursor<Tuple<K,V>>();
         }
         
-        V value = node.getValue();
-        if ( value instanceof AvlTree )
+        if ( node.getValue().isOrderedSet() )
         {
-            return new KeyTupleAvlCursor<K,V>( ( AvlTree<V> ) value, key );
+            return new KeyTupleAvlCursor<K,V>( node.getValue().getOrderedSet(), key );
         }
         
-        return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, value ) );
+        return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, node.getValue().getSingleton() ) );
     }
 
     
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public Cursor<V> valueCursor( K key ) throws Exception
     {
         if ( key == null )
@@ -434,13 +414,12 @@ public class AvlTable<K, V> implements Table<K, V>
             return new EmptyCursor<V>();
         }
         
-        V value = node.getValue();
-        if ( value instanceof AvlTree )
+        if ( node.getValue().isOrderedSet() )
         {
-            return new AvlTreeCursor<V>( ( AvlTree<V> ) value );
+            return new AvlTreeCursor<V>( node.getValue().getOrderedSet() );
         }
         
-        return new SingletonCursor<V>( value );
+        return new SingletonCursor<V>( node.getValue().getSingleton() );
     }
 
 
