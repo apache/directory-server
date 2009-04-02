@@ -39,7 +39,7 @@ public class AvlTreeCursorTest
     @Test
     public void testEmptyCursor() throws Exception
     {
-        AvlTree<Integer> tree = new AvlTree<Integer>( new IntegerComparator() );
+        AvlTreeImpl<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
         AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
         
         assertFalse( cursor.isClosed() );
@@ -88,7 +88,7 @@ public class AvlTreeCursorTest
     @Test
     public void testOneEntryCursor() throws Exception
     {
-        AvlTree<Integer> tree = new AvlTree<Integer>( new IntegerComparator() );
+        AvlTreeImpl<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
         tree.insert( 7 );
         AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
         
@@ -152,7 +152,7 @@ public class AvlTreeCursorTest
     @Test
     public void testManyEntriesCursor() throws Exception
     {
-        AvlTree<Integer> tree = new AvlTree<Integer>( new IntegerComparator() );
+        AvlTreeImpl<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
         tree.insert( 3 );
         tree.insert( 7 );
         tree.insert( 10 );

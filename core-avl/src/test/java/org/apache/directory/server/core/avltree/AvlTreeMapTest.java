@@ -189,9 +189,9 @@ public class AvlTreeMapTest
         LinkedAvlMapNode node = tree.find( 3 );
         assertNotNull( node );
      
-        assertTrue( node.value.getClass() ==  AvlTree.class );
+        assertTrue( node.value.getClass() ==  AvlTreeImpl.class );
         
-        AvlTree dupsTree = ( AvlTree ) node.value;
+        AvlTreeImpl dupsTree = ( AvlTreeImpl ) node.value;
         assertEquals( 3, dupsTree.getSize() );
     }
     

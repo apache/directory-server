@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.avl;
 
 import java.util.Comparator;
 
-import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeImpl;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.AvlTreeMap;
 import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
@@ -96,9 +96,9 @@ public class AvlTable<K, V> implements Table<K, V>
         }
         
         V val = node.getValue();
-        if ( val instanceof AvlTree )
+        if ( val instanceof AvlTreeImpl )
         {
-            return ( ( AvlTree ) val ).getSize();
+            return ( ( AvlTreeImpl ) val ).getSize();
         }
         
         return 1;
@@ -123,9 +123,9 @@ public class AvlTable<K, V> implements Table<K, V>
         }
         
         V val = node.getValue();
-        if ( val instanceof AvlTree )
+        if ( val instanceof AvlTreeImpl )
         {
-            return ( ( AvlTree<V> ) val ).getFirst().getKey();
+            return ( ( AvlTreeImpl<V> ) val ).getFirst().getKey();
         }
         
         return val;
@@ -227,9 +227,9 @@ public class AvlTable<K, V> implements Table<K, V>
             return false;
         }
         
-        if ( node.getValue() instanceof AvlTree )
+        if ( node.getValue() instanceof AvlTreeImpl )
         {
-            AvlTree<V> values = ( AvlTree<V> ) node.getValue();
+            AvlTreeImpl<V> values = ( AvlTreeImpl<V> ) node.getValue();
             return values.findGreaterOrEqual( val ) != null;
         }
         
@@ -268,9 +268,9 @@ public class AvlTable<K, V> implements Table<K, V>
             return false;
         }
         
-        if ( node.getValue() instanceof AvlTree )
+        if ( node.getValue() instanceof AvlTreeImpl )
         {
-            AvlTree<V> values = ( AvlTree<V> ) node.getValue();
+            AvlTreeImpl<V> values = ( AvlTreeImpl<V> ) node.getValue();
             return values.findLessOrEqual( val ) != null;
         }
         
@@ -350,9 +350,9 @@ public class AvlTable<K, V> implements Table<K, V>
         
         V value = node.getValue();
         
-        if ( value instanceof AvlTree )
+        if ( value instanceof AvlTreeImpl )
         {
-            count -= ( ( AvlTree ) value ).getSize();
+            count -= ( ( AvlTreeImpl ) value ).getSize();
             avl.remove( key, null );
         }
         else
@@ -407,9 +407,9 @@ public class AvlTable<K, V> implements Table<K, V>
         }
         
         V value = node.getValue();
-        if ( value instanceof AvlTree )
+        if ( value instanceof AvlTreeImpl )
         {
-            return new KeyTupleAvlCursor<K,V>( ( AvlTree<V> ) value, key );
+            return new KeyTupleAvlCursor<K,V>( ( AvlTreeImpl<V> ) value, key );
         }
         
         return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, value ) );
@@ -434,9 +434,9 @@ public class AvlTable<K, V> implements Table<K, V>
         }
         
         V value = node.getValue();
-        if ( value instanceof AvlTree )
+        if ( value instanceof AvlTreeImpl )
         {
-            return new AvlTreeCursor<V>( ( AvlTree<V> ) value );
+            return new AvlTreeCursor<V>( ( AvlTreeImpl<V> ) value );
         }
         
         return new SingletonCursor<V>( value );

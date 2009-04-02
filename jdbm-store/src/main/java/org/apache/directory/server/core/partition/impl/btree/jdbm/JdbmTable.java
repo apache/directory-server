@@ -366,7 +366,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            AvlTree<V> set = values.getAvlTree();
+            AvlTreeImpl<V> set = values.getAvlTree();
 
             if ( set.getFirst() == null )
             {
@@ -405,7 +405,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            AvlTree<V> set = values.getAvlTree();
+            AvlTreeImpl<V> set = values.getAvlTree();
             LinkedAvlNode<V> result = set.findGreaterOrEqual( val );
             return result != null;
         }
@@ -436,7 +436,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            AvlTree<V> set = values.getAvlTree();
+            AvlTreeImpl<V> set = values.getAvlTree();
             LinkedAvlNode<V> result = set.findLessOrEqual( val );
             return result != null;
         }
@@ -587,7 +587,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            AvlTree<V> set = values.getAvlTree();
+            AvlTreeImpl<V> set = values.getAvlTree();
             replaced = set.insert( value );
             
             if ( replaced != null )// if the value already present returns the same value
@@ -650,7 +650,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
-            AvlTree<V> set = values.getAvlTree();
+            AvlTreeImpl<V> set = values.getAvlTree();
 
             // If removal succeeds then remove if set is empty else replace it
             if ( set.remove( value ) != null )
@@ -680,7 +680,7 @@ public class JdbmTable<K,V> implements Table<K,V>
              */
             if ( tree.size() <= numDupLimit )
             {
-                AvlTree<V> avlTree = convertToAvlTree( tree );
+                AvlTreeImpl<V> avlTree = convertToAvlTree( tree );
                 bt.insert( key, marshaller.serialize( avlTree ), true );
                 recMan.delete( tree.getRecid() );
             }
@@ -724,7 +724,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         else
         {
-            AvlTree<V> set = marshaller.deserialize( serialized );
+            AvlTreeImpl<V> set = marshaller.deserialize( serialized );
             this.count -= set.getSize();
             return;
         }
@@ -769,7 +769,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return new KeyTupleBTreeCursor<K,V>( tree, key, valueComparator );
         }
 
-        AvlTree<V> set = marshaller.deserialize( serialized );
+        AvlTreeImpl<V> set = marshaller.deserialize( serialized );
         return new KeyTupleAvlCursor<K,V>( set, key );
     }
 
@@ -831,7 +831,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
     
-    public Marshaller<AvlTree<V>> getMarshaller()
+    public Marshaller<AvlTreeImpl<V>> getMarshaller()
     {
         return marshaller;
     }
@@ -846,7 +846,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     {
         if ( serialized == null )
         {
-            return new DupsContainer<V>( new AvlTree<V>( valueComparator ) );
+            return new DupsContainer<V>( new AvlTreeImpl<V>( valueComparator ) );
         }
 
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
@@ -931,9 +931,9 @@ public class JdbmTable<K,V> implements Table<K,V>
 
 
     @SuppressWarnings("unchecked")
-    private AvlTree<V> convertToAvlTree( BTree bTree ) throws IOException
+    private AvlTreeImpl<V> convertToAvlTree( BTree bTree ) throws IOException
     {
-        AvlTree<V> avlTree = new AvlTree<V>( valueComparator );
+        AvlTreeImpl<V> avlTree = new AvlTreeImpl<V>( valueComparator );
         TupleBrowser browser = bTree.browse();
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         while ( browser.getNext( tuple ) )
@@ -945,7 +945,7 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
     
 
-    private BTree convertToBTree( AvlTree<V> avlTree ) throws Exception
+    private BTree convertToBTree( AvlTreeImpl<V> avlTree ) throws Exception
     {
         BTree bTree;
 

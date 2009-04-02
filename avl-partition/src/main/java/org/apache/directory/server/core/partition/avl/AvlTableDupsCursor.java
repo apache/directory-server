@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.avl;
 
 
-import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeImpl;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
 import org.apache.directory.server.core.cursor.Cursor;
@@ -121,9 +121,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
             
-            if ( wrappedTuple.getValue() instanceof AvlTree )
+            if ( wrappedTuple.getValue() instanceof AvlTreeImpl )
             {
-                AvlTree<V> avlTree = ( AvlTree<V> ) wrappedTuple.getValue();
+                AvlTreeImpl<V> avlTree = ( AvlTreeImpl<V> ) wrappedTuple.getValue();
                 dupsCursor = new AvlTreeCursor<V>( avlTree );
             }
             else
@@ -207,9 +207,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             wrappedTuple.setBoth( wrappedCursor.get() );
             V values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values instanceof AvlTreeImpl )
             {
-                AvlTree<V> set = ( AvlTree<V> ) values;
+                AvlTreeImpl<V> set = ( AvlTreeImpl<V> ) values;
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
             else
@@ -298,9 +298,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             wrappedTuple.setBoth( wrappedCursor.get() );
             V values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values instanceof AvlTreeImpl )
             {
-                dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                dupsCursor = new AvlTreeCursor<V>( ( AvlTreeImpl<V> ) values );
             }
             else
             {
@@ -363,9 +363,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             wrappedTuple.setBoth( wrappedCursor.get() );
             V values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values instanceof AvlTreeImpl )
             {
-                dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                dupsCursor = new AvlTreeCursor<V>( ( AvlTreeImpl<V> ) values );
             }
             else
             {
@@ -410,9 +410,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 wrappedTuple.setBoth( wrappedCursor.get() );
                 V values = wrappedTuple.getValue();
 
-                if ( values instanceof AvlTree )
+                if ( values instanceof AvlTreeImpl )
                 {
-                    dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                    dupsCursor = new AvlTreeCursor<V>( ( AvlTreeImpl<V> ) values );
                 }
                 else
                 {
@@ -471,9 +471,9 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 wrappedTuple.setBoth( wrappedCursor.get() );
                 V values = wrappedTuple.getValue();
 
-                if ( values instanceof AvlTree )
+                if ( values instanceof AvlTreeImpl )
                 {
-                    dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                    dupsCursor = new AvlTreeCursor<V>( ( AvlTreeImpl<V> ) values );
                 }
                 else
                 {

@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AvlTreePerfTest
 {
-    AvlTree<Integer> tree;
+    AvlTreeImpl<Integer> tree;
     
     static String tempDir = System.getProperty( "java.io.tmpdir" );
    
@@ -74,7 +74,7 @@ public class AvlTreePerfTest
     @Before
     public void createTree()
     {
-      tree = new AvlTree<Integer>( new Comparator<Integer>() 
+      tree = new AvlTreeImpl<Integer>( new Comparator<Integer>() 
           {
 
             public int compare( Integer i1, Integer i2 )
@@ -296,7 +296,7 @@ public class AvlTreePerfTest
         start = System.nanoTime();
         
         fin.read(data);
-        tree = (AvlTree<Integer>) treeMarshaller.deserialize( data );
+        tree = (AvlTreeImpl<Integer>) treeMarshaller.deserialize( data );
         
         end = System.nanoTime();
         LOG.info("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );

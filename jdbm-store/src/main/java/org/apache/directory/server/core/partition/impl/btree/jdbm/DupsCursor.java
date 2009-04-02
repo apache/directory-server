@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import jdbm.btree.BTree;
 
-import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeImpl;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
@@ -114,7 +114,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
             if ( values.isAvlTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
+                AvlTreeImpl<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
             else
@@ -189,7 +189,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
             if ( values.isAvlTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
+                AvlTreeImpl<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
             else
@@ -302,7 +302,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
             if ( values.isAvlTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
+                AvlTreeImpl<V> set = values.getAvlTree();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
             else
@@ -357,7 +357,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
                 if ( values.isAvlTree() )
                 {
-                    AvlTree<V> set = values.getAvlTree();
+                    AvlTreeImpl<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
                 }
                 else
@@ -408,7 +408,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
                 if ( values.isAvlTree() )
                 {
-                    AvlTree<V> set = values.getAvlTree();
+                    AvlTreeImpl<V> set = values.getAvlTree();
                     dupsCursor = new AvlTreeCursor<V>( set );
                 }
                 else

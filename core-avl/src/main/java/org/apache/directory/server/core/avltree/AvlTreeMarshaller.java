@@ -35,7 +35,7 @@ import java.util.Comparator;
  * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
-public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
+public class AvlTreeMarshaller<E> implements Marshaller<AvlTreeImpl<E>>
 {
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_TREE = new byte[1];
@@ -78,7 +78,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * Marshals the given tree to bytes
      * @param tree the tree to be marshalled
      */
-    public byte[] serialize( AvlTree<E> tree )
+    public byte[] serialize( AvlTreeImpl<E> tree )
     {
         if( tree.isEmpty() )
         {
@@ -162,7 +162,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * 
      * @param data byte array to be converted into AVLTree  
      */
-    public AvlTree<E> deserialize( byte[] data ) throws IOException
+    public AvlTreeImpl<E> deserialize( byte[] data ) throws IOException
     {
         if ( data == null || data.length == 0 )
         {
@@ -171,7 +171,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
         if ( data.length == 1 && data[0] == 0 )
         {
-            return new AvlTree<E>( comparator );
+            return new AvlTreeImpl<E>( comparator );
         }
 
         ByteArrayInputStream bin = new ByteArrayInputStream( data );
@@ -189,7 +189,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         LinkedAvlNode[] nodes = new LinkedAvlNode[ size ];
         LinkedAvlNode<E> root = readTree( din, null, nodes );
         
-        AvlTree<E> tree = new AvlTree<E>( comparator );
+        AvlTreeImpl<E> tree = new AvlTreeImpl<E>( comparator );
         
         tree.setRoot( root );
         

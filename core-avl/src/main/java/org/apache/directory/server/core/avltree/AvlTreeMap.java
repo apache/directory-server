@@ -173,15 +173,15 @@ public class AvlTreeMap<K,V>
     @SuppressWarnings("unchecked")
     private K insertDupKey( K key, V value, LinkedAvlMapNode existingNode )
     {
-        AvlTree<V> dupsTree = null;
+        AvlTreeImpl<V> dupsTree = null;
         
-        if( existingNode.value instanceof AvlTree )
+        if( existingNode.value instanceof AvlTreeImpl )
         {
-            dupsTree = ( AvlTree<V> ) existingNode.value;
+            dupsTree = ( AvlTreeImpl<V> ) existingNode.value;
         }
         else
         {
-            dupsTree = new AvlTree<V>( valueComparator );
+            dupsTree = new AvlTreeImpl<V>( valueComparator );
             dupsTree.insert( ( V ) existingNode.value );
             existingNode.value = dupsTree;
         }
@@ -293,9 +293,9 @@ public class AvlTreeMap<K,V>
         // check if the value matches
         if( value != null )
         {
-            if( temp.value instanceof AvlTree )
+            if( temp.value instanceof AvlTreeImpl )
             {
-                AvlTree<V> dupsTree = ( AvlTree<V> ) temp.value;
+                AvlTreeImpl<V> dupsTree = ( AvlTreeImpl<V> ) temp.value;
                 V removedVal = dupsTree.remove( value );
                 
                 // if the removal is successful and the tree is not empty
@@ -925,9 +925,9 @@ public class AvlTreeMap<K,V>
             return null;
         }
         
-        if( node.value instanceof AvlTree )
+        if( node.value instanceof AvlTreeImpl )
         {
-            AvlTree<V> dupsTree = ( AvlTree<V> ) node.value;
+            AvlTreeImpl<V> dupsTree = ( AvlTreeImpl<V> ) node.value;
             
             if( dupsTree.find( value ) == null )
             {
