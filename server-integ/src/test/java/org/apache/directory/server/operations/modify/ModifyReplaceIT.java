@@ -59,7 +59,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.mina.util.AvailablePortFinder;
@@ -123,7 +122,7 @@ public class ModifyReplaceIT
             system.setSuffix( "ou=system" );
 
             // Add indexed attributes for system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+            Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT ) );
             system.setIndexedAttributes( indexedAttrs );

@@ -55,7 +55,7 @@ public class JdbmIndexTest
 {
     AttributeTypeRegistry registry;
     File dbFileDir;
-    Index<String,ServerEntry> idx;
+    JdbmIndex<String,ServerEntry> idx;
 
 
     @Before

@@ -97,10 +97,10 @@ public interface Store<E>
     File getWorkingDirectory();
 
 
-    void setUserIndices( Set<Index<?,E>> userIndices );
+    void setUserIndices( Set<? extends Index<?,E>> userIndices );
 
 
-    Set<Index<?,E>> getUserIndices();
+    Set<? extends Index<?,E>> getUserIndices();
 
 
     void setSuffixDn( String suffixDn );

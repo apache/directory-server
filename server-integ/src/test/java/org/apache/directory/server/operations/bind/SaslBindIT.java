@@ -60,7 +60,6 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponse;
@@ -137,7 +136,7 @@ public class SaslBindIT
              partition.setId( "example" );
              partition.setSuffix( "dc=example,dc=com" );
 
-             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+             Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );

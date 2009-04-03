@@ -31,7 +31,6 @@ import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
@@ -123,7 +122,7 @@ public class KeyDerivationServiceIT
              partition.setId( "example" );
              partition.setSuffix( "dc=example,dc=com" );
 
-             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+             Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );

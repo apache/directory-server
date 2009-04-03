@@ -68,7 +68,7 @@ public class JdbmPartition extends XdbmPartition
 {
     private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
-    private Set<Index<?,ServerEntry>> indexedAttributes;
+    private Set<JdbmIndex<?,ServerEntry>> indexedAttributes;
 
     
     // ------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class JdbmPartition extends XdbmPartition
     public JdbmPartition()
     {
         store = new JdbmStore<ServerEntry>();
-        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
+        indexedAttributes = new HashSet<JdbmIndex<?,ServerEntry>>();
     }
 
 
@@ -103,13 +103,13 @@ public class JdbmPartition extends XdbmPartition
     }
 
 
-    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
+    public void setIndexedAttributes( Set<JdbmIndex<?,ServerEntry>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
 
 
-    public Set<Index<?,ServerEntry>> getIndexedAttributes()
+    public Set<JdbmIndex<?,ServerEntry>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -186,11 +186,11 @@ public class JdbmPartition extends XdbmPartition
         store.setSuffixDn( suffix );
         store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
 
-        Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
+        Set<JdbmIndex<?,ServerEntry>> userIndices = new HashSet<JdbmIndex<?,ServerEntry>>();
         
-        for ( Index<?,ServerEntry> obj : indexedAttributes )
+        for ( JdbmIndex<?,ServerEntry> obj : indexedAttributes )
         {
-            Index<?,ServerEntry> index;
+            JdbmIndex<?,ServerEntry> index;
 
             if ( obj instanceof JdbmIndex )
             {

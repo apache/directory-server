@@ -525,14 +525,14 @@ public class JdbmStore<E> implements Store<E>
         LOG.warn( "Supplied index {} is not a JdbmIndex.  " +
             "Will create new JdbmIndex using copied configuration parameters.", index );
         JdbmIndex<K,E> jdbmIndex = new JdbmIndex<K, E>( index.getAttributeId() );
-        jdbmIndex.setCacheSize( index.getCacheSize() );
+        jdbmIndex.setCacheSize( 10 );
         jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
-        jdbmIndex.setWkDirPath( index.getWkDirPath() );
+        jdbmIndex.setWkDirPath( this.getWorkingDirectory() );
         return jdbmIndex;
     }
 
 
-    public void setUserIndices( Set<Index<?,E>> userIndices )
+    public void setUserIndices( Set<? extends Index<?,E>> userIndices )
     {
         protect( "userIndices" );
         for ( Index<?,E> index : userIndices )

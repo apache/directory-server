@@ -614,12 +614,12 @@ public class SchemaCheckerTest extends TestCase
             return oid;
         }
 
-        public List getNameSet( String oid ) throws NamingException
+        public List<String> getNameSet( String oid ) throws NamingException
         {
             return Collections.singletonList( oid );
         }
 
-        public Iterator list()
+        public Iterator<?> list()
         {
             return Collections.EMPTY_LIST.iterator();
         }
@@ -628,12 +628,12 @@ public class SchemaCheckerTest extends TestCase
         {
         }
 
-        public Map getOidByName()
+        public Map<String,String> getOidByName()
         {
             return null;
         }
 
-        public Map getNameByOid()
+        public Map<String,String> getNameByOid()
         {
             return null;
         }

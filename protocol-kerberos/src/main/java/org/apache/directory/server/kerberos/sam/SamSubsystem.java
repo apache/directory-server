@@ -95,6 +95,7 @@ public final class SamSubsystem
      * @throws SamException thrown when there is a failure within the verifier
      * or a verifier cannot be found.
      */
+    @SuppressWarnings("unchecked")
     public KerberosKey verify( PrincipalStoreEntry entry, byte[] sad ) throws SamException
     {
         SamVerifier verifier = null;
@@ -140,9 +141,9 @@ public final class SamSubsystem
 
         try
         {
-            Class c = Class.forName( fqcn );
+            Class<? extends SamVerifier> c = ( Class<? extends SamVerifier> ) Class.forName( fqcn );
 
-            verifier = ( SamVerifier ) c.newInstance();
+            verifier = c.newInstance();
 
             try
             {

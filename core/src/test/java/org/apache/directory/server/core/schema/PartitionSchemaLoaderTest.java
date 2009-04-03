@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.impl.DefaultDirectoryService;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -136,7 +135,7 @@ public class PartitionSchemaLoaderTest
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
 
-        Set<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
+        Set<JdbmIndex<?, ServerEntry>> indexedAttributes = new HashSet<JdbmIndex<?, ServerEntry>>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
         {
             indexedAttributes.add( new JdbmIndex<String,ServerEntry>( attributeId ) );

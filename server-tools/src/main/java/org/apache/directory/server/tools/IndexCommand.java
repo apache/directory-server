@@ -57,7 +57,6 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
@@ -148,7 +147,7 @@ public class IndexCommand extends ToolCommand
                 ResultCodeEnum.OTHER );
         }
 
-        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
+        Set<JdbmIndex<?,ServerEntry>> indexedAttributes = new HashSet<JdbmIndex<?,ServerEntry>>();
 
         for ( String attributeId : listing.getIndexedAttributes() )
         {

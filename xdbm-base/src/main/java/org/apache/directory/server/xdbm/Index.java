@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.io.File;
-
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.server.core.cursor.Cursor;
 
@@ -60,40 +58,6 @@ public interface Index<K, O>
      * @param attributeId configured attribute oid or alias name
      */
     void setAttributeId( String attributeId );
-
-
-    /**
-     * Gets the size of the index cache in terms of the number of index entries to be cached.
-     *
-     * @return the size of the index cache
-     */
-    int getCacheSize();
-
-
-    /**
-     * Sets the size of the index cache in terms of the number of index entries to be cached.
-     *
-     * @param cacheSize the size of the index cache
-     */
-    void setCacheSize( int cacheSize );
-
-
-    /**
-     * Sets the working directory path to something other than the default. Sometimes more
-     * performance is gained by locating indices on separate disk spindles.
-     *
-     * @param wkDirPath optional working directory path
-     */
-    void setWkDirPath( File wkDirPath );
-
-
-    /**
-     * Gets the working directory path to something other than the default. Sometimes more
-     * performance is gained by locating indices on separate disk spindles.
-     *
-     * @return optional working directory path
-     */
-    File getWkDirPath();
 
 
     /**

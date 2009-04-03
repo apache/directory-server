@@ -20,6 +20,10 @@
 package org.apache.directory.server.xdbm;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 /**
  * Factory interface used by attached tests to instantiate various Xdbm 
  * component implementations. Xdbm implementation modules would implement
@@ -37,28 +41,56 @@ package org.apache.directory.server.xdbm;
  * @version $Rev$, $Date$
  */
 @SuppressWarnings("unchecked")
-public abstract class XdbmFactory
+public abstract class XdbmFactory<K,V>
 {
+    private static final Logger LOG = LoggerFactory.getLogger( XdbmFactory.class.getSimpleName() );
+
+    
+    /**
+     * Get's an instance of XdbmFactory using a system property to find the
+     * implementation specific class.
+     *
+     * @return implementation specific factory or null if one cannot be found
+     * @throws Exception if failures occur during factory instantiation
+     */
     public static XdbmFactory instance() throws Exception
     {
         String className = System.getProperty( "xdbmFactory" );
         if ( className == null )
         {
-            throw new RuntimeException( "xdbmFactory does not exist in the system properties." );
+            LOG.error( "xdbmFactory does not exist in the system properties. " 
+                + "Null factory instance being returned. ");
         }
         Class clazz = Class.forName( className );
         return ( XdbmFactory ) clazz.newInstance();
     }
     
-    public abstract Table createTable();
-    public abstract void destroy( Table table );
     
-    public abstract Index createIndex();
-    public abstract void destroy( Index index );
+    /**
+     * Creates a new implementation specific Table instance and initializes it
+     * for immediate use.
+     *
+     * @return a Table implementation
+     * @throws Exception on implementation specific issues on Table creation
+     */
+    public abstract Table<K,V> createTable() throws Exception;
     
-    public abstract MasterTable createMasterTable();
-    public abstract void destroy( MasterTable masterTable );
     
-    public abstract Store createStore();
-    public abstract void destroy( Store store );
+    /**
+     * Destroy an implementation specific Table instance removing any 
+     * resources it may have taken.
+     *
+     * @param table a Table implementation
+     * @throws Exception on implementation specific issues on Table destruction
+     */
+    public abstract void destroy( Table<K,V> table ) throws Exception;
+    
+    public abstract Index createIndex() throws Exception;
+    public abstract void destroy( Index index ) throws Exception;
+    
+    public abstract MasterTable createMasterTable() throws Exception;
+    public abstract void destroy( MasterTable masterTable ) throws Exception;
+    
+    public abstract Store createStore() throws Exception;
+    public abstract void destroy( Store store ) throws Exception;
 }
