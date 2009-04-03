@@ -44,16 +44,16 @@ import org.apache.directory.shared.ldap.codec.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.del.DelRequest;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
-import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
+import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -179,9 +179,9 @@ public class ImportCommand extends ToolCommand
                             System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
                     }
-                    else if ( messageResp instanceof ExtendedResponse )
+                    else if ( messageResp instanceof ExtendedResponseCodec )
                     {
-                        ExtendedResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                        ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getExtendedResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -217,7 +217,7 @@ public class ImportCommand extends ToolCommand
     private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, InvalidNameException,
         NamingException, EncoderException
     {
-        AddRequest addRequest = new AddRequest();
+        AddRequestCodec addRequest = new AddRequestCodec();
 
         String dn = ldifEntry.getDn().getUpName();
 
@@ -290,7 +290,7 @@ public class ImportCommand extends ToolCommand
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        DelRequest delRequest = new DelRequest();
+        DelRequestCodec delRequest = new DelRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -349,7 +349,7 @@ public class ImportCommand extends ToolCommand
     private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
+        ModifyDNRequestCodec modifyDNRequest = new ModifyDNRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -413,7 +413,7 @@ public class ImportCommand extends ToolCommand
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        ModifyRequest modifyRequest = new ModifyRequest();
+        ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -572,7 +572,7 @@ public class ImportCommand extends ToolCommand
      */
     private void unbind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
     {
-        UnBindRequest unbindRequest = new UnBindRequest();
+        UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
         LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( unbindRequest );
