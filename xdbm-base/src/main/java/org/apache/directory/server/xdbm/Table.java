@@ -28,8 +28,11 @@ import java.util.Comparator;
 /**
  * An abstraction representing a data structure holding key value pairs in 
  * Tuples (a.k.a. Entries) where keys and values are ordered and duplicate
- * keys may or may not be allowed.  Table normalizes implementation interfaces
- * so a common view of information is presented to the search engine.
+ * keys may or may not be allowed.  The Table interface is a cannonical 
+ * view of key value data stored and access by implementations with varying
+ * interfaces.  Wrapping these data structures as a Table implementation 
+ * helps present a common view to the search engine and partition 
+ * implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -73,14 +76,15 @@ public interface Table<K, V>
     
     /**
      * Checks whether or not calls to count the number of keys greater than or
-     * less than the key are exact or approximated.
+     * less than the key are exact or approximated. This has no bearing on the
+     * accuracy of the {@link #count()} and {@link #count(K)} methods.
      * 
      * Checking to see the number of values greater than or less than some key
      * may be excessively costly.  Since this is not a critical function but 
-     * one that assists in optimizing searches some implementations can just 
-     * return a worst case (maximum) guess.  
+     * one that assists in optimizing searches, some implementations can just 
+     * return a worst case (maximum) value.  
      *
-     * @return true if the count is an exact value or a worst case guess 
+     * @return true if the count is an exact value or false for worst case
      */
     boolean isCountExact();
     
@@ -244,7 +248,7 @@ public interface Table<K, V>
 
     /**
      * Creates a Cursor that traverses Tuples in a Table.
-     *
+     * 
      * @return a Cursor over Tuples containing the key value pairs
      * @throws Exception if there are failures accessing underlying stores
      */
