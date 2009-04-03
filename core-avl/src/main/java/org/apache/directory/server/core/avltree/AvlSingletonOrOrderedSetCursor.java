@@ -31,22 +31,23 @@ import org.apache.directory.server.xdbm.Tuple;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
+public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,SingletonOrOrderedSet<V>>
 {
     private AvlTreeMap<K, V> tree;
     private LinkedAvlMapNode<K,V> node;
     private boolean onNode = false;
     private boolean isAfterLast = false;
     private boolean isBeforeFirst = true;
-    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
+    private Tuple<K,SingletonOrOrderedSet<V>> returnedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
     
-    public AvlTreeMapNoDupsCursor( AvlTreeMap<K, V> tree )
+    
+    public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
         this.tree = tree;
     }
 
     
-    public void after( Tuple<K,V> element ) throws Exception 
+    public void after( Tuple<K,SingletonOrOrderedSet<V>> element ) throws Exception 
     {
         afterKey( element.getKey() );
     }
@@ -68,7 +69,7 @@ public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void before( Tuple<K,V> element ) throws Exception 
+    public void before( Tuple<K,SingletonOrOrderedSet<V>> element ) throws Exception 
     {
         beforeKey( element.getKey() );
     }
@@ -94,13 +95,13 @@ public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public Tuple<K,V> get() throws Exception 
+    public Tuple<K,SingletonOrOrderedSet<V>> get() throws Exception 
     {
         checkNotClosed( "get" );
         if ( onNode )
         {
             returnedTuple.setKey( node.key );
-            returnedTuple.setValue( node.value.getSingleton() );
+            returnedTuple.setValue( node.value );
             return returnedTuple;
         }
         
@@ -233,7 +234,7 @@ public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void afterValue( K key, V value ) throws Exception
+    public void afterValue( K key, SingletonOrOrderedSet<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }
@@ -266,7 +267,7 @@ public class AvlTreeMapNoDupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void beforeValue( K key, V value ) throws Exception
+    public void beforeValue( K key, SingletonOrOrderedSet<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }

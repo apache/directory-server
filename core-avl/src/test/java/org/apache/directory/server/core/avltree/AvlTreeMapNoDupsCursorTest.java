@@ -45,7 +45,7 @@ public class AvlTreeMapNoDupsCursorTest
 {
     AvlTreeMap<Integer, Integer> tree;
 
-    AvlTreeMapNoDupsCursor<Integer, Integer> cursor;
+    AvlSingletonOrOrderedSetCursor<Integer, Integer> cursor;
 
 
     @Before
@@ -63,7 +63,7 @@ public class AvlTreeMapNoDupsCursorTest
 
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
 
-        cursor = new AvlTreeMapNoDupsCursor<Integer, Integer>( tree );
+        cursor = new AvlSingletonOrOrderedSetCursor<Integer, Integer>( tree );
     }
 
 
@@ -102,10 +102,10 @@ public class AvlTreeMapNoDupsCursorTest
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
-        cursor.before( new Tuple( 3, null ) );
+        cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
 
-        cursor.after( new Tuple( 3, null ) );
+        cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
 
         cursor.close();
@@ -137,7 +137,7 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
 
         cursor.afterLast();
         assertFalse( cursor.next() );
@@ -155,26 +155,26 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
-        cursor.before( new Tuple( 3, null ) );
+        cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
 
-        cursor.after( new Tuple( 3, null ) );
+        cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
 
-        cursor.before( new Tuple( 7, null ) );
+        cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 7, null ) );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
     }
 
 
@@ -206,22 +206,22 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
-        assertEquals( 3, ( int ) cursor.get().getValue() );
+        assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
-        assertEquals( 10, ( int ) cursor.get().getValue() );
+        assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
         
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
-        assertEquals( 11, ( int ) cursor.get().getValue() );
+        assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -230,21 +230,21 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
-        assertEquals( 11, ( int ) cursor.get().getValue() );
+        assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
         
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( int ) cursor.get().getKey() );
-        assertEquals( 10, ( int ) cursor.get().getValue() );
+        assertEquals( 10, ( int ) cursor.get().getValue().getSingleton() );
         
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3, ( int ) cursor.get().getKey() );
-        assertEquals( 3, ( int ) cursor.get().getValue() );
+        assertEquals( 3, ( int ) cursor.get().getValue().getSingleton() );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -260,31 +260,31 @@ public class AvlTreeMapNoDupsCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
-        cursor.after( new Tuple( 5, null ) );
+        cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 5, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get().getKey() );
-        assertEquals( 7, ( int ) cursor.get().getValue() );
+        assertEquals( 7, ( int ) cursor.get().getValue().getSingleton() );
         
-        cursor.before( new Tuple( 11, null ) );
+        cursor.before( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 11, null ) );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( int ) cursor.get().getKey() );
-        assertEquals( 11, ( int ) cursor.get().getValue() );
+        assertEquals( 11, ( int ) cursor.get().getValue().getSingleton() );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAfterValue() throws Exception
     {
-        cursor.afterValue( 0, 0 );
+        cursor.afterValue( 0, null );
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testBeforeValue() throws Exception
     {
-        cursor.beforeValue( 0, 0 );
+        cursor.beforeValue( 0, null );
     }
 
     
@@ -297,25 +297,25 @@ public class AvlTreeMapNoDupsCursorTest
         tree.insert( 11, 11 );
 
         cursor.next();
-        Tuple t = cursor.get();
+        Tuple<Integer, SingletonOrOrderedSet<Integer>> t = cursor.get();
      
-        assertEquals( 3, t.getKey() );
+        assertEquals( 3, t.getKey().intValue() );
         
-        assertEquals( AvlTreeImpl.class, t.getValue().getClass() );
+        assertEquals( AvlTreeImpl.class, t.getValue().getOrderedSet().getClass() );
         
-        AvlTree dupsTree = ( AvlTree ) t.getValue();
+        AvlTree<Integer> dupsTree = t.getValue().getOrderedSet();
         assertEquals( 3, dupsTree.getSize() );
         
-        AvlTreeCursor valCursor = new AvlTreeCursor<Integer>( dupsTree );
+        AvlTreeCursor<Integer> valCursor = new AvlTreeCursor<Integer>( dupsTree );
         
         assertTrue( valCursor.next() );
-        assertEquals( 3, valCursor.get() );
+        assertEquals( 3, valCursor.get().intValue() );
         
         assertTrue( valCursor.next() );
-        assertEquals( 7, valCursor.get() );
+        assertEquals( 7, valCursor.get().intValue() );
         
         assertTrue( valCursor.next() );
-        assertEquals( 10, valCursor.get() );
+        assertEquals( 10, valCursor.get().intValue() );
 
         assertFalse( valCursor.next() );
     }
