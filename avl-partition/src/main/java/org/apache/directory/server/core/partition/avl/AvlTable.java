@@ -50,15 +50,23 @@ public class AvlTable<K, V> implements Table<K, V>
     private final String name;
     private final Comparator<K> keyComparator;
     private final Comparator<V> valComparator;
+    private final Comparator<Tuple<K,V>> keyOnlytupleComparator;
     private int count;
     
     
-    public AvlTable( String name, Comparator<K> keyComparator, Comparator<V> valComparator, boolean dupsEnabled )
+    public AvlTable( String name, final Comparator<K> keyComparator, final Comparator<V> valComparator, boolean dupsEnabled )
     {
         this.name = name;
         this.keyComparator = keyComparator;
         this.valComparator = valComparator;
         this.avl = new AvlTreeMapImpl<K, V>( keyComparator, valComparator, dupsEnabled );
+        this.keyOnlytupleComparator = new Comparator<Tuple<K, V>>()
+        {
+            public int compare( Tuple<K, V> t0, Tuple<K, V> t1 )
+            {
+                return keyComparator.compare( t0.getKey(), t1.getKey() );
+            }
+        };
     }
     
 
@@ -395,7 +403,8 @@ public class AvlTable<K, V> implements Table<K, V>
             return new KeyTupleAvlCursor<K,V>( node.getValue().getOrderedSet(), key );
         }
         
-        return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, node.getValue().getSingleton() ) );
+        return new SingletonCursor<Tuple<K,V>>( new Tuple<K,V>( key, node.getValue().getSingleton() ), 
+                keyOnlytupleComparator );
     }
 
     
@@ -420,7 +429,7 @@ public class AvlTable<K, V> implements Table<K, V>
             return new AvlTreeCursor<V>( node.getValue().getOrderedSet() );
         }
         
-        return new SingletonCursor<V>( node.getValue().getSingleton() );
+        return new SingletonCursor<V>( node.getValue().getSingleton(), valComparator );
     }
 
 

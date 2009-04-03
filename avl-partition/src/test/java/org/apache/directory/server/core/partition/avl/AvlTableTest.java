@@ -58,6 +58,53 @@ public class AvlTableTest extends TestCase
     }
     
     
+    public void testCursorWithKey() throws Exception
+    {
+        injectNoDupsData( nodups );
+        Cursor<Tuple<Integer, Integer>> cursor = nodups.cursor( 2 );
+        
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+        
+        assertTrue( cursor.next() );
+        Tuple<Integer, Integer> tuple = cursor.get();
+        assertEquals( 2, tuple.getKey().intValue() );
+        assertEquals( 1, tuple.getValue().intValue() );
+        
+        assertFalse( cursor.next() );
+        
+        
+        // ---- on duplicates ----
+        
+        
+        injectDupsData( dups );
+        cursor = dups.cursor( 3 );
+        assertFalse( cursor.available() );
+        
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertEquals( 3, tuple.getKey().intValue() );
+        assertEquals( 0, tuple.getValue().intValue() );
+        
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertEquals( 3, tuple.getKey().intValue() );
+        assertEquals( 8, tuple.getValue().intValue() );
+        
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertEquals( 3, tuple.getKey().intValue() );
+        assertEquals( 9, tuple.getValue().intValue() );
+        
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertEquals( 3, tuple.getKey().intValue() );
+        assertEquals( 10, tuple.getValue().intValue() );
+        
+        assertFalse( cursor.next() );
+    }
+    
+    
     public void testCursor() throws Exception
     {
         injectNoDupsData( nodups );
@@ -177,7 +224,67 @@ public class AvlTableTest extends TestCase
         assertEquals( 8934, tuple.getValue().intValue() );
         
         assertFalse( cursor.next() );
-        cursor.close();
+
+    
+        // test beforeFirst
+        
+        cursor.beforeFirst();
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertNotNull( tuple );
+        assertEquals( 0, tuple.getKey().intValue() );
+        assertEquals( 3, tuple.getValue().intValue() );
+        
+        // test afterLast
+        
+        cursor.afterLast();
+        assertFalse( cursor.available() );
+        assertFalse( cursor.next() );
+        assertTrue( cursor.previous() );
+        tuple = cursor.get();
+        assertNotNull( tuple );
+        assertEquals( 23, tuple.getKey().intValue() );
+        assertEquals( 8934, tuple.getValue().intValue() );
+    }
+    
+    
+    /**
+     * Checks that cursor.after() behavior with duplicates enabled obeys 
+     * the required semantics.
+     */
+    public void testCursorAfterWithDups() throws Exception
+    {
+        injectDupsData( dups );
+        Cursor<Tuple<Integer, Integer>> cursor;
+        Tuple<Integer, Integer> tuple = new Tuple<Integer, Integer>();
+        
+        cursor = dups.cursor();
+        cursor.after( tuple.setKey( 1 ) );
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertNotNull( tuple );
+        assertEquals( 2, tuple.getKey().intValue() );
+        assertEquals( 1, tuple.getValue().intValue() );
+        
+        tuple = new Tuple<Integer, Integer>();
+        cursor.after( tuple.setKey( 2 ) );
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertNotNull( tuple );
+        assertEquals( 3, tuple.getKey().intValue() );
+        assertEquals( 0, tuple.getValue().intValue() );
+        
+        tuple = new Tuple<Integer, Integer>();
+        cursor.after( tuple.setKey( 3 ) );
+        assertFalse( cursor.available() );
+        assertTrue( cursor.next() );
+        tuple = cursor.get();
+        assertNotNull( tuple );
+        assertEquals( 23, tuple.getKey().intValue() );
+        assertEquals( 8934, tuple.getValue().intValue() );
     }
     
     

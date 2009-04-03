@@ -29,7 +29,7 @@ import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.server.xdbm.TupleCursor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
      * The underlying wrapped cursor which returns Tuples whose values are
      * either V objects or AvlTree objects.
      */
-    private final TupleCursor<K,SingletonOrOrderedSet<V>> wrappedCursor;
+    private final AvlSingletonOrOrderedSetCursor<K, V> wrappedCursor;
     
     /**
      * A Cursor over a set of value objects for the current key held in the
@@ -115,7 +115,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        wrappedCursor.before( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
+        wrappedCursor.beforeKey( key );
         
         if ( wrappedCursor.next() )
         {
@@ -128,11 +128,13 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( wrappedTuple.getValue().getSingleton() );
+                dupsCursor = new SingletonCursor<V>( 
+                    wrappedTuple.getValue().getSingleton(), wrappedCursor.getValuComparator() );
             }
             
             if ( value == null )
             {
+                clearValue();
                 return;
             }
     
@@ -147,6 +149,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 dupsCursor.before( value );
             }
             
+            clearValue();
             return;
         }
         
@@ -194,11 +197,11 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
         if ( value == null )
         {
-            wrappedCursor.after( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
+            wrappedCursor.afterKey( key );
         }
         else
         {
-            wrappedCursor.before( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
+            wrappedCursor.beforeKey( key );
         }
 
         if ( wrappedCursor.next() )
@@ -213,11 +216,12 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
             }
 
             if ( value == null )
             {
+                clearValue();
                 return;
             }
 
@@ -227,6 +231,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 dupsCursor.after( value );
             }
 
+            clearValue();
             return;
         }
 
@@ -302,7 +307,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
             }
 
             /*
@@ -366,7 +371,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
             }
 
             /*
@@ -412,7 +417,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values.getSingleton() );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
                 }
 
                 /*
@@ -472,7 +477,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values.getSingleton() );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton(), wrappedCursor.getValuComparator() );
                 }
 
                 /*
