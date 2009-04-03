@@ -30,7 +30,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 
@@ -130,7 +129,7 @@ public class SearchWithIndicesITest
             partition.setId( "system" );
             partition.setSuffix( "ou=system" );
 
-            Set<Index<?, ServerEntry>> indices = new HashSet<Index<?, ServerEntry>>();
+            Set<JdbmIndex<?, ServerEntry>> indices = new HashSet<JdbmIndex<?, ServerEntry>>();
             indices.addAll( partition.getIndexedAttributes() );
             indices.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
             partition.setIndexedAttributes( indices );
