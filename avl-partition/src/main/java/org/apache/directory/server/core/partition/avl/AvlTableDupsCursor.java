@@ -22,7 +22,8 @@ package org.apache.directory.server.core.partition.avl;
 
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
-import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
+import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
+import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.cursor.SingletonCursor;
@@ -52,7 +53,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
      * The underlying wrapped cursor which returns Tuples whose values are
      * either V objects or AvlTree objects.
      */
-    private final TupleCursor<K,V> wrappedCursor;
+    private final TupleCursor<K,SingletonOrOrderedSet<V>> wrappedCursor;
     
     /**
      * A Cursor over a set of value objects for the current key held in the
@@ -64,7 +65,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     private Cursor<V> dupsCursor;
 
     /** The current Tuple returned from the wrapped cursor. */
-    private final Tuple<K,V> wrappedTuple = new Tuple<K, V>();
+    private final Tuple<K,SingletonOrOrderedSet<V>> wrappedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
 
     /**
      * The Tuple that is used to return values via the get() method. This
@@ -85,7 +86,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     public AvlTableDupsCursor( AvlTable<K,V> table )
     {
         this.table = table;
-        this.wrappedCursor = new AvlTreeMapNoDupsCursor<K, V>( table.getAvlTreeMap() );
+        this.wrappedCursor = new AvlSingletonOrOrderedSetCursor<K, V>( table.getAvlTreeMap() );
         LOG.debug( "Created on table {}", table.getName() );
     }
 
@@ -111,24 +112,23 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        wrappedCursor.before( new Tuple<K,V>( key, null ) );
+        wrappedCursor.before( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
         
         if ( wrappedCursor.next() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
             
-            if ( wrappedTuple.getValue() instanceof AvlTree )
+            if ( wrappedTuple.getValue().isOrderedSet() )
             {
-                AvlTree<V> avlTree = ( AvlTree<V> ) wrappedTuple.getValue();
+                AvlTree<V> avlTree = wrappedTuple.getValue().getOrderedSet();
                 dupsCursor = new AvlTreeCursor<V>( avlTree );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( wrappedTuple.getValue() );
+                dupsCursor = new SingletonCursor<V>( wrappedTuple.getValue().getSingleton() );
             }
             
             if ( value == null )
@@ -168,7 +168,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void afterValue( K key, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
@@ -195,26 +194,26 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
 
         if ( value == null )
         {
-            wrappedCursor.after( new Tuple<K,V>( key, null ) );
+            wrappedCursor.after( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
         }
         else
         {
-            wrappedCursor.before( new Tuple<K,V>( key, null ) );
+            wrappedCursor.before( new Tuple<K, SingletonOrOrderedSet<V>>( key, null ) );
         }
 
         if ( wrappedCursor.next() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
-            V values = wrappedTuple.getValue();
+            SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values.isOrderedSet() )
             {
-                AvlTree<V> set = ( AvlTree<V> ) values;
+                AvlTree<V> set = values.getOrderedSet();
                 dupsCursor = new AvlTreeCursor<V>( set );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
             }
 
             if ( value == null )
@@ -286,7 +285,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean first() throws Exception
     {
         checkNotClosed( "first()" );
@@ -296,15 +294,15 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         if ( wrappedCursor.first() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
-            V values = wrappedTuple.getValue();
+            SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values.isOrderedSet() )
             {
-                dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
             }
 
             /*
@@ -351,7 +349,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
@@ -361,15 +358,15 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         if ( wrappedCursor.last() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
-            V values = wrappedTuple.getValue();
+            SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-            if ( values instanceof AvlTree )
+            if ( values.isOrderedSet() )
             {
-                dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( values );
+                dupsCursor = new SingletonCursor<V>( values.getSingleton() );
             }
 
             /*
@@ -391,7 +388,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
@@ -408,15 +404,15 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             if ( wrappedCursor.next() )
             {
                 wrappedTuple.setBoth( wrappedCursor.get() );
-                V values = wrappedTuple.getValue();
+                SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-                if ( values instanceof AvlTree )
+                if ( values.isOrderedSet())
                 {
-                    dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                    dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton() );
                 }
 
                 /*
@@ -451,7 +447,6 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
@@ -469,15 +464,15 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             if ( wrappedCursor.previous() )
             {
                 wrappedTuple.setBoth( wrappedCursor.get() );
-                V values = wrappedTuple.getValue();
+                SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-                if ( values instanceof AvlTree )
+                if ( values.isOrderedSet() )
                 {
-                    dupsCursor = new AvlTreeCursor<V>( ( AvlTree<V> ) values );
+                    dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
                 }
                 else
                 {
-                    dupsCursor = new SingletonCursor<V>( values );
+                    dupsCursor = new SingletonCursor<V>( values.getSingleton() );
                 }
 
                 /*

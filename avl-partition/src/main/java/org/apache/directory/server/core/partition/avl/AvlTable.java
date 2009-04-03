@@ -26,7 +26,8 @@ import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.AvlTreeMap;
 import org.apache.directory.server.core.avltree.AvlTreeMapImpl;
-import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsCursor;
+import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
+import org.apache.directory.server.core.avltree.AvlTreeMapNoDupsWrapperCursor;
 import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
 import org.apache.directory.server.core.avltree.LinkedAvlMapNode;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
@@ -366,7 +367,7 @@ public class AvlTable<K, V> implements Table<K, V>
     {
         if ( ! avl.isDupsAllowed() )
         {
-            return new AvlTreeMapNoDupsCursor<K,V>( avl );
+            return new AvlTreeMapNoDupsWrapperCursor<K, V>( new AvlSingletonOrOrderedSetCursor<K,V>( avl ) );
         }
 
         return new AvlTableDupsCursor<K, V>( this );
