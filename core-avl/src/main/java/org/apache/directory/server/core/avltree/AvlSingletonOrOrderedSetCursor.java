@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.avltree;
 
 
+import java.util.Comparator;
+
 import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.xdbm.Tuple;
@@ -45,7 +47,19 @@ public class AvlSingletonOrOrderedSetCursor<K,V> extends AbstractTupleCursor<K,S
     {
         this.tree = tree;
     }
+    
+    
+    public Comparator<K> getKeyComparator()
+    {
+        return tree.getKeyComparator();
+    }
 
+    
+    public Comparator<V> getValuComparator()
+    {
+        return tree.getValueComparator();
+    }
+    
     
     public void after( Tuple<K,SingletonOrOrderedSet<V>> element ) throws Exception 
     {
