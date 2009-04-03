@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.message.InternalAbandonRequest;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.InternalRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -257,7 +257,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
             // Add the referrals if necessary
             if ( e instanceof LdapReferralException )
             {
-                Referral referrals = new ReferralImpl();
+                InternalReferral referrals = new ReferralImpl();
                 
                 do
                 {

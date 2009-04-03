@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.InternalResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseDone;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
@@ -1106,7 +1106,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 // if we get here then we have a valid referral ancestor
                 try
                 {
-                    Referral referral = getReferralOnAncestorForSearch( session, ( InternalSearchRequest ) req, referralAncestor );
+                    InternalReferral referral = getReferralOnAncestorForSearch( session, ( InternalSearchRequest ) req, referralAncestor );
                     
                     result.setResultCode( ResultCodeEnum.REFERRAL );
                     result.setReferral( referral );

@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
@@ -188,14 +188,14 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public Referral getReferralOnAncestor( LdapSession session, LdapDN reqTargetDn, T req, 
+    public InternalReferral getReferralOnAncestor( LdapSession session, LdapDN reqTargetDn, T req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
         
         ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
-        Referral referral = new ReferralImpl();
+        InternalReferral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
         {
@@ -287,14 +287,14 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public Referral getReferralOnAncestorForSearch( LdapSession session, InternalSearchRequest req, 
+    public InternalReferral getReferralOnAncestorForSearch( LdapSession session, InternalSearchRequest req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
      
         ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
-        Referral referral = new ReferralImpl();
+        InternalReferral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
         {
