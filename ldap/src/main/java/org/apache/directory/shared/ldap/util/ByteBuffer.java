@@ -97,11 +97,23 @@ public class ByteBuffer
     public final byte[] copyOfUsedBytes()
     {
         byte[] copy = new byte[pos];
-        System.arraycopy( buf, 0, copy, 0, pos+1 );
+        System.arraycopy( buf, 0, copy, 0, pos );
         return copy;
     }
     
-
+    
+    /**
+     * Appends the bytes to this buffer.
+     */
+    public final void append( byte[] bytes )
+    {
+        for ( byte b : bytes )
+        {
+            append( b );
+        }
+    }
+    
+    
     /**
      * Appends a byte to this buffer.
      */
