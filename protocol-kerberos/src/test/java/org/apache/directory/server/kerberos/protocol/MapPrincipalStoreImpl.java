@@ -80,25 +80,7 @@ public class MapPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
-    {
-        return null;
-    }
-
-
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
-    {
-        return null;
-    }
-
-
-    public String deletePrincipal( KerberosPrincipal principal ) throws Exception
-    {
-        return null;
-    }
-
-
-    public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
     {
         return null;
     }

@@ -77,24 +77,6 @@ public class MapPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
-    {
-        return null;
-    }
-
-
-    public String deletePrincipal( KerberosPrincipal principal ) throws Exception
-    {
-        return null;
-    }
-
-
-    public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
-    {
-        return null;
-    }
-
-
     private static PrincipalStoreEntry getEntry( String principalName, String passPhrase )
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( principalName );

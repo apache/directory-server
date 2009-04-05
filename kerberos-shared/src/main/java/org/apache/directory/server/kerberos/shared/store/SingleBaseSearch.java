@@ -20,17 +20,14 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
-import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
@@ -52,30 +49,12 @@ class SingleBaseSearch implements PrincipalStore
         {
             session = directoryService.getAdminSession();
             this.searchBaseDn = searchBaseDn;
-        } 
+        }
         catch ( Exception e )
         {
-            throw new ServiceConfigurationException("Can't get a session", e);
+            throw new ServiceConfigurationException( "Can't get a session", e );
         }
 
-    }
-
-
-    public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
-    {
-        return ( String ) new AddPrincipal( entry ).execute( session, null );
-    }
-
-
-    public String deletePrincipal( KerberosPrincipal principal ) throws Exception
-    {
-        return ( String ) new DeletePrincipal( principal ).execute( session, null );
-    }
-
-
-    public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
-    {
-        return ( PrincipalStoreEntry[] ) new GetAllPrincipals().execute( session, null );
     }
 
 

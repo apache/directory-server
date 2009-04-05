@@ -28,10 +28,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
 import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
-import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
@@ -66,47 +63,6 @@ class MultiBaseSearch implements PrincipalStore
         {
             String message = "Failed to get catalog context " + catalogBaseDn;
             throw new ServiceConfigurationException( message, e );
-        }
-    }
-
-
-    public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
-    {
-        try
-        {
-            return ( String ) execute( directoryService.getSession(), new AddPrincipal( entry ) );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Failed to get initial context " + entry.getRealmName();
-            throw new ServiceConfigurationException( message, ne );
-        }
-    }
-
-    public String deletePrincipal( KerberosPrincipal principal ) throws Exception
-    {
-        try
-        {
-            return ( String ) execute( directoryService.getSession(), new DeletePrincipal( principal ) );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Failed to get initial context " + principal.getRealm();
-            throw new ServiceConfigurationException( message, ne );
-        }
-    }
-
-
-    public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
-    {
-        try
-        {
-            return ( PrincipalStoreEntry[] ) execute( directoryService.getSession(), new GetAllPrincipals() );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Failed to get initial context " + realm;
-            throw new ServiceConfigurationException( message, ne );
         }
     }
 

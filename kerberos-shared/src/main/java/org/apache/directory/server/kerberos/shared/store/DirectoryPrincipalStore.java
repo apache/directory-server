@@ -30,7 +30,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 /**
  * A PrincipalStore backing entries in a DirectoryService.
  * 
- * TODO implement it!!
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -52,15 +51,6 @@ public class DirectoryPrincipalStore implements PrincipalStore
         this.directoryService = directoryService;
         this.searchBaseDn = searchBaseDn;
     }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.kerberos.shared.store.PrincipalStore#addPrincipal(org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry)
-     */
-    public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
-    {
-        throw new NotImplementedException();
-    }
 
 
     /* (non-Javadoc)
@@ -68,24 +58,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
      */
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        throw new NotImplementedException();
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.kerberos.shared.store.PrincipalStore#deletePrincipal(javax.security.auth.kerberos.KerberosPrincipal)
-     */
-    public String deletePrincipal( KerberosPrincipal principal ) throws Exception
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.kerberos.shared.store.PrincipalStore#getAllPrincipals(java.lang.String)
-     */
-    public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
-    {
+        //TODO check if this method is still in use, otherwise remove it
         throw new NotImplementedException();
     }
 
@@ -95,7 +68,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
      */
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        SingleBaseSearch singleBaseSearch = new SingleBaseSearch (directoryService, searchBaseDn);
-        return singleBaseSearch.getPrincipal (principal);
+        SingleBaseSearch singleBaseSearch = new SingleBaseSearch( directoryService, searchBaseDn );
+        return singleBaseSearch.getPrincipal( principal );
     }
 }
