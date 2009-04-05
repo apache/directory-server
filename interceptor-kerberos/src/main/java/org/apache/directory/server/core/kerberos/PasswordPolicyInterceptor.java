@@ -153,7 +153,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
                     }
                     else if ( userPassword instanceof ServerBinaryValue )
                     {
-                        ServerBinaryValue password = (ServerBinaryValue)userPassword.get();
+                        ServerBinaryValue password = (ServerBinaryValue)userPassword;
                         
                         String string = "";
                         
