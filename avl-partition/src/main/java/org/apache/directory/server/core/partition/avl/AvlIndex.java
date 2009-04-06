@@ -32,24 +32,29 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
- * TODO AvlIndex.
+ * An Index backed by an AVL Tree.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class AvlIndex<K,O> implements Index<K, O>
 {
-    private final Normalizer normalizer;
+    private Normalizer normalizer;
     private AttributeType attributeType;
     private AvlTable<K,Long> forward;
     private AvlTable<Long,K> reverse;
     private String attributeId;
     
     
-    public AvlIndex( String attributeId, AttributeType attributeType ) throws Exception
+    public AvlIndex( String attributeId ) throws Exception
+    {
+        this.attributeId = attributeId;
+    }
+    
+    
+    void initialize( AttributeType attributeType ) throws Exception
     {
         this.attributeType = attributeType;
-        this.attributeId = attributeId;
 
         MatchingRule mr = attributeType.getEquality();
         
