@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
@@ -65,7 +64,7 @@ public class OneLevelScopeTest
 
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -108,8 +107,8 @@ public class OneLevelScopeTest
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( true );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, registries );
         LOG.debug( "Created new store" );
     }

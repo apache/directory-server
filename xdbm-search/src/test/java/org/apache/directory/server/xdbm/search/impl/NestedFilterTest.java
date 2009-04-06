@@ -41,7 +41,6 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
@@ -66,7 +65,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
@@ -94,6 +93,7 @@ public class NestedFilterTest
     }
 
     
+    @SuppressWarnings("unchecked")
     @Before
     public void createStore() throws Exception
     {
@@ -222,6 +222,6 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( filter );
         optimizer.annotate( exprNode );
         
-        IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
+        cursorBuilder.build( exprNode );
     }
 }

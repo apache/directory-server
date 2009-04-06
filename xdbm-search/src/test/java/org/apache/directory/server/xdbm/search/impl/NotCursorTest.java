@@ -45,7 +45,6 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
@@ -71,7 +70,7 @@ public class NotCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
@@ -115,8 +114,8 @@ public class NotCursorTest
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, registries );
         
         evaluatorBuilder = new EvaluatorBuilder( store, registries );
@@ -190,6 +189,7 @@ public class NotCursorTest
     }
     
     
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotCursorWithManualFilter() throws Exception
     {
