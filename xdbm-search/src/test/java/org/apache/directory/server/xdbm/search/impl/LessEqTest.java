@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.schema.registries.*;
@@ -63,7 +62,7 @@ public class LessEqTest
 
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -89,6 +88,7 @@ public class LessEqTest
 
 
     @Before
+    @SuppressWarnings("unchecked")
     public void createStore() throws Exception
     {
         destryStore();
@@ -134,6 +134,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCursorIndexed() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
@@ -385,6 +386,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCursorNotIndexed() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
@@ -562,6 +564,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEvaluatorIndexed() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
@@ -608,6 +611,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEvaluatorWithDescendantValue() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.STREET_AT_OID );
@@ -635,6 +639,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEvaluatorWithoutDescendants() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.C_POSTALCODE_AT_OID );
@@ -653,6 +658,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEvaluatorNotIndexed() throws Exception
     {
         AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
@@ -699,6 +705,7 @@ public class LessEqTest
 
 
     @Test ( expected = IllegalStateException.class )
+    @SuppressWarnings("unchecked")
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
         AttributeType at = new NoMatchingRuleAttributeType();
@@ -712,6 +719,7 @@ public class LessEqTest
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
         AttributeType at = new OrderingOnlyMatchingRuleAttributeType();

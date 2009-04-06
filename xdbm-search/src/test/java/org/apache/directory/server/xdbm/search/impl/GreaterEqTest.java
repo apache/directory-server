@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.schema.registries.*;
@@ -67,7 +66,7 @@ public class GreaterEqTest
 
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -110,9 +109,9 @@ public class GreaterEqTest
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.POSTALCODE_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.POSTALCODE_AT_OID ) );
 
         StoreUtils.loadExampleData( store, registries );
         LOG.debug( "Created new store" );
@@ -137,6 +136,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCursorIndexed() throws Exception
     {
@@ -368,6 +368,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCursorNotIndexed() throws Exception
     {
@@ -525,6 +526,7 @@ public class GreaterEqTest
     // -----------------------------------------------------------------------
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
@@ -570,6 +572,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
@@ -596,6 +599,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
@@ -614,6 +618,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
@@ -660,6 +665,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test ( expected = IllegalStateException.class )
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
@@ -682,6 +688,7 @@ public class GreaterEqTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
