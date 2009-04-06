@@ -80,7 +80,6 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -361,8 +360,7 @@ public class LdapService extends DirectoryBackedService
         // We use the same number of thread than the number of IoProcessor
         // (NOTE : this has to be double checked)
         ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
-                new ExecutorFilter( new OrderedThreadPoolExecutor( getTcpTransport().getNbThreads() ), 
-                    IoEventType.WRITE ) );
+                new ExecutorFilter( new OrderedThreadPoolExecutor( getTcpTransport().getNbThreads() ) ) ); //, 
 
         /*
          * The server is now initialized, we can
