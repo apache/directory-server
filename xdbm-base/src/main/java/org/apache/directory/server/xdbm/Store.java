@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Modification;
 
-import java.io.File;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
@@ -91,34 +90,16 @@ public interface Store<E>
      */
 
 
-    void setWorkingDirectory( File workingDirectory );
-
-
-    File getWorkingDirectory();
-
-
-    void setUserIndices( Set<? extends Index<?,E>> userIndices );
+    void setUserIndices( Set<? extends Index<?,E>> userIndices ) throws Exception;
 
 
     Set<? extends Index<?,E>> getUserIndices();
 
 
-    void setSuffixDn( String suffixDn );
+    void setSuffixDn( String suffixDn ) throws Exception;
 
 
     String getSuffixDn();
-
-
-    void setSyncOnWrite( boolean isSyncOnWrite );
-
-
-    boolean isSyncOnWrite();
-
-
-    void setCacheSize( int cacheSize );
-
-
-    int getCacheSize();
 
 
     void setName( String name );
@@ -152,15 +133,6 @@ public interface Store<E>
      * @return true if the partition store is initialized
      */
     boolean isInitialized();
-
-
-    /**
-     * This method is called when the synch thread is waking up, to write
-     * the modified data.
-     *
-     * @throws Exception on failures to sync database files to disk
-     */
-    void sync() throws Exception;
 
 
     void addIndex( Index<?,E> index ) throws Exception;
@@ -288,7 +260,7 @@ public interface Store<E>
     LdapDN getSuffix();
 
 
-    LdapDN getUpSuffix();
+    LdapDN getUpSuffix() throws Exception;
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;
