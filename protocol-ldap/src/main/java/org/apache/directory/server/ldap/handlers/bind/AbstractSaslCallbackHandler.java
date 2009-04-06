@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -65,7 +65,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
     /** An empty control array */ 
-    private static final MutableControl[] EMPTY = new MutableControl[0];
+    private static final InternalControl[] EMPTY = new InternalControl[0];
 
     private String username;
     private String realm;
@@ -237,7 +237,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
         try
         {
-            MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
+            InternalControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
             ctx = new InitialLdapContext( env, connCtls );
         }

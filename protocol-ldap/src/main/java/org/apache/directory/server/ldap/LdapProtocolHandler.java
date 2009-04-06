@@ -24,7 +24,7 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.message.InternalRequest;
 import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -179,7 +179,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
             InternalResultResponseRequest req = ( InternalResultResponseRequest ) message;
             for ( Control control1 : req.getControls().values() )
             {
-                MutableControl control = ( MutableControl ) control1;
+                InternalControl control = ( InternalControl ) control1;
                 if ( control.isCritical() && ! ldapService.getSupportedControls().contains( control.getID() ) )
                 {
                     InternalResultResponse resp = req.getResultResponse();
