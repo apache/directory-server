@@ -639,7 +639,7 @@ public class AvlStore<E> implements Store<E>
         
         for ( Index<?, E> index : userIndices )
         {
-            this.userIndices.put( index.getAttributeId(), convertIndex( index ) );
+            //this.userIndices.put( index.getAttributeId(), convertIndex( index ) );
         }
     }
 
