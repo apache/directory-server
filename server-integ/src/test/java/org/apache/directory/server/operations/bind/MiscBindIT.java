@@ -60,7 +60,7 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.After;
@@ -392,7 +392,7 @@ public class MiscBindIT
     @Test
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        MutableControl unsupported = new MutableControl()
+        InternalControl unsupported = new InternalControl()
         {
             boolean isCritical = true;
             private static final long serialVersionUID = 1L;
@@ -468,7 +468,7 @@ public class MiscBindIT
         user.put( oc );
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
-        ctx.setRequestControls( new MutableControl[]
+        ctx.setRequestControls( new InternalControl[]
                 {unsupported} );
 
         try
