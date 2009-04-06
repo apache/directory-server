@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.store;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -37,8 +36,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class DirectoryPrincipalStore implements PrincipalStore
 {
     /** The directory service backing store for this PrincipalStore. */
-    private DirectoryService directoryService;
-    private LdapDN searchBaseDn;
+    private final DirectoryService directoryService;
+    private final LdapDN searchBaseDn;
     
     
     /**
@@ -58,8 +57,8 @@ public class DirectoryPrincipalStore implements PrincipalStore
      */
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        //TODO check if this method is still in use, otherwise remove it
-        throw new NotImplementedException();
+        SingleBaseSearch singleBaseSearch = new SingleBaseSearch( directoryService, searchBaseDn );
+        return singleBaseSearch.changePassword( principal, newPassword );
     }
 
 

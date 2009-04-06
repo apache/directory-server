@@ -66,6 +66,6 @@ class SingleBaseSearch implements PrincipalStore
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return ( String ) new ChangePassword( principal, newPassword ).execute( session, null );
+        return (String) new ChangePassword( principal, newPassword ).execute( session, searchBaseDn );
     }
 }

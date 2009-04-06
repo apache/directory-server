@@ -31,12 +31,14 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -80,17 +82,18 @@ public class ChangePassword implements DirectoryServiceOperation
         List<Modification> mods = new ArrayList<Modification>(2);
         
         ServerAttribute newPasswordAttribute = new DefaultServerAttribute( 
-            registry.lookup( SchemaConstants.USER_PASSWORD_AT_OID ), newPassword );
-        mods.set( 0, new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
+            registry.lookup( SchemaConstants.USER_PASSWORD_AT ), StringTools.getBytesUtf8( newPassword ) );
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute ) );
         
         ServerAttribute principalAttribute = new DefaultServerAttribute( 
-            registry.lookup( "krb5PrincipalName" ), principal.getName() );
-        mods.set( 1, new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
-
+            registry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), principal.getName() );
+        mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute ) );
+        
+        //FIXME check if keyderivation is necessary
         
         ServerEntry entry = StoreUtils.findPrincipalEntry( session, searchBaseDn, principal.getName() );
         session.modify( entry.getDn(), mods );
 
-        return entry.getDn();
+        return entry.getDn().toString();
     }
 }
