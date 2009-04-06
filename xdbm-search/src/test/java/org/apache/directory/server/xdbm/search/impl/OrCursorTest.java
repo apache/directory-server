@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -48,7 +49,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
@@ -79,7 +79,7 @@ public class OrCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
@@ -123,8 +123,8 @@ public class OrCursorTest
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, registries );
         
         evaluatorBuilder = new EvaluatorBuilder( store, registries );
@@ -153,7 +153,6 @@ public class OrCursorTest
 
     
     @Test
-    @SuppressWarnings( "unchecked" )
     public void testOrCursorUsingCursorBuilder() throws Exception
     {
         String filter = "(|(cn=J*)(sn=W*))";

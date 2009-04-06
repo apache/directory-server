@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.server.schema.registries.*;
@@ -58,7 +57,7 @@ public class SubstringTest
     private static final Logger LOG = LoggerFactory.getLogger( SubstringTest.class.getSimpleName() );
 
     File wkdir;
-    Store<ServerEntry> store;
+    JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
 
@@ -101,8 +100,8 @@ public class SubstringTest
         store.setWorkingDirectory( wkdir );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new JdbmIndex<String,ServerEntry>( SchemaConstants.CN_AT_OID ) );
         StoreUtils.loadExampleData( store, registries );
         LOG.debug( "Created new store" );
     }
