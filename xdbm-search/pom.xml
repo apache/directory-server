@@ -44,13 +44,6 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-xdbm-tools</artifactId>
       <version>${pom.version}</version>

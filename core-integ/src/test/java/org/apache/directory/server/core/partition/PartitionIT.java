@@ -28,7 +28,7 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.jdbm.JdbmPartition;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 

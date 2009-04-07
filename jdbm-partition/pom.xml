@@ -31,10 +31,35 @@
   <packaging>jar</packaging>
 
   <description>
-    A Partition implementation backed by JDBM btrees.
+    A Partition implementation backed by JDBM B+Trees on disk.
   </description>
 
+
   <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+      <artifactId>apacheds-jdbm</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-constants</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-avl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xdbm-search</artifactId>
@@ -60,14 +85,20 @@
     </dependency>
 
     <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-entry</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
@@ -75,6 +106,20 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-xdbm-tools</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-schema-bootstrap</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

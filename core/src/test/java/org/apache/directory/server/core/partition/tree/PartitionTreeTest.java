@@ -23,7 +23,7 @@ package org.apache.directory.server.core.partition.tree;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.apache.directory.shared.ldap.util.tree.DnLeafNode;

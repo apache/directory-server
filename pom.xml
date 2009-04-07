@@ -336,6 +336,7 @@
   <modules>
     <module>all</module>
     <module>jdbm</module>
+    <module>jdbm-partition</module>
     <module>bootstrap-extract</module>
     <module>bootstrap-partition</module>
     <module>bootstrap-plugin</module>
@@ -343,7 +344,6 @@
     <module>schema-bootstrap</module>
     <module>utils</module>
     <module>schema-registries</module>
-    <module>jdbm-store</module>
     <module>xdbm-base</module>
     <module>xdbm-search</module>
     <module>xdbm-tools</module>
@@ -362,7 +362,6 @@
     <module>core-avl</module>
     <module>avl-partition</module>
     <module>ldif-partition</module>
-    <module>jdbm-partition</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>

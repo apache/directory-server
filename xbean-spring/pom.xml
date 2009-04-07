@@ -69,7 +69,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-jdbm-store</artifactId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>

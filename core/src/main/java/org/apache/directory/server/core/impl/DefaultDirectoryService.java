@@ -57,10 +57,10 @@ import org.apache.directory.server.core.operational.OperationalAttributeIntercep
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.XdbmPartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.xdbm.XdbmPartition;
+import org.apache.directory.server.core.partition.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
