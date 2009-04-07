@@ -85,12 +85,12 @@ public final class PartitionIT
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
             
-            Partition foo = new JdbmPartition();
+            JdbmPartition foo = new JdbmPartition();
             foo.setId( "foo" );
             foo.setSuffix( "dc=foo,dc=com" );
             service.addPartition( foo );
             
-            Partition bar = new JdbmPartition();
+            JdbmPartition bar = new JdbmPartition();
             bar.setId( "bar" );
             bar.setSuffix( "dc=bar,dc=com" );
             service.addPartition( bar );

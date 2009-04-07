@@ -38,90 +38,23 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
-
 
 /**
- * An interfaces that bridges between underlying JNDI entries and JNDI
- * {@link Context} API.  DIT (Directory Information Tree) consists one or
- * above {@link Partition}s whose parent is {@link PartitionNexus},
- * and all of them are mapped to different
- * base suffix.  Each partition contains entries whose name ends with that
- * base suffix.
- *
+ * Interface for entry stores containing a part of the DIB (Directory 
+ * Information Base).  Partitions are associated with a specific suffix, and
+ * all entries contained in the them have the same DN suffix.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Partition
 {
-    /** The name of reserved system partition */
-    String SYSTEM_PARTITION_NAME = "system";
-    
-    /** default partition implementation class */
-    String DEFAULT_PARTITION_IMPLEMENTATION = "org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition";
-    
-    /** the default entry cache size to use for a partition */
-    int DEFAULT_CACHE_SIZE = 10000;
-    
-
-    // -----------------------------------------------------------------------
-    // C O N F I G U R A T I O N   M E T H O D S
-    // -----------------------------------------------------------------------
-
-    
     /**
      * Gets the unique identifier for this partition.
      *
      * @return the unique identifier for this partition
      */
     String getId();
-
-
-    /**
-     * Sets the unique identifier for this partition.
-     *
-     * @param id the unique identifier for this partition
-     */
-    void setId( String id );
-
-
-    /**
-     * Gets the non-normalized suffix for this Partition as a string.
-     *
-     * @return the suffix string for this Partition.
-     */
-    String getSuffix();
-
-
-    /**
-     * Sets the non-normalized suffix for this Partition as a string.
-     *
-     * @param suffix the suffix string for this Partition.
-     */
-    void setSuffix( String suffix );
-
-
-    /**
-     * Used to specify the entry cache size for a Partition.  Various Partition
-     * implementations may interpret this value in different ways: i.e. total cache
-     * size limit verses the number of entries to cache.
-     *
-     * @param cacheSize the size of the cache
-     */
-    void setCacheSize( int cacheSize );
-
-
-    /**
-     * Gets the entry cache size for this partition.
-     *
-     * @return the size of the cache
-     */
-    int getCacheSize();
-
-
-    // -----------------------------------------------------------------------
-    // E N D   C O N F I G U R A T I O N   M E T H O D S
-    // -----------------------------------------------------------------------
 
 
     /**
@@ -134,7 +67,7 @@ public interface Partition
 
 
     /**
-     * Deinitialized this partition.
+     * Signals to this partition that it should release its resources.
      */
     void destroy() throws Exception;
 
@@ -154,42 +87,39 @@ public interface Partition
 
 
     /**
-     * Gets the distinguished/absolute name of the suffix for all entries
-     * stored within this ContextPartition.
+     * Gets the suffix distinguished name of this Partition.
      *
-     * @return Name representing the distinguished/absolute name of this
-     * ContextPartitions root context.
+     * @return LdapDN the distinguished name of this Partition's root entry
      * @throws Exception if access or suffix parsing fails
      */
     LdapDN getSuffixDn() throws Exception;
 
 
     /**
-     * Gets the distinguished/absolute name of the suffix for all entries
-     * stored within this ContextPartition.
+     * Gets the distinguished name of the suffix for all entries stored within 
+     * this Partition.
      *
-     * @return Name representing the distinguished/absolute name of this
-     * ContextPartitions root context.
+     * @return LdapDN representing the distinguished name of this Partition's 
+     * root entry.
      * @throws Exception if access or suffix parsing fails
      */
     LdapDN getUpSuffixDn() throws Exception;
 
 
     /**
-     * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
+     * Deletes a leaf entry from this Partition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
      *
-     * @param opContext the context of the entry to
-     * delete from this ContextPartition.
+     * @param opContext the context of the entry to delete from this Partition
      * @throws Exception if there are any problems
      */
     void delete( DeleteOperationContext opContext ) throws Exception;
 
 
     /**
-     * Adds an entry to this ContextPartition.
+     * Adds an entry to this Partition.
      *
-     * @param opContext the context used  to add and entry to this ContextPartition
+     * @param opContext the context used  to add and entry to this Partition
      * @throws Exception if there are any problems
      */
     void add( AddOperationContext opContext ) throws Exception;
@@ -198,7 +128,7 @@ public interface Partition
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param opContext The contetx containin the modification operation 
+     * @param opContext the context containing the modification operation 
      * to perform on the entry which is one of constants specified by the 
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
@@ -218,7 +148,7 @@ public interface Partition
      * used to optimize operations rather than conducting a full search with 
      * retrieval.
      *
-     * @param opContext the context containing the distinguished/absolute name for the search/listing
+     * @param opContext the context containing the distinguished name for the search/listing
      * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
      * @throws Exception if there are any problems
      */
@@ -255,6 +185,15 @@ public interface Partition
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
     
+    /**
+     * Convenience method to lookup an entry by ID.
+     *
+     * TODO not used yet since we are not exposing global IDs 
+     * 
+     * @param id
+     * @return
+     * @throws Exception
+     */
     ClonedServerEntry lookup( Long id ) throws Exception;
     
 
@@ -267,6 +206,7 @@ public interface Partition
      */
     boolean hasEntry( EntryOperationContext opContext ) throws Exception;
 
+    
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
      * associated with the old relative name can be removed from the entry.

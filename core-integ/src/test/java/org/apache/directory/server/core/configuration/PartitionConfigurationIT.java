@@ -27,7 +27,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class PartitionConfigurationIT
     @Test
     public void testAddAndRemove() throws Exception
     {
-        Partition partition = new JdbmPartition();
+        JdbmPartition partition = new JdbmPartition();
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
         

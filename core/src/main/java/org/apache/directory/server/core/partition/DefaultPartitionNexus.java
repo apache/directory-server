@@ -364,11 +364,12 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
         else
         {
-            system = new JdbmPartition();
-            system.setId( "system" );
-            system.setCacheSize( 500 );
-            system.setSuffix( ServerDNConstants.SYSTEM_DN );
-//            throw new LdapConfigurationException( "No system partition found" );
+            JdbmPartition jdbmPartition = new JdbmPartition();
+            jdbmPartition.setId( "system" );
+            jdbmPartition.setCacheSize( 500 );
+            jdbmPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+
+            system = jdbmPartition;
         }
 
         system.init( directoryService );
@@ -575,7 +576,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         Partition partition = opContext.getPartition();
 
         // Turn on default indices
-        String key = partition.getSuffix();
+        String key = partition.getSuffixDn().getUpName();
         
         if ( partitions.containsKey( key ) )
         {
