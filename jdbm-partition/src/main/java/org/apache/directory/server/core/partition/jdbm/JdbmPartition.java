@@ -69,7 +69,9 @@ public class JdbmPartition extends XdbmPartition
     private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
     private Set<JdbmIndex<?,ServerEntry>> indexedAttributes;
-
+    private int cacheSize;
+    private String suffix;
+    
     
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -93,13 +95,31 @@ public class JdbmPartition extends XdbmPartition
 
     public String getSuffix()
     {
-        return super.suffix;
+        return suffix;
     }
 
 
     public void setSuffix( String suffix )
     {
-        super.suffix = suffix;
+        this.suffix = suffix;
+    }
+
+
+    /**
+     * @param cacheSize the cacheSize to set
+     */
+    public void setCacheSize( int cacheSize )
+    {
+        this.cacheSize = cacheSize;
+    }
+
+
+    /**
+     * @return the cacheSize
+     */
+    public int getCacheSize()
+    {
+        return cacheSize;
     }
 
 
@@ -181,10 +201,10 @@ public class JdbmPartition extends XdbmPartition
         searchEngine = new DefaultSearchEngine( store, cursorBuilder, evaluatorBuilder, optimizer );
         
         // initialize the store
-        store.setCacheSize( cacheSize );
-        store.setName( id );
+        store.setCacheSize( getCacheSize() );
+        store.setName( getId() );
         store.setSuffixDn( suffix );
-        store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
+        store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + getId() ) );
 
         Set<JdbmIndex<?,ServerEntry>> userIndices = new HashSet<JdbmIndex<?,ServerEntry>>();
         
@@ -601,6 +621,6 @@ public class JdbmPartition extends XdbmPartition
      */
     public String toString()
     {
-        return "Partition<" + id + ">"; 
+        return "Partition<" + getId() + ">"; 
     }
 }

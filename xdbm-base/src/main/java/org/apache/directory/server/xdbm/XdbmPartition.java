@@ -82,18 +82,8 @@ public abstract class XdbmPartition implements Partition
 
     protected Registries registries;
 
-    protected String id;
-    protected int cacheSize = -1;
-    protected LdapDN suffixDn;
-    protected String suffix;
-    
-    /** The rootDSE context */
-    protected ServerEntry contextEntry;
+    private String id;
 
-
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
 
 
     /**
@@ -104,35 +94,6 @@ public abstract class XdbmPartition implements Partition
     }
 
     
-    // ------------------------------------------------------------------------
-    // C O N F I G U R A T I O N   M E T H O D S
-    // ------------------------------------------------------------------------
-
-
-    /**
-     * Used to specify the entry cache size for a Partition.  Various Partition
-     * implementations may interpret this value in different ways: i.e. total cache
-     * size limit verses the number of entries to cache.
-     *
-     * @param cacheSize the maximum size of the cache in the number of entries
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        this.cacheSize = cacheSize;
-    }
-
-
-    /**
-     * Gets the entry cache size for this BTreePartition.
-     *
-     * @return the maximum size of the cache as the number of entries maximum before paging out
-     */
-    public int getCacheSize()
-    {
-        return cacheSize;
-    }
-
-
     /**
      * Gets the unique identifier for this partition.
      *
@@ -155,9 +116,9 @@ public abstract class XdbmPartition implements Partition
     }
     
     
-    // -----------------------------------------------------------------------
-    // E N D   C O N F I G U R A T I O N   M E T H O D S
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Public methods - not declared in any interfaces just for this class
+    // ------------------------------------------------------------------------
 
 
     /**
@@ -173,10 +134,6 @@ public abstract class XdbmPartition implements Partition
     public abstract void setRegistries( Registries registries ) throws Exception;
 
     
-    // ------------------------------------------------------------------------
-    // Public Accessors - not declared in any interfaces just for this class
-    // ------------------------------------------------------------------------
-
     /**
      * Gets the DefaultSearchEngine used by this ContextPartition to search the
      * Database. 
