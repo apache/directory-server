@@ -148,7 +148,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
 
     protected void generateRest( BootstrapSchema schema ) throws Exception
     {
-        List types = new ArrayList();
+        List<ProducerTypeEnum> types = new ArrayList<ProducerTypeEnum>();
         types.addAll( ProducerTypeEnum.getList() );
         types.remove( ProducerTypeEnum.ATTRIBUTE_TYPE_PRODUCER );
         types.remove( ProducerTypeEnum.OBJECT_CLASS_PRODUCER );
