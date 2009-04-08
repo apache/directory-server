@@ -205,6 +205,7 @@ public class ServerEntryUtils
 
                     String attributeId = attr.getID();
                     String id = SchemaUtils.stripOptions( attributeId );
+                    @SuppressWarnings("unused")
                     Set<String> options = SchemaUtils.getOptions( attributeId );
                     // TODO : handle options.
                     AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( id );
@@ -448,6 +449,7 @@ public class ServerEntryUtils
                 String attributeId = modification.getAttribute().getId();
                 String id = stripOptions( attributeId );
                 modification.getAttribute().setId( id );
+                @SuppressWarnings("unused")
                 Set<String> options = getOptions( attributeId );
 
                 // -------------------------------------------------------------------
@@ -495,6 +497,7 @@ public class ServerEntryUtils
             {
                 String attributeId = modification.getAttribute().getID();
                 String id = stripOptions( attributeId );
+                @SuppressWarnings("unused")
                 Set<String> options = getOptions( attributeId );
 
                 // -------------------------------------------------------------------

@@ -382,6 +382,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
+    @SuppressWarnings("unchecked")
     public int compareTo( Value<byte[]> value )
     {
         if ( isNull() )
@@ -497,6 +498,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
      */
+    @SuppressWarnings("unchecked")
     public boolean equals( Object obj )
     {
         if ( this == obj )
@@ -608,6 +610,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
+    @SuppressWarnings("unchecked")
     private Comparator getComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();

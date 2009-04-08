@@ -128,6 +128,7 @@ public class TestServerEntryUtils
     {
         private static final long serialVersionUID = 0L;
         Syntax syntax;
+        @SuppressWarnings("unchecked")
         Comparator comparator;
         Normalizer normalizer;
 
@@ -141,6 +142,7 @@ public class TestServerEntryUtils
             return syntax;
         }
 
+        @SuppressWarnings("unchecked")
         public Comparator getComparator() throws NamingException
         {
             return comparator;
@@ -245,6 +247,7 @@ public class TestServerEntryUtils
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
 
+            @SuppressWarnings("unused")
             int getValue( String val )
             {
                 if ( val.equals( "LOW" ) ) 

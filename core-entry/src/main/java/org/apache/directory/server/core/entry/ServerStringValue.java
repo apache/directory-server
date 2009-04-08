@@ -549,7 +549,8 @@ public class ServerStringValue extends ClientStringValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
-    private Comparator getComparator() throws NamingException
+    @SuppressWarnings("unchecked")
+    private Comparator<String> getComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();
 

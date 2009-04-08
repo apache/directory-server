@@ -631,6 +631,7 @@ public class ServerStringValueTest
 
         Comparator<ServerStringValue> c = new Comparator<ServerStringValue>()
         {
+            @SuppressWarnings("unchecked")
             public int compare( ServerStringValue o1, ServerStringValue o2 )
             {
                 String n1 = null;
