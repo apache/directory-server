@@ -368,9 +368,10 @@
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
     <module>interceptor-kerberos</module>
-    <module>syncrepl</module>
+    <!--module>syncrepl</module-->
     <module>server-replication</module>
     <module>xbean-spring</module>
+    <module>ldap-api-test</module>
   </modules>
 
   <reporting>
