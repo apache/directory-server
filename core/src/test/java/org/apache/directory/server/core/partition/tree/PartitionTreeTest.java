@@ -17,13 +17,14 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.partition.tree;
+
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.jdbm.JdbmPartition;
+import org.apache.directory.server.xdbm.XdbmPartition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.apache.directory.shared.ldap.util.tree.DnLeafNode;
@@ -53,7 +54,7 @@ public class PartitionTreeTest
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
         LdapDN suffix = new LdapDN( "dc=example, dc=com" );
-        JdbmPartition partition = new JdbmPartition();
+        TestPartition partition = new TestPartition();
         partition.setSuffix( suffix.getUpName() );
         
         partitionLookupTree.add( suffix, partition );
@@ -67,7 +68,8 @@ public class PartitionTreeTest
         assertTrue( ((DnBranchNode<Partition>)child).contains( "dc=example" ) );
 
         child = ((DnBranchNode<Partition>)child).getChild( "dc=example" );
-        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffixDn().getUpName() );
+        TestPartition lookedUp = ( TestPartition ) ( ( DnLeafNode<Partition> ) child ).getElement();
+        assertEquals( "dc=example, dc=com", lookedUp.getSuffix() );
     }
 
 
@@ -80,13 +82,13 @@ public class PartitionTreeTest
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=example, dc=com" );
-        JdbmPartition partition1 = new JdbmPartition();
+        TestPartition partition1 = new TestPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
         LdapDN suffix2 = new LdapDN( "ou=system" );
-        JdbmPartition partition2 = new JdbmPartition();
+        TestPartition partition2 = new TestPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
         partitionLookupTree.add( suffix2, partition2 );
@@ -98,7 +100,7 @@ public class PartitionTreeTest
         
         DnNode<Partition> child = ((DnBranchNode<Partition>)partitionLookupTree).getChild( "ou=system" );
         assertTrue( child instanceof DnLeafNode );
-        assertEquals( "ou=system", ((DnLeafNode<Partition>)child).getElement().getSuffixDn().getUpName() );
+        assertEquals( "ou=system", ( ( TestPartition ) ((DnLeafNode<Partition>)child).getElement() ).getSuffix() );
 
         child = ((DnBranchNode<Partition>)partitionLookupTree).getChild( "dc=com" );
         assertTrue( child instanceof DnBranchNode );
@@ -106,7 +108,7 @@ public class PartitionTreeTest
         
         child = ((DnBranchNode<Partition>)child).getChild( "dc=example" );
         assertTrue( child instanceof DnLeafNode );
-        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffixDn().getUpName() );
+        assertEquals( "dc=example, dc=com", ( ( TestPartition ) ((DnLeafNode<Partition>)child).getElement() ).getSuffix() );
     }
 
 
@@ -119,13 +121,13 @@ public class PartitionTreeTest
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=com" );
-        JdbmPartition partition1 = new JdbmPartition();
+        TestPartition partition1 = new TestPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
         LdapDN suffix2 = new LdapDN( "dc=example, dc=com" );
-        JdbmPartition partition2 = new JdbmPartition();
+        TestPartition partition2 = new TestPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
         try
@@ -149,13 +151,13 @@ public class PartitionTreeTest
         DnBranchNode<Partition> partitionLookupTree = new DnBranchNode<Partition>();
         
         LdapDN suffix1 = new LdapDN( "dc=example1, dc=com" );
-        JdbmPartition partition1 = new JdbmPartition();
+        TestPartition partition1 = new TestPartition();
         partition1.setSuffix( suffix1.getUpName() );
         
         partitionLookupTree.add( suffix1, partition1 );
         
         LdapDN suffix2 = new LdapDN( "dc=example2, dc=com" );
-        JdbmPartition partition2 = new JdbmPartition();
+        TestPartition partition2 = new TestPartition();
         partition2.setSuffix( suffix2.getUpName() );
         
         partitionLookupTree.add( suffix2, partition2 );
@@ -175,10 +177,36 @@ public class PartitionTreeTest
         
         DnNode<Partition> child1 = ((DnBranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child1 instanceof DnLeafNode );
-        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child1).getElement().getSuffixDn().getUpName() );
+        assertEquals( "dc=example1, dc=com", ( ( TestPartition ) ((DnLeafNode<Partition>)child1).getElement() ).getSuffix() );
 
         DnNode<Partition> child2 = ((DnBranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child2 instanceof DnLeafNode );
-        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child2).getElement().getSuffixDn().getUpName() );
+        assertEquals( "dc=example1, dc=com", ( ( TestPartition ) ((DnLeafNode<Partition>)child2).getElement() ).getSuffix() );
+    }
+    
+    
+    class TestPartition extends XdbmPartition
+    {
+        /**
+         * @{inhertDoc}
+         */
+        public void init( DirectoryService core ) throws Exception
+        {
+        }
+        
+        
+        private String suffix;
+        
+        
+        public void setSuffix( String dn )
+        {
+            this.suffix = dn;
+        }
+        
+        
+        public String getSuffix()
+        {
+            return suffix;
+        }
     }
 }
