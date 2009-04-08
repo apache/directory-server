@@ -577,7 +577,8 @@ public class AvlStore<E> implements Store<E>
         if ( ndnIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_OID );
-            ndnIdx = new AvlIndex<String,E>( ApacheSchemaConstants.APACHE_N_DN_OID );
+            ndnIdx = new AvlIndex<String,E>();
+            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_OID );
             ndnIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_OID, ndnIdx );
         }
@@ -585,7 +586,8 @@ public class AvlStore<E> implements Store<E>
         if ( updnIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_OID );
-            updnIdx = new AvlIndex<String,E>( ApacheSchemaConstants.APACHE_UP_DN_OID );
+            updnIdx = new AvlIndex<String,E>();
+            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_OID );
             updnIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_OID, updnIdx );
         }
@@ -593,7 +595,8 @@ public class AvlStore<E> implements Store<E>
         if ( existenceIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
-            existenceIdx = new AvlIndex<String,E>( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
+            existenceIdx = new AvlIndex<String,E>();
+            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
             existenceIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_EXISTANCE_OID, existenceIdx );
         }
@@ -601,7 +604,8 @@ public class AvlStore<E> implements Store<E>
         if ( oneLevelIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
-            oneLevelIdx = new AvlIndex<Long,E>( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
+            oneLevelIdx = new AvlIndex<Long,E>();
+            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
             oneLevelIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID, oneLevelIdx );
         }
@@ -609,7 +613,8 @@ public class AvlStore<E> implements Store<E>
         if ( oneAliasIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
-            oneAliasIdx = new AvlIndex<Long,E>( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
+            oneAliasIdx = new AvlIndex<Long,E>();
+            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
             oneAliasIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID, oneAliasIdx );
         }
@@ -617,7 +622,8 @@ public class AvlStore<E> implements Store<E>
         if ( subAliasIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
-            subAliasIdx = new AvlIndex<Long,E>( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
+            subAliasIdx = new AvlIndex<Long,E>();
+            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
             subAliasIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID, subAliasIdx );
         }
@@ -625,7 +631,8 @@ public class AvlStore<E> implements Store<E>
         if ( aliasIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_OID );
-            aliasIdx = new AvlIndex<String,E>( ApacheSchemaConstants.APACHE_ALIAS_OID );
+            aliasIdx = new AvlIndex<String,E>();
+            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_OID );
             aliasIdx.initialize( attributeType );
             systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_OID, aliasIdx );
         }
@@ -633,7 +640,8 @@ public class AvlStore<E> implements Store<E>
         if ( subLevelIdx == null )
         {
             AttributeType attributeType = attributeTypeRegistry.lookup( SUBLEVEL );
-            subLevelIdx = new AvlIndex<Long, E>( SUBLEVEL ); 
+            subLevelIdx = new AvlIndex<Long, E>();
+            subLevelIdx.setAttributeId( SUBLEVEL ); 
             subLevelIdx.initialize( attributeType );
             systemIndices.put( SUBLEVEL, subLevelIdx );
         }
@@ -1488,7 +1496,9 @@ public class AvlStore<E> implements Store<E>
     
     private <K> Index<K,E> convert( Index<K,E> index ) throws Exception
     {
-        return new AvlIndex<K, E>( index.getAttributeId() );
+        AvlIndex<K, E> avlIndex = new AvlIndex<K, E>(); 
+        avlIndex.setAttributeId( index.getAttributeId() );
+        return avlIndex;
     }
     
     

@@ -64,6 +64,7 @@ public class JdbmPartition extends XdbmPartition
      */
     public JdbmPartition()
     {
+        super();
         super.setStore( new JdbmStore<ServerEntry>() );
         indexedAttributes = new HashSet<JdbmIndex<?,ServerEntry>>();
     }

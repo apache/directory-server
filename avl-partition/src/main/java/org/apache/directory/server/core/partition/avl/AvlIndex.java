@@ -46,9 +46,8 @@ public class AvlIndex<K,O> implements Index<K, O>
     private String attributeId;
     
     
-    public AvlIndex( String attributeId ) throws Exception
+    public AvlIndex() throws Exception
     {
-        this.attributeId = attributeId;
     }
     
     

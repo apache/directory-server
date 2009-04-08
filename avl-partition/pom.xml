@@ -88,6 +88,12 @@
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-xdbm-search</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
