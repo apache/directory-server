@@ -229,53 +229,12 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * Not supported!
      *
-     * @throws UnsupportedOperationException everytime
+     * @throws UnsupportedOperationException every time
      */
     public void setId( String id )
     {
         throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
     }
-
-
-    /**
-     * Always returns the empty String "".
-     * @return the empty String ""
-     */
-    public String getSuffix()
-    {
-        return "";
-    }
-
-
-    /**
-     * Unsupported operation on the Nexus.
-     * @throws UnsupportedOperationException everytime
-     */
-    public void setSuffix( String suffix )
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    /**
-     * Not support!
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        throw new UnsupportedOperationException( "You cannot set the cache size of the nexus" );
-    }
-
-
-    /**
-     * Not supported!
-     *
-     * @throws UnsupportedOperationException always
-     */
-    public int getCacheSize()
-    {
-        throw new UnsupportedOperationException( "There is no cache size associated with the nexus" );
-    }
-
 
 
     public void init( DirectoryService directoryService )
@@ -743,15 +702,14 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     /**
      * Unregisters an ContextPartition with this BackendManager.  Called for each
-     * registered Backend right befor it is to be stopped.  This prevents
-     * protocol server requests from reaching the Backend and effectively puts
-     * the ContextPartition's naming context offline.
+     * registered Partition right before it is to be stopped.  This prevents
+     * protocol server requests from reaching the Partition and effectively puts
+     * the Partition's naming context off line.
      *
      * Operations against the naming context should result in an LDAP BUSY
      * result code in the returnValue if the naming context is not online.
      *
-     * @param partition ContextPartition component to unregister with this
-     * BackendNexus.
+     * @param partition Partition component to unregister with this PartitionNexus.
      * @throws Exception if there are problems unregistering the partition
      */
     private void unregister( Partition partition ) throws Exception
