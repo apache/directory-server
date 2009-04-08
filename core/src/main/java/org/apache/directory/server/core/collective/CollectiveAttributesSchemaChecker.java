@@ -51,12 +51,10 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
  */
 public class CollectiveAttributesSchemaChecker
 {
-    private PartitionNexus nexus = null;
     private AttributeTypeRegistry attrTypeRegistry = null;
     
     public CollectiveAttributesSchemaChecker( PartitionNexus nexus, AttributeTypeRegistry attrTypeRegistry )
     {
-        this.nexus = nexus;
         this.attrTypeRegistry = attrTypeRegistry;
     }
     
