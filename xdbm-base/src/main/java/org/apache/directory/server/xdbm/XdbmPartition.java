@@ -26,6 +26,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
@@ -35,13 +36,16 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
@@ -49,6 +53,7 @@ import javax.naming.directory.SearchControls;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -80,7 +85,8 @@ public abstract class XdbmPartition implements Partition
     protected SearchEngine<ServerEntry> searchEngine;
     protected Optimizer optimizer;
 
-    protected Registries registries;
+    private Store<ServerEntry> store;
+    private Registries registries;
 
     private String id;
 
@@ -116,6 +122,18 @@ public abstract class XdbmPartition implements Partition
     }
     
     
+    protected void setStore( Store<ServerEntry> store )
+    {
+        this.store = store;
+    }
+    
+    
+    protected Store<ServerEntry> getStore()
+    {
+        return this.store;
+    }
+    
+    
     // ------------------------------------------------------------------------
     // Public methods - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
@@ -131,8 +149,17 @@ public abstract class XdbmPartition implements Partition
      * @param registries the schema entity registries
      * @throws Exception 
      */
-    public abstract void setRegistries( Registries registries ) throws Exception;
+    public void setRegistries( Registries registries ) throws Exception
+    {
+        this.registries = registries;
+    }
 
+    
+    public Registries getRegistries()
+    {
+        return registries;
+    }
+    
     
     /**
      * Gets the DefaultSearchEngine used by this ContextPartition to search the
@@ -150,6 +177,331 @@ public abstract class XdbmPartition implements Partition
     // Partition Interface Method Implementations
     // ------------------------------------------------------------------------
 
+    
+    public final void addIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    {
+        store.addIndex( index );
+    }
+
+
+    public final Index<String, ServerEntry> getExistanceIndex()
+    {
+        return store.getPresenceIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setPresenceIndexOn( Index<String, ServerEntry> index ) throws Exception
+    {
+        store.setPresenceIndex( index );
+    }
+
+
+    public final Index<Long, ServerEntry> getOneLevelIndex()
+    {
+        return store.getOneLevelIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setOneLevelIndexOn( Index<Long, ServerEntry> index ) throws Exception
+    {
+        store.setOneLevelIndex( index );
+    }
+
+
+    public final Index<String, ServerEntry> getAliasIndex()
+    {
+        return store.getAliasIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setAliasIndexOn( Index<String, ServerEntry> index ) throws Exception
+    {
+        store.setAliasIndex( index );
+    }
+
+
+    public final Index<Long,ServerEntry> getOneAliasIndex()
+    {
+        return store.getOneAliasIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception
+    {
+        store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
+    }
+
+
+    public final Index<Long,ServerEntry> getSubAliasIndex()
+    {
+        return store.getSubAliasIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception
+    {
+            store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
+    }
+
+
+    public final Index<String,ServerEntry> getUpdnIndex()
+    {
+        return store.getUpdnIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setUpdnIndexOn( Index<String,ServerEntry> index ) throws Exception
+    {
+        store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
+    }
+
+
+    public final Index<String,ServerEntry> getNdnIndex()
+    {
+        return store.getNdnIndex();
+    }
+
+
+    /**
+     * @org.apache.xbean.Property hidden="true"
+     */
+    public final void setNdnIndexOn( Index<String,ServerEntry> index ) throws Exception
+    {
+        store.setNdnIndex( ( Index<String,ServerEntry> ) index );
+    }
+
+
+    public final Iterator<String> getUserIndices()
+    {
+        return store.userIndices();
+    }
+
+
+    public final Iterator<String> getSystemIndices()
+    {
+        return store.systemIndices();
+    }
+
+
+    public final boolean hasUserIndexOn( String id ) throws Exception
+    {
+        return store.hasUserIndexOn( id );
+    }
+
+
+    public final boolean hasSystemIndexOn( String id ) throws Exception
+    {
+        return store.hasSystemIndexOn( id );
+    }
+
+
+    /**
+     * @see org.apache.directory.server.core.partition.impl.btree.XdbmPartition#getUserIndex(String)
+     */
+    public final Index<?,ServerEntry> getUserIndex( String id ) throws IndexNotFoundException
+    {
+        return store.getUserIndex( id );
+    }
+
+
+    /**
+     * @see XdbmPartition#getEntryId(String)
+     */
+    public final Index<?,ServerEntry> getSystemIndex( String id ) throws IndexNotFoundException
+    {
+        return store.getSystemIndex( id );
+    }
+
+
+    public final Long getEntryId( String dn ) throws Exception
+    {
+        return store.getEntryId( dn );
+    }
+
+
+    public final String getEntryDn( Long id ) throws Exception
+    {
+        return store.getEntryDn( id );
+    }
+
+
+    public final Long getParentId( String dn ) throws Exception
+    {
+        return store.getParentId( dn );
+    }
+
+
+    public final Long getParentId( Long childId ) throws Exception
+    {
+        return store.getParentId( childId );
+    }
+
+
+    public final String getEntryUpdn( Long id ) throws Exception
+    {
+        return store.getEntryUpdn( id );
+    }
+
+
+    public final String getEntryUpdn( String dn ) throws Exception
+    {
+        return store.getEntryUpdn( dn );
+    }
+
+
+    public final int count() throws Exception
+    {
+        return store.count();
+    }
+
+    
+    public final void add( AddOperationContext addContext ) throws Exception
+    {
+        store.add( addContext.getDn(), (ServerEntry)((ClonedServerEntry)addContext.getEntry()).getClonedEntry() );
+    }
+
+
+    public final ClonedServerEntry lookup( Long id ) throws Exception
+    {
+        return new ClonedServerEntry( store.lookup( id ) );
+    }
+
+
+    public final void delete( Long id ) throws Exception
+    {
+        store.delete( id );
+    }
+
+
+    public final IndexCursor<Long, ServerEntry> list( Long id ) throws Exception
+    {
+        return store.list( id );
+    }
+
+
+    public final int getChildCount( Long id ) throws Exception
+    {
+        return store.getChildCount( id );
+    }
+
+
+    public final LdapDN getSuffixDn()
+    {
+        return store.getSuffix();
+    }
+
+    public final LdapDN getUpSuffixDn() throws Exception
+    {
+        return store.getUpSuffix();
+    }
+
+
+    public final void setProperty( String propertyName, String propertyValue ) throws Exception
+    {
+        store.setProperty( propertyName, propertyValue );
+    }
+
+
+    public final String getProperty( String propertyName ) throws Exception
+    {
+        return store.getProperty( propertyName );
+    }
+
+    
+    public final void modify( ModifyOperationContext modifyContext ) throws Exception
+    {
+        store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+    }
+
+    public final void rename( RenameOperationContext renameContext ) throws Exception
+    {
+        store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
+    }
+
+
+    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
+    {
+        store.move( moveAndRenameContext.getDn(), 
+            moveAndRenameContext.getParent(), 
+            moveAndRenameContext.getNewRdn(), 
+            moveAndRenameContext.getDelOldDn() );
+    }
+
+
+    public final void move( MoveOperationContext moveContext ) throws Exception
+    {
+        store.move( moveContext.getDn(), moveContext.getParent() );
+    }
+
+
+    public final void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws Exception
+    {
+        if ( bindDn == null || credentials == null || mechanisms == null ||  saslAuthId == null )
+        {
+            // do nothing just using variables to prevent yellow lights : bad :)
+        }
+        
+        // does nothing
+        throw new LdapAuthenticationNotSupportedException(
+                "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
+                        + "Check to see if you have correctly configured authenticators for the server.",
+                ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+    }
+    
+
+    public final void bind( BindOperationContext bindContext ) throws Exception
+    {
+        // does nothing
+        throw new LdapAuthenticationNotSupportedException(
+            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
+                + "Check to see if you have correctly configured authenticators for the server.",
+            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+    }
+
+
+    public final void unbind( UnbindOperationContext unbindContext ) throws Exception
+    {
+    }
+
+
+    public Index<String, ServerEntry> getPresenceIndex()
+    {
+        return store.getPresenceIndex();
+    }
+
+
+    public Index<Long, ServerEntry> getSubLevelIndex()
+    {
+        return store.getSubLevelIndex();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Partition<" + getId() + ">"; 
+    }
+    
 
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
@@ -173,12 +525,6 @@ public abstract class XdbmPartition implements Partition
 
         delete( id );
     }
-
-
-    public abstract void add( AddOperationContext opContext ) throws Exception;
-
-
-    public abstract void modify( ModifyOperationContext opContext ) throws Exception;
 
 
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
@@ -237,253 +583,20 @@ public abstract class XdbmPartition implements Partition
     }
 
 
-    public abstract void rename( RenameOperationContext opContext ) throws Exception;
+    public final void destroy() throws Exception
+    {
+        store.destroy();
+    }
 
 
-    public abstract void move( MoveOperationContext opContext ) throws Exception;
+    public final boolean isInitialized()
+    {
+        return store.isInitialized();
+    }
 
 
-    public abstract void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception;
-
-
-    public abstract void sync() throws Exception;
-
-
-    public abstract void destroy() throws Exception;
-
-
-    public abstract boolean isInitialized();
-
-
-    ////////////////////
-    // public abstract methods
-
-    // ------------------------------------------------------------------------
-    // Index Operations 
-    // ------------------------------------------------------------------------
-
-    public abstract void addIndexOn( Index<Long,ServerEntry> index ) throws Exception;
-
-
-    public abstract boolean hasUserIndexOn( String attribute ) throws Exception;
-
-
-    public abstract boolean hasSystemIndexOn( String attribute ) throws Exception;
-
-
-    public abstract Index<String,ServerEntry> getPresenceIndex();
-
-
-    /**
-     * Gets the Index mapping the Long primary keys of parents to the 
-     * Long primary keys of their children.
-     *
-     * @return the one level Index
-     */
-    public abstract Index<Long,ServerEntry> getOneLevelIndex();
-
-
-    /**
-     * Gets the Index mapping the Long primary keys of ancestors to the 
-     * Long primary keys of their descendants.
-     *
-     * @return the sub tree level Index
-     */
-    public abstract Index<Long,ServerEntry> getSubLevelIndex();
-
-
-    /**
-     * Gets the Index mapping user provided distinguished names of entries as 
-     * Strings to the BigInteger primary keys of entries.
-     *
-     * @return the user provided distinguished name Index
-     */
-    public abstract Index<String,ServerEntry> getUpdnIndex();
-
-
-    /**
-     * Gets the Index mapping the normalized distinguished names of entries as
-     * Strings to the BigInteger primary keys of entries.  
-     *
-     * @return the normalized distinguished name Index
-     */
-    public abstract Index<String,ServerEntry> getNdnIndex();
-
-
-    /**
-     * Gets the alias index mapping parent entries with scope expanding aliases 
-     * children one level below them; this system index is used to dereference
-     * aliases on one/single level scoped searches.
-     * 
-     * @return the one alias index
-     */
-    public abstract Index<Long,ServerEntry> getOneAliasIndex();
-
-
-    /**
-     * Gets the alias index mapping relative entries with scope expanding 
-     * alias descendents; this system index is used to dereference aliases on 
-     * subtree scoped searches.
-     * 
-     * @return the sub alias index
-     */
-    public abstract Index<Long,ServerEntry> getSubAliasIndex();
-
-
-    /**
-     * Gets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
-     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
-     * 
-     * @return the index on the ALIAS_ATTRIBUTE
-     */
-    public abstract Index<String,ServerEntry> getAliasIndex();
-
-
-    /**
-     * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
-     * be the aliasedObjectName and for X.500 would be aliasedEntryName.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the index on the ALIAS_ATTRIBUTE
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setAliasIndexOn( Index<String,ServerEntry> index ) throws Exception;
-
-
-    /**
-     * Sets the attribute existance Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the attribute existance Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setPresenceIndexOn( Index<String,ServerEntry> index ) throws Exception;
-
-
-    /**
-     * Sets the one level Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the one level Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setOneLevelIndexOn( Index<Long,ServerEntry> index ) throws Exception;
-
-    // TODO - add sub level index setter
-
-    /**
-     * Sets the user provided distinguished name Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the updn Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setUpdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
-
-
-    /**
-     * Sets the normalized distinguished name Index.
-     *
-     * @org.apache.xbean.Property hidden="true"
-     * @param index the ndn Index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setNdnIndexOn( Index<String,ServerEntry> index ) throws Exception;
-
-
-    /**
-     * Sets the alias index mapping parent entries with scope expanding aliases 
-     * children one level below them; this system index is used to dereference
-     * aliases on one/single level scoped searches.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index a one level alias index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setOneAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
-
-
-    /**
-     * Sets the alias index mapping relative entries with scope expanding 
-     * alias descendents; this system index is used to dereference aliases on 
-     * subtree scoped searches.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param index a subtree alias index
-     * @throws Exception if there is a problem setting up the index
-     */
-    public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
-
-
-    public abstract Index<?,ServerEntry> getUserIndex( String attribute ) throws Exception;
-
-
-    public abstract Index<?,ServerEntry> getSystemIndex( String attribute ) throws Exception;
-
-
-    public abstract Long getEntryId( String dn ) throws Exception;
-
-
-    public abstract String getEntryDn( Long id ) throws Exception;
-
-
-    public abstract Long getParentId( String dn ) throws Exception;
-
-
-    public abstract Long getParentId( Long childId ) throws Exception;
-
-
-    /**
-     * Gets the user provided distinguished name.
-     *
-     * @param id the entry id
-     * @return the user provided distinguished name
-     * @throws Exception if the updn index cannot be accessed
-     */
-    public abstract String getEntryUpdn( Long id ) throws Exception;
-
-
-    /**
-     * Gets the user provided distinguished name.
-     *
-     * @param dn the normalized distinguished name
-     * @return the user provided distinguished name
-     * @throws Exception if the updn and ndn indices cannot be accessed
-     */
-    public abstract String getEntryUpdn( String dn ) throws Exception;
-
-
-    public abstract ClonedServerEntry lookup( Long id ) throws Exception;
-
-
-    public abstract void delete( Long id ) throws Exception;
-
-
-    public abstract IndexCursor<Long,ServerEntry> list( Long id ) throws Exception;
-
-
-    public abstract int getChildCount( Long id ) throws Exception;
-
-
-    public abstract void setProperty( String key, String value ) throws Exception;
-
-
-    public abstract String getProperty( String key ) throws Exception;
-
-
-    public abstract Iterator<String> getUserIndices();
-
-
-    public abstract Iterator<String> getSystemIndices();
-
-
-    /**
-     * Gets the count of the total number of entries in the database.
-     *
-     * TODO shouldn't this be a BigInteger instead of an int? 
-     * 
-     * @return the number of entries in the database 
-     * @throws Exception if there is a failure to read the count
-     */
-    public abstract int count() throws Exception;
+    public final void sync() throws Exception
+    {
+        store.sync();
+    }
 }

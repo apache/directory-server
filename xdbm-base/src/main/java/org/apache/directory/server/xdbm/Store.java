@@ -119,7 +119,7 @@ public interface Store<E>
 
 
     /**
-     * Close the parttion : we have to close all the userIndices and the master table.
+     * Close the partition : we have to close all the userIndices and the master table.
      *
      * @throws Exception lazily thrown on any closer failures to avoid leaving
      * open files
@@ -299,6 +299,6 @@ public interface Store<E>
 
     void move( LdapDN oldChildDn, LdapDN newParentDn ) throws Exception;
 
-
-    void initRegistries( Registries registries );
+    
+    void sync() throws Exception;
 }

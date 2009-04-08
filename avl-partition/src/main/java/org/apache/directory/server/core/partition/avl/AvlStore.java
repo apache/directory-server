@@ -1852,4 +1852,12 @@ public class AvlStore<E> implements Store<E>
             subAliasIdx.drop( ancestorId, targetId );
         }
     }
+
+
+    /**
+     * @{inhertDoc}
+     */
+    public void sync() throws Exception
+    {
+    }
 }

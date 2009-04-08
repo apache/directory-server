@@ -1955,11 +1955,4 @@ public class JdbmStore<E> implements Store<E>
             subAliasIdx.drop( ancestorId, targetId );
         }
     }
-
-
-    public void initRegistries( Registries registries )
-    {
-        this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        this.oidRegistry = registries.getOidRegistry();
-    }
 }
