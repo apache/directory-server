@@ -223,7 +223,7 @@ public class JdbmStore<E> implements Store<E>
      * @param registries the schema registries
      * @throws Exception on failure to lookup elements in registries or create database files
      */
-    public synchronized void init( Registries registries ) throws Exception
+    public synchronized void initialize( Registries registries ) throws Exception
     {
         this.oidRegistry = registries.getOidRegistry();
         this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
@@ -948,9 +948,9 @@ public class JdbmStore<E> implements Store<E>
          * ignored since everything is under its scope.  The first loop 
          * iteration shall handle the parents.
          */
-        while ( !ancestorDn.equals( normSuffix ) && null != ancestorId )
+        while ( ! ancestorDn.equals( normSuffix ) && null != ancestorId )
         {
-            if ( !NamespaceTools.isDescendant( ancestorDn, normalizedAliasTargetDn ) )
+            if ( ! NamespaceTools.isDescendant( ancestorDn, normalizedAliasTargetDn ) )
             {
                 subAliasIdx.add( ancestorId, targetId );
             }

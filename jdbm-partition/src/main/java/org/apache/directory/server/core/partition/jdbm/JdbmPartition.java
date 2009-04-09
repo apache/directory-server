@@ -21,9 +21,9 @@ package org.apache.directory.server.core.partition.jdbm;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.XdbmPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
@@ -50,8 +50,6 @@ public class JdbmPartition extends XdbmPartition
 {
     private boolean optimizerEnabled = true;
     private Set<JdbmIndex<?,ServerEntry>> indexedAttributes;
-    private int cacheSize;
-    private String suffix;
     
     
     // ------------------------------------------------------------------------
@@ -77,7 +75,6 @@ public class JdbmPartition extends XdbmPartition
 
     public void setSuffix( String suffix ) throws Exception
     {
-        this.suffix = suffix;
         getStore().setUpSuffixString( suffix );
     }
 
@@ -87,7 +84,7 @@ public class JdbmPartition extends XdbmPartition
      */
     public void setCacheSize( int cacheSize )
     {
-        this.cacheSize = cacheSize;
+        getJdbmStore().setCacheSize( cacheSize );
     }
 
 
@@ -96,7 +93,7 @@ public class JdbmPartition extends XdbmPartition
      */
     public int getCacheSize()
     {
-        return cacheSize;
+        return getJdbmStore().getCacheSize();
     }
 
 
@@ -136,21 +133,33 @@ public class JdbmPartition extends XdbmPartition
     }
 
 
+    public File getWorkingDirectory()
+    {
+        return getJdbmStore().getWorkingDirectory();
+    }
+    
+    
+    public void setWorkingDirectory( File workingDirectory )
+    {
+        getJdbmStore().setWorkingDirectory( workingDirectory );
+    }
+    
+    
     private JdbmStore<ServerEntry> getJdbmStore()
     {
         return ( JdbmStore<ServerEntry> ) getStore();
     }
     
-    
+
     // ------------------------------------------------------------------------
     // E N D   C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
 
 
     @SuppressWarnings("unchecked")
-    public final void init( DirectoryService directoryService ) throws Exception
+    public final void initialize( Registries registries ) throws Exception
     {
-        setRegistries( directoryService.getRegistries() );
+        setRegistries( registries );
 
         EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( getJdbmStore(), getRegistries() );
         CursorBuilder cursorBuilder = new CursorBuilder( getJdbmStore(), evaluatorBuilder );
@@ -168,10 +177,7 @@ public class JdbmPartition extends XdbmPartition
         searchEngine = new DefaultSearchEngine( getJdbmStore(), cursorBuilder, evaluatorBuilder, optimizer );
         
         // initialize the store
-        getJdbmStore().setCacheSize( getCacheSize() );
         getJdbmStore().setName( getId() );
-        getJdbmStore().setUpSuffixString( suffix );
-        getJdbmStore().setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + getId() ) );
 
         Set<JdbmIndex<?,ServerEntry>> userIndices = new HashSet<JdbmIndex<?,ServerEntry>>();
         
@@ -240,6 +246,6 @@ public class JdbmPartition extends XdbmPartition
             getJdbmStore().setUserIndices( userIndices );
         }
 
-        getJdbmStore().init( getRegistries() );
+        getJdbmStore().initialize( getRegistries() );
     }
 }
