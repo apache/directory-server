@@ -306,7 +306,7 @@ public class DefaultChangeLog implements ChangeLog
                 tmp.createPartition( partitionSuffix, revContainerName, tagContainerName );
                 
                 Partition partition = tmp.getPartition();
-                partition.init( service );
+                partition.initialize( null );
 
                 service.addPartition( partition );
             }

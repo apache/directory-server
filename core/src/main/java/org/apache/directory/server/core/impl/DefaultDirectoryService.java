@@ -1353,7 +1353,8 @@ public class DefaultDirectoryService implements DirectoryService
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-        schemaPartition.init( this );
+        schemaPartition.setWorkingDirectory( new File( workingDirectory, schemaPartition.getId() ) );
+        schemaPartition.initialize( registries );
 
         // --------------------------------------------------------------------
         // Enable schemas of all indices of partition configurations 
@@ -1427,7 +1428,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
         partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
-        partitionNexus.init( this );
+        partitionNexus.initialize( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaPartition ) );
 
         // Create all the bootstrap entries before initializing chain

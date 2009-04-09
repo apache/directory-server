@@ -22,8 +22,8 @@ package org.apache.directory.server.core.partition.tree;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.XdbmPartition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
@@ -190,7 +190,7 @@ public class PartitionTreeTest
         /**
          * @{inhertDoc}
          */
-        public void init( DirectoryService core ) throws Exception
+        public void initialize( Registries registries ) throws Exception
         {
         }
         

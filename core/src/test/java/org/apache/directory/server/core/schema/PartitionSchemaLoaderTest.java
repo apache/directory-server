@@ -134,6 +134,7 @@ public class PartitionSchemaLoaderTest
         schemaPartition = new JdbmPartition();
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
+        schemaPartition.setWorkingDirectory( new File( directoryService.getWorkingDirectory(), "schema" ) );
 
         Set<JdbmIndex<?, ServerEntry>> indexedAttributes = new HashSet<JdbmIndex<?, ServerEntry>>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
@@ -143,7 +144,7 @@ public class PartitionSchemaLoaderTest
 
         schemaPartition.setIndexedAttributes( indexedAttributes );
         schemaPartition.setSuffix( "ou=schema" );
-        schemaPartition.init( directoryService );
+        schemaPartition.initialize( registries );
     }
     
     

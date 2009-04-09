@@ -93,6 +93,8 @@ import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -236,8 +238,14 @@ public class DefaultPartitionNexus extends PartitionNexus
         throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
     }
 
+    
+    public void initialize( Registries registries )
+    {
+        throw new UnsupportedOperationException( "For the nexus use the initialize(DirectoryService) overload." );
+    }
+    
 
-    public void init( DirectoryService directoryService )
+    public void initialize( DirectoryService directoryService )
         throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
@@ -327,11 +335,12 @@ public class DefaultPartitionNexus extends PartitionNexus
             jdbmPartition.setId( "system" );
             jdbmPartition.setCacheSize( 500 );
             jdbmPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+            jdbmPartition.setWorkingDirectory( new File( directoryService.getWorkingDirectory(), "system" ) );
 
             system = jdbmPartition;
         }
 
-        system.init( directoryService );
+        system.initialize( registries );
         
         // Add root context entry for system partition
         LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
@@ -544,7 +553,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         if ( ! partition.isInitialized() )
         {
-            partition.init( directoryService );
+            partition.initialize( registries );
         }
         
         synchronized ( partitionLookupTree )
@@ -718,10 +727,10 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getNormSuffixDn().getUpName() );
+            namingContexts.remove( partition.getUpSuffixDn().getUpName() );
         }
         
-        partitions.remove( partition.getNormSuffixDn().toString() );
+        partitions.remove( partition.getUpSuffixDn().getUpName() );
     }
 
 
