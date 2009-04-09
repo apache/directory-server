@@ -290,7 +290,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffixDn(), e );
+                        LOG.warn( "Failed to destroy a partition: " + partition.getNormSuffixDn(), e );
                     }
                     finally
                     {
@@ -357,7 +357,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
         system.add( addOperationContext );
         
-        String key = system.getSuffixDn().toString();
+        String key = system.getNormSuffixDn().toString();
         
         if ( partitions.containsKey( key ) )
         {
@@ -367,7 +367,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.add( system.getSuffixDn(), system );
+            partitionLookupTree.add( system.getNormSuffixDn(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
@@ -549,7 +549,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         synchronized ( partitionLookupTree )
         {
-            LdapDN partitionSuffix = partition.getSuffixDn();
+            LdapDN partitionSuffix = partition.getNormSuffixDn();
             
             if ( partitionSuffix == null )
             {
@@ -557,7 +557,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.add( partition.getSuffixDn(), partition );
+            partitionLookupTree.add( partition.getNormSuffixDn(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
@@ -664,7 +664,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public LdapDN getSuffixDn()
+    public LdapDN getNormSuffixDn()
     {
         return LdapDN.EMPTY_LDAPDN;
     }
@@ -681,7 +681,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public LdapDN getSuffix ( GetSuffixOperationContext getSuffixContext ) throws Exception
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffixDn();
+        return backend.getNormSuffixDn();
     }
 
 
@@ -718,10 +718,10 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getSuffixDn().getUpName() );
+            namingContexts.remove( partition.getNormSuffixDn().getUpName() );
         }
         
-        partitions.remove( partition.getSuffixDn().toString() );
+        partitions.remove( partition.getNormSuffixDn().toString() );
     }
 
 

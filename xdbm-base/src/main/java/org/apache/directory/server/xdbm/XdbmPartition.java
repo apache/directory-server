@@ -403,7 +403,7 @@ public abstract class XdbmPartition implements Partition
     }
 
 
-    public final LdapDN getSuffixDn() throws Exception
+    public final LdapDN getNormSuffixDn() throws Exception
     {
         return store.getNormSuffixDn();
     }

@@ -238,7 +238,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -284,7 +284,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -330,7 +330,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -376,7 +376,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -422,7 +422,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -518,7 +518,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             if ( !cursor.next() )
@@ -640,7 +640,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             while ( cursor.next() )
@@ -693,7 +693,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             while ( cursor.next() )
@@ -722,7 +722,7 @@ public class SchemaPartitionDao
         // (& (m-oid=*) (m-name=*) )
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
-        return partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+        return partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
             AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
@@ -770,7 +770,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             while ( cursor.next() )
@@ -819,7 +819,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             while ( cursor.next() )
@@ -862,7 +862,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
 
             while ( cursor.next() )
@@ -942,7 +942,7 @@ public class SchemaPartitionDao
 
         try
         {
-            cursor = partition.search( new SearchOperationContext( null, partition.getSuffixDn(),
+            cursor = partition.search( new SearchOperationContext( null, partition.getNormSuffixDn(),
                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             while ( cursor.next() )

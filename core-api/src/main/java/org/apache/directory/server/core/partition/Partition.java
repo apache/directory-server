@@ -87,20 +87,18 @@ public interface Partition
 
 
     /**
-     * Gets the suffix distinguished name of this Partition.
+     * Gets the normalized distinguished name of this Partition's suffix.
      *
-     * @return LdapDN the distinguished name of this Partition's root entry
+     * @return LdapDN the normalized DN of this Partition's root entry
      * @throws Exception if access or suffix parsing fails
      */
-    LdapDN getSuffixDn() throws Exception;
+    LdapDN getNormSuffixDn() throws Exception;
 
 
     /**
-     * Gets the distinguished name of the suffix for all entries stored within 
-     * this Partition.
+     * Gets the user provided distinguished name of this Partition's suffix.
      *
-     * @return LdapDN representing the distinguished name of this Partition's 
-     * root entry.
+     * @return LdapDN the user provided DN of this Partition's root entry
      * @throws Exception if access or suffix parsing fails
      */
     LdapDN getUpSuffixDn() throws Exception;

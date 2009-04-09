@@ -551,7 +551,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         RemoveContextPartitionOperationContext removePartitionCtx =
-                new RemoveContextPartitionOperationContext( adminSession, partition.getSuffixDn() );
+                new RemoveContextPartitionOperationContext( adminSession, partition.getNormSuffixDn() );
         partitionNexus.removeContextPartition( removePartitionCtx );
     }
 
@@ -1444,7 +1444,7 @@ public class DefaultDirectoryService implements DirectoryService
             if( changeLog.isExposeChangeLog() && changeLog.isTagSearchSupported() )
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() )
-                    .getPartition().getSuffixDn().getUpName();
+                    .getPartition().getNormSuffixDn().getUpName();
                 partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
