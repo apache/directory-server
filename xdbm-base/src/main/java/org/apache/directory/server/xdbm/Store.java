@@ -90,17 +90,48 @@ public interface Store<E>
      */
 
 
-    void setUserIndices( Set<? extends Index<?,E>> userIndices ) throws Exception;
+    /**
+     * Sets the user provided (Up) distinguished name as a String to be used 
+     * as the suffix for this store.  This suffix string will be used to 
+     * generate the user provided suffix DN object returned by 
+     * {@link #getUpSuffixDn()}.  After initialization of the Store, schema
+     * registries are available to properly normalize this DN and provide
+     * access to the normalized DN.
+     * 
+     * @param upSuffixString the user provided suffix DN as a String
+     */
+    void setUpSuffixString( String upSuffixString ) throws Exception;
 
 
-    Set<? extends Index<?,E>> getUserIndices();
+    /**
+     * Gets the user provided suffix DN as a String.
+     *
+     * @return the user provided suffix DN as a String.
+     */
+    String getUpSuffixString() throws Exception;
 
 
-    void setSuffixDn( String suffixDn ) throws Exception;
+    /**
+     * Gets the normalized distinguished name of the suffix as an LdapDN. This
+     * method can only be accessed after initialization or else an exception
+     * will be thrown.
+     *
+     * @return the normalized suffix as an LdapDN
+     * @throws RuntimeException if accessed before initialization
+     */
+    LdapDN getNormSuffixDn() throws Exception;
 
 
-    String getSuffixDn();
+    /**
+     * Gets the user provided suffix distinguished name as an LdapDN
+     *
+     * @return the user provided LdapDN for the suffix
+     */
+    LdapDN getUpSuffixDn() throws Exception;
 
+    
+    // ----------------
+    
 
     void setName( String name );
 
@@ -108,6 +139,11 @@ public interface Store<E>
     String getName();
 
 
+    // -----------------------------------------------------------------------
+    // START: Life Cycle Management Methods
+    // -----------------------------------------------------------------------
+    
+    
     /**
      * Initialize the JDBM storage system.
      *
@@ -134,8 +170,24 @@ public interface Store<E>
      */
     boolean isInitialized();
 
+    
+    // -----------------------------------------------------------------------
+    // END: Life Cycle Management Methods
+    // -----------------------------------------------------------------------
+    
+    
+    // -----------------------------------------------------------------------
+    // START: Index Management Methods
+    // -----------------------------------------------------------------------
+    
 
     void addIndex( Index<?,E> index ) throws Exception;
+
+
+    void setUserIndices( Set<? extends Index<?,E>> userIndices ) throws Exception;
+
+
+    Set<? extends Index<?,E>> getUserIndices();
 
 
     Index<String,E> getPresenceIndex();
@@ -204,6 +256,11 @@ public interface Store<E>
     Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
+    // -----------------------------------------------------------------------
+    // END: Index Management Methods
+    // -----------------------------------------------------------------------
+    
+
     Long getEntryId( String dn ) throws Exception;
 
 
@@ -255,12 +312,6 @@ public interface Store<E>
 
 
     int getChildCount( Long id ) throws Exception;
-
-
-    LdapDN getSuffix();
-
-
-    LdapDN getUpSuffix() throws Exception;
 
 
     void setProperty( String propertyName, String propertyValue ) throws Exception;

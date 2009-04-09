@@ -535,7 +535,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         Partition partition = opContext.getPartition();
 
         // Turn on default indices
-        String key = partition.getSuffixDn().getUpName();
+        String key = partition.getUpSuffixDn().getUpName();
         
         if ( partitions.containsKey( key ) )
         {

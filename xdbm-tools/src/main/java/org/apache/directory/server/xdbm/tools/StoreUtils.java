@@ -61,7 +61,7 @@ public class StoreUtils
      */
     public static void loadExampleData( Store<ServerEntry> store, Registries registries ) throws Exception
     {
-        store.setSuffixDn( "o=Good Times Co." );
+        store.setUpSuffixString( "o=Good Times Co." );
 
         LdapDN suffixDn = new LdapDN( "o=Good Times Co." );
         suffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );

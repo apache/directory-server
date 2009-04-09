@@ -185,16 +185,24 @@ public class JdbmStoreTest
         store.setSubAliasIndex( new JdbmIndex<Long,Attributes>( "subAlias" ) );
         assertNotNull( store.getSubAliasIndex() );
 
-        assertNull( store.getSuffixDn() );
-        store.setSuffixDn( "dc=example,dc=com" );
-        assertEquals( "dc=example,dc=com", store.getSuffixDn() );
+        assertNull( store.getUpSuffixString() );
+        store.setUpSuffixString( "dc=example,dc=com" );
+        assertEquals( "dc=example,dc=com", store.getUpSuffixString() );
 
         assertNull( store.getUpdnIndex() );
         store.setUpdnIndex( new JdbmIndex<String,Attributes>( "updn" ) );
         assertNotNull( store.getUpdnIndex() );
 
-        assertNull( store.getUpSuffix() );
-        assertNull( store.getSuffix() );
+        assertNotNull( store.getUpSuffixDn() );
+        
+        try
+        {
+            store.getNormSuffixDn();
+            fail();
+        }
+        catch ( Exception e )
+        {
+        }
 
         assertEquals( 0, store.getUserIndices().size() );
         Set<Index<?,Attributes>> set = new HashSet<Index<?,Attributes>>();
@@ -255,8 +263,8 @@ public class JdbmStoreTest
         try { store.setSubAliasIndex( new JdbmIndex<Long,ServerEntry>( "subAlias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
-        assertNotNull( store.getSuffixDn() );
-        try { store.setSuffixDn( "dc=example,dc=com" ); fail(); }
+        assertNotNull( store.getUpSuffixString() );
+        try { store.setUpSuffixString( "dc=example,dc=com" ); fail(); }
         catch( IllegalStateException e ) {}
 
         assertNotNull( store.getUpdnIndex() );
@@ -275,8 +283,8 @@ public class JdbmStoreTest
         try { store.getSystemIndex( "dc" ); fail(); }
         catch ( IndexNotFoundException e ) {}
 
-        assertNotNull( store.getUpSuffix() );
-        assertNotNull( store.getSuffix() );
+        assertNotNull( store.getUpSuffixDn() );
+        assertNotNull( store.getNormSuffixDn() );
 
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( "dc" ) );

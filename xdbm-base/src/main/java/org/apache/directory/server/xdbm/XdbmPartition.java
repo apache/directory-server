@@ -403,14 +403,14 @@ public abstract class XdbmPartition implements Partition
     }
 
 
-    public final LdapDN getSuffixDn()
+    public final LdapDN getSuffixDn() throws Exception
     {
-        return store.getSuffix();
+        return store.getNormSuffixDn();
     }
 
     public final LdapDN getUpSuffixDn() throws Exception
     {
-        return store.getUpSuffix();
+        return store.getUpSuffixDn();
     }
 
 

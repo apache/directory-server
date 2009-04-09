@@ -675,7 +675,7 @@ public class BootstrapPlugin extends AbstractMojo
     {
         store.setCacheSize( 1000 );
         store.setName( "schema" );
-        store.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
+        store.setUpSuffixString( SchemaConstants.OU_AT + "=schema" );
         store.setSyncOnWrite( false );
         store.setWorkingDirectory( workingDirectory );
 

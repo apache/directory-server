@@ -90,7 +90,7 @@ public class AvlPartition extends XdbmPartition
         
         // initialize the store
         getStore().setName( getId() );
-        getStore().setSuffixDn( suffix );
+        getStore().setUpSuffixString( suffix );
 
         Set<AvlIndex<?,ServerEntry>> userIndices = new HashSet<AvlIndex<?,ServerEntry>>();
         

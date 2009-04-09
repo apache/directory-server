@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -150,7 +149,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
     }
 
     
-    protected void configureDirectoryService() throws NamingException
+    protected void configureDirectoryService() throws Exception
     {
         directoryService.setAllowAnonymousAccess( false );
         Set<Partition> partitions = new HashSet<Partition>();

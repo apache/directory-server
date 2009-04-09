@@ -146,7 +146,7 @@ public class JdbmStore<E> implements Store<E>
     // -----------------------------------------------------------------------
 
 
-    private String suffixDn;
+    private String suffixString;
     private int cacheSize = DEFAULT_CACHE_SIZE;
     private String name;
 
@@ -170,19 +170,6 @@ public class JdbmStore<E> implements Store<E>
     public File getWorkingDirectory()
     {
         return workingDirectory;
-    }
-
-
-    public void setSuffixDn( String suffixDn )
-    {
-        protect( "suffixDn" );
-        this.suffixDn = suffixDn;
-    }
-
-
-    public String getSuffixDn()
-    {
-        return suffixDn;
     }
 
 
@@ -244,7 +231,7 @@ public class JdbmStore<E> implements Store<E>
         OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
-        this.upSuffix = new LdapDN( suffixDn );
+        this.upSuffix = new LdapDN( suffixString );
         this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
         workingDirectory.mkdirs();
 
@@ -258,13 +245,17 @@ public class JdbmStore<E> implements Store<E>
             cacheSize = DEFAULT_CACHE_SIZE;
             LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, name );
         }
+        else if ( cacheSize == 0 )
+        {
+            recMan = base;
+        }
         else
         {
             LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, name );
-        }
 
-        // Now, create the entry cache for this partition
-        recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+            // Now, create the entry cache for this partition
+            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+        }
 
         // Create the master table (the table containing all the entries)
         master = new JdbmMasterTable<ServerEntry>( recMan, registries );
@@ -407,7 +398,7 @@ public class JdbmStore<E> implements Store<E>
      */
     public synchronized void destroy() throws Exception
     {
-        LOG.debug( "destroy() called on store for {}", this.suffixDn );
+        LOG.debug( "destroy() called on store for {}", this.suffixString );
 
         if ( !initialized )
         {
@@ -424,7 +415,7 @@ public class JdbmStore<E> implements Store<E>
             try
             {
                 index.close();
-                LOG.debug( "Closed {} index for {} partition.", index.getAttributeId(), suffixDn );
+                LOG.debug( "Closed {} index for {} partition.", index.getAttributeId(), suffixString );
             }
             catch ( Throwable t )
             {
@@ -436,7 +427,7 @@ public class JdbmStore<E> implements Store<E>
         try
         {
             master.close();
-            LOG.debug( "Closed master table for {} partition.", suffixDn );
+            LOG.debug( "Closed master table for {} partition.", suffixString );
         }
         catch ( Throwable t )
         {
@@ -447,7 +438,7 @@ public class JdbmStore<E> implements Store<E>
         try
         {
             recMan.close();
-            LOG.debug( "Closed record manager for {} partition.", suffixDn );
+            LOG.debug( "Closed record manager for {} partition.", suffixString );
         }
         catch ( Throwable t )
         {
@@ -1158,13 +1149,32 @@ public class JdbmStore<E> implements Store<E>
     }
 
 
-    public LdapDN getSuffix()
+    public void setUpSuffixString( String suffixDn ) throws Exception
     {
+        protect( "suffixDn" );
+        this.suffixString = suffixDn;
+        this.upSuffix = new LdapDN( suffixDn );
+    }
+
+
+    public String getUpSuffixString()
+    {
+        return suffixString;
+    }
+
+
+    public LdapDN getNormSuffixDn()
+    {
+        if ( ! initialized )
+        {
+            throw new RuntimeException( "Initialization required before getting normalized suffix" );
+        }
+        
         return normSuffix;
     }
 
 
-    public LdapDN getUpSuffix()
+    public LdapDN getUpSuffixDn()
     {
         return upSuffix;
     }

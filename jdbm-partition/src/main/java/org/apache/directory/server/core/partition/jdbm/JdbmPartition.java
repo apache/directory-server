@@ -75,9 +75,10 @@ public class JdbmPartition extends XdbmPartition
     // ------------------------------------------------------------------------
 
 
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws Exception
     {
         this.suffix = suffix;
+        getStore().setUpSuffixString( suffix );
     }
 
 
@@ -169,7 +170,7 @@ public class JdbmPartition extends XdbmPartition
         // initialize the store
         getJdbmStore().setCacheSize( getCacheSize() );
         getJdbmStore().setName( getId() );
-        getJdbmStore().setSuffixDn( suffix );
+        getJdbmStore().setUpSuffixString( suffix );
         getJdbmStore().setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + getId() ) );
 
         Set<JdbmIndex<?,ServerEntry>> userIndices = new HashSet<JdbmIndex<?,ServerEntry>>();

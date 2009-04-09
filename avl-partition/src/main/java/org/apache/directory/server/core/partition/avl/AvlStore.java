@@ -464,7 +464,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public LdapDN getSuffix()
+    public LdapDN getNormSuffixDn()
     {
         return suffixDn;
     }
@@ -473,7 +473,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public String getSuffixDn()
+    public String getUpSuffixString()
     {
         return suffixDn.getUpName();
     }
@@ -491,7 +491,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public LdapDN getUpSuffix() throws Exception
+    public LdapDN getUpSuffixDn() throws Exception
     {
         // TODO fix this
         return new LdapDN( suffixDn.getUpName() );
@@ -1446,7 +1446,7 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void setSuffixDn( String suffixDn ) throws Exception
+    public void setUpSuffixString( String suffixDn ) throws Exception
     {
         // TODO fix this
         this.suffixDn = new LdapDN( suffixDn );
