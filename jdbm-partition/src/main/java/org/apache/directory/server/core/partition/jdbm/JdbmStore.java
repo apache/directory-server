@@ -79,9 +79,9 @@ public class JdbmStore<E> implements Store<E>
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
-    /** the normalized suffix DN of this backend database */
+    /** the normalized suffix DN of this Store */
     private LdapDN normSuffix;
-    /** the user provided suffix DN of this backend database */
+    /** the user provided suffix DN of this Store */
     private LdapDN upSuffix;
     /** the working directory to use for files */
     private File workingDirectory;
