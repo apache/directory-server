@@ -34,7 +34,8 @@
     <systemPartition>
       <!-- use the following partitionConfiguration to override defaults for -->
       <!-- the system partition                                              -->
-      <jdbmPartition id="system" cacheSize="100" suffix="ou=system" optimizerEnabled="true" syncOnWrite="true">
+      <jdbmPartition id="system" cacheSize="100" suffix="ou=system" optimizerEnabled="true" 
+         workingDirectory="example.com/system" syncOnWrite="true">
         <indexedAttributes>
           <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.1" cacheSize="100"/>
           <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.2" cacheSize="100"/>
@@ -55,7 +56,7 @@
       <!-- attributes below with OID's which are the system indices, if left -->
       <!-- out they will be automatically configured for you with defaults.  -->
       <jdbmPartition id="example" cacheSize="100" suffix="dc=example,dc=com" optimizerEnabled="true"
-                     syncOnWrite="true">
+         workingDirectory="example.com/system" syncOnWrite="true">
         <indexedAttributes>
           <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.1" cacheSize="100"/>
           <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.2" cacheSize="100"/>

@@ -49,6 +49,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -128,6 +130,7 @@ public class SearchWithIndicesITest
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "system" );
             partition.setSuffix( "ou=system" );
+            partition.setWorkingDirectory( new File( service.getWorkingDirectory(), "system" ) );
 
             Set<JdbmIndex<?, ServerEntry>> indices = new HashSet<JdbmIndex<?, ServerEntry>>();
             indices.addAll( partition.getIndexedAttributes() );

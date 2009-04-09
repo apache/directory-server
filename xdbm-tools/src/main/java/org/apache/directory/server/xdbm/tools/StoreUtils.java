@@ -68,7 +68,7 @@ public class StoreUtils
         
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
 
-        store.init( registries );
+        store.initialize( registries );
 
         // Entry #1
         DefaultServerEntry entry = new DefaultServerEntry( registries, suffixDn );

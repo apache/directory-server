@@ -151,7 +151,7 @@ public interface Store<E>
      * @throws Exception on failure to lookup elements in registries
      * @throws Exception on failure to create database files
      */
-    void init( Registries registries ) throws Exception;
+    void initialize( Registries registries ) throws Exception;
 
 
     /**

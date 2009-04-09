@@ -24,6 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.schema.registries.Registries;
 
 import javax.naming.NameNotFoundException;
 
@@ -38,7 +39,7 @@ import javax.naming.NameNotFoundException;
  */
 public abstract class AbstractPartition implements Partition
 {
-    /** {@link DirectoryService} specified at {@link #init(DirectoryService)}. */
+    /** {@link DirectoryService} specified at {@link #initialize(Registries)}. */
     protected DirectoryService directoryService;
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
@@ -55,7 +56,7 @@ public abstract class AbstractPartition implements Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryService directoryService ) throws Exception
+    public final void initialize( Registries registries ) throws Exception
     {
         if ( initialized )
         {
@@ -125,7 +126,7 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Returns {@link DirectoryService} that is provided from
-     * {@link #init(DirectoryService)}.
+     * {@link #initialize(Registries)}.
      * @return return the directory service core
      */
     public final DirectoryService getDirectoryService()

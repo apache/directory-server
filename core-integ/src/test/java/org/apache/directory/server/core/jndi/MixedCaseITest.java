@@ -55,6 +55,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,6 +87,7 @@ public class MixedCaseITest
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "apache" );
             partition.setSuffix( SUFFIX_DN );
+            partition.setWorkingDirectory( new File( service.getWorkingDirectory(), "apache" ) );
 
             HashSet<JdbmIndex<?, ServerEntry>> indexedAttributes = new HashSet<JdbmIndex<?, ServerEntry>>();
             indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );

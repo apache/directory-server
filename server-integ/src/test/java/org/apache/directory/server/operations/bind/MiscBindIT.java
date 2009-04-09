@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.bind;
 
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -114,6 +115,7 @@ public class MiscBindIT
             apache.setCacheSize( 500 );
             apache.setSuffix( "dc=aPache,dc=org" );
             apache.setId( "apache" );
+            apache.setWorkingDirectory( new File( service.getWorkingDirectory(), "apache" ) );
             service.addPartition( apache );
 
             // change the working directory to something that is unique

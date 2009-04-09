@@ -693,7 +693,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         try
         {
-            store.init( this.registries );
+            store.initialize( this.registries );
             LdapDN dn = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             ServerEntry rootEntry = new DefaultServerEntry( registries, dn );

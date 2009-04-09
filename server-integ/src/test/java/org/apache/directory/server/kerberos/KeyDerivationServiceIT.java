@@ -69,6 +69,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
@@ -121,6 +122,7 @@ public class KeyDerivationServiceIT
              JdbmPartition partition = new JdbmPartition();
              partition.setId( "example" );
              partition.setSuffix( "dc=example,dc=com" );
+             partition.setWorkingDirectory( new File( service.getWorkingDirectory(), "example" ) );
 
              Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
              indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );

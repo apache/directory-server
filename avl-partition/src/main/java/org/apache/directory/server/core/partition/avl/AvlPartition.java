@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.XdbmPartition;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
@@ -69,9 +69,9 @@ public class AvlPartition extends XdbmPartition
      * @{inhertDoc}
      */
     @SuppressWarnings("unchecked")
-    public void init( DirectoryService core ) throws Exception
+    public void initialize( Registries registries ) throws Exception
     {
-        setRegistries( core.getRegistries() );
+        setRegistries( registries );
         
         EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( getStore(), getRegistries() );
         CursorBuilder cursorBuilder = new CursorBuilder( getStore(), evaluatorBuilder );
@@ -157,6 +157,6 @@ public class AvlPartition extends XdbmPartition
             getStore().setUserIndices( userIndices );
         }
 
-        getStore().init( getRegistries() );
+        getStore().initialize( getRegistries() );
     }
 }

@@ -35,6 +35,8 @@ import org.junit.runner.RunWith;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
+
+import java.io.File;
 import java.util.Hashtable;
 
 
@@ -56,6 +58,7 @@ public class PartitionConfigurationIT
         JdbmPartition partition = new JdbmPartition();
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
+        partition.setWorkingDirectory( new File( service.getWorkingDirectory(), "removable" ) );
         
         // Test AddContextPartition
         service.addPartition( partition );

@@ -62,6 +62,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -110,6 +111,7 @@ public class PasswordPolicyServiceIT
             JdbmPartition partition = new JdbmPartition();
             partition.setId( "example" );
             partition.setSuffix( "dc=example,dc=com" );
+            partition.setWorkingDirectory( new File( service.getWorkingDirectory(), "example" ) );
 
             Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );

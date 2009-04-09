@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -36,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -59,11 +59,10 @@ public interface Partition
 
     /**
      * Initializes this partition.
-     *
-     * @param core the directory core for the server.
-     * @throws Exception if initialization fails in any way
+     * 
+     * @param registries schema registries.
      */
-    void init( DirectoryService core ) throws Exception;
+    void initialize( Registries registries ) throws Exception;
 
 
     /**

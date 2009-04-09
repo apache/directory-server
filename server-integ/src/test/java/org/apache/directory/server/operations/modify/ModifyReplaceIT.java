@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.modify;
 
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -120,6 +121,7 @@ public class ModifyReplaceIT
             system.setCacheSize( 500 );
 
             system.setSuffix( "ou=system" );
+            system.setWorkingDirectory( new File( service.getWorkingDirectory(), "system" ) );
 
             // Add indexed attributes for system partition
             Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();

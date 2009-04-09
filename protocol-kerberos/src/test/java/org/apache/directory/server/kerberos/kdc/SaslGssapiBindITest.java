@@ -44,6 +44,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -158,6 +159,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         JdbmPartition partition = new JdbmPartition();
         partition.setId( "example" );
         partition.setSuffix( "dc=example,dc=com" );
+        partition.setWorkingDirectory( new File( directoryService.getWorkingDirectory(), "example" ) );
 
         Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
         indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );

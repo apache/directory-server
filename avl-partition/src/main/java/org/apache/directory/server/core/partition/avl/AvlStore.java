@@ -547,7 +547,7 @@ public class AvlStore<E> implements Store<E>
      * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
      */
-    public void init( Registries registries ) throws Exception
+    public void initialize( Registries registries ) throws Exception
     {
         initRegistries( registries );
         

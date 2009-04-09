@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition;
 
 
+import java.io.File;
 import java.util.HashMap;
 
 import org.apache.directory.server.core.DirectoryService;
@@ -88,6 +89,7 @@ public final class PartitionIT
             JdbmPartition foo = new JdbmPartition();
             foo.setId( "foo" );
             foo.setSuffix( "dc=foo,dc=com" );
+            foo.setWorkingDirectory( new File( service.getWorkingDirectory(), "foo" ) );
             service.addPartition( foo );
             
             JdbmPartition bar = new JdbmPartition();

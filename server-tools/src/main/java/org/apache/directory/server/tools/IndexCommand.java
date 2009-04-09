@@ -158,7 +158,7 @@ public class IndexCommand extends ToolCommand
         schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
 
         DirectoryService directoryService = new DefaultDirectoryService();
-        schemaPartition.init( directoryService );
+        schemaPartition.initialize( null );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries

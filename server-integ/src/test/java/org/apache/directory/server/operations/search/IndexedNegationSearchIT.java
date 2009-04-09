@@ -55,6 +55,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -167,6 +168,8 @@ public class IndexedNegationSearchIT
             system.setCacheSize( 500 );
 
             system.setSuffix( "ou=system" );
+            system.setWorkingDirectory( new File( service.getWorkingDirectory(), "system" ) );
+
 
             // Add indexed attributes for system partition
             Set<JdbmIndex<?,ServerEntry>> indexedAttrs = new HashSet<JdbmIndex<?,ServerEntry>>();
