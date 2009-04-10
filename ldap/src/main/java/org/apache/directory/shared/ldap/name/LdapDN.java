@@ -299,7 +299,7 @@ public class LdapDN implements Name, Externalizable
     /**
      * Normalize the DN by triming useless spaces and lowercasing names.
      */
-    private void normalizeInternal()
+    void normalizeInternal()
     {
         normName = toNormName();
     }
@@ -526,6 +526,17 @@ public class LdapDN implements Name, Externalizable
     public String getUpName()
     {
         return ( upName == null ? "" : upName );
+    }
+
+
+    /**
+     * Sets the up name.
+     * 
+     * @param upName the new up name
+     */
+    void setUpName( String upName )
+    {
+        this.upName = upName;
     }
 
 
