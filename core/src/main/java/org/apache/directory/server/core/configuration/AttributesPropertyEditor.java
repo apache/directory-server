@@ -68,7 +68,6 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     /**
      * Returns LDIF string of {@link Attributes} object.
      */
-    @SuppressWarnings("deprecation")
     public String getAsText()
     {
         Attributes attrs = (Attributes) getValue();
