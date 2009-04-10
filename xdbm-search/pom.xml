@@ -36,32 +36,6 @@
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>1.3.2</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-xdbm-tools</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-schema-bootstrap</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
   </dependencies>
 
   <packaging>jar</packaging>
