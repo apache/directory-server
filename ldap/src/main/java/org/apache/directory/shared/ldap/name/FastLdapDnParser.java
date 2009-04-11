@@ -20,12 +20,15 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.util.List;
+
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.util.Position;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -71,6 +74,13 @@ public enum FastLdapDnParser implements NameParser
      */
     public void parseDn( String name, LdapDN dn ) throws InvalidNameException
     {
+        parseDn(name, dn.rdns);
+        dn.setUpName( name );
+        dn.normalizeInternal();
+    }
+    
+    void parseDn( String name, List<Rdn> rdns ) throws InvalidNameException
+    {
         if ( name == null || name.trim().length() == 0 )
         {
             // We have an empty DN, just get out of the function.
@@ -85,7 +95,7 @@ public enum FastLdapDnParser implements NameParser
         {
             Rdn rdn = new Rdn();
             parseRdnInternal( name, pos, rdn );
-            dn.rdns.add( rdn );
+            rdns.add( rdn );
 
             if ( !hasMoreChars( pos ) )
             {
@@ -105,9 +115,6 @@ public enum FastLdapDnParser implements NameParser
                         + ". Excpected ',' or ';'." );
             }
         }
-
-        dn.setUpName( name );
-        dn.normalizeInternal();
     }
 
 
@@ -141,7 +148,7 @@ public enum FastLdapDnParser implements NameParser
 
     private void parseRdnInternal( String name, Position pos, Rdn rdn ) throws InvalidNameException
     {
-        int start = pos.start;
+        int rdnStart = pos.start;
 
         // SPACE*
         matchSpaces( name, pos );
@@ -160,13 +167,13 @@ public enum FastLdapDnParser implements NameParser
 
         // here we only match "simple" values
         // stops at \ + # " -> Too Complex Exception
-        String value = matchValue( name, pos );
-        String upValue = name.substring( start, pos.start );
+        String upValue = matchValue( name, pos );
+        String value = StringTools.trimRight( upValue );
         // TODO: trim, normalize, etc
 
         rdn.addAttributeTypeAndValue( type, type, upValue, value );
 
-        rdn.setUpName( name.substring( start, pos.start ) );
+        rdn.setUpName( name.substring( rdnStart, pos.start ) );
         rdn.normalize();
 
     }
@@ -182,7 +189,7 @@ public enum FastLdapDnParser implements NameParser
     private void matchSpaces( String name, Position pos ) throws InvalidNameException
     {
         char c = ' ';
-        while ( c == ' ' )
+        while ( c == ' ' && hasMoreChars( pos ) )
         {
             c = nextChar( name, pos, true );
         }
