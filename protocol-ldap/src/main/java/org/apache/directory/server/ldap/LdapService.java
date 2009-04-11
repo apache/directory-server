@@ -383,12 +383,10 @@ public class LdapService extends DirectoryBackedService
         if ( isEnableLdaps() )
         {
             LOG.info( "Ldaps service started." );
-            System.out.println( "Ldaps service started." );
         }
         else
         {
             LOG.info( "Ldap service started." );
-            System.out.println( "Ldap service started." );
         }
     }
 
@@ -452,12 +450,10 @@ public class LdapService extends DirectoryBackedService
         if ( isEnableLdaps() )
         {
             LOG.info( "Ldaps service stopped." );
-            System.out.println( "Ldaps service stopped." );
         }
         else
         {
             LOG.info( "Ldap service stopped." );
-            System.out.println( "Ldap service stopped." );
         }
     }
 
