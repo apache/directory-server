@@ -92,24 +92,8 @@ public class FastLdapDnParserTest extends TestCase
         {
             // expected
         }
-        try
-        {
-            dnParser.parse( " a =" );
-            fail();
-        }
-        catch ( InvalidNameException ine )
-        {
-            // expected
-        }
-        try
-        {
-            dnParser.parse( " a = " );
-            fail();
-        }
-        catch ( InvalidNameException ine )
-        {
-            // expected
-        }
+        dnParser.parse( " a =" );
+        dnParser.parse( " a = " );
         dnParser.parse( " a = b" );
 
         // test DNs starting with an OID
@@ -158,26 +142,9 @@ public class FastLdapDnParserTest extends TestCase
         {
             // expected
         }
-        try
-        {
-            dnParser.parse( " 0.5=" );
-            fail();
-        }
-        catch ( InvalidNameException ine )
-        {
-            // expected
-        }
-        try
-        {
-            dnParser.parse( " 0.5 = " );
-            fail();
-        }
-        catch ( InvalidNameException ine )
-        {
-            // expected
-        }
+        dnParser.parse( " 0.5=" );
+        dnParser.parse( " 0.5 = " );
         dnParser.parse( " 0.5 = b" );
-
     }
 
 
