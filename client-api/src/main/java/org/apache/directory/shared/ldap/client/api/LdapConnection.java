@@ -241,7 +241,12 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
-     * Handle the lock mechanism on session
+     * Handle the lock mechanism on session. It's only a temporary lock,
+     * just for the necessary time to send the request. As we are using
+     * internally an asynchronous mechanism, once the data are written, 
+     * we can release the lock. Thus one can send a search request
+     * followed by an abandon request as soon as the search request
+     * has been written, even before having received the first response. 
      */
     private void lockSession() throws LdapException
     {
@@ -886,6 +891,7 @@ public class LdapConnection  extends IoHandlerAdapter
         // Create the future to get the result
         BindFuture bindFuture = bindAsyncInternal( bindRequest, null );
         
+        // And get the result
         try
         {
             // Read the response, waiting for it if not available immediately
