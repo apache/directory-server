@@ -23,15 +23,18 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /*
@@ -39,8 +42,9 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoredProcedureTest extends TestCase
+public class StoredProcedureTest
 {
+	@Test
     public void testDecodeStoredProcedureNParams()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -78,31 +82,31 @@ public class StoredProcedureTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         StoredProcedure storedProcedure = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
 
-        Assert.assertEquals("Java", storedProcedure.getLanguage());
+        assertEquals("Java", storedProcedure.getLanguage());
         
-        Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
+        assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertEquals( 3, storedProcedure.getParameters().size() );
+        assertEquals( 3, storedProcedure.getParameters().size() );
 
         StoredProcedureParameter param = storedProcedure.getParameters().get( 0 );
 
-        Assert.assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
-        Assert.assertEquals( 1, param.getValue()[0] );
+        assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
+        assertEquals( 1, param.getValue()[0] );
 
         param = storedProcedure.getParameters().get( 1 );
 
-        Assert.assertEquals( "boolean", StringTools.utf8ToString( param.getType() ) );
-        Assert.assertEquals( "true", StringTools.utf8ToString( param.getValue() ) );
+        assertEquals( "boolean", StringTools.utf8ToString( param.getType() ) );
+        assertEquals( "true", StringTools.utf8ToString( param.getValue() ) );
 
         param = storedProcedure.getParameters().get( 2 );
 
-        Assert.assertEquals( "String", StringTools.utf8ToString( param.getType() ) );
-        Assert.assertEquals( "parameter3", StringTools.utf8ToString( param.getValue() ) );
+        assertEquals( "String", StringTools.utf8ToString( param.getType() ) );
+        assertEquals( "parameter3", StringTools.utf8ToString( param.getValue() ) );
 
         // Check the encoding
         try
@@ -120,6 +124,7 @@ public class StoredProcedureTest extends TestCase
         }
     }
 
+	@Test
     public void testDecodeStoredProcedureNoParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -148,16 +153,16 @@ public class StoredProcedureTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         StoredProcedure storedProcedure = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
 
-        Assert.assertEquals("Java", storedProcedure.getLanguage());
+        assertEquals("Java", storedProcedure.getLanguage());
         
-        Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
+        assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertEquals( 0, storedProcedure.getParameters().size() );
+        assertEquals( 0, storedProcedure.getParameters().size() );
         
         // Check the encoding
         try
@@ -175,6 +180,8 @@ public class StoredProcedureTest extends TestCase
         }
     }
 
+	
+	@Test
     public void testDecodeStoredProcedureOneParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -206,21 +213,21 @@ public class StoredProcedureTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         StoredProcedure storedProcedure = ( ( StoredProcedureContainer ) storedProcedureContainer ).getStoredProcedure();
 
-        Assert.assertEquals("Java", storedProcedure.getLanguage());
+        assertEquals("Java", storedProcedure.getLanguage());
         
-        Assert.assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
+        assertEquals( "execute", StringTools.utf8ToString( storedProcedure.getProcedure() ) );
 
-        Assert.assertEquals( 1, storedProcedure.getParameters().size() );
+        assertEquals( 1, storedProcedure.getParameters().size() );
 
         StoredProcedureParameter param = storedProcedure.getParameters().get( 0 );
 
-        Assert.assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
-        Assert.assertEquals( 1, param.getValue()[0] );
+        assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
+        assertEquals( 1, param.getValue()[0] );
 
         // Check the encoding
         try

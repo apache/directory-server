@@ -19,7 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * The unit tests for methods on UsageEnum.
@@ -27,8 +28,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 485048 $
  */
-public class UsageEnumTest extends TestCase
+public class UsageEnumTest
 {
+    @Test
     public void testGetValue()
     {
         assertEquals( 0, UsageEnum.USER_APPLICATIONS.getValue() );
@@ -37,6 +39,7 @@ public class UsageEnumTest extends TestCase
         assertEquals( 3, UsageEnum.DSA_OPERATION.getValue() );
     }
     
+    @Test
     public void testGetUsage()
     {
         assertEquals( UsageEnum.DIRECTORY_OPERATION, UsageEnum.getUsage( "directoryOperation" ) );
@@ -46,6 +49,7 @@ public class UsageEnumTest extends TestCase
         assertEquals( null, UsageEnum.getUsage( "azerty" ) );
     }
     
+    @Test
     public void testRenderer()
     {
         assertEquals( "directoryOperation", UsageEnum.render( UsageEnum.DIRECTORY_OPERATION ) );

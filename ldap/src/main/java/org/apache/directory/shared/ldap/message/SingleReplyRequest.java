@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SingleReplyRequest extends ResultResponseRequest
+public interface SingleReplyRequest extends InternalResultResponseRequest
 {
     /**
      * Gets the protocol response message type for this request which produces

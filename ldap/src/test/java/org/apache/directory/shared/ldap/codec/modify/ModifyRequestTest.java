@@ -29,20 +29,22 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -50,11 +52,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ModifyRequestTest extends TestCase
+public class ModifyRequestTest
 {
     /**
      * Test the decoding of a ModifyRequest
      */
+    @Test
     public void testDecodeModifyRequest2AttrsSuccess() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -114,8 +117,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
@@ -162,6 +165,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest
      */
+    @Test
     public void testDecodeModifyRequestBadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -216,7 +220,7 @@ public class ModifyRequestTest extends TestCase
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyResponseImpl );
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
@@ -228,6 +232,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest, with different operations
      */
+    @Test
     public void testDecodeModifyRequestManyOperations() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -282,8 +287,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 21, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
@@ -327,7 +332,7 @@ public class ModifyRequestTest extends TestCase
                 fail( de.getMessage() );
             }
 
-            LdapMessage message2 = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+            LdapMessageCodec message2 = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
             ByteBuffer bb2 = message2.encode( null );
             String decodedPdu2 = StringTools.dumpBytes( bb2.array() );
@@ -345,6 +350,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest, with different operations, take 2
      */
+    @Test
     public void testDecodeModifyRequestManyOperations2() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -405,8 +411,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=Tori Amos,ou=playground,dc=apache,dc=org", modifyRequest.getObject().toString() );
@@ -459,7 +465,7 @@ public class ModifyRequestTest extends TestCase
                 fail( de.getMessage() );
             }
 
-            LdapMessage message2 = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+            LdapMessageCodec message2 = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
             ByteBuffer bb2 = message2.encode( null );
             String decodedPdu2 = StringTools.dumpBytes( bb2.array() );
@@ -477,6 +483,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest
      */
+    @Test
     public void testDecodeModifyRequest2Attrs3valsSuccess() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -536,8 +543,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
@@ -590,6 +597,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty body
      */
+    @Test
     public void testDecodeModifyRequestEmptyBody()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -624,6 +632,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty object
      */
+    @Test
     public void testDecodeModifyRequestEmptyObject()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -659,6 +668,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an object and nothing else
      */
+    @Test
     public void testDecodeModifyRequestObjectAlone()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -696,6 +706,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty modification
      */
+    @Test
     public void testDecodeModifyRequestEmptyModification()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -734,6 +745,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty operation
      */
+    @Test
     public void testDecodeModifyRequestEmptyOperation()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -773,6 +785,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an wrong empty operation
      */
+    @Test
     public void testDecodeModifyRequestWrongOperationEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -813,6 +826,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an wrong operation
      */
+    @Test
     public void testDecodeModifyRequestWrongOperation()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -854,6 +868,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and nothing
      * more
      */
+    @Test
     public void testDecodeModifyRequestAddOperationEnd()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -895,6 +910,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and an empty
      * modification
      */
+    @Test
     public void testDecodeModifyRequestAddOperationEmptyModification()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -937,6 +953,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with an empty type
      */
+    @Test
     public void testDecodeModifyRequestAddOperationModificationEmptyType()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -972,7 +989,7 @@ public class ModifyRequestTest extends TestCase
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof ModifyResponseImpl );
             assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
@@ -984,6 +1001,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and no vals
      */
+    @Test
     public void testDecodeModifyRequestAddOperationModificationTypeNoVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1027,6 +1045,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and an empty vals
      */
+    @Test
     public void testDecodeModifyRequestAddOperationModificationTypeEmptyVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1067,8 +1086,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
@@ -1107,6 +1126,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and an empty vals wuth controls
      */
+    @Test
     public void testDecodeModifyRequestAddOperationModificationTypeEmptyValsWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1150,8 +1170,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );
@@ -1167,11 +1187,11 @@ public class ModifyRequestTest extends TestCase
         assertEquals( 0, attributeValue.size() );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -1199,6 +1219,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and two vals
      */
+    @Test
     public void testDecodeModifyRequestAddOperationModificationType2Vals() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -1241,8 +1262,8 @@ public class ModifyRequestTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ModifyRequest modifyRequest = message.getModifyRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ModifyRequestCodec modifyRequest = message.getModifyRequest();
 
         assertEquals( 49, message.getMessageId() );
         assertEquals( "cn=testModify,ou=users,ou=system", modifyRequest.getObject().toString() );

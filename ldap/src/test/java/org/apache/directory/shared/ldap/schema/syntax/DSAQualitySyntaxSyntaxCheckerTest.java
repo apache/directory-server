@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.DSAQualitySyntaxSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for DSAQualitySyntaxSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DSAQualitySyntaxSyntaxCheckerTest extends TestCase
+public class DSAQualitySyntaxSyntaxCheckerTest
 {
     DSAQualitySyntaxSyntaxChecker checker = new DSAQualitySyntaxSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "Bad" ) );
@@ -56,6 +61,7 @@ public class DSAQualitySyntaxSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "DEFUNCT" ) );

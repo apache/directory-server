@@ -26,13 +26,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeLiteral;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassLiteral;
 import org.apache.directory.shared.ldap.schema.parsers.OpenLdapSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifierMacro;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -41,27 +47,26 @@ import org.apache.directory.shared.ldap.schema.syntaxes.OpenLdapObjectIdentifier
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437016 $
  */
-public class OpenLdapSchemaParserTest extends TestCase
+public class OpenLdapSchemaParserTest
 {
     private OpenLdapSchemaParser parser;
 
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         parser = new OpenLdapSchemaParser();
         parser.setParserMonitor( new ConsoleParserMonitor() );
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        super.tearDown();
         parser = null;
     }
 
 
+    @Test
     public void testSimpleAttributeTypeNoLength() throws Exception
     {
         String attributeTypeData = "attributetype ( 2.5.4.14 NAME 'searchGuide'\n"
@@ -94,6 +99,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSimpleAttributeTypeParse() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n" + "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n"
@@ -113,6 +119,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testAttributeTypeParseWithDescQuotes() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n" + "attributetype ( 2.5.4.2 NAME 'knowledgeInformation'\n"
@@ -132,6 +139,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testComplexAttributeTypeParse() throws Exception
     {
         String attributeTypeData = "# adding a comment  \n"
@@ -165,6 +173,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testObjectClassParse() throws Exception
     {
         String objectClassData = "objectclass ( 2.5.6.6 NAME 'person'\n" + "        DESC 'RFC2256: a person'\n"
@@ -189,6 +198,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testObjectClassMultipleNames() throws Exception
     {
         String objectClassData = "objectclass ( 0.9.2342.19200300.100.4.4\n"
@@ -234,6 +244,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testParseOpenLdapCoreSchema() throws Exception
     {
         InputStream input = getClass().getResourceAsStream( "core.schema" );
@@ -249,6 +260,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testParseOpenLdapInetOrgPersonSchema() throws Exception
     {
         InputStream input = getClass().getResourceAsStream( "inetorgperson.schema" );
@@ -264,6 +276,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testParseOpenLdapCollectiveSchema() throws Exception
     {
         InputStream input = getClass().getResourceAsStream( "collective.schema" );
@@ -283,6 +296,7 @@ public class OpenLdapSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testOpenLdapObjectIdentifiereMacros() throws Exception
     {
         InputStream input = getClass().getResourceAsStream( "dyngroup.schema" );

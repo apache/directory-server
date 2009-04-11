@@ -28,14 +28,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteRequestImpl extends AbstractAbandonableRequest implements DeleteRequest
+public class DeleteRequestImpl extends AbstractAbandonableRequest implements InternalDeleteRequest
 {
     static final long serialVersionUID = 3187847454305567542L;
 
     /** The distinguished name of the entry to delete */
     private LdapDN name;
 
-    private DeleteResponse response;
+    private InternalDeleteResponse response;
 
 
     // ------------------------------------------------------------------------
@@ -105,7 +105,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -139,7 +139,7 @@ public class DeleteRequestImpl extends AbstractAbandonableRequest implements Del
             return false;
         }
 
-        DeleteRequest req = ( DeleteRequest ) obj;
+        InternalDeleteRequest req = ( InternalDeleteRequest ) obj;
 
         if ( name != null && req.getName() == null )
         {

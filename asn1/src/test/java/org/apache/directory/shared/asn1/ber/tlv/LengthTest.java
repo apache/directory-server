@@ -22,7 +22,9 @@ package org.apache.directory.shared.asn1.ber.tlv;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This class is used to test the Length class
@@ -30,12 +32,13 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LengthTest extends TestCase
+public class LengthTest
 {
 
     /**
      * Test the getNbBytes method
      */
+    @Test
     public void testLengthGetNbBytes()
     {
         assertEquals( "1 expected", 1, TLV.getNbBytes( 0 ) );
@@ -55,6 +58,7 @@ public class LengthTest extends TestCase
     /**
      * Test the getBytes method
      */
+    @Test
     public void testLengthGetBytes()
     {
         assertTrue( Arrays.equals( new byte[]

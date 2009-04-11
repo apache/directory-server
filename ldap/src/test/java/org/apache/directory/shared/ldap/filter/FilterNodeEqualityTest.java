@@ -21,8 +21,9 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -31,8 +32,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 575783 $
  */
-public class FilterNodeEqualityTest extends TestCase
+public class FilterNodeEqualityTest
 {
+    @Test
     public void testEqualityEquals()
     {
         EqualityNode<String> eqNode1 = new EqualityNode<String>( "attr1", new ClientStringValue( "test" ) );
@@ -56,6 +58,7 @@ public class FilterNodeEqualityTest extends TestCase
     }
 
 
+    @Test
     public void testGreaterEqEquals()
     {
         GreaterEqNode<String> greaterEqNode1 = new GreaterEqNode<String>( "attr1", new ClientStringValue( "test" ) );
@@ -72,6 +75,7 @@ public class FilterNodeEqualityTest extends TestCase
     }
 
 
+    @Test
     public void testLessEqEquals()
     {
         LessEqNode<String> lessEqNode1 = new LessEqNode<String>( "attr1", new ClientStringValue( "test" ) );
@@ -87,6 +91,7 @@ public class FilterNodeEqualityTest extends TestCase
     }
 
 
+    @Test
     public void testApproximateEqEquals()
     {
         ApproximateNode<String> approximateNode1 = new ApproximateNode<String>( "attr1", new ClientStringValue( "test" ) );
@@ -104,6 +109,7 @@ public class FilterNodeEqualityTest extends TestCase
     }
 
 
+    @Test
     public void testPresenceEquals()
     {
         PresenceNode presenceNode1 = new PresenceNode( "attr1" );
@@ -116,6 +122,7 @@ public class FilterNodeEqualityTest extends TestCase
     }
 
 
+    @Test
     public void testSubstringEquals()
     {
     }

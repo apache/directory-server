@@ -23,12 +23,14 @@ package org.apache.directory.shared.asn1.codec.stateful.examples;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.codec.binary.Hex;
 import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -37,7 +39,7 @@ import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class HexEncoderTest extends TestCase implements EncoderCallback
+public class HexEncoderTest implements EncoderCallback
 {
     HexEncoder encoder = null;
 
@@ -46,17 +48,17 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     byte[] data = null;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
         encoder = new HexEncoder();
         encoder.setCallback( this );
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        super.tearDown();
         data = null;
         encoder = null;
         encoded = null;
@@ -90,6 +92,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode0() throws EncoderException
     {
         generateData( 0 );
@@ -102,6 +105,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode1() throws EncoderException
     {
         generateData( 1 );
@@ -110,6 +114,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode25() throws EncoderException
     {
         generateData( 25 );
@@ -118,6 +123,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode63() throws EncoderException
     {
         generateData( 63 );
@@ -126,6 +132,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode64() throws EncoderException
     {
         generateData( 64 );
@@ -134,6 +141,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode65() throws EncoderException
     {
         generateData( 65 );
@@ -142,6 +150,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode66() throws EncoderException
     {
         generateData( 66 );
@@ -150,6 +159,7 @@ public class HexEncoderTest extends TestCase implements EncoderCallback
     }
 
 
+    @Test
     public void testEncode512() throws EncoderException
     {
         generateData( 512 );

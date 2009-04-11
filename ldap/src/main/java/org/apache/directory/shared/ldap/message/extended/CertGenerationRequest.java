@@ -25,10 +25,10 @@ import javax.naming.ldap.ExtendedResponse;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationDecoder;
-import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationObject;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationObject;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,10 @@ import org.slf4j.LoggerFactory;
  */
 public class CertGenerationRequest extends ExtendedRequestImpl
 {
-    private CertGenerationObject certGenObj;
+	/** The serial version UUID */
+	private static final long serialVersionUID = 1L;
+
+	private CertGenerationObject certGenObj;
 
     private static final Logger LOG = LoggerFactory.getLogger( CertGenerationRequest.class );
 
@@ -141,7 +144,7 @@ public class CertGenerationRequest extends ExtendedRequestImpl
     }
 
 
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {

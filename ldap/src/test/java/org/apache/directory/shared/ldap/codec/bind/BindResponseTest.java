@@ -28,27 +28,30 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BindResponseTest extends TestCase
+public class BindResponseTest
 {
     /**
      * Test the decoding of a BindResponse
      */
+    @Test
     public void testDecodeBindResponseSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -89,8 +92,8 @@ public class BindResponseTest extends TestCase
         }
 
         // Check the decoded BindResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindResponse br = message.getBindResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindResponseCodec br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
@@ -120,6 +123,7 @@ public class BindResponseTest extends TestCase
     /**
      * Test the decoding of a BindResponse with a control
      */
+    @Test
     public void testDecodeBindResponseWithControlSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -172,8 +176,8 @@ public class BindResponseTest extends TestCase
         }
 
         // Check the decoded BindResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindResponse br = message.getBindResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindResponseCodec br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
@@ -184,11 +188,11 @@ public class BindResponseTest extends TestCase
         assertEquals( 0x3C, message.computeLength() );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "1.2.840.113556.1.4.319", control.getControlType() );
         assertTrue( control.getControlValue() instanceof PagedSearchControlCodec );
         
@@ -217,6 +221,7 @@ public class BindResponseTest extends TestCase
     /**
      * Test the decoding of a BindResponse with an empty credentials
      */
+    @Test
     public void testDecodeBindResponseServerSASLEmptyCredentials()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -258,8 +263,8 @@ public class BindResponseTest extends TestCase
         }
 
         // Check the decoded BindResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindResponse br = message.getBindResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindResponseCodec br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
@@ -291,6 +296,7 @@ public class BindResponseTest extends TestCase
      * Test the decoding of a BindResponse with an empty credentials with
      * controls
      */
+    @Test
     public void testDecodeBindResponseServerSASLEmptyCredentialsWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -334,8 +340,8 @@ public class BindResponseTest extends TestCase
         }
 
         // Check the decoded BindResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindResponse br = message.getBindResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindResponseCodec br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
@@ -344,11 +350,11 @@ public class BindResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( br.getServerSaslCreds() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -375,6 +381,7 @@ public class BindResponseTest extends TestCase
     /**
      * Test the decoding of a BindResponse with a credentials
      */
+    @Test
     public void testDecodeBindResponseServerSASL()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -416,8 +423,8 @@ public class BindResponseTest extends TestCase
         }
 
         // Check the decoded BindResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindResponse br = message.getBindResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindResponseCodec br = message.getBindResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, br.getLdapResult().getResultCode() );
@@ -448,6 +455,7 @@ public class BindResponseTest extends TestCase
     /**
      * Test the decoding of a BindResponse with no LdapResult
      */
+    @Test
     public void testDecodeAddResponseEmptyResult()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

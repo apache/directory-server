@@ -26,16 +26,21 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
+import org.apache.directory.shared.ldap.codec.abandon.AbandonRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
-import junit.framework.TestCase;
 
-public class LdapControlTest extends TestCase
+public class LdapControlTest
 {
     /**
      * Test the decoding of a Request with controls
      */
+	@Test
     public void testDecodeRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -92,18 +97,18 @@ public class LdapControlTest extends TestCase
         }
 
         // Check that everything is OK
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AbandonRequest abandonRequest = message.getAbandonRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AbandonRequestCodec abandonRequest = message.getAbandonRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( 2, abandonRequest.getAbandonedMessageId() );
 
         // Check the Controls
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 4, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "1.3.6.1.5.5.1", control.getControlType() );
         assertEquals( "0x61 0x62 0x63 0x64 0x65 0x66 ", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
         assertTrue( control.getCriticality() );
@@ -145,6 +150,7 @@ public class LdapControlTest extends TestCase
     /**
      * Test the decoding of a Request with null OID controls
      */
+	@Test
     public void testDecodeRequestWithControlsNullOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -188,6 +194,7 @@ public class LdapControlTest extends TestCase
     /**
      * Test the decoding of a Request with bad OID controls
      */
+	@Test
     public void testDecodeRequestWithControlsBadOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -231,6 +238,7 @@ public class LdapControlTest extends TestCase
     /**
      * Test the decoding of a Request with bad criticality
      */
+	@Test
     public void testDecodeRequestWithControlsBadCriticality()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

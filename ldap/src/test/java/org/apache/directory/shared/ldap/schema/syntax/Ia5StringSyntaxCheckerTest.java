@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for Ia5StringSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class Ia5StringSyntaxCheckerTest extends TestCase
+public class Ia5StringSyntaxCheckerTest
 {
     Ia5StringSyntaxChecker checker = new Ia5StringSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "\u00E9" ) );
@@ -62,6 +67,7 @@ public class Ia5StringSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "0123456789" ) );

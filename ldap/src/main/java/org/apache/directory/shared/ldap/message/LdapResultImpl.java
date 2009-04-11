@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class LdapResultImpl implements LdapResult
+public class LdapResultImpl implements InternalLdapResult
 {
     static final long serialVersionUID = -1446626887394613213L;
 
@@ -37,7 +37,7 @@ public class LdapResultImpl implements LdapResult
     private LdapDN matchedDn;
 
     /** Referral associated with this LdapResult if the errorCode is REFERRAL */
-    private Referral referral;
+    private InternalReferral referral;
 
     /** Decriptive error message - defaults to empty string */
     private String errorMessage;
@@ -140,7 +140,7 @@ public class LdapResultImpl implements LdapResult
      * 
      * @return the referral on REFERRAL errors, null on all others.
      */
-    public Referral getReferral()
+    public InternalReferral getReferral()
     {
         return referral;
     }
@@ -167,7 +167,7 @@ public class LdapResultImpl implements LdapResult
      * @param referral
      *            optional referral on REFERRAL errors.
      */
-    public void setReferral( Referral referral )
+    public void setReferral( InternalReferral referral )
     {
         this.referral = referral;
     }
@@ -186,13 +186,13 @@ public class LdapResultImpl implements LdapResult
         }
 
         // return false if object does not implement interface
-        if ( !( obj instanceof LdapResult ) )
+        if ( !( obj instanceof InternalLdapResult ) )
         {
             return false;
         }
 
         // compare all the like elements of the two LdapResult objects
-        LdapResult result = ( LdapResult ) obj;
+        InternalLdapResult result = ( InternalLdapResult ) obj;
 
         if ( referral == null && result.getReferral() != null )
         {

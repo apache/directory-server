@@ -27,13 +27,15 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -41,11 +43,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IntermediateResponseTest extends TestCase
+public class IntermediateResponseTest
 {
     /**
      * Test the decoding of a full IntermediateResponse
      */
+    @Test
     public void testDecodeIntermediateResponseSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -82,8 +85,8 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );
@@ -112,6 +115,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of a full IntermediateResponse with controls
      */
+    @Test
     public void testDecodeIntermediateResponseWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -153,19 +157,19 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );
         assertEquals( "value", StringTools.utf8ToString( intermediateResponse.getResponseValue() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -193,6 +197,7 @@ public class IntermediateResponseTest extends TestCase
      * Test the decoding of a full IntermediateResponse with no value and with
      * controls
      */
+    @Test
     public void testDecodeIntermediateResponseNoValueWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -234,19 +239,19 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );
         assertEquals( "", StringTools.utf8ToString( intermediateResponse.getResponseValue() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -273,6 +278,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of an empty IntermediateResponse
      */
+    @Test
     public void testDecodeIntermediateResponseEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -308,6 +314,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of an empty OID
      */
+    @Test
     public void testDecodeEmptyOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -343,6 +350,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of a bad name 
      */
+    @Test
     public void testDecodeExtendedBadRequestName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -380,6 +388,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of a name only IntermediateResponse
      */
+    @Test
     public void testDecodeIntermediateResponseName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -415,8 +424,8 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );
@@ -444,6 +453,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of an empty value IntermediateResponse
      */
+    @Test
     public void testDecodeIntermediateResponseEmptyValue()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -480,8 +490,8 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );
@@ -510,6 +520,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of an IntermediateResponse without name
      */
+    @Test
     public void testDecodeIntermediateResponseNoName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -544,8 +555,8 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "", intermediateResponse.getResponseName() );
@@ -574,6 +585,7 @@ public class IntermediateResponseTest extends TestCase
     /**
      * Test the decoding of an IntermediateResponse with no value
      */
+    @Test
     public void testDecodeIntermediateResponseNoValue()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -608,8 +620,8 @@ public class IntermediateResponseTest extends TestCase
         }
 
         // Check the decoded IntermediateResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        IntermediateResponse intermediateResponse = message.getIntermediateResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        IntermediateResponseCodec intermediateResponse = message.getIntermediateResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", intermediateResponse.getResponseName() );

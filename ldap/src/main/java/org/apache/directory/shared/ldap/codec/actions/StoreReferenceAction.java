@@ -25,7 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
+import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -61,7 +61,7 @@ public class StoreReferenceAction extends GrammarAction
 
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-        SearchResultReference searchResultReference = ldapMessageContainer.getLdapMessage()
+        SearchResultReferenceCodec searchResultReference = ldapMessageContainer.getLdapMessage()
             .getSearchResultReference();
 
         // Get the Value and store it in the BindRequest

@@ -26,12 +26,12 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class SearchResponseReferenceImpl extends AbstractResponse implements SearchResponseReference
+public class SearchResponseReferenceImpl extends InternalAbstractResponse implements InternalSearchResponseReference
 {
     static final long serialVersionUID = 7423807019951309810L;
 
     /** Referral holding the reference urls */
-    private Referral referral;
+    private InternalReferral referral;
 
 
     // ------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
      * 
      * @return the sequence of LdapUrls
      */
-    public Referral getReferral()
+    public InternalReferral getReferral()
     {
         return this.referral;
     }
@@ -72,7 +72,7 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
      * @param referral
      *            the sequence of LdapUrls
      */
-    public void setReferral( Referral referral )
+    public void setReferral( InternalReferral referral )
     {
         this.referral = referral;
     }
@@ -97,7 +97,7 @@ public class SearchResponseReferenceImpl extends AbstractResponse implements Sea
             return false;
         }
 
-        SearchResponseReference resp = ( SearchResponseReference ) obj;
+        InternalSearchResponseReference resp = ( InternalSearchResponseReference ) obj;
 
         if ( this.referral != null && resp.getReferral() == null )
         {

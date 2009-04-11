@@ -22,12 +22,17 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -35,19 +40,21 @@ import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSch
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ObjectClassDescriptionSchemaParserTest extends TestCase
+public class ObjectClassDescriptionSchemaParserTest
 {
     /** the parser instance */
     private ObjectClassDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new ObjectClassDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
@@ -58,6 +65,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "" );
@@ -69,6 +77,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "" );
@@ -80,6 +89,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "" );
@@ -91,6 +101,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testObsolete() throws ParseException
     {
         SchemaParserTestUtils.testObsolete( parser, "1.1", "" );
@@ -102,6 +113,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSuperior() throws ParseException
     {
         String value = null;
@@ -239,6 +251,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testKind() throws ParseException
     {
         String value = null;
@@ -289,6 +302,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testMust() throws ParseException
     {
         String value = null;
@@ -358,6 +372,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testMay() throws ParseException
     {
         String value = null;
@@ -414,6 +429,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "" );
@@ -426,6 +442,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -470,6 +487,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -486,6 +504,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testIgnoreElementOrder() throws ParseException
     {
         String value = "( 2.5.6.6 STRUCTURAL MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) SUP top DESC 'RFC2256: a person' MUST ( sn $ cn ) NAME 'person' )";
@@ -515,6 +534,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     //          Some real-world object class definitions          //
     ////////////////////////////////////////////////////////////////
 
+    @Test
     public void testRfcTop() throws ParseException
     {
         String value = "( 2.5.6.0 NAME 'top' DESC 'top of the superclass chain' ABSTRACT MUST objectClass )";
@@ -533,6 +553,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testRfcPerson() throws ParseException
     {
         String value = "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )";
@@ -557,6 +578,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testRfcSimpleSecurityObject() throws ParseException
     {
         String value = "( 0.9.2342.19200300.100.4.19 NAME 'simpleSecurityObject' DESC 'RFC1274: simple security object' SUP top AUXILIARY MUST userPassword )";
@@ -576,6 +598,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSunAlias() throws ParseException
     {
         String value = "( 2.5.6.1 NAME 'alias' DESC 'Standard LDAP objectclass' SUP top ABSTRACT MUST aliasedObjectName X-ORIGIN 'RFC 2256' )";
@@ -599,6 +622,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testNovellDcObject() throws ParseException
     {
         String value = "( 1.3.6.1.4.1.1466.344 NAME 'dcObject' AUXILIARY MUST dc X-NDS_NAMING 'dc' X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' )";
@@ -627,6 +651,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testNovellList() throws ParseException
     {
         String value = "( 2.16.840.1.113719.1.1.6.1.30 NAME 'List' SUP Top STRUCTURAL MUST cn MAY ( description $ l $ member $ ou $ o $ eMailAddress $ mailboxLocation $ mailboxID $ owner $ seeAlso $ fullName ) X-NDS_NAMING 'cn' X-NDS_CONTAINMENT ( 'Organization' 'organizationalUnit' 'domain' ) X-NDS_NOT_CONTAINER '1' X-NDS_NONREMOVABLE '1' X-NDS_ACL_TEMPLATES '2#entry#[Root Template]#member' )";
@@ -672,6 +697,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testMicrosoftAds2000Locality() throws ParseException
     {
         String value = "( 2.5.6.3 NAME 'locality' SUP top STRUCTURAL MUST (l ) MAY (st $ street $ searchGuide $ seeAlso ) )";
@@ -695,6 +721,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testMicrosoftAds2003Msieee() throws ParseException
     {
         String value = "( 1.2.840.113556.1.5.240 NAME 'msieee80211-Policy' SUP top STRUCTURAL MAY (msieee80211-Data $ msieee80211-DataType $ msieee80211-ID ) )";
@@ -716,6 +743,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSiemensDirxX500Subschema() throws ParseException
     {
         String value = "( 2.5.20.1 NAME 'x500subSchema' AUXILIARY MAY (dITStructureRules $ nameForms $ dITContentRules $ x500objectClasses $ x500attributeTypes $ matchingRules $ matchingRuleUse) )";
@@ -738,6 +766,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multi-threaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -753,6 +782,7 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "" );
@@ -790,8 +820,8 @@ public class ObjectClassDescriptionSchemaParserTest extends TestCase
             // NAME with special chars
             value = "( 1.2.3 NAME 't-e_s.t;' )";
             ocd = parser.parseObjectClassDescription( value );
-            Assert.assertEquals( 1, ocd.getNames().size() );
-            Assert.assertEquals( "t-e_s.t;", ocd.getNames().get( 0 ) );
+            assertEquals( 1, ocd.getNames().size() );
+            assertEquals( "t-e_s.t;", ocd.getNames().get( 0 ) );
 
             // SUP with underscore
             value = "( 1.1 SUP te_st )";

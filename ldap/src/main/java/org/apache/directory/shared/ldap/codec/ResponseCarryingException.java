@@ -21,9 +21,9 @@
 package org.apache.directory.shared.ldap.codec;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -45,7 +45,7 @@ public class ResponseCarryingException extends DecoderException
     private static final long serialVersionUID = 1L;
 
     /** The response with the error cause */
-    private transient Message response;
+    private transient InternalMessage response;
     
     /**
      * Creates a DecoderException
@@ -64,7 +64,7 @@ public class ResponseCarryingException extends DecoderException
      * @param message A message with meaning to a human
      * @param cause The Exception which caused the error
      */
-    public ResponseCarryingException(String message, ResultResponse response, ResultCodeEnum code, 
+    public ResponseCarryingException(String message, InternalResultResponse response, ResultCodeEnum code, 
         LdapDN matchedDn, Throwable cause)
     {
         super( message, cause );
@@ -80,7 +80,7 @@ public class ResponseCarryingException extends DecoderException
      * Set a response if we get an exception while parsing the message
      * @param response the constructed response
      */
-    public void setResponse( Message response ) 
+    public void setResponse( InternalMessage response ) 
     {
         this.response = response;
     }
@@ -89,7 +89,7 @@ public class ResponseCarryingException extends DecoderException
      * Get the constructed response
      * @return The constructed response
      */
-    public Message getResponse()
+    public InternalMessage getResponse()
     {
         return response;
     }

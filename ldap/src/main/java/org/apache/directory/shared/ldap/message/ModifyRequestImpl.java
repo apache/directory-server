@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRequestImpl extends AbstractAbandonableRequest implements ModifyRequest
+public class ModifyRequestImpl extends AbstractAbandonableRequest implements InternalModifyRequest
 {
     static final long serialVersionUID = -505803669028990304L;
 
@@ -52,7 +52,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
     /** Sequence of modifications or PDU's <b>modification</b> seqence field */
     private List<Modification> mods = new ArrayList<Modification>();
 
-    private ModifyResponse response;
+    private InternalModifyResponse response;
 
 
     // ------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -188,7 +188,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             return false;
         }
 
-        ModifyRequest req = ( ModifyRequest ) obj;
+        InternalModifyRequest req = ( InternalModifyRequest ) obj;
 
         if ( name != null && req.getName() == null )
         {

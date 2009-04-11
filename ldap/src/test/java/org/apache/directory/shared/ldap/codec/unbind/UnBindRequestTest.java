@@ -27,23 +27,26 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class UnBindRequestTest extends TestCase
+public class UnBindRequestTest
 {
     /**
      * Test the decoding of a UnBindRequest with no controls
      */
+    @Test
     public void testDecodeUnBindRequestNoControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -73,7 +76,7 @@ public class UnBindRequestTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessageCodec ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
         assertEquals( 1, ldapMessage.getMessageId() );
 
@@ -99,6 +102,7 @@ public class UnBindRequestTest extends TestCase
     /**
      * Test the decoding of a UnBindRequest with controls
      */
+    @Test
     public void testDecodeUnBindRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -133,16 +137,16 @@ public class UnBindRequestTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessageCodec ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
         assertEquals( 1, ldapMessage.getMessageId() );
 
         // Check the Control
-        List<Control> controls = ldapMessage.getControls();
+        List<ControlCodec> controls = ldapMessage.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = ldapMessage.getControls( 0 );
+        ControlCodec control = ldapMessage.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -168,6 +172,7 @@ public class UnBindRequestTest extends TestCase
     /**
      * Test the decoding of a UnBindRequest with a not null body
      */
+    @Test
     public void testDecodeUnBindRequestNotNull()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

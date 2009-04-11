@@ -26,16 +26,16 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
- * Lockable BindResponse implementation.
+ * BindResponse implementation.
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class BindResponseImpl extends AbstractResultResponse implements BindResponse
+public class BindResponseImpl extends InternalAbstractResultResponse implements InternalBindResponse
 {
     static final long serialVersionUID = -5146809476518669755L;
 
-    /** optional property holding SASL authentication response paramters */
+    /** optional property holding SASL authentication response parameters */
     private byte[] serverSaslCreds;
 
 
@@ -118,7 +118,7 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
             return true;
         }
 
-        if ( ( obj == null ) || !( obj instanceof BindResponse ) )
+        if ( ( obj == null ) || !( obj instanceof InternalBindResponse ) )
         {
             return false;
         }
@@ -128,7 +128,7 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
             return false;
         }
 
-        BindResponse response = ( BindResponse ) obj;
+        InternalBindResponse response = ( InternalBindResponse ) obj;
         byte[] creds = response.getServerSaslCreds();
         
         if ( serverSaslCreds == null )

@@ -27,15 +27,17 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
+import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -43,12 +45,13 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SearchResultDoneTest extends TestCase
+public class SearchResultDoneTest
 {
 
     /**
      * Test the decoding of a SearchResultDone
      */
+    @Test
     public void testDecodeSearchResultDoneSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -86,8 +89,8 @@ public class SearchResultDoneTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchResultDone searchResultDone = message.getSearchResultDone();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultDoneCodec searchResultDone = message.getSearchResultDone();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, searchResultDone.getLdapResult().getResultCode() );
@@ -117,6 +120,7 @@ public class SearchResultDoneTest extends TestCase
     /**
      * Test the decoding of a SearchResultDone with controls
      */
+    @Test
     public void testDecodeSearchResultDoneSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -158,8 +162,8 @@ public class SearchResultDoneTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchResultDone searchResultDone = message.getSearchResultDone();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchResultDoneCodec searchResultDone = message.getSearchResultDone();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, searchResultDone.getLdapResult().getResultCode() );
@@ -167,11 +171,11 @@ public class SearchResultDoneTest extends TestCase
         assertEquals( "", searchResultDone.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -198,6 +202,7 @@ public class SearchResultDoneTest extends TestCase
     /**
      * Test the decoding of a SearchResultDone with no LdapResult
      */
+    @Test
     public void testDecodeSearchResultDoneEmptyResult()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

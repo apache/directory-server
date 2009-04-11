@@ -27,15 +27,18 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -43,11 +46,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedResponseTest extends TestCase
+public class ExtendedResponseTest
 {
     /**
      * Test the decoding of a full ExtendedResponse
      */
+    @Test
     public void testDecodeExtendedResponseSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -90,8 +94,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -123,6 +127,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a full ExtendedResponse with controls
      */
+    @Test
     public void testDecodeExtendedResponseSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -175,8 +180,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -186,11 +191,11 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "value", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -217,6 +222,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a ExtendedRequest with no name
      */
+    @Test
     public void testDecodeExtendedRequestNoName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -257,8 +263,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -288,6 +294,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a ExtendedRequest with no name and a control
      */
+    @Test
     public void testDecodeExtendedRequestNoNameWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -330,8 +337,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -339,11 +346,11 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", extendedResponse.getLdapResult().getErrorMessage() );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -370,6 +377,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an empty ExtendedResponse
      */
+    @Test
     public void testDecodeExtendedResponseEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -404,6 +412,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with an empty ResponseName
      */
+    @Test
     public void testDecodeExtendedResponseEmptyResponseName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -447,6 +456,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with a bad responseName
      */
+    @Test
     public void testDecodeExtendedResponseBadOIDResponseName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -490,6 +500,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with no response
      */
+    @Test
     public void testDecodeExtendedResponseNoResponse()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -530,8 +541,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -563,6 +574,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with no response with controls
      */
+    @Test
     public void testDecodeExtendedResponseNoResponseWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -606,8 +618,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -617,11 +629,11 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -648,6 +660,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with an empty response
      */
+    @Test
     public void testDecodeExtendedResponseEmptyResponse()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -689,8 +702,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -723,6 +736,7 @@ public class ExtendedResponseTest extends TestCase
      * Test the decoding of an ExtendedResponse with an empty response with
      * controls
      */
+    @Test
     public void testDecodeExtendedResponseEmptyResponseWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -766,8 +780,8 @@ public class ExtendedResponseTest extends TestCase
         }
 
         // Check the decoded ExtendedResponse PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedResponse extendedResponse = message.getExtendedResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedResponseCodec extendedResponse = message.getExtendedResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
@@ -777,11 +791,11 @@ public class ExtendedResponseTest extends TestCase
         assertEquals( "", StringTools.utf8ToString( ( byte[] ) extendedResponse.getResponse() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 

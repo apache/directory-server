@@ -31,9 +31,10 @@ import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryC
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -41,7 +42,7 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChangeControlTest extends TestCase
+public class EntryChangeControlTest
 {
     /**
      * Test the decoding of a EntryChangeControl
@@ -70,7 +71,7 @@ public class EntryChangeControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         EntryChangeControlCodec entryChange = container.getEntryChangeControl();
@@ -108,7 +109,7 @@ public class EntryChangeControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         EntryChangeControlCodec entryChange = container.getEntryChangeControl();
@@ -145,7 +146,7 @@ public class EntryChangeControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         EntryChangeControlCodec entryChange = container.getEntryChangeControl();
@@ -190,7 +191,7 @@ public class EntryChangeControlTest extends TestCase
             return;
         }
 
-        Assert.fail( "A ADD operation should not have a PreviousDN" );
+        fail( "A ADD operation should not have a PreviousDN" );
     }
 
 
@@ -221,7 +222,7 @@ public class EntryChangeControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         EntryChangeControlCodec entryChange = container.getEntryChangeControl();
@@ -263,7 +264,7 @@ public class EntryChangeControlTest extends TestCase
             return;
         }
 
-        Assert.fail( "The changeType is unknown" );
+        fail( "The changeType is unknown" );
     }
 
 
@@ -301,7 +302,7 @@ public class EntryChangeControlTest extends TestCase
             return;
         }
 
-        Assert.fail( "The changeNumber is incorrect" );
+        fail( "The changeNumber is incorrect" );
     }
 
 

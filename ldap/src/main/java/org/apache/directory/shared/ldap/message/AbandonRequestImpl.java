@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonRequestImpl extends AbstractRequest implements AbandonRequest
+public class AbandonRequestImpl extends InternalAbstractRequest implements InternalAbandonRequest
 {
     static final long serialVersionUID = -4688193359792740969L;
 
@@ -85,7 +85,7 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
             return true;
         }
 
-        if ( ( obj == null ) || !( obj instanceof AbandonRequest ) )
+        if ( ( obj == null ) || !( obj instanceof InternalAbandonRequest ) )
         {
             return false;
         }
@@ -95,7 +95,7 @@ public class AbandonRequestImpl extends AbstractRequest implements AbandonReques
             return false;
         }
 
-        AbandonRequest req = ( AbandonRequest ) obj;
+        InternalAbandonRequest req = ( InternalAbandonRequest ) obj;
         
         if ( req.getAbandoned() != abandonId )
         {

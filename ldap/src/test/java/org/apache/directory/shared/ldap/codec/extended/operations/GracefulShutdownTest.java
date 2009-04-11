@@ -26,13 +26,14 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdown;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdownContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulShutdown.GracefulShutdown;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulShutdown.GracefulShutdownContainer;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -40,7 +41,7 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownTest extends TestCase
+public class GracefulShutdownTest
 {
     /**
      * Test the decoding of a GracefulShutdown
@@ -70,7 +71,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -122,7 +123,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -175,7 +176,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -226,7 +227,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -280,7 +281,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -334,7 +335,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();
@@ -390,7 +391,7 @@ public class GracefulShutdownTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulShutdown gracefulShutdown = container.getGracefulShutdown();

@@ -55,6 +55,8 @@
     <module>ldap-constants</module>
     <module>asn1-codec</module>
     <module>convert</module>
+    <module>client-api</module>
+    <module>cursor</module>
   </modules>
 
   <dependencyManagement>

@@ -25,9 +25,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
@@ -59,10 +59,10 @@ public class ResponseNameAction extends GrammarAction
     public void action( IAsn1Container container ) throws DecoderException
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+        LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
         // We can allocate the ExtendedResponse Object
-        ExtendedResponse extendedResponse = ldapMessage.getExtendedResponse();
+        ExtendedResponseCodec extendedResponse = ldapMessage.getExtendedResponse();
 
         // Get the Value and store it in the ExtendedResponse
         TLV tlv = ldapMessageContainer.getCurrentTLV();

@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,12 +27,15 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -43,13 +44,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteRequestImplTest extends TestCase
+public class DeleteRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         DeleteRequestImpl req = new DeleteRequestImpl( 5 );
@@ -60,6 +62,7 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 5 );
@@ -75,6 +78,7 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 7 );
@@ -90,6 +94,7 @@ public class DeleteRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
+    @Test
     public void testNotEqualDiffName() throws InvalidNameException
     {
         DeleteRequestImpl req0 = new DeleteRequestImpl( 5 );
@@ -106,9 +111,10 @@ public class DeleteRequestImplTest extends TestCase
      * Tests for equality even when another DeleteRequest implementation is
      * used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        DeleteRequest req0 = new DeleteRequest()
+        InternalDeleteRequest req0 = new InternalDeleteRequest()
         {
             public LdapDN getName()
             {
@@ -189,7 +195,7 @@ public class DeleteRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }

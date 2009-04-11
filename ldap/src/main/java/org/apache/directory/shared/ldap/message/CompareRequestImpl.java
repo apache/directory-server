@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareRequestImpl extends AbstractAbandonableRequest implements CompareRequest
+public class CompareRequestImpl extends AbstractAbandonableRequest implements InternalCompareRequest
 {
     static final long serialVersionUID = 1699731530016468977L;
 
@@ -46,7 +46,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
     /** The value of the attribute used in the comparison */
     private Value<?> attrVal;
 
-    private CompareResponse response;
+    private InternalCompareResponse response;
 
 
     // ------------------------------------------------------------------------
@@ -181,7 +181,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -210,7 +210,7 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
             return false;
         }
 
-        CompareRequest req = ( CompareRequest ) obj;
+        InternalCompareRequest req = ( InternalCompareRequest ) obj;
         LdapDN reqName = req.getName();
 
         if ( ( name != null ) && ( reqName == null ) )

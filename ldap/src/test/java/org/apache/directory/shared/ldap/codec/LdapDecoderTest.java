@@ -20,21 +20,22 @@
 package org.apache.directory.shared.ldap.codec;
 
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
+import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -42,7 +43,7 @@ import java.nio.ByteBuffer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapDecoderTest extends TestCase
+public class LdapDecoderTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -50,6 +51,7 @@ public class LdapDecoderTest extends TestCase
     /**
      * Test the decoding of a full PDU
      */
+    @Test
     public void testDecodeFull()
     {
 
@@ -87,8 +89,8 @@ public class LdapDecoderTest extends TestCase
         }
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindRequest br = message.getBindRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequestCodec br = message.getBindRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
@@ -102,6 +104,7 @@ public class LdapDecoderTest extends TestCase
     /**
      * Test the decoding of a partial PDU
      */
+    @Test
     public void testDecodePartial()
     {
 
@@ -133,11 +136,11 @@ public class LdapDecoderTest extends TestCase
             fail( de.getMessage() );
         }
 
-        Assert.assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
+        assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindRequest br = message.getBindRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequestCodec br = message.getBindRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
@@ -149,6 +152,7 @@ public class LdapDecoderTest extends TestCase
     /**
      * Test the decoding of a splitted PDU
      */
+    @Test
     public void testDecodeSplittedPDU()
     {
 
@@ -208,8 +212,8 @@ public class LdapDecoderTest extends TestCase
         assertEquals( ldapMessageContainer.getState(), TLVStateEnum.PDU_DECODED );
 
         // Check the decoded PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        BindRequest br = message.getBindRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        BindRequestCodec br = message.getBindRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( 3, br.getVersion() );
@@ -224,6 +228,7 @@ public class LdapDecoderTest extends TestCase
      * Test the decoding of a PDU with a bad Length. The first TLV has a length
      * of 0x32 when the PDU is 0x33 bytes long.
      */
+    @Test
     public void testDecodeBadLengthTooSmall()
     {
 
@@ -270,6 +275,7 @@ public class LdapDecoderTest extends TestCase
      * Test the decoding of a PDU with a bad primitive Length. The second TLV
      * has a length of 0x02 when the PDU is 0x01 bytes long.
      */
+    @Test
     public void testDecodeBadPrimitiveLengthTooBig()
     {
 
@@ -316,6 +322,7 @@ public class LdapDecoderTest extends TestCase
      * Test the decoding of a PDU with a bad primitive Length. The second TLV
      * has a length of 0x02 when the PDU is 0x01 bytes long.
      */
+    @Test
     public void testDecodeBadTagTransition()
     {
 
@@ -362,6 +369,7 @@ public class LdapDecoderTest extends TestCase
      * The length is 3 bytes long, but the PDU has been splitted 
      * just after the first byte 
      */
+    @Test
     public void testDecodeSplittedLength()
     {
 

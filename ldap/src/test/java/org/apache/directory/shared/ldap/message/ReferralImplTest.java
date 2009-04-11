@@ -20,13 +20,14 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -35,11 +36,12 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class ReferralImplTest extends TestCase
+public class ReferralImplTest
 {
     /**
      * Tests to make sure the equals method works for the same exact object.
      */
+    @Test
     public void testEqualsSameObject()
     {
         ReferralImpl refs = new ReferralImpl();
@@ -51,6 +53,7 @@ public class ReferralImplTest extends TestCase
      * Tests to make sure the equals method works for two objects that are the
      * same exact copy of one another.
      */
+    @Test
     public void testEqualsExactCopy()
     {
         ReferralImpl refs0 = new ReferralImpl();
@@ -70,6 +73,7 @@ public class ReferralImplTest extends TestCase
      * Tests to make sure the equals method works for two objects that are the
      * same exact copy of one another but there are redundant entries.
      */
+    @Test
     public void testEqualsExactCopyWithRedundancy()
     {
         ReferralImpl refs0 = new ReferralImpl();
@@ -91,6 +95,7 @@ public class ReferralImplTest extends TestCase
      * Tests to make sure the equals method works for two objects that are the
      * not exact copies of one another but have the same number of URLs.
      */
+    @Test
     public void testEqualsSameNumberButDifferentUrls()
     {
         ReferralImpl refs0 = new ReferralImpl();
@@ -113,6 +118,7 @@ public class ReferralImplTest extends TestCase
      * not exact copies of one another and one has a subset of the urls of the
      * other.
      */
+    @Test
     public void testEqualsSubset()
     {
         ReferralImpl refs0 = new ReferralImpl();
@@ -128,9 +134,10 @@ public class ReferralImplTest extends TestCase
     }
 
 
+    @Test
     public void testEqualsDifferentImpls()
     {
-        Referral refs0 = new Referral()
+        InternalReferral refs0 = new InternalReferral()
         {
             public Collection<String> getLdapUrls()
             {

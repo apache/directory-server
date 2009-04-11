@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.NumericStringSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for NumericStringSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NumericStringSyntaxCheckerTest extends TestCase
+public class NumericStringSyntaxCheckerTest
 {
     NumericStringSyntaxChecker checker = new NumericStringSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "f" ) );
@@ -53,6 +58,7 @@ public class NumericStringSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "123 456 f" ) );
@@ -61,6 +67,7 @@ public class NumericStringSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "1" ) );

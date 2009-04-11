@@ -20,11 +20,12 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import org.apache.directory.shared.ldap.message.AbstractMessage;
-import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.InternalAbstractMessage;
+import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,15 +34,16 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class AbstractMessageTest extends TestCase
+public class AbstractMessageTest
 {
     /**
      * Tests to see the same object returns true.
      */
+    @Test
     public void testEqualsSameObj()
     {
-        AbstractMessage msg;
-        msg = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        InternalAbstractMessage msg;
+        msg = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -52,15 +54,16 @@ public class AbstractMessageTest extends TestCase
     /**
      * Tests to see the same exact copy returns true.
      */
+    @Test
     public void testEqualsExactCopy()
     {
-        AbstractMessage msg0;
-        AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        InternalAbstractMessage msg0;
+        InternalAbstractMessage msg1;
+        msg0 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        msg1 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -72,15 +75,16 @@ public class AbstractMessageTest extends TestCase
     /**
      * Tests to make sure changes in the id result in inequality.
      */
+    @Test
     public void testNotEqualsDiffId()
     {
-        AbstractMessage msg0;
-        AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        InternalAbstractMessage msg0;
+        InternalAbstractMessage msg1;
+        msg0 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg1 = new AbstractMessage( 6, MessageTypeEnum.BIND_REQUEST )
+        msg1 = new InternalAbstractMessage( 6, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -92,15 +96,16 @@ public class AbstractMessageTest extends TestCase
     /**
      * Tests to make sure changes in the type result in inequality.
      */
+    @Test
     public void testNotEqualsDiffType()
     {
-        AbstractMessage msg0;
-        AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        InternalAbstractMessage msg0;
+        InternalAbstractMessage msg1;
+        msg0 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.UNBIND_REQUEST )
+        msg1 = new InternalAbstractMessage( 5, MessageTypeEnum.UNBIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -112,15 +117,16 @@ public class AbstractMessageTest extends TestCase
     /**
      * Tests to make sure changes in the controls result in inequality.
      */
+    @Test
     public void testNotEqualsDiffControls()
     {
-        AbstractMessage msg0;
-        AbstractMessage msg1;
-        msg0 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        InternalAbstractMessage msg0;
+        InternalAbstractMessage msg1;
+        msg0 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };
-        msg0.add( new MutableControl()
+        msg0.add( new InternalControl()
         {
             private static final long serialVersionUID = 1L;
 
@@ -152,7 +158,7 @@ public class AbstractMessageTest extends TestCase
                 return null;
             }
         } );
-        msg1 = new AbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
+        msg1 = new InternalAbstractMessage( 5, MessageTypeEnum.BIND_REQUEST )
         {
             private static final long serialVersionUID = 1L;
         };

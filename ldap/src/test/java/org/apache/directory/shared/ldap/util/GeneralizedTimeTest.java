@@ -24,11 +24,14 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.syntax.GeneralizedTimeSyntaxCheckerTest;
 import org.apache.directory.shared.ldap.util.GeneralizedTime.Format;
 import org.apache.directory.shared.ldap.util.GeneralizedTime.TimeZoneFormat;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -37,7 +40,7 @@ import org.apache.directory.shared.ldap.util.GeneralizedTime.TimeZoneFormat;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542077 $
  */
-public class GeneralizedTimeTest extends TestCase
+public class GeneralizedTimeTest
 {
 
     // Test all valid variants:
@@ -48,6 +51,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmssZ.
      */
+    @Test
     public void testYearMonthDayHourMinSecZulu() throws ParseException
     {
         String gt = "20080102121314Z";
@@ -60,6 +64,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss+04.
      */
+    @Test
     public void testYearMonthDayHourMinSecPlusHour() throws ParseException
     {
         String gt = "20080102121314+04";
@@ -72,6 +77,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss-1030.
      */
+    @Test
     public void testYearMonthDayHourMinSecMinusHourMin() throws ParseException
     {
         String gt = "20080102121314-1030";
@@ -84,6 +90,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss.SSSZ.
      */
+    @Test
     public void testYearMonthDayHourMinSecDotFractionZulu() throws ParseException
     {
         String gt = "20080102121314.987Z";
@@ -96,6 +103,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss.SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourMinSecDotFractionPlusHour() throws ParseException
     {
         String gt = "20080102121314.987+0100";
@@ -108,6 +116,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss.SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourMinSecDotFractionMinusHourMin() throws ParseException
     {
         String gt = "20080102121314.987-1030";
@@ -120,6 +129,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss,SSSZ.
      */
+    @Test
     public void testYearMonthDayHourMinSecCommaFractionZulu() throws ParseException
     {
         String gt = "20080102121314,987Z";
@@ -132,6 +142,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss,SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourMinSecCommaFractionPlusHour() throws ParseException
     {
         String gt = "20080102121314,987+0100";
@@ -144,6 +155,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmss,SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourMinSecCommaFractionMinusHourMin() throws ParseException
     {
         String gt = "20080102121314,987-1030";
@@ -156,6 +168,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmmZ.
      */
+    @Test
     public void testYearMonthDayHourMinZulu() throws ParseException
     {
         String gt = "200801021213Z";
@@ -168,6 +181,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm+HH.
      */
+    @Test
     public void testYearMonthDayHourMinPlusHour() throws ParseException
     {
         String gt = "200801021213+04";
@@ -180,6 +194,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm-HHmm.
      */
+    @Test
     public void testYearMonthDayHourMinMinusHourMin() throws ParseException
     {
         String gt = "200801021213-1030";
@@ -192,6 +207,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm.SSSZ.
      */
+    @Test
     public void testYearMonthDayHourMinDotFractionZulu() throws ParseException
     {
         String gt = "200801021213.987Z";
@@ -204,6 +220,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm.SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourMinDotFractionPlusHour() throws ParseException
     {
         String gt = "200801021213.987+0100";
@@ -216,6 +233,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm.SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourMinDotFractionMinusHourMin() throws ParseException
     {
         String gt = "200801021213.987-1030";
@@ -228,6 +246,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm,SSSZ.
      */
+    @Test
     public void testYearMonthDayHourMinCommaFractionZulu() throws ParseException
     {
         String gt = "200801021213,987Z";
@@ -240,6 +259,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm,SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourMinCommaFractionPlusHour() throws ParseException
     {
         String gt = "200801021213,987+0100";
@@ -252,6 +272,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHmm,SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourMinCommaFractionMinusHourMin() throws ParseException
     {
         String gt = "200801021213,987-1030";
@@ -264,6 +285,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHHZ.
      */
+    @Test
     public void testYearMonthDayHourZulu() throws ParseException
     {
         String gt = "2008010212Z";
@@ -276,6 +298,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH+HH.
      */
+    @Test
     public void testYearMonthDayHourPlusHour() throws ParseException
     {
         String gt = "2008010212+04";
@@ -288,6 +311,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH-HHmm.
      */
+    @Test
     public void testYearMonthDayHourMinusHourMin() throws ParseException
     {
         String gt = "2008010212-1030";
@@ -300,6 +324,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH.SSSZ.
      */
+    @Test
     public void testYearMonthDayHourDotFractionZulu() throws ParseException
     {
         String gt = "200801021213.987Z";
@@ -312,6 +337,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH.SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourDotFractionPlusHour() throws ParseException
     {
         String gt = "2008010212.987+0100";
@@ -324,6 +350,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH.SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourDotFractionMinusHourMin() throws ParseException
     {
         String gt = "2008010212.987-1030";
@@ -336,6 +363,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH,SSSZ.
      */
+    @Test
     public void testYearMonthDayHourCommaFractionZulu() throws ParseException
     {
         String gt = "2008010212,987Z";
@@ -348,6 +376,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH,SSS+0100.
      */
+    @Test
     public void testYearMonthDayHourCommaFractionPlusHour() throws ParseException
     {
         String gt = "2008010212,987+0100";
@@ -360,6 +389,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests yyyyMMddHH,SSS-1030.
      */
+    @Test
     public void testYearMonthDayHourCommaFractionMinusHourMin() throws ParseException
     {
         String gt = "2008010212,987-1030";
@@ -372,6 +402,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests fraction of a second.
      */
+    @Test
     public void testFractionOfSecond() throws ParseException
     {
         String gt = "20080102121314,987Z";
@@ -385,6 +416,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests fraction of a minute.
      */
+    @Test
     public void testFractionOfMinute1() throws ParseException
     {
         String gt = "200801021213,5Z";
@@ -399,6 +431,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests fraction of a minute.
      */
+    @Test
     public void testFractionOfMinute2() throws ParseException
     {
         String gt = "200801021213,125Z";
@@ -413,6 +446,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests fraction of an hour.
      */
+    @Test
     public void testFractionOfHour1() throws ParseException
     {
         String gt = "2008010212,5Z";
@@ -428,6 +462,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests fraction of an hour.
      */
+    @Test
     public void testFractionOfHour2() throws ParseException
     {
         String gt = "2008010212,125Z";
@@ -443,6 +478,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Test formatting
      */
+    @Test
     public void testFormatting() throws ParseException
     {
         String gt = "20080102121314Z";
@@ -469,6 +505,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Testcases from {@link GeneralizedTimeSyntaxCheckerTest#testCorrectCase()}.
      */
+    @Test
     public void testGeneralizedTimeSyntaxCheckerTestCorrectCase() throws ParseException
     {
         new GeneralizedTime( "20061205184527Z" );
@@ -483,6 +520,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Testcases from {@link GeneralizedTimeSyntaxCheckerTest#testErrorCase()}.
      */
+    @Test
     public void testGeneralizedTimeSyntaxCheckerTestErrorCase()
     {
         try
@@ -609,6 +647,7 @@ public class GeneralizedTimeTest extends TestCase
      * Tests leap second.
      * The GeneralizedTime class does not support leap seconds!
      */
+    @Test
     public void testLeapSecond() throws ParseException
     {
         String gt = "20051231235960Z";
@@ -627,6 +666,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests Feb 29 in a leap year.
      */
+    @Test
     public void testFebruary29inLeapYear() throws ParseException
     {
         String gt = "20080229000000Z";
@@ -639,6 +679,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests Feb 29 in a non-leap year.
      */
+    @Test
     public void testFebruary29inNonLeapYear() throws ParseException
     {
         String gt = "20070229000000Z";
@@ -657,6 +698,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests null.
      */
+    @Test
     public void testNull() throws ParseException
     {
         try
@@ -687,6 +729,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests empty string.
      */
+    @Test
     public void testEmpty() throws ParseException
     {
         String gt = "";
@@ -705,6 +748,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests invalid cases.
      */
+    @Test
     public void testInvalid() throws ParseException
     {
         // too short year
@@ -976,6 +1020,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests constructor with calendar object.
      */
+    @Test
     public void testCalendar() throws ParseException
     {
         Calendar calendar = Calendar.getInstance();
@@ -996,6 +1041,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests a complete round trip.
      */
+    @Test
     public void testRoundTrip() throws ParseException
     {
         Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
@@ -1029,6 +1075,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests the compareTo() method.
      */
+    @Test
     public void testCompareTo() throws ParseException
     {
         String gt1 = "20080102121313,999Z";
@@ -1057,6 +1104,7 @@ public class GeneralizedTimeTest extends TestCase
     /**
      * Tests the equals() method.
      */
+    @Test
     public void testEquals() throws ParseException
     {
         String gt1 = "20080102121314Z";

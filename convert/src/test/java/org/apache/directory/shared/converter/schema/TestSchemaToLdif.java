@@ -25,10 +25,11 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
-public class TestSchemaToLdif extends TestCase
+public class TestSchemaToLdif
 {
     private static final String HEADER = 
         "#\n" +
@@ -74,6 +75,7 @@ public class TestSchemaToLdif extends TestCase
     //-------------------------------------------------------------------------
     // Tests for ObjectClass
     //-------------------------------------------------------------------------
+    @Test
     public void testConvertOC() throws ParserException, IOException
     {
         String expected =
@@ -96,6 +98,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOC") );
     }
     
+    @Test
     public void testConvertOCMinimal() throws ParserException, IOException
     {
         String expected =
@@ -110,6 +113,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMinimal" ) );
     }
     
+    @Test
     public void testConvertOCNoName() throws ParserException, IOException
     {
         String expected =
@@ -132,6 +136,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCNoName" ) );
     }
 
+    @Test
     public void testConvertOCAbstract() throws ParserException, IOException
     {
         String expected =
@@ -147,6 +152,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCAbstract" ) );
     }
 
+    @Test
     public void testConvertOCAuxiliary() throws ParserException, IOException
     {
         String expected =
@@ -162,6 +168,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCAuxiliary" ) );
     }
 
+    @Test
     public void testConvertOCDesc() throws ParserException, IOException
     {
         String expected =
@@ -177,6 +184,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCDesc" ) );
     }
 
+    @Test
     public void testConvertOCMayOne() throws ParserException, IOException
     {
         String expected =
@@ -192,6 +200,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMayOne" ) );
     }
 
+    @Test
     public void testConvertOCMay2() throws ParserException, IOException
     {
         String expected =
@@ -208,6 +217,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMay2" ) );
     }
 
+    @Test
     public void testConvertOCMayMany() throws ParserException, IOException
     {
         String expected =
@@ -225,6 +235,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMayMany" ) );
     }
 
+    @Test
     public void testConvertOCMustOne() throws ParserException, IOException
     {
         String expected =
@@ -240,6 +251,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMustOne" ) );
     }
 
+    @Test
     public void testConvertOCMust2() throws ParserException, IOException
     {
         String expected =
@@ -256,6 +268,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMust2" ) );
     }
 
+    @Test
     public void testConvertOCMustMany() throws ParserException, IOException
     {
         String expected =
@@ -273,6 +286,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCMustMany" ) );
     }
 
+    @Test
     public void testConvertOCNameOne() throws ParserException, IOException
     {
         String expected =
@@ -288,6 +302,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCNameOne" ) );
     }
 
+    @Test
     public void testConvertOCName2() throws ParserException, IOException
     {
         String expected =
@@ -304,6 +319,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCName2" ) );
     }
 
+    @Test
     public void testConvertOCNameMany() throws ParserException, IOException
     {
         String expected =
@@ -321,6 +337,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCNameMany" ) );
     }
 
+    @Test
     public void testConvertOCObsolete() throws ParserException, IOException
     {
         String expected =
@@ -336,6 +353,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCObsolete" ) );
     }
 
+    @Test
     public void testConvertOCSupOne() throws ParserException, IOException
     {
         String expected =
@@ -351,6 +369,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCSupOne" ) );
     }
 
+    @Test
     public void testConvertOCSup2() throws ParserException, IOException
     {
         String expected =
@@ -367,6 +386,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testOCSup2" ) );
     }
 
+    @Test
     public void testConvertOCSupMany() throws ParserException, IOException
     {
         String expected =
@@ -387,6 +407,7 @@ public class TestSchemaToLdif extends TestCase
     //-------------------------------------------------------------------------
     // Tests for Attributetype
     //-------------------------------------------------------------------------
+    @Test
     public void testConvertATMinimal() throws ParserException, IOException
     {
         String expected =
@@ -401,6 +422,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATMinimal" ) );
     }
     
+    @Test
     public void testConvertATNoName() throws ParserException, IOException
     {
         String expected =
@@ -415,6 +437,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATNoName" ) );
     }
 
+    @Test
     public void testConvertATNameOne() throws ParserException, IOException
     {
         String expected =
@@ -430,6 +453,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATNameOne" ) );
     }
 
+    @Test
     public void testConvertATName2() throws ParserException, IOException
     {
         String expected =
@@ -446,6 +470,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATName2" ) );
     }
 
+    @Test
     public void testConvertATNameMany() throws ParserException, IOException
     {
         String expected =
@@ -463,6 +488,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATNameMany" ) );
     }
 
+    @Test
     public void testConvertATDesc() throws ParserException, IOException
     {
         String expected =
@@ -478,6 +504,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATDesc" ) );
     }
 
+    @Test
     public void testConvertATObsolete() throws ParserException, IOException
     {
         String expected =
@@ -493,6 +520,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATObsolete" ) );
     }
 
+    @Test
     public void testConvertATSup() throws ParserException, IOException
     {
         String expected =
@@ -508,6 +536,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSup" ) );
     }
 
+    @Test
     public void testConvertATSupOID() throws ParserException, IOException
     {
         String expected =
@@ -523,6 +552,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSupOID" ) );
     }
 
+    @Test
     public void testConvertATEquality() throws ParserException, IOException
     {
         String expected =
@@ -538,6 +568,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATEquality" ) );
     }
 
+    @Test
     public void testConvertATEqualityOID() throws ParserException, IOException
     {
         String expected =
@@ -553,6 +584,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATEqualityOID" ) );
     }
 
+    @Test
     public void testConvertATOrdering() throws ParserException, IOException
     {
         String expected =
@@ -568,6 +600,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATOrdering" ) );
     }
 
+    @Test
     public void testConvertATOrderingOID() throws ParserException, IOException
     {
         String expected =
@@ -583,6 +616,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATOrderingOID" ) );
     }
 
+    @Test
     public void testConvertATSubstr() throws ParserException, IOException
     {
         String expected =
@@ -598,6 +632,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSubstr" ) );
     }
 
+    @Test
     public void testConvertATSubstrOID() throws ParserException, IOException
     {
         String expected =
@@ -613,6 +648,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSubstrOID" ) );
     }
 
+    @Test
     public void testConvertATSyntax() throws ParserException, IOException
     {
         String expected =
@@ -628,6 +664,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSyntax" ) );
     }
 
+    @Test
     public void testConvertATSyntaxOidLen() throws ParserException, IOException
     {
         String expected =
@@ -644,6 +681,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSyntaxOidLen" ) );
     }
 
+    @Test
     public void testConvertATSingleValue() throws ParserException, IOException
     {
         String expected =
@@ -659,6 +697,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATSingleValue" ) );
     }
 
+    @Test
     public void testConvertATCollective() throws ParserException, IOException
     {
         String expected =
@@ -674,6 +713,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATCollective" ) );
     }
 
+    @Test
     public void testConvertATNoUserModification() throws ParserException, IOException
     {
         String expected =
@@ -689,6 +729,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATNoUserModification" ) );
     }
 
+    @Test
     public void testConvertATUsageUserApp() throws ParserException, IOException
     {
         String expected =
@@ -703,6 +744,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATUsageUserApp" ) );
     }
 
+    @Test
     public void testConvertATUsageDirOp() throws ParserException, IOException
     {
         String expected =
@@ -718,6 +760,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATUsageDirOp" ) );
     }
 
+    @Test
     public void testConvertATUsageDistrOp() throws ParserException, IOException
     {
         String expected =
@@ -733,6 +776,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATUsageDistrOp" ) );
     }
 
+    @Test
     public void testConvertATUsageDSAOp() throws ParserException, IOException
     {
         String expected =
@@ -748,6 +792,7 @@ public class TestSchemaToLdif extends TestCase
         assertEquals( expected, transform( "testATUsageDsaOp" ) );
     }
 
+    @Test
     public void testConvertMozillaATWithOidLen() throws ParserException, IOException
     {
         String expected =

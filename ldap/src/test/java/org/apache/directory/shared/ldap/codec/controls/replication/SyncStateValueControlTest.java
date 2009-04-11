@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValu
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlContainer;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 

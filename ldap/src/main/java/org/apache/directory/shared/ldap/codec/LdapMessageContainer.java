@@ -38,7 +38,7 @@ public class LdapMessageContainer extends AbstractContainer
     // ----------------------------------------------------------------------------
 
     /** The ldap message */
-    private LdapMessage ldapMessage;
+    private LdapMessageCodec ldapMessage;
 
     /** checks if attribute is binary */
     private final BinaryAttributeDetector binaryAttributeDetector;
@@ -47,7 +47,7 @@ public class LdapMessageContainer extends AbstractContainer
     private int messageId;
     
     /** The current control */
-    private Control currentControl;
+    private ControlCodec currentControl;
 
     // ~ Constructors
     // -------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ public class LdapMessageContainer extends AbstractContainer
     /**
      * @return Returns the ldapMessage.
      */
-    public LdapMessage getLdapMessage()
+    public LdapMessageCodec getLdapMessage()
     {
         return ldapMessage;
     }
@@ -101,7 +101,7 @@ public class LdapMessageContainer extends AbstractContainer
      * 
      * @param ldapMessage The message to set.
      */
-    public void setLdapMessage( LdapMessage ldapMessage )
+    public void setLdapMessage( LdapMessageCodec ldapMessage )
     {
         this.ldapMessage = ldapMessage;
     }
@@ -147,7 +147,7 @@ public class LdapMessageContainer extends AbstractContainer
     /**
      * @return the current control being created
      */
-    public Control getCurrentControl()
+    public ControlCodec getCurrentControl()
     {
         return currentControl;
     }
@@ -156,7 +156,7 @@ public class LdapMessageContainer extends AbstractContainer
      * Store a newly created control
      * @param currentControl The control to store
      */
-    public void setCurrentControl( Control currentControl )
+    public void setCurrentControl( ControlCodec currentControl )
     {
         this.currentControl = currentControl;
     }

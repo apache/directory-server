@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PersistentSearchControl extends AbstractMutableControlImpl
+public class PersistentSearchControl extends InternalAbstractControl
 {
     /** As this class is serializable, defined its serialVersionUID */ 
     private static final long serialVersionUID = -2356861450876343999L;

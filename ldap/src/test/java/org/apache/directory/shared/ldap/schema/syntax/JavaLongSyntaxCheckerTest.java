@@ -19,11 +19,12 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import junit.framework.TestCase;
-
 import java.math.BigInteger;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaLongSyntaxChecker;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for JavaLongSyntaxChecker.
@@ -31,23 +32,26 @@ import org.apache.directory.shared.ldap.schema.syntaxes.JavaLongSyntaxChecker;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JavaLongSyntaxCheckerTest extends TestCase
+public class JavaLongSyntaxCheckerTest
 {
     JavaLongSyntaxChecker checker = new JavaLongSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "f" ) );
@@ -55,6 +59,7 @@ public class JavaLongSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "000" ) );
@@ -64,6 +69,7 @@ public class JavaLongSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "1" ) );
@@ -75,6 +81,7 @@ public class JavaLongSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testMinValueBoundry()
     {
         BigInteger min = new BigInteger( Long.toString( Long.MIN_VALUE ) );
@@ -86,6 +93,7 @@ public class JavaLongSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testMaxValueBoundry()
     {
         BigInteger max = new BigInteger( Long.toString( Long.MAX_VALUE ) );

@@ -93,7 +93,7 @@ public class TwixEncoder implements ProviderEncoder
             }
 
             ( ( OutputCallback ) encodeCallback ).attach( out );
-            encodeCallback.encodeOccurred( null, ( ( LdapMessage ) obj ).encode( null ) );
+            encodeCallback.encodeOccurred( null, ( ( LdapMessageCodec ) obj ).encode( null ) );
         }
         catch ( EncoderException e )
         {
@@ -122,7 +122,7 @@ public class TwixEncoder implements ProviderEncoder
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
 
-            ByteBuffer pdu = ( ( LdapMessage ) obj ).encode( null );
+            ByteBuffer pdu = ( ( LdapMessageCodec ) obj ).encode( null );
 
             if ( IS_DEBUG )
             {
@@ -159,7 +159,7 @@ public class TwixEncoder implements ProviderEncoder
                 log.debug( "Encoding this LdapMessage : " + obj );
             }
 
-            byte[] pdu = ( ( LdapMessage ) obj ).encode( null ).array();
+            byte[] pdu = ( ( LdapMessageCodec ) obj ).encode( null ).array();
 
             if ( IS_DEBUG )
             {

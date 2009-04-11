@@ -28,9 +28,11 @@ import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchCon
 import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -38,11 +40,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PSearchControlTest extends TestCase
+public class PSearchControlTest
 {
     /**
      * Test encoding of a PSearchControl.
      */
+    @Test
     public void testEncodePSearchControl() throws Exception
     {
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -69,6 +72,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl with combined changes types
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessChangeTypesAddModDN()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -89,7 +93,7 @@ public class PSearchControlTest extends TestCase
         }
         catch ( DecoderException de )
         {
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         PSearchControlCodec control = container.getPSearchControl();
@@ -104,6 +108,7 @@ public class PSearchControlTest extends TestCase
      * Test the decoding of a PSearchControl with a changes types which
      * value is 0
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessChangeTypes0()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -133,6 +138,7 @@ public class PSearchControlTest extends TestCase
      * Test the decoding of a PSearchControl with a changes types which
      * value is above 15
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessChangeTypes22()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -161,6 +167,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl with a null sequence
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessNullSequence()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -186,6 +193,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without changeTypes
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessWithoutChangeTypes()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -213,6 +221,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without changeOnly
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessWithoutChangesOnly()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
@@ -240,6 +249,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without returnECs
      */
+    @Test
     public void testDecodeModifyDNRequestSuccessWithoutReturnECs()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();

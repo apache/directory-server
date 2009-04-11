@@ -27,14 +27,17 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
+import org.apache.directory.shared.ldap.codec.abandon.AbandonRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -42,11 +45,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AbandonRequestTest extends TestCase
+public class AbandonRequestTest
 {
     /**
      * Test the decoding of a AbandonRequest with controls
      */
+	@Test
     public void testDecodeAbandonRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -101,18 +105,18 @@ public class AbandonRequestTest extends TestCase
         }
 
         // Check that everything is OK
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AbandonRequest abandonRequest = message.getAbandonRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AbandonRequestCodec abandonRequest = message.getAbandonRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( 2, abandonRequest.getAbandonedMessageId() );
 
         // Check the Controls
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 4, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "1.3.6.1.5.5.1", control.getControlType() );
         assertEquals( "0x61 0x62 0x63 0x64 0x65 0x66 ", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
         assertTrue( control.getCriticality() );
@@ -155,6 +159,7 @@ public class AbandonRequestTest extends TestCase
     /**
      * Test the decoding of a AbandonRequest with no controls
      */
+	@Test
     public void testDecodeAbandonRequestNoControlsHighMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -188,8 +193,8 @@ public class AbandonRequestTest extends TestCase
         }
 
         // Check that everything is OK
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AbandonRequest abandonRequest = message.getAbandonRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AbandonRequestCodec abandonRequest = message.getAbandonRequest();
 
         assertEquals( 32787, message.getMessageId() );
         assertEquals( 2, abandonRequest.getAbandonedMessageId() );
@@ -217,6 +222,7 @@ public class AbandonRequestTest extends TestCase
     /**
      * Test the decoding of a AbandonRequest with a null messageId
      */
+	@Test
     public void testDecodeAbandonRequestNoMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -252,6 +258,7 @@ public class AbandonRequestTest extends TestCase
     /**
      * Test the decoding of a AbandonRequest with a bad Message Id
      */
+	@Test
     public void testDecodeAbandonRequestBadMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

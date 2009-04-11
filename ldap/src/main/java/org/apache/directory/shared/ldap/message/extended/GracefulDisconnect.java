@@ -27,11 +27,11 @@ import java.util.List;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectContainer;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnectContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnectDecoder;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -65,7 +65,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     private int delay;
 
     /** String based LDAP URL that may be followed for replicated namingContexts */
-    private Referral replicatedContexts = new ReferralImpl();
+    private InternalReferral replicatedContexts = new ReferralImpl();
 
 
     public GracefulDisconnect(byte[] value) throws DecoderException
@@ -104,11 +104,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     private void decodeValue() throws DecoderException
     {
         GracefulDisconnectDecoder decoder = new GracefulDisconnectDecoder();
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = null;
+        org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect codec = null;
 
         try
         {
-            codec = ( org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect ) decoder
+            codec = ( org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect ) decoder
                 .decode( value );
             this.timeOffline = codec.getTimeOffline();
             this.delay = codec.getDelay();
@@ -130,7 +130,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
 
     private void encodeResponse()
     {
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = new org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect();
+        org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect codec = new org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect();
         codec.setTimeOffline( this.timeOffline );
         codec.setDelay( this.delay );
         Iterator<String> contexts = this.replicatedContexts.getLdapUrls().iterator();
@@ -205,7 +205,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             log.error( "Failed while decoding response", e );
         }
 
-        org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = container
+        org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect codec = container
             .getGracefulDisconnect();
         this.delay = codec.getDelay();
         this.timeOffline = codec.getTimeOffline();
@@ -280,7 +280,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     }
 
 
-    public Referral getReplicatedContexts()
+    public InternalReferral getReplicatedContexts()
     {
         return replicatedContexts;
     }

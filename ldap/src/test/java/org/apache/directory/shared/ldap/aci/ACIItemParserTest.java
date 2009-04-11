@@ -23,8 +23,10 @@ package org.apache.directory.shared.ldap.aci;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests class for ACIItem parser (wrapper).
@@ -32,15 +34,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ACIItemParserTest extends TestCase
+public class ACIItemParserTest
 {
 
     /** the ACIItem parser wrapper */
     ACIItemParser parser;
 
-
-    // /** holds multithreaded success value */
-    // boolean isSuccessMultithreaded = true;
 
     /**
      * Creates a ACIItemParserTest instance.
@@ -57,7 +56,6 @@ public class ACIItemParserTest extends TestCase
      */
     public ACIItemParserTest( String s )
     {
-        super( s );
         parser = new ACIItemParser( null );
     }
 
@@ -72,6 +70,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Tests the parser with a rangeOfValues with a nested filter.
      */
+    @Test
     public void testRangeOfValues() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -96,6 +95,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Tests the parser with an ACIItem of ItemFirst main component.
      */
+    @Test 
     public void testItemFirst() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -115,6 +115,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Tests the parser with an ACIItem of UserFirst main component.
      */
+    @Test 
     public void testUserFirst() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -129,6 +130,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testAllowAddAllUsers() throws Exception
     {
         String spec = "{ identificationTag \"addAci\", " + "precedence 14, " + "authenticationLevel none, "
@@ -140,6 +142,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testCombo() throws Exception
     {
         String spec = "{ identificationTag \"addAci\", " + "precedence 14, " + "authenticationLevel none, "
@@ -151,6 +154,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfProtectedItemsDoesNotMatter() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -167,6 +171,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfUserClassesDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -181,6 +186,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfProtectedItemsDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -204,6 +210,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfUserClassesDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -225,6 +232,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testItemPermissionComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -241,6 +249,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testItemPermissionComponentsOrderDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -265,6 +274,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testUserPermissionComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -279,6 +289,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testUserPermissionComponentsOrderDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -300,6 +311,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfMainACIComponentsDoesNotMatter() throws Exception
     {
         String spec = "{   itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -314,6 +326,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfMainACIComponentsDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = "{   itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -335,6 +348,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testOrderOfMainACIComponentsDoesNotMatterButMissingsMatter() throws Exception
     {
         String spec = "{   itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -356,6 +370,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testUserFirstComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -369,6 +384,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testItemFirstComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -384,6 +400,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testGrantAndDenialBitsOrderDoesNotMatterButDuplicatesMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -402,6 +419,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testMaxValueCountComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -416,6 +434,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testRestrictedValueComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -430,6 +449,7 @@ public class ACIItemParserTest extends TestCase
     }
 
 
+    @Test 
     public void testMaxImmSubComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -443,6 +463,7 @@ public class ACIItemParserTest extends TestCase
     }
     
     
+    @Test 
     public void testSubtreeSpecificationComponentsOrderDoesNotMatter() throws Exception
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -459,6 +480,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Test case for DIRSERVER-891
      */
+    @Test 
     public void testInvalidAttributeValue()
     {
         String spec;
@@ -496,6 +518,7 @@ public class ACIItemParserTest extends TestCase
         }
     }
     
+    @Test 
     public void testUserClassParentOfEntry() throws Exception
     {
         String spec = "{ identificationTag \"id\"   , precedence 10, authenticationLevel none  , "
@@ -513,6 +536,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Test case for DIRSTUDIO-440
      */
+    @Test 
     public void testPrecedenceOfUserFirst() throws Exception
     {
         String spec = "{ identificationTag \"test\", precedence 14, authenticationLevel simple, "
@@ -550,6 +574,7 @@ public class ACIItemParserTest extends TestCase
     /**
      * Test case for DIRSERVER-891
      */
+    @Test 
     public void testIncomplete()
     {
         String spec;

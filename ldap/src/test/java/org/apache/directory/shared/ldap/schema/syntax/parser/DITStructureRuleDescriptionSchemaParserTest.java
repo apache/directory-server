@@ -22,10 +22,15 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,19 +38,21 @@ import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescripti
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
+public class DITStructureRuleDescriptionSchemaParserTest
 {
     /** the parser instance */
     private DITStructureRuleDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new DITStructureRuleDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
@@ -56,6 +63,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNumericRuleId() throws ParseException
     {
         String value = null;
@@ -144,6 +152,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1", "FORM 1.1" );
@@ -155,6 +164,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1", "FORM 1.1" );
@@ -166,6 +176,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testObsolete() throws ParseException
     {
         SchemaParserTestUtils.testObsolete( parser, "1", "FORM 1.1" );
@@ -177,6 +188,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testForm() throws ParseException
     {
         String value = null;
@@ -263,6 +275,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSup() throws ParseException
     {
         String value = null;
@@ -324,6 +337,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1", "FORM 1.1" );
@@ -336,6 +350,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -372,6 +387,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -387,6 +403,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testRequiredElements() throws ParseException
     {
         String value = null;
@@ -413,6 +430,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -429,6 +447,7 @@ public class DITStructureRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         try

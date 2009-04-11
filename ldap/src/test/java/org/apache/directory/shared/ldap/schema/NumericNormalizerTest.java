@@ -19,79 +19,97 @@
  */
 package org.apache.directory.shared.ldap.schema;
 
+
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.normalizers.NumericNormalizer;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
 
 /**
- *
  * Test the numeric normalizer class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NumericNormalizerTest extends TestCase
+public class NumericNormalizerTest
 {
-   public void testNumericNormalizerNull() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "", normalizer.normalize( (String)null ) );
-   }
+    @Test
+    public void testNumericNormalizerNull() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "", normalizer.normalize( ( String ) null ) );
+    }
 
-   public void testNumericNormalizerEmpty() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "", normalizer.normalize( "" ) );
-   }
 
-   public void testNumericNormalizerOneSpace() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "", normalizer.normalize( " " ) );
-   }
+    @Test
+    public void testNumericNormalizerEmpty() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "", normalizer.normalize( "" ) );
+    }
 
-   public void testNumericNormalizerTwoSpaces() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "", normalizer.normalize( "  " ) );
-   }
 
-   public void testNumericNormalizerNSpaces() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "", normalizer.normalize( "      " ) );
-   }
+    @Test
+    public void testNumericNormalizerOneSpace() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "", normalizer.normalize( " " ) );
+    }
 
-   public void testInsignifiantSpacesStringOneChar() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "1", normalizer.normalize( "1" ) );
-   }
 
-   public void testInsignifiantSpacesStringTwoChars() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "11", normalizer.normalize( "11" ) );
-   }
+    @Test
+    public void testNumericNormalizerTwoSpaces() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "", normalizer.normalize( "  " ) );
+    }
 
-   public void testInsignifiantSpacesStringNChars() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "123456", normalizer.normalize( "123456" ) );
-   }
 
-   public void testInsignifiantNumericCharsSpaces() throws NamingException
-   {
-       Normalizer normalizer = new NumericNormalizer();
-       assertEquals( "1", normalizer.normalize( " 1" ) );
-       assertEquals( "1", normalizer.normalize( "1 " ) );
-       assertEquals( "1", normalizer.normalize( " 1 " ) );
-       assertEquals( "11", normalizer.normalize( "1 1" ) );
-       assertEquals( "11", normalizer.normalize( " 1 1" ) );
-       assertEquals( "11", normalizer.normalize( "1 1 " ) );
-       assertEquals( "11", normalizer.normalize( "1  1" ) );
-       assertEquals( "11", normalizer.normalize( " 1   1 " ) );
-       assertEquals( "123456789", normalizer.normalize( "  123   456   789  " ) );
-   }
+    @Test
+    public void testNumericNormalizerNSpaces() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "", normalizer.normalize( "      " ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringOneChar() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "1", normalizer.normalize( "1" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringTwoChars() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "11", normalizer.normalize( "11" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringNChars() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "123456", normalizer.normalize( "123456" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantNumericCharsSpaces() throws NamingException
+    {
+        Normalizer normalizer = new NumericNormalizer();
+        assertEquals( "1", normalizer.normalize( " 1" ) );
+        assertEquals( "1", normalizer.normalize( "1 " ) );
+        assertEquals( "1", normalizer.normalize( " 1 " ) );
+        assertEquals( "11", normalizer.normalize( "1 1" ) );
+        assertEquals( "11", normalizer.normalize( " 1 1" ) );
+        assertEquals( "11", normalizer.normalize( "1 1 " ) );
+        assertEquals( "11", normalizer.normalize( "1  1" ) );
+        assertEquals( "11", normalizer.normalize( " 1   1 " ) );
+        assertEquals( "123456789", normalizer.normalize( "  123   456   789  " ) );
+    }
 }

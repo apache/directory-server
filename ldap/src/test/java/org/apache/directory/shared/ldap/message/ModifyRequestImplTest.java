@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.Control;
 
@@ -33,10 +31,13 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRequestImplTest extends TestCase
+public class ModifyRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
@@ -60,7 +61,7 @@ public class ModifyRequestImplTest extends TestCase
      * 
      * @return the ModifyRequest to use for tests
      */
-    public ModifyRequestImpl getRequest()
+    private ModifyRequestImpl getRequest()
     {
         // Construct the Modify request to test
         ModifyRequestImpl req = new ModifyRequestImpl( 45 );
@@ -99,6 +100,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         ModifyRequestImpl req = getRequest();
@@ -109,6 +111,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy()
     {
         ModifyRequestImpl req0 = getRequest();
@@ -120,6 +123,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId()
     {
         ModifyRequestImpl req0 = new ModifyRequestImpl( 7 );
@@ -131,6 +135,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
+    @Test
     public void testNotEqualDiffName()
     {
         try
@@ -152,6 +157,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods ops are different.
      */
+    @Test
     public void testNotEqualDiffModOps()
     {
         ModifyRequestImpl req0 = getRequest();
@@ -178,6 +184,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the number of mods are different.
      */
+    @Test
     public void testNotEqualDiffModCount()
     {
         ModifyRequestImpl req0 = getRequest();
@@ -198,6 +205,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute Id's are different.
      */
+    @Test
     public void testNotEqualDiffModIds()
     {
         ModifyRequestImpl req0 = getRequest();
@@ -224,6 +232,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute values are different.
      */
+    @Test
     public void testNotEqualDiffModValues()
     {
         ModifyRequestImpl req0 = getRequest();
@@ -251,9 +260,10 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests for equality even when another BindRequest implementation is used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        ModifyRequest req0 = new ModifyRequest()
+        InternalModifyRequest req0 = new InternalModifyRequest()
         {
             public Collection<Modification> getModificationItems()
             {
@@ -377,7 +387,7 @@ public class ModifyRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }

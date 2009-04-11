@@ -25,10 +25,10 @@ import javax.naming.ldap.ExtendedResponse;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdown;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulShutdownDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulShutdown.GracefulShutdown;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulShutdown.GracefulShutdownDecoder;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,18 +141,11 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             }
         }
 
-        if ( payload == null )
-        {
-            return null;
-        }
-
-        final byte[] copy = new byte[ payload.length ];
-        System.arraycopy( payload, 0, copy, 0, payload.length );
-        return copy;
+        return super.getPayload();
     }
 
 
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {

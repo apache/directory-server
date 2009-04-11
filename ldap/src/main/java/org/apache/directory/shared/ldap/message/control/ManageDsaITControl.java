@@ -60,7 +60,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ManageDsaITControl extends AbstractMutableControlImpl
+public class ManageDsaITControl extends InternalAbstractControl
 {
     public static final String CONTROL_OID = "2.16.840.1.113730.3.4.2";
 

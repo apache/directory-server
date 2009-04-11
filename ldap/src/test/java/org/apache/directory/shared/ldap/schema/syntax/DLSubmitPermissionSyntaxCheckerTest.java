@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.DLSubmitPermissionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for DLSubmitPermissionSyntaxChecker.
@@ -29,27 +31,31 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DLSubmitPermissionSyntaxCheckerTest extends TestCase
+public class DLSubmitPermissionSyntaxCheckerTest
 {
     DLSubmitPermissionSyntaxChecker checker = new DLSubmitPermissionSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertTrue( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertTrue( checker.isValidSyntax( "" ) );
     }
 
+    @Test
     public void testOid()
     {
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.18", checker.getSyntaxOid() );
     }
 
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "FALSE" ) );

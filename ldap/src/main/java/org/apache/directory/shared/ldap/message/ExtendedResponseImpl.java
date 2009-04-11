@@ -28,7 +28,7 @@ import java.util.Arrays;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedResponseImpl extends AbstractResultResponse implements ExtendedResponse
+public class ExtendedResponseImpl extends InternalAbstractResultResponse implements InternalExtendedResponse
 {
     static final long serialVersionUID = -6646752766410531060L;
 
@@ -152,12 +152,12 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
             return false;
         }
         
-        if ( !( obj instanceof ExtendedResponse ) )
+        if ( !( obj instanceof InternalExtendedResponse ) )
         {
             return false;
         }
 
-        ExtendedResponse resp = ( ExtendedResponse ) obj;
+        InternalExtendedResponse resp = ( InternalExtendedResponse ) obj;
 
         if ( oid != null && resp.getResponseName() == null )
         {

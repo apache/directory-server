@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.LdapSyntaxDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,11 +35,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
+public class LdapSyntaxDescriptionSyntaxCheckerTest
 {
     private LdapSyntaxDescriptionSyntaxChecker checker = new LdapSyntaxDescriptionSyntaxChecker();
 
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( ( "( 1.3.6.1.4.1.1466.115.121.1.15 )" ) ) );
@@ -55,6 +58,7 @@ public class LdapSyntaxDescriptionSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testInvalid()
     {
         // null 

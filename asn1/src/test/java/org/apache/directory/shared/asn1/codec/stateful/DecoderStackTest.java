@@ -20,10 +20,15 @@
 package org.apache.directory.shared.asn1.codec.stateful;
 
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.DecoderException;
-
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * Tests the DecoderStack.
@@ -31,22 +36,12 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class DecoderStackTest extends TestCase
+public class DecoderStackTest
 {
-    /**
-     * Constructor for DecoderStackTest.
-     * 
-     * @param arg0
-     */
-    public DecoderStackTest(String arg0)
-    {
-        super( arg0 );
-    }
-
-
     /**
      * Tests the push method.
      */
+    @Test
     public void testPush()
     {
         DecoderStack stack = new DecoderStack();
@@ -61,6 +56,7 @@ public class DecoderStackTest extends TestCase
     /**
      * Tests the pop method.
      */
+    @Test
     public void testPop()
     {
         DecoderStack stack = new DecoderStack();
@@ -81,6 +77,7 @@ public class DecoderStackTest extends TestCase
     }
 
 
+    @Test
     public void testDecode() throws Exception
     {
         DecoderStack stack = new DecoderStack();
@@ -169,6 +166,7 @@ public class DecoderStackTest extends TestCase
     }
 
 
+    @Test
     public void testFailure() throws Exception
     {
         DecoderStack stack = new DecoderStack();

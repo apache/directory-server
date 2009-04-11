@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,11 +27,14 @@ import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedResponse;
 
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -42,13 +43,14 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedRequestImplTest extends TestCase
+public class ExtendedRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         ExtendedRequestImpl req = new ExtendedRequestImpl( 5 );
@@ -59,6 +61,7 @@ public class ExtendedRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy()
     {
         ExtendedRequestImpl req0 = new ExtendedRequestImpl( 5 );
@@ -77,6 +80,7 @@ public class ExtendedRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId()
     {
         ExtendedRequestImpl req0 = new ExtendedRequestImpl( 7 );
@@ -90,6 +94,7 @@ public class ExtendedRequestImplTest extends TestCase
     /**
      * Test for inequality when only the OID is different.
      */
+    @Test
     public void testNotEqualDiffOID()
     {
         ExtendedRequestImpl req0 = new ExtendedRequestImpl( 5 );
@@ -108,6 +113,7 @@ public class ExtendedRequestImplTest extends TestCase
     /**
      * Test for inequality when only the Assertion values are different.
      */
+    @Test
     public void testNotEqualDiffValue()
     {
         ExtendedRequestImpl req0 = new ExtendedRequestImpl( 5 );
@@ -127,9 +133,10 @@ public class ExtendedRequestImplTest extends TestCase
      * Tests for equality even when another ExtendedRequest implementation is
      * used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        ExtendedRequest req0 = new ExtendedRequest()
+        InternalExtendedRequest req0 = new InternalExtendedRequest()
         {
             private static final long serialVersionUID = 1L;
 
@@ -208,7 +215,7 @@ public class ExtendedRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }

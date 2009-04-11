@@ -33,21 +33,23 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
-import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -55,11 +57,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AddRequestTest extends TestCase
+public class AddRequestTest
 {
     /**
      * Test the decoding of a AddRequest
      */
+    @Test
     public void testDecodeAddRequestSuccess() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -111,8 +114,8 @@ public class AddRequestTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddRequest addRequest = message.getAddRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddRequestCodec addRequest = message.getAddRequest();
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
@@ -173,6 +176,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null body
      */
+    @Test
     public void testDecodeAddRequestNullBody()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -209,6 +213,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null entry
      */
+    @Test
     public void testDecodeAddRequestNullEntry()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -255,7 +260,7 @@ public class AddRequestTest extends TestCase
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
             assertEquals( ResultCodeEnum.NAMING_VIOLATION, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
@@ -267,6 +272,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest
      */
+    @Test
     public void testDecodeAddRequestbadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -315,7 +321,7 @@ public class AddRequestTest extends TestCase
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
@@ -327,6 +333,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null attributeList
      */
+    @Test
     public void testDecodeAddRequestNullAttributes()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -370,6 +377,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
+    @Test
     public void testDecodeAddRequestNullAttributeList()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -414,6 +422,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
+    @Test
     public void testDecodeAddRequestNullType()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -449,7 +458,7 @@ public class AddRequestTest extends TestCase
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof AddResponseImpl );
             assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((AddResponseImpl)response).getLdapResult().getResultCode() );
             return;
@@ -462,6 +471,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
+    @Test
     public void testDecodeAddRequestNoVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -507,6 +517,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
+    @Test
     public void testDecodeAddRequestNullVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -553,6 +564,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
+    @Test
     public void testDecodeAddRequestEmptyAttributeValue() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -594,8 +606,8 @@ public class AddRequestTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddRequest addRequest = message.getAddRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddRequestCodec addRequest = message.getAddRequest();
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
@@ -638,6 +650,7 @@ public class AddRequestTest extends TestCase
      * Test the decoding of a AddRequest with a empty attributeList and a
      * control
      */
+    @Test
     public void testDecodeAddRequestEmptyAttributeValueWithControl() throws NamingException
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -682,8 +695,8 @@ public class AddRequestTest extends TestCase
             fail( de.getMessage() );
         }
 
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddRequest addRequest = message.getAddRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddRequestCodec addRequest = message.getAddRequest();
 
         // Check the decoded message
         assertEquals( 1, message.getMessageId() );
@@ -706,11 +719,11 @@ public class AddRequestTest extends TestCase
         assertEquals( 0x51, message.computeLength() );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 

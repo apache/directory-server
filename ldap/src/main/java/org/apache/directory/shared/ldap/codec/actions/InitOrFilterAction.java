@@ -24,11 +24,11 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.OrFilter;
-import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class InitOrFilterAction extends GrammarAction
     public void action( IAsn1Container container ) throws DecoderException
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+        LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
         TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -69,7 +69,7 @@ public class InitOrFilterAction extends GrammarAction
             throw new DecoderException( "The Or filter PDU must not be empty" );
         }
 
-        SearchRequest searchRequest = ldapMessage.getSearchRequest();
+        SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
         // We can allocate the SearchRequest
         Filter orFilter = new OrFilter( ldapMessageContainer.getTlvId() );

@@ -21,7 +21,11 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.ACIItemSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Test cases for ACIItemSyntaxChecker.
@@ -29,27 +33,31 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ACIItemSyntaxCheckerTest extends TestCase
+public class ACIItemSyntaxCheckerTest
 {
     ACIItemSyntaxChecker checker = new ACIItemSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
+    @Test
     public void testOid()
     {
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.1", checker.getSyntaxOid() );
     }
 
+    @Test
     public void testCorrectCase()
     {
     }
@@ -57,6 +65,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     /**
      * Tests the checker with an ACIItem of ItemFirst main component.
      */
+    @Test
     public void testItemFirst()
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -75,6 +84,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     /**
      * Tests the checker with an ACIItem of UserFirst main component.
      */
+    @Test
     public void testUserFirst()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -88,6 +98,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testAllowAddAllUsers()
     {
         String spec = "{ identificationTag \"addAci\", " + "precedence 14, " + "authenticationLevel none, "
@@ -98,6 +109,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testCombo()
     {
         String spec = "{ identificationTag \"addAci\", " + "precedence 14, " + "authenticationLevel none, "
@@ -108,6 +120,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testOrderOfProtectedItemsDoesNotMatter()
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -123,6 +136,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testOrderOfUserClassesDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -136,6 +150,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testItemPermissionComponentsOrderDoesNotMatter()
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -151,6 +166,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testUserPermissionComponentsOrderDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -164,6 +180,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testOrderOfMainACIComponentsDoesNotMatter()
     {
         String spec = "{   itemOrUserFirst userFirst:  { userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
@@ -177,6 +194,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testUserFirstComponentsOrderDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -189,6 +207,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testItemFirstComponentsOrderDoesNotMatter()
     {
         String spec = " {  identificationTag  \"id1\" , precedence 114  , authenticationLevel simple  , "
@@ -203,6 +222,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testRestrictedValueComponentsOrderDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -216,6 +236,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testMaxValueCountComponentsOrderDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -229,6 +250,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testSubtreeSpecificationComponentsOrderDoesNotMatter()
     {
         String spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
@@ -243,6 +265,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     /**
      * Test case for DIRSERVER-891
      */
+    @Test
     public void testInvalidAttributeValue()
     {
         String spec;
@@ -267,6 +290,7 @@ public class ACIItemSyntaxCheckerTest extends TestCase
     /**
      * Test case for DIRSERVER-891
      */
+    @Test
     public void testIncomplete()
     {
         String spec;

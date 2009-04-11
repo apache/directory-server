@@ -20,53 +20,60 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test the NameToolsTest class
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NamespaceToolsTest extends TestCase
+public class NamespaceToolsTest
 {
+    @Test
     public void testNullRealm()
     {
-        Assert.assertEquals( "", NamespaceTools.inferLdapName( null ) );
+        assertEquals( "", NamespaceTools.inferLdapName( null ) );
     }
 
 
+    @Test
     public void testEmptyRealm()
     {
-        Assert.assertEquals( "", NamespaceTools.inferLdapName( "" ) );
+        assertEquals( "", NamespaceTools.inferLdapName( "" ) );
     }
 
 
+    @Test
     public void testSingleElemRealm()
     {
-        Assert.assertEquals( "dc=test", NamespaceTools.inferLdapName( "test" ) );
+        assertEquals( "dc=test", NamespaceTools.inferLdapName( "test" ) );
     }
 
 
+    @Test
     public void testTwoElemsRealm()
     {
-        Assert.assertEquals( "dc=test,dc=com", NamespaceTools.inferLdapName( "test.com" ) );
+        assertEquals( "dc=test,dc=com", NamespaceTools.inferLdapName( "test.com" ) );
     }
 
 
+    @Test
     public void testFullRealm()
     {
-        Assert.assertEquals( "dc=CS,dc=UCL,dc=AC,dc=UK", NamespaceTools.inferLdapName( "CS.UCL.AC.UK" ) );
+        assertEquals( "dc=CS,dc=UCL,dc=AC,dc=UK", NamespaceTools.inferLdapName( "CS.UCL.AC.UK" ) );
     }
 
 
+    @Test
     public void testHasCompositeComponents() throws NamingException
     {
         assertTrue( NamespaceTools.hasCompositeComponents( "givenName=Alex+sn=Karasulu" ) );
@@ -76,6 +83,7 @@ public class NamespaceToolsTest extends TestCase
     }
 
 
+    @Test
     public void testGetCompositeComponents() throws NamingException
     {
         String[] args = NamespaceTools.getCompositeComponents( "givenName=Alex+sn=Karasulu" );
@@ -99,6 +107,7 @@ public class NamespaceToolsTest extends TestCase
     }
     
     
+    @Test
     public void testGetRelativeName() throws NamingException
     {
         // test the basis case first with the root

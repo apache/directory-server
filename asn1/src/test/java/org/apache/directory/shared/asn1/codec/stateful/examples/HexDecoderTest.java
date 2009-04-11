@@ -23,12 +23,14 @@ package org.apache.directory.shared.asn1.codec.stateful.examples;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.binary.Hex;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -37,7 +39,7 @@ import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class HexDecoderTest extends TestCase implements DecoderCallback
+public class HexDecoderTest implements DecoderCallback
 {
     private HexDecoder decoder = null;
 
@@ -48,17 +50,17 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     byte[] original = null;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
         decoder = new HexDecoder();
         decoder.setCallback( this );
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        super.tearDown();
         decoder = null;
         encoded = null;
         decoded = null;
@@ -99,6 +101,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode0() throws DecoderException
     {
         generateData( 0 );
@@ -113,6 +116,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode2() throws DecoderException
     {
         generateData( 2 );
@@ -121,6 +125,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode26() throws DecoderException
     {
         generateData( 26 );
@@ -129,6 +134,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode254() throws DecoderException
     {
         generateData( 254 );
@@ -137,6 +143,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode256() throws DecoderException
     {
         generateData( 256 );
@@ -145,6 +152,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode258() throws DecoderException
     {
         generateData( 258 );
@@ -153,6 +161,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testDecode2048() throws DecoderException
     {
         generateData( 2048 );
@@ -161,6 +170,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testPartialDecode2() throws DecoderException
     {
         generateData( 2 );
@@ -182,6 +192,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testPartialDecode30() throws DecoderException
     {
         generateData( 30 );
@@ -195,6 +206,7 @@ public class HexDecoderTest extends TestCase implements DecoderCallback
     }
 
 
+    @Test
     public void testPartialDecode300() throws DecoderException
     {
         generateData( 300 );

@@ -22,8 +22,10 @@ package org.apache.directory.shared.ldap.filter;
 
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -32,8 +34,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BranchNormalizedVisitorTest extends TestCase
+public class BranchNormalizedVisitorTest
 {
+    @Test
     public void testBranchNormalizedVisitor0() throws Exception
     {
         String filter = "(ou=Human Resources)";
@@ -50,6 +53,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     }
 
 
+    @Test
     public void testBranchNormalizedVisitor1() throws Exception
     {
         String filter = "(&(ou=Human Resources)(uid=akarasulu))";
@@ -66,6 +70,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     }
 
 
+    @Test
     public void testBranchNormalizedVisitor2() throws Exception
     {
         String filter = "(&(uid=akarasulu)(ou=Human Resources)";
@@ -84,6 +89,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     }
 
 
+    @Test
     public void testBranchNormalizedVisitor3() throws Exception
     {
         String filter = "(&(ou=Human Resources)(uid=akarasulu)";
@@ -102,6 +108,7 @@ public class BranchNormalizedVisitorTest extends TestCase
     }
 
 
+    @Test
     public void testBranchNormalizedComplex() throws Exception
     {
         String filter1 = "(&(a=A)(|(b=B)(c=C)))";

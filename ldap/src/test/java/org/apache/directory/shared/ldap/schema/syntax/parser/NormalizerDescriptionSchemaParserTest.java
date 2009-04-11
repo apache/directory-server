@@ -22,10 +22,13 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,36 +36,41 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSche
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NormalizerDescriptionSchemaParserTest extends TestCase
+public class NormalizerDescriptionSchemaParserTest
 {
     /** the parser instance */
     private NormalizerDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new NormalizerDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
 
 
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
+    @Test
     public void testFqcn() throws ParseException
     {
         String value = null;
@@ -76,6 +84,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testBytecode() throws ParseException
     {
         String value = null;
@@ -89,12 +98,14 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleNormalizer" );
     }
 
 
+    @Test
     public void testFull()
     {
         // TODO
@@ -106,6 +117,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         // TODO
@@ -117,6 +129,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testRequiredElements()
     {
         // TODO
@@ -126,6 +139,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         // TODO
@@ -135,6 +149,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "FQCN org.apache.directory.SimpleNormalizer" );

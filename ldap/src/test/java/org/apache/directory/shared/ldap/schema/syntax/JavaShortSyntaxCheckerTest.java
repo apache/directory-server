@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaShortSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for JavaShortSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JavaShortSyntaxCheckerTest extends TestCase
+public class JavaShortSyntaxCheckerTest
 {
     JavaShortSyntaxChecker checker = new JavaShortSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "f" ) );
@@ -53,6 +58,7 @@ public class JavaShortSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "000" ) );
@@ -62,6 +68,7 @@ public class JavaShortSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "1" ) );
@@ -73,6 +80,7 @@ public class JavaShortSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testMinValueBoundry()
     {
         int min = Short.MIN_VALUE;
@@ -84,6 +92,7 @@ public class JavaShortSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testMaxValueBoundry()
     {
         int max = Short.MAX_VALUE;

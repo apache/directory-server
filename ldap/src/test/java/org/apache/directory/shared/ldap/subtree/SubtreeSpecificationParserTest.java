@@ -25,8 +25,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -39,6 +37,12 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -47,7 +51,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeSpecificationParserTest extends TestCase
+public class SubtreeSpecificationParserTest
 {
     /** A valid empty specification with single white space between brackets */
     private static final String EMPTY_SPEC = "{ }";
@@ -122,7 +126,6 @@ public class SubtreeSpecificationParserTest extends TestCase
      */
     public SubtreeSpecificationParserTest(String s)
     {
-        super( s );
         parser = new SubtreeSpecificationParser( null );
     }
 
@@ -130,6 +133,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid empty specification.
      */
+    @Test
     public void testEmptySpec() throws Exception
     {
         SubtreeSpecification ss = parser.parse( EMPTY_SPEC );
@@ -148,6 +152,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid specification with base set.
      */
+    @Test
     public void testSpecWithBase() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE );
@@ -161,6 +166,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with an invalid specification with missing white spaces
      * and base set.
      */
+    @Test
     public void testInvalidSpecWithBaseAndMissingWS() throws Exception
     {
         try
@@ -179,6 +185,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with some specific exclusions
      * set.
      */
+    @Test
     public void testSpecWithSpecificExclusions() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_SPECIFICEXCLUSIONS );
@@ -207,6 +214,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with an empty specific
      * exclusions set.
      */
+    @Test
     public void testSpecWithEmptySpecificExclusions() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_EMPTY_SPECIFICEXCLUSIONS );
@@ -219,6 +227,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid specification with minimum and maximum set.
      */
+    @Test
     public void testSpecWithMinimumAndMaximum() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_MINIMUM_AND_MAXIMUM );
@@ -241,6 +250,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with base and minimum and
      * maximum set.
      */
+    @Test
     public void testWithBaseAndMinimumAndMaximum() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE_AND_MINIMUM_AND_MAXIMUM );
@@ -255,6 +265,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with base and specific
      * exclusions and minimum and maximum set.
      */
+    @Test
     public void testSpecWithBaseAndSpecificExclusionsAndMinimumAndMaximum() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE_AND_SPECIFICEXCLUSIONS_AND_MINIMUM_AND_MAXIMUM );
@@ -273,6 +284,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid specification with refinement set.
      */
+    @Test
     public void testSpecWithRefinement() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_REFINEMENT );
@@ -301,6 +313,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with base and empty
      * refinement set.
      */
+    @Test
     public void testSpecWithBaseAndEmptyRefinement() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_BASE_AND_EMPTY_REFINEMENT );
@@ -312,6 +325,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid specification with all components set.
      */
+    @Test
     public void testSpecWithAllInOne() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_ALL_IN_ONE );
@@ -323,6 +337,7 @@ public class SubtreeSpecificationParserTest extends TestCase
      * Tests the parser with a valid specification with unordinary component
      * order.
      */
+    @Test
     public void testSpecOrderOfComponentsDoesNotMatter() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_ORDER_OF_COMPONENTS_DOES_NOT_MATTER );
@@ -333,6 +348,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with an invalid specification with silly things in.
      */
+    @Test
     public void testInvalidSillyThing() throws Exception
     {
         try
@@ -350,6 +366,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the parser with a valid specification with refinement set.
      */
+    @Test
     public void testSpecWithFilter() throws Exception
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_FILTER );
@@ -363,6 +380,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Test reusability, especially if the state is resetted.
      */
+    @Test
     public void testReusabiltiy() throws Exception
     {
         LdapDN firstDN = new LdapDN("k=l");
@@ -383,6 +401,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws Exception
     {
         // start up and track all threads (40 threads)

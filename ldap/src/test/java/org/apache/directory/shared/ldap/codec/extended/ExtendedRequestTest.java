@@ -27,14 +27,17 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedRequest;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -42,11 +45,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedRequestTest extends TestCase
+public class ExtendedRequestTest
 {
     /**
      * Test the decoding of a full ExtendedRequest
      */
+    @Test
     public void testDecodeExtendedRequestSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -83,8 +87,8 @@ public class ExtendedRequestTest extends TestCase
         }
 
         // Check the decoded ExtendedRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedRequest extendedRequest = message.getExtendedRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequestCodec extendedRequest = message.getExtendedRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
@@ -113,6 +117,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a full ExtendedRequest with controls
      */
+    @Test
     public void testDecodeExtendedRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -154,19 +159,19 @@ public class ExtendedRequestTest extends TestCase
         }
 
         // Check the decoded ExtendedRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedRequest extendedRequest = message.getExtendedRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequestCodec extendedRequest = message.getExtendedRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
         assertEquals( "value", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -194,6 +199,7 @@ public class ExtendedRequestTest extends TestCase
      * Test the decoding of a full ExtendedRequest with no value and with
      * controls
      */
+    @Test
     public void testDecodeExtendedRequestNoValueWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -235,19 +241,19 @@ public class ExtendedRequestTest extends TestCase
         }
 
         // Check the decoded ExtendedRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedRequest extendedRequest = message.getExtendedRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequestCodec extendedRequest = message.getExtendedRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
         assertEquals( "", StringTools.utf8ToString( extendedRequest.getRequestValue() ) );
 
         // Check the Control
-        List<Control> controls = message.getControls();
+        List<ControlCodec> controls = message.getControls();
 
         assertEquals( 1, controls.size() );
 
-        Control control = message.getControls( 0 );
+        ControlCodec control = message.getControls( 0 );
         assertEquals( "2.16.840.1.113730.3.4.2", control.getControlType() );
         assertEquals( "", StringTools.dumpBytes( ( byte[] ) control.getControlValue() ) );
 
@@ -274,6 +280,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty ExtendedRequest
      */
+    @Test
     public void testDecodeExtendedRequestEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -309,6 +316,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty OID
      */
+    @Test
     public void testDecodeEmptyOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -344,6 +352,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a bad name 
      */
+    @Test
     public void testDecodeExtendedBadRequestName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -381,6 +390,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a name only ExtendedRequest
      */
+    @Test
     public void testDecodeExtendedRequestName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -416,8 +426,8 @@ public class ExtendedRequestTest extends TestCase
         }
 
         // Check the decoded ExtendedRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedRequest extendedRequest = message.getExtendedRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequestCodec extendedRequest = message.getExtendedRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );
@@ -445,6 +455,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty name ExtendedRequest
      */
+    @Test
     public void testDecodeExtendedRequestEmptyName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -481,8 +492,8 @@ public class ExtendedRequestTest extends TestCase
         }
 
         // Check the decoded ExtendedRequest PDU
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        ExtendedRequest extendedRequest = message.getExtendedRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        ExtendedRequestCodec extendedRequest = message.getExtendedRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "1.3.6.1.5.5.2", extendedRequest.getRequestName() );

@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,10 +35,11 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AttributeTypeDescriptionSyntaxCheckerTest extends TestCase
+public class AttributeTypeDescriptionSyntaxCheckerTest
 {
     private AttributeTypeDescriptionSyntaxChecker checker = new AttributeTypeDescriptionSyntaxChecker();
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2.5.4.3 NAME 'cn' SUP name )" ) );
@@ -65,6 +68,7 @@ public class AttributeTypeDescriptionSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testInvalid()
     {
         // null 

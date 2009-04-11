@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.OtherMailboxSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for OtherMailboxSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OtherMailboxSyntaxCheckerTest extends TestCase
+public class OtherMailboxSyntaxCheckerTest
 {
     OtherMailboxSyntaxChecker checker = new OtherMailboxSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testWrongCase() throws Exception
     {
         assertFalse( checker.isValidSyntax( "mailType" ) );
@@ -56,6 +61,7 @@ public class OtherMailboxSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "SMTP$dev@directory.apache.org" ) );

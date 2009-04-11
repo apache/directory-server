@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResponseEntryImpl extends AbstractResponse implements SearchResponseEntry
+public class SearchResponseEntryImpl extends InternalAbstractResponse implements InternalSearchResponseEntry
 {
     static final long serialVersionUID = -8357316233060886637L;
 
@@ -126,12 +126,12 @@ public class SearchResponseEntryImpl extends AbstractResponse implements SearchR
             return false;
         }
 
-        if ( !( obj instanceof SearchResponseEntry ) )
+        if ( !( obj instanceof InternalSearchResponseEntry ) )
         {
             return false;
         }
         
-        SearchResponseEntry resp = ( SearchResponseEntry ) obj;
+        InternalSearchResponseEntry resp = ( InternalSearchResponseEntry ) obj;
 
         return entry.equals( resp.getEntry() );
     }

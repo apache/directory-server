@@ -19,106 +19,130 @@
  */
 package org.apache.directory.shared.ldap.schema;
 
+
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.normalizers.TelephoneNumberNormalizer;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
 
 /**
- *
  * Test the Telephone Number normalizer class
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TelephoneNumberNormalizerTest extends TestCase
+public class TelephoneNumberNormalizerTest
 {
-   public void testTelephoneNumberNormalizerNull() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( (String)null ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerNull() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( ( String ) null ) );
+    }
 
-   public void testTelephoneNumberNormalizerEmpty() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( "" ) );
-   }
 
-   public void testTelephoneNumberNormalizerOneSpace() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( " " ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerEmpty() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( "" ) );
+    }
 
-   public void testTelephoneNumberNormalizerTwoSpaces() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( "  " ) );
-   }
 
-   public void testTelephoneNumberNormalizerNSpaces() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( "      " ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerOneSpace() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( " " ) );
+    }
 
-   public void testTelephoneNumberNormalizerOneHyphen() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( "-" ) );
-   }
 
-   public void testTelephoneNumberNormalizerTwoHyphen() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( "--" ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerTwoSpaces() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( "  " ) );
+    }
 
-   public void testTelephoneNumberNormalizerHyphensSpaces() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "", normalizer.normalize( " -- - -- " ) );
-   }
 
-   public void testInsignifiantSpacesStringOneChar() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "1", normalizer.normalize( "1" ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerNSpaces() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( "      " ) );
+    }
 
-   public void testInsignifiantSpacesStringTwoChars() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "11", normalizer.normalize( "11" ) );
-   }
 
-   public void testInsignifiantSpacesStringNChars() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "123456", normalizer.normalize( "123456" ) );
-   }
+    @Test
+    public void testTelephoneNumberNormalizerOneHyphen() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( "-" ) );
+    }
 
-   public void testInsignifiantTelephoneNumberCharsSpaces() throws NamingException
-   {
-       Normalizer normalizer = new TelephoneNumberNormalizer();
-       assertEquals( "1", normalizer.normalize( " 1" ) );
-       assertEquals( "1", normalizer.normalize( "1 " ) );
-       assertEquals( "1", normalizer.normalize( " 1 " ) );
-       assertEquals( "11", normalizer.normalize( "1 1" ) );
-       assertEquals( "11", normalizer.normalize( " 1 1" ) );
-       assertEquals( "11", normalizer.normalize( "1 1 " ) );
-       assertEquals( "11", normalizer.normalize( "1  1" ) );
-       assertEquals( "11", normalizer.normalize( " 1   1 " ) );
-       assertEquals( "123456789", normalizer.normalize( "  123   456   789  " ) );
-       assertEquals( "1", normalizer.normalize( "-1" ) );
-       assertEquals( "1", normalizer.normalize( "1-" ) );
-       assertEquals( "1", normalizer.normalize( "-1-" ) );
-       assertEquals( "11", normalizer.normalize( "1-1" ) );
-       assertEquals( "11", normalizer.normalize( "-1-1" ) );
-       assertEquals( "11", normalizer.normalize( "1-1-" ) );
-       assertEquals( "11", normalizer.normalize( "1--1" ) );
-       assertEquals( "11", normalizer.normalize( "-1---1-" ) );
-       assertEquals( "1(2)+3456789", normalizer.normalize( "---1(2)+3   456-  789 --" ) );
-   }
+
+    @Test
+    public void testTelephoneNumberNormalizerTwoHyphen() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( "--" ) );
+    }
+
+
+    @Test
+    public void testTelephoneNumberNormalizerHyphensSpaces() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "", normalizer.normalize( " -- - -- " ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringOneChar() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "1", normalizer.normalize( "1" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringTwoChars() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "11", normalizer.normalize( "11" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantSpacesStringNChars() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "123456", normalizer.normalize( "123456" ) );
+    }
+
+
+    @Test
+    public void testInsignifiantTelephoneNumberCharsSpaces() throws NamingException
+    {
+        Normalizer normalizer = new TelephoneNumberNormalizer();
+        assertEquals( "1", normalizer.normalize( " 1" ) );
+        assertEquals( "1", normalizer.normalize( "1 " ) );
+        assertEquals( "1", normalizer.normalize( " 1 " ) );
+        assertEquals( "11", normalizer.normalize( "1 1" ) );
+        assertEquals( "11", normalizer.normalize( " 1 1" ) );
+        assertEquals( "11", normalizer.normalize( "1 1 " ) );
+        assertEquals( "11", normalizer.normalize( "1  1" ) );
+        assertEquals( "11", normalizer.normalize( " 1   1 " ) );
+        assertEquals( "123456789", normalizer.normalize( "  123   456   789  " ) );
+        assertEquals( "1", normalizer.normalize( "-1" ) );
+        assertEquals( "1", normalizer.normalize( "1-" ) );
+        assertEquals( "1", normalizer.normalize( "-1-" ) );
+        assertEquals( "11", normalizer.normalize( "1-1" ) );
+        assertEquals( "11", normalizer.normalize( "-1-1" ) );
+        assertEquals( "11", normalizer.normalize( "1-1-" ) );
+        assertEquals( "11", normalizer.normalize( "1--1" ) );
+        assertEquals( "11", normalizer.normalize( "-1---1-" ) );
+        assertEquals( "1(2)+3456789", normalizer.normalize( "---1(2)+3   456-  789 --" ) );
+    }
 }

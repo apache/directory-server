@@ -25,14 +25,15 @@ import java.nio.ByteBuffer;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectContainer;
-import org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnectDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnect;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnectContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.gracefulDisconnect.GracefulDisconnectDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -40,7 +41,7 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulDisconnectTest extends TestCase
+public class GracefulDisconnectTest
 {
     /**
      * Test the decoding of a GracefulDisconnect
@@ -76,7 +77,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
@@ -132,7 +133,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
@@ -186,7 +187,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
@@ -241,7 +242,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
@@ -303,7 +304,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();
@@ -358,7 +359,7 @@ public class GracefulDisconnectTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         GracefulDisconnect gracefulDisconnect = container.getGracefulDisconnect();

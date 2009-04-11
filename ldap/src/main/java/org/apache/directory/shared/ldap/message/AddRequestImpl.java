@@ -32,14 +32,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddRequestImpl extends AbstractAbandonableRequest implements AddRequest
+public class AddRequestImpl extends AbstractAbandonableRequest implements InternalAddRequest
 {
     static final long serialVersionUID = 7534132448349520346L;
 
     /** A MultiMap of the new entry's attributes and their values */
     private Entry entry;
 
-    private AddResponse response;
+    private InternalAddResponse response;
 
 
     // ------------------------------------------------------------------------
@@ -128,7 +128,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -161,7 +161,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
         }
         
         // Check the object class. If null, it will exit.
-        if ( !( obj instanceof AddRequest ) )
+        if ( !( obj instanceof InternalAddRequest ) )
         {
             return false;
         }
@@ -171,7 +171,7 @@ public class AddRequestImpl extends AbstractAbandonableRequest implements AddReq
             return false;
         }
 
-        AddRequest req = ( AddRequest ) obj;
+        InternalAddRequest req = ( InternalAddRequest ) obj;
 
         // Check the entry
         if ( entry == null )

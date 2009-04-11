@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,11 +29,14 @@ import javax.naming.ldap.Control;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -44,7 +45,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyDnRequestImplTest extends TestCase
+public class ModifyDnRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
@@ -53,7 +54,7 @@ public class ModifyDnRequestImplTest extends TestCase
      * 
      * @return the request
      */
-    public ModifyDnRequestImpl getRequest()
+    private ModifyDnRequestImpl getRequest()
     {
         // Construct the ModifyDn request to test
         ModifyDnRequestImpl request = new ModifyDnRequestImpl( 45 );
@@ -77,6 +78,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         ModifyDnRequestImpl req = new ModifyDnRequestImpl( 5 );
@@ -87,6 +89,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy0()
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -99,6 +102,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy1()
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -113,6 +117,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId()
     {
         ModifyDnRequestImpl req0 = new ModifyDnRequestImpl( 4 );
@@ -125,6 +130,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
+    @Test
     public void testNotEqualDiffName() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -140,6 +146,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the newSuperior DNs are different.
      */
+    @Test
     public void testNotEqualDiffNewSuperior() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -155,6 +162,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the delete old Rdn properties is different.
      */
+    @Test
     public void testNotEqualDiffDeleteOldRdn()
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -170,6 +178,7 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Test for inequality when only the new Rdn properties are different.
      */
+    @Test
     public void testNotEqualDiffNewRdn() throws InvalidNameException
     {
         ModifyDnRequestImpl req0 = getRequest();
@@ -186,9 +195,10 @@ public class ModifyDnRequestImplTest extends TestCase
     /**
      * Tests for equality even when another BindRequest implementation is used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        ModifyDnRequest req0 = new ModifyDnRequest()
+        InternalModifyDnRequest req0 = new InternalModifyDnRequest()
         {
             public LdapDN getName()
             {
@@ -332,7 +342,7 @@ public class ModifyDnRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }

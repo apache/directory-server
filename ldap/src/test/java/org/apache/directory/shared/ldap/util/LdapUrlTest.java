@@ -26,13 +26,16 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.LdapURL.Extension;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -40,43 +43,37 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapUrlTest extends TestCase
+public class LdapUrlTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
-
-    /**
-     * Setup the test
-     */
-    protected void setUp()
-    {
-    }
-
-
     /**
      * Test a null LdapURL
      */
+    @Test
     public void testLdapUrlNull()
     {
-        Assert.assertEquals( "ldap:///", new LdapURL().toString() );
+        assertEquals( "ldap:///", new LdapURL().toString() );
     }
 
 
     /**
      * test an empty LdapURL
      */
+    @Test
     public void testLdapDNEmpty() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap:///", new LdapURL( "" ).toString() );
+        assertEquals( "ldap:///", new LdapURL( "" ).toString() );
     }
 
 
     /**
      * test a simple LdapURL
      */
+    @Test
     public void testLdapDNSimple() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:80/", new LdapURL( "ldap://directory.apache.org:80/" )
+        assertEquals( "ldap://directory.apache.org:80/", new LdapURL( "ldap://directory.apache.org:80/" )
             .toString() );
     }
 
@@ -84,15 +81,17 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL host 1
      */
+    @Test
     public void testLdapDNWithMinus() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://d-a.org:80/", new LdapURL( "ldap://d-a.org:80/" ).toString() );
+        assertEquals( "ldap://d-a.org:80/", new LdapURL( "ldap://d-a.org:80/" ).toString() );
     }
 
 
     /**
      * test a LdapURL with a bad port
      */
+    @Test
     public void testLdapDNBadPort()
     {
         try
@@ -101,17 +100,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad port 2
      */
+    @Test
     public void testLdapDNBadPort2()
     {
         try
@@ -120,17 +120,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad port 3
      */
+    @Test
     public void testLdapDNBadPort3()
     {
         try
@@ -139,17 +140,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad port 4
      */
+    @Test
     public void testLdapDNBadPort4()
     {
         try
@@ -158,26 +160,28 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with no host
      */
+    @Test
     public void testLdapDNBadHost1() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap:///", new LdapURL( "ldap:///" ).toString() );
+        assertEquals( "ldap:///", new LdapURL( "ldap:///" ).toString() );
     }
 
 
     /**
      * test a LdapURL with a bad host 2
      */
+    @Test
     public void testLdapDNBadHost2()
     {
         try
@@ -186,17 +190,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad host 3
      */
+    @Test
     public void testLdapDNBadHost3()
     {
         try
@@ -205,17 +210,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad host 4
      */
+    @Test
     public void testLdapDNBadHost4()
     {
         try
@@ -224,17 +230,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad host 5
      */
+    @Test
     public void testLdapDNBadHost5()
     {
         try
@@ -243,17 +250,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad host 6
      */
+    @Test
     public void testLdapDNBadHost6()
     {
         try
@@ -262,17 +270,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad host 7
      */
+    @Test
     public void testLdapDNBadHost7()
     {
         try
@@ -281,35 +290,38 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL IP host
      */
+    @Test
     public void testLdapDNIPHost() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://1.2.3.4/", new LdapURL( "ldap://1.2.3.4/" ).toString() );
+        assertEquals( "ldap://1.2.3.4/", new LdapURL( "ldap://1.2.3.4/" ).toString() );
     }
 
 
     /**
      * test a LdapURL IP host and port
      */
+    @Test
     public void testLdapDNIPHostPort() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://1.2.3.4:80/", new LdapURL( "ldap://1.2.3.4:80/" ).toString() );
+        assertEquals( "ldap://1.2.3.4:80/", new LdapURL( "ldap://1.2.3.4:80/" ).toString() );
     }
 
 
     /**
      * test a LdapURL with a bad IP host 1
      */
+    @Test
     public void testLdapDNBadHostIP1()
     {
         try
@@ -318,17 +330,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad IP host 2
      */
+    @Test
     public void testLdapDNBadHostIP2()
     {
         try
@@ -337,17 +350,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad IP host 3
      */
+    @Test
     public void testLdapDNBadHostIP3()
     {
         try
@@ -356,17 +370,18 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a bad IP host 4
      */
+    @Test
     public void testLdapDNBadHostIP4()
     {
         try
@@ -375,29 +390,31 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
 
-        Assert.fail();
+        fail();;
     }
 
 
     /**
      * test a LdapURL with a valid host hich is not an IP
      */
+    @Test
     public void testLdapDNNotAnIP() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://1.1.1.100000.a/", new LdapURL( "ldap://1.1.1.100000.a/" ).toString() );
+        assertEquals( "ldap://1.1.1.100000.a/", new LdapURL( "ldap://1.1.1.100000.a/" ).toString() );
     }
 
 
     /**
      * test a LdapURL with valid simpleDN
      */
+    @Test
     public void testLdapDNSimpleDN() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org/", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org/", new LdapURL(
             "ldap://directory.apache.org:389/dc=example,dc=org/" ).toString() );
     }
 
@@ -405,9 +422,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with valid simpleDN 2
      */
+    @Test
     public void testLdapDNSimpleDN2() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example", new LdapURL(
             "ldap://directory.apache.org:389/dc=example" ).toString() );
     }
 
@@ -415,9 +433,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a valid encoded DN
      */
+    @Test
     public void testLdapDNSimpleDNEncoded() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example%202,dc=org", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example%202,dc=org", new LdapURL(
             "ldap://directory.apache.org:389/dc=example%202,dc=org" ).toString() );
     }
 
@@ -425,6 +444,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with an invalid DN
      */
+    @Test
     public void testLdapDNInvalidDN()
     {
         try
@@ -433,7 +453,7 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
     }
@@ -442,6 +462,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with an invalid DN 2
      */
+    @Test
     public void testLdapDNInvalidDN2()
     {
         try
@@ -450,7 +471,7 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
     }
@@ -459,9 +480,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with valid unique attributes
      */
+    @Test
     public void testLdapDNUniqueAttribute() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou", new LdapURL(
             "ldap://directory.apache.org:389/dc=example,dc=org?ou" ).toString() );
     }
 
@@ -469,9 +491,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with valid attributes
      */
+    @Test
     public void testLdapDNAttributes() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc", new LdapURL(
             "ldap://directory.apache.org:389/dc=example,dc=org?ou,objectclass,dc" ).toString() );
     }
 
@@ -479,9 +502,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with valid duplicated attributes
      */
+    @Test
     public void testLdapDNDuplicatedAttributes() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc", new LdapURL(
+        assertEquals( "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc", new LdapURL(
             "ldap://directory.apache.org:389/dc=example,dc=org?ou,dc,ou" ).toString() );
     }
 
@@ -489,6 +513,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with invalid attributes
      */
+    @Test
     public void testLdapInvalideAttributes()
     {
         try
@@ -497,7 +522,7 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
     }
@@ -506,6 +531,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with attributes but no DN
      */
+    @Test
     public void testLdapNoDNAttributes()
     {
         try
@@ -514,7 +540,7 @@ public class LdapUrlTest extends TestCase
         }
         catch ( LdapURLEncodingException luee )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
             return;
         }
     }
@@ -523,9 +549,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 1 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_1() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap:///o=University%20of%20Michigan,c=US", new LdapURL(
+        assertEquals( "ldap:///o=University%20of%20Michigan,c=US", new LdapURL(
             "ldap:///o=University%20of%20Michigan,c=US" ).toString() );
     }
 
@@ -533,9 +560,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 2 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_2() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US", new LdapURL(
+        assertEquals( "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US", new LdapURL(
             "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US" ).toString() );
     }
 
@@ -543,9 +571,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 3 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_3() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress", new LdapURL(
+        assertEquals( "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress", new LdapURL(
             "ldap://ldap.itd.umich.edu/o=University%20of%20Michigan,c=US?postalAddress" ).toString() );
     }
 
@@ -553,9 +582,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 4 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_4() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
+        assertEquals( "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)",
             new LdapURL( "ldap://host.com:6666/o=University%20of%20Michigan,c=US??sub?(cn=Babs%20Jensen)" ).toString() );
     }
 
@@ -563,9 +593,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 5 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_5() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://ldap.itd.umich.edu/c=GB?objectClass?one", new LdapURL(
+        assertEquals( "ldap://ldap.itd.umich.edu/c=GB?objectClass?one", new LdapURL(
             "ldap://ldap.itd.umich.edu/c=GB?objectClass?one" ).toString() );
     }
 
@@ -573,9 +604,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 6 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_6() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://ldap.question.com/o=Question%3f,c=US?mail", new LdapURL(
+        assertEquals( "ldap://ldap.question.com/o=Question%3f,c=US?mail", new LdapURL(
             "ldap://ldap.question.com/o=Question%3f,c=US?mail" ).toString() );
     }
 
@@ -583,9 +615,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 7 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_7() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", new LdapURL(
+        assertEquals( "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)", new LdapURL(
             "ldap://ldap.netscape.com/o=Babsco,c=US???(int=%5c00%5c00%5c00%5c04)" ).toString() );
     }
 
@@ -593,9 +626,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 8 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_8() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap:///??sub??bindname=cn=Manager%2co=Foo", new LdapURL(
+        assertEquals( "ldap:///??sub??bindname=cn=Manager%2co=Foo", new LdapURL(
             "ldap:///??sub??bindname=cn=Manager%2co=Foo" ).toString() );
     }
 
@@ -603,9 +637,10 @@ public class LdapUrlTest extends TestCase
     /**
      * test 9 from RFC 2255 LdapURL
      */
+    @Test
     public void testLdapRFC2255_9() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldap:///??sub??!bindname=cn=Manager%2co=Foo", new LdapURL(
+        assertEquals( "ldap:///??sub??!bindname=cn=Manager%2co=Foo", new LdapURL(
             "ldap:///??sub??!bindname=cn=Manager%2co=Foo" ).toString() );
     }
 
@@ -613,18 +648,20 @@ public class LdapUrlTest extends TestCase
     /**
      * test an empty ldaps:// LdapURL
      */
+    @Test
     public void testLdapDNEmptyLdaps() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldaps:///", new LdapURL( "ldaps:///" ).toString() );
+        assertEquals( "ldaps:///", new LdapURL( "ldaps:///" ).toString() );
     }
 
 
     /**
      * test an simple ldaps:// LdapURL
      */
+    @Test
     public void testLdapDNSimpleLdaps() throws LdapURLEncodingException
     {
-        Assert.assertEquals( "ldaps://directory.apache.org:80/", new LdapURL( "ldaps://directory.apache.org:80/" )
+        assertEquals( "ldaps://directory.apache.org:80/", new LdapURL( "ldaps://directory.apache.org:80/" )
             .toString() );
     }
 
@@ -632,160 +669,167 @@ public class LdapUrlTest extends TestCase
     /**
      * test the setScheme() method
      */
+    @Test
     public void testLdapDNSetScheme() throws LdapURLEncodingException
     {
         LdapURL url = new LdapURL();
-        Assert.assertEquals( "ldap://", url.getScheme() );
+        assertEquals( "ldap://", url.getScheme() );
 
         url.setScheme( "invalid" );
-        Assert.assertEquals( "ldap://", url.getScheme() );
+        assertEquals( "ldap://", url.getScheme() );
 
         url.setScheme( "ldap://" );
-        Assert.assertEquals( "ldap://", url.getScheme() );
+        assertEquals( "ldap://", url.getScheme() );
 
         url.setScheme( "ldaps://" );
-        Assert.assertEquals( "ldaps://", url.getScheme() );
+        assertEquals( "ldaps://", url.getScheme() );
 
         url.setScheme( null );
-        Assert.assertEquals( "ldap://", url.getScheme() );
+        assertEquals( "ldap://", url.getScheme() );
     }
 
 
     /**
      * test the setHost() method
      */
+    @Test
     public void testLdapDNSetHost() throws LdapURLEncodingException
     {
         LdapURL url = new LdapURL();
-        Assert.assertNull( url.getHost() );
+        assertNull( url.getHost() );
 
         url.setHost( "ldap.apache.org" );
-        Assert.assertEquals( "ldap.apache.org", url.getHost() );
-        Assert.assertEquals( "ldap://ldap.apache.org/", url.toString() );
+        assertEquals( "ldap.apache.org", url.getHost() );
+        assertEquals( "ldap://ldap.apache.org/", url.toString() );
 
         url.setHost( null );
-        Assert.assertNull( url.getHost() );
-        Assert.assertEquals( "ldap:///", url.toString() );
+        assertNull( url.getHost() );
+        assertEquals( "ldap:///", url.toString() );
     }
 
 
     /**
      * test the setPort() method
      */
+    @Test
     public void testLdapDNSetPort() throws LdapURLEncodingException
     {
         LdapURL url = new LdapURL();
-        Assert.assertEquals( -1, url.getPort() );
+        assertEquals( -1, url.getPort() );
 
         url.setPort( 389 );
-        Assert.assertEquals( 389, url.getPort() );
-        Assert.assertEquals( "ldap://:389/", url.toString() );
+        assertEquals( 389, url.getPort() );
+        assertEquals( "ldap://:389/", url.toString() );
 
         url.setPort( 0 );
-        Assert.assertEquals( -1, url.getPort() );
-        Assert.assertEquals( "ldap:///", url.toString() );
+        assertEquals( -1, url.getPort() );
+        assertEquals( "ldap:///", url.toString() );
 
         url.setPort( 65536 );
-        Assert.assertEquals( -1, url.getPort() );
-        Assert.assertEquals( "ldap:///", url.toString() );
+        assertEquals( -1, url.getPort() );
+        assertEquals( "ldap:///", url.toString() );
     }
 
 
     /**
      * test the setDn() method
      */
+    @Test
     public void testLdapDNSetDn() throws LdapURLEncodingException, InvalidNameException
     {
         LdapURL url = new LdapURL();
-        Assert.assertNull( url.getDn() );
+        assertNull( url.getDn() );
 
         LdapDN dn = new LdapDN( "dc=example,dc=com" );
         url.setDn( dn );
-        Assert.assertEquals( dn, url.getDn() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+        assertEquals( dn, url.getDn() );
+        assertEquals( "ldap:///dc=example,dc=com", url.toString() );
 
         url.setDn( null );
-        Assert.assertNull( url.getDn() );
-        Assert.assertEquals( "ldap:///", url.toString() );
+        assertNull( url.getDn() );
+        assertEquals( "ldap:///", url.toString() );
     }
 
 
     /**
      * test the setAttributes() method
      */
+    @Test
     public void testLdapDNSetAttributes() throws LdapURLEncodingException, InvalidNameException
     {
         LdapURL url = new LdapURL();
-        Assert.assertNotNull( url.getAttributes() );
-        Assert.assertTrue( url.getAttributes().isEmpty() );
+        assertNotNull( url.getAttributes() );
+        assertTrue( url.getAttributes().isEmpty() );
 
         List<String> attributes = new ArrayList<String>();
         url.setDn( new LdapDN( "dc=example,dc=com" ) );
 
         url.setAttributes( null );
-        Assert.assertNotNull( url.getAttributes() );
-        Assert.assertTrue( url.getAttributes().isEmpty() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+        assertNotNull( url.getAttributes() );
+        assertTrue( url.getAttributes().isEmpty() );
+        assertEquals( "ldap:///dc=example,dc=com", url.toString() );
 
         attributes.add( "cn" );
         url.setAttributes( attributes );
-        Assert.assertNotNull( url.getAttributes() );
-        Assert.assertEquals( 1, url.getAttributes().size() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com?cn", url.toString() );
+        assertNotNull( url.getAttributes() );
+        assertEquals( 1, url.getAttributes().size() );
+        assertEquals( "ldap:///dc=example,dc=com?cn", url.toString() );
 
         attributes.add( "userPassword;binary" );
         url.setAttributes( attributes );
-        Assert.assertNotNull( url.getAttributes() );
-        Assert.assertEquals( 2, url.getAttributes().size() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com?cn,userPassword;binary", url.toString() );
+        assertNotNull( url.getAttributes() );
+        assertEquals( 2, url.getAttributes().size() );
+        assertEquals( "ldap:///dc=example,dc=com?cn,userPassword;binary", url.toString() );
     }
 
 
     /**
      * test the setScope() method
      */
+    @Test
     public void testLdapDNSetScope() throws LdapURLEncodingException, InvalidNameException
     {
         LdapURL url = new LdapURL();
-        Assert.assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
+        assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
 
         url.setDn( new LdapDN( "dc=example,dc=com" ) );
 
         url.setScope( SearchControls.ONELEVEL_SCOPE );
-        Assert.assertEquals( SearchControls.ONELEVEL_SCOPE, url.getScope() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com??one", url.toString() );
+        assertEquals( SearchControls.ONELEVEL_SCOPE, url.getScope() );
+        assertEquals( "ldap:///dc=example,dc=com??one", url.toString() );
 
         url.setScope( SearchControls.SUBTREE_SCOPE );
-        Assert.assertEquals( SearchControls.SUBTREE_SCOPE, url.getScope() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com??sub", url.toString() );
+        assertEquals( SearchControls.SUBTREE_SCOPE, url.getScope() );
+        assertEquals( "ldap:///dc=example,dc=com??sub", url.toString() );
 
         url.setScope( -1 );
-        Assert.assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+        assertEquals( SearchControls.OBJECT_SCOPE, url.getScope() );
+        assertEquals( "ldap:///dc=example,dc=com", url.toString() );
     }
 
 
     /**
      * test the setFilter() method
      */
+    @Test
     public void testLdapDNSetFilter() throws LdapURLEncodingException, InvalidNameException
     {
         LdapURL url = new LdapURL();
-        Assert.assertNull( url.getFilter() );
+        assertNull( url.getFilter() );
 
         url.setDn( new LdapDN( "dc=example,dc=com" ) );
 
         url.setFilter( "(objectClass=person)" );
-        Assert.assertEquals( "(objectClass=person)", url.getFilter() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com???(objectClass=person)", url.toString() );
+        assertEquals( "(objectClass=person)", url.getFilter() );
+        assertEquals( "ldap:///dc=example,dc=com???(objectClass=person)", url.toString() );
 
         url.setFilter( "(cn=Babs Jensen)" );
-        Assert.assertEquals( "(cn=Babs Jensen)", url.getFilter() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com???(cn=Babs%20Jensen)", url.toString() );
+        assertEquals( "(cn=Babs Jensen)", url.getFilter() );
+        assertEquals( "ldap:///dc=example,dc=com???(cn=Babs%20Jensen)", url.toString() );
 
         url.setFilter( null );
-        Assert.assertNull( url.getFilter() );
-        Assert.assertEquals( "ldap:///dc=example,dc=com", url.toString() );
+        assertNull( url.getFilter() );
+        assertEquals( "ldap:///dc=example,dc=com", url.toString() );
     }
 
 

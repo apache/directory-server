@@ -29,27 +29,27 @@ import javax.naming.InvalidNameException;
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
-import org.apache.directory.shared.ldap.codec.add.AddResponse;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.abandon.AbandonRequestCodec;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
+import org.apache.directory.shared.ldap.codec.add.AddResponseCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.compare.CompareRequest;
-import org.apache.directory.shared.ldap.codec.compare.CompareResponse;
+import org.apache.directory.shared.ldap.codec.compare.CompareRequestCodec;
+import org.apache.directory.shared.ldap.codec.compare.CompareResponseCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
-import org.apache.directory.shared.ldap.codec.del.DelRequest;
-import org.apache.directory.shared.ldap.codec.del.DelResponse;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedRequest;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
-import org.apache.directory.shared.ldap.codec.modify.ModifyResponse;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponse;
+import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
+import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponseCodec;
 import org.apache.directory.shared.ldap.codec.search.AndFilter;
 import org.apache.directory.shared.ldap.codec.search.AttributeValueAssertionFilter;
 import org.apache.directory.shared.ldap.codec.search.ConnectorFilter;
@@ -58,10 +58,10 @@ import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.NotFilter;
 import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
-import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
-import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
-import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
+import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultEntryCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.codec.search.controls.pSearch.PSearchControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlCodec;
@@ -96,19 +96,19 @@ import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
-import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnResponseImpl;
 import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.message.ModifyResponseImpl;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
-import org.apache.directory.shared.ldap.message.control.AbstractMutableControlImpl;
+import org.apache.directory.shared.ldap.message.control.InternalAbstractControl;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.message.control.PersistentSearchControl;
@@ -151,10 +151,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers AbandonRequestImpl
      */
-    public static Message transformAbandonRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformAbandonRequest( LdapMessageCodec twixMessage, int messageId )
     {
         AbandonRequestImpl snickersMessage = new AbandonRequestImpl( messageId );
-        AbandonRequest abandonRequest = twixMessage.getAbandonRequest();
+        AbandonRequestCodec abandonRequest = twixMessage.getAbandonRequest();
 
         // Twix : int abandonnedMessageId -> Snickers : int abandonId
         snickersMessage.setAbandoned( abandonRequest.getAbandonedMessageId() );
@@ -170,10 +170,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers AddRequestImpl
      */
-    public static Message transformAddRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformAddRequest( LdapMessageCodec twixMessage, int messageId )
     {
         AddRequestImpl snickersMessage = new AddRequestImpl( messageId );
-        AddRequest addRequest = twixMessage.getAddRequest();
+        AddRequestCodec addRequest = twixMessage.getAddRequest();
 
         // Twix : LdapDN entry -> Snickers : String name
         snickersMessage.setEntry( addRequest.getEntry() );
@@ -192,10 +192,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers BindRequestImpl
      */
-    public static Message transformBindRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformBindRequest( LdapMessageCodec twixMessage, int messageId )
     {
         BindRequestImpl snickersMessage = new BindRequestImpl( messageId );
-        BindRequest bindRequest = twixMessage.getBindRequest();
+        BindRequestCodec bindRequest = twixMessage.getBindRequest();
 
         // Twix : int version -> Snickers : boolean isVersion3
         snickersMessage.setVersion3( bindRequest.isLdapV3() );
@@ -235,10 +235,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return a Snickers BindResponseImpl
      */
-    public static Message transformBindResponse( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformBindResponse( LdapMessageCodec twixMessage, int messageId )
     {
         BindResponseImpl snickersMessage = new BindResponseImpl( messageId );
-        BindResponse bindResponse = twixMessage.getBindResponse();
+        BindResponseCodec bindResponse = twixMessage.getBindResponse();
 
         // Twix : byte[] serverSaslcreds -> Snickers : byte[] serverSaslCreds
         snickersMessage.setServerSaslCreds( bindResponse.getServerSaslCreds() );
@@ -255,8 +255,8 @@ public class TwixTransformer
      * @param twixResult the Twix LdapResult representation
      * @param snickersResult the Snickers LdapResult representation
      */
-    public static void transformLdapResultTwixToSnickers( LdapResult twixResult, 
-        org.apache.directory.shared.ldap.message.LdapResult snickersResult )
+    public static void transformLdapResultTwixToSnickers( LdapResultCodec twixResult, 
+        org.apache.directory.shared.ldap.message.InternalLdapResult snickersResult )
     {
         snickersResult.setErrorMessage( twixResult.getErrorMessage() );
         
@@ -299,10 +299,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers CompareRequestImpl
      */
-    public static Message transformCompareRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformCompareRequest( LdapMessageCodec twixMessage, int messageId )
     {
         CompareRequestImpl snickersMessage = new CompareRequestImpl( messageId );
-        CompareRequest compareRequest = twixMessage.getCompareRequest();
+        CompareRequestCodec compareRequest = twixMessage.getCompareRequest();
 
         // Twix : LdapDN entry -> Snickers : private LdapDN
         snickersMessage.setName( compareRequest.getEntry() );
@@ -331,10 +331,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers DeleteRequestImpl
      */
-    public static Message transformDelRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformDelRequest( LdapMessageCodec twixMessage, int messageId )
     {
         DeleteRequestImpl snickersMessage = new DeleteRequestImpl( messageId );
-        DelRequest delRequest = twixMessage.getDelRequest();
+        DelRequestCodec delRequest = twixMessage.getDelRequest();
 
         // Twix : LdapDN entry -> Snickers : LdapDN
         snickersMessage.setName( delRequest.getEntry() );
@@ -351,9 +351,9 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers ExtendedRequestImpl
      */
-    public static Message transformExtendedRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformExtendedRequest( LdapMessageCodec twixMessage, int messageId )
     {
-        ExtendedRequest extendedRequest = twixMessage.getExtendedRequest();
+        ExtendedRequestCodec extendedRequest = twixMessage.getExtendedRequest();
         ExtendedRequestImpl snickersMessage;
 
         if ( extendedRequest.getRequestName().equals( GracefulShutdownRequest.EXTENSION_OID ) )
@@ -383,10 +383,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers ModifyDNRequestImpl
      */
-    public static Message transformModifyDNRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformModifyDNRequest( LdapMessageCodec twixMessage, int messageId )
     {
         ModifyDnRequestImpl snickersMessage = new ModifyDnRequestImpl( messageId );
-        ModifyDNRequest modifyDNRequest = twixMessage.getModifyDNRequest();
+        ModifyDNRequestCodec modifyDNRequest = twixMessage.getModifyDNRequest();
 
         // Twix : LdapDN entry -> Snickers : LdapDN m_name
         snickersMessage.setName( modifyDNRequest.getEntry() );
@@ -411,10 +411,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers ModifyRequestImpl
      */
-    public static Message transformModifyRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformModifyRequest( LdapMessageCodec twixMessage, int messageId )
     {
         ModifyRequestImpl snickersMessage = new ModifyRequestImpl( messageId );
-        ModifyRequest modifyRequest = twixMessage.getModifyRequest();
+        ModifyRequestCodec modifyRequest = twixMessage.getModifyRequest();
 
         // Twix : LdapDN object -> Snickers : String name
         snickersMessage.setName( modifyRequest.getObject() );
@@ -752,10 +752,10 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers SearchRequestImpl
      */
-    public static Message transformSearchRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformSearchRequest( LdapMessageCodec twixMessage, int messageId )
     {
         SearchRequestImpl snickersMessage = new SearchRequestImpl( messageId );
-        SearchRequest searchRequest = twixMessage.getSearchRequest();
+        SearchRequestCodec searchRequest = twixMessage.getSearchRequest();
 
         // Twix : LdapDN baseObject -> Snickers : String baseDn
         snickersMessage.setBase( searchRequest.getBaseObject() );
@@ -826,7 +826,7 @@ public class TwixTransformer
      * @param messageId The message Id
      * @return A Snickers UnBindRequestImpl
      */
-    public static Message transformUnBindRequest( LdapMessage twixMessage, int messageId )
+    public static InternalMessage transformUnBindRequest( LdapMessageCodec twixMessage, int messageId )
     {
         return new UnbindRequestImpl( messageId );
     }
@@ -838,9 +838,9 @@ public class TwixTransformer
      * @param obj the object to transform
      * @return the object transformed
      */
-    public static Message transform( Object obj )
+    public static InternalMessage transform( Object obj )
     {
-        LdapMessage twixMessage = ( LdapMessage ) obj;
+        LdapMessageCodec twixMessage = ( LdapMessageCodec ) obj;
         int messageId = twixMessage.getMessageId();
 
         if ( IS_DEBUG )
@@ -849,7 +849,7 @@ public class TwixTransformer
                 + "> from Twix to Snickers." );
         }
 
-        Message snickersMessage = null;
+        InternalMessage snickersMessage = null;
 
         int messageType = twixMessage.getMessageType();
 
@@ -917,13 +917,13 @@ public class TwixTransformer
         }
 
         // Transform the controls, too
-        List<org.apache.directory.shared.ldap.codec.Control> twixControls = twixMessage.getControls();
+        List<org.apache.directory.shared.ldap.codec.ControlCodec> twixControls = twixMessage.getControls();
 
         if ( twixControls != null )
         {
-            for ( final Control twixControl:twixControls )
+            for ( final ControlCodec twixControl:twixControls )
             {
-                AbstractMutableControlImpl neutralControl = null;
+                InternalAbstractControl neutralControl = null;
 
                 if ( twixControl.getControlValue() instanceof 
                     org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec )
@@ -1041,7 +1041,7 @@ public class TwixTransformer
                 }
                 else if ( twixControl.getControlValue() instanceof byte[] )
                 {
-                    neutralControl = new AbstractMutableControlImpl()
+                    neutralControl = new InternalAbstractControl()
                     {
                         public byte[] getEncodedValue()
                         {
@@ -1058,7 +1058,7 @@ public class TwixTransformer
                 }
                 else if ( twixControl.getControlValue() == null )
                 {
-                    neutralControl = new AbstractMutableControlImpl()
+                    neutralControl = new InternalAbstractControl()
                     {
                         public byte[] getEncodedValue()
                         {
@@ -1089,9 +1089,9 @@ public class TwixTransformer
      * @param snickersLdapResult the Snickers LdapResult to transform
      * @return A Twix LdapResult
      */
-    public static LdapResult transformLdapResult( LdapResultImpl snickersLdapResult )
+    public static LdapResultCodec transformLdapResult( LdapResultImpl snickersLdapResult )
     {
-        LdapResult twixLdapResult = new LdapResult();
+        LdapResultCodec twixLdapResult = new LdapResultCodec();
 
         // Snickers : ResultCodeEnum resultCode -> Twix : int resultCode
         twixLdapResult.setResultCode( snickersLdapResult.getResultCode() );
@@ -1136,11 +1136,11 @@ public class TwixTransformer
      * @param twixMessage The Twix AddResponse to produce
      * @param snickersMessage The incoming Snickers AddResponse
      */
-    public static void transformAddResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformAddResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         AddResponseImpl snickersAddResponse = ( AddResponseImpl ) snickersMessage;
 
-        AddResponse addResponse = new AddResponse();
+        AddResponseCodec addResponse = new AddResponseCodec();
 
         // Transform the ldapResult
         addResponse.setLdapResult( transformLdapResult( ( LdapResultImpl ) snickersAddResponse.getLdapResult() ) );
@@ -1156,11 +1156,11 @@ public class TwixTransformer
      * @param twixMessage The Twix BindResponse to produce
      * @param snickersMessage The incoming Snickers BindResponse
      */
-    public static void transformBindResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformBindResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         BindResponseImpl snickersBindResponse = ( BindResponseImpl ) snickersMessage;
 
-        BindResponse bindResponse = new BindResponse();
+        BindResponseCodec bindResponse = new BindResponseCodec();
 
         // Snickers : byte [] serverSaslCreds -> Twix : OctetString
         // serverSaslCreds
@@ -1185,11 +1185,11 @@ public class TwixTransformer
      * @param twixMessage The Twix BindRequest to produce
      * @param snickersMessage The incoming Snickers BindRequest
      */
-    public static void transformBindRequest( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformBindRequest( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         BindRequestImpl snickersBindRequest = ( BindRequestImpl ) snickersMessage;
 
-        BindRequest bindRequest = new BindRequest();
+        BindRequestCodec bindRequest = new BindRequestCodec();
         
         if ( snickersBindRequest.isSimple() )
         {
@@ -1220,11 +1220,11 @@ public class TwixTransformer
      * @param twixMessage The Twix CompareResponse to produce
      * @param snickersMessage The incoming Snickers CompareResponse
      */
-    public static void transformCompareResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformCompareResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         CompareResponseImpl snickersCompareResponse = ( CompareResponseImpl ) snickersMessage;
 
-        CompareResponse compareResponse = new CompareResponse();
+        CompareResponseCodec compareResponse = new CompareResponseCodec();
 
         // Transform the ldapResult
         compareResponse
@@ -1241,11 +1241,11 @@ public class TwixTransformer
      * @param twixMessage The Twix DelResponse to produce
      * @param snickersMessage The incoming Snickers DelResponse
      */
-    public static void transformDelResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformDelResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         DeleteResponseImpl snickersDelResponse = ( DeleteResponseImpl ) snickersMessage;
 
-        DelResponse delResponse = new DelResponse();
+        DelResponseCodec delResponse = new DelResponseCodec();
 
         // Transform the ldapResult
         delResponse.setLdapResult( transformLdapResult( ( LdapResultImpl ) snickersDelResponse.getLdapResult() ) );
@@ -1261,10 +1261,10 @@ public class TwixTransformer
      * @param twixMessage The Twix ExtendedResponse to produce
      * @param snickersMessage The incoming Snickers ExtendedResponse
      */
-    public static void transformExtendedResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformExtendedResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         ExtendedResponseImpl snickersExtendedResponse = ( ExtendedResponseImpl ) snickersMessage;
-        ExtendedResponse extendedResponse = new ExtendedResponse();
+        ExtendedResponseCodec extendedResponse = new ExtendedResponseCodec();
 
         // Snickers : String oid -> Twix : OID responseName
         try
@@ -1295,11 +1295,11 @@ public class TwixTransformer
      * @param twixMessage The Twix ModifyResponse to produce
      * @param snickersMessage The incoming Snickers ModifyResponse
      */
-    public static void transformModifyResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformModifyResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         ModifyResponseImpl snickersModifyResponse = ( ModifyResponseImpl ) snickersMessage;
 
-        ModifyResponse modifyResponse = new ModifyResponse();
+        ModifyResponseCodec modifyResponse = new ModifyResponseCodec();
 
         // Transform the ldapResult
         modifyResponse.setLdapResult( transformLdapResult( ( LdapResultImpl ) snickersModifyResponse.getLdapResult() ) );
@@ -1315,11 +1315,11 @@ public class TwixTransformer
      * @param twixMessage The Twix ModifyDNResponse to produce
      * @param snickersMessage The incoming Snickers ModifyDNResponse
      */
-    public static void transformModifyDNResponse( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformModifyDNResponse( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         ModifyDnResponseImpl snickersModifyDNResponse = ( ModifyDnResponseImpl ) snickersMessage;
 
-        ModifyDNResponse modifyDNResponse = new ModifyDNResponse();
+        ModifyDNResponseCodec modifyDNResponse = new ModifyDNResponseCodec();
 
         // Transform the ldapResult
         modifyDNResponse.setLdapResult( transformLdapResult( ( LdapResultImpl ) snickersModifyDNResponse
@@ -1336,10 +1336,10 @@ public class TwixTransformer
      * @param twixMessage The Twix SearchResultDone to produce
      * @param snickersMessage The incoming Snickers SearchResponseDone
      */
-    public static void transformSearchResultDone( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformSearchResultDone( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         SearchResponseDoneImpl snickersSearchResponseDone = ( SearchResponseDoneImpl ) snickersMessage;
-        SearchResultDone searchResultDone = new SearchResultDone();
+        SearchResultDoneCodec searchResultDone = new SearchResultDoneCodec();
 
         // Transform the ldapResult
         searchResultDone.setLdapResult( transformLdapResult( ( LdapResultImpl ) snickersSearchResponseDone
@@ -1356,10 +1356,10 @@ public class TwixTransformer
      * @param twixMessage The Twix SearchResultEntry to produce
      * @param snickersMessage The incoming Snickers SearchResponseEntry
      */
-    public static void transformSearchResultEntry( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformSearchResultEntry( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         SearchResponseEntryImpl snickersSearchResultResponse = ( SearchResponseEntryImpl ) snickersMessage;
-        SearchResultEntry searchResultEntry = new SearchResultEntry();
+        SearchResultEntryCodec searchResultEntry = new SearchResultEntryCodec();
 
         // Snickers : LdapDN dn -> Twix : LdapDN objectName
         searchResultEntry.setObjectName( snickersSearchResultResponse.getObjectName() );
@@ -1380,14 +1380,14 @@ public class TwixTransformer
      * @param twixMessage The Twix SearchResultReference to produce
      * @param snickersMessage The incoming Snickers SearchResponseReference
      */
-    public static void transformSearchResultReference( LdapMessage twixMessage, Message snickersMessage )
+    public static void transformSearchResultReference( LdapMessageCodec twixMessage, InternalMessage snickersMessage )
     {
         SearchResponseReferenceImpl snickersSearchResponseReference = ( SearchResponseReferenceImpl ) snickersMessage;
-        SearchResultReference searchResultReference = new SearchResultReference();
+        SearchResultReferenceCodec searchResultReference = new SearchResultReferenceCodec();
 
         // Snickers : Referral m_referral -> Twix: ArrayList
         // searchResultReferences
-        Referral referrals = snickersSearchResponseReference.getReferral();
+        InternalReferral referrals = snickersSearchResponseReference.getReferral();
 
         // Loop on all referals
         if ( referrals != null )
@@ -1421,14 +1421,14 @@ public class TwixTransformer
      * @param msg the message to transform
      * @return the msg transformed
      */
-    public static Object transform( Message msg )
+    public static Object transform( InternalMessage msg )
     {
         if ( IS_DEBUG )
         {
             LOG.debug( "Transforming message type " + msg.getType() );
         }
 
-        LdapMessage twixMessage = new LdapMessage();
+        LdapMessageCodec twixMessage = new LdapMessageCodec();
 
         twixMessage.setMessageId( msg.getMessageId() );
 
@@ -1502,14 +1502,14 @@ public class TwixTransformer
      * @param twixMessage the Twix message
      * @param msg the Snickers message
      */
-    public static void transformControlsTwixToSnickers( LdapMessage twixMessage, Message msg )
+    public static void transformControlsTwixToSnickers( LdapMessageCodec twixMessage, InternalMessage msg )
     {
         if ( twixMessage.getControls() == null )
         {
             return;
         }
         
-        for ( Control control:twixMessage.getControls() )
+        for ( ControlCodec control:twixMessage.getControls() )
         {
             LOG.debug( "Not decoding response control: {}", control );
         }
@@ -1521,11 +1521,11 @@ public class TwixTransformer
      * @param twixMessage The Twix SearchResultReference to produce
      * @param msg The incoming Snickers SearchResponseReference
      */
-    public static void transformControls( LdapMessage twixMessage, Message msg )
+    public static void transformControls( LdapMessageCodec twixMessage, InternalMessage msg )
     {
         for ( javax.naming.ldap.Control control:msg.getControls().values() )
         {
-            org.apache.directory.shared.ldap.codec.Control twixControl = new org.apache.directory.shared.ldap.codec.Control();
+            org.apache.directory.shared.ldap.codec.ControlCodec twixControl = new org.apache.directory.shared.ldap.codec.ControlCodec();
             twixMessage.addControl( twixControl );
             twixControl.setCriticality( control.isCritical() );
             

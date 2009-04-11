@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.BooleanSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for BooleanSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BooleanSyntaxCheckerTest extends TestCase
+public class BooleanSyntaxCheckerTest
 {
     BooleanSyntaxChecker checker = new BooleanSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "f" ) );
@@ -55,6 +60,7 @@ public class BooleanSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongValue()
     {
         assertFalse( checker.isValidSyntax( "abc" ) );
@@ -62,6 +68,7 @@ public class BooleanSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testMixedCase()
     {
         assertTrue( checker.isValidSyntax( "fAlSe" ) );
@@ -71,6 +78,7 @@ public class BooleanSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testUpperCase()
     {
         assertTrue( checker.isValidSyntax( "FALSE" ) );

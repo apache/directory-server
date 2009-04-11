@@ -35,7 +35,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReferralImpl implements Referral
+public class ReferralImpl implements InternalReferral
 {
     static final long serialVersionUID = 2638820668325359096L;
 
@@ -100,9 +100,9 @@ public class ReferralImpl implements Referral
             return true;
         }
 
-        if ( obj instanceof Referral )
+        if ( obj instanceof InternalReferral )
         {
-            Collection<String> refs = ( ( Referral ) obj ).getLdapUrls();
+            Collection<String> refs = ( ( InternalReferral ) obj ).getLdapUrls();
 
             // if their sizes do not match they are not equal
             if ( refs.size() != urls.size() )

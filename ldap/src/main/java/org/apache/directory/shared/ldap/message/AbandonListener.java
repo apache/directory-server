@@ -34,5 +34,5 @@ public interface AbandonListener
      * @param req
      *            the request which is abandoned.
      */
-    void requestAbandoned( AbandonableRequest req );
+    void requestAbandoned( InternalAbandonableRequest req );
 }

@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.MatchingRuleDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,10 +35,11 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MatchingRuleDescriptionSyntaxCheckerTest extends TestCase
+public class MatchingRuleDescriptionSyntaxCheckerTest
 {
     private MatchingRuleDescriptionSyntaxChecker checker = new MatchingRuleDescriptionSyntaxChecker();
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( ( "( 2.5.13.5 SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )" ) ) );
@@ -50,6 +53,7 @@ public class MatchingRuleDescriptionSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testInvalid()
     {
         // null 

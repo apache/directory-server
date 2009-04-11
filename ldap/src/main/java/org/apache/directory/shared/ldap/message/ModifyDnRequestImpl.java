@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements ModifyDnRequest
+public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements InternalModifyDnRequest
 {
     static final long serialVersionUID = 1233507339633051696L;
 
@@ -45,7 +45,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
     /** PDU's <b>deleteOldRdn</b> flag */
     private boolean deleteOldRdn = false;
 
-    private ModifyDnResponse response;
+    private InternalModifyDnResponse response;
 
 
     // -----------------------------------------------------------------------
@@ -216,7 +216,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -247,7 +247,7 @@ public class ModifyDnRequestImpl extends AbstractAbandonableRequest implements M
             return false;
         }
 
-        ModifyDnRequest req = ( ModifyDnRequest ) obj;
+        InternalModifyDnRequest req = ( InternalModifyDnRequest ) obj;
 
         if ( name != null && req.getName() == null )
         {

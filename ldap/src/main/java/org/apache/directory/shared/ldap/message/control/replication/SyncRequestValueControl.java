@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.message.control.replication;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncRequestValue.SyncRequestValueControlCodec;
-import org.apache.directory.shared.ldap.message.control.AbstractMutableControlImpl;
+import org.apache.directory.shared.ldap.message.control.InternalAbstractControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev: $
  *
  */
-public class SyncRequestValueControl extends AbstractMutableControlImpl
+public class SyncRequestValueControl extends InternalAbstractControl
 {
     /** As this class is serializable, defined its serialVersionUID */ 
     private static final long serialVersionUID = 1L;

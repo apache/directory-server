@@ -28,9 +28,9 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.ControlDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
@@ -100,10 +100,10 @@ public class ControlValueAction extends GrammarAction
     {
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
         TLV tlv = ldapMessageContainer.getCurrentTLV();
-        LdapMessage message = ldapMessageContainer.getLdapMessage();
+        LdapMessageCodec message = ldapMessageContainer.getLdapMessage();
 
         // Get the current control
-        Control control = message.getCurrentControl();
+        ControlCodec control = message.getCurrentControl();
         Value value = tlv.getValue();
 
         ControlDecoder decoder = controlDecoders.get( control.getControlType() );

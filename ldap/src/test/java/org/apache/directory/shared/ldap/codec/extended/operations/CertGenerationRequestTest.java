@@ -31,6 +31,8 @@ import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationObject;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 

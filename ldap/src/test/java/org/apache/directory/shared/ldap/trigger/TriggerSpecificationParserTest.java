@@ -25,8 +25,11 @@ import java.util.List;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
+import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
 
 
 /**
@@ -35,7 +38,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$, $Date:$
  */
-public class TriggerSpecificationParserTest extends TestCase
+public class TriggerSpecificationParserTest
 {
 
     /** The Trigger Specification parser */
@@ -57,10 +60,10 @@ public class TriggerSpecificationParserTest extends TestCase
      */
     public TriggerSpecificationParserTest( String s )
     {
-        super( s );
         parser = new TriggerSpecificationParser();
     }
 
+    @Test
     public void testWithOperationParameters() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
@@ -85,6 +88,7 @@ public class TriggerSpecificationParserTest extends TestCase
             StoredProcedureParameter.Delete_DELETED_ENTRY.instance() ) );
     }
     
+    @Test
     public void testWithGenericParameters() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
@@ -111,6 +115,7 @@ public class TriggerSpecificationParserTest extends TestCase
             StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.instance() ) );
     }
     
+    @Test
     public void testWithLanguageSchemeOption() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
@@ -133,6 +138,7 @@ public class TriggerSpecificationParserTest extends TestCase
         assertEquals( theSpec.getParameters().size(),  0 );
     }
     
+    @Test
     public void testWithSearchContextOption() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
@@ -162,6 +168,7 @@ public class TriggerSpecificationParserTest extends TestCase
             StoredProcedureParameter.ModifyDN_NEW_RDN.instance() ) );
     }
     
+    @Test
     public void testWithLdapContextParameter() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;
@@ -188,6 +195,7 @@ public class TriggerSpecificationParserTest extends TestCase
             StoredProcedureParameter.Generic_LDAP_CONTEXT.instance( new LdapDN( "ou=Backup,ou=System" ) ) ) );
     }
     
+    @Test
     public void testMultipleSPCalls() throws Exception
     {        
         TriggerSpecification triggerSpecification = null;

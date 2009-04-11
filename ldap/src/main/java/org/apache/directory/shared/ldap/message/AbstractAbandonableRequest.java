@@ -31,7 +31,7 @@ import java.util.Observer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractAbandonableRequest extends AbstractRequest implements AbandonableRequest
+public class AbstractAbandonableRequest extends InternalAbstractRequest implements InternalAbandonableRequest
 {
     static final long serialVersionUID = -4511116249089399040L;
 

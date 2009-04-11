@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.NameFormDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,10 +35,11 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameFormDescriptionSyntaxCheckerTest extends TestCase
+public class NameFormDescriptionSyntaxCheckerTest
 {
     private NameFormDescriptionSyntaxChecker checker = new NameFormDescriptionSyntaxChecker();
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2.5.15.3 OC o MUST m )" ) );
@@ -52,6 +55,7 @@ public class NameFormDescriptionSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "(   2.5.15.3   NAME   'orgNameForm'    DESC    'orgNameForm'   OC   organization   MUST   (o)   MAY   (ou$cn))" ) );
     }
 
+    @Test
     public void testInvalid()
     {
         // null 

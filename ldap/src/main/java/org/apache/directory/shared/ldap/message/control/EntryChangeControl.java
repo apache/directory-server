@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EntryChangeControl extends AbstractMutableControlImpl
+public class EntryChangeControl extends InternalAbstractControl
 {
     private static final long serialVersionUID = -2356861450876343999L;
 

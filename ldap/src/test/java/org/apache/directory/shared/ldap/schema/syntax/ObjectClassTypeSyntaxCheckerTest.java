@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectClassTypeSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for ObjectClassTypeSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjectClassTypeSyntaxCheckerTest extends TestCase
+public class ObjectClassTypeSyntaxCheckerTest
 {
     ObjectClassTypeSyntaxChecker checker = new ObjectClassTypeSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
@@ -55,6 +60,7 @@ public class ObjectClassTypeSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "auxiliary" ) );
@@ -63,6 +69,7 @@ public class ObjectClassTypeSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "AUXILIARY" ) );

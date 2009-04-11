@@ -22,10 +22,14 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.NoSuchElementException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.message.ArrayNamingEnumeration;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -34,11 +38,12 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ArrayNamingEnumerationTest extends TestCase
+public class ArrayNamingEnumerationTest
 {
     /**
      * Tests ArrayNamingEnumeration using an null array.
      */
+    @Test
     public void testUsingNullArray()
     {
         ArrayNamingEnumeration<Object> list = new ArrayNamingEnumeration<Object>( null );
@@ -59,6 +64,7 @@ public class ArrayNamingEnumerationTest extends TestCase
     /**
      * Tests ArrayNamingEnumeration using an array with length = 0.
      */
+    @Test
     public void testUsingEmptyArray()
     {
         ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( ArrayUtils.EMPTY_STRING_ARRAY );
@@ -79,6 +85,7 @@ public class ArrayNamingEnumerationTest extends TestCase
     /**
      * Tests ArrayNamingEnumeration using an array with length = 1.
      */
+    @Test
     public void testUsingSingleElementArray()
     {
         ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( new String[]
@@ -101,6 +108,7 @@ public class ArrayNamingEnumerationTest extends TestCase
     /**
      * Tests ArrayNamingEnumeration using an array with length = 2.
      */
+    @Test
     public void testUsingTwoElementArray()
     {
         ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( new String[]

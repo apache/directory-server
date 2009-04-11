@@ -21,7 +21,10 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.SubtreeSpecificationSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for SubtreeSpecificationSyntaxChecker.
@@ -29,27 +32,31 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
+public class SubtreeSpecificationSyntaxCheckerTest
 {
     SubtreeSpecificationSyntaxChecker checker = new SubtreeSpecificationSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
+    @Test
     public void testOid()
     {
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.45", checker.getSyntaxOid() );
     }
 
+    @Test
     public void testCorrectCase()
     {
     }
@@ -107,6 +114,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid empty specification.
      */
+    @Test
     public void testEmptySpec() throws Exception
     {
         assertTrue( checker.isValidSyntax( EMPTY_SPEC ) );
@@ -122,6 +130,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid specification with base set.
      */
+    @Test
     public void testSpecWithBase() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_BASE ) );
@@ -132,6 +141,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with an invalid specification with missing white spaces
      * and base set.
      */
+    @Test
     public void testInvalidSpecWithBaseAndMissingWS() throws Exception
     {
         assertFalse( checker.isValidSyntax( INVALID_SPEC_WITH_BASE_AND_MISSING_WS ) );
@@ -142,6 +152,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with some specific exclusions
      * set.
      */
+    @Test
     public void testSpecWithSpecificExclusions() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_SPECIFICEXCLUSIONS ) );
@@ -152,6 +163,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with an empty specific
      * exclusions set.
      */
+    @Test
     public void testSpecWithEmptySpecificExclusions() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_EMPTY_SPECIFICEXCLUSIONS ) );
@@ -161,6 +173,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid specification with minimum and maximum set.
      */
+    @Test
     public void testSpecWithMinimumAndMaximum() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_MINIMUM_AND_MAXIMUM ) );
@@ -171,6 +184,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with base and minimum and
      * maximum set.
      */
+    @Test
     public void testWithBaseAndMinimumAndMaximum() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_BASE_AND_MINIMUM_AND_MAXIMUM ) );
@@ -181,6 +195,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with base and specific
      * exclusions and minimum and maximum set.
      */
+    @Test
     public void testSpecWithBaseAndSpecificExclusionsAndMinimumAndMaximum() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_BASE_AND_SPECIFICEXCLUSIONS_AND_MINIMUM_AND_MAXIMUM ) );
@@ -190,6 +205,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid specification with refinement set.
      */
+    @Test
     public void testSpecWithRefinement() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_REFINEMENT ) );
@@ -200,6 +216,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with base and empty
      * refinement set.
      */
+    @Test
     public void testSpecWithBaseAndEmptyRefinement() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_BASE_AND_EMPTY_REFINEMENT ) );
@@ -209,6 +226,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid specification with all components set.
      */
+    @Test
     public void testSpecWithAllInOne() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_ALL_IN_ONE ) );
@@ -220,6 +238,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with unordinary component
      * order.
      */
+    @Test
     public void testSpecOrderOfComponentsDoesNotMatter() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_ORDER_OF_COMPONENTS_DOES_NOT_MATTER ) );
@@ -229,6 +248,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
      * Tests the parser with a valid specification with unordinary component
      * order.
      */
+    @Test
     public void testBadAssertion() throws Exception
     {
         assertFalse( checker.isValidSyntax( INVALID_SILLY_THING ) );
@@ -238,6 +258,7 @@ public class SubtreeSpecificationSyntaxCheckerTest extends TestCase
     /**
      * Tests the parser with a valid specification with refinement set.
      */
+    @Test
     public void testSpecWithFilter() throws Exception
     {
         assertTrue( checker.isValidSyntax( SPEC_WITH_FILTER ) );

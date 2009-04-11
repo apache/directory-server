@@ -21,8 +21,10 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import org.apache.directory.shared.ldap.schema.syntaxes.UtcTimeSyntaxChecker;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
 
 /**
  * Test cases for UtcTimeSyntaxChecker.
@@ -30,23 +32,25 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UtcTimeSyntaxCheckerTest extends TestCase
+public class UtcTimeSyntaxCheckerTest
 {
     UtcTimeSyntaxChecker checker = new UtcTimeSyntaxChecker();
 
-
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
@@ -55,6 +59,7 @@ public class UtcTimeSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "B" ) );
     }
     
+    @Test
     public void testErrorCase()
     {
         assertFalse( checker.isValidSyntax( "060005184527Z" ) );
@@ -74,6 +79,7 @@ public class UtcTimeSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "061205184527Z" ) );

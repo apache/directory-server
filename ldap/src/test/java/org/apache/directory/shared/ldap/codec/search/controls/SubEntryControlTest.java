@@ -28,9 +28,10 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlDecoder;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -38,11 +39,12 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubEntryControlTest extends TestCase
+public class SubEntryControlTest
 {
     /**
      * Test the decoding of a SubEntryControl with a true visibility
      */
+    @Test
     public void testDecodeSubEntryVisibilityTrue()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
@@ -60,7 +62,7 @@ public class SubEntryControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         SubEntryControlCodec control = container.getSubEntryControl();
@@ -71,6 +73,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a SubEntryControl with a false visibility
      */
+    @Test
     public void testDecodeSubEntryVisibilityFalse()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
@@ -88,7 +91,7 @@ public class SubEntryControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         SubEntryControlCodec control = container.getSubEntryControl();
@@ -99,6 +102,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a SubEntryControl with an empty visibility
      */
+    @Test
     public void testDecodeSubEntryEmptyVisibility()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
@@ -129,6 +133,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a bad SubEntryControl
      */
+    @Test
     public void testDecodeSubEntryBad()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();

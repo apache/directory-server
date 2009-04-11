@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.PrintableStringSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for PrintableStringSyntaxChecker.
@@ -29,17 +31,19 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PrintableStringSyntaxCheckerTest extends TestCase
+public class PrintableStringSyntaxCheckerTest
 {
     PrintableStringSyntaxChecker checker = new PrintableStringSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
@@ -53,6 +57,7 @@ public class PrintableStringSyntaxCheckerTest extends TestCase
      * printable chars.
      *
      */
+    @Test
     public void testWrongStrings()
     {
         for ( int i = 0; i < 0x1F; i++ )
@@ -83,6 +88,7 @@ public class PrintableStringSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "0123456789" ) );

@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.NameAndOptionalUIDSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for NameAndOptionalUIDSyntaxChecker.
@@ -30,23 +32,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
+public class NameAndOptionalUIDSyntaxCheckerTest
 {
     NameAndOptionalUIDSyntaxChecker checker = new NameAndOptionalUIDSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
@@ -56,6 +61,7 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongDN()
     {
         assertFalse( checker.isValidSyntax( "a=b," ) );
@@ -64,6 +70,7 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "a=b,c=d," ) );
     }
     
+    @Test
     public void testWrongUID()
     {
         assertFalse( checker.isValidSyntax( "#'0101'B" ) );
@@ -73,6 +80,7 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectDN()
     {
         assertTrue( checker.isValidSyntax( "a=b" ) );
@@ -82,6 +90,7 @@ public class NameAndOptionalUIDSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "a=b\\,c = d, e=f" ) );
     }
 
+    @Test
     public void testCorrectDNAndUID()
     {
         assertTrue( checker.isValidSyntax( "a=b#'1010'B" ) );

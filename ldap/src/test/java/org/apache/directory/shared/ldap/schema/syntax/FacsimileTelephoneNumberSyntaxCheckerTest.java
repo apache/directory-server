@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.FacsimileTelephoneNumberSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for FacsimileTelephoneNumberSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
+public class FacsimileTelephoneNumberSyntaxCheckerTest
 {
     FacsimileTelephoneNumberSyntaxChecker checker = new FacsimileTelephoneNumberSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "A" ) );
@@ -53,6 +58,7 @@ public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "123 456 f" ) );
@@ -61,6 +67,7 @@ public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectTelephoneNumber()
     {
         assertTrue( checker.isValidSyntax( "1" ) );
@@ -70,6 +77,7 @@ public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( " 12 34 56 78 90 " ) );
     }
     
+    @Test
     public void testWithNewMandatoryRegexp()
     {
         // Adding french telephone number regexp
@@ -83,6 +91,7 @@ public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( " 01 / 02 .03 04--  05 " ) );
     }
 
+    @Test
     public void testCorrectTelephoneNumberAndFaxParam()
     {
         assertTrue( checker.isValidSyntax( "+ 33 1 (456) 7891   12345$twoDimensional" ) );
@@ -95,11 +104,13 @@ public class FacsimileTelephoneNumberSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( "+ 33 1 (456) 7891   12345$uncompressed" ) );
     }
     
+    @Test
     public void testCorrectTelephoneNumberAndFaxParams()
     {
         assertTrue( checker.isValidSyntax( "+ 33 1 (456) 7891   12345$twoDimensional$fineResolution$a3Width" ) );
     }
 
+    @Test
     public void testCorrectTelephoneNumberBadFaxParams()
     {
         assertFalse( checker.isValidSyntax( "+ 33 1 (456) 7891   12345$" ) );

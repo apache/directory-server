@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.TeletexTerminalIdentifierSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for TeletexTerminalIdentifierSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class TeletexTerminalIdentifierSyntaxCheckerTest extends TestCase
+public class TeletexTerminalIdentifierSyntaxCheckerTest
 {
     TeletexTerminalIdentifierSyntaxChecker checker = new TeletexTerminalIdentifierSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testWrongCase() throws Exception
     {
         assertFalse( checker.isValidSyntax( "test$" ) );
@@ -63,6 +68,7 @@ public class TeletexTerminalIdentifierSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase() throws Exception
     {
         assertTrue( checker.isValidSyntax( "test" ) );

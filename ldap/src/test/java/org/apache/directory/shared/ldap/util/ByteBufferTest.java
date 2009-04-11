@@ -20,7 +20,8 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -29,8 +30,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ByteBufferTest extends TestCase
+public class ByteBufferTest
 {
+    @Test
     public void testByteBufferGrowth()
     {
         ByteBuffer buf = new ByteBuffer();

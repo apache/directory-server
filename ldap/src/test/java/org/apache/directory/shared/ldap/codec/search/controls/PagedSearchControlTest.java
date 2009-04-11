@@ -30,9 +30,10 @@ import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedS
 import org.apache.directory.shared.ldap.codec.search.controls.pagedSearch.PagedSearchControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -40,7 +41,7 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PagedSearchControlTest extends TestCase
+public class PagedSearchControlTest
 {
     /**
      * Test encoding of a PagedSearchControl.
@@ -67,7 +68,7 @@ public class PagedSearchControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         PagedSearchControlCodec pagedSearch = container.getPagedSearchControl();
@@ -198,7 +199,7 @@ public class PagedSearchControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         PagedSearchControlCodec pagedSearch = container.getPagedSearchControl();
@@ -274,7 +275,7 @@ public class PagedSearchControlTest extends TestCase
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            Assert.fail( de.getMessage() );
+            fail( de.getMessage() );
         }
 
         PagedSearchControlCodec pagedSearch = container.getPagedSearchControl();

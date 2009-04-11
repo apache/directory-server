@@ -25,7 +25,7 @@ package org.apache.directory.shared.ldap.message;
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  */
-public class UnbindRequestImpl extends AbstractRequest implements UnbindRequest
+public class UnbindRequestImpl extends InternalAbstractRequest implements InternalUnbindRequest
 {
     static final long serialVersionUID = -6217184085100410116L;
 

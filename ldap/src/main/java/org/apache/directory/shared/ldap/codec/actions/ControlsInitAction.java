@@ -24,7 +24,7 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class ControlsInitAction extends GrammarAction
     {
 
         LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-        LdapMessage message = ldapMessageContainer.getLdapMessage();
+        LdapMessageCodec message = ldapMessageContainer.getLdapMessage();
 
         TLV tlv = ldapMessageContainer.getCurrentTLV();
         int expectedLength = tlv.getLength();

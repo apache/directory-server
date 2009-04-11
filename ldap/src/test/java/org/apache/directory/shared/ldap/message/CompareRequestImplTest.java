@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,12 +28,15 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -44,13 +45,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareRequestImplTest extends TestCase
+public class CompareRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         CompareRequestImpl req = new CompareRequestImpl( 5 );
@@ -61,6 +63,7 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
@@ -81,6 +84,7 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 7 );
@@ -97,6 +101,7 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the attributeIds are different.
      */
+    @Test
     public void testNotEqualDiffAttributeIds() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
@@ -117,6 +122,7 @@ public class CompareRequestImplTest extends TestCase
     /**
      * Test for inequality when only the Assertion values are different.
      */
+    @Test
     public void testNotEqualDiffValue() throws InvalidNameException
     {
         CompareRequestImpl req0 = new CompareRequestImpl( 5 );
@@ -138,9 +144,10 @@ public class CompareRequestImplTest extends TestCase
      * Tests for equality even when another CompareRequest implementation is
      * used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        CompareRequest req0 = new CompareRequest()
+        InternalCompareRequest req0 = new InternalCompareRequest()
         {
             public Value<?> getAssertionValue()
             {
@@ -251,7 +258,7 @@ public class CompareRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }

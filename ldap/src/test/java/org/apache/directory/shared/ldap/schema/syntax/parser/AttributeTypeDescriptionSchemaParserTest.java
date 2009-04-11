@@ -22,13 +22,19 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.parser.ConsoleParserMonitor;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -36,20 +42,22 @@ import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionS
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AttributeTypeDescriptionSchemaParserTest extends TestCase
+public class AttributeTypeDescriptionSchemaParserTest
 {
     /** the parser instance */
     private AttributeTypeDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new AttributeTypeDescriptionSchemaParser();
         parser.setParserMonitor( new ConsoleParserMonitor() );
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
@@ -60,6 +68,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "SYNTAX 1.1" );
@@ -71,6 +80,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "SYNTAX 1.1" );
@@ -82,6 +92,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "SYNTAX 1.1" );
@@ -93,6 +104,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testObsolete() throws ParseException
     {
         SchemaParserTestUtils.testObsolete( parser, "1.1", "SYNTAX 1.1" );
@@ -104,6 +116,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSuperType() throws ParseException
     {
         String value = null;
@@ -188,6 +201,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testEquality() throws ParseException
     {
         String value = null;
@@ -231,6 +245,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testOrdering() throws ParseException
     {
         String value = null;
@@ -274,6 +289,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSubstring() throws ParseException
     {
         String value = null;
@@ -318,6 +334,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSyntax() throws ParseException
     {
         String value = null;
@@ -445,6 +462,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testSingleValue() throws ParseException
     {
         String value = null;
@@ -484,6 +502,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testCollective() throws ParseException
     {
         String value = null;
@@ -523,6 +542,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNoUserModification() throws ParseException
     {
         String value = null;
@@ -562,6 +582,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUsage() throws ParseException
     {
         String value = null;
@@ -616,6 +637,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "SYNTAX 1.1" );
@@ -627,6 +649,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -670,6 +693,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -690,6 +714,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testRequiredElements() throws ParseException
     {
         String value = null;
@@ -732,6 +757,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testCollecitveConstraint() throws ParseException
     {
         String value = null;
@@ -791,6 +817,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNoUserModificatonConstraint() throws ParseException
     {
         String value = null;
@@ -843,6 +870,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testIgnoreElementOrder() throws ParseException
     {
         String value = "( 2.5.4.3 SUP name SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE userApplications DESC 'RFC2256: common name(s) for which the entity is known by'  EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch NAME ( 'cn' 'commonName' )  )";
@@ -866,6 +894,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     //         Some real-world attribute type definitions         //
     ////////////////////////////////////////////////////////////////
 
+    @Test
     public void testRfcUid() throws ParseException
     {
         String value = "( 0.9.2342.19200300.100.1.1 NAME ( 'uid' 'userid' ) DESC 'RFC1274: user identifier' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} USAGE userApplications )";
@@ -897,6 +926,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType
      */
+    @Test
     public void testAddAttributeType() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
@@ -914,6 +944,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
+    @Test
     public void testAttributeTypeWithSchemaExtension() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
@@ -932,6 +963,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -947,6 +979,7 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "SYNTAX 1.1" );
@@ -986,8 +1019,8 @@ public class AttributeTypeDescriptionSchemaParserTest extends TestCase
             // NAME with special chars
             value = "( 1.2.3 SYNTAX te_st NAME 't-e_s.t;' )";
             atd = parser.parseAttributeTypeDescription( value );
-            Assert.assertEquals( 1, atd.getNames().size() );
-            Assert.assertEquals( "t-e_s.t;", atd.getNames().get( 0 ) );
+            assertEquals( 1, atd.getNames().size() );
+            assertEquals( "t-e_s.t;", atd.getNames().get( 0 ) );
 
             // SYNTAX with underscore
             value = "( 1.1 SYNTAX te_st )";

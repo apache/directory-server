@@ -22,10 +22,17 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -33,48 +40,55 @@ import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSc
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MatchingRuleDescriptionSchemaParserTest extends TestCase
+public class MatchingRuleDescriptionSchemaParserTest
 {
     /** the parser instance */
     private MatchingRuleDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new MatchingRuleDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
 
 
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "SYNTAX 1.1" );
     }
 
 
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
+    @Test
     public void testObsolete() throws ParseException
     {
         SchemaParserTestUtils.testObsolete( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
+    @Test
     public void testSyntax() throws ParseException
     {
         String value = null;
@@ -141,12 +155,14 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "SYNTAX 1.1" );
     }
 
 
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -179,6 +195,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -194,6 +211,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testRequiredElements() throws ParseException
     {
         String value = null;
@@ -223,6 +241,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     //         Some real-world matching rule descriptons          //
     ////////////////////////////////////////////////////////////////
 
+    @Test
     public void testRfc1() throws ParseException
     {
         String value = "( 2.5.13.5 NAME 'caseExactMatch' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )";
@@ -238,6 +257,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSun1() throws ParseException
     {
         String value = "( 2.5.13.5 NAME 'caseExactMatch' DESC 'Case Exact Matching on Directory String [defined in X.520]' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )";
@@ -257,6 +277,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
      * This is a real matching rule from Sun Directory 5.2. It has an invalid 
      * syntax, no DOTs allowed in NAME value. 
      */
+    @Test
     public void testSun2() throws ParseException
     {
         String value = "( 1.3.6.1.4.1.42.2.27.9.4.34.3.6 NAME 'caseExactSubstringMatch-2.16.840.1.113730.3.3.2.11.3' DESC 'en' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )";
@@ -289,6 +310,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -304,6 +326,7 @@ public class MatchingRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "SYNTAX 1.1" );

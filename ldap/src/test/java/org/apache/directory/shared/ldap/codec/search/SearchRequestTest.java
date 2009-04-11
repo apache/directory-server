@@ -33,10 +33,10 @@ import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.AttributeValueAssertion;
-import org.apache.directory.shared.ldap.codec.Control;
+import org.apache.directory.shared.ldap.codec.ControlCodec;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.search.AndFilter;
@@ -44,9 +44,9 @@ import org.apache.directory.shared.ldap.codec.search.AttributeValueAssertionFilt
 import org.apache.directory.shared.ldap.codec.search.NotFilter;
 import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
-import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryControlCodec;
-import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.InternalMessage;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -166,8 +166,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -331,8 +331,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -506,8 +506,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -647,8 +647,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
@@ -748,8 +748,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
@@ -831,8 +831,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
@@ -941,8 +941,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 33, message.getMessageId() );
         assertEquals( "dc=example,dc=com", sr.getBaseObject().toString() );
@@ -1077,22 +1077,22 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
         assertEquals( 2, message.getControls().size() );
 
         // this is a constant in Java 5 API
         String pagedResultsControlOID = "1.2.840.113556.1.4.319";
-        Control pagedResultsControl = message.getControls( 0 );
+        ControlCodec pagedResultsControl = message.getControls( 0 );
         assertEquals( pagedResultsControlOID, pagedResultsControl.getControlType() );
         assertTrue( pagedResultsControl.getCriticality() );
 
         // this is a constant in Java 5 API
         String manageReferralControlOID = "2.16.840.1.113730.3.4.2";
-        Control manageReferralControl = message.getControls( 1 );
+        ControlCodec manageReferralControl = message.getControls( 1 );
         assertEquals( manageReferralControlOID, manageReferralControl.getControlType() );
 
-        SearchRequest sr = message.getSearchRequest();
+        SearchRequestCodec sr = message.getSearchRequest();
         assertEquals( "dc=my-domain,dc=com", sr.getBaseObject().toString() );
         assertEquals( SearchScope.SUBTREE, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
@@ -1213,8 +1213,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -1336,18 +1336,18 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         assertEquals( 4, message.getMessageId() );
         assertEquals( 1, message.getControls().size() );
 
         // SubEntry Control
         String subEntryControlOID = "1.3.6.1.4.1.4203.1.10.1";
-        Control subEntryControl = message.getControls( 0 );
+        ControlCodec subEntryControl = message.getControls( 0 );
         assertEquals( subEntryControlOID, subEntryControl.getControlType() );
         assertTrue( subEntryControl.getCriticality() );
         assertTrue( ( ( SubEntryControlCodec ) subEntryControl.getControlValue() ).isVisible() );
 
-        SearchRequest sr = message.getSearchRequest();
+        SearchRequestCodec sr = message.getSearchRequest();
         assertEquals( "dc=my-domain,dc=com", sr.getBaseObject().toString() );
         assertEquals( SearchScope.SUBTREE, sr.getScope() );
         assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
@@ -1524,8 +1524,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "", sr.getBaseObject().toString() );
@@ -1681,7 +1681,7 @@ public class SearchRequestTest
         catch ( DecoderException de )
         {
             assertTrue( de instanceof ResponseCarryingException );
-            Message response = ((ResponseCarryingException)de).getResponse();
+            InternalMessage response = ((ResponseCarryingException)de).getResponse();
             assertTrue( response instanceof SearchResponseDoneImpl );
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((SearchResponseDoneImpl)response).getLdapResult().getResultCode() );
             return;
@@ -2532,8 +2532,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 4, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -2615,8 +2615,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 4, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -2710,8 +2710,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 4, message.getMessageId() );
         assertEquals( "uid=akarasulu,dc=example,dc=com", sr.getBaseObject().toString() );
@@ -2960,8 +2960,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 2, message.getMessageId() );
         assertEquals( "dc=pgpkeys", sr.getBaseObject().toString() );
@@ -3072,8 +3072,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3174,8 +3174,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3288,8 +3288,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3406,8 +3406,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3527,8 +3527,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3657,8 +3657,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3792,8 +3792,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -3939,8 +3939,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -4081,8 +4081,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -4223,8 +4223,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -4372,8 +4372,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "a=b", sr.getBaseObject().toString() );
@@ -4487,8 +4487,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( "", sr.getBaseObject().toString() );
@@ -4560,8 +4560,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 3, message.getMessageId() );
         assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
@@ -4669,8 +4669,8 @@ public class SearchRequestTest
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        SearchRequest sr = message.getSearchRequest();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequestCodec sr = message.getSearchRequest();
 
         assertEquals( 6, message.getMessageId() );
         assertEquals( "ou=system", sr.getBaseObject().toString() );

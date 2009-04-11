@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.DNSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for DNSyntaxChecker.
@@ -30,23 +32,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DNSyntaxCheckerTest extends TestCase
+public class DNSyntaxCheckerTest
 {
     DNSyntaxChecker checker = new DNSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertTrue( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
@@ -56,6 +61,7 @@ public class DNSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongDN()
     {
         assertFalse( checker.isValidSyntax( "a=b," ) );
@@ -65,6 +71,7 @@ public class DNSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectDN()
     {
         assertTrue( checker.isValidSyntax( "a=b" ) );

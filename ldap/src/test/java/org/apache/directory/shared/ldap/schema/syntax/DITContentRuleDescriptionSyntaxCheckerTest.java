@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.DITContentRuleDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,11 +35,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DITContentRuleDescriptionSyntaxCheckerTest extends TestCase
+public class DITContentRuleDescriptionSyntaxCheckerTest
 {
     private DITContentRuleDescriptionSyntaxChecker checker = new DITContentRuleDescriptionSyntaxChecker();
 
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2.5.6.4 )" ) );
@@ -65,6 +68,7 @@ public class DITContentRuleDescriptionSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testInvalid()
     {
         // null 

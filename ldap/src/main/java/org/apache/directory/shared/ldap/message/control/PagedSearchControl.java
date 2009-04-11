@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 678621 $
  */
-public class PagedSearchControl extends AbstractMutableControlImpl
+public class PagedSearchControl extends InternalAbstractControl
 {
     private static final long serialVersionUID = -2356861450876343999L;
 

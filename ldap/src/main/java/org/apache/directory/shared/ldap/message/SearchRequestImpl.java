@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchRequestImpl extends AbstractAbandonableRequest implements SearchRequest
+public class SearchRequestImpl extends AbstractAbandonableRequest implements InternalSearchRequest
 {
     static final long serialVersionUID = -5655881944020886218L;
 
@@ -67,7 +67,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
     private List<String> attributes = new ArrayList<String>();
 
     /** The final result containing SearchResponseDone response */
-    private SearchResponseDone response;
+    private InternalSearchResponseDone response;
 
 
     // ------------------------------------------------------------------------
@@ -338,7 +338,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the result containing response for this request
      */
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {
@@ -374,7 +374,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
             return false;
         }
 
-        SearchRequest req = ( SearchRequest ) obj;
+        InternalSearchRequest req = ( InternalSearchRequest ) obj;
 
         if ( !req.getBase().equals( baseDn ) )
         {

@@ -22,10 +22,15 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,19 +38,21 @@ import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DITContentRuleDescriptionSchemaParserTest extends TestCase
+public class DITContentRuleDescriptionSchemaParserTest
 {
     /** the parser instance */
     private DITContentRuleDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new DITContentRuleDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
@@ -56,6 +63,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "" );
@@ -67,6 +75,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "" );
@@ -78,6 +87,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "" );
@@ -89,6 +99,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testObsolete() throws ParseException
     {
         SchemaParserTestUtils.testObsolete( parser, "1.1", "" );
@@ -100,6 +111,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testAux() throws ParseException
     {
         String value = null;
@@ -238,6 +250,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testMust() throws ParseException
     {
         String value = null;
@@ -298,6 +311,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testMay() throws ParseException
     {
         String value = null;
@@ -346,6 +360,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNot() throws ParseException
     {
         String value = null;
@@ -393,6 +408,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "" );
@@ -405,6 +421,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -452,6 +469,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -465,6 +483,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -481,6 +500,7 @@ public class DITContentRuleDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "" );

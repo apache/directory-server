@@ -20,19 +20,21 @@
 package org.apache.directory.shared.ldap.codec;
 
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.add.AddResponse;
+import org.apache.directory.shared.ldap.codec.add.AddResponseCodec;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
@@ -43,7 +45,7 @@ import java.nio.ByteBuffer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapResultTest extends TestCase
+public class LdapResultTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -51,6 +53,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with no LdapResult
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCode()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -87,7 +90,8 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with no LdapResult
      */
-    public void testDecodeAddResponseEmptyResultCodeAbove90()
+	@Test
+	public void testDecodeAddResponseEmptyResultCodeAbove90()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -123,6 +127,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with all the different result codes
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodesOK()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -167,6 +172,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with no matched DN
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeNoMatchedDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -203,6 +209,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with no error message
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeNoErrorMsg()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -240,6 +247,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with a valid LdapResult
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeOK()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -273,8 +281,8 @@ public class LdapResultTest extends TestCase
         }
 
         // Check the decoded AddResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse = message.getAddResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponseCodec addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, addResponse.getLdapResult().getResultCode() );
@@ -303,6 +311,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with a valid LdapResult with referral
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeOKReferral()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -336,8 +345,8 @@ public class LdapResultTest extends TestCase
         }
 
         // Check the decoded AddResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse = message.getAddResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponseCodec addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
@@ -372,6 +381,7 @@ public class LdapResultTest extends TestCase
     /**
      * Test the decoding of a AddResponse with a valid LdapResult with referrals
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeOKReferrals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -406,8 +416,8 @@ public class LdapResultTest extends TestCase
         }
 
         // Check the decoded AddResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse = message.getAddResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponseCodec addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
@@ -447,6 +457,7 @@ public class LdapResultTest extends TestCase
      * Test the decoding of a AddResponse with a valid LdapResult with referrals
      * and an empty referral
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeEmptyReferral()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -480,8 +491,8 @@ public class LdapResultTest extends TestCase
         }
 
         // Check the decoded AddResponse
-        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
-        AddResponse addResponse = message.getAddResponse();
+        LdapMessageCodec message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        AddResponseCodec addResponse = message.getAddResponse();
 
         assertEquals( 1, message.getMessageId() );
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
@@ -521,6 +532,7 @@ public class LdapResultTest extends TestCase
      * Test the decoding of a AddResponse with a valid LdapResult and an invalid
      * transition after the referral sequence
      */
+	@Test
     public void testDecodeAddResponseEmptyResultCodeEmptyReferrals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

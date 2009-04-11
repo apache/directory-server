@@ -23,9 +23,9 @@ package org.apache.directory.shared.ldap.schema;
 import java.util.Comparator;
 import javax.naming.NamingException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SchemaUtilsTest extends TestCase
+public class SchemaUtilsTest
 {
     public static Syntax[] getSyntaxes()
     {
@@ -143,6 +143,7 @@ public class SchemaUtilsTest extends TestCase
      * operations {@link SchemaUtils#render(StringBuffer, String[])} and
      * {@link SchemaUtils#render(String[])} are tested here.
      */
+    @Test
     public void testRenderQdescrs()
     {
         assertEquals( "", SchemaUtils.render( ( String[] ) null ).toString() );
@@ -171,12 +172,6 @@ public class SchemaUtilsTest extends TestCase
             { "name1", "name2", "name3" } ).toString() );
     }
 
-
-    public void testRenderObjectClassArray()
-    {
-    }
-
-    // --------------------
 
     static class SyntaxImpl extends AbstractSyntax
     {

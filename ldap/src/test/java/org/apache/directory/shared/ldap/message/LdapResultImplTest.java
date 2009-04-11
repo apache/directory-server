@@ -22,14 +22,15 @@ package org.apache.directory.shared.ldap.message;
 
 import javax.naming.InvalidNameException;
 
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -38,11 +39,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *         $Rev$
  */
-public class LdapResultImplTest extends TestCase
+public class LdapResultImplTest
 {
     /**
      * Tests to make sure the two same objects are seen as equal.
      */
+    @Test
     public void testEqualsSameObj()
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -54,6 +56,7 @@ public class LdapResultImplTest extends TestCase
      * Tests to make sure a default LdapResultImpl equals another one just
      * created.
      */
+    @Test
     public void testEqualsDefaultCopy()
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -67,6 +70,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for equality when the lockable parent is not the same.
      */
+    @Test
     public void testEqualsDiffLockableParent()
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -80,10 +84,11 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for equality when the lockable parent is the same.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
         LdapResultImpl r0 = new LdapResultImpl();
-        LdapResult r1 = new LdapResult()
+        InternalLdapResult r1 = new InternalLdapResult()
         {
             public ResultCodeEnum getResultCode()
             {
@@ -124,13 +129,13 @@ public class LdapResultImplTest extends TestCase
             }
 
 
-            public Referral getReferral()
+            public InternalReferral getReferral()
             {
                 return null;
             }
 
 
-            public void setReferral( Referral a_referral )
+            public void setReferral( InternalReferral a_referral )
             {
             }
         };
@@ -143,6 +148,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests two non default carbon copies for equality.
      */
+    @Test
     public void testEqualsCarbonCopy() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -157,11 +163,11 @@ public class LdapResultImplTest extends TestCase
         r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
 
-        Referral refs0 = new ReferralImpl();
+        InternalReferral refs0 = new ReferralImpl();
         refs0.addLdapUrl( "ldap://someserver.com" );
         refs0.addLdapUrl( "ldap://anotherserver.org" );
 
-        Referral refs1 = new ReferralImpl();
+        InternalReferral refs1 = new ReferralImpl();
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
@@ -173,6 +179,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the error message is different.
      */
+    @Test
     public void testNotEqualsDiffErrorMessage() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -187,11 +194,11 @@ public class LdapResultImplTest extends TestCase
         r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
 
-        Referral refs0 = new ReferralImpl();
+        InternalReferral refs0 = new ReferralImpl();
         refs0.addLdapUrl( "ldap://someserver.com" );
         refs0.addLdapUrl( "ldap://anotherserver.org" );
 
-        Referral refs1 = new ReferralImpl();
+        InternalReferral refs1 = new ReferralImpl();
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
@@ -203,6 +210,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the matchedDn properties are not the same.
      */
+    @Test
     public void testNotEqualsDiffMatchedDn() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -217,11 +225,11 @@ public class LdapResultImplTest extends TestCase
         r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
 
-        Referral refs0 = new ReferralImpl();
+        InternalReferral refs0 = new ReferralImpl();
         refs0.addLdapUrl( "ldap://someserver.com" );
         refs0.addLdapUrl( "ldap://anotherserver.org" );
 
-        Referral refs1 = new ReferralImpl();
+        InternalReferral refs1 = new ReferralImpl();
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
@@ -233,6 +241,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the resultCode properties are not the same.
      */
+    @Test
     public void testNotEqualsDiffResultCode() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -247,11 +256,11 @@ public class LdapResultImplTest extends TestCase
         r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
         r1.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
 
-        Referral refs0 = new ReferralImpl();
+        InternalReferral refs0 = new ReferralImpl();
         refs0.addLdapUrl( "ldap://someserver.com" );
         refs0.addLdapUrl( "ldap://anotherserver.org" );
 
-        Referral refs1 = new ReferralImpl();
+        InternalReferral refs1 = new ReferralImpl();
         refs1.addLdapUrl( "ldap://someserver.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );
 
@@ -263,6 +272,7 @@ public class LdapResultImplTest extends TestCase
     /**
      * Tests for inequality when the referrals are not the same.
      */
+    @Test
     public void testNotEqualsDiffReferrals() throws InvalidNameException
     {
         LdapResultImpl r0 = new LdapResultImpl();
@@ -277,12 +287,12 @@ public class LdapResultImplTest extends TestCase
         r0.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
         r1.setResultCode( ResultCodeEnum.TIME_LIMIT_EXCEEDED );
 
-        Referral refs0 = new ReferralImpl();
+        InternalReferral refs0 = new ReferralImpl();
         r0.setReferral( refs0 );
         refs0.addLdapUrl( "ldap://someserver.com" );
         refs0.addLdapUrl( "ldap://anotherserver.org" );
 
-        Referral refs1 = new ReferralImpl();
+        InternalReferral refs1 = new ReferralImpl();
         r1.setReferral( refs1 );
         refs1.addLdapUrl( "ldap://abc.com" );
         refs1.addLdapUrl( "ldap://anotherserver.org" );

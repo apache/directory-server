@@ -24,15 +24,16 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.LongDecoder;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 
@@ -42,7 +43,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ValueTest extends TestCase
+public class ValueTest
 {
 
     /**
@@ -531,13 +532,13 @@ public class ValueTest extends TestCase
     {
         byte[] encoded = Value.getBytes( 128 );
 
-        Assert.assertEquals( 0x00, encoded[0] );
-        Assert.assertEquals( ( byte ) 0x80, encoded[1] );
+        assertEquals( 0x00, encoded[0] );
+        assertEquals( ( byte ) 0x80, encoded[1] );
 
         encoded = Value.getBytes( -27066 );
 
-        Assert.assertEquals( ( byte ) 0x96, encoded[0] );
-        Assert.assertEquals( 0x46, encoded[1] );
+        assertEquals( ( byte ) 0x96, encoded[0] );
+        assertEquals( 0x46, encoded[1] );
 
     }
 
@@ -548,9 +549,9 @@ public class ValueTest extends TestCase
 
         byte[] encoded = Value.getBytes( 32787 );
 
-        Assert.assertEquals( 0x00, encoded[0] );
-        Assert.assertEquals( ( byte ) 0x80, encoded[1] );
-        Assert.assertEquals( ( byte ) 0x13, encoded[2] );
+        assertEquals( 0x00, encoded[0] );
+        assertEquals( ( byte ) 0x80, encoded[1] );
+        assertEquals( ( byte ) 0x13, encoded[2] );
     }
 
 
@@ -597,7 +598,7 @@ public class ValueTest extends TestCase
 
             int value = new BigInteger( encoded ).intValue();
 
-            Assert.assertEquals( i, value );
+            assertEquals( i, value );
         }
     }
 
@@ -647,7 +648,7 @@ public class ValueTest extends TestCase
 
             int value = IntegerDecoder.parse( new Value( encoded ) );
 
-            Assert.assertEquals( i, value );
+            assertEquals( i, value );
         }
     }
     
@@ -739,7 +740,7 @@ public class ValueTest extends TestCase
 
             long value = LongDecoder.parse( new Value( encoded ) );
 
-            Assert.assertEquals( i, value );
+            assertEquals( i, value );
         }
     }
     

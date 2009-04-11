@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.DITStructureRuleDescriptionSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -33,11 +35,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
+public class DITStructureRuleDescriptionSyntaxCheckerTest
 {
     private DITStructureRuleDescriptionSyntaxChecker checker = new DITStructureRuleDescriptionSyntaxChecker();
 
 
+    @Test
     public void testValid()
     {
         assertTrue( checker.isValidSyntax( "( 2 FORM 2.5.15.3 )" ) );
@@ -64,6 +67,7 @@ public class DITStructureRuleDescriptionSyntaxCheckerTest extends TestCase
     }
 
 
+    @Test
     public void testInvalid()
     {
         // null 

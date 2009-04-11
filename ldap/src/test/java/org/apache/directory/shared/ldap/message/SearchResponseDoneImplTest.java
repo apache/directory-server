@@ -20,23 +20,24 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.LdapResultImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.SearchResponseDone;
+import org.apache.directory.shared.ldap.message.InternalSearchResponseDone;
 import org.apache.directory.shared.ldap.message.SearchResponseDoneImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -45,7 +46,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class SearchResponseDoneImplTest extends TestCase
+public class SearchResponseDoneImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
@@ -58,7 +59,7 @@ public class SearchResponseDoneImplTest extends TestCase
     {
         // Construct the Search response to test with results and referrals
         SearchResponseDoneImpl response = new SearchResponseDoneImpl( 45 );
-        LdapResult result = response.getLdapResult();
+        InternalLdapResult result = response.getLdapResult();
         
         try
         {
@@ -82,6 +83,7 @@ public class SearchResponseDoneImplTest extends TestCase
     /**
      * Tests for equality using the same object.
      */
+    @Test
     public void testEqualsSameObj()
     {
         SearchResponseDoneImpl resp = createStub();
@@ -92,6 +94,7 @@ public class SearchResponseDoneImplTest extends TestCase
     /**
      * Tests for equality using an exact copy.
      */
+    @Test
     public void testEqualsExactCopy()
     {
         SearchResponseDoneImpl resp0 = createStub();
@@ -104,12 +107,13 @@ public class SearchResponseDoneImplTest extends TestCase
     /**
      * Tests for equality using different stub implementations.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
         SearchResponseDoneImpl resp0 = createStub();
-        SearchResponseDone resp1 = new SearchResponseDone()
+        InternalSearchResponseDone resp1 = new InternalSearchResponseDone()
         {
-            public LdapResult getLdapResult()
+            public InternalLdapResult getLdapResult()
             {
                 LdapResultImpl result = new LdapResultImpl();
                 
@@ -191,6 +195,7 @@ public class SearchResponseDoneImplTest extends TestCase
     /**
      * Tests inequality when messageIds are different.
      */
+    @Test
     public void testNotEqualsDiffIds()
     {
         SearchResponseDoneImpl resp0 = new SearchResponseDoneImpl( 3 );

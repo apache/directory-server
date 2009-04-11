@@ -643,6 +643,45 @@ public enum ResultCodeEnum
     OTHER( 80 ),
     
     /**
+     * This error code is returned when an operation has been canceled using
+     * the Cancel extended operation. 
+     */
+    CANCELED( 118 ),
+    
+    
+    /**
+     * This error code is returned if the server has no knowledge of
+     * the operation requested for cancelation.
+     */
+    NO_SUCH_OPERATION( 119 ),
+    
+    
+    /**
+     * The tooLate resultCode is returned to indicate that it is too late to
+     * cancel the outstanding operation.  For example, the server may return
+     * tooLate for a request to cancel an outstanding modify operation which
+     * has already committed updates to the underlying data store.
+     */
+    TOO_LATE( 120 ),
+    
+    /**
+     * The cannotCancel resultCode is returned if the identified operation
+     * does not support cancelation or the cancel operation could not be
+     * performed.  The following classes of operations are not cancelable:
+     *
+     * -  operations which have no response,
+     *
+     * -  operations which create, alter, or destroy authentication and/or
+     *    authorization associations,
+     *
+     * -  operations which establish, alter, or tear-down security services,
+     *    and
+     *
+     * -  operations which abandon or cancel other operations.
+     */
+    CANNOT_CANCEL( 121 ),
+    
+    /**
      * A unknown result code to cover all the other cases
      */
     // -- 15 unused --
@@ -653,7 +692,7 @@ public enum ResultCodeEnum
     // -- 70 reserved for CLDAP --
     // -- 72-79 unused --
     // -- 81-90 reserved for APIs --
-    UNKNOWN( 99 );
+    UNKNOWN( 122 );
     
     /** Stores the integer value of each element of the enumeration */
     private int value;
@@ -724,6 +763,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.COMPARE_FALSE );
         set.add( ResultCodeEnum.REFERRAL );
         set.add( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
+        set.add( ResultCodeEnum.CANCELED );
         NON_ERRONEOUS_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -844,6 +884,9 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.ADMIN_LIMIT_EXCEEDED );
         set.add( ResultCodeEnum.UNWILLING_TO_PERFORM );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANNOT_CANCEL );
+        set.add( ResultCodeEnum.TOO_LATE );
+        set.add( ResultCodeEnum.NO_SUCH_OPERATION );
         SERVICE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -943,7 +986,7 @@ public enum ResultCodeEnum
      */
     public static final Set<ResultCodeEnum> BIND_CODES;
     static
-    {
+    { 	
         Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
         set.add( ResultCodeEnum.BUSY );
         set.add( ResultCodeEnum.OTHER );
@@ -963,6 +1006,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         set.add( ResultCodeEnum.INAPPROPRIATE_AUTHENTICATION );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         BIND_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1016,6 +1060,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         SEARCH_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1077,6 +1122,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         MODIFY_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1136,6 +1182,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         ADD_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1183,6 +1230,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         DELETE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1240,6 +1288,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.CONFIDENTIALITY_REQUIRED );
         set.add( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
         set.add( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+        set.add( ResultCodeEnum.CANCELED );
         MODIFYDN_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1293,6 +1342,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.LOOP_DETECT );
         set.add( ResultCodeEnum.REFERRAL );
         set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.CANCELED );
         COMPARE_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1385,6 +1435,7 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.CANCELED );
         EXTENDED_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1481,6 +1532,10 @@ public enum ResultCodeEnum
         set.add( ResultCodeEnum.OBJECT_CLASS_MODS_PROHIBITED );
         set.add( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         set.add( ResultCodeEnum.OTHER );
+        set.add( ResultCodeEnum.CANNOT_CANCEL );
+        set.add( ResultCodeEnum.TOO_LATE );
+        set.add( ResultCodeEnum.NO_SUCH_OPERATION );
+        set.add( ResultCodeEnum.CANCELED );
         ALL_CODES = Collections.unmodifiableSet( set );
     }
 
@@ -1540,6 +1595,10 @@ public enum ResultCodeEnum
             case 69 : return OBJECT_CLASS_MODS_PROHIBITED;
             case 71 : return AFFECTS_MULTIPLE_DSAS;
             case 80 : return OTHER;
+            case 118: return CANCELED;
+            case 129: return NO_SUCH_OPERATION;
+            case 120: return TOO_LATE;
+            case 121: return CANNOT_CANCEL;
             default : return UNKNOWN;
         }
     }

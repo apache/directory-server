@@ -20,11 +20,12 @@
 package org.apache.directory.shared.asn1.primitives;
 
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -32,7 +33,7 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BitStringTest extends TestCase
+public class BitStringTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ public class BitStringTest extends TestCase
     /**
      * Test a null BitString
      */
+    @Test
     public void testBitStringNull()
     {
 
@@ -50,11 +52,11 @@ public class BitStringTest extends TestCase
         try
         {
             bitString.getBit( 0 );
-            Assert.fail( "Should not reach this point ..." );
+            fail( "Should not reach this point ..." );
         }
         catch ( IndexOutOfBoundsException ioobe )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
         }
     }
 
@@ -62,6 +64,7 @@ public class BitStringTest extends TestCase
     /**
      * Test an empty BitString
      */
+    @Test
     public void testBitStringEmpty()
     {
 
@@ -73,11 +76,11 @@ public class BitStringTest extends TestCase
         try
         {
             bitString.getBit( 0 );
-            Assert.fail( "Should not reach this point ..." );
+            fail( "Should not reach this point ..." );
         }
         catch ( IndexOutOfBoundsException ioobe )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
         }
     }
 
@@ -85,6 +88,7 @@ public class BitStringTest extends TestCase
     /**
      * Test a single bit BitString
      */
+    @Test
     public void testSingleBitBitString() throws DecoderException
     {
 
@@ -93,13 +97,14 @@ public class BitStringTest extends TestCase
         bitString.setData( new byte[]
             { 0x07, ( byte ) 0x80 } );
 
-        Assert.assertEquals( true, bitString.getBit( 0 ) );
+        assertEquals( true, bitString.getBit( 0 ) );
     }
 
 
     /**
      * Test a 32 bits BitString
      */
+    @Test
     public void test32BitsBitString() throws DecoderException
     {
 
@@ -110,7 +115,7 @@ public class BitStringTest extends TestCase
 
         for ( int i = 0; i < 32; i++ )
         {
-            Assert.assertEquals( true, bitString.getBit( i ) );
+            assertEquals( true, bitString.getBit( i ) );
         }
     }
 
@@ -118,6 +123,7 @@ public class BitStringTest extends TestCase
     /**
      * Test a 33 bits BitString
      */
+    @Test
     public void test33BitsBitString() throws DecoderException
     {
 
@@ -128,16 +134,17 @@ public class BitStringTest extends TestCase
 
         for ( int i = 0; i < 33; i++ )
         {
-            Assert.assertEquals( true, bitString.getBit( i ) );
+            assertEquals( true, bitString.getBit( i ) );
         }
 
-        Assert.assertEquals( true, bitString.getBit( 32 ) );
+        assertEquals( true, bitString.getBit( 32 ) );
     }
 
 
     /**
      * Test all bits from 0 to 128 BitString
      */
+    @Test
     public void test0to128BitString() throws DecoderException
     {
 
@@ -149,7 +156,7 @@ public class BitStringTest extends TestCase
 
         for ( int i = 0; i < 14; i++ )
         {
-            Assert.assertEquals( true, bitString14.getBit( i ) );
+            assertEquals( true, bitString14.getBit( i ) );
         }
 
         // bit number 31
@@ -160,7 +167,7 @@ public class BitStringTest extends TestCase
 
         for ( int i = 0; i < 31; i++ )
         {
-            Assert.assertEquals( true, bitString31.getBit( i ) );
+            assertEquals( true, bitString31.getBit( i ) );
         }
 
         // bit number 128
@@ -173,10 +180,11 @@ public class BitStringTest extends TestCase
 
         for ( int i = 0; i < 128; i++ )
         {
-            Assert.assertEquals( true, bitString128.getBit( i ) );
+            assertEquals( true, bitString128.getBit( i ) );
         }
     }
     
+    @Test
     public void testBitStringSet()
     {
         BitString bitString = new BitString( 32 );
@@ -203,6 +211,7 @@ public class BitStringTest extends TestCase
         assertEquals( Asn1StringUtils.dumpBytes( bytes ), Asn1StringUtils.dumpBytes( bitString.getData() ) );
     }
 
+    @Test
     public void testBitStringSetBit()
     {
         BitString bitString = new BitString( 32 );
@@ -230,6 +239,7 @@ public class BitStringTest extends TestCase
         assertEquals( Asn1StringUtils.dumpBytes( bytesModified ), Asn1StringUtils.dumpBytes( bitString.getData() ) );
     }
 
+    @Test
     public void testBitStringClearBit()
     {
         BitString bitString = new BitString( 32 );

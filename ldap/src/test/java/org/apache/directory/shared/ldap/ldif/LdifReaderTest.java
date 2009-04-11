@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import javax.naming.ldap.Control;
 import javax.naming.NamingException;
 
@@ -37,19 +35,27 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 379008 $
  */
-public class LdifReaderTest extends TestCase
+public class LdifReaderTest
 {
-    private byte[] data;
+    private static byte[] data;
     
-    private File HJENSEN_JPEG_FILE = null;
-    private File FIONA_JPEG_FILE = null;
+    private static File HJENSEN_JPEG_FILE = null;
+    private static File FIONA_JPEG_FILE = null;
     
-    private File createFile( String name, byte[] data ) throws IOException
+    private static File createFile( String name, byte[] data ) throws IOException
     {
         File jpeg = File.createTempFile( name, "jpg" );
         
@@ -70,10 +76,9 @@ public class LdifReaderTest extends TestCase
     /**
      * Create a file to be used by ":<" values
      */
-    public void setUp() throws Exception
+   @BeforeClass
+    public static void setUp() throws Exception
     {
-        super.setUp();
-
         data = new byte[256];
 
         for ( int i = 0; i < 256; i++ )
@@ -85,6 +90,7 @@ public class LdifReaderTest extends TestCase
         FIONA_JPEG_FILE = createFile( "fiona", data );
     }
 
+    @Test
     public void testLdifNull() throws NamingException
     {
         String ldif = null;
@@ -95,6 +101,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 0, entries.size() );
     }
 
+    @Test
     public void testLdifEmpty() throws NamingException
     {
         String ldif = "";
@@ -105,6 +112,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 0, entries.size() );
     }
 
+    @Test
     public void testLdifEmptyLines() throws NamingException
     {
         String ldif = "\n\n\r\r\n";
@@ -115,6 +123,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 0, entries.size() );
     }
 
+    @Test
     public void testLdifComments() throws NamingException
     {
         String ldif = 
@@ -130,6 +139,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 0, entries.size() );
     }
 
+    @Test
     public void testLdifVersion() throws NamingException
     {
         String ldif = 
@@ -149,6 +159,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( 1, reader.getVersion() );
     }
 
+    @Test
     public void testLdifVersionStart() throws NamingException
     {
         String ldif = 
@@ -184,6 +195,7 @@ public class LdifReaderTest extends TestCase
      * Test the ldif parser with a file without a version. It should default to 1
      * @throws NamingException
      */
+    @Test
     public void testLdifWithoutVersion() throws NamingException
     {
         String ldif = 
@@ -206,6 +218,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testLdifParserEndSpaces() throws NamingException
     {
         String ldif = 
@@ -234,6 +247,7 @@ public class LdifReaderTest extends TestCase
 
     }
 
+    @Test
     public void testLdifParserAddAttrCaseInsensitiveAttrId() throws NamingException
     {
         // test that mixed case attr ids work at all
@@ -259,7 +273,7 @@ public class LdifReaderTest extends TestCase
         testReaderAttrIdCaseInsensitive( ldif );
     }
 
-    public void testReaderAttrIdCaseInsensitive( String ldif )
+    private void testReaderAttrIdCaseInsensitive( String ldif )
             throws NamingException
     {
         LdifReader reader = new LdifReader();
@@ -285,6 +299,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testLdifParserCombinedEntriesChanges()
     {
         String ldif = 
@@ -323,6 +338,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testLdifParserCombinedEntriesChanges2()
     {
         String ldif = 
@@ -360,6 +376,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testLdifParserCombinedChangesEntries()
     {
         String ldif = 
@@ -398,6 +415,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testLdifParserCombinedChangesEntries2()
     {
         String ldif = 
@@ -430,6 +448,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
+    @Test
     public void testLdifParser() throws NamingException
     {
         String ldif = 
@@ -469,6 +488,7 @@ public class LdifReaderTest extends TestCase
         assertNull( attr.get().get() );
     }
 
+    @Test
     public void testLdifParserMuiltiLineComments() throws NamingException
     {
         String ldif = 
@@ -512,6 +532,7 @@ public class LdifReaderTest extends TestCase
         assertNull( attr.get().get() );
     }
 
+    @Test
     public void testLdifParserMultiLineEntries() throws NamingException
     {
         String ldif = 
@@ -555,6 +576,7 @@ public class LdifReaderTest extends TestCase
         assertNull( attr.get().get() );
     }
 
+    @Test
     public void testLdifParserBase64() throws NamingException, UnsupportedEncodingException
     {
         String ldif = 
@@ -597,6 +619,7 @@ public class LdifReaderTest extends TestCase
         assertNull( attr.get().get() );
     }
 
+    @Test
     public void testLdifParserBase64MultiLine() throws NamingException, UnsupportedEncodingException
     {
         String ldif = 
@@ -640,6 +663,7 @@ public class LdifReaderTest extends TestCase
         assertNull( attr.get().get() );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample1() throws NamingException
     {
         String ldif = 
@@ -719,6 +743,7 @@ public class LdifReaderTest extends TestCase
         assertTrue( attr.contains( "+1 408 555 1212" ) );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample2() throws NamingException
     {
         String ldif = 
@@ -776,6 +801,7 @@ public class LdifReaderTest extends TestCase
 
     }
 
+    @Test
     public void testLdifParserRFC2849Sample3() throws NamingException, Exception
     {
         String ldif = 
@@ -829,6 +855,7 @@ public class LdifReaderTest extends TestCase
                         .getBytes( "UTF-8" ) ) );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample3VariousSpacing() throws NamingException, Exception
     {
         String ldif = 
@@ -882,6 +909,7 @@ public class LdifReaderTest extends TestCase
                         .getBytes( "UTF-8" ) ) );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample4() throws NamingException, Exception
     {
         String ldif = 
@@ -1014,6 +1042,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
+    @Test
     public void testLdifParserRFC2849Sample5() throws NamingException, Exception
     {
         String ldif = 
@@ -1079,6 +1108,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
+    @Test
     public void testLdifParserRFC2849Sample5WithSizeLimit() throws Exception
     {
         String ldif = 
@@ -1108,6 +1138,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
+    @Test
     public void testLdifParserRFC2849Sample6() throws NamingException, Exception
     {
         String ldif = 
@@ -1337,6 +1368,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( values[5][2][0], item.getAttribute().getId() );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample7() throws NamingException, Exception
     {
         String ldif = 
@@ -1364,6 +1396,7 @@ public class LdifReaderTest extends TestCase
         assertTrue( control.isCritical() );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample7NoValueNoCritical() throws NamingException, Exception
     {
         String ldif = 
@@ -1391,6 +1424,7 @@ public class LdifReaderTest extends TestCase
         assertFalse( control.isCritical() );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample7NoCritical() throws NamingException, Exception
     {
         String ldif = 
@@ -1419,6 +1453,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( "control-value", StringTools.utf8ToString( control.getEncodedValue() ) );
     }
 
+    @Test
     public void testLdifParserRFC2849Sample7NoOid() throws Exception
     {
         String ldif = 
@@ -1444,6 +1479,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
+    @Test
     public void testLdifParserRFC2849Sample7BadOid() throws Exception
     {
         String ldif = 
@@ -1470,6 +1506,7 @@ public class LdifReaderTest extends TestCase
     }
 
     
+    @Test
     public void testLdifReaderDirServer() throws NamingException, Exception
     {
         String ldif = 
@@ -1520,6 +1557,7 @@ public class LdifReaderTest extends TestCase
     }
 
     
+    @Test
     public void testLdifParserCommentsEmptyLines() throws NamingException, Exception
     {
         String ldif = 

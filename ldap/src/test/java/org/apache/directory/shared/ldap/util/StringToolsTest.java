@@ -29,9 +29,12 @@ import java.util.regex.Pattern;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -40,8 +43,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class StringToolsTest extends TestCase
+public class StringToolsTest
 {
+    @Test
     public void testDecodeEscapedHex() throws Exception
     {
         assertEquals( "Ferry", StringTools.decodeEscapedHex( "\\46\\65\\72\\72\\79" ) );
@@ -50,6 +54,7 @@ public class StringToolsTest extends TestCase
         assertEquals( "Ferry", StringTools.decodeEscapedHex( "Fe\\72ry" ) );
     }
     
+    @Test
     public void testDecodeHexString() throws Exception
     {
         // weird stuff - corner cases
@@ -62,6 +67,7 @@ public class StringToolsTest extends TestCase
     }
     
     
+    @Test
     public void testTrimConsecutiveToOne()
     {
         String input = null;
@@ -94,77 +100,86 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testOneByteChar()
     {
         char res = StringTools.bytesToChar( new byte[]
             { 0x30 } );
 
-        Assert.assertEquals( '0', res );
+        assertEquals( '0', res );
     }
 
 
+    @Test
     public void testOneByteChar00()
     {
         char res = StringTools.bytesToChar( new byte[]
             { 0x00 } );
 
-        Assert.assertEquals( 0x00, res );
+        assertEquals( 0x00, res );
     }
 
 
+    @Test
     public void testOneByteChar7F()
     {
         char res = StringTools.bytesToChar( new byte[]
             { 0x7F } );
 
-        Assert.assertEquals( 0x7F, res );
+        assertEquals( 0x7F, res );
     }
 
 
+    @Test
     public void testTwoBytesChar()
     {
         char res = StringTools.bytesToChar( new byte[]
             { ( byte ) 0xCE, ( byte ) 0x91 } );
 
-        Assert.assertEquals( 0x0391, res );
+        assertEquals( 0x0391, res );
     }
 
 
+    @Test
     public void testThreeBytesChar()
     {
         char res = StringTools.bytesToChar( new byte[]
             { ( byte ) 0xE2, ( byte ) 0x89, ( byte ) 0xA2 } );
 
-        Assert.assertEquals( 0x2262, res );
+        assertEquals( 0x2262, res );
     }
 
 
+    @Test
     public void testcharToBytesOne()
     {
-        Assert.assertEquals( "0x00 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0000 ) ) );
-        Assert.assertEquals( "0x61 ", StringTools.dumpBytes( StringTools.charToBytes( 'a' ) ) );
-        Assert.assertEquals( "0x7F ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x007F ) ) );
+        assertEquals( "0x00 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0000 ) ) );
+        assertEquals( "0x61 ", StringTools.dumpBytes( StringTools.charToBytes( 'a' ) ) );
+        assertEquals( "0x7F ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x007F ) ) );
     }
 
 
+    @Test
     public void testcharToBytesTwo()
     {
-        Assert.assertEquals( "0xC2 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0080 ) ) );
-        Assert.assertEquals( "0xC3 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x00FF ) ) );
-        Assert.assertEquals( "0xC4 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0100 ) ) );
-        Assert.assertEquals( "0xDF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x07FF ) ) );
+        assertEquals( "0xC2 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0080 ) ) );
+        assertEquals( "0xC3 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x00FF ) ) );
+        assertEquals( "0xC4 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0100 ) ) );
+        assertEquals( "0xDF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x07FF ) ) );
     }
 
 
+    @Test
     public void testcharToBytesThree()
     {
-        Assert.assertEquals( "0xE0 0xA0 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0800 ) ) );
-        Assert.assertEquals( "0xE0 0xBF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0FFF ) ) );
-        Assert.assertEquals( "0xE1 0x80 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x1000 ) ) );
-        Assert.assertEquals( "0xEF 0xBF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0xFFFF ) ) );
+        assertEquals( "0xE0 0xA0 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0800 ) ) );
+        assertEquals( "0xE0 0xBF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x0FFF ) ) );
+        assertEquals( "0xE1 0x80 0x80 ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0x1000 ) ) );
+        assertEquals( "0xEF 0xBF 0xBF ", StringTools.dumpBytes( StringTools.charToBytes( ( char ) 0xFFFF ) ) );
     }
 
 
+    @Test
     public void testListToString()
     {
         List<String> list = new ArrayList<String>();
@@ -173,10 +188,11 @@ public class StringToolsTest extends TestCase
         list.add( "elem2" );
         list.add( "elem3" );
 
-        Assert.assertEquals( "elem1, elem2, elem3", StringTools.listToString( list ) );
+        assertEquals( "elem1, elem2, elem3", StringTools.listToString( list ) );
     }
 
 
+    @Test
     public void testMapToString()
     {
         class Value
@@ -214,10 +230,11 @@ public class StringToolsTest extends TestCase
             || "elem3 = '[name3, 3]', elem1 = '[name1, 1]', elem2 = '[name2, 2]'".equals( result )
             || "elem3 = '[name3, 3]', elem2 = '[name2, 2]', elem1 = '[name1, 1]'".equals( result );
 
-        Assert.assertTrue( res );
+        assertTrue( res );
     }
 
 
+    @Test
     public void testGetRegexpEmpty() throws Exception
     {
         Pattern pattern = StringTools.getRegex( "", new String[]
@@ -229,6 +246,7 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testGetRegexpInitial() throws Exception
     {
         Pattern pattern = StringTools.getRegex( "Test", new String[]
@@ -244,6 +262,7 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testGetRegexpFinal() throws Exception
     {
         Pattern pattern = StringTools.getRegex( "", new String[]
@@ -259,6 +278,7 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testGetRegexpAny() throws Exception
     {
         Pattern pattern = StringTools.getRegex( "", new String[]
@@ -274,6 +294,7 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testGetRegexpFull() throws Exception
     {
         Pattern pattern = StringTools.getRegex( "Test", new String[]
@@ -292,6 +313,7 @@ public class StringToolsTest extends TestCase
     /**
      * Tests StringTools.getRegex() with some LDAP filter special characters.
      */
+    @Test
     public void testGetRegexpWithLdapFilterSpecialChars() throws Exception
     {
         Pattern[] patterns = new Pattern[]
@@ -312,6 +334,7 @@ public class StringToolsTest extends TestCase
     }
 
 
+    @Test
     public void testDeepTrim()
     {
         assertEquals( "", StringTools.deepTrim( " ", false ) );
@@ -329,6 +352,7 @@ public class StringToolsTest extends TestCase
         assertEquals( "a b", StringTools.deepTrim( "a b ", false ) );
     }
 
+    @Test
     public void testTrim()
     {
         assertEquals( "", StringTools.trim( (String)null ) );
@@ -340,6 +364,7 @@ public class StringToolsTest extends TestCase
         assertEquals( "a", StringTools.trim( "  a  " ) );
     }
 
+    @Test
     public void testTrimLeft()
     {
         assertEquals( "", StringTools.trimLeft( (String)null ) );
@@ -351,6 +376,7 @@ public class StringToolsTest extends TestCase
         assertEquals( "a  ", StringTools.trimLeft( "  a  " ) );
     }
 
+    @Test
     public void testTrimRight()
     {
         assertEquals( "", StringTools.trimRight( (String)null ) );

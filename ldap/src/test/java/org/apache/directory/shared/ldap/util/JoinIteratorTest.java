@@ -26,8 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.shared.ldap.util.JoinIterator;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -36,8 +41,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class JoinIteratorTest extends TestCase
+public class JoinIteratorTest
 {
+    @Test
     public void testNullArgument()
     {
         try
@@ -52,6 +58,7 @@ public class JoinIteratorTest extends TestCase
     }
 
 
+    @Test
     public void testSingleArgument()
     {
         Iterator<?>[] iterators = new Iterator<?>[]
@@ -69,6 +76,7 @@ public class JoinIteratorTest extends TestCase
     }
 
 
+    @Test
     public void testTwoArguments()
     {
         Iterator<?>[] iterators = new Iterator<?>[]
@@ -83,6 +91,7 @@ public class JoinIteratorTest extends TestCase
     }
 
 
+    @Test
     public void testSeveralArguments()
     {
         List<String> multivalued = new ArrayList<String>();

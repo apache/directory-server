@@ -26,7 +26,7 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResponseDoneImpl extends AbstractResultResponse implements SearchResponseDone
+public class SearchResponseDoneImpl extends InternalAbstractResultResponse implements InternalSearchResponseDone
 {
 
     // ------------------------------------------------------------------------
@@ -70,7 +70,7 @@ public class SearchResponseDoneImpl extends AbstractResultResponse implements Se
             return false;
         }
 
-        LdapResult result = ( ( SearchResponseDone ) obj ).getLdapResult();
+        InternalLdapResult result = ( ( InternalSearchResponseDone ) obj ).getLdapResult();
 
         if ( !getLdapResult().equals( result ) )
         {

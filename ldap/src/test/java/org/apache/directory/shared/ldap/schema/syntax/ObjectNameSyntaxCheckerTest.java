@@ -21,7 +21,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.ObjectNameSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for ObjectNameSyntaxChecker.
@@ -29,23 +31,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjectNameSyntaxCheckerTest extends TestCase
+public class ObjectNameSyntaxCheckerTest
 {
     ObjectNameSyntaxChecker checker = new ObjectNameSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testName()
     {
         assertTrue( checker.isValidSyntax( "a" ) );
@@ -57,6 +62,7 @@ public class ObjectNameSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongName()
     {
         assertFalse( checker.isValidSyntax( "1test" ) );

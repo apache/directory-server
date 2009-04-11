@@ -24,7 +24,8 @@ import java.util.ArrayList;
 
 import javax.naming.InvalidNameException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -34,12 +35,13 @@ import junit.framework.TestCase;
  * @version $Rev$, $Date$, 
  * @see <a href="https://issues.apache.org/jira/browse/DIRSERVER-584">DIRSERVER-584</a>
  */
-public class DnParserDIRSERVER_584_Test extends TestCase
+public class DnParserDIRSERVER_584_Test
 {
    /**
     * Need this testa() to run first to mess up the state of the static parser.
     */
-   public void testa() throws Exception
+    @Test
+    public void testa() throws Exception
    {
        try
        {
@@ -57,7 +59,8 @@ public class DnParserDIRSERVER_584_Test extends TestCase
     * Need this testb() to run second to use the mess up static parser.  This
     * test should succeed but fails.
     */
-   public void testb() throws Exception
+    @Test
+    public void testb() throws Exception
    {
        LdapDnParser.parseInternal( "ou=system", new ArrayList<Rdn>() );
    }

@@ -21,8 +21,8 @@ package org.apache.directory.shared.ldap.schema;
 
 
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -31,44 +31,51 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ByteArrayComparatorTest extends TestCase
+public class ByteArrayComparatorTest
 {
+    @Test
     public void testBothNull()
     {
         assertEquals( 0, ByteArrayComparator.INSTANCE.compare( null, null ) );
     }
 
     
+    @Test
     public void testB2Null()
     {
         assertEquals( 1, ByteArrayComparator.INSTANCE.compare( new byte[0], null ) );
     }
 
     
+    @Test
     public void testB1Null()
     {
         assertEquals( -1, ByteArrayComparator.INSTANCE.compare( null, new byte[0] ) );
     }
 
     
+    @Test
     public void testBothEmpty()
     {
         assertEquals( 0, ByteArrayComparator.INSTANCE.compare( new byte[0], new byte[0] ) );
     }
 
     
+    @Test
     public void testBothEqualLengthOne()
     {
         assertEquals( 0, ByteArrayComparator.INSTANCE.compare( new byte[1], new byte[1] ) );
     }
 
     
+    @Test
     public void testBothEqualLengthTen()
     {
         assertEquals( 0, ByteArrayComparator.INSTANCE.compare( new byte[10], new byte[10] ) );
     }
     
     
+    @Test
     public void testB1PrefixOfB2()
     {
         byte[] b1 = new byte[] { 0, 1, 2 };
@@ -78,6 +85,7 @@ public class ByteArrayComparatorTest extends TestCase
     }
     
     
+    @Test
     public void testB2PrefixOfB1()
     {
         byte[] b1 = new byte[] { 0, 1, 2, 3 };
@@ -87,6 +95,7 @@ public class ByteArrayComparatorTest extends TestCase
     }
     
     
+    @Test
     public void testB1GreaterThanB2() 
     {
         byte[] b1 = new byte[] { 0, 5 };
@@ -96,6 +105,7 @@ public class ByteArrayComparatorTest extends TestCase
     }
 
 
+    @Test
     public void testB1GreaterThanB2SameLength() 
     {
         byte[] b1 = new byte[] { 0, 5 };
@@ -105,6 +115,7 @@ public class ByteArrayComparatorTest extends TestCase
     }
 
 
+    @Test
     public void testB2GreaterThanB1() 
     {
         byte[] b1 = new byte[] { 0, 1, 2 };
@@ -114,6 +125,7 @@ public class ByteArrayComparatorTest extends TestCase
     }
 
 
+    @Test
     public void testB2GreaterThanB1SameLength() 
     {
         byte[] b1 = new byte[] { 0, 1 };

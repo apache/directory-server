@@ -24,7 +24,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,7 +36,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class DirectoryClassUtilsTest extends TestCase
+public class DirectoryClassUtilsTest
 {
     private static class TestClass
     {
@@ -48,6 +51,7 @@ public class DirectoryClassUtilsTest extends TestCase
         }
     }
     
+    @Test
     public void testSameBehaviourOfStandardGetMethod()
     {
         Method m1 = null;
@@ -82,6 +86,7 @@ public class DirectoryClassUtilsTest extends TestCase
         
     }
     
+    @Test
     public void testNewBehaviourOfAssignmentCompatibleGetMethod()
     {
         Method m2 = null;

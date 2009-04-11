@@ -20,20 +20,21 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -42,13 +43,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class BindRequestImplTest extends TestCase
+public class BindRequestImplTest
 {
     private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
 
     /**
      * Tests the same object referrence for equality.
      */
+    @Test
     public void testEqualsSameObj()
     {
         BindRequestImpl req = new BindRequestImpl( 5 );
@@ -59,6 +61,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
+    @Test
     public void testEqualsExactCopy() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
@@ -80,6 +83,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the IDs are different.
      */
+    @Test
     public void testNotEqualDiffId() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 7 );
@@ -101,6 +105,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the credentials are different.
      */
+    @Test
     public void testNotEqualDiffCreds() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
@@ -122,6 +127,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the DN names are different.
      */
+    @Test
     public void testNotEqualDiffName() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
@@ -143,6 +149,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the auth mechanisms are different.
      */
+    @Test
     public void testNotEqualDiffSimple() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
@@ -164,6 +171,7 @@ public class BindRequestImplTest extends TestCase
     /**
      * Test for inequality when only the bind LDAP versions are different.
      */
+    @Test
     public void testNotEqualDiffVersion() throws InvalidNameException
     {
         BindRequestImpl req0 = new BindRequestImpl( 5 );
@@ -185,9 +193,10 @@ public class BindRequestImplTest extends TestCase
     /**
      * Tests for equality even when another BindRequest implementation is used.
      */
+    @Test
     public void testEqualsDiffImpl()
     {
-        BindRequest req0 = new BindRequest()
+        InternalBindRequest req0 = new InternalBindRequest()
         {
             public boolean isSimple()
             {
@@ -308,7 +317,7 @@ public class BindRequestImplTest extends TestCase
             }
 
 
-            public ResultResponse getResultResponse()
+            public InternalResultResponse getResultResponse()
             {
                 return null;
             }
@@ -320,6 +329,22 @@ public class BindRequestImplTest extends TestCase
 
 
             public boolean hasControl( String oid )
+            {
+                return false;
+            }
+
+
+            public void abandon()
+            {
+            }
+
+
+            public void addAbandonListener( AbandonListener listener )
+            {
+            }
+
+
+            public boolean isAbandoned()
             {
                 return false;
             }

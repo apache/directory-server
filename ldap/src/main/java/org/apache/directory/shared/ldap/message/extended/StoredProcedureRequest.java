@@ -26,12 +26,12 @@ import javax.naming.ldap.ExtendedResponse;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
@@ -130,7 +130,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     }
 
 
-    public ResultResponse getResultResponse()
+    public InternalResultResponse getResultResponse()
     {
         if ( response == null )
         {

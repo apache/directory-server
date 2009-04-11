@@ -23,8 +23,11 @@ package org.apache.directory.shared.ldap.util;
 import java.util.NoSuchElementException;
 
 import org.apache.directory.shared.ldap.util.ArrayEnumeration;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,8 +36,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ArrayEnumerationTest extends TestCase
+public class ArrayEnumerationTest
 {
+    @Test
     public void testAll()
     {
         // test with null array

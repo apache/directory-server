@@ -22,10 +22,14 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -34,7 +38,7 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
+public class SyntaxCheckerDescriptionSchemaParserTest
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.2.10000";
     private static final String FQCN = "org.foo.Bar";
@@ -45,30 +49,35 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     private SyntaxCheckerDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new SyntaxCheckerDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
 
 
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleComparator" );
     }
 
 
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
     }
 
 
+    @Test
     public void testFqcn() throws ParseException
     {
         String value = null;
@@ -82,6 +91,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testBytecode() throws ParseException
     {
         String value = null;
@@ -95,12 +105,14 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
     }
 
 
+    @Test
     public void testFull()
     {
         // TODO
@@ -112,6 +124,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         // TODO
@@ -123,12 +136,14 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testRequiredElements()
     {
         // TODO
     }
 
 
+    @Test
     public void testSimpleSyntaxChecker() throws ParseException
     {
         String simple = "( " + OID + " FQCN " + FQCN + " )";
@@ -141,6 +156,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSyntaxCheckerWithDesc() throws ParseException
     {
         String simple = "( " + OID + " DESC '" + DESC + "' FQCN " + FQCN + " )";
@@ -153,6 +169,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSyntaxCheckerWithDescAndByteCode() throws ParseException
     {
         String simple = "( " + OID + " DESC '" + DESC + "' FQCN " + FQCN + " BYTECODE " + BYTECODE + " )";
@@ -165,6 +182,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testSyntaxCheckerExample() throws ParseException
     {
         String simple = "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker )";
@@ -173,6 +191,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
+    @Test
     public void testRealByteCodeExample() throws ParseException
     {
         String simple = "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' "
@@ -201,6 +220,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         // TODO
@@ -210,6 +230,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "FQCN org.apache.directory.SimpleComparator" );

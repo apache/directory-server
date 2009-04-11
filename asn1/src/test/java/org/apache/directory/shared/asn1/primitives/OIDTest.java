@@ -20,10 +20,12 @@
 package org.apache.directory.shared.asn1.primitives;
 
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -31,7 +33,7 @@ import org.apache.directory.shared.asn1.codec.DecoderException;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OIDTest extends TestCase
+public class OIDTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -39,6 +41,7 @@ public class OIDTest extends TestCase
     /**
      * Test a null OID
      */
+    @Test
     public void testOidNull()
     {
 
@@ -47,11 +50,11 @@ public class OIDTest extends TestCase
         try
         {
             oid.setOID( ( byte[] ) null );
-            Assert.fail( "Should not reach this point ..." );
+            fail( "Should not reach this point ..." );
         }
         catch ( DecoderException de )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
         }
     }
 
@@ -59,6 +62,7 @@ public class OIDTest extends TestCase
     /**
      * Test an empty OID
      */
+    @Test
     public void testOidEmpty()
     {
 
@@ -68,11 +72,11 @@ public class OIDTest extends TestCase
         {
             oid.setOID( new byte[]
                 {} );
-            Assert.fail( "Should not reach this point ..." );
+            fail( "Should not reach this point ..." );
         }
         catch ( DecoderException de )
         {
-            Assert.assertTrue( true );
+            assertTrue( true );
         }
     }
 
@@ -80,6 +84,7 @@ public class OIDTest extends TestCase
     /**
      * Test itu-t OID tree
      */
+    @Test
     public void testOidItuT()
     {
 
@@ -93,20 +98,20 @@ public class OIDTest extends TestCase
             {
                 oid.setOID( new byte[]
                     { 0x00, ( byte ) i } );
-                Assert.assertEquals( "0.0." + i, oid.toString() );
+                assertEquals( "0.0." + i, oid.toString() );
             }
 
             // itu-t(0), question(1)
             oid.setOID( new byte[]
                 { 0x01 } );
-            Assert.assertEquals( "0.1", oid.toString() );
+            assertEquals( "0.1", oid.toString() );
 
             // itu-t(0), administration(2), country(202 .. 748)
             for ( int i = 202; i < 748; i++ )
             {
                 oid.setOID( new byte[]
                     { 0x02, ( byte ) ( ( i / 128 ) | 0x0080 ), ( byte ) ( i % 128 ) } );
-                Assert.assertEquals( "0.2." + i, oid.toString() );
+                assertEquals( "0.2." + i, oid.toString() );
             }
 
             // itu-t(0), network-operator(3), operator(2023 .. 41363)
@@ -117,21 +122,21 @@ public class OIDTest extends TestCase
                 {
                     oid.setOID( new byte[]
                         { 0x03, ( byte ) ( ( i / 128 ) | 0x0080 ), ( byte ) ( i % 128 ) } );
-                    Assert.assertEquals( "0.3." + i, oid.toString() );
+                    assertEquals( "0.3." + i, oid.toString() );
                 }
                 else
                 {
                     oid.setOID( new byte[]
                         { 0x03, ( byte ) ( ( i / ( 128 * 128 ) ) | 0x0080 ),
                             ( byte ) ( ( ( i / 128 ) % 128 ) | 0x0080 ), ( byte ) ( i % 128 ) } );
-                    Assert.assertEquals( "0.3." + i, oid.toString() );
+                    assertEquals( "0.3." + i, oid.toString() );
 
                 }
             }
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -139,6 +144,7 @@ public class OIDTest extends TestCase
     /**
      * Test iso OID tree
      */
+    @Test
     public void testOidIso()
     {
 
@@ -150,26 +156,26 @@ public class OIDTest extends TestCase
             // iso(1), standard(0)
             oid.setOID( new byte[]
                 { 40 + 0 } );
-            Assert.assertEquals( "1.0", oid.toString() );
+            assertEquals( "1.0", oid.toString() );
 
             // iso(1), registration-authority(1)
             oid.setOID( new byte[]
                 { 40 + 1 } );
-            Assert.assertEquals( "1.1", oid.toString() );
+            assertEquals( "1.1", oid.toString() );
 
             // iso(1), member-body(2)
             oid.setOID( new byte[]
                 { 40 + 2 } );
-            Assert.assertEquals( "1.2", oid.toString() );
+            assertEquals( "1.2", oid.toString() );
 
             // iso(1), identified-organization(3) | org(3) | organization(3)
             oid.setOID( new byte[]
                 { 40 + 3 } );
-            Assert.assertEquals( "1.3", oid.toString() );
+            assertEquals( "1.3", oid.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -177,6 +183,7 @@ public class OIDTest extends TestCase
     /**
      * Test joint-iso-itu-t OID tree
      */
+    @Test
     public void testOidJointIsoItuT()
     {
 
@@ -188,38 +195,38 @@ public class OIDTest extends TestCase
             // joint-iso-itu-t(2), presentation(0)
             oid.setOID( new byte[]
                 { 80 + 0 } );
-            Assert.assertEquals( "2.0", oid.toString() );
+            assertEquals( "2.0", oid.toString() );
 
             // joint-iso-itu-t(2), asn1(1)
             oid.setOID( new byte[]
                 { 80 + 1 } );
-            Assert.assertEquals( "2.1", oid.toString() );
+            assertEquals( "2.1", oid.toString() );
 
             // joint-iso-itu-t(2), association-control(2)
             oid.setOID( new byte[]
                 { 80 + 2 } );
-            Assert.assertEquals( "2.2", oid.toString() );
+            assertEquals( "2.2", oid.toString() );
 
             // joint-iso-itu-t(2), reliable-transfer(3)
             oid.setOID( new byte[]
                 { 80 + 3 } );
-            Assert.assertEquals( "2.3", oid.toString() );
+            assertEquals( "2.3", oid.toString() );
 
             // ...
             // joint-iso-itu-t(2), upu(40)
             oid.setOID( new byte[]
                 { 80 + 40 } );
-            Assert.assertEquals( "2.40", oid.toString() );
+            assertEquals( "2.40", oid.toString() );
 
             // ...
             // joint-iso-itu-t(2), xxx(100)
             oid.setOID( new byte[]
                 { ( byte ) ( 0x81 ), 0x34 } );
-            Assert.assertEquals( "2.100", oid.toString() );
+            assertEquals( "2.100", oid.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -227,6 +234,7 @@ public class OIDTest extends TestCase
     /**
      * Test valid String OIDs
      */
+    @Test
     public void testOidStringGood()
     {
 
@@ -235,23 +243,23 @@ public class OIDTest extends TestCase
         try
         {
             oid.setOID( "0.0" );
-            Assert.assertEquals( "0.0", oid.toString() );
+            assertEquals( "0.0", oid.toString() );
 
             oid.setOID( "0.0.0.0.0" );
-            Assert.assertEquals( "0.0.0.0.0", oid.toString() );
+            assertEquals( "0.0.0.0.0", oid.toString() );
 
             oid.setOID( "0.1.2.3.4" );
-            Assert.assertEquals( "0.1.2.3.4", oid.toString() );
+            assertEquals( "0.1.2.3.4", oid.toString() );
 
             oid.setOID( "2.123456" );
-            Assert.assertEquals( "2.123456", oid.toString() );
+            assertEquals( "2.123456", oid.toString() );
 
             oid.setOID( "1.2.840.113554.1.2.2" );
-            Assert.assertEquals( "1.2.840.113554.1.2.2", oid.toString() );
+            assertEquals( "1.2.840.113554.1.2.2", oid.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -259,6 +267,7 @@ public class OIDTest extends TestCase
     /**
      * Test invalid String OIDs
      */
+    @Test
     public void testOidStringBad()
     {
         assertFalse( OID.isOID( "0" ) );
@@ -277,6 +286,7 @@ public class OIDTest extends TestCase
     /**
      * Test Spnego OID
      */
+    @Test
     public void testOidSpnego()
     {
 
@@ -287,11 +297,11 @@ public class OIDTest extends TestCase
             oid.setOID( new byte[]
                 { 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02 } );
 
-            Assert.assertEquals( "1.3.6.1.5.5.2", oid.toString() );
+            assertEquals( "1.3.6.1.5.5.2", oid.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -299,6 +309,7 @@ public class OIDTest extends TestCase
     /**
      * Test Kerberos V5 OID
      */
+    @Test
     public void testOidKerberosV5()
     {
 
@@ -309,11 +320,11 @@ public class OIDTest extends TestCase
             oid.setOID( new byte[]
                 { 0x2a, ( byte ) 0x86, 0x48, ( byte ) 0x86, ( byte ) 0xf7, 0x12, 0x01, 0x02, 0x02 } );
 
-            Assert.assertEquals( "1.2.840.113554.1.2.2", oid.toString() );
+            assertEquals( "1.2.840.113554.1.2.2", oid.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -321,6 +332,7 @@ public class OIDTest extends TestCase
     /**
      * Test OIDs bytes
      */
+    @Test
     public void testOidBytes()
     {
         OID oid = new OID();
@@ -330,33 +342,34 @@ public class OIDTest extends TestCase
         {
             oid.setOID( "0.0" );
             oid2.setOID( oid.getOID() );
-            Assert.assertEquals( oid.toString(), oid2.toString() );
+            assertEquals( oid.toString(), oid2.toString() );
 
             oid.setOID( "0.0.0.0.0" );
             oid2.setOID( oid.getOID() );
-            Assert.assertEquals( oid.toString(), oid2.toString() );
+            assertEquals( oid.toString(), oid2.toString() );
 
             oid.setOID( "0.1.2.3.4" );
             oid2.setOID( oid.getOID() );
-            Assert.assertEquals( oid.toString(), oid2.toString() );
+            assertEquals( oid.toString(), oid2.toString() );
 
             oid.setOID( "2.123456" );
             oid2.setOID( oid.getOID() );
-            Assert.assertEquals( oid.toString(), oid2.toString() );
+            assertEquals( oid.toString(), oid2.toString() );
 
             oid.setOID( "1.2.840.113554.1.2.2" );
             oid2.setOID( oid.getOID() );
-            Assert.assertEquals( oid.toString(), oid2.toString() );
+            assertEquals( oid.toString(), oid2.toString() );
         }
         catch ( DecoderException de )
         {
-            Assert.fail();
+            fail();
         }
     }
 
     /**
      * Test OID Equals
      */
+    @Test
     public void testOidEquals() throws DecoderException
     {
         OID oid1 = new OID();
@@ -371,6 +384,7 @@ public class OIDTest extends TestCase
     /**
      * Test OID Equals
      */
+    @Test
     public void testOidEqualsPerf() throws DecoderException
     {
         String s1 = "1.2.840.113554.1.2.2.1.2.840.113554.1.2.2.1.2.840.113554.1.2.2";

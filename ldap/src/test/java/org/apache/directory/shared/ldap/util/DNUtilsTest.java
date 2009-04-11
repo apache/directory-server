@@ -21,9 +21,9 @@ package org.apache.directory.shared.ldap.util;
 
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 
 /**
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DNUtilsTest extends TestCase
+public class DNUtilsTest
 {
     // ~ Methods
     // ------------------------------------------------------------------------------------
@@ -39,114 +39,125 @@ public class DNUtilsTest extends TestCase
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsFull()
     {
         // Full compare
-        Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 0, "azerty" ) );
+        assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 0, "azerty" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsDiff()
     {
         // First character is !=
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsEmpty()
     {
         // Compare to an empty string
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsFirstCharDiff()
     {
         // First character is !=
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "Azerty" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsMiddleCharDiff()
     {
         // First character is !=
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azeRty" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azeRty" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsLastCharDiff()
     {
         // First character is !=
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertY" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertY" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsCharByChar()
     {
         // Index must be incremented after each comparison
-        Assert.assertEquals( 1, StringTools.areEquals( "azerty".getBytes(), 0, "a" ) );
-        Assert.assertEquals( 2, StringTools.areEquals( "azerty".getBytes(), 1, "z" ) );
-        Assert.assertEquals( 3, StringTools.areEquals( "azerty".getBytes(), 2, "e" ) );
-        Assert.assertEquals( 4, StringTools.areEquals( "azerty".getBytes(), 3, "r" ) );
-        Assert.assertEquals( 5, StringTools.areEquals( "azerty".getBytes(), 4, "t" ) );
-        Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
+        assertEquals( 1, StringTools.areEquals( "azerty".getBytes(), 0, "a" ) );
+        assertEquals( 2, StringTools.areEquals( "azerty".getBytes(), 1, "z" ) );
+        assertEquals( 3, StringTools.areEquals( "azerty".getBytes(), 2, "e" ) );
+        assertEquals( 4, StringTools.areEquals( "azerty".getBytes(), 3, "r" ) );
+        assertEquals( 5, StringTools.areEquals( "azerty".getBytes(), 4, "t" ) );
+        assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsTooShort()
     {
         // length too short
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertyiop" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "azertyiop" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsTooShortMiddle()
     {
         // length too short
-        Assert.assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "ertyiop" ) );
+        assertEquals( -1, StringTools.areEquals( "azerty".getBytes(), 0, "ertyiop" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsLastChar()
     {
         // last character
-        Assert.assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
+        assertEquals( 6, StringTools.areEquals( "azerty".getBytes(), 5, "y" ) );
     }
 
 
     /**
      * Test the DNUtils AreEquals method
      */
+    @Test
     public void testAreEqualsMiddle()
     {
         // In the middle
-        Assert.assertEquals( 4, StringTools.areEquals( "azerty".getBytes(), 2, "er" ) );
+        assertEquals( 4, StringTools.areEquals( "azerty".getBytes(), 2, "er" ) );
     }
 }

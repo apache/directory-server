@@ -21,7 +21,10 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.TelephoneNumberSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for NumericStringSyntaxChecker.
@@ -29,28 +32,32 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class TelephoneNumberSyntaxCheckerTest extends TestCase
+public class TelephoneNumberSyntaxCheckerTest
 {
     TelephoneNumberSyntaxChecker checker = new TelephoneNumberSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
     
+    @Test
     public void testOID()
     {
         assertEquals( "1.3.6.1.4.1.1466.115.121.1.50", checker.getSyntaxOid() );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "A" ) );
@@ -58,6 +65,7 @@ public class TelephoneNumberSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testWrongCase()
     {
         assertFalse( checker.isValidSyntax( "123 456 f" ) );
@@ -66,6 +74,7 @@ public class TelephoneNumberSyntaxCheckerTest extends TestCase
     }
     
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "1" ) );
@@ -75,6 +84,7 @@ public class TelephoneNumberSyntaxCheckerTest extends TestCase
         assertTrue( checker.isValidSyntax( " 12 34 56 78 90 " ) );
     }
     
+    @Test
     public void testWithNewMandatoryRegexp()
     {
         // Adding french telephone number regexp

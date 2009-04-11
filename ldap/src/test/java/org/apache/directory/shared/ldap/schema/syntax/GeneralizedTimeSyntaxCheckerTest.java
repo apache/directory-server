@@ -22,7 +22,9 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 import org.apache.directory.shared.ldap.schema.syntaxes.GeneralizedTimeSyntaxChecker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for GeneralizedTimeSyntaxChecker.
@@ -30,23 +32,26 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class GeneralizedTimeSyntaxCheckerTest extends TestCase
+public class GeneralizedTimeSyntaxCheckerTest
 {
     GeneralizedTimeSyntaxChecker checker = new GeneralizedTimeSyntaxChecker();
 
 
+    @Test
     public void testNullString()
     {
         assertFalse( checker.isValidSyntax( null ) );
     }
 
 
+    @Test
     public void testEmptyString()
     {
         assertFalse( checker.isValidSyntax( "" ) );
     }
 
 
+    @Test
     public void testOneCharString()
     {
         assertFalse( checker.isValidSyntax( "0" ) );
@@ -55,6 +60,7 @@ public class GeneralizedTimeSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "B" ) );
     }
     
+    @Test
     public void testErrorCase()
     {
         assertFalse( checker.isValidSyntax( "20060005184527Z" ) );
@@ -72,6 +78,7 @@ public class GeneralizedTimeSyntaxCheckerTest extends TestCase
         assertFalse( checker.isValidSyntax( "20061205184527+1299" ) );
     }
     
+    @Test
     public void testCorrectCase()
     {
         assertTrue( checker.isValidSyntax( "20061205184527Z" ) );

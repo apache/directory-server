@@ -22,10 +22,13 @@ package org.apache.directory.shared.ldap.schema.syntax.parser;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -33,19 +36,21 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSche
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
+public class LdapSyntaxDescriptionSchemaParserTest
 {
     /** the parser instance */
     private LdapSyntaxDescriptionSchemaParser parser;
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         parser = new LdapSyntaxDescriptionSchemaParser();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         parser = null;
     }
@@ -56,6 +61,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNumericOid() throws ParseException
     {
         SchemaParserTestUtils.testNumericOid( parser, "" );
@@ -67,6 +73,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testNames() throws ParseException
     {
         SchemaParserTestUtils.testNames( parser, "1.1", "" );
@@ -78,6 +85,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testDescription() throws ParseException
     {
         SchemaParserTestUtils.testDescription( parser, "1.1", "" );
@@ -89,6 +97,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testExtensions() throws ParseException
     {
         SchemaParserTestUtils.testExtensions( parser, "1.1", "" );
@@ -100,6 +109,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testFull() throws ParseException
     {
         String value = null;
@@ -127,6 +137,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
+    @Test
     public void testUniqueElements()
     {
         String[] testValues = new String[]
@@ -139,6 +150,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     //         Some real-world attribute type definitions         //
     ////////////////////////////////////////////////////////////////
 
+    @Test
     public void testRfcBinary() throws ParseException
     {
         String value = "( 1.3.6.1.4.1.1466.115.121.1.5 DESC 'Binary' X-NOT-HUMAN-READABLE 'TRUE' )";
@@ -156,6 +168,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the parse of a simple AttributeType with the schema extension.
      */
+    @Test
     public void testSyntaxWithExtensions() throws ParseException
     {
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus description' X-SCHEMA 'blah' X-IS-HUMAN-READABLE 'true' )";
@@ -169,6 +182,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     /**
      * Tests the multithreaded use of a single parser.
      */
+    @Test
     public void testMultiThreaded() throws ParseException
     {
         String[] testValues = new String[]
@@ -184,6 +198,7 @@ public class LdapSyntaxDescriptionSchemaParserTest extends TestCase
     /**
      * Tests quirks mode.
      */
+    @Test
     public void testQuirksMode() throws ParseException
     {
         SchemaParserTestUtils.testQuirksMode( parser, "" );

@@ -38,7 +38,7 @@ import org.apache.directory.shared.asn1.util.BooleanDecoder;
 import org.apache.directory.shared.asn1.util.BooleanDecoderException;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 import org.apache.directory.shared.asn1.util.IntegerDecoderException;
-import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
+import org.apache.directory.shared.ldap.codec.abandon.AbandonRequestCodec;
 import org.apache.directory.shared.ldap.codec.actions.AttributeDescAction;
 import org.apache.directory.shared.ldap.codec.actions.ControlValueAction;
 import org.apache.directory.shared.ldap.codec.actions.ControlsInitAction;
@@ -71,30 +71,30 @@ import org.apache.directory.shared.ldap.codec.actions.StoreMatchValueAction;
 import org.apache.directory.shared.ldap.codec.actions.StoreReferenceAction;
 import org.apache.directory.shared.ldap.codec.actions.StoreTypeMatchingRuleAction;
 import org.apache.directory.shared.ldap.codec.actions.ValueAction;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
-import org.apache.directory.shared.ldap.codec.add.AddResponse;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
+import org.apache.directory.shared.ldap.codec.add.AddResponseCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.compare.CompareRequest;
-import org.apache.directory.shared.ldap.codec.compare.CompareResponse;
-import org.apache.directory.shared.ldap.codec.del.DelRequest;
-import org.apache.directory.shared.ldap.codec.del.DelResponse;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedRequest;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
-import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponse;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
-import org.apache.directory.shared.ldap.codec.modify.ModifyResponse;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponse;
+import org.apache.directory.shared.ldap.codec.compare.CompareRequestCodec;
+import org.apache.directory.shared.ldap.codec.compare.CompareResponseCodec;
+import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
+import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
+import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponseCodec;
 import org.apache.directory.shared.ldap.codec.search.ExtensibleMatchFilter;
-import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
-import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
-import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
+import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultEntryCodec;
+import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
-import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
@@ -181,7 +181,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                     }
 
                     // First, create a empty LdapMessage Object
-                    LdapMessage ldapMessage = new LdapMessage();
+                    LdapMessageCodec ldapMessage = new LdapMessageCodec();
 
                     // Then stores it into the container
                     ldapMessageContainer.setLdapMessage( ldapMessage );
@@ -211,7 +211,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // The current TLV should be a integer
                     // We get it and store it in MessageId
@@ -293,7 +293,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
                     int expectedLength = tlv.getLength();
@@ -308,7 +308,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                         throw new DecoderException( "The length of a UnBindRequest must be null" );
                     }
 
-                    UnBindRequest unBindRequest = new UnBindRequest();
+                    UnBindRequestCodec unBindRequest = new UnBindRequestCodec();
 
                     unBindRequest.setParent( ldapMessage );
 
@@ -348,10 +348,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the DelRequest Object
-                    DelRequest delRequest = new DelRequest();
+                    DelRequestCodec delRequest = new DelRequestCodec();
 
                     // And store the DN into it
                     // Get the Value and store it in the DelRequest
@@ -427,7 +427,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // The current TLV should be a integer
                     // We get it and store it in MessageId
@@ -450,7 +450,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                         // Ok, the Message ID is correct. We have to store it
                         // in the AbandonRequest Object
-                        AbandonRequest abandonRequest = new AbandonRequest();
+                        AbandonRequestCodec abandonRequest = new AbandonRequestCodec();
                         abandonRequest.setAbandonedMessageId( abandonnedMessageId );
                         ldapMessage.setProtocolOP( abandonRequest );
 
@@ -501,7 +501,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We will check that the request is not null
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -516,7 +516,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                     }
 
                     // Now, we can allocate the BindRequest Object
-                    ldapMessage.setProtocolOP( new BindRequest() );
+                    ldapMessage.setProtocolOP( new BindRequestCodec() );
                 }
             } );
 
@@ -536,7 +536,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    BindRequest bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
+                    BindRequestCodec bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
 
                     // The current TLV should be a integer between 1 and 127
                     // We get it and store it in Version
@@ -584,8 +584,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    BindRequest bindRequestMessage = ldapMessage.getBindRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    BindRequestCodec bindRequestMessage = ldapMessage.getBindRequest();
 
                     // Get the Value and store it in the BindRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -646,7 +646,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    BindRequest bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
+                    BindRequestCodec bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Allocate the Authentication Object
@@ -709,8 +709,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    BindRequest bindRequestMessage = ldapMessage.getBindRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    BindRequestCodec bindRequestMessage = ldapMessage.getBindRequest();
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // We will check that the sasl is not null
@@ -756,8 +756,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    BindRequest bindRequestMessage = ldapMessage.getBindRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    BindRequestCodec bindRequestMessage = ldapMessage.getBindRequest();
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Get the SaslCredentials Object
@@ -802,7 +802,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    BindRequest bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
+                    BindRequestCodec bindRequestMessage = ldapMessageContainer.getLdapMessage().getBindRequest();
 
                     // Get the Value and store it in the BindRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -867,10 +867,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the BindRequest Object
-                    BindResponse bindResponse = new BindResponse();
+                    BindResponseCodec bindResponse = new BindResponseCodec();
 
                     // As this is a new Constructed object, we have to init its
                     // length
@@ -1058,9 +1058,9 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    LdapResponse response = ldapMessage.getLdapResponse();
-                    LdapResult ldapResult = response.getLdapResult();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapResponseCodec response = ldapMessage.getLdapResponse();
+                    LdapResultCodec ldapResult = response.getLdapResult();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1140,11 +1140,11 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the SearchResultEntry Object
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new SearchResultEntry() );
+                    ldapMessage.setProtocolOP( new SearchResultEntryCodec() );
                 }
             } );
 
@@ -1164,8 +1164,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchResultEntry searchResultEntry = ldapMessage.getSearchResultEntry();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchResultEntryCodec searchResultEntry = ldapMessage.getSearchResultEntry();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1270,8 +1270,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchResultEntry searchResultEntry = ldapMessage.getSearchResultEntry();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchResultEntryCodec searchResultEntry = ldapMessage.getSearchResultEntry();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1409,10 +1409,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the SearchResultDone Object
-                    ldapMessage.setProtocolOP( new SearchResultDone() );
+                    ldapMessage.setProtocolOP( new SearchResultDoneCodec() );
 
                     log.debug( "Search Result Done found" );
                 }
@@ -1448,11 +1448,11 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the ModifyRequest Object
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new ModifyRequest() );
+                    ldapMessage.setProtocolOP( new ModifyRequestCodec() );
                 }
             } );
 
@@ -1472,8 +1472,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    ModifyRequest modifyRequest = ldapMessage.getModifyRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    ModifyRequestCodec modifyRequest = ldapMessage.getModifyRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1530,8 +1530,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    ModifyRequest modifyRequest = ldapMessage.getModifyRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    ModifyRequestCodec modifyRequest = ldapMessage.getModifyRequest();
 
                     modifyRequest.initModifications();
                 }
@@ -1567,8 +1567,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    ModifyRequest modifyRequest = ldapMessage.getModifyRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    ModifyRequestCodec modifyRequest = ldapMessage.getModifyRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1651,8 +1651,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    ModifyRequest modifyRequest = ldapMessage.getModifyRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    ModifyRequestCodec modifyRequest = ldapMessage.getModifyRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1836,10 +1836,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new ModifyResponse() );
+                    ldapMessage.setProtocolOP( new ModifyResponseCodec() );
 
                     log.debug( "Modify response" );
                 }
@@ -1875,7 +1875,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We will check that the request is not null
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -1891,7 +1891,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     // Now, we can allocate the ModifyRequest Object
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new AddRequest() );
+                    ldapMessage.setProtocolOP( new AddRequestCodec() );
                 }
             } );
 
@@ -1911,8 +1911,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    AddRequest addRequest = ldapMessage.getAddRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    AddRequestCodec addRequest = ldapMessage.getAddRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -1996,10 +1996,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
-                    AddRequest addRequest = ldapMessage.getAddRequest();
+                    AddRequestCodec addRequest = ldapMessage.getAddRequest();
 
                     // Store the type. It can't be null.
 
@@ -2107,7 +2107,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We will check that the request is not null
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2122,7 +2122,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                     }
 
                     // Now, we can allocate the AddRequest Object
-                    AddResponse addResponse = new AddResponse();
+                    AddResponseCodec addResponse = new AddResponseCodec();
 
                     // As this is a new Constructed object, we have to init its
                     // length
@@ -2166,12 +2166,12 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the DelResponse Object
 
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new DelResponse() );
+                    ldapMessage.setProtocolOP( new DelResponseCodec() );
 
                     log.debug( "Del response " );
                 }
@@ -2207,11 +2207,11 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the ModifyDNRequest Object
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new ModifyDNRequest() );
+                    ldapMessage.setProtocolOP( new ModifyDNRequestCodec() );
 
                 }
             } );
@@ -2232,9 +2232,9 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                    ModifyDNRequest modifyDNRequest = ldapMessage.getModifyDNRequest();
+                    ModifyDNRequestCodec modifyDNRequest = ldapMessage.getModifyDNRequest();
 
                     // Get the Value and store it in the modifyDNRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2298,9 +2298,9 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                    ModifyDNRequest modifyDNRequest = ldapMessage.getModifyDNRequest();
+                    ModifyDNRequestCodec modifyDNRequest = ldapMessage.getModifyDNRequest();
 
                     // Get the Value and store it in the modifyDNRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2365,12 +2365,12 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Store the value.
-                    ModifyDNRequest modifyDNRequest = ldapMessage.getModifyDNRequest();
+                    ModifyDNRequestCodec modifyDNRequest = ldapMessage.getModifyDNRequest();
 
                     // We get the value. If it's a 0, it's a FALSE. If it's
                     // a FF, it's a TRUE. Any other value should be an error,
@@ -2427,9 +2427,9 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
-                    ModifyDNRequest modifyDNRequest = ldapMessage.getModifyDNRequest();
+                    ModifyDNRequestCodec modifyDNRequest = ldapMessage.getModifyDNRequest();
 
                     // Get the Value and store it in the modifyDNRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2527,10 +2527,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new ModifyDNResponse() );
+                    ldapMessage.setProtocolOP( new ModifyDNResponseCodec() );
 
                     log.debug( "Modify DN response " );
                 }
@@ -2570,10 +2570,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the CompareRequest Object
-                    ldapMessage.setProtocolOP( new CompareRequest() );
+                    ldapMessage.setProtocolOP( new CompareRequestCodec() );
                 }
             } );
 
@@ -2593,10 +2593,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the CompareRequest Object
-                    CompareRequest compareRequest = ldapMessage.getCompareRequest();
+                    CompareRequestCodec compareRequest = ldapMessage.getCompareRequest();
 
                     // Get the Value and store it in the CompareRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2669,10 +2669,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Get the CompareRequest Object
-                    CompareRequest compareRequest = ldapMessage.getCompareRequest();
+                    CompareRequestCodec compareRequest = ldapMessage.getCompareRequest();
 
                     // Get the Value and store it in the CompareRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2717,10 +2717,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Get the CompareRequest Object
-                    CompareRequest compareRequest = ldapMessage.getCompareRequest();
+                    CompareRequestCodec compareRequest = ldapMessage.getCompareRequest();
 
                     // Get the Value and store it in the CompareRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2786,7 +2786,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We will check that the request is not null
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2800,7 +2800,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     // Now, we can allocate the CompareResponse Object
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new CompareResponse() );
+                    ldapMessage.setProtocolOP( new CompareResponseCodec() );
 
                     log.debug( "Compare response " );
                 }
@@ -2836,10 +2836,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the BindRequest Object
-                    SearchResultReference searchResultReference = new SearchResultReference();
+                    SearchResultReferenceCodec searchResultReference = new SearchResultReferenceCodec();
 
                     // As this is a new Constructed object, we have to init its
                     // length
@@ -2899,10 +2899,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the ExtendedRequest Object
-                    ldapMessage.setProtocolOP( new ExtendedRequest() );
+                    ldapMessage.setProtocolOP( new ExtendedRequestCodec() );
                 }
             } );
 
@@ -2922,10 +2922,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the ExtendedRequest Object
-                    ExtendedRequest extendedRequest = ldapMessage.getExtendedRequest();
+                    ExtendedRequestCodec extendedRequest = ldapMessage.getExtendedRequest();
 
                     // Get the Value and store it in the ExtendedRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -2985,10 +2985,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the ExtendedRequest Object
-                    ExtendedRequest extendedRequest = ldapMessage.getExtendedRequest();
+                    ExtendedRequestCodec extendedRequest = ldapMessage.getExtendedRequest();
 
                     // Get the Value and store it in the ExtendedRequest
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -3053,10 +3053,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the ExtendedResponse Object
-                    ldapMessage.setProtocolOP( new ExtendedResponse() );
+                    ldapMessage.setProtocolOP( new ExtendedResponseCodec() );
                 }
             } );
 
@@ -3267,10 +3267,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the IntermediateResponse Object
-                    ldapMessage.setProtocolOP( new IntermediateResponse() );
+                    ldapMessage.setProtocolOP( new IntermediateResponseCodec() );
                 }
             } );
 
@@ -3290,10 +3290,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can get the IntermediateResponse Object
-                    IntermediateResponse intermediateResponse = ldapMessage.getIntermediateResponse();
+                    IntermediateResponseCodec intermediateResponse = ldapMessage.getIntermediateResponse();
 
                     // Get the Value and store it in the IntermediateResponse
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -3354,10 +3354,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can get the IntermediateResponse Object
-                    IntermediateResponse intermediateResponse = ldapMessage.getIntermediateResponse();
+                    IntermediateResponseCodec intermediateResponse = ldapMessage.getIntermediateResponse();
 
                     // Get the Value and store it in the IntermediateResponse
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -3399,10 +3399,10 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // We can allocate the ExtendedRequest Object
-                    IntermediateResponse intermediateResponse = ldapMessage.getIntermediateResponse();
+                    IntermediateResponseCodec intermediateResponse = ldapMessage.getIntermediateResponse();
 
                     // Get the Value and store it in the IntermediateResponse
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
@@ -3461,7 +3461,7 @@ public class LdapMessageGrammar extends AbstractGrammar
             public void action( IAsn1Container container ) throws DecoderException
             {
                 LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                LdapMessage message = ldapMessageContainer.getLdapMessage();
+                LdapMessageCodec message = ldapMessageContainer.getLdapMessage();
 
                 TLV tlv = ldapMessageContainer.getCurrentTLV();
                 int expectedLength = tlv.getLength();
@@ -3476,7 +3476,7 @@ public class LdapMessageGrammar extends AbstractGrammar
                 }
 
                 // Create a new control
-                Control control = new Control();
+                ControlCodec control = new ControlCodec();
 
                 // Store the control into the container
                 message.addControl( control );
@@ -3508,12 +3508,12 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage message = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec message = ldapMessageContainer.getLdapMessage();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Get the current control
-                    Control control = message.getCurrentControl();
+                    ControlCodec control = message.getCurrentControl();
 
                     // Store the type
                     // We have to handle the special case of a 0 length OID
@@ -3572,12 +3572,12 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage message = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec message = ldapMessageContainer.getLdapMessage();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
                     // Get the current control
-                    Control control = message.getCurrentControl();
+                    ControlCodec control = message.getCurrentControl();
 
                     // Store the criticality
                     // We get the value. If it's a 0, it's a FALSE. If it's
@@ -3683,11 +3683,11 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
 
                     // Now, we can allocate the SearchRequest
                     // And we associate it to the ldapMessage Object
-                    ldapMessage.setProtocolOP( new SearchRequest() );
+                    ldapMessage.setProtocolOP( new SearchRequestCodec() );
                 }
             } );
 
@@ -3707,8 +3707,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -3768,7 +3768,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    SearchRequestCodec searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -3833,7 +3833,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    SearchRequestCodec searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -3897,7 +3897,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    SearchRequestCodec searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -3945,7 +3945,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    SearchRequestCodec searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -3994,7 +3994,7 @@ public class LdapMessageGrammar extends AbstractGrammar
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
 
-                    SearchRequest searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
+                    SearchRequestCodec searchRequest = ldapMessageContainer.getLdapMessage().getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -5141,8 +5141,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -5215,8 +5215,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -6136,8 +6136,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 
@@ -6263,8 +6263,8 @@ public class LdapMessageGrammar extends AbstractGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
-                    LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
-                    SearchRequest searchRequest = ldapMessage.getSearchRequest();
+                    LdapMessageCodec ldapMessage = ldapMessageContainer.getLdapMessage();
+                    SearchRequestCodec searchRequest = ldapMessage.getSearchRequest();
 
                     TLV tlv = ldapMessageContainer.getCurrentTLV();
 

@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.message.extended;
 
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.util.StringTools;
 /**
  * 
  * The response sent back from the server after the CertGeneration extended operation is performed.
@@ -30,11 +31,11 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  */
 public class CertGenerationResponse extends ExtendedResponseImpl
 {
-
+	/** The serial version UUID */
+	private static final long serialVersionUID = 1L;
+	
+	/** The CertGenerationResponse OID */
     public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.7";
-
-    private static final byte[] EMPTY_RESPONSE = new byte[0];
-
 
     public CertGenerationResponse(int messageId, ResultCodeEnum rcode)
     {
@@ -43,11 +44,7 @@ public class CertGenerationResponse extends ExtendedResponseImpl
         switch ( rcode )
         {
             case SUCCESS :
-                break;
-            
             case OPERATIONS_ERROR :
-                break;
-            
             case INSUFFICIENT_ACCESS_RIGHTS :
                 break;
             
@@ -80,12 +77,12 @@ public class CertGenerationResponse extends ExtendedResponseImpl
      */
     public byte[] getResponse()
     {
-        return EMPTY_RESPONSE;
+        return StringTools.EMPTY_BYTES;
     }
 
 
     /**
-     * Sets the reponse OID specific encoded response values.
+     * Sets the response OID specific encoded response values.
      * 
      * @param value
      *            the response specific encoded response values.

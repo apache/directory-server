@@ -20,14 +20,8 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import junit.framework.TestCase;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -35,6 +29,9 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -43,10 +40,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  *         $Rev$
  */
-public class SearchResponseEntryImplTest extends TestCase
+public class SearchResponseEntryImplTest
 {
-    private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
-
     /**
      * Creates and populates an EntryAttribute with a specific id.
      * 
@@ -68,7 +63,7 @@ public class SearchResponseEntryImplTest extends TestCase
      * 
      * @return The populated Entry object
      */
-    Entry getEntry() throws NamingException
+    private Entry getEntry() throws NamingException
     {
         Entry attrs = new DefaultClientEntry();
         attrs.put( getEntry( "attr0" ) );
@@ -81,6 +76,7 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for equality when the same object referrence is used.
      */
+    @Test
     public void testEqualsSameObject()
     {
         SearchResponseEntryImpl resp = new SearchResponseEntryImpl( 5 );
@@ -91,6 +87,7 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for equality when an exact copy is compared.
      */
+    @Test
     public void testEqualsExactCopy() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
@@ -109,6 +106,7 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for inequality when the objectName dn is not the same.
      */
+    @Test
     public void testNotEqualDiffObjectName() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
@@ -127,6 +125,7 @@ public class SearchResponseEntryImplTest extends TestCase
     /**
      * Tests for inequality when the attributes are not the same.
      */
+    @Test
     public void testNotEqualDiffAttributes() throws InvalidNameException, NamingException
     {
         SearchResponseEntryImpl resp0 = new SearchResponseEntryImpl( 5 );
