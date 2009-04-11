@@ -22,13 +22,13 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.core.cursor.ClosureMonitor;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.CursorIterator;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.CursorIterator;
 
 
 /**

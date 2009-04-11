@@ -22,14 +22,14 @@ package org.apache.directory.server.ldap;
 
 import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.MutableControl;
-import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.InternalControl;
+import org.apache.directory.shared.ldap.message.InternalRequest;
 import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.message.InternalResultResponse;
+import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
  * the LDAP protocol.  THe {@link LdapService} creates this multiplexing 
  * {@link IoHandler} handler and populates it with subordinate handlers for
- * the various kinds of LDAP {@link Request} messages.  This is done in the
+ * the various kinds of LDAP {@link InternalRequest} messages.  This is done in the
  * setXxxHandler() methods of the LdapService where Xxxx is Add, Modify, etc.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -161,28 +161,28 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
             req.setPayload( "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest req = new ExtendedRequestImpl( 0 );
+            InternalExtendedRequest req = new ExtendedRequestImpl( 0 );
             req.setOid( "1.3.6.1.4.1.1466.20037" );
             req.setPayload( "UNSECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
 
-        if ( ( ( Request ) message ).getControls().size() > 0 && message instanceof ResultResponseRequest )
+        if ( ( ( InternalRequest ) message ).getControls().size() > 0 && message instanceof InternalResultResponseRequest )
         {
-            ResultResponseRequest req = ( ResultResponseRequest ) message;
+            InternalResultResponseRequest req = ( InternalResultResponseRequest ) message;
             for ( Control control1 : req.getControls().values() )
             {
-                MutableControl control = ( MutableControl ) control1;
+                InternalControl control = ( InternalControl ) control1;
                 if ( control.isCritical() && ! ldapService.getSupportedControls().contains( control.getID() ) )
                 {
-                    ResultResponse resp = req.getResultResponse();
+                    InternalResultResponse resp = req.getResultResponse();
                     resp.getLdapResult().setErrorMessage( "Unsupport critical control: " + control.getID() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );

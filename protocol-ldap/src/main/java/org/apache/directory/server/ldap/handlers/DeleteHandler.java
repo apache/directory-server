@@ -22,8 +22,8 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 import org.slf4j.Logger;
@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link DeleteRequest}s.
+ * A single reply handler for {@link InternalDeleteRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
+public class DeleteHandler extends LdapRequestHandler<InternalDeleteRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( DeleteHandler.class );
 
@@ -44,10 +44,10 @@ public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, DeleteRequest req )
+    public void handle( LdapSession session, InternalDeleteRequest req )
     {
         LOG.debug( "Handling request: {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {

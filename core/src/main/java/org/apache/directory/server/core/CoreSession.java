@@ -37,14 +37,14 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
+import org.apache.directory.shared.ldap.message.InternalCompareRequest;
+import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -250,21 +250,21 @@ public interface CoreSession
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param AddRequest the request to execute
+     * @param InternalAddRequest the request to execute
      * @exception Exception on failures to add the entry
      */
-    void add( AddRequest addRequest ) throws Exception;
+    void add( InternalAddRequest addRequest ) throws Exception;
     
     
     /**
      * Adds an entry into the DirectoryService associated with this CoreSession.
      * The entry is built using the received AddRequest.
      * 
-     * @param AddRequest the request to execute
+     * @param InternalAddRequest the request to execute
      * @param log a flag set if the added entry should be stored in the changeLog
      * @exception Exception on failures to add the entry
      */
-    void add( AddRequest addRequest, LogChange log ) throws Exception;
+    void add( InternalAddRequest addRequest, LogChange log ) throws Exception;
     
     
     /**
@@ -298,7 +298,7 @@ public interface CoreSession
      * @param compareRequest the received request
      * @throws Exception if there are failures while comparing
      */
-    boolean compare( CompareRequest compareRequest ) throws Exception;
+    boolean compare( InternalCompareRequest compareRequest ) throws Exception;
 
     
     /**
@@ -320,10 +320,10 @@ public interface CoreSession
     void delete( LdapDN dn, LogChange log ) throws Exception;
     
     
-    void delete( DeleteRequest deleteRequest ) throws Exception;
+    void delete( InternalDeleteRequest deleteRequest ) throws Exception;
     
     
-    void delete( DeleteRequest deleteRequest, LogChange log ) throws Exception;
+    void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws Exception;
 
     
     /**
@@ -429,10 +429,10 @@ public interface CoreSession
     void modify( LdapDN dn, List<Modification> mods, boolean ignoreReferral, LogChange log ) throws Exception;
     
     
-    void modify( ModifyRequest modifyRequest ) throws Exception;
+    void modify( InternalModifyRequest modifyRequest ) throws Exception;
     
     
-    void modify( ModifyRequest modifyRequest, LogChange log ) throws Exception;
+    void modify( InternalModifyRequest modifyRequest, LogChange log ) throws Exception;
 
     
     /**
@@ -489,7 +489,7 @@ public interface CoreSession
      * @param modifyDnRequest The ModifyDN request
      * @throws Exception if there are failures while moving the entry/branch
      */
-    void move( ModifyDnRequest modifyDnRequest ) throws Exception;
+    void move( InternalModifyDnRequest modifyDnRequest ) throws Exception;
     
     
     /**
@@ -499,7 +499,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while moving the entry/branch
      */
-    void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
+    void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
     
     
     /**
@@ -573,7 +573,7 @@ public interface CoreSession
      * @throws Exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception;
+    void moveAndRename( InternalModifyDnRequest modifyDnRequest ) throws Exception;
     
     
     /**
@@ -584,7 +584,7 @@ public interface CoreSession
      * @throws Exception if there are failures while moving and renaming the entry
      * or branch
      */
-    void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
+    void moveAndRename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
     
     
     /**
@@ -657,7 +657,7 @@ public interface CoreSession
      * @param modifyDnRequest The requested modification
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( ModifyDnRequest modifyDnRequest ) throws Exception;
+    void rename( InternalModifyDnRequest modifyDnRequest ) throws Exception;
     
     
     /**
@@ -667,7 +667,7 @@ public interface CoreSession
      * @param log a flag set if the added entry should be stored in the changeLog
      * @throws Exception if there are failures while renaming the entry
      */
-    void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
+    void rename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception;
     
     
     /**
@@ -770,11 +770,11 @@ public interface CoreSession
         Set<AttributeTypeOptions> returningAttributes, int sizeLimit, int timeLimit ) throws Exception;
 
 
-    EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception;
+    EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws Exception;
 
 
     void unbind() throws Exception;
     
     
-    void unbind( UnbindRequest unbindRequest ) throws Exception;
+    void unbind( InternalUnbindRequest unbindRequest ) throws Exception;
 }

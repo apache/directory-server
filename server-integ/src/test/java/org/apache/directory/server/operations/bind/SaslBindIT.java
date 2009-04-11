@@ -63,7 +63,7 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.BindResponse;
+import org.apache.directory.shared.ldap.message.InternalBindResponse;
 import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -515,13 +515,13 @@ public class SaslBindIT
      public void testNtlmBind() throws Exception
      {
          NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
-         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+         InternalBindResponse type2response = client.bindType1( "type1_test".getBytes() );
          assertEquals( 1, type2response.getMessageId() );
          assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
          assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
          assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
          
-         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+         InternalBindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
          assertEquals( 2, finalResponse.getMessageId() );
          assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
          assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
@@ -535,13 +535,13 @@ public class SaslBindIT
      public void testGssSpnegoBind() throws Exception
      {
          NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
-         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+         InternalBindResponse type2response = client.bindType1( "type1_test".getBytes() );
          assertEquals( 1, type2response.getMessageId() );
          assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
          assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
          assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
          
-         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+         InternalBindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
          assertEquals( 2, finalResponse.getMessageId() );
          assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
          assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
@@ -610,7 +610,7 @@ public class SaslBindIT
          }
 
          
-         BindResponse bindType1( byte[] type1response ) throws Exception
+         InternalBindResponse bindType1( byte[] type1response ) throws Exception
          {
              if ( ! isConnected() )
              {
@@ -644,11 +644,11 @@ public class SaslBindIT
              }
              
              // Retrieve the response back from server to my last request.
-             return ( BindResponse ) decoder.decode( null, _input_ );
+             return ( InternalBindResponse ) decoder.decode( null, _input_ );
          }
          
          
-         BindResponse bindType3( byte[] type3response ) throws Exception
+         InternalBindResponse bindType3( byte[] type3response ) throws Exception
          {
              if ( ! isConnected() )
              {
@@ -683,7 +683,7 @@ public class SaslBindIT
              }
              
              // Retrieve the response back from server to my last request.
-             return ( BindResponse ) decoder.decode( null, _input_ );
+             return ( InternalBindResponse ) decoder.decode( null, _input_ );
          }
      }
 }

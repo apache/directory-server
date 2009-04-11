@@ -95,6 +95,11 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${org.apache.directory.shared.version}</version>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

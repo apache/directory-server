@@ -32,10 +32,10 @@ import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationContainer;
-import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationDecoder;
-import org.apache.directory.shared.ldap.codec.extended.operations.CertGenerationObject;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.certGeneration.CertGenerationObject;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationRequest;
 import org.apache.directory.shared.ldap.message.extended.CertGenerationResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -78,7 +78,7 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         ByteBuffer bb = ByteBuffer.wrap( req.getPayload() );
         Asn1Decoder decoder = new CertGenerationDecoder();

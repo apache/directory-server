@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm;
 
 import java.io.File;
 
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.server.core.cursor.Cursor;
 
 
 /**

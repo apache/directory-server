@@ -20,12 +20,15 @@
 package org.apache.directory.server.core.avltree;
 
 
-import static org.junit.Assert.*;
-
 import java.util.Comparator;
 
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**

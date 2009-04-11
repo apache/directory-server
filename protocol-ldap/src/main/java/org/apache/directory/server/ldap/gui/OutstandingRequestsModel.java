@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.gui;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 
 
 public class OutstandingRequestsModel implements TableModel
@@ -32,16 +32,16 @@ public class OutstandingRequestsModel implements TableModel
         { "messageId", "type" };
     final Class<?>[] columnClasses = new Class[]
         { Integer.class, String.class };
-    final AbandonableRequest[] requests;
+    final InternalAbandonableRequest[] requests;
 
 
-    OutstandingRequestsModel(AbandonableRequest[] requests)
+    OutstandingRequestsModel(InternalAbandonableRequest[] requests)
     {
         this.requests = requests;
     }
 
 
-    AbandonableRequest getAbandonableRequest( int row )
+    InternalAbandonableRequest getAbandonableRequest( int row )
     {
         return requests[row];
     }
@@ -79,7 +79,7 @@ public class OutstandingRequestsModel implements TableModel
 
     public Object getValueAt( int rowIndex, int columnIndex )
     {
-        AbandonableRequest req = requests[rowIndex];
+        InternalAbandonableRequest req = requests[rowIndex];
 
         switch ( columnIndex )
         {

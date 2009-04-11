@@ -21,8 +21,8 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalCompareRequest;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link CompareRequest}s.
+ * A single reply handler for {@link InternalCompareRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class CompareHandler extends LdapRequestHandler<CompareRequest>
+public class CompareHandler extends LdapRequestHandler<InternalCompareRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareHandler.class );
 
@@ -47,10 +47,10 @@ public class CompareHandler extends LdapRequestHandler<CompareRequest>
      * org.apache.directory.shared.ldap.message.SingleReplyRequest)
      */
     @Override
-    public void handle( LdapSession session, CompareRequest req )
+    public void handle( LdapSession session, InternalCompareRequest req )
     {
         LOG.debug( "Handling compare request while ignoring referrals: {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
         
         try
         {

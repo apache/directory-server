@@ -34,6 +34,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -555,8 +556,15 @@ public class InterceptorChainTest extends TestCase
         {
             
         }
+
         
         public ChangeLog getChangeLog()
+        {
+            return null;
+        }
+
+
+        public Journal getJournal()
         {
             return null;
         }
@@ -668,6 +676,13 @@ public class InterceptorChainTest extends TestCase
         
         public void setReplicaId( int replicaId )
         {
+            
+        }
+
+
+        public void setJournal( Journal journal )
+        {
+            // TODO Auto-generated method stub
             
         }
     }

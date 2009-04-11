@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.PrepareString;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -88,7 +88,7 @@ public class PlainSaslServer extends AbstractSaslServer
      * @param bindRequest The associated BindRequest object
      * @param ldapSession The associated LdapSession instance 
      */
-    public PlainSaslServer( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
+    public PlainSaslServer( LdapSession ldapSession, CoreSession adminSession, InternalBindRequest bindRequest )
     {
         super( ldapSession, adminSession, bindRequest );
         state = NegotiationState.INITIALIZED;

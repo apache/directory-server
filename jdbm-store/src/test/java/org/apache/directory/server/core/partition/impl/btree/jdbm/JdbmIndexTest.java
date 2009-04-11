@@ -35,9 +35,9 @@ import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 
 import java.util.Set;
 import java.util.HashSet;

@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
@@ -68,7 +68,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession requestor, InternalExtendedRequest req ) throws Exception
     {
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
@@ -201,7 +201,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             try
             {
-                future.join( 1000 );
+                future.awaitUninterruptibly( 1000 );
             }
             catch ( Exception e )
             {
@@ -253,7 +253,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         {
             try
             {
-                future.join( 1000 );
+                future.awaitUninterruptibly( 1000 );
                 sessionIt.next().close( true );
             }
             catch ( Exception e )

@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers.bind;
 import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 
 
 /**
@@ -44,7 +44,7 @@ public interface MechanismHandler
      * @return The {@link SaslServer} to use for the duration of the bound session.
      * @throws Exception
      */
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
+    public SaslServer handleMechanism( LdapSession session, InternalBindRequest bindRequest ) throws Exception;
     
     
     /**

@@ -26,9 +26,9 @@ import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindResponse;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -53,7 +53,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
     
-    public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
+    public SaslServer handleMechanism( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
@@ -77,7 +77,7 @@ public class SimpleMechanismHandler implements MechanismHandler
             ldapSession.setCoreSession( opContext.getSession() );
             
             // Return the successful response
-            BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+            InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             LdapProtocolUtils.setResponseControls( opContext, response );
             
@@ -89,7 +89,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         {
             // Something went wrong. Write back an error message            
             ResultCodeEnum code = null;
-            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+            InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
             if ( e instanceof LdapException )
             {

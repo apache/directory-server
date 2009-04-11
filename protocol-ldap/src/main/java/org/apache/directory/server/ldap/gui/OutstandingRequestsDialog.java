@@ -33,7 +33,7 @@ import javax.swing.JButton;
 
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,7 +42,7 @@ import javax.swing.event.ListSelectionListener;
 public class OutstandingRequestsDialog extends JDialog
 {
     private static final long serialVersionUID = -3777123348215825711L;
-    private static final AbandonableRequest[] EMPTY_REQUEST_ARRAY = new AbandonableRequest[0];
+    private static final InternalAbandonableRequest[] EMPTY_REQUEST_ARRAY = new InternalAbandonableRequest[0];
     private JPanel jContentPane;
     private JPanel jPanel;
     private JScrollPane jScrollPane;
@@ -164,7 +164,7 @@ public class OutstandingRequestsDialog extends JDialog
                 if ( row > -1 )
                 {
                     jButton2.setEnabled( true );
-                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
+                    InternalAbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
                         .getAbandonableRequest( row );
                     jTextArea.setText( req.toString() );
                     jTextArea.setEnabled( true );
@@ -183,14 +183,14 @@ public class OutstandingRequestsDialog extends JDialog
 
     private void setRequestsModel()
     {
-        AbandonableRequest[] requests;
-        Map<Integer, AbandonableRequest> reqsMap = session.getOutstandingRequests();
+        InternalAbandonableRequest[] requests;
+        Map<Integer, InternalAbandonableRequest> reqsMap = session.getOutstandingRequests();
         
         if ( reqsMap != null )
         {
-            requests = new AbandonableRequest[reqsMap.size()];
+            requests = new InternalAbandonableRequest[reqsMap.size()];
             //noinspection unchecked
-            requests = ( AbandonableRequest[] ) reqsMap.values().toArray( requests );
+            requests = ( InternalAbandonableRequest[] ) reqsMap.values().toArray( requests );
         }
         else
         {
@@ -324,7 +324,7 @@ public class OutstandingRequestsDialog extends JDialog
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
                     int row = jTable.getSelectedRow();
-                    AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
+                    InternalAbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
                         .getAbandonableRequest( row );
                     req.abandon();
                     session.abandonOutstandingRequest( req.getMessageId() );

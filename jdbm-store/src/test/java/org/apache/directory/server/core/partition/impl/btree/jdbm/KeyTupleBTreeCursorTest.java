@@ -34,10 +34,10 @@ import jdbm.btree.BTree;
 import jdbm.helper.IntegerSerializer;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
 import org.junit.After;
 import org.junit.Before;

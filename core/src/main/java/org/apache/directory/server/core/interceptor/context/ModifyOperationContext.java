@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -81,7 +81,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws Exception
+    public ModifyOperationContext( CoreSession session, InternalModifyRequest modifyRequest ) throws Exception
     {
         super( session, modifyRequest.getName() );
         

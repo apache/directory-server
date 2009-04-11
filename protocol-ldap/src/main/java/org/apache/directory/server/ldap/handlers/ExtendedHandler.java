@@ -22,22 +22,22 @@ package org.apache.directory.server.ldap.handlers;
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 
 
 /**
-* A single reply handler for {@link ExtendedRequest}s.
+* A single reply handler for {@link InternalExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
+public class ExtendedHandler extends LdapRequestHandler<InternalExtendedRequest>
 {
-    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handle( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         ExtendedOperationHandler handler = getLdapServer().getExtendedOperationHandler( req.getOid() );
 
@@ -46,7 +46,7 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
             // As long as no extended operations are implemented, send appropriate
             // error back to the client.
             String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
-            LdapResult result = req.getResultResponse().getLdapResult();
+            InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setErrorMessage( msg );
             session.getIoSession().write( req.getResultResponse() );
@@ -59,12 +59,12 @@ public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest>
         }
         catch ( Exception e )
         {
-            LdapResult result = req.getResultResponse().getLdapResult();
+            InternalLdapResult result = req.getResultResponse().getLdapResult();
             result.setResultCode( ResultCodeEnum.OTHER );
             result.setErrorMessage( ResultCodeEnum.OTHER  
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-            ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
+            InternalExtendedResponse resp = ( InternalExtendedResponse ) req.getResultResponse();
             resp.setResponse( new byte[0] );
             session.getIoSession().write( req.getResultResponse() );
         }

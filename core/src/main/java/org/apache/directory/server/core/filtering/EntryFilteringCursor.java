@@ -22,9 +22,9 @@ package org.apache.directory.server.core.filtering;
 
 import java.util.List;
 
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 
 
 /**

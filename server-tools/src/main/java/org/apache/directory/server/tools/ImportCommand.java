@@ -41,19 +41,19 @@ import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
+import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.LdapResult;
-import org.apache.directory.shared.ldap.codec.add.AddRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindRequest;
-import org.apache.directory.shared.ldap.codec.bind.BindResponse;
+import org.apache.directory.shared.ldap.codec.LdapResultCodec;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
+import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
-import org.apache.directory.shared.ldap.codec.del.DelRequest;
-import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
-import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
-import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
-import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
+import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -145,10 +145,10 @@ public class ImportCommand extends ToolCommand
     }
 
 
-    private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
+    private LdapMessageCodec readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
     {
 
-        LdapMessage messageResp = null;
+        LdapMessageCodec messageResp = null;
 
         while ( true )
         {
@@ -169,9 +169,9 @@ public class ImportCommand extends ToolCommand
                 {
                     messageResp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
 
-                    if ( messageResp instanceof BindResponse )
+                    if ( messageResp instanceof BindResponseCodec )
                     {
-                        BindResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                        BindResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getBindResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -179,9 +179,9 @@ public class ImportCommand extends ToolCommand
                             System.out.println( "Error : " + resp.getLdapResult().getErrorMessage() );
                         }
                     }
-                    else if ( messageResp instanceof ExtendedResponse )
+                    else if ( messageResp instanceof ExtendedResponseCodec )
                     {
-                        ExtendedResponse resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
+                        ExtendedResponseCodec resp = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage()
                             .getExtendedResponse();
 
                         if ( resp.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -217,7 +217,7 @@ public class ImportCommand extends ToolCommand
     private int addEntry( LdifEntry ldifEntry, int messageId ) throws IOException, DecoderException, InvalidNameException,
         NamingException, EncoderException
     {
-        AddRequest addRequest = new AddRequest();
+        AddRequestCodec addRequest = new AddRequestCodec();
 
         String dn = ldifEntry.getDn().getUpName();
 
@@ -241,7 +241,7 @@ public class ImportCommand extends ToolCommand
             }
         }
 
-        LdapMessage message = new LdapMessage();
+        LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( addRequest );
         message.setMessageId( messageId );
@@ -255,9 +255,9 @@ public class ImportCommand extends ToolCommand
         bb.clear();
 
         // Get the response
-        LdapMessage response = readResponse( bb );
+        LdapMessageCodec response = readResponse( bb );
 
-        LdapResult result = response.getAddResponse().getLdapResult();
+        LdapResultCodec result = response.getAddResponse().getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -290,7 +290,7 @@ public class ImportCommand extends ToolCommand
     private int deleteEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        DelRequest delRequest = new DelRequest();
+        DelRequestCodec delRequest = new DelRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -301,7 +301,7 @@ public class ImportCommand extends ToolCommand
 
         delRequest.setEntry( new LdapDN( dn ) );
 
-        LdapMessage message = new LdapMessage();
+        LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( delRequest );
         message.setMessageId( messageId );
@@ -315,9 +315,9 @@ public class ImportCommand extends ToolCommand
         bb.clear();
 
         // Get the response
-        LdapMessage response = readResponse( bb );
+        LdapMessageCodec response = readResponse( bb );
 
-        LdapResult result = response.getDelResponse().getLdapResult();
+        LdapResultCodec result = response.getDelResponse().getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -349,7 +349,7 @@ public class ImportCommand extends ToolCommand
     private int changeModRDNEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
+        ModifyDNRequestCodec modifyDNRequest = new ModifyDNRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -367,7 +367,7 @@ public class ImportCommand extends ToolCommand
             modifyDNRequest.setNewSuperior( new LdapDN( entry.getNewSuperior() ) );
         }
 
-        LdapMessage message = new LdapMessage();
+        LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( modifyDNRequest );
         message.setMessageId( messageId );
@@ -381,9 +381,9 @@ public class ImportCommand extends ToolCommand
         bb.clear();
 
         // Get the response
-        LdapMessage response = readResponse( bb );
+        LdapMessageCodec response = readResponse( bb );
 
-        LdapResult result = response.getModifyDNResponse().getLdapResult();
+        LdapResultCodec result = response.getModifyDNResponse().getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -413,7 +413,7 @@ public class ImportCommand extends ToolCommand
     private int changeModifyEntry( LdifEntry entry, int messageId ) throws IOException, DecoderException,
         InvalidNameException, NamingException, EncoderException
     {
-        ModifyRequest modifyRequest = new ModifyRequest();
+        ModifyRequestCodec modifyRequest = new ModifyRequestCodec();
 
         String dn = entry.getDn().getUpName();
 
@@ -436,7 +436,7 @@ public class ImportCommand extends ToolCommand
             }
         }
 
-        LdapMessage message = new LdapMessage();
+        LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( modifyRequest );
         message.setMessageId( messageId );
@@ -450,9 +450,9 @@ public class ImportCommand extends ToolCommand
         bb.clear();
 
         // Get the response
-        LdapMessage response = readResponse( bb );
+        LdapMessageCodec response = readResponse( bb );
 
-        LdapResult result = response.getModifyResponse().getLdapResult();
+        LdapResultCodec result = response.getModifyResponse().getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -513,8 +513,8 @@ public class ImportCommand extends ToolCommand
      */
     private void bind( int messageId ) throws NamingException, EncoderException, DecoderException, IOException
     {
-        BindRequest bindRequest = new BindRequest();
-        LdapMessage message = new LdapMessage();
+        BindRequestCodec bindRequest = new BindRequestCodec();
+        LdapMessageCodec message = new LdapMessageCodec();
         LdapAuthentication authentication = null;
 
         if ( "simple".equals( auth ) )
@@ -540,9 +540,9 @@ public class ImportCommand extends ToolCommand
         bb.clear();
 
         // Get the bind response
-        LdapMessage response = readResponse( bb );
+        LdapMessageCodec response = readResponse( bb );
 
-        LdapResult result = response.getBindResponse().getLdapResult();
+        LdapResultCodec result = response.getBindResponse().getLdapResult();
 
         if ( result.getResultCode() == ResultCodeEnum.SUCCESS )
         {
@@ -572,8 +572,8 @@ public class ImportCommand extends ToolCommand
      */
     private void unbind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
     {
-        UnBindRequest unbindRequest = new UnBindRequest();
-        LdapMessage message = new LdapMessage();
+        UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
+        LdapMessageCodec message = new LdapMessageCodec();
 
         message.setProtocolOP( unbindRequest );
         message.setMessageId( messageId );

@@ -32,7 +32,6 @@ import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.changelog.TaggableSearchableChangeLogStore;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -46,6 +45,9 @@ import org.apache.directory.server.core.interceptor.context.BindOperationContext
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.journal.DefaultJournal;
+import org.apache.directory.server.core.journal.Journal;
+import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
@@ -80,6 +82,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -149,6 +152,9 @@ public class DefaultDirectoryService implements DirectoryService
     /** the change log service */
     private ChangeLog changeLog;
     
+    /** the journal service */
+    private Journal journal;
+    
     /** 
      * the interface used to perform various operations on this 
      * DirectoryService
@@ -200,6 +206,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
+        journal = new DefaultJournal();
         
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -250,16 +257,41 @@ public class DefaultDirectoryService implements DirectoryService
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
     public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
+    /** The instance Id */
     private String instanceId;
+    
+    /** The server working directory */
     private File workingDirectory = new File( "server-work" );
+    
+    /** 
+     * A flag used to shutdown the VM when stopping the server. Useful
+     * when the server is standalone. If the server is embedded, we don't
+     * want to shutdown the VM
+     */
     private boolean exitVmOnShutdown = true; // allow by default
+    
+    /** A flag used to indicate that a shutdown hook has been installed */
     private boolean shutdownHookEnabled = true; // allow by default
+    
+    /** Manage anonymous access to entries other than the RootDSE */
     private boolean allowAnonymousAccess = true; // allow by default
+    
+    /** Manage the basic access control checks */
     private boolean accessControlEnabled; // off by default
+    
+    /** Manage the operational attributes denormalization */
     private boolean denormalizeOpAttrsEnabled; // off by default
+    
+    /** The list of declared interceptors */
     private List<Interceptor> interceptors;
+    
+    /** The System partition */
     private Partition systemPartition;
+    
+    /** The set of all declared partitions */
     private Set<Partition> partitions = new HashSet<Partition>();
+    
+    /** A list of LDIF entries to inject at startup */
     private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
     private EventService eventService;
 
@@ -269,9 +301,6 @@ public class DefaultDirectoryService implements DirectoryService
     private int maxPDUSize = Integer.MAX_VALUE;
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -287,7 +316,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Gets the {@link Partition}s used by this DirectoryService.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @return the set of partitions used
      */
     public Set<? extends Partition> getPartitions()
@@ -301,7 +329,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Sets {@link Partition}s used by this DirectoryService.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @param partitions the partitions to used
      */
     public void setPartitions( Set<? extends Partition> partitions )
@@ -388,7 +415,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Sets the interceptors in the server.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.interceptor.Interceptor"
      * @param interceptors the interceptors to be used in the server.
      */
     public void setInterceptors( List<Interceptor> interceptors ) 
@@ -412,7 +438,6 @@ public class DefaultDirectoryService implements DirectoryService
      * Returns test directory entries({@link LdifEntry}) to be loaded while
      * bootstrapping.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @return test entries to load during bootstrapping
      */
     public List<LdifEntry> getTestEntries()
@@ -427,7 +452,6 @@ public class DefaultDirectoryService implements DirectoryService
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      *
-     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
     public void setTestEntries( List<? extends LdifEntry> testEntries )
@@ -463,9 +487,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         this.shutdownHookEnabled = shutdownHookEnabled;
@@ -502,27 +523,58 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * return true if the operational attributes must be normalized when returned
+     */
     public boolean isDenormalizeOpAttrsEnabled()
     {
         return denormalizeOpAttrsEnabled;
     }
 
 
+    /**
+     * Sets whether the operational attributes are denormalized when returned
+     * @param denormalizeOpAttrsEnabled The flag value
+     */
     public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
     {
         this.denormalizeOpAttrsEnabled = denormalizeOpAttrsEnabled;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ChangeLog getChangeLog()
     {
         return changeLog;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public Journal getJournal()
+    {
+        return journal;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void setChangeLog( ChangeLog changeLog )
     {
         this.changeLog = changeLog;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setJournal( Journal journal )
+    {
+        this.journal = journal;
     }
 
 
@@ -579,6 +631,7 @@ public class DefaultDirectoryService implements DirectoryService
         list.add( new CollectiveAttributeInterceptor() );
         list.add( new EventInterceptor() );
         list.add( new TriggerInterceptor() );
+        list.add( new JournalInterceptor() );
 
         setInterceptors( list );
     }
@@ -878,13 +931,20 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
-        this.changeLog.sync();
-        this.changeLog.destroy();
+        // Shutdown the changelog
+        changeLog.sync();
+        changeLog.destroy();
+        
+        // Shutdown the journal
+        journal.destroy();
 
-        this.partitionNexus.sync();
-        this.partitionNexus.destroy();
-        this.interceptorChain.destroy();
-        this.started = false;
+        // Shutdown the partition
+        partitionNexus.sync();
+        partitionNexus.destroy();
+        
+        // And shutdown the server
+        interceptorChain.destroy();
+        started = false;
         setDefaultInterceptorConfigurations();
     }
 
@@ -899,7 +959,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Set the referralManager
-     * @org.apache.xbean.Property hidden="true"
      * @param referralManager The initialized referralManager
      */
     public void setReferralManager( ReferralManager referralManager )
@@ -917,9 +976,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setRegistries( Registries registries )
     {
         this.registries = registries;
@@ -932,9 +988,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setSchemaService( SchemaService schemaService )
     {
         this.schemaService = schemaService;
@@ -1447,6 +1500,12 @@ public class DefaultDirectoryService implements DirectoryService
                 partitionNexus.getRootDSE( null ).getOriginalEntry().add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
+        
+        // Initialize the journal if it's enabled
+        //if ( journal.isEnabled() )
+        {
+            journal.init( this );
+        }
 
         if ( LOG.isDebugEnabled() )
         {
@@ -1557,9 +1616,6 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
     public void setEventService( EventService eventService )
     {
         this.eventService = eventService;
@@ -1650,6 +1706,14 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void setReplicaId( int replicaId )
     {
-        this.replicaId = replicaId;
+        if ( ( replicaId < 0 ) || ( replicaId > 999 ) )
+        {
+            LOG.error( "The replicaId must be in [0, 999]" );
+            this.replicaId = 0;
+        }
+        else
+        {
+            this.replicaId = replicaId;
+        }
     }
 }

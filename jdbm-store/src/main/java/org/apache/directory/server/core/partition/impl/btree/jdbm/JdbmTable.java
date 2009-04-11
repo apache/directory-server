@@ -22,18 +22,24 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
-import jdbm.helper.*;
+import jdbm.helper.Serializer;
+import jdbm.helper.TupleBrowser;
 
-import org.apache.directory.server.core.avltree.*;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.EmptyCursor;
-import org.apache.directory.server.core.cursor.SingletonCursor;
+import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.AvlTreeCursor;
+import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
+import org.apache.directory.server.core.avltree.LinkedAvlNode;
+import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.xdbm.*;
+import org.apache.directory.server.xdbm.Table;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
 
 
 /**

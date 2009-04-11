@@ -137,13 +137,13 @@
     </dependency>
 
     <!-- replication interceptor xbean config metadata -->
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>mitosis</artifactId>
+      <artifactId>syncrepl</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
-    </dependency>
+    </dependency-->
 
   </dependencies>
 
