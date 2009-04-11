@@ -164,9 +164,12 @@ public abstract class AbstractMessage implements Message
 
         if ( controls != null )
         {
+            sb.append( "    controls :\n" );
+            
             for ( Control control:controls.values() )
             {
-                sb.append( control );
+                sb.append( "        " ).append( control.getClass().getSimpleName() );
+                sb.append( ":" ).append( control.getID() ).append( "\n" );
             }
         }
 
