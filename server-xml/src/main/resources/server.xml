@@ -113,7 +113,7 @@
   +============================================================+
   -->
   <!--  missing  atou=users,dc=example,dc=com
-  <changePasswordServer>
+  <changePasswordServer id="changePasswordServer">
     <tcpTransport>
       <tcpTransport port="60464" nbThreads="2" backLog="50"/>
     </tcpTransport>
