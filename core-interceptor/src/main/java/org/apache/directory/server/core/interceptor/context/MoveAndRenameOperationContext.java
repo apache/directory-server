@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -66,7 +66,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     }
 
 
-    public MoveAndRenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    public MoveAndRenameOperationContext( CoreSession session, InternalModifyDnRequest modifyDnRequest )
     {
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );

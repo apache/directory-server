@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
@@ -61,7 +61,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * Creates a new instance of SearchOperationContext.
      * @throws Exception 
      */
-    public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws Exception
+    public SearchOperationContext( CoreSession session, InternalSearchRequest searchRequest ) throws Exception
     {
         super( session );
         

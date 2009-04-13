@@ -40,17 +40,17 @@ import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.InternalResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.Referral;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchResponseDone;
-import org.apache.directory.shared.ldap.message.SearchResponseEntry;
+import org.apache.directory.shared.ldap.message.InternalReferral;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchResponseDone;
+import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
-import org.apache.directory.shared.ldap.message.SearchResponseReference;
+import org.apache.directory.shared.ldap.message.InternalSearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
@@ -78,7 +78,7 @@ import static java.lang.Math.min;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 664302 $
  */
-public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
+public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
 
@@ -122,7 +122,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param psearchControl the persistent search control extracted
      * @throws Exception if failures are encountered while searching
      */
-    private void handlePersistentSearch( LdapSession session, SearchRequest req, 
+    private void handlePersistentSearch( LdapSession session, InternalSearchRequest req, 
         PersistentSearchControl psearchControl ) throws Exception 
     {
         /*
@@ -131,7 +131,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
          */
         if ( ! psearchControl.isChangesOnly() )
         {
-            SearchResponseDone done = doSimpleSearch( session, req );
+            InternalSearchResponseDone done = doSimpleSearch( session, req );
             
             // ok if normal search beforehand failed somehow quickly abandon psearch
             if ( done.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
@@ -171,7 +171,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param req the search request on the RootDSE
      * @throws Exception if failures are encountered while searching
      */
-    private void handleRootDseSearch( LdapSession session, SearchRequest req ) throws Exception
+    private void handleRootDseSearch( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         EntryFilteringCursor cursor = null;
         
@@ -231,7 +231,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param session the {@link LdapSession} on which search was requested
      * @param cursor the {@link EntryFilteringCursor} over the search results
      */
-    private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session, final EntryFilteringCursor cursor )
+    private void setTimeLimitsOnCursor( InternalSearchRequest req, LdapSession session, final EntryFilteringCursor cursor )
     {
         // Don't bother setting time limits for administrators
         if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == NO_TIME_LIMIT )
@@ -283,7 +283,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     /**
      * Return the server size limit
      */
-    private int getServerSizeLimit( LdapSession session, SearchRequest request )
+    private int getServerSizeLimit( LdapSession session, InternalSearchRequest request )
     {
         if ( session.getCoreSession().isAnAdministrator() )
         {
@@ -310,7 +310,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     }
     
     
-    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
+    private void readResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,
     EntryFilteringCursor cursor, int sizeLimit ) throws Exception
     {
         int count = 0;
@@ -342,7 +342,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     }
     
     
-    private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,  
+    private void readPagedResults( LdapSession session, InternalSearchRequest req, InternalLdapResult ldapResult,  
         EntryFilteringCursor cursor, int sizeLimit, int pagedLimit, boolean isPaged, 
         PagedSearchContext pagedContext, PagedResultsControl pagedResultsControl ) throws Exception
     {
@@ -438,7 +438,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * Manage the abandoned Paged Search (when paged size = 0). We have to
      * remove the cookie and its associated cursor from the session.
      */
-    private SearchResponseDone abandonPagedSearch( LdapSession session, SearchRequest req ) 
+    private InternalSearchResponseDone abandonPagedSearch( LdapSession session, InternalSearchRequest req ) 
         throws Exception
     {
         PagedResultsControl pagedResultsControl = null;
@@ -469,10 +469,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         
         // and return
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-        LdapResult ldapResult = req.getResultResponse().getLdapResult();
+        InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
         req.getResultResponse().add( pagedResultsControl );
-        return ( SearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResponseDone ) req.getResultResponse();
     }
     
     
@@ -495,7 +495,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     /**
      * Handle a Paged Search request.
      */
-    private SearchResponseDone doPagedSearch( LdapSession session, SearchRequest req, PagedSearchControl control )
+    private InternalSearchResponseDone doPagedSearch( LdapSession session, InternalSearchRequest req, PagedSearchControl control )
         throws Exception
     {
         PagedSearchControl pagedSearchControl = ( PagedSearchControl )control;
@@ -536,7 +536,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         
         // Now, depending on the cookie, we will deal with case 2, 3, 4 and 5
         byte [] cookie= pagedSearchControl.getCookie();
-        LdapResult ldapResult = req.getResultResponse().getLdapResult();
+        InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         
         if ( StringTools.isEmpty( cookie ) )
         {
@@ -571,7 +571,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
-                return ( SearchResponseDone ) req.getResultResponse();
+                return ( InternalSearchResponseDone ) req.getResultResponse();
             }
             else
             {
@@ -606,7 +606,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 ldapResult.setErrorMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
                 
-                return ( SearchResponseDone ) req.getResultResponse();
+                return ( InternalSearchResponseDone ) req.getResultResponse();
             }
             
             if ( pagedContext.hasSameRequest( req, session ) )
@@ -663,7 +663,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             }
         }
         
-        return ( SearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResponseDone ) req.getResultResponse();
     }
 
     
@@ -678,10 +678,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @return the result done 
      * @throws Exception if there are failures while processing the request
      */
-    private SearchResponseDone doSimpleSearch( LdapSession session, SearchRequest req ) 
+    private InternalSearchResponseDone doSimpleSearch( LdapSession session, InternalSearchRequest req ) 
         throws Exception
     {
-        LdapResult ldapResult = req.getResultResponse().getLdapResult();
+        InternalLdapResult ldapResult = req.getResultResponse().getLdapResult();
         
         // Check if we are using the Paged Search Control
         Object control = req.getControls().get( PagedSearchControl.CONTROL_OID );
@@ -735,7 +735,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             }
         }
         
-        return ( SearchResponseDone ) req.getResultResponse();
+        return ( InternalSearchResponseDone ) req.getResultResponse();
     }
     
 
@@ -751,7 +751,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @return the response for the entry
      * @throws Exception if there are problems in generating the response
      */
-    private Response generateResponse( LdapSession session, SearchRequest req, ClonedServerEntry entry ) throws Exception
+    private InternalResponse generateResponse( LdapSession session, InternalSearchRequest req, ClonedServerEntry entry ) throws Exception
     {
         EntryAttribute ref = entry.getOriginalEntry().get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaITControl.CONTROL_OID );
@@ -759,7 +759,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         if ( ( ref != null ) && ! hasManageDsaItControl )
         {
             // The entry is a referral.
-            SearchResponseReference respRef;
+            InternalSearchResponseReference respRef;
             respRef = new SearchResponseReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
             
@@ -805,7 +805,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
         else 
         {
             // The entry is not a referral, or the ManageDsaIt control is set
-            SearchResponseEntry respEntry;
+            InternalSearchResponseEntry respEntry;
             respEntry = new SearchResponseEntryImpl( req.getMessageId() );
             respEntry.setEntry( entry );
             respEntry.setObjectName( entry.getDn() );
@@ -841,7 +841,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param req the request to get the original filter from
      * @throws Exception if there are schema access problems
      */
-    public void modifyFilter( LdapSession session, SearchRequest req ) throws Exception
+    public void modifyFilter( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         if ( req.hasControl( ManageDsaITControl.CONTROL_OID ) )
         {
@@ -893,7 +893,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param session the associated session
      * @param req the received SearchRequest
      */
-    public void handleIgnoringReferrals( LdapSession session, SearchRequest req )
+    public void handleIgnoringReferrals( LdapSession session, InternalSearchRequest req )
     {
         if ( IS_DEBUG )
         {
@@ -947,7 +947,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
             // Handle regular search requests from here down
             // ===============================================================
 
-            SearchResponseDone done = doSimpleSearch( session, req );
+            InternalSearchResponseDone done = doSimpleSearch( session, req );
             session.getIoSession().write( done );
         }
         catch ( Exception e )
@@ -994,9 +994,9 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, SearchRequest req ) throws NamingException
+    public void handleWithReferrals( LdapSession session, LdapDN reqTargetDn, InternalSearchRequest req ) throws NamingException
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
         ClonedServerEntry entry = null;
         boolean isReferral = false;
         boolean isparentReferral = false;
@@ -1062,7 +1062,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 {
                     LOG.debug( "Entry is a referral: {}", entry );
                     
-                    handleReferralEntryForSearch( session, ( SearchRequest ) req, entry );
+                    handleReferralEntryForSearch( session, ( InternalSearchRequest ) req, entry );
 
                     return;
                 }
@@ -1106,7 +1106,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
                 // if we get here then we have a valid referral ancestor
                 try
                 {
-                    Referral referral = getReferralOnAncestorForSearch( session, ( SearchRequest ) req, referralAncestor );
+                    InternalReferral referral = getReferralOnAncestorForSearch( session, 
+                        ( InternalSearchRequest ) req, referralAncestor );
                     
                     result.setResultCode( ResultCodeEnum.REFERRAL );
                     result.setReferral( referral );
@@ -1131,10 +1132,10 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param req the request
      * @param entry the entry associated with the request
      */
-    private void handleReferralEntryForSearch( LdapSession session, SearchRequest req, ClonedServerEntry entry )
+    private void handleReferralEntryForSearch( LdapSession session, InternalSearchRequest req, ClonedServerEntry entry )
         throws Exception
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
         ReferralImpl referral = new ReferralImpl();
         result.setReferral( referral );
         result.setResultCode( ResultCodeEnum.REFERRAL );
@@ -1189,7 +1190,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * @param req the request issued
      * @return true if the search is on the RootDSE false otherwise
      */
-    private static boolean isRootDSESearch( SearchRequest req )
+    private static boolean isRootDSESearch( InternalSearchRequest req )
     {
         boolean isBaseIsRoot = req.getBase().isEmpty();
         boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
@@ -1229,7 +1230,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<SearchRequest>
      * 
      * @throws Exception the exception
      */
-    private static boolean isSubSchemaSubEntrySearch( LdapSession session, SearchRequest req ) throws Exception
+    private static boolean isSubSchemaSubEntrySearch( LdapSession session, InternalSearchRequest req ) throws Exception
     {
         LdapDN base = req.getBase();
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );

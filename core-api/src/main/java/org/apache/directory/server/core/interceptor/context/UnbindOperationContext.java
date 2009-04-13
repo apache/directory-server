@@ -21,8 +21,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
 
 
 /**
@@ -43,7 +43,7 @@ public class UnbindOperationContext extends AbstractOperationContext
     }
     
 
-    public UnbindOperationContext( CoreSession session, UnbindRequest unbindRequest )
+    public UnbindOperationContext( CoreSession session, InternalUnbindRequest unbindRequest )
     {
         super( session, session.getEffectivePrincipal().getJndiName() );
         this.setRequestControls( unbindRequest.getControls() );

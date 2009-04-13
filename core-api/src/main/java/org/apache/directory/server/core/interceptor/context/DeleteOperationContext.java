@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -64,7 +64,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public DeleteOperationContext( CoreSession session, DeleteRequest deleteRequest )
+    public DeleteOperationContext( CoreSession session, InternalDeleteRequest deleteRequest )
     {
         super( session, deleteRequest.getName() );
         requestControls = deleteRequest.getControls();

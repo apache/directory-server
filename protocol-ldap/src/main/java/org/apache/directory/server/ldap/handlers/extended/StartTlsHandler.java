@@ -39,10 +39,10 @@ import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
-import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -77,7 +77,7 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
     
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
         
@@ -93,8 +93,8 @@ public class StartTlsHandler implements ExtendedOperationHandler
             sslFilter.startSsl( session.getIoSession() );
         }
         
-        ExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
-        LdapResult result = res.getLdapResult();
+        InternalExtendedResponse res = new ExtendedResponseImpl( req.getMessageId() );
+        InternalLdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
         res.setResponse( new byte[ 0 ] );

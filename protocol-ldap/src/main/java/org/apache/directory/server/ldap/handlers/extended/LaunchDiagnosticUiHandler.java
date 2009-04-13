@@ -43,7 +43,7 @@ import org.apache.directory.server.ldap.gui.SessionsFrame;
 import org.apache.directory.server.xdbm.XdbmPartition;
 import org.apache.directory.server.xdbm.tools.ui.PartitionFrame;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRequest;
 import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiResponse;
@@ -75,7 +75,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void handleExtendedOperation( LdapSession requestor, ExtendedRequest req )
+    public void handleExtendedOperation( LdapSession requestor, InternalExtendedRequest req )
         throws Exception
     {
         DirectoryService service = requestor.getCoreSession().getDirectoryService();

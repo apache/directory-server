@@ -23,7 +23,7 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -77,7 +77,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     }
 
 
-    public RenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    public RenameOperationContext( CoreSession session, InternalModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );
         this.newRdn = modifyDnRequest.getNewRdn();

@@ -27,9 +27,9 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.InternalControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -65,7 +65,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
     /** An empty control array */ 
-    private static final MutableControl[] EMPTY = new MutableControl[0];
+    private static final InternalControl[] EMPTY = new InternalControl[0];
 
     private String username;
     private String realm;
@@ -80,7 +80,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     protected final DirectoryService directoryService;
     
     /** The associated BindRequest */
-    protected final BindRequest bindRequest;
+    protected final InternalBindRequest bindRequest;
 
 
     /**
@@ -88,7 +88,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      *
      * @param directoryService
      */
-    protected AbstractSaslCallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
+    protected AbstractSaslCallbackHandler( DirectoryService directoryService, InternalBindRequest bindRequest )
     {
         this.directoryService = directoryService;
         this.bindRequest = bindRequest;
@@ -229,15 +229,15 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * @param env An environment to be used to acquire an {@link LdapContext}.
      * @return An {@link LdapContext} for the client.
      */
-    protected LdapContext getContext( IoSession session, BindRequest bindRequest, Hashtable<String, Object> env )
+    protected LdapContext getContext( IoSession session, InternalBindRequest bindRequest, Hashtable<String, Object> env )
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
         LdapContext ctx = null;
 
         try
         {
-            MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
+            InternalControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
             ctx = new InitialLdapContext( env, connCtls );
         }

@@ -30,7 +30,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import org.apache.directory.shared.ldap.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class LdapSession
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** The list of requests we can abandon */
-    private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0]; 
+    private static final InternalAbandonableRequest[] EMPTY_ABANDONABLES = new InternalAbandonableRequest[0]; 
     
     /** A lock to protect the abandonableRequests against concurrent access */
     private final String outstandingLock;
@@ -71,7 +71,7 @@ public class LdapSession
     private LdapService ldapService;
     
     /** A map of all the running requests */
-    private Map<Integer, AbandonableRequest> outstandingRequests;
+    private Map<Integer, InternalAbandonableRequest> outstandingRequests;
     
     /** The current Bind status */
     private BindStatus bindStatus;
@@ -98,7 +98,7 @@ public class LdapSession
     {
         this.ioSession = ioSession;
         outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
-        outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
+        outstandingRequests = new ConcurrentHashMap<Integer, InternalAbandonableRequest>();
         bindStatus = BindStatus.ANONYMOUS;
         saslProperties = new HashMap<String, Object>();
         pagedSearchContexts = new HashMap<Integer, PagedSearchContext>();
@@ -185,9 +185,9 @@ public class LdapSession
     {
         synchronized ( outstandingLock )
         {
-            AbandonableRequest[] abandonables = outstandingRequests.values().toArray( EMPTY_ABANDONABLES );
+            InternalAbandonableRequest[] abandonables = outstandingRequests.values().toArray( EMPTY_ABANDONABLES );
             
-            for ( AbandonableRequest abandonable : abandonables )
+            for ( InternalAbandonableRequest abandonable : abandonables )
             {
                 abandonOutstandingRequest( abandonable.getMessageId() );
             }
@@ -200,9 +200,9 @@ public class LdapSession
      * 
      * @param messageId The request ID to abandon
      */
-    public AbandonableRequest abandonOutstandingRequest( int messageId )
+    public InternalAbandonableRequest abandonOutstandingRequest( int messageId )
     {
-        AbandonableRequest request = null;
+        InternalAbandonableRequest request = null;
         
         synchronized ( outstandingLock )
         {
@@ -237,7 +237,7 @@ public class LdapSession
      *
      * @param request an outstanding request that can be abandoned
      */
-    public void registerOutstandingRequest( AbandonableRequest request )
+    public void registerOutstandingRequest( InternalAbandonableRequest request )
     {
         synchronized( outstandingLock )
         {
@@ -251,7 +251,7 @@ public class LdapSession
      *
      * @param request the request to unregister
      */
-    public void unregisterOutstandingRequest( AbandonableRequest request )
+    public void unregisterOutstandingRequest( InternalAbandonableRequest request )
     {
         synchronized( outstandingLock )
         {
@@ -263,7 +263,7 @@ public class LdapSession
     /**
      * @return A list of all the abandonable requests for this session. 
      */
-    public Map<Integer, AbandonableRequest> getOutstandingRequests()
+    public Map<Integer, InternalAbandonableRequest> getOutstandingRequests()
     {
         synchronized( outstandingLock )
         {

@@ -31,12 +31,12 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.Referral;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
+import org.apache.directory.shared.ldap.message.InternalReferral;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ReferralAwareRequestHandler<T extends ResultResponseRequest> extends LdapRequestHandler<T>
+public abstract class ReferralAwareRequestHandler<T extends InternalResultResponseRequest> extends LdapRequestHandler<T>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ReferralAwareRequestHandler.class );
     
@@ -93,7 +93,7 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
             switch ( req.getType() )
             {
                 case SEARCH_REQUEST:
-                    handleWithReferrals( session, ( ( SearchRequest ) req ).getBase(), req );
+                    handleWithReferrals( session, ( ( InternalSearchRequest ) req ).getBase(), req );
                     break;
 
                 case EXTENDED_REQ:
@@ -188,14 +188,14 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public Referral getReferralOnAncestor( LdapSession session, LdapDN reqTargetDn, T req, 
+    public InternalReferral getReferralOnAncestor( LdapSession session, LdapDN reqTargetDn, T req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
         
         ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
-        Referral referral = new ReferralImpl();
+        InternalReferral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
         {
@@ -287,14 +287,14 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
      * @param referralAncestor the farthest referral ancestor of the missing 
      * entry  
      */
-    public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req, 
+    public InternalReferral getReferralOnAncestorForSearch( LdapSession session, InternalSearchRequest req, 
         ClonedServerEntry referralAncestor ) throws Exception
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
      
         ServerAttribute refAttr = ( ServerAttribute ) referralAncestor.getOriginalEntry()
             .get( SchemaConstants.REF_AT );
-        Referral referral = new ReferralImpl();
+        InternalReferral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
         {
@@ -364,9 +364,9 @@ public abstract class ReferralAwareRequestHandler<T extends ResultResponseReques
     /**
      * Handles processing with referrals without ManageDsaIT control.
      */
-    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
+    public void handleException( LdapSession session, InternalResultResponseRequest req, Exception e )
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
+        InternalLdapResult result = req.getResultResponse().getLdapResult();
 
         /*
          * Set the result code or guess the best option.

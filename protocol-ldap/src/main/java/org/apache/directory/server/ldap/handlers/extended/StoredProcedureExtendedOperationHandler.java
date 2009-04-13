@@ -41,12 +41,12 @@ import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
-import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureContainer;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedureDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.storedProcedure.StoredProcedure.StoredProcedureParameter;
+import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
+import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -79,7 +79,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, InternalExtendedRequest req ) throws Exception
     {
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
@@ -108,7 +108,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
+        ( ( InternalExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
         session.getIoSession().write( req.getResultResponse() );
         
     }

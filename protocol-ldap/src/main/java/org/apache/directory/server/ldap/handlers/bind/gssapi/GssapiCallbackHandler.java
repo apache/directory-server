@@ -26,7 +26,7 @@ import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
      * @param bindRequest the bind message
      * @param directoryService the directory service core
      */
-    public GssapiCallbackHandler( DirectoryService directoryService, LdapSession ldapSession, BindRequest bindRequest )
+    public GssapiCallbackHandler( DirectoryService directoryService, LdapSession ldapSession, InternalBindRequest bindRequest )
     {
         super( directoryService, bindRequest );
         this.ldapSession = ldapSession;

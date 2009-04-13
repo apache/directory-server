@@ -22,7 +22,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -59,7 +59,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     }
 
     
-    public MoveOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
+    public MoveOperationContext( CoreSession session, InternalModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );
         this.parent = modifyDnRequest.getNewSuperior();

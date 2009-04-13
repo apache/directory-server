@@ -26,7 +26,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -56,7 +56,7 @@ public class NotificationCriteria
     }
     
     
-    public NotificationCriteria( SearchRequest req )
+    public NotificationCriteria( InternalSearchRequest req )
     {
         this.scope = req.getScope();
         this.aliasDerefMode = req.getDerefAliases();

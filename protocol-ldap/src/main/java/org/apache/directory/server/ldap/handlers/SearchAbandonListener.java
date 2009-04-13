@@ -25,7 +25,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
+import org.apache.directory.shared.ldap.message.InternalAbandonableRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +70,7 @@ public class SearchAbandonListener implements AbandonListener
     }
     
     
-    public void requestAbandoned( AbandonableRequest req )
+    public void requestAbandoned( InternalAbandonableRequest req )
     {
         if ( listener != null )
         {

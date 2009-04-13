@@ -20,7 +20,6 @@
 package org.apache.directory.server.core;
 
 
-import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryFactory;

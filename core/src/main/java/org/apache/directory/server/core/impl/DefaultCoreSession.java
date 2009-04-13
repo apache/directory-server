@@ -59,14 +59,14 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
+import org.apache.directory.shared.ldap.message.InternalCompareRequest;
+import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
+import org.apache.directory.shared.ldap.message.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.InternalUnbindRequest;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -166,7 +166,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( AddRequest addRequest ) throws Exception
+    public void add( InternalAddRequest addRequest ) throws Exception
     {
         add( addRequest, LogChange.TRUE );
     }
@@ -175,7 +175,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void add( AddRequest addRequest, LogChange log ) throws Exception
+    public void add( InternalAddRequest addRequest, LogChange log ) throws Exception
     {
         AddOperationContext opContext = new AddOperationContext( this, addRequest );
 
@@ -767,7 +767,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public boolean compare( CompareRequest compareRequest ) throws Exception
+    public boolean compare( InternalCompareRequest compareRequest ) throws Exception
     {
         CompareOperationContext opContext = new CompareOperationContext( this, compareRequest );
         OperationManager operationManager = directoryService.getOperationManager();
@@ -780,7 +780,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteRequest deleteRequest ) throws Exception
+    public void delete( InternalDeleteRequest deleteRequest ) throws Exception
     {
         delete( deleteRequest, LogChange.TRUE );
     }
@@ -789,7 +789,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteRequest deleteRequest, LogChange log ) throws Exception
+    public void delete( InternalDeleteRequest deleteRequest, LogChange log ) throws Exception
     {
         DeleteOperationContext opContext = new DeleteOperationContext( this, deleteRequest );
         
@@ -812,7 +812,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( ModifyRequest modifyRequest ) throws Exception
+    public void modify( InternalModifyRequest modifyRequest ) throws Exception
     {
         modify( modifyRequest, LogChange.TRUE );
     }
@@ -821,7 +821,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void modify( ModifyRequest modifyRequest, LogChange log ) throws Exception
+    public void modify( InternalModifyRequest modifyRequest, LogChange log ) throws Exception
     {
         ModifyOperationContext opContext = new ModifyOperationContext( this, modifyRequest );
 
@@ -836,7 +836,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( ModifyDnRequest modifyDnRequest ) throws Exception
+    public void move( InternalModifyDnRequest modifyDnRequest ) throws Exception
     {
         move( modifyDnRequest, LogChange.TRUE );
     }
@@ -845,7 +845,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void move( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    public void move( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
     {
         MoveOperationContext opContext = new MoveOperationContext( this, modifyDnRequest );
         
@@ -860,7 +860,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( ModifyDnRequest modifyDnRequest ) throws Exception
+    public void moveAndRename( InternalModifyDnRequest modifyDnRequest ) throws Exception
     {
         moveAndRename( modifyDnRequest, LogChange.TRUE );
     }
@@ -869,7 +869,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc} 
      */
-    public void moveAndRename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    public void moveAndRename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
     {
         MoveAndRenameOperationContext opContext = new MoveAndRenameOperationContext( this, modifyDnRequest );
 
@@ -884,7 +884,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( ModifyDnRequest modifyDnRequest ) throws Exception
+    public void rename( InternalModifyDnRequest modifyDnRequest ) throws Exception
     {
         rename( modifyDnRequest, LogChange.TRUE );
     }
@@ -893,7 +893,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public void rename( ModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
+    public void rename( InternalModifyDnRequest modifyDnRequest, LogChange log ) throws Exception
     {
         RenameOperationContext opContext = new RenameOperationContext( this, modifyDnRequest );
 
@@ -905,7 +905,7 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public EntryFilteringCursor search( SearchRequest searchRequest ) throws Exception
+    public EntryFilteringCursor search( InternalSearchRequest searchRequest ) throws Exception
     {
         SearchOperationContext opContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
@@ -922,9 +922,7 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public void unbind( UnbindRequest unbindRequest )
+    public void unbind( InternalUnbindRequest unbindRequest )
     {
-        // TODO Auto-generated method stub
-        
     }
 }
