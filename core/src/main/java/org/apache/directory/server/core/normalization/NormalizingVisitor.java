@@ -23,7 +23,6 @@ package org.apache.directory.server.core.normalization;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
@@ -42,9 +41,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.ByteBuffer;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,112 +111,6 @@ public class NormalizingVisitor implements FilterVisitor
         return ( ( ( c | 0x7F ) == 0x7F ) && FILTER_CHAR[c & 0x7f] );
     }
 
-    /**
-     * Decodes sequences of escaped hex within an attribute's value into 
-     * a UTF-8 String.  The hex is decoded inline and the complete decoded
-     * String is returned.
-     * 
-     * @param str the string containing hex escapes
-     * @return the decoded string
-     */
-    private static final String decodeEscapedHex( String str ) throws InvalidNameException
-    {
-        // create buffer and add everything before start of scan
-        StringBuffer buf = new StringBuffer();
-        ByteBuffer bb = new ByteBuffer();
-        boolean escaped = false;
-        
-        // start scanning until we find an escaped series of bytes
-        for ( int ii = 0; ii < str.length(); ii++ )
-        {
-            char c = str.charAt( ii );
-            
-            if ( c == '\\' )
-            {
-                // we have the start of a hex escape sequence
-                if ( StringTools.isHex( str, ii+1 ) && StringTools.isHex ( str, ii+2 ) )
-                {
-                    bb.clear();
-                    int advancedBy = StringTools.collectEscapedHexBytes( bb, str, ii );
-                    ii+=advancedBy-1;
-                    buf.append( StringTools.utf8ToString( bb.buffer(), bb.position() ) );
-                    escaped = false;
-                    continue;
-                }
-                else if ( !escaped )
-                {
-                    // It may be an escaped char ( '\0', '(', ')', '*', '\' )
-                    escaped = true;
-                    continue;
-                }
-            }
-
-            
-            if ( escaped )
-            {
-                if ( isFilterChar( c ) )
-                {
-                    // It is an escaped char ( '\0', '(', ')', '*', '\' )
-                    // Stores it into the buffer without the '\'
-                    escaped = false;
-                    buf.append( c );
-                    continue;
-                }
-                else
-                {
-                    throw new InvalidNameException( "The value must contain valid escaped characters." );
-                }
-            }
-            else
-            {
-                buf.append( str.charAt( ii ) );
-            }
-        }
-
-        if ( escaped )
-        {
-            // We should not have a '\' at the end of the string
-            //throw new InvalidNameException( "The value must not ends with a '\\'." );
-            
-            // TODO: We have a weird behaviour:
-            // - If a request (cn=\5C) comes over the wire the '\5C' is already decoded to a '\'.
-            // - If we use the embedded LdapContext it is not decoded here.
-            // This is just a hack to make it working.
-            buf.append( '\\' );
-        }
-
-        return buf.toString();
-    }
-
-
-    /**
-     * Un-escape the escaped chars in the value
-     */
-    private void unescapeValue( Value<?> value )
-    {
-        if ( !value.isBinary() )
-        {
-            String valStr = (String)value.getNormalizedValue();
-            
-            if ( StringTools.isEmpty( valStr ) )
-            {
-                return;
-            }
-            
-            try
-            {
-                String newStr= decodeEscapedHex( valStr );
-                ((ClientStringValue)value).set( newStr );
-                return;
-            }
-            catch ( InvalidNameException ine )
-            {
-                value.set( null );
-                return;
-            }
-        }
-    }
-
 
     /**
      * 
@@ -256,15 +147,11 @@ public class NormalizingVisitor implements FilterVisitor
                 {
                     normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, StringTools
                         .utf8ToString( ( byte[] ) value.get() ) ) );
-                    
-                    unescapeValue( normalized );
                 }
                 else
                 {
                     normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, ( String ) value
                         .get() ) );
-                    
-                    unescapeValue( normalized );
                 }
             }
             else
