@@ -285,7 +285,7 @@ public class SubstringNode extends LeafNode
 
         if ( null != initialPattern )
         {
-            buf.append( initialPattern ).append( '*' );
+            buf.append( AbstractExprNode.escapeFilterValue(initialPattern) ).append( '*' );
         }
         else
         {
@@ -296,14 +296,14 @@ public class SubstringNode extends LeafNode
         {
             for ( String any:anyPattern )
             {
-                buf.append( any );
+                buf.append( AbstractExprNode.escapeFilterValue(any) );
                 buf.append( '*' );
             }
         }
 
         if ( null != finalPattern )
         {
-            buf.append( finalPattern );
+            buf.append( AbstractExprNode.escapeFilterValue(finalPattern) );
         }
 
         buf.append( super.toString() );

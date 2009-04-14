@@ -320,11 +320,10 @@ public class LdapDNTest
     @Test
     public void testLdapDNPairCharAttributeValue() throws InvalidNameException
     {
-
         LdapDN dn = new LdapDN( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C4\\8D" );
 
         assertTrue( LdapDN.isValid( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C4\\8D" ) );
-        assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\\C4\\8D", dn.toString() );
+        assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\u010D", dn.toString() );
         assertEquals( "a = \\,\\=\\+\\<\\>\\#\\;\\\\\\\"\\C4\\8D", dn.getUpName() );
     }
 
@@ -338,7 +337,7 @@ public class LdapDNTest
         LdapDN dn = new LdapDN( "SN=Lu\\C4\\8Di\\C4\\87" );
 
         assertTrue( LdapDN.isValid( "SN=Lu\\C4\\8Di\\C4\\87" ) );
-        assertEquals( "sn=Lu\\C4\\8Di\\C4\\87", dn.toString() );
+        assertEquals( "sn=Lu\u010Di\u0107", dn.toString() );
         assertEquals( "SN=Lu\\C4\\8Di\\C4\\87", dn.getUpName() );
     }
 
@@ -1525,7 +1524,6 @@ public class LdapDNTest
     @Test
     public void testStringParser() throws Exception
     {
-
         String dn = StringTools.utf8ToString( new byte[]
             { 'C', 'N', ' ', '=', ' ', 'E', 'm', 'm', 'a', 'n', 'u', 'e', 'l', ' ', ' ', 'L', ( byte ) 0xc3,
                 ( byte ) 0xa9, 'c', 'h', 'a', 'r', 'n', 'y' } );
@@ -1533,7 +1531,7 @@ public class LdapDNTest
         Name name = LdapDnParser.getNameParser().parse( dn );
 
         assertEquals( dn, ( ( LdapDN ) name ).getUpName() );
-        assertEquals( "cn=Emmanuel  L\\C3\\A9charny", name.toString() );
+        assertEquals( "cn=Emmanuel  L\u00E9charny", name.toString() );
     }
 
 
@@ -2371,7 +2369,7 @@ public class LdapDNTest
 
         Name name = new LdapDN( cn );
 
-        assertEquals( "cn=J\\C3\\A9r\\C3\\B4me", name.toString() );
+        assertEquals( "cn=J\u00e9r\u00f4me", name.toString() );
     }
 
 
@@ -2385,7 +2383,7 @@ public class LdapDNTest
 
         Name name = new LdapDN( cn );
 
-        assertEquals( "cn=\\C3\\84\\C3\\96\\C3\\9C\\C3\\9F\\C3\\A4\\C3\\B6\\C3\\BC", name.toString() );
+        assertEquals( "cn=\u00C4\u00D6\u00DC\u00DF\u00E4\u00F6\u00FC", name.toString() );
     }
 
 
@@ -2400,8 +2398,7 @@ public class LdapDNTest
 
         Name name = new LdapDN( cn );
 
-        assertEquals( "cn=\\C4\\B0\\C4\\B1\\C5\\9E\\C5\\9F\\C3\\96\\C3\\B6\\C3\\9C\\C3\\BC\\C4\\9E\\C4\\9F", name
-            .toString() );
+        assertEquals( "cn=\u0130\u0131\u015E\u015F\u00D6\u00F6\u00DC\u00FC\u011E\u011F", name.toString() );
     }
 
 

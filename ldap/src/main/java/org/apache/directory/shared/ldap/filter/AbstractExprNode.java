@@ -135,6 +135,69 @@ public abstract class AbstractExprNode implements ExprNode
 
 
     /**
+     * Handles the escaping of special characters in LDAP search filter assertion values using the
+     * &lt;valueencoding&gt; rule as described in
+     * <a href="http://www.ietf.org/rfc/rfc4515.txt">RFC 4515</a>. Needed so that
+     * {@link ExprNode#printToBuffer(StringBuffer)} results in a valid filter string that can be parsed
+     * again (as a way of cloning filters).
+     *
+     * @param value Right hand side of "attrId=value" assertion occurring in an LDAP search filter.
+     * @return Escaped version of <code>value</code>
+     */
+    protected static String escapeFilterValue( Object value )
+    {
+        StringBuilder sb = null;
+        String val;
+
+        if ( !( value instanceof String ) )
+        {
+            return value.toString();
+        }
+
+        val = ( String ) value;
+        for ( int i = 0; i < val.length(); i++ )
+        {
+            char ch = val.charAt( i );
+            String replace = null;
+
+            switch ( ch )
+            {
+                case '*':
+                    replace = "\\2a";
+                    break;
+                case '(':
+                    replace = "\\28";
+                    break;
+                case ')':
+                    replace = "\\29";
+                    break;
+                case '\\':
+                    replace = "\\5c";
+                    break;
+                case '\0':
+                    replace = "\\00";
+                    break;
+            }
+            if ( replace != null )
+            {
+                if ( sb == null )
+                {
+                    sb = new StringBuilder( val.length() * 2 );
+                    sb.append( val.substring( 0, i ) );
+                }
+                sb.append( replace );
+            }
+            else if ( sb != null )
+            {
+                sb.append( ch );
+            }
+        }
+
+        return ( sb == null ? val : sb.toString() );
+    }
+
+
+    /**
      * @see Object#hashCode()
      * @return the instance's hash code 
      */
@@ -155,7 +218,7 @@ public abstract class AbstractExprNode implements ExprNode
         
         return h;
     }
-
+    
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#get(java.lang.Object)
@@ -197,7 +260,6 @@ public abstract class AbstractExprNode implements ExprNode
     {
         return annotations;
     }
-
 
     /**
      * Default implementation for this method : just throw an exception.
@@ -254,5 +316,5 @@ public abstract class AbstractExprNode implements ExprNode
         {
             return "";
         }
-    }
+    }    
 }

@@ -82,6 +82,20 @@ public abstract class SimpleNode<T> extends LeafNode
         return value;
     }
 
+    /** 
+     * @return representation of value, escaped for use in a filter if required 
+     */
+    protected Object getValueEscaped()
+    {
+        Object valueEscaped = value.get();
+
+        if ( valueEscaped instanceof String )
+        {
+            valueEscaped = AbstractExprNode.escapeFilterValue( valueEscaped );
+        }
+        return valueEscaped;
+    }
+
 
     /**
      * Sets the value of this node.

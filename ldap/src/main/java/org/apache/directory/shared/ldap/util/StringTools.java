@@ -3473,7 +3473,7 @@ public class StringTools
         for ( int ii = index; ii < str.length(); ii += 3, advanceBy += 3 )
         {
             // we have the start of a hex escape sequence
-            if ( isHex( str, ii+1 ) && isHex ( str, ii+2 ) )
+            if ( ( str.charAt( ii ) == '\\' ) && isHex( str, ii+1 ) && isHex ( str, ii+2 ) )
             {
                 int bite = ( StringTools.HEX_VALUE[str.charAt( ii+1 )] << 4 ) + 
                     StringTools.HEX_VALUE[str.charAt( ii+2 )];

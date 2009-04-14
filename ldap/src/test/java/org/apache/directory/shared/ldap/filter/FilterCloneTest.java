@@ -115,7 +115,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "ou;lang-de", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", node.getValue().get() );
     }
 
 
@@ -127,7 +127,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "ou;lang-de;version-124", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", node.getValue().get() );
     }
 
 
@@ -139,7 +139,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "1.3.4.2;lang-de;version-124", node.getAttribute() );
-        assertEquals( "\\23\\42asdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", node.getValue().get() );
     }
 
 

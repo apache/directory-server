@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.filter;
 
 import java.text.ParseException;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Position;
@@ -81,7 +83,7 @@ public class FilterParser
                     pos.start++;
 
                     // Get the assertionValue
-                    node.setValue( parseAssertionValue( filter, pos ) );
+                    node.setValue( parseAssertionValue( filter, pos, true ) );
 
                     return node;
                 }
@@ -96,7 +98,7 @@ public class FilterParser
                         pos.start += 2;
 
                         // Get the assertionValue
-                        node.setValue( parseAssertionValue( filter, pos ) );
+                        node.setValue( parseAssertionValue( filter, pos, true ) );
 
                         return node;
                     }
@@ -143,7 +145,7 @@ public class FilterParser
                     pos.start++;
 
                     // Get the assertionValue
-                    node.setValue( parseAssertionValue( filter, pos ) );
+                    node.setValue( parseAssertionValue( filter, pos, true ) );
 
                     return node;
                 }
@@ -158,7 +160,7 @@ public class FilterParser
                         pos.start += 2;
 
                         // Get the assertionValue
-                        node.setValue( parseAssertionValue( filter, pos ) );
+                        node.setValue( parseAssertionValue( filter, pos, true ) );
 
                         return node;
                     }
@@ -209,9 +211,10 @@ public class FilterParser
      * HEX            = '0'-'9' / 'A'-'F' / 'a'-'f'
      * unicodeSubset     = %x01-27 / %x2B-5B / %x5D-FFFF
      */
-    private static String parseAssertionValue( String filter, Position pos ) throws ParseException
+    private static String parseAssertionValue( String filter, Position pos, boolean preserveEscapedChars ) throws ParseException
     {
         int start = pos.start;
+        boolean foundHex = false;
 
         char c = StringTools.charAt( filter, pos.start );
 
@@ -240,6 +243,7 @@ public class FilterParser
                 if ( StringTools.isHex( filter, pos.start ) )
                 {
                     pos.start++;
+                    foundHex = true;
                 }
                 else
                 {
@@ -249,12 +253,30 @@ public class FilterParser
             else
             {
                 // not a valid char, so let's get out
-                return filter.substring( start, pos.start );
+                break;
             }
         }
         while ( ( c = StringTools.charAt( filter, pos.start ) ) != '\0' );
 
-        return filter.substring( start, pos.start );
+        String ret = filter.substring( start, pos.start );
+        if ( !preserveEscapedChars && foundHex )
+        {
+            try
+            {
+                ret = StringTools.decodeEscapedHex( ret );
+            }
+            catch ( InvalidNameException e )
+            {
+                throw new ParseException( "Unable to decode escaped hex sequences: '" + ret + "': " + e, pos.start );
+            }
+        }
+        return ret;
+    }
+
+
+    private static String parseAssertionValue( String filter, Position pos ) throws ParseException
+    {
+        return parseAssertionValue( filter, pos, false );
     }
 
 

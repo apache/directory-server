@@ -219,7 +219,7 @@ public class RdnTest
         String rdn = StringTools.utf8ToString( new byte[]
             { 'a', '=', '\\', ',', '=', '\\', '+', '\\', '<', '\\', '>', '#', '\\', ';', '\\', '\\', '\\', '"', '\\',
                 'C', '3', '\\', 'A', '9' } );
-        assertEquals( rdn, new Rdn( "a = \\,=\\+\\<\\>#\\;\\\\\\\"\\C3\\A9" ).toString() );
+        assertEquals( "a=\\,=\\+\\<\\>#\\;\\\\\\\"\u00E9", new Rdn( rdn ).toString() );
     }
 
 

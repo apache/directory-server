@@ -392,7 +392,7 @@ public class FastLdapDnParserTest extends TestCase
         LdapDN name = ( LdapDN ) dnParser.parse( dn );
 
         Assert.assertEquals( dn, name.getUpName() );
-        Assert.assertEquals( "cn=Emmanuel  L\\C3\\A9charny", name.toString() );
+        Assert.assertEquals( "cn=Emmanuel  L\u00e9charny", name.toString() );
     }
 
 
@@ -405,7 +405,7 @@ public class FastLdapDnParserTest extends TestCase
         LdapDN name = ( LdapDN ) dnParser.parse( dn );
 
         Assert.assertEquals( dn, name.getUpName() );
-        Assert.assertEquals( "c=E\\C3\\A9c", name.toString() );
+        Assert.assertEquals( "c=E\u00e9c", name.toString() );
     }
 
 
@@ -691,7 +691,7 @@ public class FastLdapDnParserTest extends TestCase
         NameParser parser = FastLdapDnParser.getNameParser();
         String result = parser.parse( cn ).toString();
 
-        assertEquals( "cn=J\\C3\\A9r\\C3\\B4me", result );
+        assertEquals( "cn=J\u00e9r\u00f4me", result );
 
     }
 
@@ -706,7 +706,7 @@ public class FastLdapDnParserTest extends TestCase
         NameParser parser = FastLdapDnParser.getNameParser();
         String result = parser.parse( cn ).toString();
 
-        assertEquals( "cn=\\C3\\84\\C3\\96\\C3\\9C\\C3\\9F\\C3\\A4\\C3\\B6\\C3\\BC", result );
+        assertEquals( "cn=\u00C4\u00D6\u00DC\u00DF\u00E4\u00F6\u00FC", result );
     }
 
 
@@ -721,7 +721,7 @@ public class FastLdapDnParserTest extends TestCase
         NameParser parser = FastLdapDnParser.getNameParser();
         String result = parser.parse( cn ).toString();
 
-        assertEquals( "cn=\\C4\\B0\\C4\\B1\\C5\\9E\\C5\\9F\\C3\\96\\C3\\B6\\C3\\9C\\C3\\BC\\C4\\9E\\C4\\9F", result );
+        assertEquals( "cn=\u0130\u0131\u015E\u015F\u00D6\u00F6\u00DC\u00FC\u011E\u011F", result );
 
     }
 

@@ -74,7 +74,7 @@ public class EqualityNode<T> extends SimpleNode<T>
     {
         StringBuilder buf = new StringBuilder();
     
-        buf.append( '(' ).append( getAttribute() ).append( "=" ).append( value );
+        buf.append( '(' ).append( getAttribute() ).append( "=" ).append( getValueEscaped() );
 
         buf.append( super.toString() );
         

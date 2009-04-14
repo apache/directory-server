@@ -631,12 +631,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
                 // for 99.99% of all DN (blind bet, of course ...) 
                 for ( char c:chars )
                 {
-                    if ( ( c < 0) || ( c > 128 ) )
-                    {
-                        escaped = true;
-                        break;
-                    }
-                    else if ( DN_ESCAPED_CHARS[ c ] )
+                    if ( ( c >= 0 ) && ( c < DN_ESCAPED_CHARS.length ) && DN_ESCAPED_CHARS[ c ] )                     	
                     {
                         escaped = true;
                         break;
@@ -649,20 +644,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
                     for ( int i = 0; i < valueLength; i++ )
                     {
                         char c = chars[i];
-                        
-                        if ( ( c < 0) || ( c > 128 ) )
-                        {
-                            // For chars which are not ASCII, use their hexa value prefixed by an '\'
-                            byte[] bb = StringTools.getBytesUtf8( normalizedValue.substring( i, i + 1 ) );
-                            
-                            for ( byte b:bb )
-                            {
-                                sb.append( '\\' ).
-                                    append( StringTools.dumpHex( (byte)(( b & 0x00F0 ) >> 4) ) ).
-                                    append( StringTools.dumpHex( b ) );
-                            }
-                        }
-                        else if ( DN_ESCAPED_CHARS[ c ] ) 
+
+                        if ( ( c >= 0 ) && ( c < DN_ESCAPED_CHARS.length ) && DN_ESCAPED_CHARS[ c ] ) 
                         {
                             // Some chars need to be escaped even if they are US ASCII
                             // Just prefix them with a '\'
