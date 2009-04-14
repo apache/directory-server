@@ -1481,4 +1481,66 @@ public class SearchIT
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
     }
+
+
+    /**
+     * Test for DIRSERVER-1347: Unicode characters in filter value.
+     */
+    @Test
+    public void testUnicodeFilter_DIRSERVER_1347() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        Attributes groupOfNames = new BasicAttributes( true );
+        Attribute groupOfNamesOC = new BasicAttribute( "objectClass" );
+        groupOfNamesOC.add( "top" );
+        groupOfNamesOC.add( "groupOfNames" );
+        groupOfNames.put( groupOfNamesOC );
+        groupOfNames.put( "cn", "groupOfNames" );
+        Attribute member = new BasicAttribute( "member" );
+        member.add( "uid=test,ou=system" );
+        member.add( "uid=r\u00e9dacteur1,ou=system" );
+        groupOfNames.put( member );
+        ctx.createSubcontext( "cn=groupOfNames", groupOfNames );
+
+        Attributes groupOfUniqueNames = new BasicAttributes( true );
+        Attribute groupOfUniqueNamesOC = new BasicAttribute( "objectClass" );
+        groupOfUniqueNamesOC.add( "top" );
+        groupOfUniqueNamesOC.add( "groupOfUniqueNames" );
+        groupOfUniqueNames.put( groupOfUniqueNamesOC );
+        groupOfUniqueNames.put( "cn", "groupOfUniqueNames" );
+        Attribute uniqueMember = new BasicAttribute( "uniqueMember" );
+        uniqueMember.add( "uid=test,ou=system" );
+        uniqueMember.add( "uid=r\u00e9dacteur1,ou=system" );
+        groupOfUniqueNames.put( uniqueMember );
+        ctx.createSubcontext( "cn=groupOfUniqueNames", groupOfUniqueNames );
+
+        SearchControls controls = new SearchControls();
+        NamingEnumeration<SearchResult> res;
+
+        // search with unicode filter value
+        res = ctx.search( "", "(member=uid=r\u00e9dacteur1,ou=system)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "groupOfNames", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        // search with escaped filter value
+        res = ctx.search( "", "(member=uid=r\\c3\\a9dacteur1,ou=system)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "groupOfNames", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        // search with unicode filter value
+        res = ctx.search( "", "(uniqueMember=uid=r\u00e9dacteur1,ou=system)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "groupOfUniqueNames", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+
+        // search with escaped filter value
+        res = ctx.search( "", "(uniqueMember=uid=r\\c3\\a9dacteur1,ou=system)", controls );
+        assertTrue( res.hasMore() );
+        assertEquals( "groupOfUniqueNames", res.next().getAttributes().get( "cn" ).get() );
+        assertFalse( res.hasMore() );
+    }
+
 }
