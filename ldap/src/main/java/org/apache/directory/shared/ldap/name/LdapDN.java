@@ -290,7 +290,7 @@ public class LdapDN implements Name, Externalizable
     public LdapDN( byte[] bytes ) throws InvalidNameException
     {
         upName = StringTools.utf8ToString( bytes );
-        LdapDnParser.parseInternal( bytes, rdns );
+        LdapDnParser.parseInternal( upName, rdns );
         this.normName = toNormName();
         normalized = false;
     }

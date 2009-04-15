@@ -27,11 +27,6 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 
 
-import org.apache.directory.shared.ldap.util.DNUtils;
-import org.apache.directory.shared.ldap.util.Position;
-import org.apache.directory.shared.ldap.util.StringTools;
-
-
 /**
  * This class parses a DN. The DN MUST respect this BNF grammar (as of RFC2253,
  * par. 3, and RFC1779, fig. 1) <br>
@@ -67,188 +62,76 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LdapDnParser implements NameParser
+public enum LdapDnParser implements NameParser
 {
-   private static LdapDnParser instance = new LdapDnParser();
+    INSTANCE;
+
+    /**
+     * Get a reference to the NameParser. Needed to be compliant with the JNDI
+     * API
+     *
+     * @return An instance of the NameParser
+     */
+    public static NameParser getNameParser()
+    {
+        return INSTANCE;
+    }
 
 
-   /**
-    * A private constructor. It's useless, as this object is totally stateless,
-    * but we need to expose a NameParser.
-    */
-   private LdapDnParser()
-   {
-       // Nothing to do
-   }
+    /**
+     * Parse a DN.
+     *
+     * @param dn The DN to be parsed
+     * @param rdns The list that will contain the RDNs
+     * @throws InvalidNameException If the DN is invalid
+     */
+    public static void parseInternal( String name, List<Rdn> rdns ) throws InvalidNameException
+    {
+        try
+        {
+            FastLdapDnParser.INSTANCE.parseDn( name, rdns );
+        }
+        catch ( TooComplexException e )
+        {
+            rdns.clear();
+            new ComplexLdapDnParser().parseDn( name, rdns );
+        }
+    }
 
 
-   /**
-    * Get a reference to the NameParser. Needed to be compliant with the JNDI
-    * API
-    *
-    * @return An instance of the NameParser
-    */
-   public static NameParser getNameParser()
-   {
-       return instance;
-   }
+    /**
+     * Validate a DN
+     *
+     * @param dn The DN to be parsed
+     *            
+     * @return <code>true</code> if the DN is valid
+     */
+    public static boolean validateInternal( String name )
+    {
+        LdapDN dn = new LdapDN();
+        try
+        {
+            parseInternal( name, dn.rdns );
+            return true;
+        }
+        catch ( InvalidNameException e )
+        {
+            return false;
+        }
+    }
 
 
-   /**
-    * Parse a DN
-    *
-    * @param dn The DN to be parsed
-    * @param rdns The list that will contain the RDNs
-    * @throws InvalidNameException If the DN is invalid
-    */
-   public static void parseInternal( String dn, List<Rdn> rdns ) throws InvalidNameException
-   {
-       if ( dn.length() == 0 )
-       {
-           // We have an empty DN, just get out of the function.
-           return;
-       }
-
-       parseInternal( StringTools.getBytesUtf8( dn ), rdns );
-       
-       return;
-   }
-
-
-   /**
-    * Parse a DN
-    *
-    * @param dn The DN to be parsed
-    * @param rdns The list that will contain the RDNs
-    * @throws InvalidNameException If the DN is invalid
-    */
-   public static void parseInternal( byte[] dn, List<Rdn> rdns ) throws InvalidNameException
-   {
-       if ( dn.length == 0 )
-       {
-           // We have an empty DN, just get out of the function.
-           return;
-       }
-
-       Position pos = new Position();
-       pos.start = 0;
-       Rdn rdn = new Rdn();
-
-       // <name> ::= <name-component> <name-components>
-       // <name-components> ::= <spaces> <separator> <spaces> <name-component>
-       // <name-components> | e
-       if ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR )
-       {
-           // Now, parse the following nameComponents
-           do
-           {
-               rdns.add( rdn );
-               rdn = new Rdn();
-
-               if ( ( !StringTools.isCharASCII( dn, pos.start, ',' ) )
-                   && ( !StringTools.isCharASCII( dn, pos.start, ';' ) ) )
-               {
-
-                   if ( pos.start != dn.length )
-                   {
-                       throw new InvalidNameException( "Bad DN : " + StringTools.utf8ToString( dn ) );
-                   }
-                   else
-                   {
-                       return;
-                   }
-               }
-
-               pos.start++;
-           }
-           while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
-           
-           throw new InvalidNameException( "Bad DN : " + StringTools.utf8ToString( dn ) );
-       }
-       else
-       {
-           throw new InvalidNameException( "Bad DN : " + StringTools.utf8ToString( dn ) );
-       }
-   }
-
-
-   /**
-    * Validate a DN
-    *
-    * @param dn The DN to be parsed
-    *            
-    * @return <code>true</code> if the DN is valid
-    */
-   private static boolean validateInternal( byte[] dn )
-   {
-
-       Position pos = new Position();
-       pos.start = 0;
-
-       // <name> ::= <name-component> <name-components>
-       // <name-components> ::= <spaces> <separator> <spaces> <name-component>
-       // <name-components> | e
-       if ( RdnParser.isValid( dn, pos, true ) )
-       {
-           // Now, parse the following nameComponents
-           do
-           {
-               if ( ( !StringTools.isCharASCII( dn, pos.start, ',' ) )
-                   && ( !StringTools.isCharASCII( dn, pos.start, ';' ) ) )
-               {
-
-                   if ( pos.start != dn.length )
-                   {
-                       return false;
-                   }
-                   else
-                   {
-                       return true;
-                   }
-               }
-
-               pos.start++;
-           }
-           while ( RdnParser.isValid( dn, pos, false ) );
-           
-       }
-
-       return false;
-   }
-
-   
-   /**
-    * Validate a DN
-    *
-    * @param dn The DN to be parsed
-    *            
-    * @return <code>true</code> if the DN is valid
-    */
-   public static boolean validateInternal( String dn )
-   {
-       if ( dn.length() == 0 )
-       {
-           // We have an empty DN, just get out of the function.
-           return true;
-       }
-
-       return validateInternal( StringTools.getBytesUtf8( dn ) );
-   }
-
-
-   /**
-    * Parse a String and return a LdapDN if the String is a valid DN
-    *
-    * @param dn
-    *            The DN to parse
-    * @return A LdapDN
-    * @throws InvalidNameException
-    *             If the String is not a valid DN
-    */
-   public Name parse( String dn ) throws InvalidNameException
-   {
-       return new LdapDN( dn );
-   }
+    /**
+     * Parse a String and return a LdapDN if the String is a valid DN
+     *
+     * @param dn
+     *            The DN to parse
+     * @return A LdapDN
+     * @throws InvalidNameException
+     *             If the String is not a valid DN
+     */
+    public Name parse( String dn ) throws InvalidNameException
+    {
+        return new LdapDN( dn );
+    }
 }
-
-
