@@ -51,13 +51,13 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>shared-asn1</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>${pom.groupId}</groupId>
       <artifactId>shared-ldap-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
