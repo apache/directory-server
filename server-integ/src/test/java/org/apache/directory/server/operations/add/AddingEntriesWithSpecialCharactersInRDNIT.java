@@ -20,6 +20,10 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -32,15 +36,12 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
-
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -106,6 +107,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
@@ -139,6 +142,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
@@ -153,55 +158,75 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
     /**
      * adding an entry with quotes (") in RDN.
      */
-    /*   public void testAddingWithQuotesInRdn() throws NamingException {
+    @Test
+    public void testAddingWithQuotesInRdn() throws Exception
+    {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
+        Attributes attrs = getPersonAttributes( "Messer", "Mackie \"The Knife\" Messer" );
+        String rdn = "cn=Mackie \\\"The Knife\\\" Messer";
 
-           Attributes attrs = getPersonAttributes("Messer",
-                   "Mackie \\\\\\\"The Knife\" Messer");
-           String rdn = "cn=Mackie \\\"The Knife\" Messer";
-           ctx.createSubcontext(rdn, attrs);
+        // JNDI issue: must use the name object here rather then string,
+        // otherwise more backslashes are needed
+        // works with both javax.naming.ldap.LdapName or 
+        // org.apache.directory.shared.ldap.name.LdapDN
+        LdapDN ldapRdn = new LdapDN( rdn );
+        ctx.createSubcontext( ldapRdn, attrs );
 
-           SearchControls sctls = new SearchControls();
-           sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-           NamingEnumeration enm = ctx.search("",
-                   "(cn=Mackie \"The Knife\" Messer)", sctls);
-           assertEquals("entry found", true, enm.hasMore());
-           while (enm.hasMore()) {
-               SearchResult sr = (SearchResult) enm.next();
-               attrs = sr.getObject();
-               Attribute cn = sr.getObject().get("cn");
-               assertNotNull(cn);
-               assertTrue(cn.contains("Mackie \"The Knife\" Messer"));
-           }
+        NamingEnumeration<SearchResult> enm = ctx.search( "", "(cn=Mackie \"The Knife\" Messer)", sctls );
+        assertTrue( "no entry found", enm.hasMore() );
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Mackie \"The Knife\" Messer" ) );
+        }
 
-           ctx.destroySubcontext(rdn);
-       }
-    */
+        // JNDI issue: must use the name object here rather then string
+        ctx.destroySubcontext( ldapRdn );
+    }
+
+
     /**
      * adding an entry with backslash (\) in RDN.
      */
-    /*   public void testAddingWithBackslashInRdn() throws NamingException {
+    @Test
+    public void testAddingWithBackslashInRdn() throws Exception
+    {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
+        Attributes attrs = getOrgUnitAttributes( "AC\\DC" );
+        String rdn = "ou=AC\\\\DC";
 
-           Attributes attrs = getOrgUnitAttributes("AC\\DC");
-           String rdn = "ou=AC\\\\DC";
-           ctx.createSubcontext(rdn, attrs);
+        // JNDI issue: must use the name object here rather then string,
+        // otherwise more backslashes are needed
+        // works with both javax.naming.ldap.LdapName or 
+        // org.apache.directory.shared.ldap.name.LdapDN
+        LdapDN ldapRdn = new LdapDN( rdn );
+        ctx.createSubcontext( ldapRdn, attrs );
 
-           SearchControls sctls = new SearchControls();
-           sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-           NamingEnumeration enm = ctx.search("", "(ou=AC\\DC)", sctls);
-           assertEquals("entry found", true, enm.hasMore());
-           while (enm.hasMore()) {
-               SearchResult sr = (SearchResult) enm.next();
-               attrs = sr.getObject();
-               Attribute ou = sr.getObject().get("ou");
-               assertNotNull(ou);
-               assertTrue(ou.contains("AC\\DC"));
-           }
+        NamingEnumeration<SearchResult> enm = ctx.search( "", "(ou=AC\\\\DC)", sctls );
+        assertTrue( "no entry found", enm.hasMore() );
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
+            Attribute ou = sr.getAttributes().get( "ou" );
+            assertNotNull( ou );
+            assertTrue( ou.contains( "AC\\DC" ) );
+        }
 
-           ctx.destroySubcontext(rdn);
-       }
-    */
+        ctx.destroySubcontext( ldapRdn );
+    }
+
 
     /**
      * adding an entry with greater sign (>) in RDN.
@@ -226,6 +251,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute ou = sr.getAttributes().get( "ou" );
             assertNotNull( ou );
@@ -259,6 +286,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute ou = sr.getAttributes().get( "ou" );
             assertNotNull( ou );
@@ -292,6 +321,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute ou = sr.getAttributes().get( "ou" );
             assertNotNull( ou );
@@ -325,6 +356,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
+            String dn = sr.getNameInNamespace();
+            assertTrue( dn.startsWith( rdn ) );
             attrs = sr.getAttributes();
             Attribute ou = sr.getAttributes().get( "ou" );
             assertNotNull( ou );
