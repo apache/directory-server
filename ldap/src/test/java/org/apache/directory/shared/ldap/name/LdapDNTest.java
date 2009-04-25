@@ -394,6 +394,25 @@ public class LdapDNTest
 
 
     /**
+     * Normalize a DN with sequence ESC ESC HEX HEX (\\DC).
+     * This is a corner case for the parser and normalizer.
+     */
+    @Test
+    public void testNormalizeLdapDNEscEscHexHex() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "ou = AC\\\\DC" );
+        assertTrue( LdapDN.isValid( "ou = AC\\\\DC" ) );
+        assertEquals( "ou=AC\\\\DC", dn.toString() );
+        assertEquals( "ou = AC\\\\DC", dn.getUpName() );
+
+        // Check the normalization now
+        LdapDN ndn = dn.normalize( oidOids );
+        assertEquals( "ou = AC\\\\DC", ndn.getUpName() );
+        assertEquals( "2.5.4.11=ac\\\\dc", ndn.toString() );
+    }
+
+
+    /**
      * test a simple DN with a wrong hexString attribute value : a = #0010Z0AAFF
      */
     @Test

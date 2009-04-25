@@ -3405,7 +3405,7 @@ public class StringTools
         {
             char c = str.charAt( ii );
             
-            if ( c == '\\' )
+            if ( !escaped && c == '\\' )
             {
                 // we have the start of a hex escape sequence
                 if ( isHex( str, ii+1 ) && isHex ( str, ii+2 ) )
@@ -3417,7 +3417,7 @@ public class StringTools
                     escaped = false;
                     continue;
                 }
-                else if ( !escaped )
+                else
                 {
                     // It may be an escaped char ( ' ', '"', '#', '+', ',', ';', '<', '=', '>', '\' )
                     escaped = true;
