@@ -20,6 +20,18 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -49,34 +61,34 @@ import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-
 import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -86,7 +98,8 @@ import static org.junit.Assert.assertNotNull;
  * @version $Rev: 674593 $
  */
 @RunWith ( SiRunner.class ) 
-@CleanupLevel ( Level.SUITE )
+@CleanupLevel ( Level.CLASS )
+@Factory ( AddIT.Factory.class )
 @ApplyLdifs( {
     // Entry # 0
     "dn: cn=The Person,ou=system\n" +
@@ -121,7 +134,19 @@ import static org.junit.Assert.assertNotNull;
     "uid: akarasuluref\n" +
     "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system\n" + 
     "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system\n" +
-    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n"
+    "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system\n\n" +
+    
+    // Entry example.com
+    "dn: dc=example,dc=com\n" +
+    "dc: example\n" +
+    "objectClass: top\n" +
+    "objectClass: domain\n\n" +
+    
+    // Entry directory.apache.org
+    "dn: dc=directory,dc=apache,dc=org\n" +
+    "dc: directory\n" +
+    "objectClass: top\n" +
+    "objectClass: domain\n\n"
     }
 )
 public class AddIT
@@ -130,10 +155,57 @@ public class AddIT
     private static final String RDN = "cn=The Person";
 
     private static final String BASE = "ou=system";
+    private static final String BASE_EXAMPLE_COM = "dc=example,dc=com";
+    private static final String BASE_DIRECTORY_APACHE_ORG = "dc=directory,dc=apache,dc=org";
 
 
     public static LdapService ldapService;
 
+
+    public static class Factory implements LdapServerFactory
+    {
+        public LdapService newInstance() throws Exception
+        {
+            DirectoryService service = new DefaultDirectoryService();
+            IntegrationUtils.doDelete( service.getWorkingDirectory() );
+            service.getChangeLog().setEnabled( true );
+            service.setAllowAnonymousAccess( false );
+            service.setShutdownHookEnabled( false );
+
+            Set<Partition> partitions = new HashSet<Partition>();
+
+            JdbmPartition partition2 = new JdbmPartition();
+            partition2.setId( "example" );
+            partition2.setSuffix( BASE_EXAMPLE_COM );
+            Set<Index<?, ServerEntry>> indexedAttrs2 = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
+            partition2.setIndexedAttributes( indexedAttrs2 );
+            partitions.add( partition2 );
+            
+            JdbmPartition partition3 = new JdbmPartition();
+            partition3.setId( "directory" );
+            partition3.setSuffix( BASE_DIRECTORY_APACHE_ORG );
+            Set<Index<?, ServerEntry>> indexedAttrs3 = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
+            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
+            partition3.setIndexedAttributes( indexedAttrs3 );
+            partitions.add( partition3 );
+            
+            service.setPartitions( partitions );
+
+            LdapService ldapService = new LdapService();
+            ldapService.setDirectoryService( service );
+            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            ldapService.setTcpTransport( new TcpTransport( port ) );
+            ldapService.setAllowAnonymousAccess( false );
+            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+
+            return ldapService;
+        }
+    }
 
     /**
      * This is the original defect as in JIRA DIREVE-216.
@@ -530,6 +602,49 @@ public class AddIT
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
 
+        // Create entry ou=favorite,ou=system
+        Attributes entry = new BasicAttributes( true );
+        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        entryOcls.add( SchemaConstants.TOP_OC );
+        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        entry.put( entryOcls );
+        entry.put( SchemaConstants.OU_AT, "favorite" );
+        String entryRdn = "ou=favorite";
+        ctx.createSubcontext( entryRdn, entry );
+
+        // Create Alias ou=bestFruit,ou=system to ou=favorite
+        String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
+        Attributes alias = new BasicAttributes( true );
+        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        aliasOcls.add( SchemaConstants.TOP_OC );
+        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        aliasOcls.add( SchemaConstants.ALIAS_OC );
+        alias.put( aliasOcls );
+        alias.put( SchemaConstants.OU_AT, "bestFruit" );
+        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
+        String rdnAlias = "ou=bestFruit";
+        ctx.createSubcontext( rdnAlias, alias );
+
+        // Remove alias and entry
+        ctx.destroySubcontext( rdnAlias ); //Waiting for Connection.reply()
+        ctx.destroySubcontext( entryRdn );
+    }
+
+
+    /**
+     * Test for DIRSERVER-1352:  Infinite Loop when deleting an alias with suffix size > 1
+     * Test for DIRSERVER-1157:  Deleting Alias entry failure
+     * 
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1352
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1157
+     * @throws Exception
+     */
+    @Test
+    public void testAddDeleteAlias2() throws Exception
+    {
+        // use a partition with suffix size 2
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE_EXAMPLE_COM );
+
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new BasicAttributes( true );
         Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
@@ -557,8 +672,51 @@ public class AddIT
         ctx.destroySubcontext( rdnAlias ); //Waiting for Connection.reply()
         ctx.destroySubcontext( entryRdn );
     }
-    
-    
+
+
+    /**
+     * Test for DIRSERVER-1352:  Infinite Loop when deleting an alias with suffix size > 1
+     * Test for DIRSERVER-1157:  Deleting Alias entry failure
+     * 
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1352
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1157
+     * @throws Exception
+     */
+    @Test
+    public void testAddDeleteAlias3() throws Exception
+    {
+        // use a partition with suffix size 3
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE_DIRECTORY_APACHE_ORG );
+
+        // Create entry ou=favorite,dc=directory,dc=apache,dc=org
+        Attributes entry = new BasicAttributes( true );
+        Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        entryOcls.add( SchemaConstants.TOP_OC );
+        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        entry.put( entryOcls );
+        entry.put( SchemaConstants.OU_AT, "favorite" );
+        String entryRdn = "ou=favorite";
+        ctx.createSubcontext( entryRdn, entry );
+
+        // Create Alias ou=bestFruit,dc=directory,dc=apache,dc=org to ou=favorite
+        String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
+        Attributes alias = new BasicAttributes( true );
+        Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
+        aliasOcls.add( SchemaConstants.TOP_OC );
+        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        aliasOcls.add( SchemaConstants.ALIAS_OC );
+        alias.put( aliasOcls );
+        alias.put( SchemaConstants.OU_AT, "bestFruit" );
+        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
+        String rdnAlias = "ou=bestFruit";
+        ctx.createSubcontext( rdnAlias, alias );
+
+        // Remove alias and entry
+        ctx.destroySubcontext( rdnAlias ); //Waiting for Connection.reply()
+        ctx.destroySubcontext( entryRdn );
+    }
+
+
     /**
      * Tests add operation on referral entry with the ManageDsaIT control.
      */

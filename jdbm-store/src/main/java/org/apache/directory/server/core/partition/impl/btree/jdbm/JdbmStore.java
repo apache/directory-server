@@ -801,8 +801,12 @@ public class JdbmStore<E> implements Store<E>
         String targetDn = aliasIdx.reverseLookup( aliasId );
         Long targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
-        LdapDN ancestorDn = ( LdapDN ) new LdapDN( aliasDn ).getPrefix( 1 );
-        Long ancestorId = getEntryId( ancestorDn.toString() );
+        LdapDN aliasDN = ( LdapDN ) new LdapDN( aliasDn );
+        
+        LdapDN ancestorDn = ( LdapDN ) aliasDN.clone();
+        ancestorDn.remove( aliasDN.size() - 1 );
+        Long ancestorId = getEntryId( ancestorDn.toNormName() );
+        
 
         /*
          * We cannot just drop all tuples in the one level and subtree userIndices
@@ -818,10 +822,10 @@ public class JdbmStore<E> implements Store<E>
         oneAliasIdx.drop( ancestorId, targetId );
         subAliasIdx.drop( ancestorId, targetId );
 
-        while ( !ancestorDn.equals( normSuffix ) )
+        while ( !ancestorDn.equals( normSuffix ) && ancestorDn.size() > normSuffix.size()) 
         {
-            ancestorDn = ( LdapDN ) ancestorDn.getPrefix( 1 );
-            ancestorId = getEntryId( ancestorDn.toString() );
+            ancestorDn = ( LdapDN ) ancestorDn.getPrefix( ancestorDn.size() - 1 );
+            ancestorId = getEntryId( ancestorDn.toNormName() );
 
             subAliasIdx.drop( ancestorId, targetId );
         }
