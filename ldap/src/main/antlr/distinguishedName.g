@@ -71,12 +71,14 @@ protected LDIGIT : '1'..'9' ;
 protected DIGIT : '0'..'9' ;
 protected ALPHA : 'a'..'z' ;
 
-HEXPAIR_OR_ESC 
+HEXPAIR_OR_ESCESC_OR_ESC 
     : (ESC HEX HEX) => HEXPAIR { $setType(HEXPAIR); }
+    | ESCESC { $setType(ESCESC); }
     | ESC { $setType(ESC); }
     ;
 protected HEXPAIR : ESC! HEX HEX ;
 protected ESC : '\\';
+protected ESCESC : ESC ESC;
 protected HEX: DIGIT | 'a'..'f' ;
 
 HEXVALUE_OR_SHARP
@@ -409,7 +411,7 @@ quotestring [UpAndNormValue value]
         DQUOTE
         (
             (
-                s:~(DQUOTE|ESC|HEXPAIR) 
+                s:~(DQUOTE|ESC|ESCESC|HEXPAIR) 
                 {
                     value.upValue += s.getText();
                     bb.append( StringTools.getBytesUtf8( s.getText() ) ); 
@@ -626,12 +628,11 @@ pair [UpAndNormValue value] returns [byte[] pair]
         String tmp;
     }
     :
-    ( 
-        ESC { value.upValue += "\\"; } 
-        esc:ESC 
+    (
+        ESCESC 
         { 
-            value.upValue += "\\";
-            pair = StringTools.getBytesUtf8( esc.getText() );
+            value.upValue += "\\\\";
+            pair = StringTools.getBytesUtf8( "\\" );
         } 
     )
     |

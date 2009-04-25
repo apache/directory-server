@@ -255,6 +255,23 @@ public class LdapDnParserTest
         LdapDN dn = ( LdapDN ) dnParser.parse( "a = quoted \\\"value" );
         assertEquals( "a=quoted \\\"value", dn.toString() );
         assertEquals( "a = quoted \\\"value", dn.getUpName() );
+        
+        dn = ( LdapDN ) dnParser.parse( "cn=Mackie \\\"The Knife\\\" Messer" );
+        assertEquals( "cn=Mackie \\\"The Knife\\\" Messer", dn.toString() );
+        assertEquals( "cn=Mackie \\\"The Knife\\\" Messer", dn.getUpName() );
+    }
+
+
+    /**
+     * Tests a corner case of the parser because the sequence "\DC" is also a valid hex pair
+     */
+    @Test
+    public void testLdapDNBackslashInAttributeValue() throws NamingException
+    {
+        NameParser dnParser = LdapDnParser.getNameParser();
+        LdapDN dn = ( LdapDN ) dnParser.parse( "a = AC\\\\DC" );
+        assertEquals( "a=AC\\\\DC", dn.toString() );
+        assertEquals( "a = AC\\\\DC", dn.getUpName() );
     }
 
 
