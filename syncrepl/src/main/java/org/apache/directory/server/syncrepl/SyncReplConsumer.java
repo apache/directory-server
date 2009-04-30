@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.naming.ldap.Control;
@@ -36,40 +35,38 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
-import org.apache.directory.shared.ldap.client.api.LdapConnectionImpl;
+import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
-import org.apache.directory.shared.ldap.client.api.messages.AbstractControl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
-//import org.apache.directory.shared.ldap.client.api.messages.Control;
+import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
-import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncDoneValue.SyncDoneValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlCodec;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncInfoValue.SyncInfoValueControlDecoder;
 import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlCodec;
+import org.apache.directory.shared.ldap.codec.controls.replication.syncStateValue.SyncStateValueControlDecoder;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.replication.SyncDoneValueControl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncRequestValueControl;
 import org.apache.directory.shared.ldap.message.control.replication.SyncStateTypeEnum;
+import org.apache.directory.shared.ldap.message.control.replication.SyncStateValueControl;
 import org.apache.directory.shared.ldap.message.control.replication.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SyncreplConsumer implements SearchListener
+public class SyncReplConsumer implements SearchListener, IntermediateResponseListener
 {
 
     /** the syncrepl configuration */
@@ -94,7 +91,7 @@ public class SyncreplConsumer implements SearchListener
     private byte[] syncCookie;
 
     /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncreplConsumer.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncReplConsumer.class );
 
     /** conection to the syncrepl provider */
     private LdapConnection connection;
@@ -120,6 +117,9 @@ public class SyncreplConsumer implements SearchListener
     /** the core session */
     private CoreSession session;
     
+    private SyncDoneValueControlDecoder syncDoneControlDecoder = new SyncDoneValueControlDecoder();
+    
+    private SyncStateValueControlDecoder syncStateControlDecoder = new SyncStateValueControlDecoder();
     /**
      * @return the config
      */
@@ -174,43 +174,20 @@ public class SyncreplConsumer implements SearchListener
     }
 
 
-    public boolean connect()
-    {
-        String providerHost = config.getProviderHost();
-        int port = config.getPort();
-
-        // Create a connection
-        connection = new LdapConnection( providerHost, port );
-
-        try
-        {
-            // Connect to the server
-            boolean connected = connection.connect();
-
-            if ( !connected )
-            {
-                LOG.error( "Failed to connect to the syncrepl provder host {} running at port {}", providerHost, port );
-                return false;
-            }
-            else
-            {
-                return connected;
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Failed to connect to the syncrepl provder host {} running at port {}", providerHost, port );
-            LOG.error( e.getMessage(), e );
-        }
-
-        return false;
-    }
-
-
     public boolean bind()
     {
         try
         {
+            String providerHost = config.getProviderHost();
+            int port = config.getPort();
+
+            // Create a connection
+            if( connection == null )
+            {
+                connection = new LdapConnection( providerHost, port );
+                connection.addListener( this );
+            }
+
             // Do a bind
             BindResponse bindResponse = connection.bind( config.getBindDn(), config.getCredentials() );
 
@@ -292,17 +269,32 @@ public class SyncreplConsumer implements SearchListener
         Control control = new SyncRequestValueControl();
         ((SyncRequestValueControl)control).setCookie( syncReq.getEncodedValue() );
 
-        searchRequest.add( control );
+        try
+        {
+            searchRequest.add( control );
+        }
+        catch( LdapException e )
+        {
+            // shouldn't happen
+            LOG.error( "Failed to add constrol to the search request", e );
+        }
     }
 
 
     public void handleSearchDone( SearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
-        Map<String,Control> controls = searchDone.getControls();
         
-        Control ctrl = controls.get( SyncDoneValueControl.CONTROL_OID );
-        SyncDoneValueControlCodec syncDoneCtrl = ( SyncDoneValueControlCodec ) ctrl.getEncodedValue();
+        Control ctrl = searchDone.getControl( SyncDoneValueControl.CONTROL_OID );
+        SyncDoneValueControlCodec syncDoneCtrl = null;
+        try
+        {
+            syncDoneCtrl = ( SyncDoneValueControlCodec ) syncDoneControlDecoder.decode( ctrl.getEncodedValue() );
+        }
+        catch( Exception e )
+        {
+            LOG.error( "Failed to decode the syncDoneControlCodec", e );
+        }
 
         if ( syncDoneCtrl.getCookie() != null )
         {
@@ -359,8 +351,17 @@ public class SyncreplConsumer implements SearchListener
         {
             Entry remoteEntry = syncResult.getEntry();
 
-            Control ctrl = syncResult.getCurrentControl();
-            SyncStateValueControlCodec syncStateCtrl = ( SyncStateValueControlCodec ) ctrl.getControlValue();
+            Control ctrl = syncResult.getControl( SyncStateValueControl.CONTROL_OID );
+            SyncStateValueControlCodec syncStateCtrl = null;
+            
+            try
+            {
+                syncStateCtrl = ( SyncStateValueControlCodec ) syncStateControlDecoder.decode( ctrl.getEncodedValue() );
+            }
+            catch( Exception e )
+            {
+                LOG.error( "Failed to decode syncStateControl", e );
+            }
 
             if ( syncStateCtrl.getCookie() != null )
             {
@@ -484,10 +485,9 @@ public class SyncreplConsumer implements SearchListener
             }
 
             LOG.debug( "Trying to reconnect" );
-            connected = connect();
+            connected = bind();
         }
         
-        bind();
         startSync();
     }
 
@@ -549,6 +549,46 @@ public class SyncreplConsumer implements SearchListener
     }
 
     
+    //====================== SearchListener methods ====================================
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#entryFound(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry)
+     */
+    public void entryFound( LdapConnection connection, SearchResultEntry searchResultEntry ) throws LdapException
+    {
+        handleSearchResult( searchResultEntry );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#referralFound(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultReference)
+     */
+    public void referralFound( LdapConnection connection, SearchResultReference searchResultReference )
+        throws LdapException
+    {
+        handleSearchReference( searchResultReference );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.ldap.client.api.listeners.SearchListener#searchDone(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.SearchResultDone)
+     */
+    public void searchDone( LdapConnection connection, SearchResultDone searchResultDone ) throws LdapException
+    {
+        handleSearchDone( searchResultDone );
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener#responseReceived(org.apache.directory.shared.ldap.client.api.LdapConnection, org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse)
+     */
+    public void responseReceived( LdapConnection connection, IntermediateResponse intermediateResponse )
+    {
+        handleSyncInfo( intermediateResponse.getResponseValue() );
+    }
+
+
     /**
      * 
      * performs a search on connection with updated syncrequest control.
@@ -567,8 +607,12 @@ public class SyncreplConsumer implements SearchListener
             syncReq.setCookie( syncCookie );
         }
         
-        searchRequest.getCurrentControl().setControlValue( syncReq.getEncodedValue() );
+        SyncRequestValueControl syncReqControl = ( SyncRequestValueControl ) searchRequest.getControl( SyncRequestValueControl.CONTROL_OID );
+        
+        searchRequest.remove( syncReqControl );
 
+        searchRequest.add( syncReq );
+        
         connection.search( searchRequest );
     }
 
