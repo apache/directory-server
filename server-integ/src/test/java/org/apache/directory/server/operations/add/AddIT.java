@@ -20,16 +20,9 @@
 package org.apache.directory.server.operations.add;
 
 
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -71,17 +64,29 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
+
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+
 import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.operations.bind.MiscBindIT;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
@@ -89,6 +94,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -161,7 +172,11 @@ public class AddIT
 
     public static LdapService ldapService;
 
-
+    
+    /**
+     * The factory
+     *
+     */
     public static class Factory implements LdapServerFactory
     {
         public LdapService newInstance() throws Exception
@@ -169,43 +184,44 @@ public class AddIT
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
             service.getChangeLog().setEnabled( true );
-            service.setAllowAnonymousAccess( false );
+            service.setAllowAnonymousAccess( true );
             service.setShutdownHookEnabled( false );
 
-            Set<Partition> partitions = new HashSet<Partition>();
+            JdbmPartition example = new JdbmPartition();
+            example.setCacheSize( 500 );
+            example.setSuffix( BASE_EXAMPLE_COM );
+            example.setId( "example" );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
+            indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
+            example.setIndexedAttributes( indexedAttrs );
 
-            JdbmPartition partition2 = new JdbmPartition();
-            partition2.setId( "example" );
-            partition2.setSuffix( BASE_EXAMPLE_COM );
-            Set<Index<?, ServerEntry>> indexedAttrs2 = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-            partition2.setIndexedAttributes( indexedAttrs2 );
-            partitions.add( partition2 );
+            service.addPartition( example );
+
+            JdbmPartition directory = new JdbmPartition();
+            directory.setCacheSize( 500 );
+            directory.setSuffix( BASE_DIRECTORY_APACHE_ORG );
+            directory.setId( "directory" );
+            directory.setIndexedAttributes( indexedAttrs );
             
-            JdbmPartition partition3 = new JdbmPartition();
-            partition3.setId( "directory" );
-            partition3.setSuffix( BASE_DIRECTORY_APACHE_ORG );
-            Set<Index<?, ServerEntry>> indexedAttrs3 = new HashSet<Index<?, ServerEntry>>();
-            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
-            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
-            indexedAttrs3.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
-            partition3.setIndexedAttributes( indexedAttrs3 );
-            partitions.add( partition3 );
+            service.addPartition( directory );
             
-            service.setPartitions( partitions );
+            // change the working directory to something that is unique
+            // on the system and somewhere either under target directory
+            // or somewhere in a temp area of the machine.
 
             LdapService ldapService = new LdapService();
             ldapService.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.setAllowAnonymousAccess( false );
+            ldapService.setAllowAnonymousAccess( true );
             ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             return ldapService;
         }
     }
+
 
     /**
      * This is the original defect as in JIRA DIREVE-216.

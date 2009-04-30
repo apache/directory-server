@@ -25,6 +25,7 @@ import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.server.integ.SiSuite;
+import org.apache.directory.server.operations.add.AddIT;
 import org.apache.directory.server.operations.add.AddingEntriesWithSpecialCharactersInRDNIT;
 import org.apache.directory.server.operations.bind.BindIT;
 import org.apache.directory.server.operations.bind.SimpleBindIT;
@@ -59,6 +60,7 @@ import org.junit.runners.Suite;
 @RunWith ( SiSuite.class )
 @Suite.SuiteClasses ( {
         AddingEntriesWithSpecialCharactersInRDNIT.class,
+        AddIT.class,
         CompareIT.class,
         MatchingRuleCompareIT.class,
         DeleteIT.class,
