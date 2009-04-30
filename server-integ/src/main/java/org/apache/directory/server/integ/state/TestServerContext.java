@@ -70,12 +70,12 @@ public class TestServerContext
 
 
     /**
-     * A private constructor, the clas contains only static methods, 
+     * A private constructor, the class contains only static methods, 
      * no need to construct an instance.
      */
     private TestServerContext()
     {
-        
+        // Do nothing
     }
 
 
@@ -85,7 +85,7 @@ public class TestServerContext
      *
      * @return the context associated with the calling thread
      */
-    public static TestServerContext get()
+    public static TestServerContext getServerContext()
     {
         TestServerContext context = CONTEXTS.get();
 
@@ -121,7 +121,8 @@ public class TestServerContext
      */
     public static void create( InheritableServerSettings settings ) throws NamingException
     {
-        get().state.create( settings );
+        TestServerState state = getServerContext().getState();
+        state.create( settings );
     }
 
 
@@ -132,7 +133,8 @@ public class TestServerContext
      */
     public static void destroy()
     {
-        get().state.destroy();
+        TestServerState state = getServerContext().getState();
+        state.destroy();
     }
 
 
@@ -145,7 +147,8 @@ public class TestServerContext
      */
     public static void cleanup() throws IOException
     {
-        get().state.cleanup();
+        TestServerState state = getServerContext().getState();
+        state.cleanup();
     }
 
 
@@ -156,7 +159,8 @@ public class TestServerContext
      */
     public static void startup() throws Exception
     {
-        get().state.startup();
+        TestServerState state = getServerContext().getState();
+        state.startup();
     }
 
 
@@ -167,7 +171,8 @@ public class TestServerContext
      */
     public static void shutdown() throws Exception
     {
-        get().state.shutdown();
+        TestServerState state = getServerContext().getState();
+        state.shutdown();
     }
 
 
@@ -184,7 +189,8 @@ public class TestServerContext
                              InheritableServerSettings settings )
     {
         LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
-        get().getState().test( testClass, testMethod, notifier, settings );
+        TestServerState state = getServerContext().getState();
+        state.test( testClass, testMethod, notifier, settings );
     }
 
 
@@ -197,7 +203,8 @@ public class TestServerContext
      */
     public static void revert() throws Exception
     {
-        get().state.revert();
+        TestServerState state = getServerContext().getState();
+        state.revert();
     }
 
 
@@ -207,7 +214,7 @@ public class TestServerContext
         {
             Object test = testClass.getConstructor().newInstance();
             Field field = testClass.getJavaClass().getDeclaredField( "ldapService" );
-            field.set( testClass.getJavaClass(), get().getLdapServer() );
+            field.set( testClass.getJavaClass(), getServerContext().getLdapServer() );
             new MethodRoadie( test, testMethod, notifier, description ).run();
         }
         catch ( InvocationTargetException e )
