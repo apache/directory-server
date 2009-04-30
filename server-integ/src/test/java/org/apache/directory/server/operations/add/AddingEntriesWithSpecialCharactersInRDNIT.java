@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith( SiRunner.class )
-@CleanupLevel( Level.SUITE )
+@CleanupLevel( Level.CLASS )
 public class AddingEntriesWithSpecialCharactersInRDNIT
 {
     public static LdapService ldapService;

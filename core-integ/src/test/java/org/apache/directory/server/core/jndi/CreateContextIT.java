@@ -303,7 +303,7 @@ public class CreateContextIT
         /*
          * create ou=testing00,ou=system
          */
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         attributes.put("objectClass", "organizationalUnit");
         attributes.put("description", "Test OU");
         attributes.put("OU", "Test");
@@ -326,7 +326,7 @@ public class CreateContextIT
         /*
          * create ou=testing01,ou=system
          */
-        attributes = new BasicAttributes();
+        attributes = new BasicAttributes( true );
         attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
@@ -349,7 +349,7 @@ public class CreateContextIT
         /*
          * create ou=testing02,ou=system
          */
-        attributes = new BasicAttributes();
+        attributes = new BasicAttributes( true );
         attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );
@@ -374,7 +374,7 @@ public class CreateContextIT
          */
         ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
 
-        attributes = new BasicAttributes();
+        attributes = new BasicAttributes( true );
         attribute = new BasicAttribute( "objectClass" );
         attribute.add( "top" );
         attribute.add( "organizationalUnit" );

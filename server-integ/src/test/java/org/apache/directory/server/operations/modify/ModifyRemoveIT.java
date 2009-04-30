@@ -638,7 +638,7 @@ public class ModifyRemoveIT
         DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
         
         // add objectClass:krb5Principal and krb5PrincipalName:test to entry
-        Attributes tn = new BasicAttributes();
+        Attributes tn = new BasicAttributes( true );
         tn.put( new BasicAttribute( "objectClass", "krb5Principal", true ) );
         tn.put( new BasicAttribute( "krb5PrincipalName", "test", true ) );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );

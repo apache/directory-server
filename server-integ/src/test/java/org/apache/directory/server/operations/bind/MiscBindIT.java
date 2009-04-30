@@ -108,7 +108,6 @@ public class MiscBindIT
             service.setShutdownHookEnabled( false );
 
             JdbmPartition apache = new JdbmPartition();
-            apache.setId( "apache" );
 
             // @TODO need to make this configurable for the system partition
             apache.setCacheSize( 500 );

@@ -226,7 +226,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {
-        Attributes attrs = new BasicAttributes();
+        Attributes attrs = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
         ocls.add( "organizationalUnit" );

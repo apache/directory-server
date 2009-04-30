@@ -65,7 +65,7 @@ public class ObjectClassCreateIT
     @Test
     public void testCreateObjectClassWithInvalidNameAttribute() throws Exception
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
         
         objectClassAttribute.add( "top" );
@@ -99,7 +99,7 @@ public class ObjectClassCreateIT
     @Test
     public void testCreateObjectClassWithNoObjectClass() throws Exception
     {
-        Attributes attributes = new BasicAttributes();
+        Attributes attributes = new BasicAttributes( true );
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
         
         objectClassAttribute.add( "top" );
