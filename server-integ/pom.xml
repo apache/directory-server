@@ -104,7 +104,6 @@
             <include>**/*KeyDerivationServiceIT.java</include>
             <include>**/*PasswordPolicyServiceIT.java</include>
             <include>**/*StoredProcedureIT.java</include>
-            <include>**/*AddIT.java</include>
           </includes>
         </configuration>
       </plugin>
