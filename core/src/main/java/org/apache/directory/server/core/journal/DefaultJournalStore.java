@@ -57,13 +57,15 @@ public class DefaultJournalStore implements JournalStore
     private Writer writer;
 
     
+    /**
+     * {@inheritDoc}
+     */
     public void destroy() throws Exception
     {
         if ( writer != null )
         {
             writer.close();
         }
-        
     }
     
     

@@ -50,6 +50,10 @@ public class DefaultJournal implements Journal
     public void destroy() throws Exception
     {
         LOG.debug( "Stopping the journal" );
+        
+        // We have to release the file, otherwise Windows won't be able
+        // to stop the server
+        store.destroy();
     }
 
 

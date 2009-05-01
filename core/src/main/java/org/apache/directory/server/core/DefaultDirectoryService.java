@@ -931,18 +931,26 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
+        // --------------------------------------------------------------------
         // Shutdown the changelog
+        // --------------------------------------------------------------------
         changeLog.sync();
         changeLog.destroy();
         
+        // --------------------------------------------------------------------
         // Shutdown the journal
+        // --------------------------------------------------------------------
         journal.destroy();
 
+        // --------------------------------------------------------------------
         // Shutdown the partition
+        // --------------------------------------------------------------------
         partitionNexus.sync();
         partitionNexus.destroy();
         
+        // --------------------------------------------------------------------
         // And shutdown the server
+        // --------------------------------------------------------------------
         interceptorChain.destroy();
         started = false;
         setDefaultInterceptorConfigurations();
@@ -1362,6 +1370,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         File schemaDirectory = new File( workingDirectory, "schema" );
         SchemaPartitionExtractor extractor;
+        
         if ( ! schemaDirectory.exists() )
         {
             try
@@ -1483,13 +1492,17 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaPartition ) );
 
+        // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
+        // --------------------------------------------------------------------
         firstStart = createBootstrapEntries();
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
 
+        // --------------------------------------------------------------------
         // Initialize the changeLog if it's enabled
+        // --------------------------------------------------------------------
         if ( changeLog.isEnabled() )
         {
             changeLog.init( this );
@@ -1501,8 +1514,10 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
         
+        // --------------------------------------------------------------------
         // Initialize the journal if it's enabled
-        //if ( journal.isEnabled() )
+        // --------------------------------------------------------------------
+        if ( journal.isEnabled() )
         {
             journal.init( this );
         }
