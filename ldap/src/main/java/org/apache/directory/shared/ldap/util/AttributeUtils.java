@@ -1217,35 +1217,6 @@ public class AttributeUtils
 
 
     /**
-     * Converts an {@link Entry} to an {@link Attributes}.
-     *
-     * @param entry
-     *      the {@link Entry} to convert
-     * @return
-     *      the equivalent {@link Attributes}
-     */
-    public static Attributes toAttributes( Entry entry )
-    {
-        if ( entry != null )
-        {
-            Attributes attributes = new BasicAttributes();
-
-            // Looping on attributes
-            for ( Iterator<EntryAttribute> attributeIterator = entry.iterator(); attributeIterator.hasNext(); )
-            {
-                EntryAttribute entryAttribute = ( EntryAttribute ) attributeIterator.next();
-
-                attributes.put( toAttribute( entryAttribute ) );
-            }
-
-            return attributes;
-        }
-
-        return null;
-    }
-
-
-    /**
      * Converts an {@link EntryAttribute} to an {@link Attribute}.
      *
      * @param entryAttribute
