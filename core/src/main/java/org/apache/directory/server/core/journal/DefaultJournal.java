@@ -53,7 +53,10 @@ public class DefaultJournal implements Journal
         
         // We have to release the file, otherwise Windows won't be able
         // to stop the server
-        store.destroy();
+        if ( store != null )
+        {
+            store.destroy();
+        }
     }
 
 

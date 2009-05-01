@@ -79,7 +79,7 @@ public class JournalInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         
-        //if ( directoryService.getJournal().isEnabled() )
+        if ( directoryService.getJournal().isEnabled() )
         {
             journalEnabled = true; 
             journal = directoryService.getJournal();

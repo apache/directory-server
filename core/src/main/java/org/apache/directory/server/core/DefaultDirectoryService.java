@@ -938,9 +938,12 @@ public class DefaultDirectoryService implements DirectoryService
         changeLog.destroy();
         
         // --------------------------------------------------------------------
-        // Shutdown the journal
+        // Shutdown the journal if enabled
         // --------------------------------------------------------------------
-        journal.destroy();
+        if ( journal.isEnabled() )
+        {
+            journal.destroy();
+        }
 
         // --------------------------------------------------------------------
         // Shutdown the partition
