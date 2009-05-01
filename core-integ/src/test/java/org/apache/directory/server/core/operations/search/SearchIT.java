@@ -1695,4 +1695,31 @@ public class SearchIT
        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
        assertTrue( map.containsKey( "cn=with-dn, ou=system" ) );
    }
+
+
+   @Test
+   public void testComplexFilter() throws Exception
+   {
+       LdapContext sysRoot = getSystemContext( service );
+       createData( sysRoot );
+
+       SearchControls controls = new SearchControls();
+       controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+       controls.setDerefLinkFlag( false );
+       sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+               AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+       
+       HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+       String filter = "(|(&(|(2.5.4.0=posixgroup)(2.5.4.0=groupofuniquenames)(2.5.4.0=groupofnames)(2.5.4.0=group))(!(|(2.5.4.50=uid=admin,ou=system)(2.5.4.31=0.9.2342.19200300.100.1.1=admin,2.5.4.11=system))))(objectClass=referral))";
+       NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
+       
+       while ( list.hasMore() )
+       {
+           SearchResult result = list.next();
+           map.put( result.getName(), result.getAttributes() );
+       }
+       
+       assertEquals( "size of results", 1, map.size() );
+       assertTrue( "contains cn=Administrators,ou=groups,ou=system", map.containsKey( "cn=Administrators,ou=groups,ou=system" ) ); 
+   }
 }
