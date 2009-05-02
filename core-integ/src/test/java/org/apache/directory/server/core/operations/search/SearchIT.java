@@ -1709,6 +1709,14 @@ public class SearchIT
        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
        
+       // Create an entry which does not match
+       Attributes attrs = new BasicAttributes( "objectClass", "top", true );
+       attrs.get( "objectClass" ).add( "groupOfUniqueNames" );
+       attrs.put( "cn", "testGroup3" );
+       attrs.put( "uniqueMember", "uid=admin,ou=system" );
+       getSystemContext( service ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
+       
+       
        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
        String filter = "(|(&(|(2.5.4.0=posixgroup)(2.5.4.0=groupofuniquenames)(2.5.4.0=groupofnames)(2.5.4.0=group))(!(|(2.5.4.50=uid=admin,ou=system)(2.5.4.31=0.9.2342.19200300.100.1.1=admin,2.5.4.11=system))))(objectClass=referral))";
        NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
@@ -1719,7 +1727,12 @@ public class SearchIT
            map.put( result.getName(), result.getAttributes() );
        }
        
-       assertEquals( "size of results", 1, map.size() );
-       assertTrue( "contains cn=Administrators,ou=groups,ou=system", map.containsKey( "cn=Administrators,ou=groups,ou=system" ) ); 
+       assertEquals( "size of results", 5, map.size() );
+       assertTrue( map.containsKey( "cn=testGroup0,ou=groups,ou=system" ) ); 
+       assertTrue( map.containsKey( "cn=testGroup1,ou=groups,ou=system" ) ); 
+       assertTrue( map.containsKey( "cn=testGroup2,ou=groups,ou=system" ) ); 
+       assertTrue( map.containsKey( "cn=testGroup4,ou=groups,ou=system" ) ); 
+       assertTrue( map.containsKey( "cn=testGroup5,ou=groups,ou=system" ) ); 
+       assertFalse( map.containsKey( "cn=testGroup3,ou=groups,ou=system" ) ); 
    }
 }

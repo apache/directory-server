@@ -387,9 +387,16 @@ public class NormalizingVisitor implements FilterVisitor
 
             ExprNode result = ( ExprNode ) visit( child );
 
-            if ( ( result == null ) || ( result instanceof BranchNode ) )
+            if ( result == null )
             {
-                return result;
+                return null;
+            }
+            else if ( result instanceof BranchNode )
+            {
+                List<ExprNode> newChildren = new ArrayList<ExprNode>( 1 );
+                newChildren.add( result );
+                node.setChildren( newChildren );
+                return node;
             }
             else if ( result instanceof LeafNode )
             {
