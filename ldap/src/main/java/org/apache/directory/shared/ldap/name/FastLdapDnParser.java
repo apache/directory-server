@@ -171,6 +171,9 @@ public enum FastLdapDnParser implements NameParser
         String value = StringTools.trimRight( upValue );
         // TODO: trim, normalize, etc
 
+        // SPACE*
+        matchSpaces( name, pos );
+
         rdn.addAttributeTypeAndValue( type, type, upValue, value );
 
         rdn.setUpName( name.substring( rdnStart, pos.start ) );
@@ -188,12 +191,15 @@ public enum FastLdapDnParser implements NameParser
      */
     private void matchSpaces( String name, Position pos ) throws InvalidNameException
     {
-        char c = ' ';
-        while ( c == ' ' && hasMoreChars( pos ) )
+        while ( hasMoreChars( pos ) )
         {
-            c = nextChar( name, pos, true );
+            char c = nextChar( name, pos, true );
+            if ( c != ' ' )
+            {
+                pos.start--;
+                break;
+            }
         }
-        pos.start--;
     }
 
 
@@ -526,11 +532,13 @@ public enum FastLdapDnParser implements NameParser
     private String matchValue( String name, Position pos ) throws InvalidNameException
     {
         StringBuilder value = new StringBuilder();
+        int numTrailingSpaces = 0;
         while ( true )
         {
             if ( !hasMoreChars( pos ) )
             {
-                return value.toString();
+                pos.start -= numTrailingSpaces;
+                return value.substring( 0, value.length() - numTrailingSpaces );
             }
             char c = nextChar( name, pos, true );
             switch ( c )
@@ -543,8 +551,14 @@ public enum FastLdapDnParser implements NameParser
                 case ',':
                 case ';':
                     pos.start--;
-                    return value.toString();
+                    pos.start -= numTrailingSpaces;
+                    return value.substring( 0, value.length() - numTrailingSpaces );
+                case ' ':
+                    numTrailingSpaces++;
+                    value.append( c );
+                    break;
                 default:
+                    numTrailingSpaces = 0;
                     value.append( c );
             }
         }

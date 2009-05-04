@@ -146,6 +146,7 @@ options    {
     {
         String upValue = "";
         Object normValue = "";
+        String trailingSpaces = "";
     }
 }
 
@@ -295,7 +296,7 @@ attributeTypeAndValue [Rdn rdn] returns [String upName = ""]
             try
             {
                 rdn.addAttributeTypeAndValue( type, type, value.upValue, value.normValue );
-                { upName += value.upValue; }
+                { upName += value.upValue + value.trailingSpaces; }
             }
             catch ( InvalidNameException e )
             {
@@ -385,11 +386,17 @@ attributeValue [UpAndNormValue value]
     }
     :
     (
-        quotestring [value]
+        (
+            quotestring [value]
+            ( SPACE { value.trailingSpaces += " "; } )*
+        )
         |
         string [value]
         |
-        hexstring [value]
+        (
+            hexstring [value]
+            ( SPACE { value.trailingSpaces += " "; } )*
+        )
     )?
     ;
 
@@ -408,7 +415,7 @@ quotestring [UpAndNormValue value]
     }
     :
     (
-        DQUOTE
+        dq1:DQUOTE { value.upValue += dq1.getText(); }
         (
             (
                 s:~(DQUOTE|ESC|ESCESC|HEXPAIR) 
@@ -420,7 +427,7 @@ quotestring [UpAndNormValue value]
             |
             bytes = pair[value] { bb.append( bytes ); }
         )*
-        DQUOTE
+        dq2:DQUOTE { value.upValue += dq2.getText(); }
     )
     {
         // TODO: pair / s
@@ -517,6 +524,9 @@ string [UpAndNormValue value]
         {
             string = string.substring( 0, length - 1 );
             length = string.length();
+            
+            value.upValue = value.upValue.substring( 0, value.upValue.length() - 1 );
+            value.trailingSpaces += " ";
         }
         string = string.replace("\\ ", " ");
         
