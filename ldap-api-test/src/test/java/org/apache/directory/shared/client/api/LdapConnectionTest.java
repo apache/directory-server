@@ -27,7 +27,12 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
+import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
+import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
+import org.apache.directory.shared.ldap.client.api.messages.future.BindFuture;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,7 +52,14 @@ public class LdapConnectionTest
 {
     /** The server instance */
     public static LdapService ldapService;
+    
+    private static boolean responseReceived = false;
 
+    @Before
+    public void init()
+    {
+        responseReceived = false;
+    }
     
     /**
      * Test a successful bind request
@@ -61,22 +73,67 @@ public class LdapConnectionTest
         
         try
         {
-            assertTrue( connection.connect() );
-        }
-        catch ( IOException ioe )
-        {
-            fail();
-        }
-        
-        try
-        {
             BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
             
             assertNotNull( bindResponse );
             
-            //connection.unBind();
+            connection.unBind();
         }
         catch ( LdapException le )
+        {
+            fail();
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+            }
+            catch( IOException ioe )
+            {
+                fail();
+            }
+        }
+    }
+
+
+    /**
+     * Test a successful asynchronous bind request
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testAsyncBindRequest()
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        
+        try
+        {
+            BindRequest bindRequest = new BindRequestImpl();
+            bindRequest.setCredentials( "secret" );
+            bindRequest.setName( "uid=admin,ou=system" );
+            
+            connection.bind( bindRequest, new BindListener() 
+                {
+                    public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
+                    {
+                        assertNotNull( bindResponse );
+                        responseReceived = true;
+                    }
+                } );
+
+            // Wait a bit
+            Thread.sleep( 1000 );
+            
+            assertTrue( responseReceived );
+            
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
+        }
+        catch ( InterruptedException ie )
         {
             fail();
         }
