@@ -20,9 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -74,19 +72,11 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
 import org.apache.directory.server.ldap.LdapService;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.server.operations.bind.MiscBindIT;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
@@ -203,7 +193,11 @@ public class AddIT
             directory.setCacheSize( 500 );
             directory.setSuffix( BASE_DIRECTORY_APACHE_ORG );
             directory.setId( "directory" );
-            directory.setIndexedAttributes( indexedAttrs );
+            Set<Index<?, ServerEntry>> indexedAttrs2 = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
+            indexedAttrs2.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
+            directory.setIndexedAttributes( indexedAttrs2 );
             
             service.addPartition( directory );
             
@@ -222,7 +216,7 @@ public class AddIT
         }
     }
 
-
+    
     /**
      * This is the original defect as in JIRA DIREVE-216.
      * 
