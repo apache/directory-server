@@ -247,6 +247,7 @@ public abstract class AbstractServerTest
         start++;
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
+        directoryService.setAllowAnonymousAccess( true );
         port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapService = new LdapService();
         ldapService.setTcpTransport( new TcpTransport( port ) );
@@ -263,6 +264,7 @@ public abstract class AbstractServerTest
         // TODO shouldn't this be before calling configureLdapServer() ???
         ldapService.addExtendedOperationHandler( new StartTlsHandler() );
         ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+        ldapService.setAllowAnonymousAccess( true );
 
         ldapService.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
