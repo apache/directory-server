@@ -37,7 +37,6 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -727,7 +726,6 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant5() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
@@ -774,7 +772,6 @@ public class ModifyRdnIT
      * @throws NamingException
      */
     @Test
-    @Ignore ( "Until this is fixed: https://issues.apache.org/jira/browse/DIRSERVER-1231" )
     public void testModifyMultiValuedRdnVariant6() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
