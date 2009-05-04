@@ -31,7 +31,9 @@ import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
-import org.apache.directory.shared.ldap.client.api.messages.future.BindFuture;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,6 +136,48 @@ public class LdapConnectionTest
             fail();
         }
         catch ( InterruptedException ie )
+        {
+            fail();
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+            }
+            catch( IOException ioe )
+            {
+                fail();
+            }
+        }
+    }
+    
+    /**
+     * Test a simple search request
+     */
+    @Test
+    public void testSearchRequest()
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            
+            Cursor<SearchResponse> cursor = 
+                connection.search( "uid=admin,ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+            
+            SearchResponse response = cursor.get();
+            
+            // TODO: check return.
+            
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
+        }
+        catch ( Exception e )
         {
             fail();
         }
