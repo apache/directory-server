@@ -1137,6 +1137,12 @@ public class SchemaInterceptor extends BaseInterceptor
         boolean deleteOldRn = opContext.getDelOldDn();
         ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
 
+        /*
+         *  Note: This is only a consistency checks, to the ensure that all
+         *  mandatory attributes are available after deleting the old RDN.
+         *  The real modification is done in the JdbmStore class.
+         *  - TODO: this check is missing in the moveAndRename() method
+         */
         if ( deleteOldRn )
         {
             ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
@@ -1665,7 +1671,6 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        // 5) We last check that the entry has it's RDN values as attributes  
         EntryAttribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
         // Protect the server against a null objectClassAttr
@@ -1703,52 +1708,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // Now check the syntaxes
         assertSyntaxes( entry );
-
-        // Last, check that the RDN's values are attributes in the entry
-        Rdn rdn = entry.getDn().getRdn();
-
-        // Loop on all the AVAs
-        for ( AttributeTypeAndValue ava : rdn )
-        {
-            String value = ( String ) ava.getNormValue();
-            String upValue = ( String ) ava.getUpValue();
-            String upId = ava.getUpType();
-
-            // Check that the entry contains this AVA
-            if ( !entry.contains( upId, value ) )
-            {
-                String message = "The RDN '" + upId + "=" + upValue + "' is not present in the entry";
-                LOG.warn( message );
-                
-                // We don't have this attribute : add it.
-                // Two cases : 
-                // 1) The attribute does not exist
-                if ( !entry.containsAttribute( upId ) )
-                {
-                    entry.add( upId, upValue );
-                }
-                // 2) The attribute exists
-                else
-                {
-                    AttributeType at = atRegistry.lookup( upId );
-                    
-                    // 2.1 if the attribute is single valued, replace the value
-                    if ( at.isSingleValue() )
-                    {
-                        entry.removeAttributes( upId );
-                        entry.put( upId, upValue );
-                    }
-                    // 2.2 the attribute is multi-valued : add the missing value
-                    else
-                    {
-                        entry.add( upId, upValue );
-                    }
-                }
-            }
-        }
     }
-    
-    
+
+
     private void checkOcSuperior( ServerEntry entry ) throws Exception
     {
         ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();

@@ -20,6 +20,15 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,11 +75,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -79,17 +83,12 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -1179,4 +1178,71 @@ public class AddIT
 
         assertNotNull( newOcls );
     }
+
+
+    /**
+     * Test for DIRSERVER-1311: If the RDN attribute+value is not present
+     * in the entry the server should implicit add this attribute+value to
+     * the entry. Additionally, if the RDN value is escaped or a hexstring
+     * the server must add the unescaped string or binary value to the entry.
+     */
+    @Test
+    public void testAddUnescapedRdnValue_DIRSERVER_1311() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        Attributes tori = new BasicAttributes( true );
+        Attribute toriOC = new BasicAttribute( "objectClass" );
+        toriOC.add( "top" );
+        toriOC.add( "person" );
+        tori.put( toriOC );
+        tori.put( "cn", "Tori Amos" );
+        tori.put( "sn", "Amos" );
+        /*
+         * Note that the RDN attribute is different to the cn specified in the entry.
+         * This creates a second cn attribute "cn:Amos,Tori". This is a JNDI hack:
+         * If no other cn is available in the entry, JNDI adds the RDN 
+         * attribute to the entry before sending the request to the server.
+         */
+        ctx.createSubcontext( " cn = Amos\\,Tori ", tori );
+
+        Attributes binary = new BasicAttributes( true );
+        Attribute binaryOC = new BasicAttribute( "objectClass" );
+        binaryOC.add( "top" );
+        binaryOC.add( "person" );
+        binary.put( binaryOC );
+        binary.put( "cn", "Binary" );
+        binary.put( "sn", "Binary" );
+        binary.put( "userPassword", "test" );
+        /*
+         * Note that the RDN attribute is different to the userPassword specified 
+         * in the entry. This creates a second cn attribute "userPassword:#414243". 
+         * This is a JNDI hack:
+         * If no other userPassword is available in the entry, JNDI adds the RDN 
+         * attribute to the entry before sending the request to the server.
+         */
+        ctx.createSubcontext( " userPassword = #414243 ", binary );
+
+        SearchControls controls = new SearchControls();
+        NamingEnumeration<SearchResult> res;
+
+        // search for the implicit added cn
+        res = ctx.search( "", "(cn=Amos,Tori)", controls );
+        assertTrue( res.hasMore() );
+        Attribute cnAttribute = res.next().getAttributes().get( "cn" );
+        assertEquals( 2, cnAttribute.size() );
+        assertTrue( cnAttribute.contains( "Tori Amos" ) );
+        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
+        assertFalse( res.hasMore() );
+
+        // search for the implicit added userPassword
+        res = ctx.search( "", "(userPassword=\\41\\42\\43)", controls );
+        assertTrue( res.hasMore() );
+        Attribute userPasswordAttribute = res.next().getAttributes().get( "userPassword" );
+        assertEquals( 2, userPasswordAttribute.size() );
+        assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "test" ) ) );
+        assertTrue( userPasswordAttribute.contains( StringTools.getBytesUtf8( "ABC" ) ) );
+        assertFalse( res.hasMore() );
+    }
+
 }

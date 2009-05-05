@@ -49,8 +49,11 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +113,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         opContext.getDn().normalize( attrNormalizers );
         opContext.getEntry().getDn().normalize( attrNormalizers );
+        addRdnAttributesToEntry( opContext.getDn(), opContext.getEntry() );
         nextInterceptor.add( opContext );
     }
 
@@ -277,4 +281,85 @@ public class NormalizationInterceptor extends BaseInterceptor
         opContext.getDn().normalize( attrNormalizers );
         next.removeContextPartition( opContext );
     }
+
+
+    /**
+     * Adds missing RDN's attributes and values to the entry.
+     *
+     * @param dn the DN
+     * @param entry the entry
+     */
+    private void addRdnAttributesToEntry( LdapDN dn, ServerEntry entry ) throws Exception
+    {
+        if ( dn == null || entry == null )
+        {
+            return;
+        }
+
+        Rdn rdn = dn.getRdn();
+
+        // Loop on all the AVAs
+        for ( AttributeTypeAndValue ava : rdn )
+        {
+            String value = ( String ) ava.getNormValue();
+            String upValue = ( String ) ava.getUpValue();
+            String upId = ava.getUpType();
+
+            // Check that the entry contains this AVA
+            if ( !entry.contains( upId, value ) )
+            {
+                String message = "The RDN '" + upId + "=" + upValue + "' is not present in the entry";
+                LOG.warn( message );
+
+                // We don't have this attribute : add it.
+                // Two cases : 
+                // 1) The attribute does not exist
+                if ( !entry.containsAttribute( upId ) )
+                {
+                    addUnescapedUpValue( entry, upId, upValue );
+                }
+                // 2) The attribute exists
+                else
+                {
+                    AttributeType at = attributeRegistry.lookup( upId );
+
+                    // 2.1 if the attribute is single valued, replace the value
+                    if ( at.isSingleValue() )
+                    {
+                        entry.removeAttributes( upId );
+                        addUnescapedUpValue( entry, upId, upValue );
+                    }
+                    // 2.2 the attribute is multi-valued : add the missing value
+                    else
+                    {
+                        addUnescapedUpValue( entry, upId, upValue );
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Adds the user provided value to the given entry.
+     * If the user provided value is string value it is unescaped first. 
+     * If the user provided value is a hex string the value is added as byte[].
+     *
+     * @param entry the entry
+     * @param upId the user provided attribute type to add
+     * @param upValue the user provided value to add
+     */
+    private void addUnescapedUpValue( ServerEntry entry, String upId, String upValue ) throws Exception
+    {
+        Object unescapedUpValue = Rdn.unescapeValue( upValue );
+        if ( unescapedUpValue instanceof String )
+        {
+            entry.add( upId, ( String ) unescapedUpValue );
+        }
+        else
+        {
+            entry.add( upId, ( byte[] ) unescapedUpValue );
+        }
+    }
+
 }
