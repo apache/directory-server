@@ -27,137 +27,38 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
-import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
-import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
-import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
-import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.junit.Before;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 
 /**
- * Test the LdapConnection class
+ * Test the getRootDSE methods.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.CLASS )
-public class LdapConnectionTest
+public class getRootDSETest
 {
     /** The server instance */
     public static LdapService ldapService;
     
-    private static boolean responseReceived = false;
-
-    @Before
-    public void init()
-    {
-        responseReceived = false;
-    }
-    
+    //------------------------------------------------------------------------
+    // Synchronous getRootDSE()
+    //------------------------------------------------------------------------
     /**
-     * Test a successful bind request
-     *
-     * @throws IOException
+     * Test a simple getRootDSE() call.
      */
     @Test
-    public void testBindRequest()
-    {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
-        
-        try
-        {
-            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
-            
-            assertNotNull( bindResponse );
-            
-            connection.unBind();
-        }
-        catch ( LdapException le )
-        {
-            fail();
-        }
-        finally
-        {
-            try
-            {
-                connection.close();
-            }
-            catch( IOException ioe )
-            {
-                fail();
-            }
-        }
-    }
-
-
-    /**
-     * Test a successful asynchronous bind request
-     *
-     * @throws IOException
-     */
-    @Test
-    public void testAsyncBindRequest()
-    {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
-        
-        try
-        {
-            BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setCredentials( "secret" );
-            bindRequest.setName( "uid=admin,ou=system" );
-            
-            connection.bind( bindRequest, new BindListener() 
-                {
-                    public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
-                    {
-                        assertNotNull( bindResponse );
-                        responseReceived = true;
-                    }
-                } );
-
-            // Wait a bit
-            Thread.sleep( 1000 );
-            
-            assertTrue( responseReceived );
-            
-            connection.unBind();
-        }
-        catch ( LdapException le )
-        {
-            fail();
-        }
-        catch ( InterruptedException ie )
-        {
-            fail();
-        }
-        finally
-        {
-            try
-            {
-                connection.close();
-            }
-            catch( IOException ioe )
-            {
-                fail();
-            }
-        }
-    }
-    
-    /**
-     * Test a simple search request
-     */
-    @Test
-    public void testSearchRequest()
+    public void testGetRootDSE()
     {
         LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
         
@@ -165,26 +66,25 @@ public class LdapConnectionTest
         {
             connection.bind( "uid=admin,ou=system", "secret" );
             
-            Cursor<SearchResponse> cursor = 
-                connection.search( "uid=admin,ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+            SearchResultEntry rootDSE = connection.getRootDSE();
             
-            assertNotNull( cursor );
+            assertNotNull( rootDSE );
 
-            SearchResponse response = null;
-            int count = 0;
+            assertTrue(  rootDSE instanceof SearchResultEntry );
             
-            while ( (response = cursor.get() ) != null )
-            {
-                assertNotNull( response );
-                count++;
-            } 
+            assertEquals( 2, rootDSE.getMessageId() );
+            Entry entry = rootDSE.getEntry();
             
-            assertEquals( 1, count );
+            assertNotNull( entry );
+            assertEquals( "", entry.getDn().toString() );
+            assertTrue( entry.contains( "ObjectClass", "top", "extensibleObject" ) );
+            assertFalse( entry.contains( "vendorName", "Apache Software Foundation" ) );
             
             connection.unBind();
         }
         catch ( LdapException le )
         {
+            le.printStackTrace();
             fail();
         }
         catch ( Exception e )
@@ -203,4 +103,115 @@ public class LdapConnectionTest
             }
         }
     }
+    
+    
+    /**
+     * Test a getRootDSE() call where we want all the operational and users attributes .
+     */
+    @Test
+    public void testGetRootDSEAllAttrs()
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            
+            SearchResultEntry rootDSE = connection.getRootDSE( "*", "+" );
+            
+            assertNotNull( rootDSE );
+
+            assertTrue(  rootDSE instanceof SearchResultEntry );
+            
+            assertEquals( 2, rootDSE.getMessageId() );
+            Entry entry = rootDSE.getEntry();
+            
+            assertNotNull( entry );
+            assertEquals( "", entry.getDn().toString() );
+            assertTrue( entry.contains( "ObjectClass", "top", "extensibleObject" ) );
+            assertTrue( entry.contains( "subschemaSubentry", "cn=schema" ) );
+            assertTrue( entry.contains( "vendorName", "Apache Software Foundation" ) );
+            assertTrue( entry.contains( "supportedLDAPVersion", "3" ) );
+            
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            le.printStackTrace();
+            fail();
+        }
+        catch ( Exception e )
+        {
+            fail();
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+            }
+            catch( IOException ioe )
+            {
+                fail();
+            }
+        }
+    }
+
+
+    /**
+     * Test a getRootDSE() call where we want all the operational attributes .
+     */
+    @Test
+    public void testGetRootDSEOperAttrs()
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            
+            SearchResultEntry rootDSE = connection.getRootDSE( "+" );
+            
+            assertNotNull( rootDSE );
+
+            assertTrue(  rootDSE instanceof SearchResultEntry );
+            
+            assertEquals( 2, rootDSE.getMessageId() );
+            Entry entry = rootDSE.getEntry();
+            
+            assertNotNull( entry );
+            assertEquals( "", entry.getDn().toString() );
+            assertFalse( entry.contains( "ObjectClass", "top", "extensibleObject" ) );
+            assertTrue( entry.contains( "subschemaSubentry", "cn=schema" ) );
+            assertTrue( entry.contains( "vendorName", "Apache Software Foundation" ) );
+            assertTrue( entry.contains( "supportedLDAPVersion", "3" ) );
+            
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            le.printStackTrace();
+            fail();
+        }
+        catch ( Exception e )
+        {
+            fail();
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+            }
+            catch( IOException ioe )
+            {
+                fail();
+            }
+        }
+    }
+
+
+    //------------------------------------------------------------------------
+    // Asynchronous getRootDSE()
+    //------------------------------------------------------------------------
 }

@@ -27,21 +27,19 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
-import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
-import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
-import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
-import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test the LdapConnection class
@@ -51,38 +49,49 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith ( SiRunner.class ) 
 @CleanupLevel ( Level.CLASS )
-public class LdapConnectionTest
+public class SearchRequestTest
 {
     /** The server instance */
     public static LdapService ldapService;
     
-    private static boolean responseReceived = false;
-
-    @Before
-    public void init()
-    {
-        responseReceived = false;
-    }
     
+    //------------------------------------------------------------------------
+    // Synchronous Search
+    //------------------------------------------------------------------------
     /**
-     * Test a successful bind request
-     *
-     * @throws IOException
+     * Test a search request on rootDSE
      */
     @Test
-    public void testBindRequest()
+    public void testSearchNoArgs()
     {
         LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
         
         try
         {
-            BindResponse bindResponse = connection.bind( "uid=admin,ou=system", "secret" );
+            connection.bind( "uid=admin,ou=system", "secret" );
             
-            assertNotNull( bindResponse );
+            SearchResultEntry rootDSE = connection.search();
+            
+            assertNotNull( rootDSE );
+
+            assertTrue(  rootDSE instanceof SearchResultEntry );
+            
+            assertEquals( 2, rootDSE.getMessageId() );
+            Entry entry = rootDSE.getEntry();
+            
+            assertNotNull( entry );
+            assertEquals( "", entry.getDn().toString() );
+            assertTrue( entry.contains( "ObjectClass", "top", "extensibleObject" ) );
+            assertFalse( entry.contains( "vendorName", "Apache Software Foundation" ) );
             
             connection.unBind();
         }
         catch ( LdapException le )
+        {
+            le.printStackTrace();
+            fail();
+        }
+        catch ( Exception e )
         {
             fail();
         }
@@ -99,59 +108,6 @@ public class LdapConnectionTest
         }
     }
 
-
-    /**
-     * Test a successful asynchronous bind request
-     *
-     * @throws IOException
-     */
-    @Test
-    public void testAsyncBindRequest()
-    {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
-        
-        try
-        {
-            BindRequest bindRequest = new BindRequestImpl();
-            bindRequest.setCredentials( "secret" );
-            bindRequest.setName( "uid=admin,ou=system" );
-            
-            connection.bind( bindRequest, new BindListener() 
-                {
-                    public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
-                    {
-                        assertNotNull( bindResponse );
-                        responseReceived = true;
-                    }
-                } );
-
-            // Wait a bit
-            Thread.sleep( 1000 );
-            
-            assertTrue( responseReceived );
-            
-            connection.unBind();
-        }
-        catch ( LdapException le )
-        {
-            fail();
-        }
-        catch ( InterruptedException ie )
-        {
-            fail();
-        }
-        finally
-        {
-            try
-            {
-                connection.close();
-            }
-            catch( IOException ioe )
-            {
-                fail();
-            }
-        }
-    }
     
     /**
      * Test a simple search request
@@ -172,10 +128,19 @@ public class LdapConnectionTest
 
             SearchResponse response = null;
             int count = 0;
-            
-            while ( (response = cursor.get() ) != null )
+
+            while ( cursor.next() )
             {
+                response = cursor.get();
                 assertNotNull( response );
+                assertTrue(  response instanceof SearchResultEntry );
+                SearchResultEntry searchResultEntry = (SearchResultEntry)response;
+                
+                assertEquals( 2, searchResultEntry.getMessageId() );
+                Entry entry = searchResultEntry.getEntry();
+                
+                assertNotNull( entry );
+                assertEquals( "uid=admin,ou=system", entry.getDn().toString() );
                 count++;
             } 
             

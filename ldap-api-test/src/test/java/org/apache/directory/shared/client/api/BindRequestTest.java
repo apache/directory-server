@@ -20,6 +20,7 @@
 package org.apache.directory.shared.client.api;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -32,6 +33,7 @@ import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
+import org.apache.directory.shared.ldap.client.api.messages.future.BindFuture;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
@@ -42,7 +44,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Test the BindRequest client api
@@ -57,12 +58,12 @@ public class BindRequestTest
     /** The server instance */
     public static LdapService ldapService;
     
-    private static boolean responseReceived = false;
+    private static BindResponse staticBindResponse = null;
 
     @Before
     public void init()
     {
-        responseReceived = false;
+        staticBindResponse = null;
     }
     
     //------------------------------------------------------------------------
@@ -84,7 +85,7 @@ public class BindRequestTest
             
             assertNotNull( bindResponse );
             
-            assertEquals( 0, bindResponse.getMessageId() );
+            assertEquals( 1, bindResponse.getMessageId() );
             assertNotNull( bindResponse.getControls() );
             assertEquals( 0, bindResponse.getControls().values().size() );
             
@@ -130,10 +131,9 @@ public class BindRequestTest
         {
             BindResponse bindResponse = connection.bind();
             
-            
             assertNotNull( bindResponse );
             
-            assertEquals( 0, bindResponse.getMessageId() );
+            assertEquals( 1, bindResponse.getMessageId() );
             assertNotNull( bindResponse.getControls() );
             assertEquals( 0, bindResponse.getControls().values().size() );
             
@@ -185,19 +185,24 @@ public class BindRequestTest
             bindRequest.setCredentials( "secret" );
             bindRequest.setName( "uid=admin,ou=system" );
             
-            connection.bind( bindRequest, new BindListener() 
+            BindFuture bindFuture = connection.bind( bindRequest, new BindListener() 
                 {
                     public void bindCompleted( LdapConnection connection, BindResponse bindResponse ) throws LdapException
                     {
                         assertNotNull( bindResponse );
-                        responseReceived = true;
+                        staticBindResponse = bindResponse;
                     }
                 } );
 
-            // Wait a bit
-            Thread.sleep( 1000 );
+            // We should also receive the response from the future.
+            BindResponse bindResponse = bindFuture.get();
             
-            assertTrue( responseReceived );
+            assertNotNull( bindResponse ); 
+            
+            // Wait a bit so that the listener is called.
+            Thread.sleep( 200 );
+            
+            assertEquals( bindResponse, staticBindResponse );
             
             connection.unBind();
         }
@@ -206,6 +211,10 @@ public class BindRequestTest
             fail();
         }
         catch ( InterruptedException ie )
+        {
+            fail();
+        }
+        catch ( ExecutionException ee )
         {
             fail();
         }
