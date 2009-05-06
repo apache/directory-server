@@ -20,6 +20,8 @@
 package org.apache.directory.shared.client.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -27,8 +29,15 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
+import org.apache.directory.shared.ldap.client.api.messages.Response;
+import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
+import org.apache.directory.shared.ldap.client.api.messages.SearchRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
+import org.apache.directory.shared.ldap.client.api.messages.future.SearchFuture;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -53,7 +62,12 @@ public class SearchRequestTest
 {
     /** The server instance */
     public static LdapService ldapService;
+
+    /** A list containing asynchronous results */
+    private List<SearchResponse> entries;
     
+    /** A flag set to true when the searchResultDone has been received for an async search operation */
+    private boolean done = false;
     
     //------------------------------------------------------------------------
     // Synchronous Search
@@ -160,6 +174,100 @@ public class SearchRequestTest
         }
         finally
         {
+            try
+            {
+                connection.close();
+            }
+            catch( IOException ioe )
+            {
+                fail();
+            }
+        }
+    }
+
+
+    /**
+     * Test a simple async search request
+     */
+    @Test
+    public void testAsyncSearchRequest()
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBaseDn( "uid=admin,ou=system" );
+            searchRequest.setFilter( "(objectClass=*)" );
+            searchRequest.setScope( SearchScope.SUBTREE );
+            searchRequest.addAttributes( "*" );
+
+            entries = new ArrayList<SearchResponse>();
+            
+            SearchFuture searchFuture = connection.search( searchRequest, new SearchListener() 
+            {
+                public void entryFound( LdapConnection connection, SearchResultEntry searchResultEntry ) throws LdapException
+                {
+                    assertFalse( done );
+                    assertNotNull( searchResultEntry );
+                    assertEquals( 2, searchResultEntry.getMessageId() );
+                    entries.add( searchResultEntry );
+                    
+                    System.out.println( "Received : " + searchResultEntry );
+                }
+                
+                public void referralFound( LdapConnection connection, SearchResultReference searchResultReference ) throws LdapException
+                {
+                    assertFalse( done );
+                    assertNotNull( searchResultReference );
+                    assertEquals( 2, searchResultReference.getMessageId() );
+                    entries.add( searchResultReference );
+                }
+
+                public void searchDone( LdapConnection connection, SearchResultDone searchResultDone ) throws LdapException
+                {
+                    assertFalse( done );
+                    assertNotNull( searchResultDone );
+                    assertEquals( 2, searchResultDone.getMessageId() );
+                    done = true;
+                }
+            } );
+
+            int count = 0;
+            
+            // Wait for the search to be done
+            while ( ! searchFuture.isDone() )
+            {
+                Response response = searchFuture.get();
+                
+                if ( response instanceof SearchResultDone )
+                {
+                    break;
+                }
+                
+                count ++;
+            }
+            
+            assertEquals( 1, count );
+            assertEquals( count, entries.size() );
+            
+            connection.unBind();
+        }
+        catch ( LdapException le )
+        {
+            fail();
+        }
+        catch ( Exception e )
+        {
+            fail();
+        }
+        finally
+        {
+            entries = null;
+            done = false;
+            
             try
             {
                 connection.close();
