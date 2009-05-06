@@ -172,11 +172,15 @@ public class LdapConnectionTest
 
             SearchResponse response = null;
             int count = 0;
-            
-            while ( (response = cursor.get() ) != null )
+         
+            while ( cursor.available() )
             {
+                response = cursor.get();
+                
                 assertNotNull( response );
                 count++;
+                
+                cursor.next();
             } 
             
             assertEquals( 1, count );

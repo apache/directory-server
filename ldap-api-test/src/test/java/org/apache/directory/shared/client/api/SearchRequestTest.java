@@ -129,7 +129,7 @@ public class SearchRequestTest
             SearchResponse response = null;
             int count = 0;
 
-            while ( cursor.next() )
+            while ( cursor.available() )
             {
                 response = cursor.get();
                 assertNotNull( response );
@@ -142,6 +142,8 @@ public class SearchRequestTest
                 assertNotNull( entry );
                 assertEquals( "uid=admin,ou=system", entry.getDn().toString() );
                 count++;
+                
+                cursor.next();
             } 
             
             assertEquals( 1, count );
