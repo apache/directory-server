@@ -102,7 +102,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     /** the syncrequest control */
     private SyncRequestValueControl syncReq;
 
-    /** a reference to the directoryservice */
+    /** a reference to the directoryService */
     private DirectoryService directoryService;
 
     /** the decoder for syncinfovalue control */
@@ -185,7 +185,6 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             if( connection == null )
             {
                 connection = new LdapConnection( providerHost, port );
-                connection.addListener( this );
             }
 
             // Do a bind
@@ -590,13 +589,14 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
 
 
     /**
-     * 
-     * performs a search on connection with updated syncrequest control.
+     * performs a search on connection with updated syncRequest control.
      *
      * @throws Exception in case of any problems encountered while searching
      */
     private void doSyncSearch() throws Exception
     {
+        SyncRequestValueControl syncReq = new SyncRequestValueControl();
+        
         if( config.isRefreshPersist() )
         {
             syncReq.setMode( SynchronizationModeEnum.REFRESH_AND_PERSIST );
@@ -613,7 +613,8 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
 
         searchRequest.add( syncReq );
         
-        connection.search( searchRequest );
+        // Do the search
+        connection.search( searchRequest, this );
     }
 
     
@@ -673,12 +674,13 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     {
         try
         {
-            if( cookieFile.exists() && cookieFile.length() > 0 )
+            if( cookieFile.exists() && ( cookieFile.length() > 0 ) )
             {
                 FileInputStream fin = new FileInputStream( cookieFile );
                 syncCookie = new byte[ fin.read() ];
                 fin.read( syncCookie );
                 fin.close();
+                
                 LOG.debug( "read the cookie from file: " + StringTools.utf8ToString( syncCookie ) );
             }
         }
