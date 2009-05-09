@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.syncrepl;
 
+
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -27,8 +29,10 @@ import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -44,6 +48,7 @@ import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * 
  *  A simple swing UI to start stop syncrepl consumer.
@@ -56,24 +61,34 @@ import org.slf4j.LoggerFactory;
 public class SyncreplRunnerUI implements ActionListener
 {
     private SyncreplConfiguration config;
-    
+
     private SyncReplConsumer agent = new SyncReplConsumer();
-    
+
     private File workDir;
-    
+
     private DirectoryService dirService;
-    
+
     private LdapService ldapService;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class );
-    
+
     // UI components
     private JButton btnStart;
-    
+
     private JButton btnStop;
-    
+
     private JButton btnCleanStart;
-    
+
+    private EntryInjector entryInjector;
+
+    private String provServerHost = "localhost";
+    private int provServerPort = 389;
+    private String provServerBindDn = "cn=admin,dc=nodomain";
+    private String provServerPwd = "secret";
+
+    private boolean connected;
+
+
     public SyncreplRunnerUI()
     {
         config = new SyncreplConfiguration();
@@ -86,58 +101,74 @@ public class SyncreplRunnerUI implements ActionListener
         config.setSearchScope( SearchScope.SUBTREE.getJndiScope() );
         config.setReplicaId( 1 );
         agent.setConfig( config );
-        
+
         workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/work" );
     }
 
-    
+
     public void start()
     {
         try
         {
-            if ( ! workDir.exists() )
+            if ( !workDir.exists() )
             {
                 workDir.mkdirs();
             }
-            
+
             dirService = startEmbeddedServer( workDir );
-            
             agent.init( dirService );
             agent.bind();
+
+            entryInjector.enable( true );
+
+            connected = true;
             agent.prepareSyncSearchRequest();
             agent.startSync();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.error( "Failed to start the embedded server & syncrepl consumer", e );
             throw new RuntimeException( e );
         }
     }
 
+
     public void stop()
     {
         try
         {
-            agent.disconnet();
-            dirService.shutdown();
-            ldapService.stop();
+            LOG.info( "stopping the embedded server" );
+
+            if ( connected )
+            {
+                entryInjector.enable( false );
+                agent.disconnet();
+            }
+
+            if ( ( dirService != null ) && dirService.isStarted() )
+            {
+                dirService.shutdown();
+                ldapService.stop();
+            }
+
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.error( "Failed to stop", e );
         }
     }
-    
+
+
     public void cleanStart()
     {
         try
         {
-            if( workDir.exists() )
+            if ( workDir.exists() )
             {
                 FileUtils.forceDelete( workDir );
             }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.error( "Failed to delete the work directory", e );
         }
@@ -145,8 +176,8 @@ public class SyncreplRunnerUI implements ActionListener
         agent.deleteCookieFile();
         start();
     }
-    
-    
+
+
     private DirectoryService startEmbeddedServer( File workDir )
     {
         try
@@ -180,36 +211,43 @@ public class SyncreplRunnerUI implements ActionListener
         {
             e.printStackTrace();
         }
-        
+
         return null;
     }
 
-    public void show()
+
+    public void show() throws Exception
     {
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        frame.setTitle( "Syncrepl consumer UI" );
-        
+
         btnStart = new JButton( "Start" );
         btnStart.setMnemonic( 'S' );
         btnStart.addActionListener( this );
-        
-        
+
         btnCleanStart = new JButton( "Clean Start" );
         btnCleanStart.setMnemonic( 'R' );
         btnCleanStart.addActionListener( this );
-        
+
         btnStop = new JButton( "Stop" );
         btnStop.setMnemonic( 'O' );
         btnStop.setEnabled( false );
         btnStop.addActionListener( this );
-        
-        JPanel panel = new JPanel();
-        panel.add( btnStart );
-        panel.add( btnStop );
-        panel.add( btnCleanStart );
-        
-        frame.getContentPane().add( panel );
+
+        JPanel serverPanel = new JPanel();
+        serverPanel.add( btnStart );
+        serverPanel.add( btnStop );
+        serverPanel.add( btnCleanStart );
+        serverPanel.setBorder( new TitledBorder( "Server Controls" ) );
+
+        entryInjector = new EntryInjector( provServerHost, provServerPort, provServerBindDn, provServerPwd );
+        entryInjector.enable( false );
+        entryInjector.setBorder( new TitledBorder( "Entry Injector" ) );
+
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        frame.setTitle( "Syncrepl consumer UI" );
+
+        frame.getContentPane().add( serverPanel, BorderLayout.NORTH );
+        frame.getContentPane().add( entryInjector, BorderLayout.SOUTH );
         frame.addWindowListener( new WindowAdapter()
         {
             @Override
@@ -217,7 +255,7 @@ public class SyncreplRunnerUI implements ActionListener
             {
                 stop();
             }
-        });
+        } );
 
         frame.pack();
         frame.setVisible( true );
@@ -227,8 +265,8 @@ public class SyncreplRunnerUI implements ActionListener
     public void actionPerformed( ActionEvent e )
     {
         Object src = e.getSource();
-        
-        if( src == btnStart )
+
+        if ( src == btnStart )
         {
             btnStart.setEnabled( false );
             btnCleanStart.setEnabled( false );
@@ -241,7 +279,7 @@ public class SyncreplRunnerUI implements ActionListener
             } );
             btnStop.setEnabled( true );
         }
-        else if( src == btnStop )
+        else if ( src == btnStop )
         {
             btnStop.setEnabled( false );
             SwingUtilities.invokeLater( new Runnable()
@@ -255,7 +293,7 @@ public class SyncreplRunnerUI implements ActionListener
             btnStart.setEnabled( true );
             btnCleanStart.setEnabled( true );
         }
-        else if( src == btnCleanStart )
+        else if ( src == btnCleanStart )
         {
             btnCleanStart.setEnabled( false );
             btnStart.setEnabled( false );
@@ -275,6 +313,17 @@ public class SyncreplRunnerUI implements ActionListener
     public static void main( String[] args )
     {
         SyncreplRunnerUI runnerUi = new SyncreplRunnerUI();
-        runnerUi.show();
+        try
+        {
+            runnerUi.show();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+
+            JOptionPane.showMessageDialog( null, e.getMessage(), "Failed to start Syncrepl test UI",
+                JOptionPane.ERROR_MESSAGE );
+            System.exit( 1 );
+        }
     }
 }
