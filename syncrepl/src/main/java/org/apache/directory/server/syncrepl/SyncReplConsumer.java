@@ -148,19 +148,6 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
     }
 
 
-    /**
-     * A helper method to check that we didn't get an error.
-     */
-    private static void checkldapResult( LdapConnection connection, LdapResult ldapResult ) throws IOException
-    {
-        if ( ldapResult.getResultCode() != ResultCodeEnum.SUCCESS )
-        {
-            LOG.debug( "failed to bind on the server : " + ldapResult );
-            quit( connection );
-        }
-    }
-
-
     public void init( DirectoryService directoryservice ) throws Exception
     {
         this.directoryService = directoryservice;
@@ -630,6 +617,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             connection.close();
             LOG.info( "Connection closed for the server {}", config.getProviderHost() );
 
+            connection = null;
             // persist the cookie
             storeCookie();
         }
