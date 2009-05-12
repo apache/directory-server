@@ -481,8 +481,6 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         while ( values.next() )
         {
-            forward.remove( values.get().getValue(), id );
-
             boolean removed = forward.remove( values.get().getValue(), id );
             
             if ( !removed )
