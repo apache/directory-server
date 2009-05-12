@@ -54,7 +54,7 @@ public class ReplicaPeerConfiguration
     private static final int DEFAULT_PORT = 10389;
     
     /** The default port */
-    private static final int DEFAULT_SSL_PORT = 10686;
+    private static final int DEFAULT_SSL_PORT = 10636;
     
     /** The producer we want to replicate */
     private LdapURL producer;
