@@ -124,7 +124,7 @@ public class LdapConnection  extends IoHandlerAdapter
 
     /** Define the default ports for LDAP and LDAPS */
     private static final int DEFAULT_LDAP_PORT = 389; 
-    private static final int DEFAULT_LDAPS_PORT = 686;
+    private static final int DEFAULT_LDAPS_PORT = 636;
     
     /** The default host : localhost */
     private static final String DEFAULT_LDAP_HOST = "127.0.0.1";
@@ -447,7 +447,7 @@ public class LdapConnection  extends IoHandlerAdapter
     
     /**
      * Create a new instance of a LdapConnection on localhost,
-     * port 389 if the SSL flag is off, or 686 otherwise.
+     * port 389 if the SSL flag is off, or 636 otherwise.
      * 
      * @param useSsl A flag to tell if it's a SSL connection or not.
      */
@@ -480,7 +480,7 @@ public class LdapConnection  extends IoHandlerAdapter
     /**
      * Create a new instance of a LdapConnection on a given
      * server, using the default port (389) if the SSL flag 
-     * is off, or 686 otherwise.
+     * is off, or 636 otherwise.
      *
      * @param server The server we want to be connected to
      * @param useSsl A flag to tell if it's a SSL connection or not.

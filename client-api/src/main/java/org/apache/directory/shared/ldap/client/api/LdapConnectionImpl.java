@@ -60,7 +60,7 @@ public class LdapConnectionImpl extends IoHandlerAdapter
 
     /** Define the default ports for LDAP and LDAPS */
     private static final int DEFAULT_LDAP_PORT = 389; 
-    private static final int DEFAULT_LDAPS_PORT = 686;
+    private static final int DEFAULT_LDAPS_PORT = 636;
     
     /** The default host : localhost */
     private static final String DEFAULT_LDAP_HOST = "127.0.0.1";
