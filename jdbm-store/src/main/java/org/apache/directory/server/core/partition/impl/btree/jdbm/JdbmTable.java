@@ -631,11 +631,11 @@ public class JdbmTable<K,V> implements Table<K,V>
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public void remove( K key, V value ) throws IOException
+    public boolean remove( K key, V value ) throws IOException
     {
         if ( key == null )
         {
-            return;
+            return false;
         }
 
         if ( ! allowsDuplicates )
@@ -643,17 +643,18 @@ public class JdbmTable<K,V> implements Table<K,V>
             V oldValue = ( V ) bt.find( key );
         
             // Remove the value only if it is the same as value.
-            if ( oldValue != null && oldValue.equals( value ) )
+            if ( ( oldValue != null ) && oldValue.equals( value ) )
             {
                 bt.remove( key );
                 count--;
-                return;
+                return true;
             }
 
-            return;
+            return false;
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isAvlTree() )
         {
             AvlTree<V> set = values.getAvlTree();
@@ -670,14 +671,15 @@ public class JdbmTable<K,V> implements Table<K,V>
                     bt.insert( key, marshaller.serialize( set ), true );
                 }
                 count--;
-                return;
+                return true ;
             }
 
-            return;
+            return false;
         }
 
         // if the number of duplicates falls below the numDupLimit value
         BTree tree = getBTree( values.getBTreeRedirect() );
+        
         if ( removeDupFromBTree( tree, value ) )
         {
             /*
@@ -692,32 +694,34 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
             
             count--;
+            return true;
         }
         
+        return false;
     }
 
 
     /**
      * @see Table#remove(Object)
      */
-    public void remove( K key ) throws IOException
+    public boolean remove( K key ) throws IOException
     {
         if ( key == null )
         {
-            return;
+            return false;
         }
 
         Object returned = bt.remove( key );
 
         if ( null == returned )
         {
-            return;
+            return false;
         }
 
         if ( ! allowsDuplicates )
         {
             this.count--;
-            return;
+            return true;
         }
 
         byte[] serialized = ( byte[] ) returned;
@@ -726,13 +730,13 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
             this.count -= tree.size();
-            return;
+            return true;
         }
         else
         {
             AvlTree<V> set = marshaller.deserialize( serialized );
             this.count -= set.getSize();
-            return;
+            return true;
         }
     }
 

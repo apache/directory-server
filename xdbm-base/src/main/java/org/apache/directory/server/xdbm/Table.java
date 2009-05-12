@@ -227,7 +227,7 @@ public interface Table<K, V>
      * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( K key ) throws Exception;
+    boolean remove( K key ) throws Exception;
 
 
     /**
@@ -239,7 +239,7 @@ public interface Table<K, V>
      * @throws Exception if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( K key, V value ) throws Exception;
+    boolean remove( K key, V value ) throws Exception;
 
 
     /**
