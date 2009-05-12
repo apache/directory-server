@@ -631,11 +631,11 @@ public class JdbmTable<K,V> implements Table<K,V>
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public boolean remove( K key, V value ) throws IOException
+    public void remove( K key, V value ) throws IOException
     {
         if ( key == null )
         {
-            return false;
+            return;
         }
 
         if ( ! allowsDuplicates )
@@ -647,10 +647,10 @@ public class JdbmTable<K,V> implements Table<K,V>
             {
                 bt.remove( key );
                 count--;
-                return true;
+                return;
             }
 
-            return false;
+            return;
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
@@ -671,10 +671,10 @@ public class JdbmTable<K,V> implements Table<K,V>
                     bt.insert( key, marshaller.serialize( set ), true );
                 }
                 count--;
-                return true ;
+                return;
             }
 
-            return false;
+            return;
         }
 
         // if the number of duplicates falls below the numDupLimit value
@@ -694,34 +694,32 @@ public class JdbmTable<K,V> implements Table<K,V>
             }
             
             count--;
-            return true;
+            return;
         }
-        
-        return false;
     }
 
 
     /**
      * @see Table#remove(Object)
      */
-    public boolean remove( K key ) throws IOException
+    public void remove( K key ) throws IOException
     {
         if ( key == null )
         {
-            return false;
+            return;
         }
 
         Object returned = bt.remove( key );
 
         if ( null == returned )
         {
-            return false;
+            return;
         }
 
         if ( ! allowsDuplicates )
         {
             this.count--;
-            return true;
+            return;
         }
 
         byte[] serialized = ( byte[] ) returned;
@@ -730,13 +728,13 @@ public class JdbmTable<K,V> implements Table<K,V>
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
             this.count -= tree.size();
-            return true;
+            return;
         }
         else
         {
             AvlTree<V> set = marshaller.deserialize( serialized );
             this.count -= set.getSize();
-            return true;
+            return;
         }
     }
 
