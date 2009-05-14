@@ -44,7 +44,7 @@ import static org.junit.Assert.fail;
  */
 public class StoredProcedureTest
 {
-	@Test
+    @Test
     public void testDecodeStoredProcedureNParams()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -124,7 +124,7 @@ public class StoredProcedureTest
         }
     }
 
-	@Test
+    @Test
     public void testDecodeStoredProcedureNoParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
@@ -180,8 +180,8 @@ public class StoredProcedureTest
         }
     }
 
-	
-	@Test
+    
+    @Test
     public void testDecodeStoredProcedureOneParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();

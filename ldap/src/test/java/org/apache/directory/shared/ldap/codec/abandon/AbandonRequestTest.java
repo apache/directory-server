@@ -50,7 +50,7 @@ public class AbandonRequestTest
     /**
      * Test the decoding of a AbandonRequest with controls
      */
-	@Test
+    @Test
     public void testDecodeAbandonRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -159,7 +159,7 @@ public class AbandonRequestTest
     /**
      * Test the decoding of a AbandonRequest with no controls
      */
-	@Test
+    @Test
     public void testDecodeAbandonRequestNoControlsHighMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -222,7 +222,7 @@ public class AbandonRequestTest
     /**
      * Test the decoding of a AbandonRequest with a null messageId
      */
-	@Test
+    @Test
     public void testDecodeAbandonRequestNoMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -258,7 +258,7 @@ public class AbandonRequestTest
     /**
      * Test the decoding of a AbandonRequest with a bad Message Id
      */
-	@Test
+    @Test
     public void testDecodeAbandonRequestBadMessageId()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

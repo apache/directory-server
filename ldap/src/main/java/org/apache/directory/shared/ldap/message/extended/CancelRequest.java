@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
  */
 public class CancelRequest extends ExtendedRequestImpl
 {
-	/** The serial version UUID */
-	private static final long serialVersionUID = 1L;
+    /** The serial version UUID */
+    private static final long serialVersionUID = 1L;
 
-	/** A logger for this class */
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( CancelRequest.class );
 
     /** The cancelId of the request to be canceled */

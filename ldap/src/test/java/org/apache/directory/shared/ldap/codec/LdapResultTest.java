@@ -53,7 +53,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with no LdapResult
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCode()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -90,8 +90,8 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with no LdapResult
      */
-	@Test
-	public void testDecodeAddResponseEmptyResultCodeAbove90()
+    @Test
+    public void testDecodeAddResponseEmptyResultCodeAbove90()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -127,7 +127,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with all the different result codes
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodesOK()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -172,7 +172,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with no matched DN
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeNoMatchedDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -209,7 +209,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with no error message
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeNoErrorMsg()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -247,7 +247,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with a valid LdapResult
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeOK()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -311,7 +311,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with a valid LdapResult with referral
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeOKReferral()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -381,7 +381,7 @@ public class LdapResultTest
     /**
      * Test the decoding of a AddResponse with a valid LdapResult with referrals
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeOKReferrals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -457,7 +457,7 @@ public class LdapResultTest
      * Test the decoding of a AddResponse with a valid LdapResult with referrals
      * and an empty referral
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeEmptyReferral()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -532,7 +532,7 @@ public class LdapResultTest
      * Test the decoding of a AddResponse with a valid LdapResult and an invalid
      * transition after the referral sequence
      */
-	@Test
+    @Test
     public void testDecodeAddResponseEmptyResultCodeEmptyReferrals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

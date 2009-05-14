@@ -45,10 +45,10 @@ import static org.junit.Assert.fail;
  */
 public class CancelRequestTest
 {
-	/**
-	 * Test the normal Cancel message
-	 */
-	@Test
+    /**
+     * Test the normal Cancel message
+     */
+    @Test
     public void testDecodeCancel()
     {
         Asn1Decoder cancelDecoder = new CancelDecoder();
@@ -69,7 +69,7 @@ public class CancelRequestTest
         // Decode a Cancel message
         try
         {
-        	cancelDecoder.decode( stream, cancelContainer );
+            cancelDecoder.decode( stream, cancelContainer );
         }
         catch ( DecoderException de )
         {
@@ -97,11 +97,11 @@ public class CancelRequestTest
         }
     }
 
-	
-	/**
-	 * Test a Cancel message with no cancelId
-	 */
-	@Test
+    
+    /**
+     * Test a Cancel message with no cancelId
+     */
+    @Test
     public void testDecodeCancelNoCancelId()
     {
         Asn1Decoder cancelDecoder = new CancelDecoder();
@@ -119,20 +119,20 @@ public class CancelRequestTest
         // Decode a Cancel message
         try
         {
-        	cancelDecoder.decode( stream, cancelContainer );
-        	fail( "CancelID expected" );
+            cancelDecoder.decode( stream, cancelContainer );
+            fail( "CancelID expected" );
         }
         catch ( DecoderException de )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 
-	
-	/**
-	 * Test a Cancel message with an empty cancelId
-	 */
-	@Test
+    
+    /**
+     * Test a Cancel message with an empty cancelId
+     */
+    @Test
     public void testDecodeCancelEmptyCancelId()
     {
         Asn1Decoder cancelDecoder = new CancelDecoder();
@@ -151,20 +151,20 @@ public class CancelRequestTest
         // Decode a Cancel message
         try
         {
-        	cancelDecoder.decode( stream, cancelContainer );
-        	fail( "CancelID expected" );
+            cancelDecoder.decode( stream, cancelContainer );
+            fail( "CancelID expected" );
         }
         catch ( DecoderException de )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 
-	
-	/**
-	 * Test a Cancel message with a bad cancelId
-	 */
-	@Test
+    
+    /**
+     * Test a Cancel message with a bad cancelId
+     */
+    @Test
     public void testDecodeCancelBadCancelId()
     {
         Asn1Decoder cancelDecoder = new CancelDecoder();
@@ -183,20 +183,20 @@ public class CancelRequestTest
         // Decode a Cancel message
         try
         {
-        	cancelDecoder.decode( stream, cancelContainer );
-        	fail( "CancelID expected" );
+            cancelDecoder.decode( stream, cancelContainer );
+            fail( "CancelID expected" );
         }
         catch ( DecoderException de )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 
-	
-	/**
-	 * Test a Cancel message with more than one cancelId
-	 */
-	@Test
+    
+    /**
+     * Test a Cancel message with more than one cancelId
+     */
+    @Test
     public void testDecodeCancelMoreThanOneCancelId()
     {
         Asn1Decoder cancelDecoder = new CancelDecoder();
@@ -216,12 +216,12 @@ public class CancelRequestTest
         // Decode a Cancel message
         try
         {
-        	cancelDecoder.decode( stream, cancelContainer );
-        	fail( "CancelID expected" );
+            cancelDecoder.decode( stream, cancelContainer );
+            fail( "CancelID expected" );
         }
         catch ( DecoderException de )
         {
-        	assertTrue( true );
+            assertTrue( true );
         }
     }
 }

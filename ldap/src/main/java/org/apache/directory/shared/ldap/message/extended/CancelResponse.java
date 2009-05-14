@@ -31,14 +31,14 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class CancelResponse extends ExtendedResponseImpl
 {
-	/** The serial version UUID */
-	private static final long serialVersionUID = 1L;
+    /** The serial version UUID */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Create a new CancelResponse object
-	 * @param messageId The messageId
-	 * @param rcode the result code
-	 */
+    /**
+     * Create a new CancelResponse object
+     * @param messageId The messageId
+     * @param rcode the result code
+     */
     public CancelResponse( int messageId, ResultCodeEnum rcode )
     {
         super( messageId, null );
@@ -81,7 +81,7 @@ public class CancelResponse extends ExtendedResponseImpl
      */
     public byte[] getResponse()
     {
-    	return StringTools.EMPTY_BYTES;
+        return StringTools.EMPTY_BYTES;
     }
 
 

@@ -631,7 +631,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Externaliza
                 // for 99.99% of all DN (blind bet, of course ...) 
                 for ( char c:chars )
                 {
-                    if ( ( c >= 0 ) && ( c < DN_ESCAPED_CHARS.length ) && DN_ESCAPED_CHARS[ c ] )                     	
+                    if ( ( c >= 0 ) && ( c < DN_ESCAPED_CHARS.length ) && DN_ESCAPED_CHARS[ c ] )
                     {
                         escaped = true;
                         break;

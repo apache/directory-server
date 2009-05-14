@@ -986,7 +986,7 @@ public enum ResultCodeEnum
      */
     public static final Set<ResultCodeEnum> BIND_CODES;
     static
-    { 	
+    {
         Set<ResultCodeEnum> set = new HashSet<ResultCodeEnum>();
         set.add( ResultCodeEnum.BUSY );
         set.add( ResultCodeEnum.OTHER );

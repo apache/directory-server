@@ -40,7 +40,7 @@ public class LdapControlTest
     /**
      * Test the decoding of a Request with controls
      */
-	@Test
+    @Test
     public void testDecodeRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -150,7 +150,7 @@ public class LdapControlTest
     /**
      * Test the decoding of a Request with null OID controls
      */
-	@Test
+    @Test
     public void testDecodeRequestWithControlsNullOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -194,7 +194,7 @@ public class LdapControlTest
     /**
      * Test the decoding of a Request with bad OID controls
      */
-	@Test
+    @Test
     public void testDecodeRequestWithControlsBadOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
@@ -238,7 +238,7 @@ public class LdapControlTest
     /**
      * Test the decoding of a Request with bad criticality
      */
-	@Test
+    @Test
     public void testDecodeRequestWithControlsBadCriticality()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();

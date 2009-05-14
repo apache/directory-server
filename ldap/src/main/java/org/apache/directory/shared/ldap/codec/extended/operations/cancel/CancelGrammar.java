@@ -113,28 +113,28 @@ public class CancelGrammar extends AbstractGrammar
             {
                 public void action( IAsn1Container container ) throws DecoderException
                 {
-	                CancelContainer cancelContainer = ( CancelContainer ) container;
-	                Value value = cancelContainer.getCurrentTLV().getValue();
-	
-		            try
-		            {
-		                int cancelId = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
-		
-		                if ( IS_DEBUG )
-		                {
-		                    LOG.debug( "CancelId = " + cancelId );
-		                }
-		
-		                cancelContainer.getCancel().setCancelId( cancelId );
-		                cancelContainer.grammarEndAllowed( true );
-		            }
-		            catch ( IntegerDecoderException e )
-		            {
-		                String msg = "failed to decode the cancelId, the value should be between 0 and 2^31-1, " + 
-		                	"it is '" + StringTools.dumpBytes( value.getData() ) + "'";
-		                LOG.error( msg );
-		                throw new DecoderException( msg );
-		            }
+                    CancelContainer cancelContainer = ( CancelContainer ) container;
+                    Value value = cancelContainer.getCurrentTLV().getValue();
+    
+                    try
+                    {
+                        int cancelId = IntegerDecoder.parse( value, 0, Integer.MAX_VALUE );
+        
+                        if ( IS_DEBUG )
+                        {
+                            LOG.debug( "CancelId = " + cancelId );
+                        }
+        
+                        cancelContainer.getCancel().setCancelId( cancelId );
+                        cancelContainer.grammarEndAllowed( true );
+                    }
+                    catch ( IntegerDecoderException e )
+                    {
+                        String msg = "failed to decode the cancelId, the value should be between 0 and 2^31-1, " + 
+                            "it is '" + StringTools.dumpBytes( value.getData() ) + "'";
+                        LOG.error( msg );
+                        throw new DecoderException( msg );
+                    }
                 }
             });
     }
