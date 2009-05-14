@@ -30,7 +30,6 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import junit.framework.TestCase;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -45,6 +44,9 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -53,7 +55,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MemoryChangeLogStoreTest extends TestCase
+public class MemoryChangeLogStoreTest
 {
     MemoryChangeLogStore store;
 
@@ -63,7 +65,6 @@ public class MemoryChangeLogStoreTest extends TestCase
     @Before
     public void setUp() throws Exception
     {
-        super.setUp();
         store = new MemoryChangeLogStore();
 
         oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
@@ -79,7 +80,6 @@ public class MemoryChangeLogStoreTest extends TestCase
     @After
     public void tearDown() throws Exception
     {
-        super.tearDown();
         store = null;
     }
 
