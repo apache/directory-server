@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
@@ -89,7 +90,12 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
                 }
                 catch ( Exception e )
                 {
-                    return false;
+                    if ( StringTools.isEmpty( id ) )
+                    {
+                        return false;
+                    }
+                    
+                    return id.endsWith( ";binary" );
                 }
             }
         },

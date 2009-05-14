@@ -45,6 +45,7 @@ import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
 import org.apache.directory.server.ldap.LdapService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.fail;
@@ -566,7 +567,7 @@ public class ModifyAddIT
 
 
     /**
-     * Add a new attribute to a person entry.
+     * Add a new binary attribute to a person entry.
      */
     @Test
     public void testAddNewBinaryAttributeValue() throws Exception
@@ -586,5 +587,69 @@ public class ModifyAddIT
         byte[] certificate = (byte[])attr.get();
         assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
+    }
+    
+    
+    /**
+     * Add a new attribute to a person entry.
+     */
+    @Test
+    public void testAddNewBinaryAttributeValueAbove0x80() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        
+        // Add a binary attribute
+        byte[] newValue = new byte[]{(byte)0x80, (byte)0x81, (byte)0x82, (byte)0x83};
+        Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+
+        // Verify, that attribute value is added
+        attrs = ctx.getAttributes( RDN_TORI_AMOS );
+        Attribute attr = attrs.get( "userCertificate" );
+        assertNotNull( attr );
+        assertTrue( attr.contains( newValue ) );
+        byte[] certificate = (byte[])attr.get();
+        assertTrue( Arrays.equals( newValue, certificate ) );
+        assertEquals( 1, attr.size() );
+    }
+
+
+    /**
+     * Add a new binary attribute to a person entry.
+     */
+    @Ignore
+    @Test
+    public void testRetrieveEntryWithBinaryAttributeValue() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+
+        // Add a ;binary attribute
+        byte[] newValue = new byte[]{0x00, 0x01, 0x02, 0x03};
+        Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
+        ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
+        
+        // Search entry an request ;binary attribute
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope(SearchControls.OBJECT_SCOPE);
+        sctls.setReturningAttributes( new String[]{ "userCertificate;binary" } );
+        String filter = "(objectClass=*)";
+        String base = RDN_TORI_AMOS;
+   
+        // Test that ;binary attribute is present
+        NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls);
+        assertTrue(enm.hasMore());
+        
+        while (enm.hasMore()) 
+        {
+            SearchResult sr = enm.next();
+            attrs = sr.getAttributes();
+            Attribute attr = attrs.get("userCertificate;binary");
+            assertNotNull(attr);
+            assertTrue( attr.contains( newValue ) );
+            byte[] certificate = (byte[])attr.get();
+            assertTrue( Arrays.equals( newValue, certificate ) );
+            assertEquals( 1, attr.size() );
+        }
+        
     }
 }

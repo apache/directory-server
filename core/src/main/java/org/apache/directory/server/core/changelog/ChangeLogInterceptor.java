@@ -233,7 +233,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             
          // if there are no modifications due to stripping out bogus non-
          // existing attributes then we will have no modification items and
-         // should ignore not this without registerring it with the changelog
+         // should ignore not this without registering it with the changelog
          
             opContext.getModItems().size() == 0 )  
         {
