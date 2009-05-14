@@ -171,38 +171,38 @@ public class SpringServerTest
      */
     @Test
     public void testSpringServerJdbmPartition() throws Exception {
-    	// NOTE : This test will only work on systems which have a /tmp temp dir
-    	if ( "/tmp".equals( getTmpDir() ) )
-    	{
-	        ClassLoader classLoader = this.getClass().getClassLoader();
-	        URL configURL = classLoader.getResource( "serverJdbmPartition.xml" );
-	
-	        File configF = new File( configURL.toURI() );
-	        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURI().toURL().toString() );
-	        ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
-	        File workingDirFile = new File( configF.getParentFile(), "work" );
-	        apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
-	        
-	        // Now, launch the server, and check that the ObjectClass index has been created in OS' tmp directory
-	        apacheDS.startup();
-	        
-	        File tmpOCdb = new File( getTmpDir(), "objectClass.db" );
-	        assertTrue( tmpOCdb.exists() );
-	
-	        File tmpOClg = new File( getTmpDir(), "objectClass.lg" );
-	        assertTrue( tmpOClg.exists() );
-	        
-	        // Shutdown and cleanup
-	        apacheDS.shutdown();
-	        
-	        // Clean the /tmp/objectClass.* files
-	        tmpOCdb.delete();
-	        tmpOClg.delete();
-    	}
-    	else
-    	{
-    		assertTrue( true );
-    	}
+        // NOTE : This test will only work on systems which have a /tmp temp dir
+        if ( "/tmp".equals( getTmpDir() ) )
+        {
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            URL configURL = classLoader.getResource( "serverJdbmPartition.xml" );
+    
+            File configF = new File( configURL.toURI() );
+            ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURI().toURL().toString() );
+            ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
+            File workingDirFile = new File( configF.getParentFile(), "work" );
+            apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
+            
+            // Now, launch the server, and check that the ObjectClass index has been created in OS' tmp directory
+            apacheDS.startup();
+            
+            File tmpOCdb = new File( getTmpDir(), "objectClass.db" );
+            assertTrue( tmpOCdb.exists() );
+    
+            File tmpOClg = new File( getTmpDir(), "objectClass.lg" );
+            assertTrue( tmpOClg.exists() );
+            
+            // Shutdown and cleanup
+            apacheDS.shutdown();
+            
+            // Clean the /tmp/objectClass.* files
+            tmpOCdb.delete();
+            tmpOClg.delete();
+        }
+        else
+        {
+            assertTrue( true );
+        }
     }
     
     /**
