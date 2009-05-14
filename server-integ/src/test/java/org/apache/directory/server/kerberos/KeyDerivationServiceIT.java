@@ -58,6 +58,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import javax.crypto.spec.DESKeySpec;
 import javax.naming.Context;
@@ -173,11 +174,39 @@ public class KeyDerivationServiceIT
      }
      
      
+     private void checkKeyNumber( Attributes attributes )
+     {
+         Attribute krb5key = attributes.get( "krb5key" );
+         
+         String vendor = System.getProperty( "java.vm.vendor" );
+         
+         if ( vendor.equalsIgnoreCase( "IBM Corporation") )
+         {
+             // Will be 2 or 3 on IBM JRE whether AES-256 is enabled or not
+             assertTrue( "Number of keys", krb5key.size() > 1 );
+         }
+         else if ( vendor.equalsIgnoreCase( "Sun Microsystems Inc." ) )
+         {
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on SUN JRE
+             assertTrue( "Number of keys", krb5key.size() > 3 );
+         }
+         else if ( vendor.equalsIgnoreCase( "BEA Systems, Inc." ) )
+         {
+             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on JRockit
+             assertTrue( "Number of keys", krb5key.size() > 3 );
+         }
+         else
+         {
+             fail( "Unkown JVM" );
+         }
+     }
+     
+     
     /**
      * Set up a partition for EXAMPLE.COM, add the Key Derivation interceptor, enable
      * the krb5kdc schema, and add a user principal to test authentication with.
      */
-     @Before
+    @Before
     public void setUp() throws Exception
     {
         DirContext schemaRoot = ( DirContext ) getWiredContext( ldapService ).lookup( "ou=schema" );
@@ -219,7 +248,7 @@ public class KeyDerivationServiceIT
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
-     @Test
+    @Test
     public void testAddDerivedKeys() throws NamingException, IOException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -234,7 +263,7 @@ public class KeyDerivationServiceIT
         DirContext ctx = new InitialDirContext( env );
 
         String[] attrIDs =
-            { "uid", "userPassword", KerberosAttribute.KRB5_KEY_AT, KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT };
+            { "uid", "userPassword", "krb5Key", "krb5KeyVersionNumber" };
 
         Attributes attributes = ctx.getAttributes( RDN, attrIDs );
 
@@ -254,14 +283,14 @@ public class KeyDerivationServiceIT
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
-        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
+        checkKeyNumber( attributes );
 
         byte[] testPasswordBytes =
             { ( byte ) 0x73, ( byte ) 0x65, ( byte ) 0x63, ( byte ) 0x72, ( byte ) 0x65, ( byte ) 0x74 };
         assertTrue( Arrays.equals( userPassword, testPasswordBytes ) );
 
-        Attribute krb5key = attributes.get( KerberosAttribute.KRB5_KEY_AT );
+        Attribute krb5key = attributes.get( "krb5key" );
+
         Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
         EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
 
@@ -329,8 +358,7 @@ public class KeyDerivationServiceIT
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
-        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
+        checkKeyNumber( attributes );
 
         byte[] testBytes =
             { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74 };
@@ -464,8 +492,7 @@ public class KeyDerivationServiceIT
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
-        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
+        checkKeyNumber( attributes );
 
         byte[] testBytes =
             { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74 };
