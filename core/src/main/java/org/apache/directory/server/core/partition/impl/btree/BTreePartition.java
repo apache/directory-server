@@ -41,6 +41,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -73,6 +74,9 @@ public abstract class BTreePartition implements Partition
         set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
         set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
         set.add( ApacheSchemaConstants.APACHE_UP_DN_OID );
+        //set.add( ApacheSchemaConstants.ENTRY_CSN_OID );
+        //set.add( ApacheSchemaConstants.ENTRY_UUID_OID );
+        //set.add( SchemaConstants.OBJECT_CLASS_AT_OID );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
 

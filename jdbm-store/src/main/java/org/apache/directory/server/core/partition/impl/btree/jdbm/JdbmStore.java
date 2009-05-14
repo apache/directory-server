@@ -74,17 +74,22 @@ public class JdbmStore<E> implements Store<E>
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStore.class );
+    
     /** The default cache size is set to 10 000 objects */
     static final int DEFAULT_CACHE_SIZE = 10000;
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
+    
     /** the normalized suffix DN of this backend database */
     private LdapDN normSuffix;
+    
     /** the user provided suffix DN of this backend database */
     private LdapDN upSuffix;
+    
     /** the working directory to use for files */
     private File workingDirectory;
+    
     /** the master table storing entries by primary key */
     private JdbmMasterTable<ServerEntry> master;
     
@@ -96,24 +101,31 @@ public class JdbmStore<E> implements Store<E>
     
     /** true if initialized */
     private boolean initialized;
+    
     /** true if we sync disks on every write operation */
     private boolean isSyncOnWrite = true;
 
     /** the normalized distinguished name index */
     private JdbmIndex<String,E> ndnIdx;
+    
     /** the user provided distinguished name index */
     private JdbmIndex<String,E> updnIdx;
+    
     /** the attribute existence index */
     private JdbmIndex<String,E> existenceIdx;
+    
     /** a system index on aliasedObjectName attribute */
     private JdbmIndex<String,E> aliasIdx;
 
     /** a system index on the entries of descendants of root DN*/
     private JdbmIndex<Long,E> subLevelIdx;
+    
     /** the parent child relationship index */
     private JdbmIndex<Long,E> oneLevelIdx;
+    
     /** the one level scope alias index */
     private JdbmIndex<Long,E> oneAliasIdx;
+    
     /** the subtree scope alias index */
     private JdbmIndex<Long,E> subAliasIdx;
     
@@ -356,9 +368,9 @@ public class JdbmStore<E> implements Store<E>
         if ( subLevelIdx == null )
         {
             subLevelIdx = new JdbmIndex<Long, E>();
-            subLevelIdx.setAttributeId( SUBLEVEL );
-            systemIndices.put( SUBLEVEL, subLevelIdx );
-            subLevelIdx.init( attributeTypeRegistry.lookup( SUBLEVEL ), workingDirectory );
+            subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
+            subLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), workingDirectory );
         }
     }
 

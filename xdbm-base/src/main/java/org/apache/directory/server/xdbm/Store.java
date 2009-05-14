@@ -42,9 +42,6 @@ import java.util.List;
  */
 public interface Store<E>
 {
-    /** Private OID (1.3.6.1.4.1.18060.0.4.1.2.43) for apacheSubLevel index*/
-    String SUBLEVEL = "1.3.6.1.4.1.18060.0.4.1.2.43";
-    
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
      * ------------------------------------------------------
