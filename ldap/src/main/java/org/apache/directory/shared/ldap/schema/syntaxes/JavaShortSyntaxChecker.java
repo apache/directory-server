@@ -24,9 +24,9 @@ import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
- * A SyntaxChecker which verifies that a value is a valid Java primitive int or
- * the Integer wrapper.  Essentially this constrains the min and max values of
- * the Integer.
+ * A SyntaxChecker which verifies that a value is a valid Java primitive Short or
+ * the Short wrapper.  Essentially this constrains the min and max values of
+ * the Short.
  *
  * From RFC 4517 :
  *
