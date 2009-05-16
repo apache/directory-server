@@ -86,31 +86,31 @@ public interface ApacheSchemaConstants
     // ---- AttributeType ----------------------------------------------------------
     // ApacheNdn
     String APACHE_N_DN_AT                           = "apacheNdn";
-    String APACHE_N_DN_OID                          = "1.3.6.1.4.1.18060.0.4.1.2.1";
+    String APACHE_N_DN_AT_OID                       = "1.3.6.1.4.1.18060.0.4.1.2.1";
     
     // ApacheUpdn
     String APACHE_UP_DN_AT                          = "apacheUpdn";
-    String APACHE_UP_DN_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.2";
+    String APACHE_UP_DN_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.2";
     
-    // ApacheExistance
-    String APACHE_EXISTANCE_AT                      = "apacheExistance";
-    String APACHE_EXISTANCE_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.3";
+    // ApacheExistence
+    String APACHE_EXISTENCE_AT                      = "apacheExistence";
+    String APACHE_EXISTENCE_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.3";
     
     // ApacheOneLevel
     String APACHE_ONE_LEVEL_AT                      = "apacheOneLevel";
-    String APACHE_ONE_LEVEL_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.4";
+    String APACHE_ONE_LEVEL_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.4";
     
     // ApacheOneAlias
     String APACHE_ONE_ALIAS_AT                      = "apacheOneAlias";
-    String APACHE_ONE_ALIAS_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.5";
+    String APACHE_ONE_ALIAS_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.5";
     
     // ApacheSubAlias
     String APACHE_SUB_ALIAS_AT                      = "apacheSubAlias";
-    String APACHE_SUB_ALIAS_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.6";
+    String APACHE_SUB_ALIAS_AT_OID                  = "1.3.6.1.4.1.18060.0.4.1.2.6";
 
     // ApacheAlias
     String APACHE_ALIAS_AT                          = "apacheAlias";
-    String APACHE_ALIAS_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.7";
+    String APACHE_ALIAS_AT_OID                      = "1.3.6.1.4.1.18060.0.4.1.2.7";
 
     // PrefNodeName
     String PREF_NODE_NAME_AT                        = "prefNodeName";
@@ -133,15 +133,15 @@ public interface ApacheSchemaConstants
 
     // entryUUID
     String ENTRY_UUID_AT                            = "entryUUID";
-    String ENTRY_UUID_OID                           = "1.3.6.1.4.1.18060.0.4.1.2.29";
+    String ENTRY_UUID_AT_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.29";
     
     // entryCSN
     String ENTRY_CSN_AT                             = "entryCSN";
-    String ENTRY_CSN_OID                            = "1.3.6.1.4.1.18060.0.4.1.2.30";
+    String ENTRY_CSN_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.30";
     
     // entryDeleted
     String ENTRY_DELETED_AT                         = "entryDeleted";
-    String ENTRY_DELETED_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.31";
+    String ENTRY_DELETED_AT_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.31";
     
     // SchemaModifyTimestamp
     String SCHEMA_MODIFY_TIMESTAMP_AT               = "schemaModifyTimestamp";

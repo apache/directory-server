@@ -208,31 +208,31 @@ public class JdbmPartition extends BTreePartition
             
             if ( SYS_INDEX_OIDS.contains( oid ) )
             {
-                if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_OID ) )
+                if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
                     store.setAliasIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTANCE_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ) )
                 {
                     store.setPresenceIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) )
                 {
                     store.setOneLevelIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_N_DN_AT_OID ) )
                 {
                     store.setNdnIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) )
                 {
                     store.setOneAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) )
                 {
                     store.setSubAliasIndex( ( Index<Long,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_OID ) )
+                else if ( oid.equals( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ) )
                 {
                     store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
                 }

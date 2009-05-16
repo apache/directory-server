@@ -77,7 +77,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private SchemaService schemaService;
 
     /** OID of the 'rev' attribute used in changeLogEvent and tag objectclasses */
-    private static final String REV_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
+    private static final String REV_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
     
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
@@ -95,7 +95,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         changeLog = directoryService.getChangeLog();
         schemaService = directoryService.getSchemaService();
         entryDeleted = directoryService.getRegistries().getAttributeTypeRegistry()
-                .lookup( ApacheSchemaConstants.ENTRY_DELETED_OID );
+                .lookup( ApacheSchemaConstants.ENTRY_DELETED_AT_OID );
     }
 
 
@@ -116,7 +116,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         ServerEntry addEntry = opContext.getEntry();
 
         // we don't want to record addition of a tag as a change
-        if( addEntry.get( REV_OID ) != null )
+        if( addEntry.get( REV_AT_OID ) != null )
         {
            return; 
         }
@@ -160,7 +160,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         // we don't want to record deleting a tag as a change
-        if( serverEntry.get( REV_OID ) != null )
+        if( serverEntry.get( REV_AT_OID ) != null )
         {
            return; 
         }

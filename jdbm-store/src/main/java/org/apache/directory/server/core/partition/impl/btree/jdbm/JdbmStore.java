@@ -312,57 +312,57 @@ public class JdbmStore<E> implements Store<E>
         if ( ndnIdx == null )
         {
             ndnIdx = new JdbmIndex<String,E>();
-            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_OID, ndnIdx );
-            ndnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_OID ), workingDirectory );
+            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_AT_OID, ndnIdx );
+            ndnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_AT_OID ), workingDirectory );
         }
 
         if ( updnIdx == null )
         {
             updnIdx = new JdbmIndex<String,E>();
-            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_OID, updnIdx );
-            updnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_OID ), workingDirectory );
+            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_AT_OID, updnIdx );
+            updnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_AT_OID ), workingDirectory );
         }
 
         if ( existenceIdx == null )
         {
             existenceIdx = new JdbmIndex<String,E>();
-            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTANCE_OID, existenceIdx );
-            existenceIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTANCE_OID ), workingDirectory );
+            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, existenceIdx );
+            existenceIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), workingDirectory );
         }
 
         if ( oneLevelIdx == null )
         {
             oneLevelIdx = new JdbmIndex<Long,E>();
-            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID, oneLevelIdx );
-            oneLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID ), workingDirectory );
+            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
+            oneLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ), workingDirectory );
         }
 
         if ( oneAliasIdx == null )
         {
             oneAliasIdx = new JdbmIndex<Long,E>();
-            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID, oneAliasIdx );
-            oneAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID ), workingDirectory );
+            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
+            oneAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ), workingDirectory );
         }
 
         if ( subAliasIdx == null )
         {
             subAliasIdx = new JdbmIndex<Long,E>();
-            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID, subAliasIdx );
-            subAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID ), workingDirectory );
+            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
+            subAliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ), workingDirectory );
         }
 
         if ( aliasIdx == null )
         {
             aliasIdx = new JdbmIndex<String,E>();
-            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_OID );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_OID, aliasIdx );
-            aliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_OID ), workingDirectory );
+            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
+            aliasIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ), workingDirectory );
         }
         
         if ( subLevelIdx == null )

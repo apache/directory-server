@@ -67,15 +67,15 @@ public abstract class BTreePartition implements Partition
     static
     {
         Set<String> set = new HashSet<String>();
-        set.add( ApacheSchemaConstants.APACHE_ALIAS_OID );
-        set.add( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
-        set.add( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
-        set.add( ApacheSchemaConstants.APACHE_N_DN_OID );
-        set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
-        set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
-        set.add( ApacheSchemaConstants.APACHE_UP_DN_OID );
-        //set.add( ApacheSchemaConstants.ENTRY_CSN_OID );
-        //set.add( ApacheSchemaConstants.ENTRY_UUID_OID );
+        set.add( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+        set.add( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
+        //set.add( ApacheSchemaConstants.ENTRY_CSN_AT_OID );
+        //set.add( ApacheSchemaConstants.ENTRY_UUID_AT_OID );
         //set.add( SchemaConstants.OBJECT_CLASS_AT_OID );
         SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
     }
