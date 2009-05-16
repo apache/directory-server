@@ -407,7 +407,7 @@ public interface SchemaConstants
 
     // entryCSN
     String ENTRY_CSN_AT = "entryCSN";
-    // no official OID in RFCs
+    String ENTRY_CSN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
 
     // entryDN
     String ENTRY_DN_AT = "entryDN";
@@ -434,6 +434,7 @@ public interface SchemaConstants
     String INTEGER_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.27";
     String UTC_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.53";
     String DIRECTORY_STRING_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.15";
+    String UUID_SYNTAX = "1.3.6.1.1.16.1";
 
     String JAVA_BYTE_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.0";
     String JAVA_CHAR_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.1";
