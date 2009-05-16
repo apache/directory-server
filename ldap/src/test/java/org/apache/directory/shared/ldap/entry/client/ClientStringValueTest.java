@@ -35,7 +35,6 @@ import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.syntaxes.Ia5StringSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.OctetStringSyntaxChecker;
 import org.junit.Test;
 
 /**
@@ -148,7 +147,7 @@ public class ClientStringValueTest
         
         assertNull( csv.get() );
         assertFalse( csv.isNormalized() );
-        assertFalse( csv.isValid( new Ia5StringSyntaxChecker() ) );
+        assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertTrue( csv.isNull() );
         assertNull( csv.getNormalizedValue() );
     }
@@ -165,7 +164,7 @@ public class ClientStringValueTest
         assertNotNull( csv.get() );
         assertEquals( "", csv.get() );
         assertFalse( csv.isNormalized() );
-        assertTrue( csv.isValid( new OctetStringSyntaxChecker() ) );
+        assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertFalse( csv.isNull() );
         assertNotNull( csv.getNormalizedValue() );
         assertEquals( "", csv.getNormalizedValue() );
@@ -236,14 +235,14 @@ public class ClientStringValueTest
         csv.set( null );
         assertNull( csv.get() );
         assertFalse( csv.isNormalized() );
-        assertFalse( csv.isValid( new Ia5StringSyntaxChecker() ) );
+        assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertTrue( csv.isNull() );
 
         csv.set( "" );
         assertNotNull( csv.get() );
         assertEquals( "", csv.get() );
         assertFalse( csv.isNormalized() );
-        assertTrue( csv.isValid( new OctetStringSyntaxChecker() ) );
+        assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertFalse( csv.isNull() );
 
         csv.set( "Test" );
@@ -289,7 +288,7 @@ public class ClientStringValueTest
         assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         csv.clear();
         assertTrue( csv.isNull() );
-        assertFalse( csv.isValid( new Ia5StringSyntaxChecker() ) );
+        assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertFalse( csv.isNormalized() );
     }
 

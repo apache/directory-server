@@ -70,7 +70,7 @@ public class Ia5StringSyntaxChecker extends AbstractSyntaxChecker
 
         if ( value == null )
         {
-            return false;
+            return true;
         }
         
         if ( value instanceof String )
@@ -86,11 +86,6 @@ public class Ia5StringSyntaxChecker extends AbstractSyntaxChecker
             strValue = value.toString();
         }
 
-        if ( strValue.length() == 0 )
-        {
-            return false;
-        }
-        
         return StringTools.isIA5String( strValue );
     }
 }

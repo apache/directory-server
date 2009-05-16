@@ -21,13 +21,14 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import org.apache.directory.shared.ldap.schema.syntaxes.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test cases for BitStringSyntaxChecker.
+ * Test cases for OctetStringSyntaxChecker.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -45,9 +46,16 @@ public class OctetStringSyntaxCheckerTest
 
 
     @Test
-    public void testEmptyString()
+    public void testEmptyOctetString()
     {
-        assertTrue( checker.isValidSyntax( "" ) );
+        assertTrue( checker.isValidSyntax( StringTools.EMPTY_BYTES ) );
+    }
+
+
+    @Test
+    public void testStringOctetString()
+    {
+        assertFalse( checker.isValidSyntax( "" ) );
     }
 
 

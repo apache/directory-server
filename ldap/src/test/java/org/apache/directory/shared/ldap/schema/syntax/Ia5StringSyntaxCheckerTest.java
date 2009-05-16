@@ -39,14 +39,14 @@ public class Ia5StringSyntaxCheckerTest
     @Test
     public void testNullString()
     {
-        assertFalse( checker.isValidSyntax( null ) );
+        assertTrue( checker.isValidSyntax( null ) );
     }
 
 
     @Test
     public void testEmptyString()
     {
-        assertFalse( checker.isValidSyntax( "" ) );
+        assertTrue( checker.isValidSyntax( "" ) );
     }
 
 

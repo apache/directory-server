@@ -49,6 +49,7 @@ public class OctetStringSyntaxChecker extends AbstractSyntaxChecker
     {
         super( SC_OID );
     }
+
     
     /**
      * 
@@ -62,11 +63,14 @@ public class OctetStringSyntaxChecker extends AbstractSyntaxChecker
         super( oid );
     }
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SyntaxChecker#isValidSyntax(java.lang.Object)
+
+    
+    /**
+     * {@inheritDoc}
      */
     public boolean isValidSyntax( Object value )
     {
-        return ( value != null );
+        // It must be a byte[]
+        return value instanceof byte[];
     }
 }
