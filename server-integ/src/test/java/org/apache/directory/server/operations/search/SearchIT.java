@@ -1543,4 +1543,33 @@ public class SearchIT
         assertFalse( res.hasMore() );
     }
 
+
+    /**
+     * Check if no user attributes are present, if "1.1" is requested.
+     */
+    @Test
+    public void testSearchUserAttributes_1_1() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "1.1" } );
+
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
+
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            assertEquals( "No user attributes expected when requesting attribute 1.1", 0, entry.getAttributes().size() );
+        }
+        else
+        {
+            fail( "entry " + HEATHER_RDN + " not found" );
+        }
+
+        result.close();
+    }
+
 }
