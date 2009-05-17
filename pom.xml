@@ -352,7 +352,6 @@
     <module>core-unit</module>
     <module>core-integ</module>
     <module>core-entry</module>
-    <module>core-splay</module>
     <module>core-avl</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
