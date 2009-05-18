@@ -26,10 +26,12 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaByteSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaLongSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaShortSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.UuidSyntaxChecker;
 
 
 
@@ -63,6 +65,7 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
     {
         AbstractSyntax syntax = null;
         
+        // A Syntax for Java byte, OID = 1.3.6.1.4.1.18060.0.4.1.0.0
         syntax = new AbstractSyntax( SchemaConstants.JAVA_BYTE_SYNTAX, "a syntax for java byte values", true )
         {
             private static final long serialVersionUID = 1L;
@@ -83,9 +86,39 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
                 return JAVA_BYTE_SYNTAX_CHECKER;
             }
         };
+        
         syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
+        // A Syntax for Java char, OID = 1.3.6.1.4.1.18060.0.4.1.0.1
+        // TODO : Define the JavaCharSyntaxChecker
+        /*
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_CHAR_SYNTAX, "a syntax for java char values", true )
+        {
+            private static final long serialVersionUID = 1L;
+            private final JavaByteSyntaxChecker JAVA_CHAR_SYNTAX_CHECKER = new JavaCharSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_CHAR";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_CHAR" };
+            }
+            
+            public SyntaxChecker getSyntaxChecker() throws NamingException
+            {
+                return JAVA_CHAR_SYNTAX_CHECKER;
+            }
+        };
+
+        syntax.setSchema( "apache" );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        */
+        
+        // A Syntax for Java short, OID = 1.3.6.1.4.1.18060.0.4.1.0.2
         syntax = new AbstractSyntax( SchemaConstants.JAVA_SHORT_SYNTAX, "a syntax for java short values", true )
         {
             private static final long serialVersionUID = 1L;
@@ -106,32 +139,11 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
                 return JAVA_SHORT_SYNTAX_CHECKER;
             }
         };
+        
         syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
-        syntax = new AbstractSyntax( SchemaConstants.JAVA_INT_SYNTAX, "a syntax for java int values", true )
-        {
-            private static final long serialVersionUID = 1L;
-            private final JavaIntegerSyntaxChecker JAVA_INT_SYNTAX_CHECKER = new JavaIntegerSyntaxChecker();
-
-            public String getName()
-            {
-                return "JAVA_INT";
-            }
-            
-            public String[] getNames()
-            {
-                return new String[] { "JAVA_INT" };
-            }
-            
-            public SyntaxChecker getSyntaxChecker() throws NamingException
-            {
-                return JAVA_INT_SYNTAX_CHECKER;
-            }
-        };
-        syntax.setSchema( "apache" );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
-
+        // A Syntax for Java long, OID = 1.3.6.1.4.1.18060.0.4.1.0.3
         syntax = new AbstractSyntax( SchemaConstants.JAVA_LONG_SYNTAX, "a syntax for java long values", true )
         {
             private static final long serialVersionUID = 1L;
@@ -152,6 +164,82 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
                 return JAVA_LONG_SYNTAX_CHECKER;
             }
         };
+        
+        syntax.setSchema( "apache" );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+
+        // A Syntax for Java int, OID = 1.3.6.1.4.1.18060.0.4.1.0.4
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_INT_SYNTAX, "a syntax for java int values", true )
+        {
+            private static final long serialVersionUID = 1L;
+            private final JavaIntegerSyntaxChecker JAVA_INT_SYNTAX_CHECKER = new JavaIntegerSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_INT";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_INT" };
+            }
+            
+            public SyntaxChecker getSyntaxChecker() throws NamingException
+            {
+                return JAVA_INT_SYNTAX_CHECKER;
+            }
+        };
+        
+        syntax.setSchema( "apache" );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+
+        // A Syntax for UUID, OID = 1.3.6.1.1.16.1
+        syntax = new AbstractSyntax( SchemaConstants.UUID_SYNTAX, "a syntax for UUID values", false )
+        {
+            private static final long serialVersionUID = 1L;
+            private final UuidSyntaxChecker UUID_SYNTAX_CHECKER = new UuidSyntaxChecker();
+
+            public String getName()
+            {
+                return "UUID";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "UUID" };
+            }
+            
+            public SyntaxChecker getSyntaxChecker() throws NamingException
+            {
+                return UUID_SYNTAX_CHECKER;
+            }
+        };
+        
+        syntax.setSchema( "apache" );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+
+        // A Syntax for CSN, OID = 1.3.6.1.4.1.4203.666.11.2.1
+        syntax = new AbstractSyntax( SchemaConstants.CSN_SYNTAX, "a syntax for CSN values", false )
+        {
+            private static final long serialVersionUID = 1L;
+            private final CsnSyntaxChecker CSN_SYNTAX_CHECKER = new CsnSyntaxChecker();
+
+            public String getName()
+            {
+                return "CSN";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "CSN" };
+            }
+            
+            public SyntaxChecker getSyntaxChecker() throws NamingException
+            {
+                return CSN_SYNTAX_CHECKER;
+            }
+        };
+        
         syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
