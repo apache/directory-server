@@ -66,7 +66,12 @@ public class AttributeDescAction extends GrammarAction
         if ( tlv.getLength() != 0 )
         {
             attributeDescription = StringTools.utf8ToString( tlv.getValue().getData() );
-            searchRequest.addAttribute( attributeDescription );
+            
+            // If the attributeDescription is empty, we won't add it
+            if ( !StringTools.isEmpty( attributeDescription.trim() ) ) 
+            {
+                searchRequest.addAttribute( attributeDescription );
+            }
         }
 
         // We can have an END transition
