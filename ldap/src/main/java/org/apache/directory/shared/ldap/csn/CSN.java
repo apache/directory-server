@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
  * The CSN syntax is :
  * <pre>
  * <CSN>            ::= <timestamp> # <changeCount> # <replicaId> # <modifierNumber>
- * <timestamp>      ::= A GMT based time, YYYYMMDDhh:mm:ssz
- * <changeCount>    ::= [0-9a-zA-Z]+
- * <replicaId>      ::= IA5String
- * <modifierNumber> ::= [0-9a-zA-Z]+
+ * <timestamp>      ::= A GMT based time, YYYYmmddHHMMSS.uuuuuuZ
+ * <changeCount>    ::= [000000-ffffff] 
+ * <replicaId>      ::= [000-fff]
+ * <modifierNumber> ::= [000000-ffffff]
  * </pre>
  *  
  * It distinguishes a change made on an object on a server,
@@ -71,7 +71,7 @@ public class CSN implements Serializable, Comparable<CSN>
     private final long timestamp;
 
     /** The server identification */
-    private final String replicaId;
+    private final int replicaId;
 
     /** The operation number in a modification operation */
     private final int operationNumber;
@@ -86,7 +86,11 @@ public class CSN implements Serializable, Comparable<CSN>
     private transient byte[] bytes;
 
     /** The Timestamp syntax. The last 'z' is _not_ the Time Zone */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHH:mm:ss'z'" );
+    private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss" );
+    
+    /** Padding used to format number with a fixed size */
+    private static final String[] PADDING_6 = new String[] { "00000", "0000", "000", "00", "0", "" };
+    private static final String[] PADDING_3 = new String[] { "00", "0", "" };
 
 
     /**
@@ -98,7 +102,7 @@ public class CSN implements Serializable, Comparable<CSN>
      * @param replicaId Replica ID where modification occurred (<tt>[-_A-Za-z0-9]{1,16}</tt>)
      * @param operationNumber Operation number in a modification operation
      */
-    public CSN( long timestamp, int changeCount, String replicaId, int operationNumber )
+    public CSN( long timestamp, int changeCount, int replicaId, int operationNumber )
     {
         this.timestamp = timestamp;
         this.replicaId = replicaId;
@@ -123,6 +127,13 @@ public class CSN implements Serializable, Comparable<CSN>
             LOG.error( message );
             throw new InvalidCSNException( message );
         }
+        
+        if ( value.length() != 40 )
+        {
+            String message = "The CSN's length is incorrect, it should be 40 chars long";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
 
         // Get the Timestamp
         int sepTS = value.indexOf( '#' );
@@ -136,11 +147,23 @@ public class CSN implements Serializable, Comparable<CSN>
         
         String timestampStr = value.substring( 0, sepTS ).trim();
         
+        if ( timestampStr.length() != 22 )
+        {
+            String message = "The timestamp is not long enough";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
+        
+        // Let's transform the Timestamp by removing the mulliseconds and microseconds
+        String realTimestamp = timestampStr.substring( 0, 14 );
+        
+        long tempTimestamp = 0L;
+        
         synchronized ( sdf )
         {
             try
             {
-                timestamp = sdf.parse( timestampStr ).getTime();
+                tempTimestamp = sdf.parse( realTimestamp ).getTime();
             }
             catch ( ParseException pe )
             {
@@ -149,6 +172,12 @@ public class CSN implements Serializable, Comparable<CSN>
                 throw new InvalidCSNException( message );
             }
         }
+        
+        // And add the milliseconds and microseconds now
+        int millis = Integer.valueOf( timestampStr.substring( 15, 21 ) );
+        
+        tempTimestamp += (millis/1000);
+        timestamp = tempTimestamp;
 
         // Get the changeCount. It should be an hex number prefixed with '0x'
         int sepCC = value.indexOf( '#', sepTS + 1 );
@@ -162,16 +191,9 @@ public class CSN implements Serializable, Comparable<CSN>
 
         String changeCountStr = value.substring( sepTS + 1, sepCC ).trim();
         
-        if ( !changeCountStr.startsWith( "0x" ) )
-        {
-            String message = "The changeCount '" + changeCountStr + "' is not a valid number";
-            LOG.error( message );
-            throw new InvalidCSNException( message );
-        }
-        
         try
         {
-            changeCount = Integer.parseInt( changeCountStr.substring( 2 ), 16 ); 
+            changeCount = Integer.parseInt( changeCountStr, 16 ); 
         }
         catch ( NumberFormatException nfe )
         {
@@ -190,18 +212,22 @@ public class CSN implements Serializable, Comparable<CSN>
             throw new InvalidCSNException( message );
         }
 
-        replicaId = value.substring( sepCC + 1, sepRI).trim();
+        String replicaIdStr = value.substring( sepCC + 1, sepRI).trim();
         
-        if ( StringTools.isEmpty( replicaId ) )
+        if ( StringTools.isEmpty( replicaIdStr ) )
         {
             String message = "The replicaID must not be null or empty";
             LOG.error( message );
             throw new InvalidCSNException( message );
         }
         
-        if ( !StringTools.isIA5String( replicaId ) )
+        try
         {
-            String message = "The replicaID must contains only alphanumeric characters";
+            replicaId = Integer.parseInt( replicaIdStr, 16 ); 
+        }
+        catch ( NumberFormatException nfe )
+        {
+            String message = "The replicaId '" + replicaIdStr + "' is not a valid number";
             LOG.error( message );
             throw new InvalidCSNException( message );
         }
@@ -216,16 +242,9 @@ public class CSN implements Serializable, Comparable<CSN>
         
         String operationNumberStr = value.substring( sepRI + 1 ).trim();
         
-        if ( !operationNumberStr.startsWith( "0x" ) )
-        {
-            String message = "The operationNumber '" + operationNumberStr + "' is not a valid number";
-            LOG.error( message );
-            throw new InvalidCSNException( message );
-        }
-        
         try
         {
-            operationNumber = Integer.parseInt( operationNumberStr.substring( 2 ), 16 ); 
+            operationNumber = Integer.parseInt( operationNumberStr, 16 ); 
         }
         catch ( NumberFormatException nfe )
         {
@@ -296,7 +315,7 @@ public class CSN implements Serializable, Comparable<CSN>
     /**
      * @return The replicaId
      */
-    public String getReplicaId()
+    public int getReplicaId()
     {
         return replicaId;
     }
@@ -325,12 +344,26 @@ public class CSN implements Serializable, Comparable<CSN>
                 buf.append( sdf.format( new Date( timestamp ) ) );
             }
             
+            // Add the milliseconds part
+            long millis = (timestamp % 1000 ) * 1000;
+            String millisStr = Long.toString( millis );
+            
+            buf.append( '.' ).append( PADDING_3[ millisStr.length() ] ).append( millisStr ).append( "000Z#" );
+            
+            String countStr = Integer.toHexString( changeCount );
+            
+            buf.append( PADDING_6[countStr.length()] ).append( countStr );
             buf.append( '#' );
-            buf.append( "0x" ).append( Integer.toHexString( changeCount ) );
+
+            String replicaIdStr = Integer.toHexString( replicaId );
+            
+            buf.append( PADDING_3[replicaIdStr.length()] ).append( replicaIdStr );
             buf.append( '#' );
-            buf.append( replicaId );
-            buf.append( '#' );
-            buf.append( "0x" ).append( Integer.toHexString( operationNumber ) );
+            
+            String operationNumberStr = Integer.toHexString( operationNumber );
+            
+            buf.append( PADDING_6[operationNumberStr.length()] ).append( operationNumberStr );
+            
             csnStr = buf.toString();
         }
         
@@ -349,7 +382,7 @@ public class CSN implements Serializable, Comparable<CSN>
         
         h = h*17 + (int)(timestamp ^ (timestamp >>> 32));
         h = h*17 + changeCount;
-        h = h*17 + replicaId.hashCode();
+        h = h*17 + replicaId;
         h = h*17 + operationNumber;
         
         return h;
@@ -380,7 +413,7 @@ public class CSN implements Serializable, Comparable<CSN>
         return 
             ( timestamp == that.timestamp ) &&
             ( changeCount == that.changeCount ) &&
-            ( replicaId.equals( that.replicaId ) ) &&
+            ( replicaId == that.replicaId ) &&
             ( operationNumber == that.operationNumber );
     }
 
@@ -422,7 +455,11 @@ public class CSN implements Serializable, Comparable<CSN>
         }
 
         // Then the replicaId
-        int replicaIdCompareResult = this.replicaId.compareTo( csn.replicaId );
+        int replicaIdCompareResult= 
+            ( this.replicaId < csn.replicaId ? 
+              -1 : 
+               ( this.replicaId > csn.replicaId ?
+                   1 : 0 ) );
 
         if ( replicaIdCompareResult != 0 )
         {

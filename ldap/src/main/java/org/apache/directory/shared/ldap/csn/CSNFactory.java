@@ -45,10 +45,10 @@ public class CSNFactory
      * Generated CSN can be duplicate if user generates CSNs more than 2G 
      * times a milliseconds.
      * 
-     * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
-     *        string.
+     * @param replicaId Replica ID.  ReplicaID must be 1-3 digit alphanumeric
+     *        value (from 000 to fff).
      */
-    public CSN newInstance( String replicaId )
+    public CSN newInstance( int replicaId )
     {
         long newTimestamp = System.currentTimeMillis();
         
@@ -73,11 +73,10 @@ public class CSNFactory
      * This method is <b>not</b> to be used except for test purposes.
      * 
      * @param timestamp The timestamp to use
-     * @param replicaId Replica ID.  ReplicaID must be 1-8 digit alphanumeric
-     * string.
+     * @param replicaId Replica ID.  ReplicaID must be 1-3 digit value
      * @param changeCount The change count to use
      */
-    public CSN newInstance( long timestamp, String replicaId, int changeCount )
+    public CSN newInstance( long timestamp, int replicaId, int changeCount )
     {
         return new CSN( timestamp, changeCount, replicaId, 0 );
     }
@@ -91,6 +90,6 @@ public class CSNFactory
      */
     public CSN newInstance( long expirationDate )
     {
-        return new CSN( expirationDate, Integer.MAX_VALUE, "ZZZZZZZZZZZZZZZZ", Integer.MAX_VALUE );
+        return new CSN( expirationDate, Integer.MAX_VALUE, -1, Integer.MAX_VALUE );
     }
 }

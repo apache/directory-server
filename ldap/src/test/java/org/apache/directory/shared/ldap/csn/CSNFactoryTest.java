@@ -43,7 +43,7 @@ public class CSNFactoryTest
     @Test
     public void testUnique()
     {
-        String replicaID = "test";
+        int replicaID = 001;
         CSNFactory defaultCSNFactory = new CSNFactory();
 
         CSN[] csns = new CSN[NUM_GENERATES];

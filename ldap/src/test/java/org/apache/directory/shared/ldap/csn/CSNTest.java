@@ -39,19 +39,21 @@ import static org.junit.Assert.fail;
  */
 public class CSNTest
 {
-    private SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHH:mm:ss'z'" );
+    private SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMddHHmmss.123456'Z'" );
 
     @Test
     public void testCSN()
     {
         long ts = System.currentTimeMillis();
 
-        CSN csn = new CSN( sdf.format( new Date( ts ) ) + "#0x0000#abcdefghi0123#0x0001" );
+        CSN csn = new CSN( sdf.format( new Date( ts ) ) + "#123456#abc#654321" );
 
         assertEquals( ts/1000, csn.getTimestamp()/1000 );
-        assertEquals( 0, csn.getChangeCount() );
-        assertEquals( 1, csn.getOperationNumber() );
-        assertEquals( "abcdefghi0123", csn.getReplicaId() );
+        
+        // ALl the value are converted from hex to int
+        assertEquals( 1193046, csn.getChangeCount() );
+        assertEquals( 6636321, csn.getOperationNumber() );
+        assertEquals( 2748, csn.getReplicaId() );
     }
 
 
@@ -105,8 +107,8 @@ public class CSNTest
     {
         try
         {
-            // A missing 'z'
-            new CSN( "2000010100:00:00#0x1#abc#0x1" );
+            // A missing 'Z'
+            new CSN( "20010101000000.000000#000001#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -116,8 +118,8 @@ public class CSNTest
         
         try
         {
-            // Missing seconds
-            new CSN( "2000010100:00:z#0x1#abc#0x1" );
+            // Missing milliseconds
+            new CSN( "20000101000000.Z#000001#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -127,8 +129,8 @@ public class CSNTest
 
         try
         {
-            // Missing minutes
-            new CSN( "2000010100::00z#0x1#abc#0x1" );
+            // Missing dot
+            new CSN( "20010101000000000000Z#0x1#abc#0x1" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -138,8 +140,8 @@ public class CSNTest
 
         try
         {
-            // Missing hours
-            new CSN( "2000010100::00z#0x1#abc#0x1" );
+            // Missing dot and millis
+            new CSN( "20010101000000Z#000001#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -150,7 +152,7 @@ public class CSNTest
         try
         {
             // Invalid date
-            new CSN( "200A010100::00z#0x1#abc#0x1" );
+            new CSN( "200A01010000Z#000001#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -165,7 +167,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "#0x1#abc#0x1" );
+            new CSN( "#000001#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -180,7 +182,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2000010100:00:00z##a#0x1" );
+            new CSN( "20010101000000.000000Z##abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -195,7 +197,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2000010100:00:00z#00#a#0x1" );
+            new CSN( "20010101000000.000000Z#00#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -205,17 +207,7 @@ public class CSNTest
 
         try
         {
-            new CSN( "2000010100:00:00z#0x#a#0x1" );
-            fail();
-        }
-        catch ( InvalidCSNException ice )
-        {
-            assertTrue( true );
-        }
-        
-        try
-        {
-            new CSN( "2000010100:00:00z#0x0G#a#0x1" );
+            new CSN( "20010101000000.000000Z#00000G#abc#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -230,7 +222,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2000010100:00:00z#0x1##0x1" );
+            new CSN( "20010101000000.000000Z#000001##000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -245,7 +237,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2000010100:00:00z#0x1#a12-b3é#0x1" );
+            new CSN( "20010101000000.000000Z#000001#a12-b3é#000001" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -260,7 +252,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc" );
+            new CSN( "20010101000000.000000Z#000000#abc" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -270,7 +262,7 @@ public class CSNTest
         
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc#  " );
+            new CSN( "20010101000000.000000Z#000000#abc#  " );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -285,7 +277,7 @@ public class CSNTest
     {
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc#zzz" );
+            new CSN( "20010101000000.000000Z#000000#abc#000zzz" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -295,7 +287,7 @@ public class CSNTest
 
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc#0x" );
+            new CSN( "20010101000000.000000Z#000000#abc#00000" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -305,7 +297,7 @@ public class CSNTest
 
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc#000" );
+            new CSN( "20010101000000.000000Z#000000#abc#" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -315,7 +307,7 @@ public class CSNTest
 
         try
         {
-            new CSN( "2001010100:00:00z#0x0#abc#0x0G" );
+            new CSN( "20010101000000.000000Z#000000#abc#00000G" );
             fail();
         }
         catch ( InvalidCSNException ice )
@@ -328,16 +320,17 @@ public class CSNTest
     @Test
     public void testCSNToBytes()
     {
-        CSN csn = new CSN( "2001010100:00:00z#0x0#abc#0x1" );
+        CSN csn = new CSN( "20010101000000.000000Z#000000#abc#000001" );
 
         byte[] bytes = csn.toBytes();
 
         byte[] expected = new byte[]
             { 
                 '2', '0', '0', '1', '0', '1', '0', '1', 
-                '0', '0', ':', '0', '0', ':', '0', '0', 
-                'z', '#', '0', 'x', '0', '#', 'a', 'b', 
-                'c', '#', '0', 'x', '1' 
+                '0', '0', '0', '0', '0', '0', '.', '0',
+                '0', '0', '0', '0', '0', 'Z', '#', '0', 
+                '0', '0', '0', '0', '0', '#', 'a', 'b', 
+                'c', '#', '0', '0', '0', '0', '0', '1' 
             };
         
         assertTrue( Arrays.equals( expected, bytes ) );
