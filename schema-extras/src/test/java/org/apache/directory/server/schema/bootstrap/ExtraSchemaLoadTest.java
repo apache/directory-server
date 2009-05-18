@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
@@ -37,6 +35,11 @@ import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -45,25 +48,25 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437012 $
  */
-public class ExtraSchemaLoadTest extends TestCase
+public class ExtraSchemaLoadTest
 {
     DefaultRegistries registries;
 
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
         registries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(), new DefaultOidRegistry() );
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        super.tearDown();
         registries = null;
     }
 
 
+    @Test
     public void testLoadAll() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -130,6 +133,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testApacheSchemaLoad() throws Exception
     {
         ApacheSchema apacheSchema = new ApacheSchema();
@@ -149,6 +153,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -170,6 +175,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testCoreSchemaLoad() throws NamingException
     {
         CoreSchema coreSchema = new CoreSchema();
@@ -189,6 +195,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testJavaSchemaLoad() throws Exception
     {
         testCoreSchemaLoad();
@@ -209,6 +216,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testJavaDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -231,6 +239,7 @@ public class ExtraSchemaLoadTest extends TestCase
     }
 
 
+    @Test
     public void testApacheAndJavaDepsSchemaLoad() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
@@ -260,6 +269,7 @@ public class ExtraSchemaLoadTest extends TestCase
      *
      * @throws NamingException if there are problems.
      */
+    @Test
     public void testReferentialIntegrity() throws Exception
     {
         if ( System.getProperties().containsKey( "ignore.ref.integ.test" ) )
@@ -269,7 +279,7 @@ public class ExtraSchemaLoadTest extends TestCase
         }
 
         testLoadAll();
-        List errors = registries.checkRefInteg();
+        List<Throwable> errors = registries.checkRefInteg();
         assertNotNull( errors );
 
         StringBuffer buf = new StringBuffer();
