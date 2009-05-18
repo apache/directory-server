@@ -51,7 +51,6 @@ import org.apache.directory.server.schema.bootstrap.*;
  * using the directory plugin for maven.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
  */
 public class $classname extends AbstractBootstrapSchema
 {
