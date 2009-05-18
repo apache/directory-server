@@ -435,6 +435,7 @@ public interface SchemaConstants
     String UTC_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.53";
     String DIRECTORY_STRING_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.15";
     String UUID_SYNTAX = "1.3.6.1.1.16.1";
+    String CSN_SYNTAX = "1.3.6.1.4.1.4203.666.11.2.1";
 
     String JAVA_BYTE_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.0";
     String JAVA_CHAR_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.1";

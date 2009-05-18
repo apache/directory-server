@@ -173,8 +173,19 @@ public class CSN implements Serializable, Comparable<CSN>
             }
         }
         
+        int millis = 0;
+        
         // And add the milliseconds and microseconds now
-        int millis = Integer.valueOf( timestampStr.substring( 15, 21 ) );
+        try
+        {
+            millis = Integer.valueOf( timestampStr.substring( 15, 21 ) );
+        }
+        catch ( NumberFormatException nfe )
+        {
+            String message = "The microseconds part is invalid";
+            LOG.error( message );
+            throw new InvalidCSNException( message );
+        }
         
         tempTimestamp += (millis/1000);
         timestamp = tempTimestamp;
@@ -255,6 +266,128 @@ public class CSN implements Serializable, Comparable<CSN>
         
         csnStr = value;
         bytes = toBytes();
+    }
+
+
+    /**
+     * Check if the given String is a valid CSN.
+     * 
+     * @param value The String to check
+     * @return <code>true</code> if the String is a valid CSN
+     */
+    public static boolean isValid( String value )
+    {
+        if ( StringTools.isEmpty( value ) )
+        {
+            return false;
+        }
+        
+        if ( value.length() != 40 )
+        {
+            return false;
+        }
+    
+        // Get the Timestamp
+        int sepTS = value.indexOf( '#' );
+        
+        if ( sepTS < 0 )
+        {
+            return false;
+        }
+        
+        String timestampStr = value.substring( 0, sepTS ).trim();
+        
+        if ( timestampStr.length() != 22 )
+        {
+            return false;
+        }
+        
+        // Let's transform the Timestamp by removing the mulliseconds and microseconds
+        String realTimestamp = timestampStr.substring( 0, 14 );
+        
+        synchronized ( sdf )
+        {
+            try
+            {
+                sdf.parse( realTimestamp ).getTime();
+            }
+            catch ( ParseException pe )
+            {
+                return false;
+            }
+        }
+        
+        // And add the milliseconds and microseconds now
+        try
+        {
+            Integer.valueOf( timestampStr.substring( 15, 21 ) );
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return false;
+        }
+    
+        // Get the changeCount. It should be an hex number prefixed with '0x'
+        int sepCC = value.indexOf( '#', sepTS + 1 );
+        
+        if ( sepCC < 0 )
+        {
+            return false;
+        }
+    
+        String changeCountStr = value.substring( sepTS + 1, sepCC ).trim();
+        
+        try
+        {
+            Integer.parseInt( changeCountStr, 16 ); 
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return false;
+        }
+        
+        // Get the replicaIDfalse
+        int sepRI = value.indexOf( '#', sepCC + 1 );
+        
+        if ( sepRI < 0 )
+        {
+            return false;
+        }
+    
+        String replicaIdStr = value.substring( sepCC + 1, sepRI ).trim();
+        
+        if ( StringTools.isEmpty( replicaIdStr ) )
+        {
+            return false;
+        }
+        
+        try
+        {
+            Integer.parseInt( replicaIdStr, 16 ); 
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return false;
+        }
+        
+        // Get the modification number
+        if ( sepCC == value.length() )
+        {
+            return false;
+        }
+        
+        String operationNumberStr = value.substring( sepRI + 1 ).trim();
+        
+        try
+        {
+            Integer.parseInt( operationNumberStr, 16 ); 
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return false;
+        }
+        
+        return true;
     }
 
 
