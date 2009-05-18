@@ -1321,6 +1321,59 @@ public class SearchIT
     
     
     /**
+     * Check if no error occurs if " " is requested.
+     */
+    @Test
+    public void testSearchUserAttributes_Space() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { " " } );
+
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        result.close();
+    }
+
+    
+    /**
+     * Check if no error occurs if "" is requested.
+     */
+    @Test
+    public void testSearchUserAttributes_EmptyAttrs() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "" } );
+
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        result.close();
+    }
+
+    
+    /**
+     * Check if no error occurs if "" is requested.
+     */
+    @Test
+    public void testSearchUserAttributes_NullAttrs() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        SearchControls ctls = new SearchControls();
+
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[0] );
+
+        NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
+        result.close();
+    }
+
+    
+    /**
      * Check if user and operational attributes are present, if both "*" and "+" are requested.
      */
     @Test
