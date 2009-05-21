@@ -88,7 +88,7 @@ public class SerializableComparator<E> implements Comparator<E>, Serializable
         {
             try
             {
-                wrapped = registry.lookup( matchingRuleOid );
+                wrapped = (Comparator<E>)registry.lookup( matchingRuleOid );
             }
             catch ( NamingException e )
             {
