@@ -22,10 +22,10 @@ package org.apache.directory.server.schema.registries;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 import javax.naming.directory.NoSuchAttributeException;
@@ -84,10 +84,10 @@ public class DefaultOidRegistry implements OidRegistry
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** Maps OID to a name or a list of names if more than one name exists */
-    private Map<String, List<String>> byOid = new HashMap<String, List<String>>();
+    private Map<String, List<String>> byOid = new ConcurrentHashMap<String, List<String>>();
     
     /** Maps several names to an OID */
-    private Map<String,String> byName = new HashMap<String,String>();
+    private Map<String,String> byName = new ConcurrentHashMap<String,String>();
 
 
     /**
