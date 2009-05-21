@@ -78,7 +78,7 @@ public interface OidRegistry
      * @return a sorted set of names
      * @throws NamingException if oid does not exist
      */
-    List getNameSet( String oid ) throws NamingException;
+    List<String> getNameSet( String oid ) throws NamingException;
 
 
     /**
@@ -86,7 +86,7 @@ public interface OidRegistry
      * 
      * @return all the OIDs registered
      */
-    Iterator list();
+    Iterator<String> list();
 
 
     /**
@@ -102,14 +102,14 @@ public interface OidRegistry
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
-    public Map getOidByName();
+    public Map<String,String> getOidByName();
 
 
     /**
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
-    public Map getNameByOid();
+    public Map<String,List<String>> getNameByOid();
 
 
     /**

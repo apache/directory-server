@@ -38,7 +38,39 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * Default OID registry implementation used to resolve a schema object OID 
- * to a name and vice-versa.
+ * to a name and vice-versa. 
+ * <br/>
+ * We are storing the schema elements in two data structures :
+ * <li>an oid to names map</li>
+ * <li>a name to oid map</li>
+ * <br/>
+ * The first data structure contains a list of names associated with the given
+ * oid. The oid itself is not necessarily stored in this list, unless the schema
+ * object does not have any name.<br/>
+ * The second data structure contains all the names with the associated OID. We 
+ * also store the oid -> oid relation, to allow us to look for a registered 
+ * schema object using its oid.<br/>
+ * <br/>
+ * For instance, if we have registered the C AttributeType, which OID is
+ * 2.5.4.6 and has another name, 'country', the data structure will contain :<br>
+ * 
+ * <ul>
+ * <li>
+ * byOid
+ *   <ul>
+ *     <li>2.5.4.6 -> {'c', 'country'}</li>
+ *   </ul>
+ * </li>
+ * <li>
+ * byName
+ *   <ul>
+ *     <li>'c' -> 2.5.4.6</li>
+ *     <li>'country' -> 2.5.4.6</li>
+ *     <li>'2.5.4.6' -> 2.5.4.6</li>
+ *   </ul>
+ * </li>
+ * </ul>
+ * 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -59,7 +91,7 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#getOid(java.lang.String)
+     * {@inheritDoc}
      */
     public String getOid( String name ) throws NamingException
     {
@@ -105,7 +137,7 @@ public class DefaultOidRegistry implements OidRegistry
         {
             if ( IS_DEBUG )
             {
-                LOG.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
+                LOG.debug( "looked up OID '{}' with id '{}'", oid, name );
             }
 
             return oid;
@@ -119,7 +151,7 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#hasOid(java.lang.String)
+     * {@inheritDoc}
      */
     public boolean hasOid( String name )
     {
@@ -135,7 +167,7 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#getPrimaryName(java.lang.String)
+     * {@inheritDoc}
      */
     public String getPrimaryName( String oid ) throws NamingException
     {
@@ -143,14 +175,16 @@ public class DefaultOidRegistry implements OidRegistry
 
         if ( null == value )
         {
-            throw new NamingException( "OID '" + oid + "' was not found within the OID registry" );
+            String msg = "OID '" + oid + "' was not found within the OID registry";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
         String name = value.get( 0 );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "looked up primary name '" + name + "' with OID '" + oid + "'" );
+            LOG.debug( "looked up primary name '{}' with OID '{}'", name, oid );
         }
         
         return name;
@@ -158,7 +192,7 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#getNameSet(java.lang.String)
+     * {@inheritDoc}
      */
     public List<String> getNameSet( String oid ) throws NamingException
     {
@@ -166,12 +200,14 @@ public class DefaultOidRegistry implements OidRegistry
 
         if ( null == value )
         {
-            throw new NamingException( "OID '" + oid + "' was not found within the OID registry" );
+            String msg = "OID '" + oid + "' was not found within the OID registry";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
+            LOG.debug( "looked up names '{}' for OID '{}'", value, oid );
         }
         
         return value;
@@ -179,18 +215,16 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#list()
+     * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public Iterator list()
+    public Iterator<String> list()
     {
         return Collections.unmodifiableSet( byOid.keySet() ).iterator();
     }
 
 
     /**
-     * Get the map of all the oids by their name
-     * @return The Map that contains all the oids
+     * {@inheritDoc}
      */
     public Map<String, String> getOidByName()
     {
@@ -199,8 +233,7 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * Get the map of all the oids by their name
-     * @return The Map that contains all the oids
+     * {@inheritDoc}
      */
     public Map<String, List<String>> getNameByOid()
     {
@@ -209,9 +242,8 @@ public class DefaultOidRegistry implements OidRegistry
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.OidRegistry#register(String, String)
+     * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void register( String name, String oid ) throws NamingException
     {
         if ( !OID.isOID( oid ) )
@@ -225,7 +257,7 @@ public class DefaultOidRegistry implements OidRegistry
         
         if ( StringTools.isEmpty( name ) )
         {
-            String message = "The name is empty";
+            String message = "The name is empty for OID " + oid;
             LOG.error( message );
             throw new NamingException( message );
         }
@@ -250,25 +282,21 @@ public class DefaultOidRegistry implements OidRegistry
          *          Add new value to the list
          * 2). If we do not have a value then we just add it as a String
          */
-        List<String> value;
+        List<String> value = byOid.get( oid );
         
-        if ( !byOid.containsKey( oid ) )
+        if ( value == null )
         {
             value = new ArrayList<String>( 1 );
             value.add( lowerCase );
         }
         else
         {
-            value = byOid.get( oid );
-            
             if ( value.contains( lowerCase ) )
             {
                 return;
             }
-            else
-            {
-                value.add( lowerCase );
-            }
+
+            value.add( lowerCase );
         }
 
         byOid.put( oid, value );
@@ -280,6 +308,9 @@ public class DefaultOidRegistry implements OidRegistry
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
         // First, remove the <OID, names> from the byOID map
@@ -296,5 +327,10 @@ public class DefaultOidRegistry implements OidRegistry
 
         // Last, remove the <OID, OID> from the byName map
         byName.remove( numericOid );
+        
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Unregisted name '{}' with OID: {}", StringTools.listToString( names ), numericOid );
+        }
     }
 }
