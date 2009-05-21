@@ -28,11 +28,19 @@ import java.util.Map;
 
 public class AbstractSchemaDescription
 {
-
+	/** The schema element numeric OID */
     protected String numericOid;
+    
+    /** The schema element list of short names */
     protected List<String> names;
+    
+    /** A description for this schema element */
     protected String description;
+    
+    /** Tells if this schema element is obsolte */
     protected boolean isObsolete;
+    
+    /** A map containing the list of supported extensions */
     protected Map<String, List<String>> extensions;
 
 

@@ -29,5 +29,8 @@ package org.apache.directory.shared.ldap.schema.parsers;
  */
 public class ComparatorDescription extends AbstractAdsSchemaDescription
 {
-
+	public String toString()
+	{
+		return "Comparator description : " + getDescription();
+	}
 }
