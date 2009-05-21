@@ -178,14 +178,14 @@ public class DefaultRegistries implements Registries
     {
         ArrayList<Throwable> errors = new ArrayList<Throwable>();
 
-        Iterator list = objectClassRegistry.iterator();
+        Iterator<?> list = objectClassRegistry.iterator();
         while ( list.hasNext() )
         {
             ObjectClass oc = ( ObjectClass ) list.next();
             resolve( oc, errors );
         }
 
-        list = attributeTypeRegistry.list();
+        list = attributeTypeRegistry.iterator();
         while ( list.hasNext() )
         {
             AttributeType at = ( AttributeType ) list.next();

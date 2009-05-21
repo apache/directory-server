@@ -301,9 +301,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                     ( ( BootstrapAttributeType ) attributeType ).setSchema( schema.getSchemaName() );
                 }
                 
-                AttributeTypeRegistry attributeTypeRegistry;
-                attributeTypeRegistry = registries.getAttributeTypeRegistry();
-                attributeTypeRegistry.register( attributeType );
+                registries.getAttributeTypeRegistry().register( attributeType );
                 break;
                 
             case OBJECT_CLASS_PRODUCER :

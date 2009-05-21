@@ -21,21 +21,19 @@ package org.apache.directory.server.schema.registries;
 
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 import javax.naming.directory.NoSuchAttributeException;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,20 +54,21 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** maps an OID to an AttributeType */
-    private final Map<String,AttributeType> byOid;
+    private final Map<String,AttributeType> byOidAT;
+    
     /** maps OIDs to a Set of descendants for that OID */
     private final Map<String,Set<AttributeType>> oidToDescendantSet;
-    /** the registry used to resolve names to OIDs */
+    
+    /** the Registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
-    /** cached normalizer mapping */
-    private transient Map<String, OidNormalizer> mapping;
+    
+    /** cached Oid/normalizer mapping */
+    private transient Map<String, OidNormalizer> oidNormalizerMap;
     
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-
     /**
      * Creates an empty DefaultAttributeTypeRegistry.
      *
@@ -78,8 +77,9 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
      */
     public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
     {
-        this.byOid = new HashMap<String,AttributeType>();
-        this.oidToDescendantSet= new HashMap<String,Set<AttributeType>>();
+        byOidAT = new ConcurrentHashMap<String,AttributeType>();
+        oidToDescendantSet= new ConcurrentHashMap<String,Set<AttributeType>>();
+        oidNormalizerMap = new ConcurrentHashMap<String, OidNormalizer>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -87,71 +87,55 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public void register( AttributeType attributeType ) throws NamingException
     {
-        if ( byOid.containsKey( attributeType.getOid() ) )
+        if ( byOidAT.containsKey( attributeType.getOid() ) )
         {
-            throw new NamingException( "attributeType w/ OID " + attributeType.getOid()
-                + " has already been registered!" );
+            String msg = "attributeType " + attributeType.getName() + " w/ OID " + attributeType.getOid()
+            + " has already been registered!";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
+        // First, register the AttributeType names and oid in the global
+        // OidRegistry
         String[] names = attributeType.getNamesRef();
+        
         for ( String name : names )
         {
             oidRegistry.register( name, attributeType.getOid() );
         }
+        
         oidRegistry.register( attributeType.getOid(), attributeType.getOid() );
 
-        if ( mapping != null )
-        {
-            addMappingFor( attributeType );
-        }
+        // Inject the attributeType into the oid/normalizer map
+        addMappingFor( attributeType );
 
+        // Register this AttributeType into the Descendant map
         registerDescendants( attributeType );
-        byOid.put( attributeType.getOid(), attributeType );
+        
+        // Internally associate the OID to the registered AttributeType
+        byOidAT.put( attributeType.getOid(), attributeType );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "registed attributeType: " + attributeType );
+            LOG.debug( "registred attributeType: {}", attributeType );
         }
     }
 
 
-    public Set<String> getBinaryAttributes() throws NamingException
-    {
-        Set<String> binaries = new HashSet<String>();
-        Iterator<AttributeType> list = iterator();
-        while ( list.hasNext() )
-        {
-            AttributeType type = list.next();
-
-            if ( ! type.getSyntax().isHumanReadable() )
-            {
-                // add the OID for the attributeType
-                binaries.add( type.getOid() );
-
-                // add the lowercased name for the names for the attributeType
-                String[] names = type.getNamesRef();
-
-                for ( String name : names )
-                {
-                    // @TODO do we really need to lowercase strings here?
-                    binaries.add( StringTools.lowerCaseAscii( StringTools.trim( name ) ) );
-                }
-            }
-        }
-
-        return binaries;
-    }
-
-
+    /**
+     * Store the AttributeType into a map associating an AttributeType to its
+     * descendants.
+     * 
+     * @param attributeType The attributeType to register
+     * @throws NamingException If something went wrong
+     */
     public void registerDescendants( AttributeType attributeType ) throws NamingException
     {
-        // add/create the descendent set for this attribute
-        oidToDescendantSet.put( attributeType.getOid(), new HashSet<AttributeType>( 5 ) );
-        
         // add this attribute to descendant list of other attributes in superior chain
         onRegisterAddToAncestorDescendants( attributeType, attributeType.getSuperior() );
     }
@@ -162,7 +146,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
      * until top is reached.  Top will not have the new type added.
      * 
      * @param newType the new attributeType being added
-     * @param ancestor some anscestor from superior up to and including top
+     * @param ancestor some ancestor from superior up to and including top
      * @throws NamingException if there are resolution failures
      */
     protected void onRegisterAddToAncestorDescendants( AttributeType newType, AttributeType ancestor ) 
@@ -173,80 +157,92 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             return;
         }
         
-        if ( ancestor.getName() != null && ancestor.getName().equals( SchemaConstants.TOP_OC ) )
-        {
-            return;
-        }
-        
+        // Get the ancestor's descendant, if any
         Set<AttributeType> descendants = oidToDescendantSet.get( ancestor.getOid() );
+
+        // Initialize the descendant Set to store the descendants for the attributeType
         if ( descendants == null )
         {
-            descendants = new HashSet<AttributeType>( 5 );
+            descendants = new HashSet<AttributeType>( 1 );
             oidToDescendantSet.put( ancestor.getOid(), descendants );
         }
+        
+        // Add the current type as a descendant
         descendants.add( newType );
+        
+        // And recurse until we reach the top of the hierarchy
         onRegisterAddToAncestorDescendants( newType, ancestor.getSuperior() );
     }
     
 
+    /**
+     * {@inheritDoc}
+     */
     public AttributeType lookup( String id ) throws NamingException
     {
         String oid = oidRegistry.getOid( id );
+        AttributeType attributeType = byOidAT.get( oid );
 
-        if ( !byOid.containsKey( oid ) )
+        if ( attributeType == null )
         {
-            throw new NoSuchAttributeException( "attributeType w/ OID " + oid + " not registered!" );
+            String msg = "attributeType w/ OID " + oid + " not registered!";
+            LOG.error( msg );
+            throw new NoSuchAttributeException( msg );
         }
 
-        AttributeType attributeType = byOid.get( oid );
-        
         if ( IS_DEBUG )
         {
-            LOG.debug( "lookup with id" + oid + "' of attributeType: " + attributeType );
+            LOG.debug( "lookup with id '{}' for attributeType: {}", oid, attributeType );
         }
         
         return attributeType;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasAttributeType( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
-            {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
-            }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+        	String oid = oidRegistry.getOid( id );
+        	
+        	if ( oid != null )
+        	{
+        		return byOidAT.containsKey( oid );
+        	}
+        	
+        	return false;
         }
-
-        return false;
+        catch ( NamingException e )
+        {
+            return false;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
-        AttributeType at = byOid.get( id );
+        AttributeType at = byOidAT.get( oidRegistry.getOid( id ) );
         
         if ( at != null )
         {
             return at.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "AttributeType map!" );
+        String msg = "OID " + id + " not found in oid to " + "AttributeType map!";
+        LOG.debug( msg );
+        throw new NamingException( msg );
     }
 
 
-    public Iterator list()
-    {
-        return byOid.values().iterator();
-    }
-
-
+    /**
+     * Remove the AttributeType normalizer from the OidNormalizer map 
+     */
     private void removeMappingFor( AttributeType type ) throws NamingException
     {
         if ( type == null )
@@ -254,97 +250,111 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             return;
         }
         
-        MatchingRule matchingRule = type.getEquality();
-        mapping.remove( type.getOid() );
+        oidNormalizerMap.remove( type.getOid() );
+
+        // We also have to remove all the short names for this attribute
         String[] aliases = type.getNamesRef();
+        
         for ( String aliase : aliases )
         {
-            mapping.remove( aliase );
-            mapping.remove( aliase.toLowerCase() );
+        	oidNormalizerMap.remove( aliase );
+        	oidNormalizerMap.remove( aliase.toLowerCase() );
         }
     }
 
 
+    /**
+     * Add a new Oid/Normalizer couple in the OidNormalizer map
+     */
     private void addMappingFor( AttributeType type ) throws NamingException
     {
         MatchingRule matchingRule = type.getEquality();
         OidNormalizer oidNormalizer;
+        String oid = type.getOid();
 
         if ( matchingRule == null )
         {
-            LOG.debug( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
-            oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
+            LOG.debug( "Attribute {} does not have normalizer : using NoopNormalizer", type.getName() );
+            oidNormalizer = new OidNormalizer( oid, new NoOpNormalizer() );
         }
         else
         {
-            oidNormalizer = new OidNormalizer( type.getOid(), matchingRule.getNormalizer() );
+            oidNormalizer = new OidNormalizer( oid, matchingRule.getNormalizer() );
         }
 
-        mapping.put( type.getOid(), oidNormalizer );
+        oidNormalizerMap.put( oid, oidNormalizer );
+        
+        // Also inject the attributeType's short nampes in the map
         String[] aliases = type.getNamesRef();
+        
         for ( String aliase : aliases )
         {
-            mapping.put( aliase, oidNormalizer );
-            mapping.put( aliase.toLowerCase(), oidNormalizer );
+        	oidNormalizerMap.put( aliase, oidNormalizer );
+        	oidNormalizerMap.put( aliase.toLowerCase(), oidNormalizer );
         }
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
     {
-        if ( mapping == null )
-        {
-            mapping = new HashMap<String,OidNormalizer>( byOid.size() << 1 );
-            for ( AttributeType type : byOid.values() )
-            {
-                addMappingFor( type );
-            }
-        }
-        
-        return Collections.unmodifiableMap( mapping );
+        return Collections.unmodifiableMap( oidNormalizerMap );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<AttributeType> descendants( String ancestorId ) throws NamingException
     {
         String oid = oidRegistry.getOid( ancestorId );
         Set<AttributeType> descendants = oidToDescendantSet.get( oid );
+        
         if ( descendants == null )
         {
-            //noinspection unchecked
             return Collections.EMPTY_SET.iterator();
         }
+        
         return descendants.iterator();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasDescendants( String ancestorId ) throws NamingException
     {
         String oid = oidRegistry.getOid( ancestorId );
-        Set descendants = oidToDescendantSet.get( oid );
-        return descendants != null && !descendants.isEmpty();
+        Set<AttributeType> descendants = oidToDescendantSet.get( oid );
+        return (descendants != null) && !descendants.isEmpty();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<AttributeType> iterator()
     {
-        return byOid.values().iterator();
+        return byOidAT.values().iterator();
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
         if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        	String msg = "Looks like the arg (" + numericOid + ") is not a numeric OID";
+        	LOG.error(msg );
+            throw new NamingException( msg );
         }
 
-        if ( mapping != null )
-        {
-            removeMappingFor( byOid.get( numericOid ));
-        }
-
-        byOid.remove( numericOid );
+        removeMappingFor( byOidAT.get( numericOid ));
+        byOidAT.remove( numericOid );
         oidToDescendantSet.remove( numericOid );
     }
 }
