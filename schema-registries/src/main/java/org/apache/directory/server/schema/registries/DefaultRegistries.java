@@ -43,7 +43,12 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  */
 public class DefaultRegistries implements Registries
 {
-    private DefaultAttributeTypeRegistry attributeTypeRegistry;
+	/** The AttributeType registry */
+    private AttributeTypeRegistry attributeTypeRegistry;
+    
+    /** The ObjectClass registry */
+    private DefaultObjectClassRegistry objectClassRegistry;
+
     private DefaultComparatorRegistry comparatorRegistry;
     private DefaultDitContentRuleRegistry ditContentRuleRegistry;
     private DefaultDitStructureRuleRegistry ditStructureRuleRegistry;
@@ -51,7 +56,6 @@ public class DefaultRegistries implements Registries
     private DefaultMatchingRuleUseRegistry matchingRuleUseRegistry;
     private DefaultNameFormRegistry nameFormRegistry;
     private DefaultNormalizerRegistry normalizerRegistry;
-    private DefaultObjectClassRegistry objectClassRegistry;
     private OidRegistry oidRegistry;
     private DefaultSyntaxCheckerRegistry syntaxCheckerRegistry;
     private DefaultSyntaxRegistry syntaxRegistry;
@@ -64,12 +68,14 @@ public class DefaultRegistries implements Registries
     {
         this.name = name;
         this.schemaLoader = schemaLoader;
+        
         this.schemaLoader.setListener( new SchemaLoaderListener() {
             public void schemaLoaded( Schema schema )
             {
                 loadedByName.put( schema.getSchemaName(), schema );
             }
         });
+        
         oidRegistry = registry;
         normalizerRegistry = new DefaultNormalizerRegistry();
         comparatorRegistry = new DefaultComparatorRegistry();

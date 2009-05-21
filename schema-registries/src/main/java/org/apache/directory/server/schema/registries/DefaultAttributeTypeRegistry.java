@@ -103,13 +103,15 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         // First, register the AttributeType names and oid in the global
         // OidRegistry
         String[] names = attributeType.getNamesRef();
+        String oid = attributeType.getOid();
         
         for ( String name : names )
         {
-            oidRegistry.register( name, attributeType.getOid() );
+            oidRegistry.register( name, oid );
         }
         
-        oidRegistry.register( attributeType.getOid(), attributeType.getOid() );
+        // Also register the oid/oid relation
+        oidRegistry.register( oid, oid );
 
         // Inject the attributeType into the oid/normalizer map
         addMappingFor( attributeType );

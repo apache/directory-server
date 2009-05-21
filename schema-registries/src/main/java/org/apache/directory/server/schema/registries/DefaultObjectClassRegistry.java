@@ -20,9 +20,9 @@
 package org.apache.directory.server.schema.registries;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
@@ -47,7 +47,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** maps an OID to an ObjectClass */
-    private final Map<String,ObjectClass> byOid;
+    private final Map<String,ObjectClass> byOidOC;
+    
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -64,7 +65,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
      */
     public DefaultObjectClassRegistry( OidRegistry oidRegistry )
     {
-        this.byOid = new HashMap<String,ObjectClass>();
+        byOidOC = new ConcurrentHashMap<String,ObjectClass>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -72,102 +73,154 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public void register( ObjectClass objectClass ) throws NamingException
     {
-        if ( byOid.containsKey( objectClass.getOid() ) )
+    	String oid = objectClass.getOid();
+    	
+        if ( byOidOC.containsKey( oid ) )
         {
-            throw new NamingException( "objectClass w/ OID " + objectClass.getOid()
-                + " has already been registered!" );
+        	String msg = "objectClass " + objectClass.getName() + " w/ OID " + oid
+            	+ " has already been registered!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        if ( objectClass.getNamesRef() != null && objectClass.getNamesRef().length > 0 )
+        // Register the name/oid relation
+        String name = objectClass.getName();
+        
+        if ( !StringTools.isEmpty( name ) )
         {
-            oidRegistry.register( objectClass.getName(), objectClass.getOid() );
-        }
-        else
-        {
-            oidRegistry.register( objectClass.getOid(), objectClass.getOid() );
+            oidRegistry.register( name, oid );
         }
         
-        byOid.put( objectClass.getOid(), objectClass );
+        // Also register the oid/oid relation
+        oidRegistry.register( oid, oid );
+        
+        // Stores the OC in the internal map
+        byOidOC.put( oid, objectClass );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "registered objectClass: " + objectClass );
+            LOG.debug( "registered objectClass: {}", objectClass );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ObjectClass lookup( String id ) throws NamingException
     {
-        if ( StringTools.isEmpty( id ) )
+    	String ocId = StringTools.trim( id ).toLowerCase();
+    	
+        if ( StringTools.isEmpty( ocId ) )
         {
-            throw new NamingException( "name should not be empty" );
+        	String msg = "Lookup in the OC registry : name should not be empty";
+        	LOG.error( msg );
+            throw new NamingException( msg );
         }
         
-        String oid = oidRegistry.getOid( id.toLowerCase() );
+        String oid = oidRegistry.getOid( ocId );
 
-        if ( !byOid.containsKey( oid ) )
+        ObjectClass objectClass = byOidOC.get( oid );
+
+        if ( objectClass == null )
         {
-            throw new NamingException( "objectClass w/ OID " + oid + " not registered!" );
+        	String msg = "objectClass " + id + " w/ OID " + oid + " not registered!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
-
-        ObjectClass objectClass = byOid.get( oid );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "looked objectClass with OID '" + oid + "' and got back " + objectClass );
+            LOG.debug( "looked objectClass with OID '{}' and got back {}", oid, objectClass );
         }
+        
         return objectClass;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasObjectClass( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
-            {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
-            }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+        	String oid = oidRegistry.getOid( id );
+        	
+        	if ( oid == null )
+        	{
+        		return false;
+        	}
+        	
+            return byOidOC.containsKey( oid );
         }
-
-        return false;
+        catch ( NamingException e )
+        {
+            return false;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
-        ObjectClass oc = byOid.get( id );
+        String ocOid = oidRegistry.getOid( id );
+        
+        if ( ocOid == null )
+        {
+        	String msg = "Element " + id + " not found in the OID registry !";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
+        }
+
+        ObjectClass oc = byOidOC.get( ocOid );
+        
         if ( oc != null )
         {
             return oc.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "ObjectClass map!" );
+        String msg = "OID " + id + " not found in oid to " + "ObjectClass map!";
+        LOG.warn( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<ObjectClass> iterator()
     {
-        return byOid.values().iterator();
+        return byOidOC.values().iterator();
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
+    	if ( StringTools.isEmpty( numericOid ) )
+    	{
+    		String msg = "Can't unregister an empty element";
+    		LOG.warn( msg );
+    		throw new NamingException( msg );
+    	}
+    	
         if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        	String msg = "Looks like the arg is not a numeric OID";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        byOid.remove( numericOid );
+        byOidOC.remove( numericOid );
     }
 }
