@@ -46,7 +46,7 @@ public class BogusSyntax implements Syntax
 
     public SyntaxChecker getSyntaxChecker() throws NamingException
     {
-        return new AcceptAllSyntaxChecker();
+        return new AcceptAllSyntaxChecker( getOid() );
     }
 
 

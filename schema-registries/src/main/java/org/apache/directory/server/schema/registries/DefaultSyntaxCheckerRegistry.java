@@ -21,13 +21,14 @@ package org.apache.directory.server.schema.registries;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.slf4j.Logger;
@@ -44,8 +45,10 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultSyntaxCheckerRegistry.class );
+    
     /** a map by OID of SyntaxCheckers */
-    private final Map<String, SyntaxChecker> byOid;
+    private final Map<String, SyntaxChecker> byOidSyntaxChecker;
+    
     /** maps an OID to a syntaxCheckerDescription */
     private final Map<String, SyntaxCheckerDescription> oidToDescription;
 
@@ -53,75 +56,97 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-
     /**
      * Creates an instance of a DefaultSyntaxRegistry.
      */
     public DefaultSyntaxCheckerRegistry()
     {
-        this.byOid = new HashMap<String, SyntaxChecker>();
-        this.oidToDescription = new HashMap<String, SyntaxCheckerDescription>();
+        byOidSyntaxChecker = new ConcurrentHashMap<String, SyntaxChecker>();
+        oidToDescription = new ConcurrentHashMap<String, SyntaxCheckerDescription>();
     }
 
 
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public void register( SyntaxCheckerDescription syntaxCheckerDescription, SyntaxChecker syntaxChecker ) throws NamingException
     {
-        if ( byOid.containsKey( syntaxChecker.getSyntaxOid() ) )
+    	String oid = syntaxChecker.getSyntaxOid();
+    	
+        if ( byOidSyntaxChecker.containsKey( oid ) )
         {
-            throw new NamingException( "SyntaxChecker with OID " + syntaxChecker.getSyntaxOid()
-                + " already registered!" );
+        	String msg = "SyntaxChecker with OID " + oid + " already registered!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        byOid.put( syntaxChecker.getSyntaxOid(), syntaxChecker );
-        oidToDescription.put( syntaxChecker.getSyntaxOid(), syntaxCheckerDescription );
+        byOidSyntaxChecker.put( oid, syntaxChecker );
+        oidToDescription.put( oid, syntaxCheckerDescription );
+        
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "registered syntaxChecher for OID " + syntaxChecker.getSyntaxOid() );
+            LOG.debug( "registered syntaxChecher for OID {}", oid );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public SyntaxChecker lookup( String oid ) throws NamingException
     {
-        if ( !byOid.containsKey( oid ) )
-        {
-            throw new NamingException( "SyntaxChecker for OID " + oid + " not found!" );
-        }
+        SyntaxChecker syntaxChecker = byOidSyntaxChecker.get( oid );
 
-        SyntaxChecker syntaxChecker = byOid.get( oid );
+        if ( syntaxChecker == null )
+        {
+        	String msg = "SyntaxChecker for OID " + oid + " not found!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
+        }
+        
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "looked up syntaxChecher with OID " + oid );
+            LOG.debug( "looked up syntaxChecher with OID {}", oid );
         }
+
         return syntaxChecker;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasSyntaxChecker( String oid )
     {
-        return byOid.containsKey( oid );
+        return byOidSyntaxChecker.containsKey( oid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( ! OID.isOID( oid ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        	String msg = "Looks like the arg is not a numeric OID";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        if ( oidToDescription.containsKey( oid ) )
+        SyntaxCheckerDescription description = oidToDescription.get( oid );
+        
+        if ( description != null )
         {
-            return getSchema( oidToDescription.get( oid ) );
+            return getSchema( description );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " + "schema name map!" );
+    	String msg = "OID " + oid + " not found in oid to schema name map!";
+    	LOG.warn( msg );
+        throw new NamingException( msg );
     }
     
     
@@ -129,7 +154,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         List<String> ext = desc.getExtensions().get( "X-SCHEMA" );
         
-        if ( ext == null || ext.size() == 0 )
+        if ( ( ext == null ) || ( ext.size() == 0 ) )
         {
             return "other";
         }
@@ -138,47 +163,65 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<SyntaxChecker> iterator()
     {
-        return byOid.values().iterator();
+        return byOidSyntaxChecker.values().iterator();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        if ( ! OID.isOID( numericOid ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        	String msg = "Looks like the arg is not a numeric OID";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        byOid.remove( numericOid );
+        byOidSyntaxChecker.remove( numericOid );
         oidToDescription.remove( numericOid );
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void unregisterSchemaElements( String schemaName )
     {
-        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        List<String> oids = new ArrayList<String>( byOidSyntaxChecker.keySet() );
+        
         for ( String oid : oids )
         {
             SyntaxCheckerDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
+            
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
-                byOid.remove( oid );
+            	byOidSyntaxChecker.remove( oid );
                 oidToDescription.remove( oid );
             }
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void renameSchema( String originalSchemaName, String newSchemaName )
     {
-        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        List<String> oids = new ArrayList<String>( byOidSyntaxChecker.keySet() );
+        
         for ( String oid : oids )
         {
             SyntaxCheckerDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
+            
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
             {
                 List<String> values = description.getExtensions().get( "X-SCHEMA" );
@@ -189,6 +232,9 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<SyntaxCheckerDescription> syntaxCheckerDescriptionIterator()
     {
         return oidToDescription.values().iterator();
