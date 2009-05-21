@@ -54,7 +54,7 @@ public interface ComparatorRegistry
      * @throws NamingException if the Comparator is already registered or the 
      *      registration operation is not supported
      */
-    void register( ComparatorDescription description, Comparator comparator ) throws NamingException;
+    void register( ComparatorDescription description, Comparator<?> comparator ) throws NamingException;
 
 
     /**
@@ -65,7 +65,7 @@ public interface ComparatorRegistry
      * @throws NamingException if there is a backing store failure or the 
      *      Comparator does not exist.
      */
-    Comparator lookup( String oid ) throws NamingException;
+    Comparator<?> lookup( String oid ) throws NamingException;
 
 
     /**

@@ -22,13 +22,14 @@ package org.apache.directory.server.schema.registries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,14 +46,14 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultComparatorRegistry.class );
     
-    /** the comparators in this registry */
-    private final Map<String,Comparator> byOid;
-    
-    /** maps oids to a comparator description */
-    private final Map<String,ComparatorDescription> oidToDescription;
-
     /** A speedup for debug */
     private static final boolean DEBUG = LOG.isDebugEnabled();
+
+    /** the comparators in this registry */
+    private final Map<String,Comparator<?>> byOidComparator;
+    
+    /** maps oids to a comparator description */
+    private final Map<String, ComparatorDescription> oidToDescription;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -60,133 +61,174 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
 
 
     /**
-     * Creates a DefaultComparatorRegistry by initializing the map and the
-     * montior.
+     * Creates a DefaultComparatorRegistry by initializing the maps
      */
     public DefaultComparatorRegistry()
     {
-        this.byOid = new HashMap<String, Comparator>();
-        this.oidToDescription = new HashMap<String,ComparatorDescription>();
+    	byOidComparator = new ConcurrentHashMap<String, Comparator<?>>();
+        oidToDescription = new ConcurrentHashMap<String, ComparatorDescription>();
     }
 
 
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-    
-    public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public void register( ComparatorDescription description, Comparator<?> comparator ) throws NamingException
     {
-        if ( byOid.containsKey( description.getNumericOid() ) )
+    	String oid = description.getNumericOid();
+    	
+        if ( byOidComparator.containsKey( oid ) )
         {
-            throw new NamingException( "Comparator with OID " + description.getNumericOid() 
-                + " already registered!" );
+        	String msg = "Comparator '" + description + "' with OID " + oid + " already registered!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        oidToDescription.put( description.getNumericOid(), description );
-        byOid.put( description.getNumericOid(), comparator );
+        oidToDescription.put( oid, description );
+        byOidComparator.put( oid, comparator );
         
         if ( DEBUG )
         {
-            LOG.debug( "registed comparator with OID: " + description.getNumericOid() );
+            LOG.debug( "registed comparator with OID: {}", oid );
         }
     }
 
     
+    /**
+     * Return the schema, contained in the first position of the extensions
+     */
     private static String getSchema( ComparatorDescription desc )
     {
-        List values = desc.getExtensions().get( "X-SCHEMA" );
+        List<String> values = desc.getExtensions().get( "X-SCHEMA" );
         
-        if ( values == null || values.size() == 0 )
+        if ( ( values == null ) || ( values.size() == 0 ) )
         {
             return "other";
         }
         
-        return desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
+        return values.get( 0 );
     }
     
 
-    public Comparator lookup( String oid ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Comparator<?> lookup( String oid ) throws NamingException
     {
-        if ( byOid.containsKey( oid ) )
+        Comparator<?> c = byOidComparator.get( oid );
+        
+        if ( c == null )
         {
-            Comparator c = byOid.get( oid );
-            
-            if ( DEBUG )
-            {
-                LOG.debug( "looked up comparator with OID: " + oid );
-            }
-            
-            return c;
+        	String msg = "Comparator not found for OID: " + oid;
+        	LOG.error( msg );
+        	throw new NamingException( msg );
         }
-
-        throw new NamingException( "Comparator not found for OID: " + oid );
+        
+        if ( DEBUG )
+        {
+            LOG.debug( "looked up comparator with OID: {}", oid );
+        }
+        
+        return c;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasComparator( String oid )
     {
-        return byOid.containsKey( oid );
+        return byOidComparator.containsKey( oid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( ! OID.isOID( oid ) )
         {
-            throw new NamingException( "OID " + oid + " is not a numeric OID" );
+        	String msg = "OID " + oid + " is not a numeric OID";
+        	LOG.error( msg );
+            throw new NamingException( msg );
         }
 
-        if ( oidToDescription.containsKey( oid ) )
+        ComparatorDescription description = oidToDescription.get( oid );
+        
+        if ( description != null )
         {
-            return getSchema( oidToDescription.get( oid ) );
+            return getSchema( description );
         }
 
-        throw new NamingException( "OID " + oid + " not found in oid to " + "description map!" );
+        String msg = "OID " + oid + " not found in oid to description map!";
+        LOG.error( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<String> oidIterator()
     {
-        return byOid.keySet().iterator();
+        return byOidComparator.keySet().iterator();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String oid ) throws NamingException
     {
-        if ( ! Character.isDigit( oid.charAt( 0 ) ) )
+        if ( ! OID.isOID( oid ) )
         {
-            throw new NamingException( "OID " + oid + " is not a numeric OID" );
+        	String msg = "OID " + oid + " is not a numeric OID";
+        	LOG.error( msg );
+            throw new NamingException( msg );
         }
 
-        this.byOid.remove( oid );
-        this.oidToDescription.remove( oid );
+        byOidComparator.remove( oid );
+        oidToDescription.remove( oid );
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void unregisterSchemaElements( String schemaName )
     {
-        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        List<String> oids = new ArrayList<String>( byOidComparator.keySet() );
+        
         for ( String oid : oids )
         {
             ComparatorDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
+            
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
-                byOid.remove( oid );
+            	byOidComparator.remove( oid );
                 oidToDescription.remove( oid );
             }
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void renameSchema( String originalSchemaName, String newSchemaName )
     {
-        List<String> oids = new ArrayList<String>( byOid.keySet() );
+        List<String> oids = new ArrayList<String>( byOidComparator.keySet() );
+        
         for ( String oid : oids )
         {
             ComparatorDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
+            
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
             {
                 List<String> schemaExt = description.getExtensions().get( "X-SCHEMA" );
@@ -197,6 +239,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<ComparatorDescription> comparatorDescriptionIterator()
     {
         return oidToDescription.values().iterator();
