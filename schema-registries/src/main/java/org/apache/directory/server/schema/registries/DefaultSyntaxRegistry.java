@@ -20,12 +20,13 @@
 package org.apache.directory.server.schema.registries;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,8 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** a map of entries using an OID for the key and a Syntax for the value */
-    private final Map<String,Syntax> byOid;
+    private final Map<String,Syntax> byOidSyntax;
+    
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
 
@@ -65,110 +67,139 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     public DefaultSyntaxRegistry( OidRegistry registry )
     {
         this.oidRegistry = registry;
-        this.byOid = new HashMap<String,Syntax>();
+        byOidSyntax = new ConcurrentHashMap<String,Syntax>();
     }
 
 
     // ------------------------------------------------------------------------
     // SyntaxRegistry interface methods
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public Syntax lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
+        Syntax syntax = byOidSyntax.get( id );
 
-        if ( byOid.containsKey( id ) )
+        if ( syntax != null )
         {
-            Syntax syntax = byOid.get( id );
-            
             if ( IS_DEBUG )
             {
-                LOG.debug( "looked up using id '" + id + "': " + syntax );
+                LOG.debug( "looked up using id '{}' : {}", id, syntax );
             }
             
             return syntax;
         }
 
-        throw new NamingException( "Unknown syntax OID " + id );
+        String msg = "Unknown syntax OID " + id;
+        LOG.error( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void register( Syntax syntax ) throws NamingException
     {
-        if ( byOid.containsKey( syntax.getOid() ) )
+    	String oid = syntax.getOid();
+    	
+        if ( byOidSyntax.containsKey( oid ) )
         {
-            throw new NamingException( "syntax w/ OID " + syntax.getOid()
-                + " has already been registered!" );
+        	String msg = "syntax " + syntax + " w/ OID " + oid
+            	+ " has already been registered!";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
+        // Register the new Syntax's oid/name relation into the global oidRegistry
         if ( syntax.getName() != null )
         {
-            oidRegistry.register( syntax.getName(), syntax.getOid() );
-        }
-        else
-        {
-            oidRegistry.register( syntax.getOid(), syntax.getOid() );
+            oidRegistry.register( syntax.getName(), oid );
         }
 
-        byOid.put( syntax.getOid(), syntax );
+        // Also register the oid/oid relation
+        oidRegistry.register( oid, oid );
+        byOidSyntax.put( oid, syntax );
         
         if ( IS_DEBUG )
         {
-            LOG.debug( "registered syntax: " + syntax );
+            LOG.debug( "registered syntax: {}", syntax );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasSyntax( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
-            {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
-            }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+        	String oid = oidRegistry.getOid( id );
+        	
+        	if ( oid != null )
+        	{
+        		return byOidSyntax.containsKey( oid );
+        	}
+        	
+        	return false;
         }
-
-        return false;
+        catch ( NamingException e )
+        {
+            return false;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String id ) throws NamingException
     {
-        if ( ! Character.isDigit( id.charAt( 0 ) ) )
+        if ( ! OID.isOID( id ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+        	String msg = "Looks like the arg is not a numeric OID";
+        	LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        id = oidRegistry.getOid( id );
-        Syntax syntax = byOid.get( id );
+        String oid = oidRegistry.getOid( id );
+        Syntax syntax = byOidSyntax.get( oid );
+       
         if ( syntax != null )
         {
             return syntax.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "Syntax map!" );
+        String msg = "OID " + oid + " not found in oid to Syntax map!";
+        LOG.error( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<Syntax> iterator()
     {
-        return byOid.values().iterator();
+        return byOidSyntax.values().iterator();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+    	if ( !OID.isOID(numericOid ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+    		String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
+    		LOG.error( msg );
+    		throw new NamingException( msg );
         }
 
-        byOid.remove( numericOid );
+        byOidSyntax.remove( numericOid );
     }
 }

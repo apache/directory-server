@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -207,16 +208,9 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
      */
     public void unregister( String numericOid ) throws NamingException
     {
-    	if ( StringTools.isEmpty( numericOid ) )
-    	{
-    		String msg = "Can't unregister an empty element";
-    		LOG.warn( msg );
-    		throw new NamingException( msg );
-    	}
-    	
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        if ( ! OID.isOID( numericOid ) )
         {
-        	String msg = "Looks like the arg is not a numeric OID";
+        	String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
         	LOG.warn( msg );
             throw new NamingException( msg );
         }

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
 import javax.naming.directory.NoSuchAttributeException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
@@ -348,9 +349,9 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
      */
     public void unregister( String numericOid ) throws NamingException
     {
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        if ( ! OID.isOID( numericOid ) )
         {
-        	String msg = "Looks like the arg (" + numericOid + ") is not a numeric OID";
+        	String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
         	LOG.error(msg );
             throw new NamingException( msg );
         }
