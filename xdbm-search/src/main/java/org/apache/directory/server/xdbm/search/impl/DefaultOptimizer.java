@@ -337,7 +337,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
     /**
      * Gets the number of entries that would be returned by a presence node
-     * assertion.  Leverages the existance system index for scan counts.
+     * assertion.  Leverages the existence system index for scan counts.
      *
      * @param node the presence node
      * @return the number of entries matched for the presence of an attribute
