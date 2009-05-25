@@ -23,8 +23,9 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -48,7 +49,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
-import java.util.Map;
 
 
 /**
@@ -61,28 +61,15 @@ import java.util.Map;
 @RunWith ( CiRunner.class )
 public class MetaSchemaHandlerIT
 {
-    /** the schema to use for this test: one that is not loaded by default */
-    private static final String NIS_SCHEMA = "nis";
-    
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String TEST_ATTR_OID = "1.3.6.1.1.1.1.0";
     
-    /** the name of the dummy schema to test metaSchema adds/deletes with */
-    private static final String DUMMY_SCHEMA = "dummy";
-    
-
     public static DirectoryService service;
 
 
     private static AttributeTypeRegistry getAttributeTypeRegistry()
     {
         return service.getRegistries().getAttributeTypeRegistry();
-    }
-
-
-    private static Map<String, Schema> getLoadedSchemas()
-    {
-        return service.getRegistries().getLoadedSchemas();
     }
 
 
@@ -100,7 +87,7 @@ public class MetaSchemaHandlerIT
         assertTrue( attributes.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
         
         // Disable the NIS schema
-        disableSchema( "nis" );
+        IntegrationUtils.disableSchema( service, "nis" );
     }
 
 
@@ -121,12 +108,12 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
-        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
     
@@ -142,14 +129,14 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
-        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
-        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
     
@@ -165,26 +152,26 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
         
         try
         {
-            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         } 
         catch( LdapOperationNotSupportedException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
         {
-            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            schemaRoot.lookup( "cn=dummy" );
             fail( "schema should not be added to schema partition" );
         }
         catch( NamingException e )
@@ -205,11 +192,11 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
-        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        dummySchema.put( "cn", "dummy" );
+        schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
-        assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
     
@@ -225,12 +212,12 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
+        dummySchema.put( "cn", "dummy" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
         
         try
         {
-            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail( "should not be able to add enabled schema with deps on disabled schemas" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -238,12 +225,12 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
         {
-            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            schemaRoot.lookup( "cn=dummy" );
             fail( "schema should not be added to schema partition" );
         }
         catch( NamingException e )
@@ -269,11 +256,11 @@ public class MetaSchemaHandlerIT
 
         // add the dummy schema enabled 
         testAddEnabledSchemaNoDeps();
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
         
         // delete it now
-        schemaRoot.destroySubcontext( "cn=" + DUMMY_SCHEMA );
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        schemaRoot.destroySubcontext( "cn=dummy" );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
     }
     
     
@@ -289,18 +276,18 @@ public class MetaSchemaHandlerIT
 
         // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
         
         // make the nis schema depend on the dummy schema
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new BasicAttribute( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
-        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
+                new BasicAttribute( MetaSchemaConstants.M_DEPENDENCIES_AT, "dummy" ) );
+        schemaRoot.modifyAttributes( "cn=nis", mods );
         
         // attempt to delete it now & it should fail
         try
         {
-            schemaRoot.destroySubcontext( "cn=" + DUMMY_SCHEMA );
+            schemaRoot.destroySubcontext( "cn=dummy" );
             fail( "should not be able to delete a schema with dependents" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -308,7 +295,7 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
 
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
     }
     
     
@@ -325,12 +312,12 @@ public class MetaSchemaHandlerIT
 
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
+        dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
         
         try
         {
-            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=dummy", dummySchema );
             fail( "should not be able to add enabled schema with deps on missing schemas" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -338,12 +325,12 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
         {
-            schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
+            schemaRoot.lookup( "cn=dummy" );
             fail( "schema should not be added to schema partition" );
         }
         catch( NamingException e )
@@ -351,57 +338,6 @@ public class MetaSchemaHandlerIT
         }
     }
 
-    
-    // -----------------------------------------------------------------------
-    // Enable/Disable Schema Tests
-    // -----------------------------------------------------------------------
-
-    
-    private void enableSchema( String schemaName ) throws Exception
-    {
-        LdapContext schemaRoot = getSchemaContext( service );
-
-        // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
-    }
-    
-    
-    private void disableSchema( String schemaName ) throws Exception
-    {
-        LdapContext schemaRoot = getSchemaContext( service );
-
-        // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
-    }
-    
-    
-    /**
-     * A helper method which tells if a schema is disabled
-     */
-    private boolean isDisabled( String schemaName )
-    {
-        Schema schema = getLoadedSchemas().get( schemaName );
-        
-        return ( schema == null ) || ( schema.isDisabled() );
-    }
-    
-    
-    /**
-     * A helper method which tells if a schema is enabled
-     */
-    private boolean isEnabled( String schemaName )
-    {
-        Schema schema = getLoadedSchemas().get( schemaName );
-        
-        return ( schema != null ) && ( !schema.isDisabled() );
-    }
-    
     
     /**
      * Checks to make sure updates enabling a metaSchema object in
@@ -416,17 +352,17 @@ public class MetaSchemaHandlerIT
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is not loaded
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
         assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now enable the test schema
-        enableSchema( "nis" );
+        IntegrationUtils.enableSchema( service, "nis" );
         
         // now test that the schema is loaded 
-        assertTrue( isEnabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
@@ -446,20 +382,20 @@ public class MetaSchemaHandlerIT
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is not loaded
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
         assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now enable the test schema
-        enableSchema( "nis" );
+        IntegrationUtils.enableSchema( service, "nis" );
         
         // and enable it again (it should not do anything)
-        enableSchema( "nis" );
+        IntegrationUtils.enableSchema( service, "nis" );
         
         // now test that the schema is loaded 
-        assertTrue( isEnabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
@@ -479,23 +415,23 @@ public class MetaSchemaHandlerIT
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is not loaded
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
         assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now disable the test schema
-        disableSchema( "nis" );
+        IntegrationUtils.disableSchema( service, "nis" );
         
         // now test that the schema is loaded 
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // and disable it again (it should not do anything)
-        disableSchema( "nis" );
+        IntegrationUtils.disableSchema( service, "nis" );
         
         // and test again that the schema is still disabled
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
@@ -518,18 +454,18 @@ public class MetaSchemaHandlerIT
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is enabled
-        assertTrue( isEnabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
         assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
         
         // now disable the test schema 
-        disableSchema( "samba" );
-        disableSchema( "nis" );
+        IntegrationUtils.disableSchema( service, "samba" );
+        IntegrationUtils.disableSchema( service, "nis" );
         
         // now test that the schema is NOT loaded 
-        assertTrue( isDisabled( NIS_SCHEMA ) );
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
@@ -558,13 +494,13 @@ public class MetaSchemaHandlerIT
         // adds enabled dummy schema that depends on the test schema  
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", DUMMY_SCHEMA );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, NIS_SCHEMA );
-        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        dummySchema.put( "cn", "dummy" );
+        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
+        schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
-        assertTrue( isEnabled( NIS_SCHEMA ) );
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
         
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
@@ -589,8 +525,8 @@ public class MetaSchemaHandlerIT
         }
         
         // now test that both schema are still loaded 
-        assertTrue( isEnabled( NIS_SCHEMA ) );
-        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
+        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
@@ -684,7 +620,7 @@ public class MetaSchemaHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
 
-        enableSchema( "samba" );
+        IntegrationUtils.enableSchema( service, "samba" );
         assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
         assertEquals( "samba", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
         
@@ -727,7 +663,7 @@ public class MetaSchemaHandlerIT
         
         try
         {
-            schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
+            schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "Should not be able to add bogus dependency to schema" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -749,14 +685,14 @@ public class MetaSchemaHandlerIT
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        enableSchema( NIS_SCHEMA );
+        IntegrationUtils.enableSchema( service, "nis" );
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
         
         try
         {
-            schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
+            schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "Should not be able to add disabled dependency to schema" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -779,8 +715,8 @@ public class MetaSchemaHandlerIT
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
-        Attributes attrs = schemaRoot.getAttributes( "cn=" + NIS_SCHEMA );
+        schemaRoot.modifyAttributes( "cn=nis", mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=nis" );
         Attribute dependencies = attrs.get( "m-dependencies" );
         assertTrue( dependencies.contains( "mozilla" ) );
     }
@@ -799,8 +735,8 @@ public class MetaSchemaHandlerIT
         ModificationItem[] mods = new ModificationItem[1];
         Attribute attr = new BasicAttribute( "m-dependencies", "java" );
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-        schemaRoot.modifyAttributes( "cn=" + NIS_SCHEMA, mods );
-        Attributes attrs = schemaRoot.getAttributes( "cn=" + NIS_SCHEMA );
+        schemaRoot.modifyAttributes( "cn=nis", mods );
+        Attributes attrs = schemaRoot.getAttributes( "cn=nis" );
         Attribute dependencies = attrs.get( "m-dependencies" );
         assertTrue( dependencies.contains( "java" ) );
     }

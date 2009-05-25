@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
@@ -60,6 +61,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -358,31 +360,41 @@ public class SchemaInterceptor extends BaseInterceptor
 
 
     /**
+     * Compute the superiors and MUST/MAY attributes for a specific
+     * ObjectClass
+     */
+    private void computeSuperior( ObjectClass objectClass ) throws Exception
+    {
+        List<ObjectClass> ocSuperiors = new ArrayList<ObjectClass>();
+
+        superiors.put( objectClass.getOid(), ocSuperiors );
+
+        computeOCSuperiors( objectClass, ocSuperiors, new HashSet<String>() );
+
+        Set<String> atSeen = new HashSet<String>();
+        computeMustAttributes( objectClass, atSeen );
+        computeMayAttributes( objectClass, atSeen );
+
+        superiors.put( objectClass.getName(), ocSuperiors );
+    }
+    
+
+    /**
      * Compute all ObjectClasses superiors, MAY and MUST attributes.
      * @throws Exception
      */
     private void computeSuperiors() throws Exception
     {
         Iterator<ObjectClass> objectClasses = registries.getObjectClassRegistry().iterator();
-        superiors = new HashMap<String, List<ObjectClass>>();
-        allMust = new HashMap<String, List<AttributeType>>();
-        allMay = new HashMap<String, List<AttributeType>>();
-        allowed = new HashMap<String, List<AttributeType>>();
+        superiors = new ConcurrentHashMap<String, List<ObjectClass>>();
+        allMust = new ConcurrentHashMap<String, List<AttributeType>>();
+        allMay = new ConcurrentHashMap<String, List<AttributeType>>();
+        allowed = new ConcurrentHashMap<String, List<AttributeType>>();
 
         while ( objectClasses.hasNext() )
         {
-            List<ObjectClass> ocSuperiors = new ArrayList<ObjectClass>();
-
             ObjectClass objectClass = objectClasses.next();
-            superiors.put( objectClass.getOid(), ocSuperiors );
-
-            computeOCSuperiors( objectClass, ocSuperiors, new HashSet<String>() );
-
-            Set<String> atSeen = new HashSet<String>();
-            computeMustAttributes( objectClass, atSeen );
-            computeMayAttributes( objectClass, atSeen );
-
-            superiors.put( objectClass.getName(), ocSuperiors );
+            computeSuperior( objectClass );
         }
     }
 
@@ -852,6 +864,28 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * A helper method which tells if a schema is disabled
+     */
+    private  boolean isDisabled( String schemaName )
+    {
+        Schema schema = registries.getLoadedSchemas().get( schemaName );
+        
+        return ( schema == null ) || ( schema.isDisabled() );
+    }
+    
+    
+    /**
+     * A helper method which tells if a schema is enabled
+     */
+    private boolean isEnabled( String schemaName )
+    {
+        Schema schema = registries.getLoadedSchemas().get( schemaName );
+        
+        return ( schema != null ) && ( !schema.isDisabled() );
+    }
+    
+    
     /**
      * Checks to see if removing a set of attributes from an entry completely removes
      * that attribute's values.  If change has zero size then all attributes are
@@ -1791,10 +1825,52 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             schemaManager.add( addContext );
             
-            checkOcSuperior( addContext.getEntry() );
-        }
+            if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
+            {
+                // This is a schema addition
+                // We have to check if the schema is enabled or disabled
+                String schema = entry.get( SchemaConstants.CN_AT ).getString();
+                
+                next.add( addContext );
 
-        next.add( addContext );
+                if ( isEnabled( schema ) )
+                {
+                    // Update the OC superiors for each added ObjectClass
+                    computeSuperiors();
+                }
+            }
+            else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_OBJECT_CLASS_OC ) )
+            {
+                // This is an ObjectClass addition
+                checkOcSuperior( addContext.getEntry() );
+
+                next.add( addContext );
+
+                // Update the structures now that the schema element has been added
+                String schemaName = MetaSchemaUtils.getSchemaName( name );
+                
+                if ( isEnabled( schemaName ) )
+                {
+                    String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
+                    ObjectClass addedOC = registries.getObjectClassRegistry().lookup( ocName );
+                    computeSuperior( addedOC );
+                }
+            }
+            else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
+            {
+                // This is an AttributeType addition
+                next.add( addContext );
+            }
+            else
+            {
+                next.add( addContext );
+            }
+            
+        }
+        else
+        {
+            next.add( addContext );
+        }
     }
 
 
@@ -1942,6 +2018,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         Set<ObjectClass> remaining = new HashSet<ObjectClass>( structuralObjectClasses.size() );
         remaining.addAll( structuralObjectClasses );
+        
         for ( ObjectClass oc : structuralObjectClasses )
         {
             if ( oc.getSuperClasses() != null )

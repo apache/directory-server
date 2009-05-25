@@ -22,8 +22,14 @@ package org.apache.directory.server.core.integ;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.io.FileUtils;
@@ -44,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.schema.bootstrap.Schema;
 
 
 /**
@@ -279,5 +286,59 @@ public class IntegrationUtils
         String givenName = cn.split( " " )[0];
         ldif.putAttribute( "givenName", givenName );
         return ldif;
+    }
+
+    // -----------------------------------------------------------------------
+    // Enable/Disable Schema Tests
+    // -----------------------------------------------------------------------
+    public static Map<String, Schema> getLoadedSchemas( DirectoryService service )
+    {
+        return service.getRegistries().getLoadedSchemas();
+    }
+
+
+    public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
+    {
+        LdapContext schemaRoot = getSchemaContext( service );
+
+        // now enable the test schema
+        ModificationItem[] mods = new ModificationItem[1];
+        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
+    public static void disableSchema( DirectoryService service, String schemaName ) throws Exception
+    {
+        LdapContext schemaRoot = getSchemaContext( service );
+
+        // now enable the test schema
+        ModificationItem[] mods = new ModificationItem[1];
+        Attribute attr = new BasicAttribute( "m-disabled", "TRUE" );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+    }
+    
+    
+    /**
+     * A helper method which tells if a schema is disabled
+     */
+    public static boolean isDisabled( DirectoryService service, String schemaName )
+    {
+        Schema schema = getLoadedSchemas(service ).get( schemaName );
+        
+        return ( schema == null ) || ( schema.isDisabled() );
+    }
+    
+    
+    /**
+     * A helper method which tells if a schema is enabled
+     */
+    public static boolean isEnabled( DirectoryService service, String schemaName )
+    {
+        Schema schema = getLoadedSchemas( service ).get( schemaName );
+        
+        return ( schema != null ) && ( !schema.isDisabled() );
     }
 }
