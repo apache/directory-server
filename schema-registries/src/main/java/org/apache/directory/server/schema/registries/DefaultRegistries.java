@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  */
 public class DefaultRegistries implements Registries
 {
-	/** The AttributeType registry */
+    /** The AttributeType registry */
     private AttributeTypeRegistry attributeTypeRegistry;
     
     /** The ObjectClass registry */

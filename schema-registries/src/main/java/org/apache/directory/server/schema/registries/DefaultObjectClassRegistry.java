@@ -79,13 +79,13 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
      */
     public void register( ObjectClass objectClass ) throws NamingException
     {
-    	String oid = objectClass.getOid();
-    	
+        String oid = objectClass.getOid();
+        
         if ( byOidOC.containsKey( oid ) )
         {
-        	String msg = "objectClass " + objectClass.getName() + " w/ OID " + oid
-            	+ " has already been registered!";
-        	LOG.warn( msg );
+            String msg = "objectClass " + objectClass.getName() + " w/ OID " + oid
+                + " has already been registered!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -115,12 +115,12 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
      */
     public ObjectClass lookup( String id ) throws NamingException
     {
-    	String ocId = StringTools.trim( id ).toLowerCase();
-    	
+        String ocId = StringTools.trim( id ).toLowerCase();
+        
         if ( StringTools.isEmpty( ocId ) )
         {
-        	String msg = "Lookup in the OC registry : name should not be empty";
-        	LOG.error( msg );
+            String msg = "Lookup in the OC registry : name should not be empty";
+            LOG.error( msg );
             throw new NamingException( msg );
         }
         
@@ -130,8 +130,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
         if ( objectClass == null )
         {
-        	String msg = "objectClass " + id + " w/ OID " + oid + " not registered!";
-        	LOG.warn( msg );
+            String msg = "objectClass " + id + " w/ OID " + oid + " not registered!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
         
@@ -151,13 +151,13 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     {
         try
         {
-        	String oid = oidRegistry.getOid( id );
-        	
-        	if ( oid == null )
-        	{
-        		return false;
-        	}
-        	
+            String oid = oidRegistry.getOid( id );
+            
+            if ( oid == null )
+            {
+                return false;
+            }
+            
             return byOidOC.containsKey( oid );
         }
         catch ( NamingException e )
@@ -176,8 +176,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         
         if ( ocOid == null )
         {
-        	String msg = "Element " + id + " not found in the OID registry !";
-        	LOG.warn( msg );
+            String msg = "Element " + id + " not found in the OID registry !";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -210,8 +210,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     {
         if ( ! OID.isOID( numericOid ) )
         {
-        	String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
-        	LOG.warn( msg );
+            String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 

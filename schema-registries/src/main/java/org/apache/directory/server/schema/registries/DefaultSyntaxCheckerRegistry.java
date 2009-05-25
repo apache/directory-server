@@ -74,12 +74,12 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
      */
     public void register( SyntaxCheckerDescription syntaxCheckerDescription, SyntaxChecker syntaxChecker ) throws NamingException
     {
-    	String oid = syntaxChecker.getSyntaxOid();
-    	
+        String oid = syntaxChecker.getSyntaxOid();
+        
         if ( byOidSyntaxChecker.containsKey( oid ) )
         {
-        	String msg = "SyntaxChecker with OID " + oid + " already registered!";
-        	LOG.warn( msg );
+            String msg = "SyntaxChecker with OID " + oid + " already registered!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -102,8 +102,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 
         if ( syntaxChecker == null )
         {
-        	String msg = "SyntaxChecker for OID " + oid + " not found!";
-        	LOG.warn( msg );
+            String msg = "SyntaxChecker for OID " + oid + " not found!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
         
@@ -132,8 +132,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         if ( ! OID.isOID( oid ) )
         {
-        	String msg = "Looks like the arg is not a numeric OID";
-        	LOG.warn( msg );
+            String msg = "Looks like the arg is not a numeric OID";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -144,8 +144,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             return getSchema( description );
         }
 
-    	String msg = "OID " + oid + " not found in oid to schema name map!";
-    	LOG.warn( msg );
+        String msg = "OID " + oid + " not found in oid to schema name map!";
+        LOG.warn( msg );
         throw new NamingException( msg );
     }
     
@@ -179,8 +179,8 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         if ( ! OID.isOID( numericOid ) )
         {
-        	String msg = "Looks like the arg is not a numeric OID";
-        	LOG.warn( msg );
+            String msg = "Looks like the arg is not a numeric OID";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -203,7 +203,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
-            	byOidSyntaxChecker.remove( oid );
+                byOidSyntaxChecker.remove( oid );
                 oidToDescription.remove( oid );
             }
         }

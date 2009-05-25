@@ -209,14 +209,14 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     {
         try
         {
-        	String oid = oidRegistry.getOid( id );
-        	
-        	if ( oid != null )
-        	{
-        		return byOidAT.containsKey( oid );
-        	}
-        	
-        	return false;
+            String oid = oidRegistry.getOid( id );
+            
+            if ( oid != null )
+            {
+                return byOidAT.containsKey( oid );
+            }
+            
+            return false;
         }
         catch ( NamingException e )
         {
@@ -260,8 +260,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         
         for ( String aliase : aliases )
         {
-        	oidNormalizerMap.remove( aliase );
-        	oidNormalizerMap.remove( aliase.toLowerCase() );
+            oidNormalizerMap.remove( aliase );
+            oidNormalizerMap.remove( aliase.toLowerCase() );
         }
     }
 
@@ -292,8 +292,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         
         for ( String aliase : aliases )
         {
-        	oidNormalizerMap.put( aliase, oidNormalizer );
-        	oidNormalizerMap.put( aliase.toLowerCase(), oidNormalizer );
+            oidNormalizerMap.put( aliase, oidNormalizer );
+            oidNormalizerMap.put( aliase.toLowerCase(), oidNormalizer );
         }
     }
 
@@ -351,13 +351,26 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     {
         if ( ! OID.isOID( numericOid ) )
         {
-        	String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
-        	LOG.error(msg );
+            String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
+            LOG.error(msg );
             throw new NamingException( msg );
         }
 
         removeMappingFor( byOidAT.get( numericOid ));
         byOidAT.remove( numericOid );
         oidToDescendantSet.remove( numericOid );
+    }
+    
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        for ( String value:byOidAT.keySet() )
+        {
+            sb.append( value ).append( ":" ).append( byOidAT.get( value ) ).append( '\n' );
+        }
+        
+        return sb.toString();
     }
 }

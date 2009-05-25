@@ -65,7 +65,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      */
     public DefaultComparatorRegistry()
     {
-    	byOidComparator = new ConcurrentHashMap<String, Comparator<?>>();
+        byOidComparator = new ConcurrentHashMap<String, Comparator<?>>();
         oidToDescription = new ConcurrentHashMap<String, ComparatorDescription>();
     }
 
@@ -78,12 +78,12 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      */
     public void register( ComparatorDescription description, Comparator<?> comparator ) throws NamingException
     {
-    	String oid = description.getNumericOid();
-    	
+        String oid = description.getNumericOid();
+        
         if ( byOidComparator.containsKey( oid ) )
         {
-        	String msg = "Comparator '" + description + "' with OID " + oid + " already registered!";
-        	LOG.warn( msg );
+            String msg = "Comparator '" + description + "' with OID " + oid + " already registered!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -122,9 +122,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         
         if ( c == null )
         {
-        	String msg = "Comparator not found for OID: " + oid;
-        	LOG.error( msg );
-        	throw new NamingException( msg );
+            String msg = "Comparator not found for OID: " + oid;
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
         
         if ( DEBUG )
@@ -152,8 +152,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     {
         if ( ! OID.isOID( oid ) )
         {
-        	String msg = "OID " + oid + " is not a numeric OID";
-        	LOG.error( msg );
+            String msg = "OID " + oid + " is not a numeric OID";
+            LOG.error( msg );
             throw new NamingException( msg );
         }
 
@@ -186,8 +186,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     {
         if ( ! OID.isOID( oid ) )
         {
-        	String msg = "OID " + oid + " is not a numeric OID";
-        	LOG.error( msg );
+            String msg = "OID " + oid + " is not a numeric OID";
+            LOG.error( msg );
             throw new NamingException( msg );
         }
 
@@ -210,7 +210,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
             
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
-            	byOidComparator.remove( oid );
+                byOidComparator.remove( oid );
                 oidToDescription.remove( oid );
             }
         }

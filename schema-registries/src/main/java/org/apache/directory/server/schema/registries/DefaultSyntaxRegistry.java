@@ -103,13 +103,13 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
      */
     public void register( Syntax syntax ) throws NamingException
     {
-    	String oid = syntax.getOid();
-    	
+        String oid = syntax.getOid();
+        
         if ( byOidSyntax.containsKey( oid ) )
         {
-        	String msg = "syntax " + syntax + " w/ OID " + oid
-            	+ " has already been registered!";
-        	LOG.warn( msg );
+            String msg = "syntax " + syntax + " w/ OID " + oid
+                + " has already been registered!";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -137,14 +137,14 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     {
         try
         {
-        	String oid = oidRegistry.getOid( id );
-        	
-        	if ( oid != null )
-        	{
-        		return byOidSyntax.containsKey( oid );
-        	}
-        	
-        	return false;
+            String oid = oidRegistry.getOid( id );
+            
+            if ( oid != null )
+            {
+                return byOidSyntax.containsKey( oid );
+            }
+            
+            return false;
         }
         catch ( NamingException e )
         {
@@ -160,8 +160,8 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     {
         if ( ! OID.isOID( id ) )
         {
-        	String msg = "Looks like the arg is not a numeric OID";
-        	LOG.warn( msg );
+            String msg = "Looks like the arg is not a numeric OID";
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -193,11 +193,11 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
      */
     public void unregister( String numericOid ) throws NamingException
     {
-    	if ( !OID.isOID(numericOid ) )
+        if ( !OID.isOID(numericOid ) )
         {
-    		String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
-    		LOG.error( msg );
-    		throw new NamingException( msg );
+            String msg = "Looks like the arg " + numericOid + " is not a numeric OID";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
         byOidSyntax.remove( numericOid );

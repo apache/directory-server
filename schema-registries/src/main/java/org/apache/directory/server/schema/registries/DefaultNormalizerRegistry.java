@@ -67,7 +67,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
      */
     public DefaultNormalizerRegistry()
     {
-    	byOidNormalizer = new ConcurrentHashMap<String, Normalizer>();
+        byOidNormalizer = new ConcurrentHashMap<String, Normalizer>();
         oidToDescription = new ConcurrentHashMap<String, NormalizerDescription>();
     }
 
@@ -84,8 +84,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         
         if ( byOidNormalizer.containsKey( oid ) )
         {
-        	String msg = "Normalizer already registered for OID " + oid;
-        	LOG.warn( msg );
+            String msg = "Normalizer already registered for OID " + oid;
+            LOG.warn( msg );
             throw new NamingException( msg );
         }
 
@@ -106,8 +106,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     {
         if ( !byOidNormalizer.containsKey( oid ) )
         {
-        	String msg = "Normalizer for OID " + oid + " does not exist!";
-        	LOG.debug( msg );
+            String msg = "Normalizer for OID " + oid + " does not exist!";
+            LOG.debug( msg );
             throw new NamingException( msg );
         }
 
@@ -138,8 +138,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     {
         if ( !OID.isOID( oid ) )
         {
-        	String msg = "OID " + oid + " is not a numeric OID";
-        	LOG.error( msg );
+            String msg = "OID " + oid + " is not a numeric OID";
+            LOG.error( msg );
             throw new NamingException( msg );
         }
 
@@ -185,8 +185,8 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     {
         if ( !OID.isOID( oid ) )
         {
-        	String msg = "OID " + oid + " is not a numeric OID";
-        	LOG.error( msg );
+            String msg = "OID " + oid + " is not a numeric OID";
+            LOG.error( msg );
             throw new NamingException( msg );
         }
 
@@ -209,7 +209,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
             
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
             {
-            	byOidNormalizer.remove( oid );
+                byOidNormalizer.remove( oid );
                 oidToDescription.remove( oid );
             }
         }
