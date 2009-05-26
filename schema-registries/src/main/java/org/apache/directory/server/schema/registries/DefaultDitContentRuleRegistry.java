@@ -20,12 +20,13 @@
 package org.apache.directory.server.schema.registries;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +42,10 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
 {
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDitContentRuleRegistry.class );
+    
     /** maps an OID to an DITContentRule */
-    private final Map<String,DITContentRule> byOid;
+    private final Map<String,DITContentRule> byOidDitContentRule;
+    
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -59,7 +62,7 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
      */
     public DefaultDitContentRuleRegistry( OidRegistry oidRegistry )
     {
-        this.byOid = new HashMap<String,DITContentRule>();
+        byOidDitContentRule = new ConcurrentHashMap<String,DITContentRule>();
         this.oidRegistry = oidRegistry;
     }
 
@@ -67,87 +70,120 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     // ------------------------------------------------------------------------
     // Service Methods
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public void register( DITContentRule dITContentRule ) throws NamingException
     {
-        if ( byOid.containsKey( dITContentRule.getOid() ) )
+        String oid = dITContentRule.getOid();
+        
+        if ( byOidDitContentRule.containsKey( oid ) )
         {
-            throw new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
-                + " has already been registered!" );
+            String msg = "dITContentRule w/ OID " + oid
+                + " has already been registered!";
+            LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
-        oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
-        byOid.put( dITContentRule.getOid(), dITContentRule );
+        oidRegistry.register( dITContentRule.getName(), oid );
+        byOidDitContentRule.put( oid, dITContentRule );
+        
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "registed dITContentRule: " + dITContentRule );
+            LOG.debug( "registed dITContentRule: {}", dITContentRule );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public DITContentRule lookup( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
+        String oid = oidRegistry.getOid( id );
 
-        if ( !byOid.containsKey( id ) )
+        DITContentRule dITContentRule = byOidDitContentRule.get( oid );
+
+        if ( dITContentRule == null )
         {
-            throw new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
+            String msg = "dITContentRule w/ OID " + oid + " not registered!";
+            LOG.debug( msg );
+            throw new NamingException( msg );
         }
 
-        DITContentRule dITContentRule = byOid.get( id );
+        
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "lookup with id '" + id + "' of dITContentRule: " + dITContentRule );
+            LOG.debug( "lookup with id '{}' of dITContentRule: {}", oid, dITContentRule );
         }
+        
         return dITContentRule;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasDITContentRule( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
+            String oid = oidRegistry.getOid( id );
+            
+            if ( oid != null )
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
+                return byOidDitContentRule.containsKey( oid );
             }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+            
+            return false;
         }
-
-        return false;
+        catch ( NamingException e )
+        {
+            return false;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
-        DITContentRule dcr = byOid.get( id );
+        String oid = oidRegistry.getOid( id );
+        DITContentRule dcr = byOidDitContentRule.get( oid );
+        
         if ( dcr != null )
         {
             return dcr.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "DITContentRule map!" );
+        String msg = "OID " + oid + " not found in oid to " + "DITContentRule map!";
+        LOG.error( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<DITContentRule> iterator()
     {
-        return byOid.values().iterator();
+        return byOidDitContentRule.values().iterator();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        if ( !OID.isOID( numericOid ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+            String msg = "OID " + numericOid + " is not a numeric OID";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
-        byOid.remove( numericOid );
+        byOidDitContentRule.remove( numericOid );
     }
 }
