@@ -60,6 +60,17 @@ public class DERInteger extends DERObject
     }
 
 
+    /**
+     * Lazy accessor
+     * 
+     * @return BigInteger value
+     */
+    public BigInteger bigIntValue() 
+    {
+        return new BigInteger( value );
+    }
+    
+    
     private static int octetToInt( byte[] bytes )
     {
         return new BigInteger( bytes ).intValue();
