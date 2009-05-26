@@ -20,12 +20,13 @@
 package org.apache.directory.server.schema.registries;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 
 import org.slf4j.Logger;
@@ -42,8 +43,10 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** static class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultMatchingRuleRegistry.class );
+
     /** a map using an OID for the key and a MatchingRule for the value */
-    private final Map<String,MatchingRule> byOid;
+    private final Map<String,MatchingRule> byOidMatchingRule;
+    
     /** the registry used to resolve names to OIDs */
     private final OidRegistry oidRegistry;
 
@@ -51,8 +54,6 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
-
-    
     /**
      * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
@@ -63,109 +64,133 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
     public DefaultMatchingRuleRegistry( OidRegistry oidRegistry )
     {
         this.oidRegistry = oidRegistry;
-        this.byOid = new HashMap<String,MatchingRule>();
+        byOidMatchingRule = new ConcurrentHashMap<String,MatchingRule>();
     }
 
 
     // ------------------------------------------------------------------------
     // MatchingRuleRegistry interface methods
     // ------------------------------------------------------------------------
-
     /**
-     * @see org.apache.directory.server.schema.registries.MatchingRuleRegistry#lookup(String)
+     * {@inheritDoc}
      */
     public MatchingRule lookup( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
+        String oid = oidRegistry.getOid( id );
 
-        if ( byOid.containsKey( id ) )
+        MatchingRule matchingRule = byOidMatchingRule.get( oid );
+        
+        if ( matchingRule != null )
         {
-            MatchingRule matchingRule = byOid.get( id );
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "lookup with id '"+id+"' of matchingRule: " + matchingRule );
+                LOG.debug( "lookup with id '{}' of matchingRule: {}", oid, matchingRule );
             }
+
             return matchingRule;
         }
 
-        throw new NamingException( "Unknown MatchingRule OID " + id );
+        String msg = "Unknown MatchingRule OID " + oid;
+        LOG.error( msg );
+        throw new NamingException( msg );
     }
 
 
     /**
-     * @see MatchingRuleRegistry#register(MatchingRule)
+     * {@inheritDoc}
      */
     public void register( MatchingRule matchingRule ) throws NamingException
     {
-        if ( byOid.containsKey( matchingRule.getOid() ) )
+        String oid = matchingRule.getOid();
+        
+        if ( byOidMatchingRule.containsKey( oid ) )
         {
-            throw new NamingException( "matchingRule w/ OID " + matchingRule.getOid()
-                + " has already been registered!" );
+            String msg = "matchingRule w/ OID " + oid
+                + " has already been registered!";
+            LOG.warn( msg );
+            throw new NamingException( msg );
         }
 
         String[] names = matchingRule.getNamesRef();
         
         for ( String name : names )
         {
-            oidRegistry.register( name, matchingRule.getOid() );
+            oidRegistry.register( name, oid );
         }
-        oidRegistry.register( matchingRule.getOid(), matchingRule.getOid() );
-
-        byOid.put( matchingRule.getOid(), matchingRule );
+        
+        oidRegistry.register( oid, oid );
+        byOidMatchingRule.put( oid, matchingRule );
+        
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "registed matchingRule: " + matchingRule);
+            LOG.debug( "registed matchingRule: {}", matchingRule);
         }
     }
 
 
     /**
-     * @see org.apache.directory.server.schema.registries.MatchingRuleRegistry#hasMatchingRule(String)
+     * {@inheritDoc}
      */
     public boolean hasMatchingRule( String id )
     {
-        if ( oidRegistry.hasOid( id ) )
+        try
         {
-            try
+            String oid = oidRegistry.getOid( id );
+            
+            if ( oid != null )
             {
-                return byOid.containsKey( oidRegistry.getOid( id ) );
+                return byOidMatchingRule.containsKey( oid );
             }
-            catch ( NamingException e )
-            {
-                return false;
-            }
+            
+            return false;
         }
-
-        return false;
+        catch ( NamingException e )
+        {
+            return false;
+        }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public String getSchemaName( String id ) throws NamingException
     {
-        id = oidRegistry.getOid( id );
-        MatchingRule mr = byOid.get( id );
+        String oid = oidRegistry.getOid( id );
+        MatchingRule mr = byOidMatchingRule.get( oid );
+       
         if ( mr != null )
         {
             return mr.getSchema();
         }
 
-        throw new NamingException( "OID " + id + " not found in oid to " + "MatchingRule name map!" );
+        String msg = "OID " + oid + " not found in oid to " + "MatchingRule name map!";
+        LOG.warn( msg );
+        throw new NamingException( msg );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Iterator<MatchingRule> iterator()
     {
-        return byOid.values().iterator();
+        return byOidMatchingRule.values().iterator();
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void unregister( String numericOid ) throws NamingException
     {
-        if ( ! Character.isDigit( numericOid.charAt( 0 ) ) )
+        if ( !OID.isOID( numericOid ) )
         {
-            throw new NamingException( "Looks like the arg is not a numeric OID" );
+            String msg = "OID " + numericOid + " is not a numeric OID";
+            LOG.error( msg );
+            throw new NamingException( msg );
         }
 
-        byOid.remove( numericOid );
+        byOidMatchingRule.remove( numericOid );
     }
 }
