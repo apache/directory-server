@@ -428,7 +428,11 @@ public class DefaultPartitionNexus extends PartitionNexus
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-        system.add( addOperationContext );
+        
+        if ( !system.hasEntry( new EntryOperationContext( adminSession, systemEntry.getDn() ) ) )
+        {
+            system.add( addOperationContext );
+        }
         
         String key = system.getSuffixDn().toString();
         
