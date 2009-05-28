@@ -74,6 +74,7 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
+import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
@@ -1245,4 +1246,76 @@ public class AddIT
         assertFalse( res.hasMore() );
     }
 
+    
+    protected Attributes getPersonAttributes( String sn, String cn )
+    {
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "person" );
+        attrs.put( ocls );
+        attrs.put( "cn", cn );
+        attrs.put( "sn", sn );
+
+        return attrs;
+    }
+
+
+    protected Attributes getOrgUnitAttributes( String ou )
+    {
+        Attributes attrs = new BasicAttributes( true );
+        Attribute ocls = new BasicAttribute( "objectClass" );
+        ocls.add( "top" );
+        ocls.add( "organizationalUnit" );
+        attrs.put( ocls );
+        attrs.put( "ou", ou );
+
+        return attrs;
+    }
+
+    
+    /**
+     * <pre>
+     * ou=system
+     *   |--ou=sales
+     *   |    |--cn=real  <--real entry
+     *   |--ou=engineering
+     *        |--cn=alias  <--alias, pointing to the real entry
+     * </pre>
+     * 
+     * @throws NamingException 
+     *
+    @Test
+    public void test_DIRSERVER_1357() throws Exception
+    {
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
+
+        Attributes salesAttrs = getOrgUnitAttributes( "sales" );
+        ctx.createSubcontext( "ou=sales", salesAttrs );
+
+        Attributes engAttrs = getOrgUnitAttributes( "engineering" );
+        ctx.createSubcontext( "ou=engineering", engAttrs );
+
+        // The real entry under ou=sales
+        Attributes fooAttrs = getPersonAttributes( "real", "real" );
+        ctx.createSubcontext( "cn=real,ou=sales", fooAttrs );
+
+        // The alias under ou=engineering, pointing to the real entry
+        Attributes aliasAttrs = new BasicAttributes( true );
+        Attribute aliasOC = new BasicAttribute( "objectClass" );
+        aliasOC.add( "top" );
+        aliasOC.add( "alias" );
+        aliasOC.add( "extensibleObject" );
+        aliasAttrs.put( aliasOC );
+        aliasAttrs.put( "cn", "alias" );
+        aliasAttrs.put( "aliasedObjectName", "cn=real,ou=sales,ou=system" );
+        ctx.createSubcontext( "cn=alias,ou=engineering", aliasAttrs );
+
+        // Delete the real entry first
+        ctx.destroySubcontext( "cn=real,ou=sales" );
+
+        // Now the alias entry still exists, but points to nowhere.
+        // When trying to delete the alias entry an exception occurs.
+        ctx.destroySubcontext( "cn=alias,ou=engineering" );
+    }*/
 }

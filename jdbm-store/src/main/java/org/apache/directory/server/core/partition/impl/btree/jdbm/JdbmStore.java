@@ -58,6 +58,7 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
@@ -883,12 +884,20 @@ public class JdbmStore<E> implements Store<E>
         {
             if ( aliasDn.equals( normalizedAliasTargetDn ) )
             {
-                throw new NamingException( "[36] aliasDereferencingProblem - " + "attempt to create alias to itself." );
+                String msg = "[36] aliasDereferencingProblem - attempt to create alias to itself.";
+                ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+                LdapNamingException e = new LdapNamingException( msg, rc );
+                e.setResolvedName( aliasDn );
+                throw e;
             }
 
-            throw new NamingException( "[36] aliasDereferencingProblem - "
+            String msg = "[36] aliasDereferencingProblem - "
                 + "attempt to create alias with cycle to relative " + aliasTarget
-                + " not allowed from descendent alias " + aliasDn );
+                + " not allowed from descendent alias " + aliasDn;
+            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            LdapNamingException e = new LdapNamingException( msg, rc );
+            e.setResolvedName( aliasDn );
+            throw e;
         }
 
         /*
@@ -901,27 +910,34 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( !normalizedAliasTargetDn.startsWith( normSuffix ) )
         {
-            // Complain specifically about aliases to outside naming contexts
-            throw new NamingException( "[36] aliasDereferencingProblem -"
+            String msg = "[36] aliasDereferencingProblem - "
                 + " the alias points to an entry outside of the " + upSuffix.getUpName()
-                + " namingContext to an object whose existance cannot be" + " determined." );
+                + " namingContext to an object whose existance cannot be determined.";
+            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            LdapNamingException e = new LdapNamingException( msg, rc );
+            e.setResolvedName( aliasDn );
+            throw e;
         }
 
         // L O O K U P   T A R G E T   I D
         targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
 
         /*
-         * Check For Target Existance
+         * Check For Target Existence
          * 
-         * We do not allow the creation of inconsistant aliases.  Aliases should
+         * We do not allow the creation of inconsistent aliases.  Aliases should
          * not be broken links.  If the target does not exist we start screaming
          */
         if ( null == targetId )
         {
             // Complain about target not existing
-            throw new NamingException( "[33] aliasProblem - "
-                + "the alias when dereferenced would not name a known object "
-                + "the aliasedObjectName must be set to a valid existing " + "entry." );
+            String msg = "[33] aliasProblem - "
+                + "the alias '" + aliasDn.getUpName() + "' when dereferenced would not name a known object."
+                + "The aliased ObjectName '" + aliasTarget + "' must be set to a valid existing entry.";
+            ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
+            LdapNamingException e = new LdapNamingException( msg, rc );
+            e.setResolvedName( aliasDn );
+            throw e;
         }
 
         /*
@@ -936,9 +952,12 @@ public class JdbmStore<E> implements Store<E>
          */
         if ( null != aliasIdx.reverseLookup( targetId ) )
         {
-            // Complain about illegal alias chain
-            throw new NamingException( "[36] aliasDereferencingProblem -"
-                + " the alias points to another alias.  Alias chaining is" + " not supported by this backend." );
+            String msg = "[36] aliasDereferencingProblem - "
+                + " the alias points to another alias.  Alias chaining is not supported by this backend.";
+            ResultCodeEnum rc = ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM;
+            LdapNamingException e = new LdapNamingException( msg, rc );
+            e.setResolvedName( aliasDn );
+            throw e;
         }
 
         // Add the alias to the simple alias index
@@ -988,6 +1007,9 @@ public class JdbmStore<E> implements Store<E>
 
     // TODO Change signature to not require the DN parameter since it is now
     // in the ServerEntry  !!!
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public void add( LdapDN normName, ServerEntry entry ) throws Exception
     {
@@ -1031,7 +1053,10 @@ public class JdbmStore<E> implements Store<E>
         if ( objectClass == null )
         {
             String msg = "Entry " + normName.getUpName() + " contains no objectClass attribute: " + entry;
-            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+            ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
+            NamingException e = new LdapSchemaViolationException( msg, rc );
+            e.setResolvedName( normName );
+            throw e;
         }
 
         // Start adding the system userIndices

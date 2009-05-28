@@ -813,25 +813,25 @@ public class DefaultDirectoryService implements DirectoryService
                 {
                     switch( reverse.getChangeType().getChangeType() )
                     {
-                        case( ChangeType.ADD_ORDINAL ):
+                        case ChangeType.ADD_ORDINAL :
                             adminSession.add( 
                                 new DefaultServerEntry( registries, reverse.getEntry() ), true ); 
                             break;
                             
-                        case( ChangeType.DELETE_ORDINAL ):
+                        case ChangeType.DELETE_ORDINAL :
                             adminSession.delete( reverse.getDn(), true );
                             break;
                             
-                        case( ChangeType.MODIFY_ORDINAL ):
+                        case ChangeType.MODIFY_ORDINAL :
                             List<Modification> mods = reverse.getModificationItems();
     
                             adminSession.modify( reverse.getDn(), mods, true );
                             break;
                             
-                        case( ChangeType.MODDN_ORDINAL ):
+                        case ChangeType.MODDN_ORDINAL :
                             // NO BREAK - both ModDN and ModRDN handling is the same
                         
-                        case( ChangeType.MODRDN_ORDINAL ):
+                        case ChangeType.MODRDN_ORDINAL :
                             LdapDN forwardDn = event.getForwardLdif().getDn();
                             LdapDN reverseDn = reverse.getDn();
                             
