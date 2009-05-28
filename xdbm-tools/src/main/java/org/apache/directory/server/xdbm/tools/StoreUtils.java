@@ -76,7 +76,7 @@ public class StoreUtils
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( suffixDn, entry );
+        store.add( entry );
 
         
         // Entry #2
@@ -87,7 +87,7 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( dn, entry );
+        store.add( entry );
 
         // Entry #3
         dn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
@@ -97,7 +97,7 @@ public class StoreUtils
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( dn, entry );
+        store.add( entry );
         
         // Entry #4
         dn = new LdapDN( "ou=Engineering,o=Good Times Co." );
@@ -107,7 +107,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
-        store.add( dn, entry );
+        store.add( entry );
         
         // Entry #5
         dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -119,7 +119,7 @@ public class StoreUtils
         entry.add( "sn", "WAlkeR");
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
-        store.add( dn, entry );
+        store.add( entry );
         
         // Entry #6
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -131,7 +131,7 @@ public class StoreUtils
         entry.add( "surName", "BEAN");
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
-        store.add( dn, entry );
+        store.add( entry );
 
         // Entry #7
         dn = new LdapDN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -141,7 +141,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
-        store.add( dn, entry );
+        store.add( entry );
         
         // Entry #8
         dn = new LdapDN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -153,7 +153,7 @@ public class StoreUtils
         entry.add( "SN",  "Daniels");
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
-        store.add( dn, entry );
+        store.add( entry );
 
         // aliases -------------
 
@@ -165,7 +165,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( dn, entry );
+        store.add( entry );
 
         // Entry #10
         dn = new LdapDN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -174,7 +174,7 @@ public class StoreUtils
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( dn, entry );
+        store.add( entry );
 
         // Entry #11
         dn = new LdapDN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -184,7 +184,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3",  "Johnny Walker");
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        store.add( dn, entry );
+        store.add( entry );
     }
     
     

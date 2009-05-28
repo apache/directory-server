@@ -589,7 +589,7 @@ public class GreaterEqTest
         attrs.add( "c-street", "3" );
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
-        store.add( dn, attrs );
+        store.add(  attrs );
 
         indexEntry.setId( 12L );
         assertTrue( evaluator.evaluate( indexEntry ) );

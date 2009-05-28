@@ -263,12 +263,11 @@ public interface Store<E>
     /**
      * Add an entry into the store. 
      * 
-     * @param normName TODO: Remove this parameter.
      * @param entry The entry to add
      * 
      * @throws Exception If the addition failed.
      */
-    void add( LdapDN normName, ServerEntry entry ) throws Exception;
+    void add( ServerEntry entry ) throws Exception;
 
 
     ServerEntry lookup( Long id ) throws Exception;

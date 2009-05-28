@@ -667,7 +667,7 @@ public class OneLevelScopeTest
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        store.add( dn, attrs );
+        store.add( attrs );
 
         dn = new LdapDN(
             SchemaConstants.CN_AT_OID + "=jdoe," +
@@ -680,7 +680,7 @@ public class OneLevelScopeTest
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );
-        store.add( dn, attrs );
+        store.add( attrs );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING,
             SchemaConstants.OU_AT_OID + "=board of directors," +

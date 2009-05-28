@@ -225,7 +225,7 @@ public class BootstrapPlugin extends AbstractMojo
                 entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
                 entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
                 entry.put( SchemaConstants.OU_AT, "schema" );
-                store.add( dn, entry );
+                store.add( entry );
             }
 
             createSchemasAndContainers();
@@ -387,7 +387,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         ServerEntry entry = attributesFactory.getAttributes( schema, registries );
         entry.setDn( dn );
-        store.add( dn, entry );
+        store.add( entry );
 
         dn = ( LdapDN ) dn.clone();
 
@@ -472,7 +472,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + at.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
 
         getLog().info( "" );
@@ -503,7 +503,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oc.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
 
         getLog().info( "" );
@@ -534,7 +534,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + mr.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
 
         getLog().info( "" );
@@ -566,7 +566,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
         getLog().info( "" );
     }
@@ -597,7 +597,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
 
         getLog().info( "" );
@@ -627,7 +627,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntax.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
         getLog().info( "" );
     }
@@ -657,7 +657,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntaxChecker.getSyntaxOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( dn, entry );
+            store.add( entry );
         }
 
         getLog().info( "" );
@@ -700,7 +700,7 @@ public class BootstrapPlugin extends AbstractMojo
             rootEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             rootEntry.put( SchemaConstants.OU_AT, "schema" );
-            store.add( dn, rootEntry );
+            store.add( rootEntry );
         }
         catch ( Exception e )
         {
@@ -737,7 +737,7 @@ public class BootstrapPlugin extends AbstractMojo
         LdapDN normName = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         normName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         entry.setDn( normName );
-        store.add( normName, entry );
+        store.add( entry );
     }
 
 
@@ -857,7 +857,7 @@ public class BootstrapPlugin extends AbstractMojo
         ServerEntry entry = new DefaultServerEntry( registries, clonedDn );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, ( String ) clonedDn.getRdn().getValue() );
-        store.add( clonedDn, entry );
+        store.add( entry );
     }
 
 
@@ -874,7 +874,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         ServerEntry entry = attributesFactory.getAttributes( schema, registries );
         entry.setDn( dn );
-        store.add( dn, entry );
+        store.add( entry );
         return dn;
     }
 

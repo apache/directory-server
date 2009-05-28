@@ -357,7 +357,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        store.add( dn, entry );
+        store.add( entry );
         
         store.delete( 12L ); // drops the alias indices
         
@@ -403,7 +403,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
-      store.add( martinDn, entry );
+      store.add( entry );
       
       cursor = idx.forwardCursor( 2L);
       cursor.afterLast();
@@ -425,7 +425,7 @@ public class JdbmStoreTest
       entry = new DefaultServerEntry( registries, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
-      store.add( marketingDn, entry );
+      store.add( entry );
 
       // dn id 14
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
@@ -434,7 +434,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
-      store.add( jimmyDn, entry );
+      store.add( entry );
       
       store.move( marketingDn, newParentDn );
 
@@ -671,7 +671,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn",  "Martin King");
-        store.add( dn, entry );
+        store.add( entry );
     }
     
     
@@ -683,7 +683,7 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "Martin King");
-        store.add( dn, entry );
+        store.add( entry );
     }
         
     
@@ -716,7 +716,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
 
-        store.add( dn, entry );
+        store.add( entry );
         
         Rdn rdn = new Rdn("sn=James");
         
@@ -734,7 +734,7 @@ public class JdbmStoreTest
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
 
-        store.add( childDn, childEntry );
+        store.add( childEntry );
 
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
         parentDn.normalize( attributeRegistry.getNormalizerMapping() );
@@ -865,7 +865,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
         
-        store.add( dn, entry );
+        store.add( entry );
         
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,

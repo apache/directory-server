@@ -1011,7 +1011,7 @@ public class JdbmStore<E> implements Store<E>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void add( LdapDN normName, ServerEntry entry ) throws Exception
+    public void add( ServerEntry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1029,6 +1029,7 @@ public class JdbmStore<E> implements Store<E>
         // entry sequences start at 1.
         //
 
+        LdapDN normName = entry.getDn();
         LdapDN parentDn = null;
 
         if ( normName.getNormName().equals( normSuffix.getNormName() ) )

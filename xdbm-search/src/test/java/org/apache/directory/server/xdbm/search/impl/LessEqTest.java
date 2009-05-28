@@ -640,7 +640,7 @@ public class LessEqTest
         attrs.add( "c-street", "1" );
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
-        store.add( dn, attrs );
+        store.add( attrs );
 
         indexEntry.setId( 12L );
         assertTrue( evaluator.evaluate( indexEntry ) );
