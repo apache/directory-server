@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition;
 
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
@@ -106,6 +107,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 
 /**
@@ -421,6 +423,8 @@ public class DefaultPartitionNexus extends PartitionNexus
         // Add some operational attributes
         systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
         systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        systemEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        systemEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
             NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );

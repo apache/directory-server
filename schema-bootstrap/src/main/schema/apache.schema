@@ -45,7 +45,7 @@
 #            +------------------------------+----------------------------------+
 #            | 1.3.6.1.4.1.18060.0.4.1.2.1  | apacheNdn                        |
 #            | 1.3.6.1.4.1.18060.0.4.1.2.2  | apacheUpdn                       |
-#            | 1.3.6.1.4.1.18060.0.4.1.2.3  | apacheExistance                  |
+#            | 1.3.6.1.4.1.18060.0.4.1.2.3  | apacheExistence                  |
 #            | 1.3.6.1.4.1.18060.0.4.1.2.4  | apacheOneLevel                   |
 #            | 1.3.6.1.4.1.18060.0.4.1.2.5  | apacheOneAlias                   |
 #            | 1.3.6.1.4.1.18060.0.4.1.2.6  | apacheSubAlias                   |
@@ -115,7 +115,7 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.2 NAME 'apacheUpdn'
     NO-USER-MODIFICATION
     USAGE dSAOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistance'
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.3 NAME 'apacheExistence'
     DESC 'Index attribute used to track the existence of attributes'
     SUP name
     EQUALITY caseIgnoreMatch

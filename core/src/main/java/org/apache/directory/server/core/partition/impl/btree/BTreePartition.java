@@ -405,10 +405,10 @@ public abstract class BTreePartition implements Partition
 
 
     /**
-     * Sets the attribute existance Index.
+     * Sets the attribute existence Index.
      *
      * @org.apache.xbean.Property hidden="true"
-     * @param index the attribute existance Index
+     * @param index the attribute existence Index
      * @throws Exception if there is a problem setting up the index
      */
     public abstract void setPresenceIndexOn( Index<String,ServerEntry> index ) throws Exception;

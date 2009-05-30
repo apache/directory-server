@@ -61,7 +61,7 @@ public class DbFileListing
      * schema/apacheOnealias.db => SYSTEM_INDEX
      * schema/apacheSubalias.db => SYSTEM_INDEX
      * schema/apacheNdn.db => SYSTEM_INDEX
-     * schema/apacheExistance.db => SYSTEM_INDEX
+     * schema/apacheExistence.db => SYSTEM_INDEX
      * schema/apacheAlias.db => SYSTEM_INDEX
      * schema/apacheOneLevel.db => SYSTEM_INDEX
      * schema/apacheUpdn.db => SYSTEM_INDEX

@@ -158,7 +158,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      * 
-     * We add thos attributes :
+     * We add those attributes :
      * - creatorsName
      * - createTimestamp
      * - entryCSN
@@ -197,7 +197,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
         // its String value
         entry.put( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
-        entry.put( ApacheSchemaConstants.ENTRY_CSN_AT, service.getCSN().getBytes() );
+        entry.put( ApacheSchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         
         nextInterceptor.add( opContext );
     }

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -117,6 +118,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 
 /**
@@ -1076,6 +1078,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             TlsKeyGenerator.addKeyPair( serverEntry );
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
@@ -1102,6 +1106,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.OU_AT, "users" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1126,6 +1132,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.OU_AT, "groups" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1151,6 +1159,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
 
@@ -1195,6 +1205,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.OU_AT, "configuration" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1212,10 +1224,11 @@ public class DefaultDirectoryService implements DirectoryService
 
             ServerEntry serverEntry = new DefaultServerEntry( registries, partitionsDn );
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
             serverEntry.put( SchemaConstants.OU_AT, "partitions" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1237,6 +1250,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.OU_AT, "services" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1258,6 +1273,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
@@ -1282,6 +1299,8 @@ public class DefaultDirectoryService implements DirectoryService
             serverEntry.put( "prefNodeName", "sysPrefRoot" );
             serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+            serverEntry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
 
             partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
         }
