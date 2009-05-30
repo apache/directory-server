@@ -265,7 +265,7 @@ public class CSN implements Serializable, Comparable<CSN>
         }
         
         csnStr = value;
-        bytes = toBytes();
+        bytes = StringTools.getBytesUtf8( csnStr );
     }
 
 
@@ -404,7 +404,7 @@ public class CSN implements Serializable, Comparable<CSN>
         changeCount = csn.changeCount;
         replicaId = csn.replicaId;
         operationNumber = csn.operationNumber;
-        bytes = toBytes();
+        bytes = StringTools.getBytesUtf8( csnStr );
     }
 
 
@@ -414,16 +414,18 @@ public class CSN implements Serializable, Comparable<CSN>
      * bytes 9 to 12 : change count, big endian
      * bytes 13 to ... : ReplicaId 
      * 
-     * @return A byte array representing theCSN
+     * @return A copy of the byte array representing theCSN
      */
-    public byte[] toBytes()
+    public byte[] getBytes()
     {
         if ( bytes == null )
         {
             bytes = StringTools.getBytesUtf8( csnStr );
         }
 
-        return bytes;
+        byte[] copy = new byte[bytes.length];
+        System.arraycopy( bytes, 0, copy, 0, bytes.length );
+        return copy;
     }
 
 
@@ -481,21 +483,21 @@ public class CSN implements Serializable, Comparable<CSN>
             long millis = (timestamp % 1000 ) * 1000;
             String millisStr = Long.toString( millis );
             
-            buf.append( '.' ).append( PADDING_3[ millisStr.length() ] ).append( millisStr ).append( "000Z#" );
+            buf.append( '.' ).append( PADDING_6[ millisStr.length() - 1 ] ).append( millisStr ).append( "Z#" );
             
             String countStr = Integer.toHexString( changeCount );
             
-            buf.append( PADDING_6[countStr.length()] ).append( countStr );
+            buf.append( PADDING_6[countStr.length() - 1] ).append( countStr );
             buf.append( '#' );
 
             String replicaIdStr = Integer.toHexString( replicaId );
             
-            buf.append( PADDING_3[replicaIdStr.length()] ).append( replicaIdStr );
+            buf.append( PADDING_3[replicaIdStr.length() - 1]).append( replicaIdStr );
             buf.append( '#' );
             
             String operationNumberStr = Integer.toHexString( operationNumber );
             
-            buf.append( PADDING_6[operationNumberStr.length()] ).append( operationNumberStr );
+            buf.append( PADDING_6[operationNumberStr.length() - 1] ).append( operationNumberStr );
             
             csnStr = buf.toString();
         }

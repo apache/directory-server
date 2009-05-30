@@ -322,7 +322,7 @@ public class CSNTest
     {
         CSN csn = new CSN( "20010101000000.000000Z#000000#abc#000001" );
 
-        byte[] bytes = csn.toBytes();
+        byte[] bytes = csn.getBytes();
 
         byte[] expected = new byte[]
             { 
