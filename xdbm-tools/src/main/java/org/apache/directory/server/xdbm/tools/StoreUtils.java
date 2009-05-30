@@ -21,7 +21,9 @@ package org.apache.directory.server.xdbm.tools;
 
 
 import java.util.Set;
+import java.util.UUID;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -30,12 +32,14 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.csn.CSNFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -46,6 +50,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class StoreUtils
 {
+    /** CSN factory instance */
+    private static final CSNFactory CSN_FACTORY = new CSNFactory();
 
     /**
      * Initializes and loads a store with the example data shown in
@@ -76,7 +82,7 @@ public class StoreUtils
         entry.add( "o", "Good Times Co." );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         
         // Entry #2
@@ -87,7 +93,7 @@ public class StoreUtils
         entry.add( "ou", "Sales" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         // Entry #3
         dn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
@@ -97,7 +103,7 @@ public class StoreUtils
         entry.add( "ou", "Board of Directors" );
         entry.add( "postalCode", "1" );
         entry.add( "postOfficeBox", "1" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
         
         // Entry #4
         dn = new LdapDN( "ou=Engineering,o=Good Times Co." );
@@ -107,7 +113,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "postalCode", "2" );
         entry.add( "postOfficeBox", "2" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
         
         // Entry #5
         dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -119,7 +125,7 @@ public class StoreUtils
         entry.add( "sn", "WAlkeR");
         entry.add( "postalCode", "3" );
         entry.add( "postOfficeBox", "3" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
         
         // Entry #6
         dn = new LdapDN( "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -131,7 +137,7 @@ public class StoreUtils
         entry.add( "surName", "BEAN");
         entry.add( "postalCode", "4" );
         entry.add( "postOfficeBox", "4" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         // Entry #7
         dn = new LdapDN( "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -141,7 +147,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "postalCode", "5" );
         entry.add( "postOfficeBox", "5" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
         
         // Entry #8
         dn = new LdapDN( "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -153,7 +159,7 @@ public class StoreUtils
         entry.add( "SN",  "Daniels");
         entry.add( "postalCode", "6" );
         entry.add( "postOfficeBox", "6" );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         // aliases -------------
 
@@ -165,7 +171,7 @@ public class StoreUtils
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         // Entry #10
         dn = new LdapDN( "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -174,7 +180,7 @@ public class StoreUtils
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "commonName",  "Jim Bean");
         entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         // Entry #11
         dn = new LdapDN( "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -184,7 +190,7 @@ public class StoreUtils
         entry.add( "ou", "Engineering" );
         entry.add( "2.5.4.3",  "Johnny Walker");
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        store.add( entry );
+        injectEntryInStore( store, entry );
     }
     
     
@@ -243,7 +249,7 @@ public class StoreUtils
         while ( list.next() )
         {
             IndexEntry rec = list.get();
-            val.append( "_existance[" );
+            val.append( "_existence[" );
             val.append( rec.getValue().toString() );
             val.append( "]" );
 
@@ -279,4 +285,22 @@ public class StoreUtils
         return entry;
     }
 
+
+    /**
+     * 
+     * adds a given <i>ServerEntry</i> to the store after injecting entryCSN and entryUUID operational
+     * attributes
+     *
+     * @param store the store
+     * @param dn the normalized DN
+     * @param entry the server entry
+     * @throws Exception in case of any problems in adding the entry to the store
+     */
+    public static void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
+    {
+        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
+        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
+        
+        store.add( entry );
+    }
 }

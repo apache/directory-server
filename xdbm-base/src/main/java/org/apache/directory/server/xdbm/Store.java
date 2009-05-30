@@ -88,15 +88,28 @@ public interface Store<E>
      */
 
 
+    /**
+     * Sets the working directory for the store
+     */
     void setWorkingDirectory( File workingDirectory );
 
 
+    /**
+     * @return The current working directory for the store
+     */
     File getWorkingDirectory();
 
 
+    /**
+     * Stores the list of user index
+     * @param userIndices The list of user index
+     */
     void setUserIndices( Set<Index<?,E>> userIndices );
 
 
+    /**
+     * @return The list of user index
+     */
     Set<Index<?,E>> getUserIndices();
 
 
@@ -106,21 +119,44 @@ public interface Store<E>
     String getSuffixDn();
 
 
+    /**
+     * Sets the flag telling the server to flush on disk when some
+     * modification has been done.
+     * @param isSyncOnWrite A boolean set to true if we have to flush on disk 
+     * when a modification occurs
+     */
     void setSyncOnWrite( boolean isSyncOnWrite );
 
 
+    /**
+     * @return <code>true</code> if we write to disk for every modification 
+     */
     boolean isSyncOnWrite();
 
 
+    /**
+     * Sets the cache size for this store
+     * @param cacheSize The cache size
+     */
     void setCacheSize( int cacheSize );
 
 
+    /**
+     * @return The cache size
+     */
     int getCacheSize();
 
 
+    /**
+     * Sets the store's name
+     * @param name The store's name
+     */
     void setName( String name );
 
 
+    /**
+     * @return The store's name
+     */
     String getName();
 
 
@@ -160,72 +196,218 @@ public interface Store<E>
     void sync() throws Exception;
 
 
+    /**
+     * Adds a user index to the list of index for this store
+     * @param index The index to add
+     * @throws Exception If the addition failed
+     */
     void addIndex( Index<?,E> index ) throws Exception;
 
 
+    //------------------------------------------------------------------------
+    // System index
+    //------------------------------------------------------------------------
+    /**
+     * @return The Presence system index
+     */
     Index<String,E> getPresenceIndex();
 
 
+    /**
+     * Set the Presence index
+     * @param index The Presence index
+     * @throws Exception If the addition failed
+     */
     void setPresenceIndex( Index<String,E> index ) throws Exception;
 
 
+    /**
+     * @return The OneLevel system index
+     */
     Index<Long,E> getOneLevelIndex();
 
 
+    /**
+     * Set the OneLevel index
+     * @param index The OneLevel index
+     * @throws Exception If the addition failed
+     */
     void setOneLevelIndex( Index<Long,E> index ) throws Exception;
 
 
+    /**
+     * @return The SubLevel system index
+     */
     Index<Long,E> getSubLevelIndex();
 
 
+    /**
+     * Set the SubLevel index
+     * @param index The SubLevel index
+     * @throws Exception If the addition failed
+     */
     void setSubLevelIndex( Index<Long,E> index ) throws Exception;
 
 
+    /**
+     * @return The Alias system index
+     */
     Index<String,E> getAliasIndex();
 
 
+    /**
+     * Set the Alias index
+     * @param index The Alias index
+     * @throws Exception If the addition failed
+     */
     void setAliasIndex( Index<String,E> index ) throws Exception;
 
 
+    /**
+     * @return The OneAlias system index
+     */
     Index<Long,E> getOneAliasIndex();
 
 
+    /**
+     * Set the OneAlias index
+     * @param index The OneAlias index
+     * @throws Exception If the addition failed
+     */
     void setOneAliasIndex( Index<Long,E> index ) throws Exception;
 
 
+    /**
+     * @return The SubAlias system index
+     */
     Index<Long,E> getSubAliasIndex();
 
 
+    /**
+     * Set the SubAlias index
+     * @param index The SubAlias index
+     * @throws Exception If the addition failed
+     */
     void setSubAliasIndex( Index<Long,E> index ) throws Exception;
 
 
+    /**
+     * @return The UpDN system index
+     */
     Index<String,E> getUpdnIndex();
 
 
+    /**
+     * Set the UpDn index
+     * @param index The UpDn index
+     * @throws Exception If the addition failed
+     */
     void setUpdnIndex( Index<String,E> index ) throws Exception;
 
 
+    /**
+     * @return The Ndn system index
+     */
     Index<String,E> getNdnIndex();
 
 
+    /**
+     * Set the NDN index
+     * @param index The NDN index
+     * @throws Exception If the addition failed
+     */
     void setNdnIndex( Index<String,E> index ) throws Exception;
 
 
+    /**
+     * @return The ObjectClass system index
+     */
+    Index<String,E> getObjectClassIndex();
+
+    /**
+     * Set the ObjectClass index
+     * @param index The ObjectClass index
+     * @throws Exception If the addition failed
+     */
+    void setObjectClassIndex( Index<String,E> index ) throws Exception;
+
+    
+    /**
+     * @return The EntryUUID system index
+     */
+    Index<byte[],E> getEntryUuidIndex();
+
+    /**
+     * Set the EntryUUID index
+     * @param index The EntryUUID index
+     * @throws Exception If the addition failed
+     */
+    void setEntryUuidIndex( Index<byte[],E> index ) throws Exception;
+
+    
+    /**
+     * @return The EntryCSN system index
+     */
+    Index<String,E> getEntryCsnIndex();
+
+    /**
+     * Set the EntryCSN index
+     * @param index The EntryCSN index
+     * @throws Exception If the addition failed
+     */
+    void setEntryCsnIndex( Index<String,E> index ) throws Exception;
+
+    //------------------------------------------------------------------------
+    // End of the system index
+    //------------------------------------------------------------------------
+    
+    /**
+     * An iterator build on top of the User's index
+     */
     Iterator<String> userIndices();
 
 
+    /**
+     * An iterator build on top of the System's index
+     */
     Iterator<String> systemIndices();
 
 
+    /**
+     * Tells if an index is already present in the User's index list
+     * @param id The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * User's index list 
+     * @throws Exception If something went wrong
+     */
     boolean hasUserIndexOn( String id ) throws Exception;
 
 
+    /**
+     * Tells if an index is already present in the System's index list
+     * @param id The index we are looking for
+     * @return <code>true</code> if the index is already present in the
+     * System's index list 
+     * @throws Exception If something went wrong
+     */
     boolean hasSystemIndexOn( String id ) throws Exception;
 
 
+    /**
+     * Get the user index associated with the given name
+     * @param id The index name we are looking for
+     * @return The associated user index
+     * @throws IndexNotFoundException If the index does not exist
+     */
     Index<?,E> getUserIndex( String id ) throws IndexNotFoundException;
 
 
+    /**
+     * Get the user index associated with the given name
+     * @param id The index name we are looking for
+     * @return The associated user index
+     * @throws IndexNotFoundException If the index does not exist
+     */
     Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException;
 
 
@@ -273,6 +455,11 @@ public interface Store<E>
     ServerEntry lookup( Long id ) throws Exception;
 
 
+    /**
+     * Delete the entry associated with a given Id
+     * @param id The id of the entry to delete
+     * @throws Exception If the deletion failed
+     */
     void delete( Long id ) throws Exception;
 
 
