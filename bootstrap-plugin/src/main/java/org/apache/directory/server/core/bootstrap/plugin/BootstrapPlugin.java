@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.NamingException;
 
@@ -47,6 +48,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -69,6 +71,7 @@ import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CSNFactory;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -79,6 +82,7 @@ import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -165,13 +169,15 @@ public class BootstrapPlugin extends AbstractMojo
     /**
      * The store to load schema entities into.
      */
-    private JdbmStore store = new JdbmStore();
+    private JdbmStore<ServerEntry> store = new JdbmStore<ServerEntry>();
 
     /**
      * Map of schemas by name
      */
     private Map<String, Schema> schemas = new HashMap<String, Schema>();
 
+    /** CSN factory instance */
+    private static final CSNFactory CSN_FACTORY = new CSNFactory();
 
     /**
      * Loads a bunch of bootstrap classes into memory then adds them to a new
@@ -225,7 +231,7 @@ public class BootstrapPlugin extends AbstractMojo
                 entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
                 entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
                 entry.put( SchemaConstants.OU_AT, "schema" );
-                store.add( entry );
+                injectEntryInStore( store, entry );
             }
 
             createSchemasAndContainers();
@@ -387,7 +393,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         ServerEntry entry = attributesFactory.getAttributes( schema, registries );
         entry.setDn( dn );
-        store.add( entry );
+        injectEntryInStore( store, entry );
 
         dn = ( LdapDN ) dn.clone();
 
@@ -472,7 +478,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + at.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
 
         getLog().info( "" );
@@ -503,7 +509,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oc.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
 
         getLog().info( "" );
@@ -534,7 +540,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + mr.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
 
         getLog().info( "" );
@@ -566,7 +572,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
         getLog().info( "" );
     }
@@ -597,7 +603,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + oid );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
 
         getLog().info( "" );
@@ -627,7 +633,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntax.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
         getLog().info( "" );
     }
@@ -657,7 +663,7 @@ public class BootstrapPlugin extends AbstractMojo
             dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntaxChecker.getSyntaxOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
-            store.add( entry );
+            injectEntryInStore( store, entry );
         }
 
         getLog().info( "" );
@@ -680,11 +686,11 @@ public class BootstrapPlugin extends AbstractMojo
         store.setWorkingDirectory( workingDirectory );
 
         // add the indices
-        Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
+        Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
 
         for ( String indexedAttribute : indexedAttributes )
         {
-            JdbmIndex index = new JdbmIndex();
+            Index<String, ServerEntry> index = new JdbmIndex<String, ServerEntry>();
             index.setAttributeId( indexedAttribute );
             userIndices.add( index );
         }
@@ -700,7 +706,7 @@ public class BootstrapPlugin extends AbstractMojo
             rootEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, 
                 SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             rootEntry.put( SchemaConstants.OU_AT, "schema" );
-            store.add( rootEntry );
+            injectEntryInStore( store, rootEntry );
         }
         catch ( Exception e )
         {
@@ -737,7 +743,7 @@ public class BootstrapPlugin extends AbstractMojo
         LdapDN normName = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
         normName.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         entry.setDn( normName );
-        store.add( entry );
+        injectEntryInStore( store, entry );
     }
 
 
@@ -857,7 +863,7 @@ public class BootstrapPlugin extends AbstractMojo
         ServerEntry entry = new DefaultServerEntry( registries, clonedDn );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, ( String ) clonedDn.getRdn().getValue() );
-        store.add( entry );
+        injectEntryInStore( store, entry );
     }
 
 
@@ -874,7 +880,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         ServerEntry entry = attributesFactory.getAttributes( schema, registries );
         entry.setDn( dn );
-        store.add( entry );
+        injectEntryInStore( store, entry );
         return dn;
     }
 
@@ -923,7 +929,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         while ( systemIndices.hasNext() )
         {
-            Index index = store.getSystemIndex( systemIndices.next() );
+            Index<?, ServerEntry> index = store.getSystemIndex( systemIndices.next() );
             buf.append( "schema/" );
             buf.append( index.getAttribute().getName() );
             buf.append( ".db\n" );
@@ -939,5 +945,23 @@ public class BootstrapPlugin extends AbstractMojo
         }
 
         return buf;
+    }
+    
+    
+    /**
+     * Adds a given <i>ServerEntry</i> to the store after injecting entryCSN and entryUUID operational
+     * attributes
+     *
+     * @param store the store
+     * @param dn the normalized DN
+     * @param entry the server entry
+     * @throws Exception in case of any problems in adding the entry to the store
+     */
+    private void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
+    {
+        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
+        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
+        
+        store.add( entry );
     }
 }
