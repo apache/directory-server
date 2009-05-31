@@ -398,25 +398,35 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.2.28 NAME 'triggerExecutionSubentry'
 # ======================
 
 # ======================
-# Mitosis Related
+# Replication Related
 # ======================
-
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.29
+# EntryUUID is declared in IANA 
+attributetype ( 1.3.6.1.1.16.4
         NAME 'entryUUID'
-        DESC 'LCUP/LDUP: UUID of the entry'
-        EQUALITY octetStringMatch
-        SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{64}
+        DESC 'UUID of the entry'
+        EQUALITY uuidMatch
+        ORDERING uuidOrderingMatch
+        SYNTAX 1.3.6.1.1.16.1
         SINGLE-VALUE 
         NO-USER-MODIFICATION 
         USAGE directoryOperation )
 
-attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.30
+attributetype ( 1.3.6.1.4.1.4203.666.1.7
         NAME 'entryCSN'
-        DESC 'LCUP/LDUP: change sequence number of the entry'
-        EQUALITY octetStringMatch
-        ORDERING octetStringOrderingMatch
-        SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{64}
+        DESC 'change sequence number of the entry'
+        EQUALITY CSNMatch
+        ORDERING CSNOrderingMatch
+        SYNTAX 1.3.6.1.4.1.4203.666.11.2.1{64}
         SINGLE-VALUE 
+        NO-USER-MODIFICATION 
+        USAGE directoryOperation )
+
+attributetype ( 1.3.6.1.4.1.4203.666.1.25
+        NAME 'contextCSN'
+        DESC 'the largest committed CSN of a context'
+        EQUALITY CSNMatch
+        ORDERING CSNOrderingMatch
+        SYNTAX 1.3.6.1.4.1.4203.666.11.2.1{64}
         NO-USER-MODIFICATION 
         USAGE directoryOperation )
 
