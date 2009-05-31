@@ -401,13 +401,29 @@ public interface SchemaConstants
     String GOVERNING_STRUCTURE_RULE_AT = "governingStructureRule";
     String GOVERNING_STRUCTURE_RULE_AT_OID = "2.5.21.10";
 
+    // UUID
+    String UUID_AT = "UUID";
+    String UUID_AT_OID = "1.3.6.1.1.16.1";
+
     // entryUUID
     String ENTRY_UUID_AT = "entryUUID";
     String ENTRY_UUID_AT_OID = "1.3.6.1.1.16.4";
 
+    // CSN
+    String CSN_AT = "CSN";
+    String CSN_AT_OID = "1.3.6.1.4.1.4203.666.2.1";
+
+    // CSNSID
+    String CSN_SID_AT = "CSN";
+    String CSN_SID_AT_OID = "1.3.6.1.4.1.4203.666.2.4";
+
     // entryCSN
     String ENTRY_CSN_AT = "entryCSN";
-    String ENTRY_CSN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
+    String ENTRY_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.7";
+
+    // contextCSN
+    String CONTEXT_CSN_AT = "contextCSN";
+    String CONTEXT_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.25";
 
     // entryDN
     String ENTRY_DN_AT = "entryDN";
@@ -427,34 +443,40 @@ public interface SchemaConstants
     
     // ---- Syntaxes -----------------------------------------------------
 
-    String BINARY_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.5";
-    String BIT_STRING_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.6";
-    String BOOLEAN_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.7";
-    String GENERALIZED_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.24";
-    String INTEGER_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.27";
-    String UTC_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.53";
-    String DIRECTORY_STRING_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.15";
-    String UUID_SYNTAX = "1.3.6.1.1.16.1";
-    String CSN_SYNTAX = "1.3.6.1.4.1.4203.666.11.2.1";
+    String BINARY_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.5";
+    String BIT_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.6";
+    String BOOLEAN_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.7";
+    String GENERALIZED_TIME_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.24";
+    String INTEGER_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.27";
+    String UTC_TIME_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.53";
+    String DIRECTORY_STRING_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.15";
+    String UUID_SYNTAX                      = "1.3.6.1.1.16.1";
+    String CSN_SYNTAX                       = "1.3.6.1.4.1.4203.666.11.2.1";
+    String CSN_SID_SYNTAX                   = "1.3.6.1.4.1.4203.666.11.2.4";
 
-    String JAVA_BYTE_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.0";
-    String JAVA_CHAR_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.1";
-    String JAVA_SHORT_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.2";
-    String JAVA_LONG_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.3";
-    String JAVA_INT_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.4";
+    String JAVA_BYTE_SYNTAX                 = "1.3.6.1.4.1.18060.0.4.1.0.0";
+    String JAVA_CHAR_SYNTAX                 = "1.3.6.1.4.1.18060.0.4.1.0.1";
+    String JAVA_SHORT_SYNTAX                = "1.3.6.1.4.1.18060.0.4.1.0.2";
+    String JAVA_LONG_SYNTAX                 = "1.3.6.1.4.1.18060.0.4.1.0.3";
+    String JAVA_INT_SYNTAX                  = "1.3.6.1.4.1.18060.0.4.1.0.4";
 
     // ---- MatchingRules -----------------------------------------------------
 
-    String CASE_IGNORE_MR = "caseIgnoreMatch";
-    String CASE_IGNORE_SUBSTRING_MR = "caseIgnoreSubstringsMatch";
-    String CASE_EXACT_MR = "caseExactMatch";
-    String CASE_EXACT_SUBSTRING_MR = "caseExactSubstringsMatch";
-    String INTEGER_MR = "integerMatch";
-    String INTEGER_ORDERING_MR = "integerOrderingMatch";
-    String BOOLEAN_MR = "booleanMatch";
-    String BIT_STRING_MR = "bitStringMatch";
-    String GENERALIZED_TIME_MR = "generalizedTimeMatch";
-    String GENERALIZED_TIME_ORDERING_MR = "generalizedTimeOrderingMatch";
+    String CASE_IGNORE_MR                   = "caseIgnoreMatch";
+    String CASE_IGNORE_SUBSTRING_MR         = "caseIgnoreSubstringsMatch";
+    String CASE_EXACT_MR                    = "caseExactMatch";
+    String CASE_EXACT_SUBSTRING_MR          = "caseExactSubstringsMatch";
+    String INTEGER_MR                       = "integerMatch";
+    String INTEGER_ORDERING_MR              = "integerOrderingMatch";
+    String BOOLEAN_MR                       = "booleanMatch";
+    String BIT_STRING_MR                    = "bitStringMatch";
+    String GENERALIZED_TIME_MR              = "generalizedTimeMatch";
+    String GENERALIZED_TIME_ORDERING_MR     = "generalizedTimeOrderingMatch";
+    String UUID_MATCH                       = "uuidMatch";
+    String UUID_ORDERING_MATCH              = "uuidOrderingMatch";
+    String CSN_MATCH                        = "csndMatch";
+    String CSN_ORDERING_MATCH               = "csnOrderingMatch";
+    String CSN_SID_MATCH                    = "csnSidMatch";
     
     // ---- Features ----------------------------------------------------------
     String FEATURE_ALL_OPERATIONAL_ATTRIBUTES = "1.3.6.1.4.1.4203.1.5.1";

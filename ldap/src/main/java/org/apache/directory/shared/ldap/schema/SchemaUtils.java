@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.NamingException;
 
@@ -1077,5 +1078,37 @@ public class SchemaUtils
         {
             return null;
         }
+    }
+    
+    
+    /**
+     * Transform an UUID in a byte array
+     * @param uuid The UUID to transform
+     * @return The byte[] representing the UUID
+     */
+    public static byte[] uuidToBytes( UUID uuid )
+    {
+        Long low = uuid.getLeastSignificantBits();
+        Long high = uuid.getMostSignificantBits();
+        byte[] bytes=new byte[16];
+        
+        bytes[0]  = (byte) ((high & 0xff00000000000000L)>>56);
+        bytes[1]  = (byte) ((high & 0x00ff000000000000L)>>48);
+        bytes[2]  = (byte) ((high & 0x0000ff0000000000L)>>40);
+        bytes[3]  = (byte) ((high & 0x000000ff00000000L)>>32);
+        bytes[4]  = (byte) ((high & 0x00000000ff000000L)>>24);
+        bytes[5]  = (byte) ((high & 0x0000000000ff0000L)>>16);
+        bytes[6]  = (byte) ((high & 0x000000000000ff00L)>>8);
+        bytes[7]  = (byte) (high & 0x00000000000000ffL);
+        bytes[8]  = (byte) ((low & 0xff00000000000000L)>>56);
+        bytes[9]  = (byte) ((low & 0x00ff000000000000L)>>48);
+        bytes[10] = (byte) ((low & 0x0000ff0000000000L)>>40);
+        bytes[11] = (byte) ((low & 0x000000ff00000000L)>>32);
+        bytes[12] = (byte) ((low & 0x00000000ff000000L)>>24);
+        bytes[13] = (byte) ((low & 0x0000000000ff0000L)>>16);
+        bytes[14] = (byte) ((low & 0x000000000000ff00L)>>8);
+        bytes[15] = (byte) (low & 0x00000000000000ffL);
+        
+        return bytes;
     }
 }
