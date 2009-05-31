@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ComparatorRegistry
+public interface ComparatorRegistry extends Iterable<String>
 {
     /**
      * Gets the name of the schema this schema object is associated with.
@@ -84,7 +84,7 @@ public interface ComparatorRegistry
      * 
      * @return Iterator of numeric OID strings 
      */
-    Iterator<String> oidIterator();
+    Iterator<String> iterator();
 
     
     /**

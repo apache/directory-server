@@ -370,7 +370,7 @@ public class JdbmTableNoDuplicatesTest
         }
 
 
-        public Iterator<String> oidIterator()
+        public Iterator<String> iterator()
         {
             return null;
         }

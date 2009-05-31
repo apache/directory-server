@@ -41,7 +41,6 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.Bo
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapSyntax;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;

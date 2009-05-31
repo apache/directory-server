@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxCheckerRegistry
+public interface SyntaxCheckerRegistry extends Iterable<SyntaxChecker>
 {
     /**
      * Registers a SyntaxChecker with this registry.

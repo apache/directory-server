@@ -69,5 +69,40 @@ public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer
             { "jdbmStringMatch" } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        // For uuidMatch 
+        mrule = new BootstrapMatchingRule( "1.3.6.1.1.16.2", registries );
+        mrule.setNames( new String[]
+            { "uuidMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.1.16.1" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        // For uuidOrderingMatch 
+        mrule = new BootstrapMatchingRule( "1.3.6.1.1.16.3", registries );
+        mrule.setNames( new String[]
+            { "uuidOrderingMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.1.16.1" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+        
+        // For CSNMatch 
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.2", registries );
+        mrule.setNames( new String[]
+            { "csnMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.1" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        // For CSNOrderingMatch 
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.3", registries );
+        mrule.setNames( new String[]
+            { "csnOrderingMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.1" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        // For CSNSidMatch 
+        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.5", registries );
+        mrule.setNames( new String[]
+            { "csnSidMatch" } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.4" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 }

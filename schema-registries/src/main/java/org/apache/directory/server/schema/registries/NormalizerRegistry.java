@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface NormalizerRegistry
+public interface NormalizerRegistry extends Iterable<String>
 {
     /**
      * Registers a Normalizer with this registry.
@@ -85,7 +85,7 @@ public interface NormalizerRegistry
      *  
      * @return an Iterator over the set of OID Strings in this registry
      */
-    Iterator<String> oidIterator();
+    Iterator<String> iterator();
 
     
     /**

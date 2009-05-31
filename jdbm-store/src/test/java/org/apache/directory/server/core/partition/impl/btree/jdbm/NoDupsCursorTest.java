@@ -287,7 +287,7 @@ public class NoDupsCursorTest
         }
 
 
-        public Iterator<String> oidIterator()
+        public Iterator<String> iterator()
         {
             return null;
         }

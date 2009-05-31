@@ -63,9 +63,9 @@ import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
  
@@ -196,7 +196,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
         // its String value
-        entry.put( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
+        entry.put( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         entry.put( ApacheSchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         
         nextInterceptor.add( opContext );

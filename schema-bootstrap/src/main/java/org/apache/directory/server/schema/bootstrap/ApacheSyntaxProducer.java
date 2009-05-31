@@ -26,6 +26,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxes.CsnSidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaByteSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
@@ -237,6 +238,31 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
             public SyntaxChecker getSyntaxChecker() throws NamingException
             {
                 return CSN_SYNTAX_CHECKER;
+            }
+        };
+        
+        syntax.setSchema( "apache" );
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+
+        // A Syntax for CSNSid, OID = 1.3.6.1.4.1.4203.666.11.2.5
+        syntax = new AbstractSyntax( SchemaConstants.CSN_SID_SYNTAX, "a syntax for CSN SID values", false )
+        {
+            private static final long serialVersionUID = 1L;
+            private final CsnSidSyntaxChecker CSN_SID_SYNTAX_CHECKER = new CsnSidSyntaxChecker();
+
+            public String getName()
+            {
+                return "CSNSid";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "CSNSid" };
+            }
+            
+            public SyntaxChecker getSyntaxChecker() throws NamingException
+            {
+                return CSN_SID_SYNTAX_CHECKER;
             }
         };
         

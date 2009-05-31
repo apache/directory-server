@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface MatchingRuleRegistry extends SchemaObjectRegistry
+public interface MatchingRuleRegistry extends SchemaObjectRegistry, Iterable<MatchingRule>
 {
     /**
      * Registers a MatchingRule with this registry.

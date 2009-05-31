@@ -217,7 +217,7 @@ public class KeyTupleBTreeCursorTest
         }
 
 
-        public Iterator<String> oidIterator()
+        public Iterator<String> iterator()
         {
             return null;
         }

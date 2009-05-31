@@ -79,10 +79,10 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -462,20 +462,17 @@ public class BootstrapPlugin extends AbstractMojo
 
         AttributeTypeRegistry attributeTypeRegistry = registries.getAttributeTypeRegistry();
 
-        Iterator<AttributeType> ii = attributeTypeRegistry.iterator();
-
-        while ( ii.hasNext() )
+        for ( AttributeType attributeType:attributeTypeRegistry )
         {
-            AttributeType at = ii.next();
-            String schemaName = attributeTypeRegistry.getSchemaName( at.getOid() );
+            String schemaName = attributeTypeRegistry.getSchemaName( attributeType.getOid() );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
-            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( at ) );
+            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( attributeType ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=attributeTypes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            ServerEntry entry = attributesFactory.getAttributes( at, schema, registries );
-            dn.add( MetaSchemaConstants.M_OID_AT + "=" + at.getOid() );
+            ServerEntry entry = attributesFactory.getAttributes( attributeType, schema, registries );
+            dn.add( MetaSchemaConstants.M_OID_AT + "=" + attributeType.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
             injectEntryInStore( store, entry );
@@ -493,20 +490,18 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         ObjectClassRegistry objectClassRegistry = registries.getObjectClassRegistry();
-        Iterator<ObjectClass> ii = objectClassRegistry.iterator();
 
-        while ( ii.hasNext() )
+        for ( ObjectClass objectClass:objectClassRegistry )
         {
-            ObjectClass oc = ii.next();
-            String schemaName = objectClassRegistry.getSchemaName( oc.getOid() );
+            String schemaName = objectClassRegistry.getSchemaName( objectClass.getOid() );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
-            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( oc ) );
+            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( objectClass ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=objectClasses" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            ServerEntry entry = attributesFactory.getAttributes( oc, schema, registries );
-            dn.add( MetaSchemaConstants.M_OID_AT + "=" + oc.getOid() );
+            ServerEntry entry = attributesFactory.getAttributes( objectClass, schema, registries );
+            dn.add( MetaSchemaConstants.M_OID_AT + "=" + objectClass.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
             injectEntryInStore( store, entry );
@@ -524,20 +519,18 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         MatchingRuleRegistry matchingRuleRegistry = registries.getMatchingRuleRegistry();
-        Iterator<MatchingRule> ii = matchingRuleRegistry.iterator();
 
-        while ( ii.hasNext() )
+        for ( MatchingRule matchingRule : matchingRuleRegistry )
         {
-            MatchingRule mr = ii.next();
-            String schemaName = matchingRuleRegistry.getSchemaName( mr.getOid() );
+            String schemaName = matchingRuleRegistry.getSchemaName( matchingRule.getOid() );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
-            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( mr ) );
+            getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( matchingRule ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=matchingRules" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            ServerEntry entry = attributesFactory.getAttributes( mr, schema, registries );
-            dn.add( MetaSchemaConstants.M_OID_AT + "=" + mr.getOid() );
+            ServerEntry entry = attributesFactory.getAttributes( matchingRule, schema, registries );
+            dn.add( MetaSchemaConstants.M_OID_AT + "=" + matchingRule.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
             injectEntryInStore( store, entry );
@@ -555,11 +548,9 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         ComparatorRegistry comparatorRegistry = registries.getComparatorRegistry();
-        Iterator<String> ii = comparatorRegistry.oidIterator();
 
-        while ( ii.hasNext() )
+        for ( String oid : comparatorRegistry )
         {
-            String oid = ii.next();
             String schemaName = comparatorRegistry.getSchemaName( oid );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
@@ -586,11 +577,9 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         NormalizerRegistry normalizerRegistry = registries.getNormalizerRegistry();
-        Iterator<String> ii = normalizerRegistry.oidIterator();
 
-        while ( ii.hasNext() )
+        for ( String oid : normalizerRegistry )
         {
-            String oid = ii.next();
             String schemaName = normalizerRegistry.getSchemaName( oid );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
@@ -618,11 +607,9 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
-        Iterator<Syntax> ii = syntaxRegistry.iterator();
 
-        while ( ii.hasNext() )
+        for ( Syntax syntax : syntaxRegistry )
         {
-            Syntax syntax = ii.next();
             getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
             LdapDN dn = checkCreateSchema( syntax.getSchema() );
             Schema schema = registries.getLoadedSchemas().get( syntax.getSchema() );
@@ -647,11 +634,9 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         SyntaxCheckerRegistry syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
-        Iterator<SyntaxChecker> ii = syntaxCheckerRegistry.iterator();
 
-        while ( ii.hasNext() )
+        for ( SyntaxChecker syntaxChecker : syntaxCheckerRegistry )
         {
-            SyntaxChecker syntaxChecker = ii.next();
             String schemaName = syntaxCheckerRegistry.getSchemaName( syntaxChecker.getSyntaxOid() );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getSyntaxOid() );
@@ -960,8 +945,8 @@ public class BootstrapPlugin extends AbstractMojo
     private void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
         entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
-        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
-        
+        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+
         store.add( entry );
     }
 }

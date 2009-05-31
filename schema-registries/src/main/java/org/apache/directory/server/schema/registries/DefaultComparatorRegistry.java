@@ -173,7 +173,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> oidIterator()
+    public Iterator<String> iterator()
     {
         return byOidComparator.keySet().iterator();
     }

@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxRegistry extends SchemaObjectRegistry
+public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<Syntax>
 {
     /**
      * Looks up a Syntax by its unique Object Identifier or by name.

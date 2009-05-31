@@ -172,7 +172,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> oidIterator()
+    public Iterator<String> iterator()
     {
         return byOidNormalizer.keySet().iterator();
     }

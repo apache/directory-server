@@ -602,7 +602,7 @@ public class JdbmTableWithDuplicatesTest
         }
 
 
-        public Iterator<String> oidIterator()
+        public Iterator<String> iterator()
         {
             return null;
         }

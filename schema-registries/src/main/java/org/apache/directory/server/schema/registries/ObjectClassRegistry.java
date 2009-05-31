@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface ObjectClassRegistry extends SchemaObjectRegistry
+public interface ObjectClassRegistry extends SchemaObjectRegistry, Iterable<ObjectClass>
 {
     /**
      * Registers an ObjectClass with this registry.

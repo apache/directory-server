@@ -66,5 +66,24 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
         normalizer = new NoOpNormalizer();
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.3", normalizer );
 
+        // For uuidMatch -> 1.3.6.1.1.16.2
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.3.6.1.1.16.2", normalizer );
+
+        // For uuidOrderingMatch -> 1.3.6.1.1.16.3
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.3.6.1.1.16.3", normalizer );
+
+        // For CSNMatch -> 1.3.6.1.4.1.4203.666.11.2.2
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.2", normalizer );
+
+        // For CSNOrderingMatch -> 1.3.6.1.4.1.4203.666.11.2.3
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.3", normalizer );
+
+        // For CSNSidMatch -> 1.3.6.1.4.1.4203.666.11.2.5
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.5", normalizer );
     }
 }

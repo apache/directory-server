@@ -67,7 +67,7 @@ class MockComparatorRegistry implements ComparatorRegistry
     }
 
 
-    public Iterator<String> oidIterator()
+    public Iterator<String> iterator()
     {
         return null;
     }

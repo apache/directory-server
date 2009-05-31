@@ -34,7 +34,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface AttributeTypeRegistry extends SchemaObjectRegistry
+public interface AttributeTypeRegistry extends SchemaObjectRegistry, Iterable<AttributeType>
 {
     /**
      * Registers a new AttributeType with this registry.

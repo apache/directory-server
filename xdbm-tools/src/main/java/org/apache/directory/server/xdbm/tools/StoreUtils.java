@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 
 
 /**
@@ -299,7 +299,7 @@ public class StoreUtils
     public static void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
         entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
-        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, StringTools.getBytesUtf8( UUID.randomUUID().toString() ) );
+        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         
         store.add( entry );
     }
