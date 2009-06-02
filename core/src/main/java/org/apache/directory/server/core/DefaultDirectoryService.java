@@ -83,8 +83,8 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.csn.CSN;
-import org.apache.directory.shared.ldap.csn.CSNFactory;
+import org.apache.directory.shared.ldap.csn.Csn;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -179,7 +179,7 @@ public class DefaultDirectoryService implements DirectoryService
     private boolean passwordHidden = false;
     
     /** The service's CSN factory */
-    private CSNFactory csnFactory;
+    private CsnFactory csnFactory;
     
     /** The directory instance replication ID */
     private int replicaId;
@@ -250,7 +250,7 @@ public class DefaultDirectoryService implements DirectoryService
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
         
-        csnFactory = new CSNFactory();
+        csnFactory = new CsnFactory();
     }
 
 
@@ -1726,7 +1726,7 @@ public class DefaultDirectoryService implements DirectoryService
      * Get a new CSN
      * @return The CSN generated for this directory service
      */
-    public CSN getCSN()
+    public Csn getCSN()
     {
         return csnFactory.newInstance( replicaId );
     }

@@ -44,11 +44,13 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
@@ -62,6 +64,7 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.UUID;
 
 
 /**
@@ -635,6 +638,8 @@ public class SubtreeScopeTest
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
+        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( attrs );
 
         dn = new LdapDN(
@@ -648,6 +653,8 @@ public class SubtreeScopeTest
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );
+        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( attrs );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING,

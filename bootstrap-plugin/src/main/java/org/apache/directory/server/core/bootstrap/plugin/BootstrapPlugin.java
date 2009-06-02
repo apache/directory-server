@@ -71,7 +71,7 @@ import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.csn.CSNFactory;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -177,7 +177,7 @@ public class BootstrapPlugin extends AbstractMojo
     private Map<String, Schema> schemas = new HashMap<String, Schema>();
 
     /** CSN factory instance */
-    private static final CSNFactory CSN_FACTORY = new CSNFactory();
+    private static final CsnFactory CSN_FACTORY = new CsnFactory();
 
     /**
      * Loads a bunch of bootstrap classes into memory then adds them to a new

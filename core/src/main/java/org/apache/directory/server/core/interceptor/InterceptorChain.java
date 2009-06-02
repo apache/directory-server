@@ -1201,6 +1201,7 @@ public class InterceptorChain
                     }
                     catch ( Throwable e )
                     {
+                        e.printStackTrace();
                         throwInterceptorException( interceptor, e );
                     }
                 }

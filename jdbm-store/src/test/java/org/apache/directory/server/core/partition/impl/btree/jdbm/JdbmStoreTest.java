@@ -43,8 +43,10 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -59,6 +61,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.UUID;
 
 
 /**
@@ -261,11 +264,13 @@ public class JdbmStoreTest
         try { store.setUpdnIndex( new JdbmIndex<String,ServerEntry>( "updn" ) ); fail(); }
         catch( IllegalStateException e ) {}
         Iterator<String> systemIndices = store.systemIndices();
-        for ( int ii = 0; ii < 8; ii++ )
+        
+        for ( int ii = 0; ii < 11; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
         }
+        
         assertFalse( systemIndices.hasNext() );
         assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
         try { store.getSystemIndex( "bogus" ); fail(); }
@@ -357,6 +362,8 @@ public class JdbmStoreTest
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
+        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( entry );
         
         store.delete( 12L ); // drops the alias indices
@@ -403,6 +410,8 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
+      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
       
       cursor = idx.forwardCursor( 2L);
@@ -425,6 +434,8 @@ public class JdbmStoreTest
       entry = new DefaultServerEntry( registries, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
+      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
 
       // dn id 14
@@ -434,6 +445,8 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
+      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
       
       store.move( marketingDn, newParentDn );
@@ -715,6 +728,8 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
+        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( entry );
         
@@ -733,6 +748,8 @@ public class JdbmStoreTest
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
+        childEntry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        childEntry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( childEntry );
 
@@ -864,6 +881,8 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
+        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         
         store.add( entry );
         

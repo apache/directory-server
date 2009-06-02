@@ -220,7 +220,7 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         // A Syntax for CSN, OID = 1.3.6.1.4.1.4203.666.11.2.1
-        syntax = new AbstractSyntax( SchemaConstants.CSN_SYNTAX, "a syntax for CSN values", false )
+        syntax = new AbstractSyntax( SchemaConstants.CSN_SYNTAX, "a syntax for CSN values", true )
         {
             private static final long serialVersionUID = 1L;
             private final CsnSyntaxChecker CSN_SYNTAX_CHECKER = new CsnSyntaxChecker();
@@ -245,7 +245,7 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         // A Syntax for CSNSid, OID = 1.3.6.1.4.1.4203.666.11.2.5
-        syntax = new AbstractSyntax( SchemaConstants.CSN_SID_SYNTAX, "a syntax for CSN SID values", false )
+        syntax = new AbstractSyntax( SchemaConstants.CSN_SID_SYNTAX, "a syntax for CSN SID values", true )
         {
             private static final long serialVersionUID = 1L;
             private final CsnSidSyntaxChecker CSN_SID_SYNTAX_CHECKER = new CsnSidSyntaxChecker();

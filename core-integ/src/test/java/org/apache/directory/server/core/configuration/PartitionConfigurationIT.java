@@ -29,7 +29,9 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,6 +39,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import java.util.Hashtable;
+import java.util.UUID;
 
 
 /**
@@ -67,6 +70,8 @@ public class PartitionConfigurationIT
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );
+        ctxEntry.put( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        ctxEntry.put( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
         
         Hashtable<String,Object> env = new Hashtable<String,Object>();

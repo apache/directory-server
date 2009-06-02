@@ -32,7 +32,7 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.csn.CSNFactory;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 public class StoreUtils
 {
     /** CSN factory instance */
-    private static final CSNFactory CSN_FACTORY = new CSNFactory();
+    private static final CsnFactory CSN_FACTORY = new CsnFactory();
 
     /**
      * Initializes and loads a store with the example data shown in

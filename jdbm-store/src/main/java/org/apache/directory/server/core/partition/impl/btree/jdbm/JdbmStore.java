@@ -130,7 +130,6 @@ public class JdbmStore<E> implements Store<E>
     /** the subtree scope alias index */
     private JdbmIndex<Long,E> subAliasIdx;
     
-    
     /** a system index on objectClass attribute*/
     private JdbmIndex<String,E> objectClassIdx;
     
@@ -382,19 +381,50 @@ public class JdbmStore<E> implements Store<E>
             systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
             subLevelIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ), workingDirectory );
         }
+        
+        if ( entryCsnIdx == null )
+        {
+            entryCsnIdx = new JdbmIndex<String, E>();
+            entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
+            systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
+            entryCsnIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
+        }
+        
+        if ( entryUuidIdx == null )
+        {
+            entryUuidIdx = new JdbmIndex<byte[], E>();
+            entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
+            systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
+            entryUuidIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
+        }
+        
+        if ( objectClassIdx == null )
+        {
+            objectClassIdx = new JdbmIndex<String, E>();
+            objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
+            systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
+            objectClassIdx.init( attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT_OID ), workingDirectory );
+        }
     }
 
 
     @SuppressWarnings("unchecked")
     private void setupUserIndices() throws Exception
     {
-        if ( userIndices != null && userIndices.size() > 0 )
+        if ( ( userIndices != null ) && ( userIndices.size() > 0 ) )
         {
             Map<String, Index<?,E>> tmp = new HashMap<String, Index<?,E>>();
             
             for ( Index<?,E> index : userIndices.values() )
             {
                 String oid = oidRegistry.getOid( index.getAttributeId() );
+
+                if ( systemIndices.containsKey( oid ) )
+                {
+                    // Bypass some specific index for AttributeTypes like ObjectClass hich are already
+                    // present in the SystemIndices
+                    continue;
+                }
                 AttributeType attributeType = attributeTypeRegistry.lookup( oid );
                 
                 // Check that the attributeType has an EQUALITY matchingRule
@@ -520,6 +550,9 @@ public class JdbmStore<E> implements Store<E>
         array.add( oneLevelIdx );
         array.add( presenceIdx );
         array.add( subLevelIdx );
+        array.add( entryCsnIdx );
+        array.add( entryUuidIdx );
+        array.add( objectClassIdx );
         
         // Sync all user defined userIndices
         for ( Index<?,E> idx : array )
@@ -736,8 +769,8 @@ public class JdbmStore<E> implements Store<E>
         subLevelIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), subLevelIdx );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -796,7 +829,7 @@ public class JdbmStore<E> implements Store<E>
         entryCsnIdx = convertIndex( index );
         systemIndices.put( index.getAttributeId(), entryCsnIdx );
     }
-
+    
     
     public Iterator<String> userIndices()
     {
@@ -1178,6 +1211,13 @@ public class JdbmStore<E> implements Store<E>
         // Start adding the system userIndices
         // Why bother doing a lookup if this is not an alias.
 
+        // First, the ObjectClass index
+        for ( Value<?> value : objectClass )
+        {
+            objectClassIdx.add( (String)value.get(), id );
+        }
+        
+        
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
             EntryAttribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
@@ -1192,6 +1232,28 @@ public class JdbmStore<E> implements Store<E>
         ndnIdx.add( entryDn.toNormName(), id );
         updnIdx.add( entryDn.getUpName(), id );
         oneLevelIdx.add( parentId, id );
+
+        // Update the EntryCsn index
+        EntryAttribute entryCsn = entry.get( ENTRY_CSN_AT );
+
+        if ( entryCsn == null )
+        {
+            String msg = "Entry " + entryDn.getUpName() + " contains no entryCsn attribute: " + entry;
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        }
+        
+        entryCsnIdx.add( entryCsn.getString(), id );
+        
+        // Update the EntryUuid index
+        EntryAttribute entryUuid = entry.get( ENTRY_UUID_AT );
+
+        if ( entryUuid == null )
+        {
+            String msg = "Entry " + entryDn.getUpName() + " contains no entryUuid attribute: " + entry;
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        }
+        
+        entryUuidIdx.add( entryUuid.getBytes(), id );
         
         Long tempId = parentId;
         
@@ -1243,7 +1305,6 @@ public class JdbmStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public void delete( Long id ) throws Exception
     {
         ServerEntry entry = lookup( id );
@@ -1255,10 +1316,17 @@ public class JdbmStore<E> implements Store<E>
         {
             dropAliasIndices( id );
         }
+        
+        for ( Value<?> value : objectClass )
+        {
+            objectClassIdx.drop( (String)value.get(), id );
+        }
 
         ndnIdx.drop( id );
         updnIdx.drop( id );
         oneLevelIdx.drop( id );
+        entryCsnIdx.drop( id );
+        entryUuidIdx.drop( id );
 
         if( parentId != 1 )// should not use getParentId() to compare, onelevel index drops the 'id'
         {
@@ -1364,7 +1432,15 @@ public class JdbmStore<E> implements Store<E>
         
         String modsOid = oidRegistry.getOid( mods.getId() );
 
-        if ( hasUserIndexOn( modsOid ) )
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.drop( (String)value.get(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?,E> index = getUserIndex( modsOid );
 
@@ -1388,7 +1464,7 @@ public class JdbmStore<E> implements Store<E>
             entry.add( type, value );
         }
 
-        if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
+        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
@@ -1418,8 +1494,16 @@ public class JdbmStore<E> implements Store<E>
         }
         
         String modsOid = oidRegistry.getOid( mods.getId() );
-
-        if ( hasUserIndexOn( modsOid ) )
+        
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.drop( (String)value.get(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?,E> index = getUserIndex( modsOid );
             
@@ -1502,11 +1586,27 @@ public class JdbmStore<E> implements Store<E>
         
         String modsOid = oidRegistry.getOid( mods.getId() );
 
-        if ( hasUserIndexOn( modsOid ) )
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            // if the id exists in the index drop all existing attribute 
+            // value index entries and add new ones
+            if( objectClassIdx.reverse( id ) )
+            {
+                objectClassIdx.drop( id );
+            }
+            
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.add( (String)value.get(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?,E> index = getUserIndex( modsOid );
 
-            // if the id exists in the index drop all existing attribute value index entries and add new ones
+            // if the id exists in the index drop all existing attribute 
+            // value index entries and add new ones
             if( index.reverse( id ) )
             {
                 ( ( JdbmIndex<?,E> ) index ).drop( id );

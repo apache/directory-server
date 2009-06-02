@@ -41,7 +41,7 @@ import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.csn.CSN;
+import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -662,7 +662,7 @@ public class InterceptorChainTest extends TestCase
         }
         
         
-        public CSN getCSN()
+        public Csn getCSN()
         {
             return null;
         }

@@ -28,7 +28,7 @@ import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.comparators.CSNComparator;
+import org.apache.directory.shared.ldap.schema.comparators.CsnComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.CsnSidComparator;
 import org.apache.directory.shared.ldap.schema.comparators.UUIDComparator;
@@ -82,11 +82,11 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "1.3.6.1.1.16.3", comparator );
         
         // For CSNMatch
-        comparator = new CSNComparator();
+        comparator = new CsnComparator();
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.2", comparator );
         
         // For CSNOrderingMatch
-        comparator = new CSNComparator();
+        comparator = new CsnComparator();
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.3", comparator );
         
         // For CSNSIDMatch

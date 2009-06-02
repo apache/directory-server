@@ -34,6 +34,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.*;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 
 
@@ -589,6 +591,8 @@ public class GreaterEqTest
         attrs.add( "c-street", "3" );
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
+        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add(  attrs );
 
         indexEntry.setId( 12L );

@@ -42,6 +42,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -235,6 +236,18 @@ public class JdbmPartition extends BTreePartition
                 {
                     store.setUpdnIndex( ( Index<String,ServerEntry> ) index );
                 }
+                else if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+                {
+                    store.setObjectClassIndex( ( Index<String,ServerEntry> ) index );
+                }
+                else if ( oid.equals( ApacheSchemaConstants.ENTRY_CSN_AT_OID ) )
+                {
+                    store.setEntryCsnIndex( ( Index<String,ServerEntry> ) index );
+                }
+                else if ( oid.equals( ApacheSchemaConstants.ENTRY_UUID_AT_OID ) )
+                {
+                    store.setEntryUuidIndex( ( Index<byte[],ServerEntry> ) index );
+                }
                 else
                 {
                     throw new IllegalStateException( "Unrecognized system index " + oid );
@@ -281,7 +294,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Index<String, ServerEntry> getExistanceIndex()
+    public final Index<String, ServerEntry> getExistenceIndex()
     {
         return store.getPresenceIndex();
     }
@@ -590,6 +603,24 @@ public class JdbmPartition extends BTreePartition
         return store.getSubLevelIndex();
     }
     
+    
+    public Index<String, ServerEntry> getObjectClassIndex()
+    {
+        return store.getObjectClassIndex();
+    }
+         
+    
+    public Index<String, ServerEntry> getEntryCsnIndex()
+    {
+        return store.getEntryCsnIndex();
+    }
+
+    
+    public Index<byte[], ServerEntry> getEntryUuidIndex()
+    {
+        return store.getEntryUuidIndex();
+    }
+
     
     /**
      * @see Object#toString()
