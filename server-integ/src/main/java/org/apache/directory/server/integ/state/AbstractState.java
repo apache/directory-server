@@ -19,12 +19,10 @@
 package org.apache.directory.server.integ.state;
 
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,20 +210,17 @@ public abstract class AbstractState implements TestServerState
                     throw new FileNotFoundException( message );
                 }
                 
-                URL url = clazz.getResource( ldifFile );
-
-                if ( url == null )
+                InputStream in = clazz.getResourceAsStream( ldifFile );
+                
+                if ( in == null )
                 {
                     String message = "Cannot inject a LDIF for the file " + ldifFile;
                     LOG.error( message );
                     throw new FileNotFoundException( message );
                 }
                 
-                URI uri = url.toURI();
-                File file = new File( uri );
+                LdifReader ldifReader = new LdifReader( in );
                 
-                LdifReader ldifReader = new LdifReader( file ); 
-
                 for ( LdifEntry entry : ldifReader )
                 {
                     service.getAdminSession().add( 
