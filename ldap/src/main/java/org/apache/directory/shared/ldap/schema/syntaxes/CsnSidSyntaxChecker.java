@@ -77,8 +77,30 @@ public class CsnSidSyntaxChecker extends AbstractSyntaxChecker
         {
             return false;
         }
+        
+        String sidStr = (String)value;
+        
+        if ( sidStr.length() > 3 )
+        {
+            return false;
+        }
 
-        // TODO : add the check
-        return false;
+        // The SID must be an hexadecimal number between 0x00 and 0xFFF
+        
+        try
+        {
+            int sid = Integer.parseInt( sidStr, 16 );
+            
+            if ( ( sid < 0 ) || ( sid > 0x0fff ) )
+            {
+                return false;
+            }
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return false;
+        }
+        
+        return true;
     }
 }

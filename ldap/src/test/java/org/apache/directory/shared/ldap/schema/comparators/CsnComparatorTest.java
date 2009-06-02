@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.comparators;
 
-import org.apache.directory.shared.ldap.csn.CSN;
+import org.apache.directory.shared.ldap.csn.Csn;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -31,30 +31,26 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CSNComparatorTest
+public class CsnComparatorTest
 {
-    private CSNComparator comparator;
+    private CsnComparator comparator;
     
     @Before
     public void init()
     {
-        comparator = new CSNComparator();
+        comparator = new CsnComparator();
     }
     
     
     @Test
     public void testNullCSNs()
     {
-        CSN csn1 = null;
-        CSN csn2 = null;
+        assertEquals( 0, comparator.compare( null, null ) );
         
-        assertEquals( 0, comparator.compare( csn1, csn2 ) );
-        
-        csn2 = new CSN( System.currentTimeMillis(), 1, 1, 1 );
-        assertEquals( -1, comparator.compare( csn1, csn2 ) );
+        Csn csn2 = new Csn( System.currentTimeMillis(), 1, 1, 1 );
+        assertEquals( -1, comparator.compare( null, csn2.toString() ) );
 
-        CSN csn3 = null;
-        assertEquals( 1, comparator.compare( csn2, csn3 ) );
+        assertEquals( 1, comparator.compare( csn2.toString(), null ) );
     }
 
 
@@ -62,10 +58,10 @@ public class CSNComparatorTest
     public void testEqualsCSNs()
     {
         long t0 = System.currentTimeMillis();
-        CSN csn1 = new CSN( t0, 0, 0, 0 );
-        CSN csn2 = new CSN( t0, 0, 0, 0 );
+        Csn csn1 = new Csn( t0, 0, 0, 0 );
+        Csn csn2 = new Csn( t0, 0, 0, 0 );
         
-        assertEquals( 0, comparator.compare( csn1, csn2 ) );
+        assertEquals( 0, comparator.compare( csn1.toString(), csn2.toString() ) );
     }
     
     
@@ -74,11 +70,11 @@ public class CSNComparatorTest
     {
         long t0 = System.currentTimeMillis();
         long t1 = System.currentTimeMillis() + 1000;
-        CSN csn1 = new CSN( t0, 0, 0, 0 );
-        CSN csn2 = new CSN( t1, 0, 0, 0 );
+        Csn csn1 = new Csn( t0, 0, 0, 0 );
+        Csn csn2 = new Csn( t1, 0, 0, 0 );
         
-        assertEquals( -1, comparator.compare( csn1, csn2 ) );
-        assertEquals( 1, comparator.compare( csn2, csn1 ) );
+        assertEquals( -1, comparator.compare( csn1.toString(), csn2.toString() ) );
+        assertEquals( 1, comparator.compare( csn2.toString(), csn1.toString() ) );
     }
     
     
@@ -86,11 +82,11 @@ public class CSNComparatorTest
     public void testDifferentChangeCountCSNs()
     {
         long t0 = System.currentTimeMillis();
-        CSN csn1 = new CSN( t0, 0, 0, 0 );
-        CSN csn2 = new CSN( t0, 1, 0, 0 );
+        Csn csn1 = new Csn( t0, 0, 0, 0 );
+        Csn csn2 = new Csn( t0, 1, 0, 0 );
         
-        assertEquals( -1, comparator.compare( csn1, csn2 ) );
-        assertEquals( 1, comparator.compare( csn2, csn1 ) );
+        assertEquals( -1, comparator.compare( csn1.toString(), csn2.toString() ) );
+        assertEquals( 1, comparator.compare( csn2.toString(), csn1.toString() ) );
     }
     
     
@@ -98,11 +94,11 @@ public class CSNComparatorTest
     public void testDifferentReplicaIdCSNs()
     {
         long t0 = System.currentTimeMillis();
-        CSN csn1 = new CSN( t0, 0, 0, 0 );
-        CSN csn2 = new CSN( t0, 0, 1, 0 );
+        Csn csn1 = new Csn( t0, 0, 0, 0 );
+        Csn csn2 = new Csn( t0, 0, 1, 0 );
         
-        assertEquals( -1, comparator.compare( csn1, csn2 ) );
-        assertEquals( 1, comparator.compare( csn2, csn1 ) );
+        assertEquals( -1, comparator.compare( csn1.toString(), csn2.toString() ) );
+        assertEquals( 1, comparator.compare( csn2.toString(), csn1.toString() ) );
     }
     
     
@@ -110,10 +106,10 @@ public class CSNComparatorTest
     public void testDifferentOperationNumberCSNs()
     {
         long t0 = System.currentTimeMillis();
-        CSN csn1 = new CSN( t0, 0, 0, 0 );
-        CSN csn2 = new CSN( t0, 0, 0, 1 );
+        Csn csn1 = new Csn( t0, 0, 0, 0 );
+        Csn csn2 = new Csn( t0, 0, 0, 1 );
         
-        assertEquals( -1, comparator.compare( csn1, csn2 ) );
-        assertEquals( 1, comparator.compare( csn2, csn1 ) );
+        assertEquals( -1, comparator.compare( csn1.toString(), csn2.toString() ) );
+        assertEquals( 1, comparator.compare( csn2.toString(), csn1.toString() ) );
     }
 }

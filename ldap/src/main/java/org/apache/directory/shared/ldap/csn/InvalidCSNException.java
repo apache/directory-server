@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.csn;
 
 /**
  * A {@link RuntimeException} which is thrown when a wrong string
- * representation is specified to create a new {@link CSN}.
+ * representation is specified to create a new {@link Csn}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

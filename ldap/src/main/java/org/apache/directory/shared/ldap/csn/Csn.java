@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CSN implements Serializable, Comparable<CSN>
+public class Csn implements Serializable, Comparable<Csn>
 {
     /**
      * Declares the Serial Version Uid.
@@ -65,7 +65,7 @@ public class CSN implements Serializable, Comparable<CSN>
     private static final long serialVersionUID = 1L;
 
     /** The logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( CSN.class );
+    private static final Logger LOG = LoggerFactory.getLogger( Csn.class );
 
     /** The timeStamp of this operation */
     private final long timestamp;
@@ -102,7 +102,7 @@ public class CSN implements Serializable, Comparable<CSN>
      * @param replicaId Replica ID where modification occurred (<tt>[-_A-Za-z0-9]{1,16}</tt>)
      * @param operationNumber Operation number in a modification operation
      */
-    public CSN( long timestamp, int changeCount, int replicaId, int operationNumber )
+    public Csn( long timestamp, int changeCount, int replicaId, int operationNumber )
     {
         this.timestamp = timestamp;
         this.replicaId = replicaId;
@@ -119,7 +119,7 @@ public class CSN implements Serializable, Comparable<CSN>
      *
      * @param value The String containing the CSN
      */
-    public CSN( String value ) throws InvalidCSNException
+    public Csn( String value ) throws InvalidCSNException
     {
         if ( StringTools.isEmpty( value ) )
         {
@@ -318,9 +318,24 @@ public class CSN implements Serializable, Comparable<CSN>
         }
         
         // And add the milliseconds and microseconds now
+        String millisStr = timestampStr.substring( 15, 21 );
+
+        if ( StringTools.isEmpty( millisStr ) )
+        {
+            return false;
+        }
+        
+        for ( int i = 0; i < 6; i++ )
+        {
+            if ( !StringTools.isDigit( millisStr, i ) )
+            {
+                return false;
+            }
+        }
+
         try
         {
-            Integer.valueOf( timestampStr.substring( 15, 21 ) );
+            Integer.valueOf( millisStr );
         }
         catch ( NumberFormatException nfe )
         {
@@ -337,8 +352,26 @@ public class CSN implements Serializable, Comparable<CSN>
     
         String changeCountStr = value.substring( sepTS + 1, sepCC ).trim();
         
+        if ( StringTools.isEmpty( changeCountStr ) )
+        {
+            return false;
+        }
+        
+        if ( changeCountStr.length() != 6 )
+        {
+            return false;
+        }
+        
         try
         {
+            for ( int i = 0; i < 6; i++ )
+            {
+                if ( !StringTools.isHex( changeCountStr, i ) )
+                {
+                    return false;
+                }
+            }
+            
             Integer.parseInt( changeCountStr, 16 ); 
         }
         catch ( NumberFormatException nfe )
@@ -361,6 +394,19 @@ public class CSN implements Serializable, Comparable<CSN>
             return false;
         }
         
+        if ( replicaIdStr.length() != 3 )
+        {
+            return false;
+        }
+        
+        for ( int i = 0; i < 3; i++ )
+        {
+            if ( !StringTools.isHex( replicaIdStr, i ) )
+            {
+                return false;
+            }
+        }
+
         try
         {
             Integer.parseInt( replicaIdStr, 16 ); 
@@ -378,6 +424,19 @@ public class CSN implements Serializable, Comparable<CSN>
         
         String operationNumberStr = value.substring( sepRI + 1 ).trim();
         
+        if ( operationNumberStr.length() != 6 )
+        {
+            return false;
+        }
+
+        for ( int i = 0; i < 6; i++ )
+        {
+            if ( !StringTools.isHex( operationNumberStr, i ) )
+            {
+                return false;
+            }
+        }
+
         try
         {
             Integer.parseInt( operationNumberStr, 16 ); 
@@ -396,10 +455,10 @@ public class CSN implements Serializable, Comparable<CSN>
      *
      * @param value The byte array which contains the serialized CSN
      */
-    /** Package protected */ CSN( byte[] value )
+    Csn( byte[] value )
     {
         csnStr = StringTools.utf8ToString( value );
-        CSN csn = new CSN( csnStr );
+        Csn csn = new Csn( csnStr );
         timestamp = csn.timestamp;
         changeCount = csn.changeCount;
         replicaId = csn.replicaId;
@@ -538,12 +597,12 @@ public class CSN implements Serializable, Comparable<CSN>
             return true;
         }
 
-        if ( !( o instanceof CSN ) )
+        if ( !( o instanceof Csn ) )
         {
             return false;
         }
 
-        CSN that = ( CSN ) o;
+        Csn that = ( Csn ) o;
 
         return 
             ( timestamp == that.timestamp ) &&
@@ -562,7 +621,7 @@ public class CSN implements Serializable, Comparable<CSN>
      * @return  a negative integer, zero, or a positive integer as this object
      *      is less than, equal to, or greater than the specified object.
      */
-    public int compareTo( CSN csn )
+    public int compareTo( Csn csn )
     {
         if ( csn == null )
         {

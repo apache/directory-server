@@ -22,64 +22,68 @@ package org.apache.directory.shared.ldap.schema.comparators;
 
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.csn.CSN;
-
 
 /**
  * A comparator for CSN SID.
  *
- * The CSN are ordered depending on an evaluation of its component, in this order :
- * - time, 
- * - changeCount,
- * - sid
- * - modifierNumber
+ * The SID is supposed to be an hexadecimal number between 0x0 and 0xfff
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CsnSidComparator implements Comparator<CSN>
+public class CsnSidComparator implements Comparator<String>
 {
     /** A static instance of this comparator */
-    public static final Comparator<CSN> INSTANCE = new CsnSidComparator();
+    public static final Comparator<String> INSTANCE = new CsnSidComparator();
     
     
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( CSN csn1, CSN csn2 )
+    public int compare( String sidStr1, String sidStr2 )
     {
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
 
-        if ( csn1 == null )
+        if ( sidStr1 == null )
         {
-            return ( csn2 == null ) ? 0 : -1;
+            return ( sidStr2 == null ) ? 0 : -1;
         }
         
-        if ( csn2 == null )
+        if ( sidStr2 == null )
         {
             return 1;
         }
         
-        if ( csn1.getTimestamp() != csn2.getTimestamp() )
+        int sid1 = 0;
+        int sid2 = 0;
+        
+        try
         {
-            return ( csn1.getTimestamp() < csn2.getTimestamp() ? -1 : 1 );
+            sid1 = Integer.parseInt( sidStr1, 16 );
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return -1;
         }
         
-        if ( csn1.getChangeCount() != csn2.getChangeCount() )
+        try
         {
-            return ( csn1.getChangeCount() < csn2.getChangeCount() ? -1 : 1 );
+            sid2 = Integer.parseInt( sidStr2, 16 );
+        }
+        catch ( NumberFormatException nfe )
+        {
+            return 1;
         }
         
-        if ( csn1.getReplicaId() != csn2.getReplicaId() )
+        if ( sid1 > sid2 )
         {
-            return ( csn1.getReplicaId() < csn2.getReplicaId() ? -1 : 1 );
+            return 1;
         }
-        
-        if ( csn1.getOperationNumber() != csn2.getOperationNumber() )
+        else if ( sid2 > sid1 )
         {
-            return ( csn1.getOperationNumber() < csn2.getOperationNumber() ? -1 : 1 );
+            return -1;
         }
         
         return 0;

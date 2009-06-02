@@ -20,7 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.csn.CSN;
+import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.csn.InvalidCSNException;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
@@ -85,7 +85,7 @@ public class CsnSyntaxChecker extends AbstractSyntaxChecker
         // It must be a valid CSN : try to create a new one.
         try
         {
-            return CSN.isValid( csnStr );
+            return Csn.isValid( csnStr );
         }
         catch ( InvalidCSNException icsne )
         {

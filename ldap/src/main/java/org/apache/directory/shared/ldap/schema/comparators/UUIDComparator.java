@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.schema.comparators;
 
 
 import java.util.Comparator;
-import java.util.UUID;
 
 
 /**
@@ -30,16 +29,16 @@ import java.util.UUID;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UUIDComparator implements Comparator<UUID>
+public class UUIDComparator implements Comparator<byte[]>
 {
     /** A static instance of this comparator */
-    public static final Comparator<UUID> INSTANCE = new UUIDComparator();
+    public static final Comparator<byte[]> INSTANCE = new UUIDComparator();
     
     
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( UUID uuid1, UUID uuid2 )
+    public int compare( byte[] uuid1, byte[] uuid2 )
     {
         // -------------------------------------------------------------------
         // Handle some basis cases
@@ -54,6 +53,32 @@ public class UUIDComparator implements Comparator<UUID>
             return 1;
         }
         
-        return uuid1.compareTo( uuid2 );
+        if ( uuid1.length < uuid2.length )
+        {
+            return -1;
+        }
+        else if ( uuid1.length > uuid2.length )
+        { 
+            return 1;
+        }
+        
+        for ( int pos = 0; pos < uuid1.length; pos++ )
+        {
+            if ( uuid1[pos] == uuid2[pos ] )
+            {
+                continue;
+            }
+            
+            if ( uuid1[pos] < uuid2[pos] )
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        
+        return 0;
     }
 }

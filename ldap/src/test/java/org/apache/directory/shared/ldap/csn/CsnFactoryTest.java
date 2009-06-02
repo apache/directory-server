@@ -31,7 +31,7 @@ import static org.junit.Assert.assertFalse;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CSNFactoryTest
+public class CsnFactoryTest
 {
     private static final int NUM_GENERATES = 10;
 
@@ -44,9 +44,9 @@ public class CSNFactoryTest
     public void testUnique()
     {
         int replicaID = 001;
-        CSNFactory defaultCSNFactory = new CSNFactory();
+        CsnFactory defaultCSNFactory = new CsnFactory();
 
-        CSN[] csns = new CSN[NUM_GENERATES];
+        Csn[] csns = new Csn[NUM_GENERATES];
 
         for ( int i = 0; i < NUM_GENERATES; i++ )
         {

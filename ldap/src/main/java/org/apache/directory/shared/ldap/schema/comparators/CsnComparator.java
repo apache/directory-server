@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.schema.comparators;
 
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.csn.CSN;
+import org.apache.directory.shared.ldap.csn.Csn;
 
 
 /**
@@ -37,30 +37,33 @@ import org.apache.directory.shared.ldap.csn.CSN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CSNComparator implements Comparator<CSN>
+public class CsnComparator implements Comparator<String>
 {
     /** A static instance of this comparator */
-    public static final Comparator<CSN> INSTANCE = new CSNComparator();
+    public static final Comparator<String> INSTANCE = new CsnComparator();
     
     
     /**
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( CSN csn1, CSN csn2 )
+    public int compare( String csnStr1, String csnStr2 )
     {
         // -------------------------------------------------------------------
         // Handle some basis cases
         // -------------------------------------------------------------------
 
-        if ( csn1 == null )
+        if ( csnStr1 == null )
         {
-            return ( csn2 == null ) ? 0 : -1;
+            return ( csnStr2 == null ) ? 0 : -1;
         }
         
-        if ( csn2 == null )
+        if ( csnStr2 == null )
         {
             return 1;
         }
+        
+        Csn csn1 = new Csn( csnStr1 );
+        Csn csn2 = new Csn( csnStr2 );
         
         if ( csn1.getTimestamp() != csn2.getTimestamp() )
         {

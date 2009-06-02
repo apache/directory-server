@@ -21,11 +21,11 @@ package org.apache.directory.shared.ldap.csn;
 
 
 /**
- * Generates a new {@link CSN}.
+ * Generates a new {@link Csn}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CSNFactory
+public class CsnFactory
 {
     /** The last timestamp */
     private static volatile long lastTimestamp;
@@ -34,21 +34,21 @@ public class CSNFactory
     private static volatile int changeCount;
 
 
-    public CSNFactory()
+    public CsnFactory()
     {
         changeCount = 0;
     }
 
 
     /**
-     * Returns a new {@link CSN}.
+     * Returns a new {@link Csn}.
      * Generated CSN can be duplicate if user generates CSNs more than 2G 
      * times a milliseconds.
      * 
      * @param replicaId Replica ID.  ReplicaID must be 1-3 digit alphanumeric
      *        value (from 000 to fff).
      */
-    public CSN newInstance( int replicaId )
+    public Csn newInstance( int replicaId )
     {
         long newTimestamp = System.currentTimeMillis();
         
@@ -63,12 +63,12 @@ public class CSNFactory
             changeCount = 0;
         }
 
-        return new CSN( lastTimestamp, changeCount, replicaId, 0 );
+        return new Csn( lastTimestamp, changeCount, replicaId, 0 );
     }
 
 
     /**
-     * Returns a new {@link CSN} created from the given values.
+     * Returns a new {@link Csn} created from the given values.
      * 
      * This method is <b>not</b> to be used except for test purposes.
      * 
@@ -76,9 +76,9 @@ public class CSNFactory
      * @param replicaId Replica ID.  ReplicaID must be 1-3 digit value
      * @param changeCount The change count to use
      */
-    public CSN newInstance( long timestamp, int replicaId, int changeCount )
+    public Csn newInstance( long timestamp, int replicaId, int changeCount )
     {
-        return new CSN( timestamp, changeCount, replicaId, 0 );
+        return new Csn( timestamp, changeCount, replicaId, 0 );
     }
     
     
@@ -88,8 +88,8 @@ public class CSNFactory
      * 
      * @param expirationDate The time up to the first CSN we want to keep 
      */
-    public CSN newInstance( long expirationDate )
+    public Csn newInstance( long expirationDate )
     {
-        return new CSN( expirationDate, Integer.MAX_VALUE, -1, Integer.MAX_VALUE );
+        return new Csn( expirationDate, Integer.MAX_VALUE, -1, Integer.MAX_VALUE );
     }
 }
