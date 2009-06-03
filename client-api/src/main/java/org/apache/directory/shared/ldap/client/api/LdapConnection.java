@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,8 @@ import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResultImpl;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyRequest;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyResponse;
 import org.apache.directory.shared.ldap.client.api.messages.Referral;
 import org.apache.directory.shared.ldap.client.api.messages.ReferralImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
@@ -80,6 +83,8 @@ import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
+import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
 import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
@@ -88,6 +93,11 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
+import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -120,7 +130,7 @@ import org.slf4j.LoggerFactory;
 public class LdapConnection  extends IoHandlerAdapter
 {
     /** logger for reporting errors that might not be handled properly upstream */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapConnectionImpl.class );
+    private static final Logger LOG = LoggerFactory.getLogger( LdapConnection.class );
 
     /** Define the default ports for LDAP and LDAPS */
     private static final int DEFAULT_LDAP_PORT = 389; 
@@ -1338,7 +1348,7 @@ public class LdapConnection  extends IoHandlerAdapter
         // Feed the response and store it into the session
         LdapMessageCodec response = (LdapMessageCodec)message;
 
-        LOG.debug( "-------> {} Message received <-------", response.getMessageTypeName() );
+        System.out.println( "-------> {} Message received <-------"+ response.getMessageTypeName() );
         
         switch ( response.getMessageType() )
         {
@@ -1463,4 +1473,112 @@ public class LdapConnection  extends IoHandlerAdapter
              default: LOG.error( "~~~~~~~~~~~~~~~~~~~~~ Unknown message type {} ~~~~~~~~~~~~~~~~~~~~~", response.getMessageTypeName() );
         }
     }
+    
+    
+    /**
+     * 
+     * modifies all the attributes present in the entry by applying the same operation.
+     *
+     * @param entry the entry whise attributes to be modified
+     * @param modOp the operation to be applied on all the attributes of the above entry
+     * @return the modify operation's response
+     * @throws LdapException in case of modify operation failure or timeout happens
+     */
+    public ModifyResponse modify( Entry entry, ModificationOperation modOp ) throws LdapException
+    {
+        if( entry == null )
+        {
+            LOG.debug( "received a null entry for modification" );
+            throw new NullPointerException( "Entry to be modified cannot be null" );
+        }
+        
+        ModifyRequest modReq = new ModifyRequest( entry.getDn() );
+        
+        Iterator<EntryAttribute> itr = entry.iterator();
+        while( itr.hasNext() )
+        {
+            modReq.addModification( itr.next(), modOp );
+        }
+        
+        return modify( modReq );
+    }
+    
+    
+    /**
+     * 
+     * performs modify operation based on the modifications present in the ModifyRequest.
+     *
+     * @param modRequest the request for modify operation
+     * @return the modify operation's response
+     * @throws LdapException in case of modify operation failure or timeout happens
+     */
+    public ModifyResponse modify( ModifyRequest modRequest )  throws LdapException
+    {
+        // If the session has not been establish, or is closed, we get out immediately
+        checkSession();
+    
+        // Guarantee that for this session, we don't have more than one operation
+        // running at the same time
+        lockSession();
+        
+        // Create the new message and update the messageId
+        LdapMessageCodec modifyMessage = new LdapMessageCodec();
+        
+        // Creates the messageID and stores it into the 
+        // initial message and the transmitted message.
+        int newId = messageId.incrementAndGet();
+        modRequest.setMessageId( newId );
+        modifyMessage.setMessageId( newId );
+        
+        ModifyRequestCodec modReqCodec = new ModifyRequestCodec();
+        modReqCodec.setModifications( modRequest.getMods() );
+        modReqCodec.setObject( modRequest.getDn() );
+
+        modifyMessage.setProtocolOP( modReqCodec );
+        
+        ldapSession.write( modifyMessage );
+
+        LdapMessageCodec response = null;
+        try
+        {
+            response = modifyResponseQueue.poll( modRequest.getTimeout(), TimeUnit.MILLISECONDS );
+            
+            // Check that we didn't get out because of a timeout
+            if ( response == null )
+            {
+                // We didn't received anything : this is an error
+                LOG.error( "Modify failed : timeout occured" );
+                unlockSession();
+                throw new LdapException( "TimeOut occured" );
+            }
+        }
+        catch( Exception e )
+        {
+            LOG.error( "The response queue has been emptied, no response was found." );
+            unlockSession();
+            LdapException ldapException = new LdapException();
+            ldapException.initCause( e );
+            
+            throw ldapException;
+        }
+
+        unlockSession();
+        
+        return convert( response.getModifyResponse() );
+    }
+    
+    
+    /**
+     * converts the ModifyResponseCodec to ModifyResponse.
+     */
+    private ModifyResponse convert( ModifyResponseCodec modRespCodec )
+    {
+        ModifyResponse modResponse = new ModifyResponse();
+        
+        modResponse.setMessageId( modRespCodec.getMessageId() );
+        modResponse.setLdapResult( convert( modRespCodec.getLdapResult() ) );
+
+        return modResponse;
+    }
+
 }
