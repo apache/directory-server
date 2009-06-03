@@ -284,6 +284,17 @@ public class ModifyRequestCodec extends LdapMessageCodec
 
 
     /**
+     * sets the modifications
+     * 
+     * @param modifications the list of modifications
+     */
+    public void setModifications( List<Modification> modifications )
+    {
+        this.modifications = modifications;
+    }
+
+
+    /**
      * Compute the ModifyRequest length 
      * 
      * ModifyRequest :
