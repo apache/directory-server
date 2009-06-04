@@ -643,7 +643,7 @@ public class LessEqTest
         attrs.add( "c-street", "1" );
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
-        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( attrs );
 

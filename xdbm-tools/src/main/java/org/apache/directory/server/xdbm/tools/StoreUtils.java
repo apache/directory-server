@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 public class StoreUtils
 {
     /** CSN factory instance */
-    private static final CsnFactory CSN_FACTORY = new CsnFactory();
+    private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
     /**
      * Initializes and loads a store with the example data shown in
@@ -298,7 +298,7 @@ public class StoreUtils
      */
     public static void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
-        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
+        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         
         store.add( entry );

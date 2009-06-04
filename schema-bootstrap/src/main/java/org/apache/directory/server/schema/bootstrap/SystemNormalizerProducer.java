@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.DnNormalizer;
 import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.BooleanNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
@@ -159,7 +160,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          */
         normalizer = new CachingDnNormalizer();
         ( ( CachingDnNormalizer ) normalizer ).setRegistries( registries );
-        cb.schemaObjectProduced( this, "2.5.13.1", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID, normalizer );
 
         /*
          ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
@@ -180,42 +181,49 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         normalizer = new CachingDeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.2", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         normalizer = new CachingDeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.3", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         normalizer = new CachingDeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.4", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.6 NAME 'caseExactOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.6", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.0 NAME 'objectIdentifierMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
         normalizer = new ObjectIdentifierNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.0", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.8 NAME 'numericStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.8", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_MATCH_MR_OID, normalizer );
+
+        /*
+         ( 2.5.13.9 NAME 'numericStringOrderingMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         */
+        normalizer = new NoOpNormalizer();
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
@@ -366,10 +374,10 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          */
 
         normalizer = new CachingDeepTrimNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.5", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_MATCH_MR_OID, normalizer );
 
         normalizer = new CachingDeepTrimNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.7", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, normalizer );
 
         normalizer = new CachingDeepTrimToLowerNormalizer();
         cb.schemaObjectProduced( this, "2.5.13.12", normalizer );

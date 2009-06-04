@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -85,24 +86,24 @@ public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
         
         // For CSNMatch 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.2", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CSN_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "csnMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.1" );
+            { SchemaConstants.CSN_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.CSN_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         // For CSNOrderingMatch 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.3", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CSN_ORDERING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "csnOrderingMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.1" );
+            { SchemaConstants.CSN_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.CSN_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         // For CSNSidMatch 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.666.11.2.5", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CSN_SID_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "csnSidMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.4203.666.11.2.4" );
+            { SchemaConstants.CSN_SID_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.CSN_SID_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 }

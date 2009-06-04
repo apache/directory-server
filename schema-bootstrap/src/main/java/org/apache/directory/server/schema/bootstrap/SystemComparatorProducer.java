@@ -29,6 +29,7 @@ import org.apache.directory.server.schema.NameAndOptionalUIDComparator;
 import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
@@ -96,49 +97,56 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
         comparator = new ObjectIdentifierComparator();
-        cb.schemaObjectProduced( this, "2.5.13.0", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.1 NAME 'distinguishedNameMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
         comparator = new DnComparator( registries.getAttributeTypeRegistry() );
-        cb.schemaObjectProduced( this, "2.5.13.1", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.2 NAME 'caseIgnoreMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.2", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.3", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.4", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.6 NAME 'caseExactOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.6", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.8 NAME 'numericStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.8", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_MATCH_MR_OID, comparator );
+
+        /*
+         ( 2.5.13.9 NAME 'numericStringOrderingMatch'
+         SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
@@ -304,10 +312,10 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          */
 
         comparator = new DeepTrimCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.5", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_MATCH_MR_OID, comparator );
 
         comparator = new DeepTrimCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.7", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, comparator );
 
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
         cb.schemaObjectProduced( this, "2.5.13.12", comparator );

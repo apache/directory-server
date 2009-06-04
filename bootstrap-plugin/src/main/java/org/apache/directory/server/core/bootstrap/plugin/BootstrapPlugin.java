@@ -176,8 +176,8 @@ public class BootstrapPlugin extends AbstractMojo
      */
     private Map<String, Schema> schemas = new HashMap<String, Schema>();
 
-    /** CSN factory instance */
-    private static final CsnFactory CSN_FACTORY = new CsnFactory();
+    /** CSN factory instance. For schema elements, the replicaId is 0 */
+    private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
     /**
      * Loads a bunch of bootstrap classes into memory then adds them to a new
@@ -944,7 +944,7 @@ public class BootstrapPlugin extends AbstractMojo
      */
     private void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
-        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance( 1 ).toString() );
+        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( entry );

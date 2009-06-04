@@ -250,7 +250,7 @@ public class DefaultDirectoryService implements DirectoryService
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
         
-        csnFactory = new CsnFactory();
+        csnFactory = new CsnFactory( replicaId );
     }
 
 
@@ -1728,7 +1728,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Csn getCSN()
     {
-        return csnFactory.newInstance( replicaId );
+        return csnFactory.newInstance();
     }
 
 

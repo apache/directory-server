@@ -638,7 +638,7 @@ public class SubtreeScopeTest
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( attrs );
 
@@ -653,7 +653,7 @@ public class SubtreeScopeTest
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );
-        attrs.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        attrs.add( "entryCSN", new CsnFactory( 1  ).newInstance().toString() );
         attrs.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( attrs );
 

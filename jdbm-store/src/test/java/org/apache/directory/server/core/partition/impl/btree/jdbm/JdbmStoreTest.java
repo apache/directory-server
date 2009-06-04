@@ -362,7 +362,7 @@ public class JdbmStoreTest
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
         entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         store.add( entry );
         
@@ -410,7 +410,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
-      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
       entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
       
@@ -434,7 +434,7 @@ public class JdbmStoreTest
       entry = new DefaultServerEntry( registries, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
-      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
       entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
 
@@ -445,7 +445,7 @@ public class JdbmStoreTest
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
-      entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+      entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
       entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
       store.add( entry );
       
@@ -728,7 +728,7 @@ public class JdbmStoreTest
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
-        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( entry );
@@ -748,7 +748,7 @@ public class JdbmStoreTest
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
-        childEntry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         childEntry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( childEntry );
@@ -881,7 +881,7 @@ public class JdbmStoreTest
         DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
-        entry.add( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         
         store.add( entry );

@@ -70,7 +70,7 @@ public class PartitionConfigurationIT
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );
-        ctxEntry.put( "entryCSN", new CsnFactory().newInstance( 1 ).toString() );
+        ctxEntry.put( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         ctxEntry.put( "entryUUID", SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         partition.add( new AddOperationContext( service.getAdminSession(), ctxEntry ) );
         

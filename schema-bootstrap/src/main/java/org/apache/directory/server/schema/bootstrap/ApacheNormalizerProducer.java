@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 
@@ -76,14 +77,14 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
 
         // For CSNMatch -> 1.3.6.1.4.1.4203.666.11.2.2
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.2", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CSN_MATCH_MR_OID, normalizer );
 
         // For CSNOrderingMatch -> 1.3.6.1.4.1.4203.666.11.2.3
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.3", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CSN_ORDERING_MATCH_MR_OID, normalizer );
 
         // For CSNSidMatch -> 1.3.6.1.4.1.4203.666.11.2.5
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.4203.666.11.2.5", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CSN_SID_MATCH_MR_OID, normalizer );
     }
 }
