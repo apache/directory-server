@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.csn;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * Generates a new {@link Csn}.
@@ -31,12 +33,19 @@ public class CsnFactory
     private static volatile long lastTimestamp;
     
     /** The integer used to disambiguate CSN generated at the same time */
-    private static volatile int changeCount;
+    private AtomicInteger changeCount;
+    
+    /** The replicaId to use for every CSN created by this factory */
+    private int replicaId;
+
+    /** A special instance ID for a purge CSN */
+    private static final int PURGE_INSTANCEID = 0x0FFF;
 
 
-    public CsnFactory()
+    public CsnFactory( int replicaId )
     {
-        changeCount = 0;
+        changeCount = new AtomicInteger( 0 );
+        this.replicaId = replicaId;
     }
 
 
@@ -44,26 +53,23 @@ public class CsnFactory
      * Returns a new {@link Csn}.
      * Generated CSN can be duplicate if user generates CSNs more than 2G 
      * times a milliseconds.
-     * 
-     * @param replicaId Replica ID.  ReplicaID must be 1-3 digit alphanumeric
-     *        value (from 000 to fff).
      */
-    public Csn newInstance( int replicaId )
+    public Csn newInstance()
     {
         long newTimestamp = System.currentTimeMillis();
         
         // We will be able to generate 2 147 483 647 CSNs each 10 ms max
         if ( lastTimestamp == newTimestamp )
         {
-            changeCount ++;
+            changeCount.incrementAndGet();
         }
         else
         {
             lastTimestamp = newTimestamp;
-            changeCount = 0;
+            changeCount.set( 0 );
         }
 
-        return new Csn( lastTimestamp, changeCount, replicaId, 0 );
+        return new Csn( lastTimestamp, changeCount.get(), replicaId, 0 );
     }
 
 
@@ -76,7 +82,7 @@ public class CsnFactory
      * @param replicaId Replica ID.  ReplicaID must be 1-3 digit value
      * @param changeCount The change count to use
      */
-    public Csn newInstance( long timestamp, int replicaId, int changeCount )
+    public Csn newInstance( long timestamp, int changeCount )
     {
         return new Csn( timestamp, changeCount, replicaId, 0 );
     }
@@ -88,8 +94,8 @@ public class CsnFactory
      * 
      * @param expirationDate The time up to the first CSN we want to keep 
      */
-    public Csn newInstance( long expirationDate )
+    public Csn newPurgeCsn( long expirationDate )
     {
-        return new Csn( expirationDate, Integer.MAX_VALUE, -1, Integer.MAX_VALUE );
+        return new Csn( expirationDate, Integer.MAX_VALUE, PURGE_INSTANCEID, Integer.MAX_VALUE );
     }
 }

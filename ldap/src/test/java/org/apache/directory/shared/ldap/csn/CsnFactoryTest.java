@@ -43,14 +43,14 @@ public class CsnFactoryTest
     @Test
     public void testUnique()
     {
-        int replicaID = 001;
-        CsnFactory defaultCSNFactory = new CsnFactory();
+        int replicaId = 001;
+        CsnFactory defaultCSNFactory = new CsnFactory( replicaId );
 
         Csn[] csns = new Csn[NUM_GENERATES];
 
         for ( int i = 0; i < NUM_GENERATES; i++ )
         {
-            csns[i] = defaultCSNFactory.newInstance( replicaID );
+            csns[i] = defaultCSNFactory.newInstance();
         }
 
         for ( int i = 0; i < NUM_GENERATES; i++ )

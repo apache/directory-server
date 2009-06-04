@@ -451,7 +451,7 @@ public interface SchemaConstants
     String UTC_TIME_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.53";
     String DIRECTORY_STRING_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.15";
     String UUID_SYNTAX                      = "1.3.6.1.1.16.1";
-    String CSN_SYNTAX                       = "1.3.6.1.4.1.4203.666.11.2.1";
+    String CSN_SYNTAX                       = "1.3.6.1.4.1.4203.666.11.2.1";  // done
     String CSN_SID_SYNTAX                   = "1.3.6.1.4.1.4203.666.11.2.4";
 
     String JAVA_BYTE_SYNTAX                 = "1.3.6.1.4.1.18060.0.4.1.0.0";
@@ -461,22 +461,67 @@ public interface SchemaConstants
     String JAVA_INT_SYNTAX                  = "1.3.6.1.4.1.18060.0.4.1.0.4";
 
     // ---- MatchingRules -----------------------------------------------------
-
-    String CASE_IGNORE_MR                   = "caseIgnoreMatch";
-    String CASE_IGNORE_SUBSTRING_MR         = "caseIgnoreSubstringsMatch";
-    String CASE_EXACT_MR                    = "caseExactMatch";
-    String CASE_EXACT_SUBSTRING_MR          = "caseExactSubstringsMatch";
-    String INTEGER_MR                       = "integerMatch";
-    String INTEGER_ORDERING_MR              = "integerOrderingMatch";
-    String BOOLEAN_MR                       = "booleanMatch";
-    String BIT_STRING_MR                    = "bitStringMatch";
-    String GENERALIZED_TIME_MR              = "generalizedTimeMatch";
-    String GENERALIZED_TIME_ORDERING_MR     = "generalizedTimeOrderingMatch";
-    String UUID_MATCH                       = "uuidMatch";
-    String UUID_ORDERING_MATCH              = "uuidOrderingMatch";
-    String CSN_MATCH                        = "csndMatch";
-    String CSN_ORDERING_MATCH               = "csnOrderingMatch";
-    String CSN_SID_MATCH                    = "csnSidMatch";
+    // objectIdentifierMatch (RFC 4517, chap. 4.2.26)
+    String OBJECT_IDENTIFIER_MATCH_MR           = "objectIdentifierMatch"; // done
+    String OBJECT_IDENTIFIER_MATCH_MR_OID       = "2.5.13.0"; // done
+    
+    // distinguishedNameMatch (RFC 4517, chap. 4.2.15)
+    String DISTINGUISHED_NAME_MATCH_MR          = "distinguishedNameMatch"; // done
+    String DISTINGUISHED_NAME_MATCH_MR_OID      = "2.5.13.1"; // done
+    
+    // caseIgnoreMatch (RFC 4517, chap. 3.3.19)
+    String CASE_IGNORE_MATCH_MR                 = "caseIgnoreMatch"; // done
+    String CASE_IGNORE_MATCH_MR_OID             = "2.5.13.2"; // done
+    
+    // caseIgnoreOrderingMatch (RFC 4517, chap. 4.2.12)
+    String CASE_IGNORE_ORDERING_MATCH_MR        = "caseIgnoreOrderingMatch"; // done
+    String CASE_IGNORE_ORDERING_MATCH_MR_OID    = "2.5.13.3"; // done
+    
+    // caseIgnoreSubstringsMatch (RFC 4517, chap. 4.2.13)
+    String CASE_IGNORE_SUBSTRING_MATCH_MR       = "caseIgnoreSubstringsMatch"; // done
+    String CASE_IGNORE_SUBSTRING_MATCH_MR_OID   = "2.5.13.4"; // done
+    
+    // caseExactMatch (RFC 4517, chap. 4.2.4)
+    String CASE_EXACT_MATCH_MR                  = "caseExactMatch"; // done
+    String CASE_EXACT_MATCH_MR_OID              = "2.5.13.5"; // done
+    
+    // caseExactOrderingMatch (RFC 4517, chap. 4.2.5)
+    String CASE_EXACT_ORDERING_MATCH_MR         = "caseExactOrderingMatch"; // done
+    String CASE_EXACT_ORDERING_MATCH_MR_OID     = "2.5.13.6"; // done
+    
+    // caseExactSubstringsMatch (RFC 4517, chap. 4.2.6)
+    String CASE_EXACT_SUBSTRING_MATCH_MR        = "caseExactSubstringsMatch"; // done
+    String CASE_EXACT_SUBSTRING_MATCH_MR_OID    = "2.5.13.7"; // done
+    
+    // numericStringMatch (RFC 4517, chap. 4.2.22)
+    String NUMERIC_STRING_MATCH_MR              = "numericStringMatch"; // done
+    String NUMERIC_STRING_MATCH_MR_OID          = "2.5.13.8"; // done
+    
+    // numericStringOrderingMatch (RFC 4517, chap. 4.2.23)
+    String NUMERIC_STRING_ORDERING_MATCH_MR     = "numericStringOrderingMatch"; // done
+    String NUMERIC_STRING_ORDERING_MATCH_MR_OID = "2.5.13.9"; // done
+    
+    
+    String INTEGER_MR                         = "integerMatch";
+    String INTEGER_ORDERING_MR                = "integerOrderingMatch";
+    String BOOLEAN_MR                         = "booleanMatch";
+    String BIT_STRING_MR                      = "bitStringMatch";
+    String GENERALIZED_TIME_MR                = "generalizedTimeMatch";
+    String GENERALIZED_TIME_ORDERING_MR       = "generalizedTimeOrderingMatch";
+    String UUID_MATCH                         = "uuidMatch";
+    String UUID_ORDERING_MATCH                = "uuidOrderingMatch";
+    
+    // csnMatch 
+    String CSN_MATCH_MR                       = "csnMatch";  // done
+    String CSN_MATCH_MR_OID                   = "1.3.6.1.4.1.4203.666.11.2.2";  // done
+    
+    // csnOrderingMatch
+    String CSN_ORDERING_MATCH_MR              = "csnOrderingMatch";  // done
+    String CSN_ORDERING_MATCH_MR_OID          = "1.3.6.1.4.1.4203.666.11.2.3";  // done
+    
+    // csnSidMatch
+    String CSN_SID_MATCH_MR                   = "csnSidMatch";  // done
+    String CSN_SID_MATCH_MR_OID               = "1.3.6.1.4.1.4203.666.11.2.5";  // done
     
     // ---- Features ----------------------------------------------------------
     String FEATURE_ALL_OPERATIONAL_ATTRIBUTES = "1.3.6.1.4.1.4203.1.5.1";
