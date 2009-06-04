@@ -24,6 +24,7 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -40,7 +41,7 @@ public class SchemaUtilsTest
     {
         SyntaxImpl[] syntaxes = new SyntaxImpl[3];
         syntaxes[0] = new SyntaxImpl( "1.3.6.1.4.1.1466.115.121.1.12", "DN syntax", true );
-        syntaxes[1] = new SyntaxImpl( "1.3.6.1.4.1.1466.115.121.1.15", "Directory String syntax", true );
+        syntaxes[1] = new SyntaxImpl( SchemaConstants.DIRECTORY_STRING_SYNTAX, "Directory String syntax", true );
         syntaxes[2] = new SyntaxImpl( "1.3.6.1.4.1.1466.115.121.1.58", "Substring assertion syntax", true );
         return syntaxes;
     }

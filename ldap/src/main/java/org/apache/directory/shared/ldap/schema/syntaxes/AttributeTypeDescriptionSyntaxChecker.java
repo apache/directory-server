@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -71,10 +72,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class AttributeTypeDescriptionSyntaxChecker extends AbstractSyntaxChecker
 {
-
-    /** The Syntax OID, according to RFC 4517, par. 3.3.1 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.3";
-
     /** The schema parser used to parse the AttributeTypeDescription Syntax */
     private AttributeTypeDescriptionSchemaParser schemaParser = new AttributeTypeDescriptionSchemaParser();
 
@@ -85,7 +82,7 @@ public class AttributeTypeDescriptionSyntaxChecker extends AbstractSyntaxChecker
      */
     public AttributeTypeDescriptionSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX );
     }
     
     /**

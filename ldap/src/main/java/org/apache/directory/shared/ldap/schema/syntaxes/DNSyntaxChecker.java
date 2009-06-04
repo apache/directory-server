@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -34,9 +35,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DNSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according RFC 4517, par. 3.3.9 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.12";
-    
     /**
      * 
      * Creates a new instance of DNSyntaxChecker.
@@ -44,7 +42,7 @@ public class DNSyntaxChecker extends AbstractSyntaxChecker
      */
     public DNSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.DN_SYNTAX );
     }
 
     /**

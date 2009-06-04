@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.aci.ACIItemChecker;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -35,9 +36,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class ACIItemSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.1";
-
     private ACIItemChecker checker = new ACIItemChecker();
 
     /**
@@ -45,7 +43,7 @@ public class ACIItemSyntaxChecker extends AbstractSyntaxChecker
      */
     public ACIItemSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.ACI_ITEM_SYNTAX );
     }
 
     /**

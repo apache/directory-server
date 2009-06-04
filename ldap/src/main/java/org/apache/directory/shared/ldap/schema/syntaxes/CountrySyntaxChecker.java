@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -41,9 +42,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class CountrySyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.4 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.11";
-    
     /** The ISO 3166 list of countries, as of 2006 */
     private static final String[] COUNTRY_ISO_3166 =
         {
@@ -94,7 +92,7 @@ public class CountrySyntaxChecker extends AbstractSyntaxChecker
      */
     public CountrySyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.COUNTRY_STRING_SYNTAX );
     }
     
     

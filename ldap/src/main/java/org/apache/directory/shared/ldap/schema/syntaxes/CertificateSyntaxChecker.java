@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+
 
 /**
  * A SyntaxChecker which verifies that a value is a certificate according to RFC 4523 :
@@ -36,16 +38,12 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
  */
 public class CertificateSyntaxChecker extends BinarySyntaxChecker
 {
-    /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.8";
-
-
     /**
      * Private default constructor to prevent unnecessary instantiation.
      */
     public CertificateSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.CERTIFICATE_SYNTAX );
     }
 
     /**
