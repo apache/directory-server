@@ -137,21 +137,21 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.36" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.10", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "numericStringSubstringsMatch" } );
+            { SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.11", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "caseIgnoreListMatch" } );
+            { SchemaConstants.CASE_IGNORE_LIST_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.41" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.14", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "integerMatch" } );
+            { SchemaConstants.INTEGER_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -169,21 +169,21 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.36" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.15", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "integerOrderingMatch" } );
+            { SchemaConstants.INTEGER_ORDERING_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.16", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.BIT_STRING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "bitStringMatch" } );
+            { SchemaConstants.BIT_STRING_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.6" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.17", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "octetStringMatch" } );
+            { SchemaConstants.OCTET_STRING_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -206,15 +206,15 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
          */
 
-        mrule = new BootstrapMatchingRule( "2.5.13.20", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "telephoneNumberMatch" } );
+            { SchemaConstants.TELEPHONE_NUMBER_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.50" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.21", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "telephoneNumberSubstringsMatch" } );
+            { SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -321,15 +321,15 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
 
          */
 
-        mrule = new BootstrapMatchingRule( "2.5.13.13", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.BOOLEAN_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "booleanMatch" } );
+            { SchemaConstants.BOOLEAN_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.7" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.18", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "octetStringOrderingMatch" } );
+            { SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
@@ -359,9 +359,9 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.12", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "caseIgnoreListSubstringsMatch" } );
+            { SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 

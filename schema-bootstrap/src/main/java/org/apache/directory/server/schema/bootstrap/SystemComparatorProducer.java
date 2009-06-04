@@ -153,63 +153,63 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.10", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.11 NAME 'caseIgnoreListMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.11", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.14 NAME 'integerMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.14", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.15 NAME 'integerOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         comparator = new IntegerOrderingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.15", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.16 NAME 'bitStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.16", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.17 NAME 'octetStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         comparator = new ByteArrayComparator();
-        cb.schemaObjectProduced( this, "2.5.13.17", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.18 NAME 'octetStringOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         comparator = new ByteArrayComparator();
-        cb.schemaObjectProduced( this, "2.5.13.18", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.20 NAME 'telephoneNumberMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
          */
         comparator = new TelephoneNumberComparator();
-        cb.schemaObjectProduced( this, "2.5.13.20", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.21", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, comparator );
 
         /*
          ( 2.5.13.22 NAME 'presentationAddressMatch'
@@ -294,7 +294,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          */
 
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.13", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.BOOLEAN_MATCH_MR_OID, comparator );
         
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
@@ -318,7 +318,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, comparator );
 
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "2.5.13.12", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, comparator );
 
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4

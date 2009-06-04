@@ -174,7 +174,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
          */
         normalizer = new CachingDeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.11", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.2 NAME 'caseIgnoreMatch'
@@ -230,56 +230,56 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.10", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.14 NAME 'integerMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.14", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.14 NAME 'integerOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.15", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.16 NAME 'bitStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.16", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.17 NAME 'octetStringMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.17", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.18 NAME 'octetStringOrderingMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.18", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.20 NAME 'telephoneNumberMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.20", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.21", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
          ( 2.5.13.22 NAME 'presentationAddressMatch'
@@ -357,7 +357,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          */
 
         normalizer = new BooleanNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.13", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.BOOLEAN_MATCH_MR_OID, normalizer );
 
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
@@ -380,7 +380,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, normalizer );
 
         normalizer = new CachingDeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "2.5.13.12", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
          * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
