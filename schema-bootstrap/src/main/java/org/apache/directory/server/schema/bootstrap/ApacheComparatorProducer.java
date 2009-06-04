@@ -60,7 +60,7 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
      */
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
-        Comparator comparator;
+        Comparator<?> comparator;
 
         // For exactDnAsStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.1
         comparator = new ComparableComparator();
@@ -76,11 +76,11 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
 
         // For uuidMatch
         comparator = new UUIDComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.1.16.2", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.UUID_MATCH_MR_OID, comparator );
 
         // For uuidOrderingMatch
         comparator = new UUIDComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.1.16.3", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.UUID_ORDERING_MATCH_MR_OID, comparator );
         
         // For CSNMatch
         comparator = new CsnComparator();

@@ -31,6 +31,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
@@ -162,7 +163,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         
         public SupDITStructureRuleMatch( SyntaxRegistry registry ) throws NamingException
         {
-            this.syntax = registry.lookup( "1.3.6.1.4.1.1466.115.121.1.17" );
+            this.syntax = registry.lookup( SchemaConstants.DIT_STRUCTURE_RULE_SYNTAX );
         }
         
         

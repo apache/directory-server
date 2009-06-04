@@ -61,9 +61,6 @@ public class MetaAttributeTypeHandlerIT
     private static final String DESCRIPTION0 = "A test attributeType";
     private static final String DESCRIPTION1 = "An alternate description";
 
-    private static final String INTEGER_SYNTAX_OID = "1.3.6.1.4.1.1466.115.121.1.27";
-    private static final String DIRSTR_SYNTAX_OID = "1.3.6.1.4.1.1466.115.121.1.15";
-    
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.2.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.2.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.2.100002";
@@ -105,7 +102,7 @@ public class MetaAttributeTypeHandlerIT
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );
         attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, INTEGER_SYNTAX_OID );
+        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
         attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
         attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
         attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
@@ -223,7 +220,7 @@ public class MetaAttributeTypeHandlerIT
         
         AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
-        assertEquals( at.getSyntax().getOid(), INTEGER_SYNTAX_OID );
+        assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -231,7 +228,7 @@ public class MetaAttributeTypeHandlerIT
         ModificationItem[] mods = new ModificationItem[2];
         Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new BasicAttribute( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
+        attr = new BasicAttribute( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.DIRECTORY_STRING_SYNTAX );
         mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -243,7 +240,7 @@ public class MetaAttributeTypeHandlerIT
         
         at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
-        assertEquals( at.getSyntax().getOid(), DIRSTR_SYNTAX_OID );
+        assertEquals( at.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
 
     
@@ -254,14 +251,14 @@ public class MetaAttributeTypeHandlerIT
         
         AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
-        assertEquals( at.getSyntax().getOid(), INTEGER_SYNTAX_OID );
+        assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
         mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
-        mods.put( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
+        mods.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.DIRECTORY_STRING_SYNTAX );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "attributeType OID should still be present", 
@@ -272,7 +269,7 @@ public class MetaAttributeTypeHandlerIT
 
         at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
-        assertEquals( at.getSyntax().getOid(), DIRSTR_SYNTAX_OID );
+        assertEquals( at.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
     
 
@@ -289,7 +286,7 @@ public class MetaAttributeTypeHandlerIT
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );
         attrs.put( MetaSchemaConstants.M_OID_AT, DEPENDEE_OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, INTEGER_SYNTAX_OID );
+        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
         attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
         attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
         attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
@@ -474,7 +471,7 @@ public class MetaAttributeTypeHandlerIT
         oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         attrs.put( oc );
         attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, INTEGER_SYNTAX_OID );
+        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
         attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
         attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
         attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );

@@ -56,33 +56,33 @@ public class ApacheMatchingRuleProducer extends AbstractBootstrapProducer
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.1", registries );
         mrule.setNames( new String[]
             { "exactDnAsStringMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.12" );
+        mrule.setSyntaxOid( SchemaConstants.DN_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.2", registries );
         mrule.setNames( new String[]
             { "bigIntegerMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        mrule.setSyntaxOid( SchemaConstants.INTEGER_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.18060.0.4.1.1.3", registries );
         mrule.setNames( new String[]
             { "jdbmStringMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         // For uuidMatch 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.1.16.2", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.UUID_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "uuidMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.1.16.1" );
+            { SchemaConstants.UUID_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.UUID_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         // For uuidOrderingMatch 
-        mrule = new BootstrapMatchingRule( "1.3.6.1.1.16.3", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.UUID_ORDERING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "uuidOrderingMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.1.16.1" );
+            { SchemaConstants.UUID_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.UUID_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
         
         // For CSNMatch 

@@ -69,11 +69,11 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
 
         // For uuidMatch -> 1.3.6.1.1.16.2
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.1.16.2", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.UUID_MATCH_MR_OID, normalizer );
 
         // For uuidOrderingMatch -> 1.3.6.1.1.16.3
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.1.16.3", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.UUID_ORDERING_MATCH_MR_OID, normalizer );
 
         // For CSNMatch -> 1.3.6.1.4.1.4203.666.11.2.2
         normalizer = new NoOpNormalizer();

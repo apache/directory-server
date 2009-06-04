@@ -47,48 +47,55 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         BootstrapMatchingRule mrule = null;
 
         /*
-         * Straight out of RFC 2252: Section 8
+         * Straight out of RFC 4517
+         * Straight out of RFC 3698: Section 2.3
+         * http://www.faqs.org/rfcs/rfc3698.html
          * =======================================
-         ( 2.5.13.0 NAME 'objectIdentifierMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
-
-         ( 2.5.13.1 NAME 'distinguishedNameMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
-
-         ( 2.5.13.2 NAME 'caseIgnoreMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-
-         ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-
-         ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-
+        /*
+         * ( 2.5.13.0 NAME 'objectIdentifierMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.38" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * ( 2.5.13.1 NAME 'distinguishedNameMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.DISTINGUISHED_NAME_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.12" );
+        mrule.setSyntaxOid( SchemaConstants.DN_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( "2.5.13.2", registries );
+        /*
+         * ( 2.5.13.2 NAME 'caseIgnoreMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.CASE_IGNORE_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR } );
@@ -96,269 +103,79 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
-         * Straight out of RFC 3698: Section 2.3
-         * http://www.faqs.org/rfcs/rfc3698.html
-         * =======================================
-         ( 2.5.13.6 NAME 'caseExactOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         * ( 2.5.13.5 NAME 'caseExactMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
+            { SchemaConstants.CASE_EXACT_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
-         * Straight out of RFC 2252: Section 8
-         * =======================================
-         ( 2.5.13.8 NAME 'numericStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
-
-         ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-
-         ( 2.5.13.11 NAME 'caseIgnoreListMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
-
-         ( 2.5.13.14 NAME 'integerMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
-
-         ( 2.5.13.16 NAME 'bitStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
-
-         ( 2.5.13.17 NAME 'octetStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         * ( 2.5.13.6 NAME 'caseExactOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+        
+        /*
+         * ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+        
+        /*
+         * ( 2.5.13.8 NAME 'numericStringMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.NUMERIC_STRING_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.NUMERIC_STRING_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.36" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * ( 2.5.13.9 NAME 'numericStringOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.36" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+        
+        /*
+         * ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
+        /*
+         * ( 2.5.13.11 NAME 'caseIgnoreListMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
+         */
         mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.CASE_IGNORE_LIST_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.41" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
-        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.INTEGER_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
         /*
-         * Straight out of RFC 3698: Section 2.7
-         * http://www.faqs.org/rfcs/rfc3698.html
-         * =======================================
-         ( 2.5.13.15 NAME 'integerOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         * ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.36" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.INTEGER_ORDERING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.BIT_STRING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.BIT_STRING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.6" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.OCTET_STRING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        /*
-         * Straight out of RFC 2252: Section 8
-         * =======================================
-         ( 2.5.13.20 NAME 'telephoneNumberMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
-
-         ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-
-         ( 2.5.13.22 NAME 'presentationAddressMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.43 )
-
-         ( 2.5.13.23 NAME 'uniqueMemberMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
-
-         ( 2.5.13.24 NAME 'protocolInformationMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
-         */
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.TELEPHONE_NUMBER_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.50" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.22", registries );
-        mrule.setNames( new String[]
-            { "presentationAddressMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.43" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.23", registries );
-        mrule.setNames( new String[]
-            { "uniqueMemberMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.34" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.24", registries );
-        mrule.setNames( new String[]
-            { "protocolInformationMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.42" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        /*
-         * Straight out of RFC 2252: Section 8
-         * =======================================
-         ( 2.5.13.27 NAME 'generalizedTimeMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
-
-         ( 2.5.13.28 NAME 'generalizedTimeOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
-
-         ( 2.5.13.29 NAME 'integerFirstComponentMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
-
-         ( 2.5.13.30 NAME 'objectIdentifierFirstComponentMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
-
-         ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
-
-         ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
-
-         */
-
-        mrule = new BootstrapMatchingRule( "2.5.13.27", registries );
-        mrule.setNames( new String[]
-            { "generalizedTimeMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.24" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.28", registries );
-        mrule.setNames( new String[]
-            { "generalizedTimeOrderingMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.24" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.29", registries );
-        mrule.setNames( new String[]
-            { "integerFirstComponentMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "2.5.13.30", registries );
-        mrule.setNames( new String[]
-            { "objectIdentifierFirstComponentMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.38" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        /*
-         * Straight out of RFC 3698: Section 2.6
-         * http://www.faqs.org/rfcs/rfc3698.html
-         * =======================================
-         * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
-         *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-         */
-
-        mrule = new BootstrapMatchingRule( "2.5.13.31", registries );
-        mrule.setNames( new String[]
-            { "directoryStringFirstComponentMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.1", registries );
-        mrule.setNames( new String[]
-            { "caseExactIA5Match" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.2", registries );
-        mrule.setNames( new String[]
-            { "caseIgnoreIA5Match" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        /*
-         * MatchingRules from section 2 of http://www.faqs.org/rfcs/rfc3698.html
-         * for Additional MatchingRules
-
-         ( 2.5.13.13 NAME 'booleanMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
-
-         ( 2.5.13.18 NAME 'octetStringOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
-
-         */
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.BOOLEAN_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.BOOLEAN_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.7" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        /*
-         * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
-         * =========================================================
-
-         ( 2.5.13.5 NAME 'caseExactMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-
-         ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-
-         ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-         */
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.CASE_EXACT_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.15" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
-        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, registries );
-        mrule.setNames( new String[]
-            { SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
-        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
-
         mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
             { SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR } );
@@ -366,16 +183,230 @@ public class SystemMatchingRuleProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
 
         /*
-         * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
-         * =========================================================
-
-         ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         * ( 2.5.13.13 NAME 'booleanMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
          */
-
-        mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.1466.109.114.3", registries );
+        mrule = new BootstrapMatchingRule( SchemaConstants.BOOLEAN_MATCH_MR_OID, registries );
         mrule.setNames( new String[]
-            { "caseIgnoreIA5SubstringsMatch" } );
+            { SchemaConstants.BOOLEAN_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.BOOLEAN_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.14 NAME 'integerMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.INTEGER_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.INTEGER_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.15 NAME 'integerOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.INTEGER_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.INTEGER_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.16 NAME 'bitStringMatch' 
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.BIT_STRING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.BIT_STRING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.BIT_STRING_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.17 NAME 'octetStringMatch' 
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.OCTET_STRING_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.18 NAME 'octetStringOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.19 NAME 'octetStringSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.OCTET_STRING_SUBSTRINGS_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.OCTET_STRING_SUBSTRINGS_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.40" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+        
+        /*
+         * ( 2.5.13.20 NAME 'telephoneNumberMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.TELEPHONE_NUMBER_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.50" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * This MatchingRule is deprecated
+         * 
+         * ( 2.5.13.22 NAME 'presentationAddressMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.43 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.PRESENTATION_ADDRESS_MATCH_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.43" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.23 NAME 'uniqueMemberMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.UNIQUE_MEMBER_MATCH_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.UNIQUE_MEMBER_MATCH_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.34" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * This MatchingRule is deprecated
+         * 
+         * ( 2.5.13.24 NAME 'protocolInformationMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.PROTOCOL_INFORMATION_MATCH_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.42" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        // "2.5.13.25" is not used ...
+        
+        // "2.5.13.26" is not used ...
+
+        /*
+         * ( 2.5.13.27 NAME 'generalizedTimeMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.GENERALIZED_TIME_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.GENERALIZED_TIME_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.GENERALIZED_TIME_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.28 NAME 'generalizedTimeOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.GENERALIZED_TIME_ORDERING_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.GENERALIZED_TIME_ORDERING_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.GENERALIZED_TIME_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.29 NAME 'integerFirstComponentMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.INTEGER_FIRST_COMPONENT_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.INTEGER_FIRST_COMPONENT_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.INTEGER_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.30 NAME 'objectIdentifierFirstComponentMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.38" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
+         *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.32 NAME 'wordMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.WORD_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.WORD_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 2.5.13.33 NAME 'keywordMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.KEYWORD_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.KEYWORD_MATCH_MR } );
+        mrule.setSyntaxOid( SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_EXACT_IA5_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.CASE_EXACT_IA5_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_IA5_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.CASE_IGNORE_IA5_MATCH_MR } );
+        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
+        cb.schemaObjectProduced( this, mrule.getOid(), mrule );
+
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        mrule = new BootstrapMatchingRule( SchemaConstants.CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID, registries );
+        mrule.setNames( new String[]
+            { SchemaConstants.CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR } );
         mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.58" );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }

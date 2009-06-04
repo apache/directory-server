@@ -91,244 +91,254 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         Comparator comparator;
 
         /*
-         * Straight out of RFC 2252: Section 8
+         * Straight out of RFC 4517
          * =======================================
-         ( 2.5.13.0 NAME 'objectIdentifierMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+         * ( 2.5.13.0 NAME 'objectIdentifierMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
         comparator = new ObjectIdentifierComparator();
         cb.schemaObjectProduced( this, SchemaConstants.OBJECT_IDENTIFIER_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.1 NAME 'distinguishedNameMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+         * ( 2.5.13.1 NAME 'distinguishedNameMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
         comparator = new DnComparator( registries.getAttributeTypeRegistry() );
         cb.schemaObjectProduced( this, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.2 NAME 'caseIgnoreMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         * ( 2.5.13.2 NAME 'caseIgnoreMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         * ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         * ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.6 NAME 'caseExactOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         * ( 2.5.13.5 NAME 'caseExactMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+         */
+        comparator = new DeepTrimCachingNormalizingComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_MATCH_MR_OID, comparator );
+        
+        /*
+         * ( 2.5.13.6 NAME 'caseExactOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.8 NAME 'numericStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         * ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        comparator = new DeepTrimCachingNormalizingComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, comparator );
+
+        /*
+         * ( 2.5.13.8 NAME 'numericStringMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.9 NAME 'numericStringOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
+         * ( 2.5.13.9 NAME 'numericStringOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         * ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.11 NAME 'caseIgnoreListMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
+         * ( 2.5.13.11 NAME 'caseIgnoreListMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
          */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.14 NAME 'integerMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         * ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        comparator = new DeepTrimToLowerCachingNormalizingComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, comparator );
+
+        /*
+         * ( 2.5.13.13 NAME 'booleanMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+         */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.BOOLEAN_MATCH_MR_OID, comparator );
+        
+        /*
+         * ( 2.5.13.14 NAME 'integerMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.15 NAME 'integerOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         * ( 2.5.13.15 NAME 'integerOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         comparator = new IntegerOrderingComparator();
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.16 NAME 'bitStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
+         * ( 2.5.13.16 NAME 'bitStringMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.17 NAME 'octetStringMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         * ( 2.5.13.17 NAME 'octetStringMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         comparator = new ByteArrayComparator();
         cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.18 NAME 'octetStringOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         * ( 2.5.13.18 NAME 'octetStringOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
         comparator = new ByteArrayComparator();
         cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.20 NAME 'telephoneNumberMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
+         * ( 2.5.13.19 NAME 'octetStringSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+         */
+        comparator = new ByteArrayComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_SUBSTRINGS_MATCH_MR_OID, comparator );
+       
+        /*
+         * ( 2.5.13.20 NAME 'telephoneNumberMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
          */
         comparator = new TelephoneNumberComparator();
         cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         * ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
         comparator = new ComparableComparator();
         cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.22 NAME 'presentationAddressMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.43 )
+         * ( 2.5.13.22 NAME 'presentationAddressMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.43 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.22", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.23 NAME 'uniqueMemberMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
+         * ( 2.5.13.23 NAME 'uniqueMemberMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
          */
         comparator = new NameAndOptionalUIDComparator();
-        cb.schemaObjectProduced( this, "2.5.13.23", comparator );
+        cb.schemaObjectProduced( this,SchemaConstants.UNIQUE_MEMBER_MATCH_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.24 NAME 'protocolInformationMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
+         * ( 2.5.13.24 NAME 'protocolInformationMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.42 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.24", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID, comparator );
+
+        // 2.5.13.25 is not defined...
+        
+        // 2.5.13.26 is not defined...
 
         /*
-         ( 2.5.13.27 NAME 'generalizedTimeMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+         * ( 2.5.13.27 NAME 'generalizedTimeMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.27", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.28 NAME 'generalizedTimeOrderingMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+         * ( 2.5.13.28 NAME 'generalizedTimeOrderingMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.28", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_ORDERING_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.29 NAME 'integerFirstComponentMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+         * ( 2.5.13.29 NAME 'integerFirstComponentMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.29", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_FIRST_COMPONENT_MATCH_MR_OID, comparator );
 
         /*
-         ( 2.5.13.30 NAME 'objectIdentifierFirstComponentMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+         * ( 2.5.13.30 NAME 'objectIdentifierFirstComponentMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.30", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID, comparator );
 
         /*
-         * Straight out of RFC 3698: Section 2.6
-         * http://www.faqs.org/rfcs/rfc3698.html
-         * =======================================
          * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
          *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, "2.5.13.31", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID, comparator );
 
         /*
-         ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         * ( 2.5.13.32 NAME 'wordMatch' 
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        comparator = new DeepTrimCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.1", comparator );
-
-        /*
-         ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
-         */
-        comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.2", comparator );
-
-        /*
-         * MatchingRules from section 2 of http://www.faqs.org/rfcs/rfc3698.html
-         * for Additional MatchingRules
-
-         ( 2.5.13.13 NAME 'booleanMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
-
-         */
-
         comparator = new ComparableComparator();
-        cb.schemaObjectProduced( this, SchemaConstants.BOOLEAN_MATCH_MR_OID, comparator );
-        
-        /*
-         * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.3
-         * =========================================================
-
-         ( 2.5.13.5 NAME 'caseExactMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-
-         ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-
-         ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
-
-         */
-
-        comparator = new DeepTrimCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_MATCH_MR_OID, comparator );
-
-        comparator = new DeepTrimCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, comparator );
-
-        comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.WORD_MATCH_MR_OID, comparator );
 
         /*
-         * Straight out of RFC 2798 for InetOrgPerson: Section 9.3.4
-         * =========================================================
-
-         ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
-         SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         * ( 2.5.13.33 NAME 'keywordMatch' 
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
+        comparator = new ComparableComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.KEYWORD_MATCH_MR_OID, comparator );
 
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         */
+        comparator = new DeepTrimCachingNormalizingComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_IA5_MATCH_MR_OID, comparator );
+
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+         */
         comparator = new DeepTrimToLowerCachingNormalizingComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.109.114.3", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_IA5_MATCH_MR_OID, comparator );
+
+        /*
+         * ( 1.3.6.1.4.1.1466.109.114.3 NAME 'caseIgnoreIA5SubstringsMatch'
+         * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
+         */
+        comparator = new DeepTrimToLowerCachingNormalizingComparator();
+        cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID, comparator );
     }
 }

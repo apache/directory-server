@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.syntaxes.ACIItemSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxes.AccessPointSyntaxChecker;
@@ -129,16 +130,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 8 Certificate List                 N  1.3.6.1.4.1.1466.115.121.1.9
          * 9 Certificate Pair                 N  1.3.6.1.4.1.1466.115.121.1.10
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.1", new ACIItemSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.2", new AccessPointSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.3", new AttributeTypeDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.4", new AudioSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.5", new BinarySyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.6", new BitStringSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.7", new BooleanSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.8", new CertificateSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.9", new CertificateListSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.10", new CertificatePairSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.ACI_ITEM_SYNTAX, new ACIItemSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.ACCESS_POINT_SYNTAX, new AccessPointSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX, new AttributeTypeDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.AUDIO_SYNTAX, new AudioSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.BINARY_SYNTAX, new BinarySyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_SYNTAX, new BitStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.BOOLEAN_SYNTAX, new BooleanSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.CERTIFICATE_SYNTAX, new CertificateSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.CERTIFICATE_LIST_SYNTAX, new CertificateListSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.CERTIFICATE_PAIR_SYNTAX, new CertificatePairSyntaxChecker() );
 
         /*
          * 10 Country String                  Y  1.3.6.1.4.1.1466.115.121.1.11
@@ -152,16 +153,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 18 DSA Quality Syntax              Y  1.3.6.1.4.1.1466.115.121.1.19
          * 19 DSE Type                        Y  1.3.6.1.4.1.1466.115.121.1.20
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.11", new CountrySyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.12", new DNSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.13", new DataQualitySyntaxSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.14", new DeliveryMethodSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.15", new DirectoryStringSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.16", new DITContentRuleDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.17", new DITStructureRuleDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.18", new DLSubmitPermissionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.19", new DSAQualitySyntaxSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.20", new DSETypeSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.COUNTRY_STRING_SYNTAX, new CountrySyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DN_SYNTAX, new DNSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DATA_QUALITY_SYNTAX, new DataQualitySyntaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DELIVERY_METHOD_SYNTAX, new DeliveryMethodSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DIRECTORY_STRING_SYNTAX, new DirectoryStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DIT_CONTENT_RULE_SYNTAX, new DITContentRuleDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DIT_STRUCTURE_RULE_SYNTAX, new DITStructureRuleDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DL_SUBMIT_PERMISSION_SYNTAX, new DLSubmitPermissionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DSA_QUALITY_SYNTAX, new DSAQualitySyntaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.DSE_TYPE_SYNTAX, new DSETypeSyntaxChecker() );
 
         /* 20 Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
          * 21 Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
@@ -177,10 +178,10 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.21", new EnhancedGuideSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.22", new FacsimileTelephoneNumberSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.23", new FaxSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.24", new GeneralizedTimeSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_SYNTAX, new GeneralizedTimeSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.25", new GuideSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.26", new Ia5StringSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.27", new IntegerSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.INTEGER_SYNTAX, new IntegerSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.28", new JpegSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.29", new MasterAndShadowAccessPointSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.30", new MatchingRuleDescriptionSyntaxChecker() );
@@ -242,7 +243,7 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          */
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.51", new TeletexTerminalIdentifierSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.52", new TelexNumberSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.53", new UtcTimeSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.UTC_TIME_SYNTAX, new UtcTimeSyntaxChecker() );
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.54", new LdapSyntaxDescriptionSyntaxChecker() );
 
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.55", 
