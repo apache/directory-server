@@ -462,50 +462,91 @@ public interface SchemaConstants
 
     // ---- MatchingRules -----------------------------------------------------
     // objectIdentifierMatch (RFC 4517, chap. 4.2.26)
-    String OBJECT_IDENTIFIER_MATCH_MR           = "objectIdentifierMatch"; // done
-    String OBJECT_IDENTIFIER_MATCH_MR_OID       = "2.5.13.0"; // done
+    String OBJECT_IDENTIFIER_MATCH_MR               = "objectIdentifierMatch"; // done
+    String OBJECT_IDENTIFIER_MATCH_MR_OID           = "2.5.13.0"; // done
     
     // distinguishedNameMatch (RFC 4517, chap. 4.2.15)
-    String DISTINGUISHED_NAME_MATCH_MR          = "distinguishedNameMatch"; // done
-    String DISTINGUISHED_NAME_MATCH_MR_OID      = "2.5.13.1"; // done
+    String DISTINGUISHED_NAME_MATCH_MR              = "distinguishedNameMatch"; // done
+    String DISTINGUISHED_NAME_MATCH_MR_OID          = "2.5.13.1"; // done
     
     // caseIgnoreMatch (RFC 4517, chap. 3.3.19)
-    String CASE_IGNORE_MATCH_MR                 = "caseIgnoreMatch"; // done
-    String CASE_IGNORE_MATCH_MR_OID             = "2.5.13.2"; // done
+    String CASE_IGNORE_MATCH_MR                     = "caseIgnoreMatch"; // done
+    String CASE_IGNORE_MATCH_MR_OID                 = "2.5.13.2"; // done
     
     // caseIgnoreOrderingMatch (RFC 4517, chap. 4.2.12)
-    String CASE_IGNORE_ORDERING_MATCH_MR        = "caseIgnoreOrderingMatch"; // done
-    String CASE_IGNORE_ORDERING_MATCH_MR_OID    = "2.5.13.3"; // done
+    String CASE_IGNORE_ORDERING_MATCH_MR            = "caseIgnoreOrderingMatch"; // done
+    String CASE_IGNORE_ORDERING_MATCH_MR_OID        = "2.5.13.3"; // done
     
     // caseIgnoreSubstringsMatch (RFC 4517, chap. 4.2.13)
-    String CASE_IGNORE_SUBSTRING_MATCH_MR       = "caseIgnoreSubstringsMatch"; // done
-    String CASE_IGNORE_SUBSTRING_MATCH_MR_OID   = "2.5.13.4"; // done
+    String CASE_IGNORE_SUBSTRING_MATCH_MR           = "caseIgnoreSubstringsMatch"; // done
+    String CASE_IGNORE_SUBSTRING_MATCH_MR_OID       = "2.5.13.4"; // done
     
     // caseExactMatch (RFC 4517, chap. 4.2.4)
-    String CASE_EXACT_MATCH_MR                  = "caseExactMatch"; // done
-    String CASE_EXACT_MATCH_MR_OID              = "2.5.13.5"; // done
+    String CASE_EXACT_MATCH_MR                      = "caseExactMatch"; // done
+    String CASE_EXACT_MATCH_MR_OID                  = "2.5.13.5"; // done
     
     // caseExactOrderingMatch (RFC 4517, chap. 4.2.5)
-    String CASE_EXACT_ORDERING_MATCH_MR         = "caseExactOrderingMatch"; // done
-    String CASE_EXACT_ORDERING_MATCH_MR_OID     = "2.5.13.6"; // done
+    String CASE_EXACT_ORDERING_MATCH_MR             = "caseExactOrderingMatch"; // done
+    String CASE_EXACT_ORDERING_MATCH_MR_OID         = "2.5.13.6"; // done
     
     // caseExactSubstringsMatch (RFC 4517, chap. 4.2.6)
-    String CASE_EXACT_SUBSTRING_MATCH_MR        = "caseExactSubstringsMatch"; // done
-    String CASE_EXACT_SUBSTRING_MATCH_MR_OID    = "2.5.13.7"; // done
+    String CASE_EXACT_SUBSTRING_MATCH_MR            = "caseExactSubstringsMatch"; // done
+    String CASE_EXACT_SUBSTRING_MATCH_MR_OID        = "2.5.13.7"; // done
     
     // numericStringMatch (RFC 4517, chap. 4.2.22)
-    String NUMERIC_STRING_MATCH_MR              = "numericStringMatch"; // done
-    String NUMERIC_STRING_MATCH_MR_OID          = "2.5.13.8"; // done
+    String NUMERIC_STRING_MATCH_MR                  = "numericStringMatch"; // done
+    String NUMERIC_STRING_MATCH_MR_OID              = "2.5.13.8"; // done
     
     // numericStringOrderingMatch (RFC 4517, chap. 4.2.23)
-    String NUMERIC_STRING_ORDERING_MATCH_MR     = "numericStringOrderingMatch"; // done
-    String NUMERIC_STRING_ORDERING_MATCH_MR_OID = "2.5.13.9"; // done
+    String NUMERIC_STRING_ORDERING_MATCH_MR         = "numericStringOrderingMatch"; // done
+    String NUMERIC_STRING_ORDERING_MATCH_MR_OID     = "2.5.13.9"; // done
     
+    // numericStringSubstringsMatch (RFC 4517, chap. 4.2.24)
+    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR       = "numericStringSubstringsMatch"; // done
+    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID   = "2.5.13.10"; // done
     
-    String INTEGER_MR                         = "integerMatch";
-    String INTEGER_ORDERING_MR                = "integerOrderingMatch";
-    String BOOLEAN_MR                         = "booleanMatch";
-    String BIT_STRING_MR                      = "bitStringMatch";
+    // caseIgnoreListMatch (RFC 4517, chap. 4.2.9)
+    String CASE_IGNORE_LIST_MATCH_MR                = "caseIgnoreListMatch"; // done
+    String CASE_IGNORE_LIST_MATCH_MR_OID            = "2.5.13.11"; // done
+    
+    // caseIgnoreListSubstringsMatch (RFC 4517, chap. 4.2.10)
+    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR     = "caseIgnoreListSubstringsMatch"; // done
+    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID = "2.5.13.12"; // done
+    
+    // booleanMatch (RFC 4517, chap. 4.2.2)
+    String BOOLEAN_MATCH_MR                         = "booleanMatch"; // done
+    String BOOLEAN_MATCH_MR_OID                     = "2.5.13.13"; // done
+    
+    // integerMatch (RFC 4517, chap. 4.2.19)
+    String INTEGER_MATCH_MR                         = "integerMatch"; // done
+    String INTEGER_MATCH_MR_OID                     = "2.5.13.14"; // done
+    
+    // integerOrderingMatch (RFC 4517, chap. 4.2.20)
+    String INTEGER_ORDERING_MATCH_MR                = "integerOrderingMatch"; // done
+    String INTEGER_ORDERING_MATCH_MR_OID            = "2.5.13.15"; // done
+
+    // bitStringMatch (RFC 4517, chap. 4.2.1)
+    String BIT_STRING_MATCH_MR                      = "bitStringMatch"; // done
+    String BIT_STRING_MATCH_MR_OID                  = "2.5.13.16"; // done
+    
+    // octetStringMatch (RFC 4517, chap. 4.2.27)
+    String OCTET_STRING_MATCH_MR                    = "octetStringMatch"; // done
+    String OCTET_STRING_MATCH_MR_OID                = "2.5.13.17"; // done
+    
+    // octetStringMatch (RFC 4517, chap. 4.2.28)
+    String OCTET_STRING_ORDERING_MATCH_MR           = "octetStringOrderingMatch"; // done
+    String OCTET_STRING_ORDERING_MATCH_MR_OID       = "2.5.13.18"; // done
+    
+    // "2.5.13.19" is not used...
+    
+    // telephoneNumberMatch (RFC 4517, chap. 4.2.29)
+    String TELEPHONE_NUMBER_MATCH_MR                = "telephoneNumberMatch"; // done
+    String TELEPHONE_NUMBER_MATCH_MR_OID            = "2.5.13.20"; // done
+    
+    // telephoneNumberMatch (RFC 4517, chap. 4.2.30)
+    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR     = "telephoneNumberSubstringsMatch"; // done
+    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID = "2.5.13.21"; // done
+    
     String GENERALIZED_TIME_MR                = "generalizedTimeMatch";
     String GENERALIZED_TIME_ORDERING_MR       = "generalizedTimeOrderingMatch";
     String UUID_MATCH                         = "uuidMatch";
