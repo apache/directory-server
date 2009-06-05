@@ -602,7 +602,7 @@ public class SaslBindIT
              connect( "localhost", ldapService.getPort() );
              setTcpNoDelay( false );
              
-             LOG.debug( "isConnected() = {}", _isConnected_ );
+             LOG.debug( "isConnected() = {}", isConnected() );
              LOG.debug( "LocalPort     = {}", getLocalPort() );
              LOG.debug( "LocalAddress  = {}", getLocalAddress() );
              LOG.debug( "RemotePort    = {}", getRemotePort() );
