@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+
 
 /**
  * A SyntaxChecker which verifies that a value is a SubstringAssertion 
@@ -31,16 +33,12 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
  */
 public class SubstringAssertionSyntaxChecker extends BinarySyntaxChecker
 {
-    /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.58";
-
-
     /**
      * Private default constructor to prevent unnecessary instantiation.
      */
     public SubstringAssertionSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.SUBSTRING_ASSERTION_SYNTAX );
     }
 
     /**

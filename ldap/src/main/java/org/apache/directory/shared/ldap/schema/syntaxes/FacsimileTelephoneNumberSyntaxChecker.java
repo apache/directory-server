@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -50,9 +51,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.11 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.22";
-    
     /** Fax parameters possible values */
     private static final String TWO_DIMENSIONAL  = "twoDimensional";
     private static final String FINE_RESOLUTION  = "fineResolution";
@@ -82,7 +80,7 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
      */
     public FacsimileTelephoneNumberSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.FACSIMILE_TELEPHONE_NUMBER_SYNTAX );
     }
 
 
@@ -196,10 +194,8 @@ public class FacsimileTelephoneNumberSyntaxChecker extends TelephoneNumberSyntax
             
             return true;
         }
-        else
-        {
-            // We must have a valid telephone number !
-            return false;
-        }
+        
+        // We must have a valid telephone number !
+        return false;
     }
 }

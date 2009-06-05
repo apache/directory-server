@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -38,9 +39,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class TelexNumberSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.52";
-    
     /**
      * 
      * Creates a new instance of TelexNumberSyntaxChecker.
@@ -48,7 +46,7 @@ public class TelexNumberSyntaxChecker extends AbstractSyntaxChecker
      */
     public TelexNumberSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.TELEX_NUMBER_SYNTAX );
     }
     
     /**

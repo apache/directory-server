@@ -494,127 +494,130 @@ public interface SchemaConstants
     String DIT_STRUCTURE_RULE_SYNTAX              = "1.3.6.1.4.1.1466.115.121.1.17"; // done
     
     // RFC 2252, removed in RFC 4517
-    String DL_SUBMIT_PERMISSION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.18";
+    String DL_SUBMIT_PERMISSION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.18"; // done
 
     // RFC 2252, removed in RFC 4517
-    String DSA_QUALITY_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.19";
+    String DSA_QUALITY_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.19"; // done
 
     // RFC 2252, removed in RFC 4517
-    String DSE_TYPE_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.20";
+    String DSE_TYPE_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.20"; // done
     
     // RFC 4517, chap 3.3.10
-    String ENHANCED_GUIDE_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.21";
+    String ENHANCED_GUIDE_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.21"; // done
     
     // RFC 4517, chap 3.3.11
-    String FACSIMILE_TELEPHONE_NUMBER_SYNTAX      = "1.3.6.1.4.1.1466.115.121.1.22";
+    String FACSIMILE_TELEPHONE_NUMBER_SYNTAX      = "1.3.6.1.4.1.1466.115.121.1.22"; // done
     
     // RFC 4517, chap 3.3.12
-    String FAX_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.23";
+    String FAX_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.23"; // done
     
     // RFC 4517, chap 3.3.13
     String GENERALIZED_TIME_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.24"; // done
     
     // RFC 4517, chap 3.3.14
-    String GUIDE_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.25";
+    String GUIDE_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.25"; // done
     
     // RFC 4517, chap 3.3.15
-    String IA5_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.26";
+    String IA5_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.26"; // done
     
     // RFC 4517, chap 3.3.16
     String INTEGER_SYNTAX                         = "1.3.6.1.4.1.1466.115.121.1.27"; // done
     
     // RFC 4517, chap 3.3.17
-    String JPEG_SYNTAX                            = "1.3.6.1.4.1.1466.115.121.1.28";
+    String JPEG_SYNTAX                            = "1.3.6.1.4.1.1466.115.121.1.28"; // done
     
     // RFC 2252, removed in RFC 4517
-    String Master_And_Shadow_Access_Points_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.29";
+    String MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.29"; // done
     
     // RFC 4517, chap 3.3.19
-    String MATCHING_RULE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.30";
+    String MATCHING_RULE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.30"; // done
     
     // RFC 4517, chap 3.3.20
-    String MATCHING_RULE_USE_DESCRIPTION_SYNTAX   = "1.3.6.1.4.1.1466.115.121.1.31";
+    String MATCHING_RULE_USE_DESCRIPTION_SYNTAX   = "1.3.6.1.4.1.1466.115.121.1.31"; // done
     
     // RFC 2252, removed in RFC 4517
-    String MAIL_PREFERENCE_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.32";
+    String MAIL_PREFERENCE_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.32"; // done
     
     // RFC 2252, removed in RFC 4517
-    String MHS_OR_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.33";
+    String MHS_OR_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.33";  // done
     
     // RFC 4517, chap 3.3.21
-    String NAME_AND_OPTIONAL_UID_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.34";
+    String NAME_AND_OPTIONAL_UID_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.34"; // done
     
     // RFC 4517, chap 3.3.22
-    String NAME_FORM_DESCRIPTION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.35";
+    String NAME_FORM_DESCRIPTION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.35"; // done
     
     // RFC 4517, chap 3.3.23
-    String NUMERIC_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.36";
+    String NUMERIC_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.36"; // done
     
     // RFC 4517, chap 3.3.24
-    String OBJECT_CLASS_DESCRIPTION_SYNTAX        = "1.3.6.1.4.1.1466.115.121.1.37";
+    String OBJECT_CLASS_DESCRIPTION_SYNTAX        = "1.3.6.1.4.1.1466.115.121.1.37"; // done
     
     // RFC 4517, chap 3.3.26
-    String OID_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.38";
+    String OID_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.38"; // done
     
     // RFC 4517, chap 3.3.27
-    String OTHER_MAILBOX_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.39";
+    String OTHER_MAILBOX_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.39"; // done
     
     // RFC 4517, chap 3.3.25
-    String OCTET_STRING_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.40";
+    String OCTET_STRING_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.40"; // done
     
     // RFC 4517, chap 3.3.28
-    String POSTAL_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.41";
+    String POSTAL_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.41"; // done
     
     // RFC 2252, removed in RFC 4517
-    String PROTOCOL_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.42";
+    String PROTOCOL_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.42"; // done
     
     // RFC 2252, removed in RFC 4517
-    String PRESENTATION_ADDRESS_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.43";
+    String PRESENTATION_ADDRESS_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.43"; // done
     
     // RFC 4517, chap 3.3.29
-    String PRINTABLE_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.44";
+    String PRINTABLE_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.44"; // done
     
     // RFC 2252, removed in RFC 4517
-    String SUBTREE_SPECIFICATION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.45";
+    String SUBTREE_SPECIFICATION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.45"; // done
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.46";
+    String SUPPLIER_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.46"; // done
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_OR_CONSUMER_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.47";
+    String SUPPLIER_OR_CONSUMER_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.47"; // done
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_AND_CONSUMER_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.48";
+    String SUPPLIER_AND_CONSUMER_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.48"; // done
 
     // RFC 2252, removed in RFC 4517, reintroduced in RFC 4523, chap. 2.4
-    String SUPPORTED_ALGORITHM_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.49";
+    String SUPPORTED_ALGORITHM_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.49"; // done
     
     // RFC 4517, chap 3.3.31
-    String TELEPHONE_NUMBER_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.50";
+    String TELEPHONE_NUMBER_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.50"; // done
 
     // RFC 4517, chap 3.3.32
-    String TELETEX_TERMINAL_IDENTIFIER_SYNTAX     = "1.3.6.1.4.1.1466.115.121.1.51";
+    String TELETEX_TERMINAL_IDENTIFIER_SYNTAX     = "1.3.6.1.4.1.1466.115.121.1.51"; // done
     
     // RFC 4517, chap 3.3.33
-    String TELEX_NUMBER_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.52";
+    String TELEX_NUMBER_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.52"; // done 
     
     // RFC 4517, chap 3.3.34
     String UTC_TIME_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.53"; // done
     
     // RFC 4517, chap 3.3.18
-    String LDAP_SYNTAX_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.54";
+    String LDAP_SYNTAX_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.54"; // done
     
     // RFC 2252, removed in RFC 4517
-    String MODIFY_RIGHTS_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.55";
+    String MODIFY_RIGHTS_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.55"; // done
     
     // RFC 2252, removed in RFC 4517
-    String LDAP_SCHEMA_DEFINITION_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.56";
+    String LDAP_SCHEMA_DEFINITION_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.56"; // done
     
     // RFC 2252, removed in RFC 4517
-    String LDAP_SCHEMA_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.57";
+    String LDAP_SCHEMA_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.57"; // done
     
     // RFC 4517, chap 3.3.30
-    String SUBSTRING_ASSERTION_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.58";
+    String SUBSTRING_ASSERTION_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.58"; // done
+
+    // From draft-ietf-pkix-ldap-v3-01.txt. Obsolete.
+    String ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.59"; // done
 
     String UUID_SYNTAX                            = "1.3.6.1.1.16.1"; // done
     String CSN_SYNTAX                             = "1.3.6.1.4.1.4203.666.11.2.1";  // done

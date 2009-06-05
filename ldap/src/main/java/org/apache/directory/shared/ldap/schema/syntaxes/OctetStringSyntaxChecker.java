@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 
 
@@ -36,10 +37,6 @@ import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
  */
 public class OctetStringSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.25 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.40";
-    
-
     /**
      * 
      * Creates a new instance of OctetStringSyntaxChecker.
@@ -47,7 +44,7 @@ public class OctetStringSyntaxChecker extends AbstractSyntaxChecker
      */
     public OctetStringSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.OCTET_STRING_SYNTAX );
     }
 
     

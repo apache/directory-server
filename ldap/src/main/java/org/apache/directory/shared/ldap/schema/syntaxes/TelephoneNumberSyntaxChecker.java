@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -45,9 +46,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class TelephoneNumberSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.31 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.50";
-    
     /** Other regexps to extend the initial one */
     private List<String> regexps;
     
@@ -68,7 +66,7 @@ public class TelephoneNumberSyntaxChecker extends AbstractSyntaxChecker
      */
     public TelephoneNumberSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.TELEPHONE_NUMBER_SYNTAX );
     }
 
     /**

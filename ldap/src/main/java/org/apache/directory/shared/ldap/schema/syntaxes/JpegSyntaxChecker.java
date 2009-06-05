@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 
 
@@ -40,9 +41,6 @@ import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
  */
 public class JpegSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.25 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.28";
-    
     /**
      * 
      * Creates a new instance of JpegSyntaxChecker.
@@ -50,7 +48,7 @@ public class JpegSyntaxChecker extends AbstractSyntaxChecker
      */
     public JpegSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.JPEG_SYNTAX );
     }
     
     
@@ -106,9 +104,7 @@ public class JpegSyntaxChecker extends AbstractSyntaxChecker
             // file checker...
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 }

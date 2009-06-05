@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 
 
@@ -31,16 +32,12 @@ import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
  */
 public class MasterAndShadowAccessPointSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.29";
-
-
     /**
      * Private default constructor to prevent unnecessary instantiation.
      */
     public MasterAndShadowAccessPointSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX );
     }
 
     /**

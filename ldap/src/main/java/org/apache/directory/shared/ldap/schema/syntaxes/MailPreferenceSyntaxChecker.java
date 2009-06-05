@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.schema.syntaxes;
 
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -37,9 +38,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class MailPreferenceSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 2252, par. 4.3.2 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.32";
-    
     /**
      * 
      * Creates a new instance of MailPreferenceSyntaxChecker.
@@ -47,7 +45,7 @@ public class MailPreferenceSyntaxChecker extends AbstractSyntaxChecker
      */
     public MailPreferenceSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.MAIL_PREFERENCE_SYNTAX );
     }
     
     /**

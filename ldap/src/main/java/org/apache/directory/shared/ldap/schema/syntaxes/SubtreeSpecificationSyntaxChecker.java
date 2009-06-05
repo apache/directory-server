@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntaxes;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntaxChecker;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -36,9 +37,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class SubtreeSpecificationSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.45";
-
     private SubtreeSpecificationChecker checker = new SubtreeSpecificationChecker();
 
     /**
@@ -46,7 +44,7 @@ public class SubtreeSpecificationSyntaxChecker extends AbstractSyntaxChecker
      */
     public SubtreeSpecificationSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.SUBTREE_SPECIFICATION_SYNTAX );
     }
 
     /**
