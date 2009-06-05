@@ -441,7 +441,9 @@ public interface SchemaConstants
     String SUBORDINATE_COUNT_AT = "subordinateCount";
     // no official OID in RFCs
     
-    // ---- Syntaxes -----------------------------------------------------
+    //-------------------------------------------------------------------------
+    // ---- Syntaxes ----------------------------------------------------------
+    //-------------------------------------------------------------------------
     // RFC 2252, removed in RFC 4517
     String ACI_ITEM_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.1"; // done
 
@@ -619,17 +621,25 @@ public interface SchemaConstants
     // From draft-ietf-pkix-ldap-v3-01.txt. Obsolete.
     String ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.59"; // done
 
+    //From RFC 4530, chap. 2.1
     String UUID_SYNTAX                            = "1.3.6.1.1.16.1"; // done
+    
+    // From http://www.openldap.org/faq/data/cache/1145.html
     String CSN_SYNTAX                             = "1.3.6.1.4.1.4203.666.11.2.1";  // done
+    
+    // From http://www.openldap.org/faq/data/cache/1145.html
     String CSN_SID_SYNTAX                         = "1.3.6.1.4.1.4203.666.11.2.4"; // done
 
+    // Apache DS
     String JAVA_BYTE_SYNTAX                       = "1.3.6.1.4.1.18060.0.4.1.0.0";
     String JAVA_CHAR_SYNTAX                       = "1.3.6.1.4.1.18060.0.4.1.0.1";
     String JAVA_SHORT_SYNTAX                      = "1.3.6.1.4.1.18060.0.4.1.0.2";
     String JAVA_LONG_SYNTAX                       = "1.3.6.1.4.1.18060.0.4.1.0.3";
     String JAVA_INT_SYNTAX                        = "1.3.6.1.4.1.18060.0.4.1.0.4";
 
+    //-------------------------------------------------------------------------
     // ---- MatchingRules -----------------------------------------------------
+    //-------------------------------------------------------------------------
     // caseExactIA5Match (RFC 4517, chap. 4.2.3)
     String CASE_EXACT_IA5_MATCH_MR                        = "caseExactIA5Match"; // done
     String CASE_EXACT_IA5_MATCH_MR_OID                    = "1.3.6.1.4.1.1466.109.114.1"; // done
