@@ -98,7 +98,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         
         RuleIdMatch( SyntaxRegistry registry ) throws NamingException
         {
-            syntax = registry.lookup( "1.3.6.1.4.1.1466.115.121.1.26" );
+            syntax = registry.lookup( SchemaConstants.IA5_STRING_SYNTAX );
         }
         
         public Comparator getComparator() throws NamingException
@@ -230,7 +230,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         
         public NumericOidMatch( SyntaxRegistry registry ) throws NamingException
         {
-            this.syntax = registry.lookup( "1.3.6.1.4.1.1466.115.121.1.38" );
+            this.syntax = registry.lookup( SchemaConstants.OID_SYNTAX );
         }
         
         public Comparator getComparator() throws NamingException

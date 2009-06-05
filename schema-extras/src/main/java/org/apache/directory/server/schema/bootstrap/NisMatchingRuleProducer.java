@@ -26,6 +26,7 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer;
 import org.apache.directory.server.schema.bootstrap.ProducerCallback;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -63,7 +64,7 @@ public class NisMatchingRuleProducer extends AbstractBootstrapProducer
         mrule = new BootstrapMatchingRule( "1.3.6.1.4.1.4203.1.2.1", registries );
         mrule.setNames( new String[]
             { "caseExactIA5SubstringsMatch" } );
-        mrule.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.26" );
+        mrule.setSyntaxOid( SchemaConstants.IA5_STRING_SYNTAX );
         cb.schemaObjectProduced( this, mrule.getOid(), mrule );
     }
 }

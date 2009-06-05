@@ -175,16 +175,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
          * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.21", new EnhancedGuideSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.22", new FacsimileTelephoneNumberSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.23", new FaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.ENHANCED_GUIDE_SYNTAX, new EnhancedGuideSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.FACSIMILE_TELEPHONE_NUMBER_SYNTAX, new FacsimileTelephoneNumberSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.FAX_SYNTAX, new FaxSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_SYNTAX, new GeneralizedTimeSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.25", new GuideSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.26", new Ia5StringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.GUIDE_SYNTAX, new GuideSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.IA5_STRING_SYNTAX, new Ia5StringSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_SYNTAX, new IntegerSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.28", new JpegSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.29", new MasterAndShadowAccessPointSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.30", new MatchingRuleDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.JPEG_SYNTAX, new JpegSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX, new MasterAndShadowAccessPointSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.MATCHING_RULE_DESCRIPTION_SYNTAX, new MatchingRuleDescriptionSyntaxChecker() );
 
         /* 30 Matching Rule Use Description   Y  1.3.6.1.4.1.1466.115.121.1.31
          * 31 Mail Preference                 Y  1.3.6.1.4.1.1466.115.121.1.32
@@ -197,16 +197,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
          * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.31", new MatchingRuleUseDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.32", new MailPreferenceSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.33", new MHSORAddressSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.34", new NameAndOptionalUIDSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.35", new NameFormDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.36", new NumericStringSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.37", new ObjectClassDescriptionSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.38", new OidSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.39", new OtherMailboxSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.40", new OctetStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.MATCHING_RULE_USE_DESCRIPTION_SYNTAX, new MatchingRuleUseDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.MAIL_PREFERENCE_SYNTAX, new MailPreferenceSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.MHS_OR_ADDRESS_SYNTAX, new MHSORAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.NAME_AND_OPTIONAL_UID_SYNTAX, new NameAndOptionalUIDSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.NAME_FORM_DESCRIPTION_SYNTAX, new NameFormDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_SYNTAX, new NumericStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_CLASS_DESCRIPTION_SYNTAX, new ObjectClassDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.OID_SYNTAX, new OidSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.OTHER_MAILBOX_SYNTAX, new OtherMailboxSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_SYNTAX, new OctetStringSyntaxChecker() );
 
         /*
          * 40 Postal Address                  Y  1.3.6.1.4.1.1466.115.121.1.41
@@ -220,16 +220,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 48 Supported Algorithm             N  1.3.6.1.4.1.1466.115.121.1.49
          * 49 Telephone Number                Y  1.3.6.1.4.1.1466.115.121.1.50
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.41", new PostalAddressSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.42", new ProtocolInformationSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.43", new PresentationAddressSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.44", new PrintableStringSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.45", new SubtreeSpecificationSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.46", new SupplierInformationSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.47", new SupplierOrConsumerSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.48", new SupplierAndConsumerSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.49", new SupportedAlgorithmSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.50", new TelephoneNumberSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.POSTAL_ADDRESS_SYNTAX, new PostalAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.PROTOCOL_INFORMATION_SYNTAX, new ProtocolInformationSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.PRESENTATION_ADDRESS_SYNTAX, new PresentationAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.PRINTABLE_STRING_SYNTAX, new PrintableStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUBTREE_SPECIFICATION_SYNTAX, new SubtreeSpecificationSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUPPLIER_INFORMATION_SYNTAX, new SupplierInformationSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUPPLIER_OR_CONSUMER_SYNTAX, new SupplierOrConsumerSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUPPLIER_AND_CONSUMER_SYNTAX, new SupplierAndConsumerSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUPPORTED_ALGORITHM_SYNTAX, new SupportedAlgorithmSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_SYNTAX, new TelephoneNumberSyntaxChecker() );
 
         /*
          * 50 Teletex Terminal Identifier     Y  1.3.6.1.4.1.1466.115.121.1.51
@@ -241,23 +241,23 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 56 LDAP BootstrapSchema DescriptionY  1.3.6.1.4.1.1466.115.121.1.57  (No defined SC yet)
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.51", new TeletexTerminalIdentifierSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.52", new TelexNumberSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.TELETEX_TERMINAL_IDENTIFIER_SYNTAX, new TeletexTerminalIdentifierSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.TELEX_NUMBER_SYNTAX, new TelexNumberSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.UTC_TIME_SYNTAX, new UtcTimeSyntaxChecker() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.54", new LdapSyntaxDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.LDAP_SYNTAX_DESCRIPTION_SYNTAX, new LdapSyntaxDescriptionSyntaxChecker() );
 
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.55", 
-            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.55" ) );
+        cb.schemaObjectProduced( this, SchemaConstants.MODIFY_RIGHTS_SYNTAX, 
+            new AcceptAllSyntaxChecker( SchemaConstants.MODIFY_RIGHTS_SYNTAX ) );
         
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.56", 
-            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.56" ) );
+        cb.schemaObjectProduced( this, SchemaConstants.LDAP_SCHEMA_DEFINITION_SYNTAX, 
+            new AcceptAllSyntaxChecker( SchemaConstants.LDAP_SCHEMA_DEFINITION_SYNTAX ) );
         
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.57", 
-            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.57" ) );
+        cb.schemaObjectProduced( this, SchemaConstants.LDAP_SCHEMA_DESCRIPTION_SYNTAX, 
+            new AcceptAllSyntaxChecker( SchemaConstants.LDAP_SCHEMA_DESCRIPTION_SYNTAX ) );
         
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.58", new SubstringAssertionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.SUBSTRING_ASSERTION_SYNTAX, new SubstringAssertionSyntaxChecker() );
 
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.59", 
-            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.59" ) );
+        cb.schemaObjectProduced( this, SchemaConstants.ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX, 
+            new AcceptAllSyntaxChecker( SchemaConstants.ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX ) );
     }
 }
