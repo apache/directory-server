@@ -99,6 +99,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * 55 LDAP Schema Definition          Y  1.3.6.1.4.1.1466.115.121.1.56
  * 56 LDAP Schema Description         Y  1.3.6.1.4.1.1466.115.121.1.57
  * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
+ * 58 Attribute Certificate Assertion N  1.3.6.1.4.1.1466.115.121.1.59
  * </pre>
  *
  *
@@ -116,7 +117,6 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
     // ------------------------------------------------------------------------
     // BootstrapProducer Methods
     // ------------------------------------------------------------------------
-
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
         BootstrapSyntax syntax;
