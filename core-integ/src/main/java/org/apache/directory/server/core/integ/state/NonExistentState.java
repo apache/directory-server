@@ -26,9 +26,9 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
-import org.junit.internal.runners.TestClass;
-import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,15 +130,9 @@ public class NonExistentState extends AbstractState
      *
      * @see TestServiceState#test(TestClass, TestMethod, RunNotifier, InheritableSettings) 
      */
-    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
+    public void test( TestClass testClass, Statement statement, RunNotifier notifier, InheritableSettings settings )
     {
         LOG.debug( "calling test(): {}, mode {}", settings.getDescription().getDisplayName(), settings.getMode() );
-
-        if ( testMethod.isIgnored() )
-        {
-            // The test is ignored
-            return;
-        }
 
         switch ( settings.getMode() )
         {
@@ -151,7 +145,7 @@ public class NonExistentState extends AbstractState
                 catch ( NamingException ne )
                 {
                     LOG.error( "Failed to create and start new server instance: " + ne );
-                    notifier.testAborted( settings.getDescription(), ne );
+                    testAborted( notifier, settings.getDescription(), ne );
                     return;
                 }
 
@@ -162,13 +156,13 @@ public class NonExistentState extends AbstractState
                 catch ( Exception e )
                 {
                     LOG.error( "Failed to create and start new server instance: " + e );
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
 
                 
                 context.setState( context.getStartedNormalState() );
-                context.getState().test( testClass, testMethod, notifier, settings );
+                context.getState().test( testClass, statement, notifier, settings );
                 return;
 
 
@@ -181,7 +175,7 @@ public class NonExistentState extends AbstractState
                 catch ( NamingException ne )
                 {
                     LOG.error( "Failed to create and start new server instance: " + ne );
-                    notifier.testAborted( settings.getDescription(), ne );
+                    testAborted( notifier, settings.getDescription(), ne );
                     return;
                 }
 
@@ -192,7 +186,7 @@ public class NonExistentState extends AbstractState
                 catch ( IOException ioe )
                 {
                     LOG.error( "Failed to create and start new server instance: " + ioe );
-                    notifier.testAborted( settings.getDescription(), ioe );
+                    testAborted( notifier, settings.getDescription(), ioe );
                     return;
                 }
 
@@ -203,12 +197,12 @@ public class NonExistentState extends AbstractState
                 catch ( Exception e )
                 {
                     LOG.error( "Failed to create and start new server instance: " + e );
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
 
                 context.setState( context.getStartedPristineState() );
-                context.getState().test( testClass, testMethod, notifier, settings );
+                context.getState().test( testClass, statement, notifier, settings );
                 return;
 
             default:

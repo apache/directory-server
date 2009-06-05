@@ -19,19 +19,20 @@
 package org.apache.directory.server.integ;
 
 
-import java.lang.reflect.Method;
-
 import static org.apache.directory.server.integ.state.TestServerContext.cleanup;
 import static org.apache.directory.server.integ.state.TestServerContext.destroy;
 import static org.apache.directory.server.integ.state.TestServerContext.shutdown;
 import static org.apache.directory.server.integ.state.TestServerContext.test;
 
 import org.apache.directory.server.core.integ.Level;
-import org.junit.internal.runners.InitializationError;
-import org.junit.internal.runners.JUnit4ClassRunner;
+import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SiRunner extends JUnit4ClassRunner
+public class SiRunner extends BlockJUnit4ClassRunner
 {
     private static final Logger LOG = LoggerFactory.getLogger( SiRunner.class );
     private SiSuite suite;
@@ -76,7 +77,7 @@ public class SiRunner extends JUnit4ClassRunner
     {
         super.run( notifier );
         Level cleanupLevel = getSettings().getCleanupLevel();
-        
+
         if ( cleanupLevel == Level.CLASS )
         {
             try
@@ -88,7 +89,7 @@ public class SiRunner extends JUnit4ClassRunner
             catch ( Exception e )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), e );
+                    + this.getDescription().getDisplayName(), e );
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }
         }
@@ -96,14 +97,22 @@ public class SiRunner extends JUnit4ClassRunner
 
 
     @Override
-    protected void invokeTestMethod( Method method, final RunNotifier notifier )
+    protected void runChild( FrameworkMethod method, RunNotifier notifier )
     {
         LOG.debug( "About to invoke test method {}", method.getName() );
-        Description description = methodDescription( method );
-        test( getTestClass(), wrapMethod( method ), notifier, new InheritableServerSettings( description, getSettings() ) );
+
+        Description description = describeChild( method );
+        if ( method.getAnnotation( Ignore.class ) != null )
+        {
+            notifier.fireTestIgnored( description );
+            return;
+        }
+
+        Statement statement = methodBlock( method );
+        test( getTestClass(), statement, notifier, new InheritableServerSettings( description, getSettings() ) );
 
         Level cleanupLevel = getSettings().getCleanupLevel();
-        
+
         if ( cleanupLevel == Level.METHOD )
         {
             try
@@ -115,7 +124,7 @@ public class SiRunner extends JUnit4ClassRunner
             catch ( Exception e )
             {
                 LOG.error( "Encountered exception while trying to cleanup after test class: "
-                        + this.getDescription().getDisplayName(), e );
+                    + this.getDescription().getDisplayName(), e );
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }
         }

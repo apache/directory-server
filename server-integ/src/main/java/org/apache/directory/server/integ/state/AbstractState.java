@@ -33,9 +33,11 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.integ.InheritableServerSettings;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.junit.internal.runners.TestClass;
-import org.junit.internal.runners.TestMethod;
+import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,12 +148,12 @@ public abstract class AbstractState implements TestServerState
      * access to the method annotations below
      *
      * @param testClass the class whose test method is to be run
-     * @param testMethod the test method which is to be run
+     * @param statement the test method which is to be run
      * @param notifier a notifier to report failures to
      * @param settings the inherited settings and annotations associated with
      * the test method
      */
-    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableServerSettings settings )
+    public void test( TestClass testClass, Statement statement, RunNotifier notifier, InheritableServerSettings settings )
     {
     }
 
@@ -247,5 +249,13 @@ public abstract class AbstractState implements TestServerState
                 }
             }
         }
+    }
+    
+    
+    protected void testAborted( RunNotifier notifier, Description description, Throwable cause )
+    {
+        notifier.fireTestStarted( description );
+        notifier.fireTestFailure( new Failure( description, cause ) );
+        notifier.fireTestFinished( description );
     }
 }

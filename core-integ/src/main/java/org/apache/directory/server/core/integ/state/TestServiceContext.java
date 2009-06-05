@@ -26,11 +26,11 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import org.junit.internal.runners.MethodRoadie;
-import org.junit.internal.runners.TestClass;
-import org.junit.internal.runners.TestMethod;
 import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,16 +174,16 @@ public class TestServiceContext
      * Action where an attempt is made to run a test against the service.
      *
      * @param testClass the class whose test method is to be run
-     * @param testMethod the test method which is to be run
+     * @param statement the test method which is to be run
      * @param notifier a notifier to report failures to
      * @param settings the inherited settings and annotations associated with
      * the test method
      */
-    public static void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier,
+    public static void test( TestClass testClass, Statement statement, RunNotifier notifier,
                              InheritableSettings settings )
     {
         LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
-        get().getState().test( testClass, testMethod, notifier, settings );
+        get().getState().test( testClass, statement, notifier, settings );
     }
 
 
@@ -200,43 +200,51 @@ public class TestServiceContext
     }
 
 
-    static void invokeTest( TestClass testClass, TestMethod testMethod, RunNotifier notifier, Description description )
+    static void invokeTest( TestClass testClass, Statement statement, RunNotifier notifier, Description description )
     {
         try
         {
-            Object test = testClass.getConstructor().newInstance();
             Field field = testClass.getJavaClass().getDeclaredField( "service" );
             field.set( testClass.getJavaClass(), get().getService() );
-            new MethodRoadie( test, testMethod, notifier, description ).run();
+            
+            notifier.fireTestStarted( description );
+            statement.evaluate();
+            notifier.fireTestFinished( description );
         }
         catch ( InvocationTargetException e )
         {
             LOG.error( "Failed to invoke test method: " + description.getDisplayName(), e.getCause() );
-            notifier.testAborted( description, e.getCause() );
+            testAborted( notifier, description, e.getCause() );
             return;
         }
         catch ( InstantiationException ie )
         {
             LOG.error( "Failed to invoke test method: " + description.getDisplayName(), ie );
-            notifier.testAborted( description, ie );
+            testAborted( notifier, description, ie );
             return;
         }
         catch ( IllegalAccessException iae )
         {
             LOG.error( "Failed to invoke test method: " + description.getDisplayName(), iae );
-            notifier.testAborted( description, iae );
+            testAborted( notifier, description, iae );
             return;
         }
         catch ( NoSuchMethodException nsme )
         {
             LOG.error( "Failed to invoke test method: " + description.getDisplayName(), nsme );
-            notifier.testAborted( description, nsme );
+            testAborted( notifier, description, nsme );
             return;
         }
         catch ( NoSuchFieldException nsfe )
         {
             LOG.error( "Failed to invoke test method: " + description.getDisplayName(), nsfe );
-            notifier.testAborted( description, nsfe );
+            testAborted( notifier, description, nsfe );
+            return;
+        }
+        catch ( Throwable t )
+        {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), t );
+            testAborted( notifier, description, t );
             return;
         }
     }
@@ -286,5 +294,13 @@ public class TestServiceContext
     void setService( DirectoryService service )
     {
         this.service = service;
+    }
+
+
+    private static void testAborted( RunNotifier notifier, Description description, Throwable cause )
+    {
+        notifier.fireTestStarted( description );
+        notifier.fireTestFailure( new Failure( description, cause ) );
+        notifier.fireTestFinished( description );
     }
 }

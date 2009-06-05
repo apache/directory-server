@@ -19,19 +19,16 @@
 package org.apache.directory.server.integ;
 
 
-import java.util.List;
-
 import static org.apache.directory.server.integ.state.TestServerContext.cleanup;
 import static org.apache.directory.server.integ.state.TestServerContext.destroy;
 import static org.apache.directory.server.integ.state.TestServerContext.shutdown;
 
 import org.apache.directory.server.core.integ.Level;
-import org.junit.internal.requests.IgnoredClassRunner;
-import org.junit.internal.runners.InitializationError;
-import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.RunnerBuilder;
 
 
 /**
@@ -44,57 +41,13 @@ import org.junit.runners.Suite;
  */
 public class SiSuite extends Suite
 {
-    private InheritableServerSettings settings;
+    private InheritableServerSettings settings = new InheritableServerSettings( getDescription() );
 
 
-    public SiSuite( Class<?> clazz ) throws InitializationError
+    public SiSuite( Class<?> clazz, RunnerBuilder builder ) throws InitializationError
     {
-        super( clazz );
+        super( clazz, builder );
         settings = new InheritableServerSettings( getDescription() );
-    }
-
-
-    public void addAll( List<? extends Runner> runners )
-    {
-        for ( Runner runner : getRunners() )
-        {
-            if ( runner instanceof SiRunner )
-            {
-                SiRunner cir = ( SiRunner) runner;
-                cir.setSuite( this );
-            }
-            else if ( runner instanceof IgnoredClassRunner )
-            {
-                // allow this one
-            }
-            else
-            {
-                throw new IllegalArgumentException( String.format( "Unexpected runner type \"%s\".  " +
-                        "Test classes within CiSuites must use CiRunners.", runner ) );
-            }
-        }
-
-        super.addAll( runners );
-    }
-
-
-    public void add( Runner runner )
-    {
-        if ( runner instanceof SiRunner )
-        {
-            SiRunner cir = ( SiRunner) runner;
-            cir.setSuite( this );
-            super.add( runner );
-        }
-        else if ( runner instanceof IgnoredClassRunner )
-        {
-            // allow this one
-        }
-        else
-        {
-            throw new IllegalArgumentException( String.format( "Unexpected runner type \"%s\".  " +
-                    "Test classes within CiSuites must use CiRunners.", runner ) );
-        }
     }
 
 

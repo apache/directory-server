@@ -23,9 +23,9 @@ import java.io.IOException;
 
 import org.apache.directory.server.core.integ.InheritableSettings;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
-import org.junit.internal.runners.TestClass;
-import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,20 +132,14 @@ public class StartedNormalState extends AbstractState
      * access to the method annotations below
      *
      * @param testClass the class whose test method is to be run
-     * @param testMethod the test method which is to be run
+     * @param statement the test method which is to be run
      * @param notifier a notifier to report failures to
      * @param settings the inherited settings and annotations associated with
      * the test method
      */
-    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
+    public void test( TestClass testClass, Statement statement, RunNotifier notifier, InheritableSettings settings )
     {
         LOG.debug( "calling test(): {}, mode {}", settings.getDescription().getDisplayName(), settings.getMode() );
-
-        if ( testMethod.isIgnored() )
-        {
-            // The test is ignored
-            return;
-        }
 
         switch ( settings.getMode() )
         {
@@ -159,14 +153,14 @@ public class StartedNormalState extends AbstractState
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
                     // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
 
                 // Inject the LDIFs, if any 
                 injectLdifs( context.getService(), settings );
                 
-                TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
+                TestServiceContext.invokeTest( testClass, statement, notifier, settings.getDescription() );
                 
                 try
                 {
@@ -177,7 +171,7 @@ public class StartedNormalState extends AbstractState
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
                     // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
                 
@@ -188,7 +182,7 @@ public class StartedNormalState extends AbstractState
                 injectLdifs( context.getService(), settings );
                 
 
-                TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
+                TestServiceContext.invokeTest( testClass, statement, notifier, settings.getDescription() );
 
                 try
                 {
@@ -199,7 +193,7 @@ public class StartedNormalState extends AbstractState
                     // @TODO - we might want to check the revision of the service before
                     // we presume that it has been soiled.  Some tests may simply perform
                     // some read operations or checks on the service and may not alter it
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
                 
@@ -210,7 +204,7 @@ public class StartedNormalState extends AbstractState
                 catch ( Exception e )
                 {
                     LOG.error( "Failed to create and start new server instance: " + e );
-                    notifier.testAborted( settings.getDescription(), e );
+                    testAborted( notifier, settings.getDescription(), e );
                     return;
                 }
                 
