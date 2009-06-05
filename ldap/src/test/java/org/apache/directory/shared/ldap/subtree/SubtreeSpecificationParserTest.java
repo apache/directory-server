@@ -122,15 +122,6 @@ public class SubtreeSpecificationParserTest
 
 
     /**
-     * Creates a SubtreeSpecificationParserTest instance.
-     */
-    public SubtreeSpecificationParserTest(String s)
-    {
-        parser = new SubtreeSpecificationParser( null );
-    }
-
-
-    /**
      * Tests the parser with a valid empty specification.
      */
     @Test

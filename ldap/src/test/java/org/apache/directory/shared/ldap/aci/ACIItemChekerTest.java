@@ -55,15 +55,6 @@ public class ACIItemChekerTest
 
 
     /**
-     * Creates a ACIItemParserTest instance.
-     */
-    public ACIItemChekerTest(String s)
-    {
-        checker = new ACIItemChecker();
-    }
-
-
-    /**
      * Tests the checker with an ACIItem of ItemFirst main component.
      */
     @Test

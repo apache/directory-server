@@ -55,14 +55,6 @@ public class TriggerSpecificationParserTest
     }
 
 
-    /**
-     * Creates a TriggerSpecificationParserTest instance.
-     */
-    public TriggerSpecificationParserTest( String s )
-    {
-        parser = new TriggerSpecificationParser();
-    }
-
     @Test
     public void testWithOperationParameters() throws Exception
     {        

@@ -51,15 +51,6 @@ public class ACIItemParserTest
     }
 
 
-    /**
-     * Creates a ACIItemParserTest instance.
-     */
-    public ACIItemParserTest( String s )
-    {
-        parser = new ACIItemParser( null );
-    }
-
-
     private void checkItemToString( String spec, ACIItem item ) throws Exception
     {
         // try to parse the result of item.toString() again
