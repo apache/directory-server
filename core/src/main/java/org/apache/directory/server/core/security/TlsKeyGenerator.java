@@ -89,7 +89,7 @@ public class TlsKeyGenerator
      *    http://www.apache.org/licenses/exports
      */ 
     private static final int KEY_SIZE = 512;
-    private static final long YEAR_MILLIS = 365*24*3600*1000;
+    private static final long YEAR_MILLIS = 365L * 24L * 3600L * 1000L;
     
 
     static
