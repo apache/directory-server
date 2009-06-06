@@ -57,7 +57,6 @@ public class ModifyRequest extends AbstractRequest
     public ModifyRequest( LdapDN dn )
     {
         super();
-        setTimeout( 1000 * 1000 ); //TODO should this value be set in AbstractRequest as default?
         this.dn = dn;
     }
 
