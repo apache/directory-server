@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.client.api.messages.SearchResultReferenc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface SearchListener
+public interface SearchListener extends OperationResponseListener
 {
     /**
      * A callback method for each entry returned by a search operation.

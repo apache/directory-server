@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface BindListener
+public interface BindListener extends OperationResponseListener
 {
     /**
      * A callback method called when the bind operation completed.
