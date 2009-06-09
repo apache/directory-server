@@ -36,8 +36,20 @@ public class LdapException extends Exception
     }
 
 
-    public LdapException(String explanation)
+    public LdapException( String explanation )
     {
         super( explanation );
+    }
+
+
+    public LdapException( Throwable cause )
+    {
+        super( cause );
+    }
+
+
+    public LdapException( String explanation, Throwable cause )
+    {
+        super( explanation, cause );
     }
 }
