@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -40,10 +41,13 @@ import javax.naming.ldap.Control;
 import javax.net.ssl.SSLContext;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
+import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
+import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequestImpl;
@@ -55,6 +59,8 @@ import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResultImpl;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyDnRequest;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyDnResponse;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyRequest;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyResponse;
 import org.apache.directory.shared.ldap.client.api.messages.Referral;
@@ -85,6 +91,8 @@ import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
 import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequestCodec;
+import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNResponseCodec;
 import org.apache.directory.shared.ldap.codec.search.Filter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
@@ -95,14 +103,13 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.IoFilter;
@@ -129,6 +136,10 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapConnection  extends IoHandlerAdapter
 {
+    private static final String TIME_OUT_ERROR = "TimeOut occured";
+
+    private static final String NO_RESPONSE_ERROR = "The response queue has been emptied, no response was found.";
+
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( LdapConnection.class );
 
@@ -207,12 +218,10 @@ public class LdapConnection  extends IoHandlerAdapter
 
     /** An operation mutex to guarantee the operation order */
     private Semaphore operationMutex;
-    
-    /** The listeners used to get results back */
-    private SearchListener searchListener;
-    private BindListener bindListener;
-    private IntermediateResponseListener intermediateResponseListener;
 
+    /** a map to hold the response listeners based on the operation id */
+    private Map<Integer, OperationResponseListener> listenerMap = new ConcurrentHashMap<Integer, OperationResponseListener>();
+    
     //--------------------------- Helper methods ---------------------------//
     /**
      * Check if the connection is valid : created and connected
@@ -926,7 +935,7 @@ public class LdapConnection  extends IoHandlerAdapter
             // We didn't received anything : this is an error
             LOG.error( "Bind failed : timeout occured" );
             unlockSession();
-            throw new LdapException( "TimeOut occured" );
+            throw new LdapException( TIME_OUT_ERROR );
         }
         catch ( Exception ie )
         {
@@ -969,6 +978,11 @@ public class LdapConnection  extends IoHandlerAdapter
         int newId = messageId.incrementAndGet();
         bindRequest.setMessageId( newId );
         bindMessage.setMessageId( newId );
+        
+        if( bindListener != null )
+        {
+            listenerMap.put( newId, bindListener );
+        }
         
         // Create a new codec BindRequest object
         BindRequestCodec request =  new BindRequestCodec();
@@ -1215,7 +1229,7 @@ public class LdapConnection  extends IoHandlerAdapter
                         // We didn't received anything : this is an error
                         LOG.error( "Bind failed : timeout occured" );
                         unlockSession();
-                        throw new LdapException( "TimeOut occured" );
+                        throw new LdapException( TIME_OUT_ERROR );
                     }
                     else
                     {
@@ -1253,6 +1267,7 @@ public class LdapConnection  extends IoHandlerAdapter
         {
             // The listener will be called on a MessageReceived event,
             // no need to create a cursor
+            listenerMap.put( newId, searchListener );
             return null;
         }
     }
@@ -1305,18 +1320,6 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
-     * 
-     * Adds a SearchListener which can handle the results of a search request.
-     *
-     * @param listener an instance of SearchListener implementation.
-     */
-    public void addListener( SearchListener searchListener )
-    {
-        this.searchListener = searchListener;
-    }
-    
-    
-    /**
      * Set the connector to use.
      *
      * @param connector The connector to use
@@ -1348,7 +1351,9 @@ public class LdapConnection  extends IoHandlerAdapter
         // Feed the response and store it into the session
         LdapMessageCodec response = (LdapMessageCodec)message;
 
-        System.out.println( "-------> {} Message received <-------"+ response.getMessageTypeName() );
+        LOG.debug( "-------> {} Message received <-------", response.getMessageTypeName() );
+        
+        SearchListener searchListener = null;
         
         switch ( response.getMessageType() )
         {
@@ -1362,7 +1367,9 @@ public class LdapConnection  extends IoHandlerAdapter
                 BindResponseCodec bindResponseCodec = response.getBindResponse();
                 bindResponseCodec.addControl( response.getCurrentControl() );
                 BindResponse bindResponse = convert( bindResponseCodec );
-                
+
+                // remove the listener from the listener map
+                BindListener bindListener = ( BindListener ) listenerMap.remove( bindResponseCodec.getMessageId() );
                 if ( bindListener != null )
                 {
                     bindListener.bindCompleted( this, bindResponse );
@@ -1396,10 +1403,10 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getIntermediateResponse();
                 intermediateResponseCodec.addControl( response.getCurrentControl() );
                 
-                if ( intermediateResponseListener != null )
+                IntermediateResponseListener intrmListener = ( IntermediateResponseListener ) listenerMap.get( intermediateResponseCodec.getMessageId() ); 
+                if ( intrmListener != null )
                 {
-                    intermediateResponseListener.responseReceived( this, 
-                        convert( intermediateResponseCodec ) );
+                    intrmListener.responseReceived( this, convert( intermediateResponseCodec ) );
                 }
                 else
                 {
@@ -1415,8 +1422,20 @@ public class LdapConnection  extends IoHandlerAdapter
                 break;
                 
             case LdapConstants.MODIFYDN_RESPONSE :
-                // Store the response into the responseQueue
-                modifyDNResponseQueue.add( response ); 
+                
+                ModifyDNResponseCodec modDnCodec = response.getModifyDNResponse();
+                modDnCodec.addControl( response.getCurrentControl() );
+                
+                ModifyDnListener modDnListener = ( ModifyDnListener ) listenerMap.get( modDnCodec.getMessageId() );
+                if( modDnListener != null )
+                {
+                    modDnListener.modifyDnCompleted( this, convert( modDnCodec ) );
+                }
+                else
+                {
+                    // Store the response into the responseQueue
+                    modifyDNResponseQueue.add( response );
+                }
                 break;
                 
             case LdapConstants.SEARCH_RESULT_DONE:
@@ -1425,6 +1444,8 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getSearchResultDone();
                 searchResultDoneCodec.addControl( response.getCurrentControl() );
                 
+                // search listener has to be removed from listener map only here
+                searchListener = ( SearchListener ) listenerMap.remove( searchResultDoneCodec.getMessageId() );
                 if ( searchListener != null )
                 {
                     searchListener.searchDone( this, convert( searchResultDoneCodec ) );
@@ -1442,6 +1463,7 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getSearchResultEntry();
                 searchResultEntryCodec.addControl( response.getCurrentControl() );
                 
+                searchListener = ( SearchListener ) listenerMap.get( searchResultEntryCodec.getMessageId() );
                 if ( searchListener != null )
                 {
                     searchListener.entryFound( this, convert( searchResultEntryCodec ) );
@@ -1459,6 +1481,7 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getSearchResultReference();
                 searchResultReferenceCodec.addControl( response.getCurrentControl() );
 
+                searchListener = ( SearchListener ) listenerMap.get( searchResultReferenceCodec.getMessageId() );
                 if ( searchListener != null )
                 {
                     searchListener.referralFound( this, convert( searchResultReferenceCodec ) );
@@ -1514,18 +1537,12 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public ModifyResponse modify( ModifyRequest modRequest )  throws LdapException
     {
-        // If the session has not been establish, or is closed, we get out immediately
         checkSession();
     
-        // Guarantee that for this session, we don't have more than one operation
-        // running at the same time
         lockSession();
         
-        // Create the new message and update the messageId
         LdapMessageCodec modifyMessage = new LdapMessageCodec();
         
-        // Creates the messageID and stores it into the 
-        // initial message and the transmitted message.
         int newId = messageId.incrementAndGet();
         modRequest.setMessageId( newId );
         modifyMessage.setMessageId( newId );
@@ -1535,31 +1552,28 @@ public class LdapConnection  extends IoHandlerAdapter
         modReqCodec.setObject( modRequest.getDn() );
 
         modifyMessage.setProtocolOP( modReqCodec );
+        setControls( modRequest.getControls(), modifyMessage );
         
         ldapSession.write( modifyMessage );
 
         LdapMessageCodec response = null;
         try
         {
-            response = modifyResponseQueue.poll( modRequest.getTimeout(), TimeUnit.MILLISECONDS );
+            long timeout = getTimeout( modRequest.getTimeout() );
+            response = modifyResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
             
-            // Check that we didn't get out because of a timeout
             if ( response == null )
             {
-                // We didn't received anything : this is an error
                 LOG.error( "Modify failed : timeout occured" );
                 unlockSession();
-                throw new LdapException( "TimeOut occured" );
+                throw new LdapException( TIME_OUT_ERROR );
             }
         }
         catch( Exception e )
         {
-            LOG.error( "The response queue has been emptied, no response was found." );
+            LOG.error( NO_RESPONSE_ERROR );
             unlockSession();
-            LdapException ldapException = new LdapException();
-            ldapException.initCause( e );
-            
-            throw ldapException;
+            throw new LdapException( e );
         }
 
         unlockSession();
@@ -1579,6 +1593,186 @@ public class LdapConnection  extends IoHandlerAdapter
         modResponse.setLdapResult( convert( modRespCodec.getLdapResult() ) );
 
         return modResponse;
+    }
+
+
+    /**
+     * renames the given entryDn with new Rdn and deletes the old RDN.
+     * @see #rename(String, String, boolean)
+     */
+    public ModifyDnResponse rename( String entryDn, String newRdn ) throws LdapException
+    {
+        return rename( entryDn, newRdn, true );
+    }
+
+    
+    /**
+     * renames the given entryDn with new RDN and deletes the old RDN.
+     * @see #rename(LdapDN, Rdn, boolean)
+     */
+    public ModifyDnResponse rename( LdapDN entryDn, Rdn newRdn ) throws LdapException
+    {
+        return rename( entryDn, newRdn, true );
+    }
+    
+    
+    /**
+     * @see #rename(LdapDN, Rdn, boolean)
+     */
+    public ModifyDnResponse rename( String entryDn, String newRdn, boolean deleteOldRdn ) throws LdapException
+    {
+        try
+        {
+            return rename( new LdapDN( entryDn ), new Rdn( newRdn ), deleteOldRdn );
+        }
+        catch( InvalidNameException e )
+        {
+            LOG.error( e.getMessage(), e );
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+    
+    
+    /**
+     * 
+     * renames the given entryDn with new RDN and deletes the old Rdn if 
+     * deleteOldRdn is set to true.
+     *
+     * @param entryDn the target DN
+     * @param newRdn new Rdn for the target DN
+     * @param deleteOldRdn flag to indicate whether to delete the old Rdn
+     * @return modifyDn operations response
+     * @throws LdapException
+     */
+    public ModifyDnResponse rename( LdapDN entryDn, Rdn newRdn, boolean deleteOldRdn ) throws LdapException
+    {
+        ModifyDnRequest modDnRequest = new ModifyDnRequest();
+        modDnRequest.setEntryDn( entryDn );
+        modDnRequest.setNewRdn( newRdn );
+        modDnRequest.setDeleteOldRdn( deleteOldRdn );
+        
+        return modifyDn( modDnRequest, null );
+    }
+    
+
+    /**
+     * @see #move(LdapDN, LdapDN) 
+     */
+    public ModifyDnResponse move( String entryDn, String newSuperiorDn ) throws LdapException
+    {
+        try
+        {
+            return move( new LdapDN( entryDn ), new LdapDN( newSuperiorDn ) );
+        }
+        catch( InvalidNameException e )
+        {
+            LOG.error( e.getMessage(), e );
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+    
+
+    /**
+     * moves the given entry DN under the new superior DN
+     *
+     * @param entryDn the DN of the target entry
+     * @param newSuperiorDn DN of the new parent/superior
+     * @return modifyDn operations response
+     * @throws LdapException
+     */
+    public ModifyDnResponse move( LdapDN entryDn, LdapDN newSuperiorDn ) throws LdapException
+    {
+        ModifyDnRequest modDnRequest = new ModifyDnRequest();
+        modDnRequest.setEntryDn( entryDn );
+        modDnRequest.setNewSuperior( newSuperiorDn );
+        
+        //TODO not setting the below value is resulting in error
+        modDnRequest.setNewRdn( entryDn.getRdn() );
+        
+        return modifyDn( modDnRequest, null );
+    }
+
+    
+    /**
+     * 
+     * performs the modifyDn operation based on the given ModifyDnRequest.
+     *
+     * @param modDnRequest the request
+     * @param listener callback listener which will be called after the operation is completed
+     * @return modifyDn operations response
+     * @throws LdapException
+     */
+    public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest, ModifyDnListener listener ) throws LdapException
+    {
+        checkSession();
+    
+        lockSession();
+        
+        LdapMessageCodec modifyDnMessage = new LdapMessageCodec();
+        
+        int newId = messageId.incrementAndGet();
+        modDnRequest.setMessageId( newId );
+        modifyDnMessage.setMessageId( newId );
+
+        ModifyDNRequestCodec modDnCodec = new ModifyDNRequestCodec();
+        modDnCodec.setEntry( modDnRequest.getEntryDn() );
+        modDnCodec.setNewRDN( modDnRequest.getNewRdn() );
+        modDnCodec.setDeleteOldRDN( modDnRequest.isDeleteOldRdn() );
+        modDnCodec.setNewSuperior( modDnRequest.getNewSuperior() );
+        
+        modifyDnMessage.setProtocolOP( modDnCodec );
+        setControls( modDnRequest.getControls(), modifyDnMessage );
+        
+        ldapSession.write( modifyDnMessage );
+        
+        if( listener == null )
+        {
+            LdapMessageCodec response = null;
+            try
+            {
+                long timeout = getTimeout( modDnRequest.getTimeout() );
+                response = modifyDNResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Modifying DN failed : timeout occured" );
+                    unlockSession();
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
+            }
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                unlockSession();
+                LdapException ldapException = new LdapException();
+                ldapException.initCause( e );
+                e.printStackTrace();
+                throw ldapException;
+            }
+            
+            unlockSession();
+            
+            return convert( response.getModifyDNResponse() );
+        }
+        else
+        {
+            listenerMap.put( newId, listener );
+            return null;
+        }
+    }
+    
+    
+    /**
+     * converts the ModifyDnResponseCodec to ModifyResponse.
+     */
+    private ModifyDnResponse convert( ModifyDNResponseCodec modDnRespCodec )
+    {
+        ModifyDnResponse modDnResponse = new ModifyDnResponse();
+        
+        modDnResponse.setMessageId( modDnRespCodec.getMessageId() );
+        modDnResponse.setLdapResult( convert( modDnRespCodec.getLdapResult() ) );
+        
+        return modDnResponse;
     }
 
 }
