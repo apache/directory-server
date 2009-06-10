@@ -59,6 +59,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
@@ -183,6 +184,9 @@ public class DefaultDirectoryService implements DirectoryService
     
     /** The directory instance replication ID */
     private int replicaId;
+    
+    /** The replication configuration structure */
+    private ReplicationConfiguration replicationConfig;
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
@@ -425,9 +429,11 @@ public class DefaultDirectoryService implements DirectoryService
     public void setInterceptors( List<Interceptor> interceptors ) 
     {
         Set<String> names = new HashSet<String>();
+        
         for ( Interceptor interceptor : interceptors )
         {
             String name = interceptor.getName();
+            
             if ( names.contains( name ) )
             {
                 LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
@@ -1755,5 +1761,21 @@ public class DefaultDirectoryService implements DirectoryService
         {
             this.replicaId = replicaId;
         }
+    }
+
+
+    public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
+    {
+        this.replicationConfig = replicationConfig;
+        
+    }
+    
+    
+    /**
+     * @return the replication configuration for this DirectoryService
+     */
+    public ReplicationConfiguration getReplicationConfiguration()
+    {
+        return replicationConfig;
     }
 }

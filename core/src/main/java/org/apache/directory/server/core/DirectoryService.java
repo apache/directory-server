@@ -30,6 +30,7 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.csn.Csn;
@@ -481,4 +482,18 @@ public interface DirectoryService extends ServerEntryFactory
      * @param replicaId the replicaId to set
      */
     void setReplicaId( int replicaId );
+
+
+    /**
+     * Sets the replication configuration in the server.
+     *
+     * @param replicationConfiguration the replication configuration to be used in the server.
+     */
+    void setReplicationConfiguration( ReplicationConfiguration replicationConfig );
+    
+    
+    /**
+     * @return the replication configuration for this DirectoryService
+     */
+    ReplicationConfiguration getReplicationConfiguration();
 }
