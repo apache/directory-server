@@ -402,28 +402,16 @@ public interface SchemaConstants
     String GOVERNING_STRUCTURE_RULE_AT_OID = "2.5.21.10";
 
     // UUID
-    String UUID_AT = "UUID";
-    String UUID_AT_OID = "1.3.6.1.1.16.1";
-
-    // entryUUID
-    String ENTRY_UUID_AT = "entryUUID";
-    String ENTRY_UUID_AT_OID = "1.3.6.1.1.16.4";
+    //String UUID_AT = "UUID";
+    //String UUID_AT_OID = "1.3.6.1.1.16.1";
 
     // CSN
-    String CSN_AT = "CSN";
-    String CSN_AT_OID = "1.3.6.1.4.1.4203.666.2.1";
+    //String CSN_AT = "CSN";
+    //String CSN_AT_OID = "1.3.6.1.4.1.4203.666.2.1";
 
     // CSNSID
-    String CSN_SID_AT = "CSN";
-    String CSN_SID_AT_OID = "1.3.6.1.4.1.4203.666.2.4";
-
-    // entryCSN
-    String ENTRY_CSN_AT = "entryCSN";
-    String ENTRY_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.7";
-
-    // contextCSN
-    String CONTEXT_CSN_AT = "contextCSN";
-    String CONTEXT_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.25";
+    //String CSN_SID_AT = "CSN_SID";
+    //String CSN_SID_AT_OID = "1.3.6.1.4.1.4203.666.2.4";
 
     // entryDN
     String ENTRY_DN_AT = "entryDN";
@@ -445,190 +433,190 @@ public interface SchemaConstants
     // ---- Syntaxes ----------------------------------------------------------
     //-------------------------------------------------------------------------
     // RFC 2252, removed in RFC 4517
-    String ACI_ITEM_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.1"; // done
+    String ACI_ITEM_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.1";
 
     // RFC 2252, removed in RFC 4517
-    String ACCESS_POINT_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.2"; // done
+    String ACCESS_POINT_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.2";
     
     // RFC 4517, chap 3.3.1
-    String ATTRIBUT_TYPE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.3"; // done
+    String ATTRIBUT_TYPE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.3";
 
     // RFC 2252, removed in RFC 4517
-    String AUDIO_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.4"; // done
+    String AUDIO_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.4";
 
     // RFC 2252, removed in RFC 4517
-    String BINARY_SYNTAX                          = "1.3.6.1.4.1.1466.115.121.1.5"; // done
+    String BINARY_SYNTAX                          = "1.3.6.1.4.1.1466.115.121.1.5";
     
     // RFC 4517, chap 3.3.2
-    String BIT_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.6"; // done
+    String BIT_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.6";
     
     // RFC 4517, chap 3.3.3
-    String BOOLEAN_SYNTAX                         = "1.3.6.1.4.1.1466.115.121.1.7"; // done
+    String BOOLEAN_SYNTAX                         = "1.3.6.1.4.1.1466.115.121.1.7";
     
     // RFC 2252, removed in RFC 4517, reintroduced in RFC 4523, chap. 2.1 
-    String CERTIFICATE_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.8"; // done
+    String CERTIFICATE_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.8";
     
     // RFC 2252, removed in RFC 4517, reintroduced in RFC 4523, chap. 2.2 
-    String CERTIFICATE_LIST_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.9"; // done
+    String CERTIFICATE_LIST_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.9";
 
     // RFC 2252, removed in RFC 4517, reintroduced in RFC 4523, chap. 2.3 
-    String CERTIFICATE_PAIR_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.10"; // done
+    String CERTIFICATE_PAIR_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.10";
     
     // RFC 4517, chap 3.3.4
-    String COUNTRY_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.11"; // done
+    String COUNTRY_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.11";
     
     // RFC 4517, chap 3.3.9
-    String DN_SYNTAX                              = "1.3.6.1.4.1.1466.115.121.1.12"; // done
+    String DN_SYNTAX                              = "1.3.6.1.4.1.1466.115.121.1.12";
 
     // RFC 2252, removed in RFC 4517
-    String DATA_QUALITY_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.13"; // done
+    String DATA_QUALITY_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.13";
     
     // RFC 4517, chap 3.3.5
-    String DELIVERY_METHOD_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.14"; // done
+    String DELIVERY_METHOD_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.14";
     
     // RFC 4517, chap 3.3.6
-    String DIRECTORY_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.15"; // done
+    String DIRECTORY_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.15";
     
     // RFC 4517, chap 3.3.7
-    String DIT_CONTENT_RULE_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.16"; // done
+    String DIT_CONTENT_RULE_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.16";
     
     // RFC 4517, chap 3.3.8
-    String DIT_STRUCTURE_RULE_SYNTAX              = "1.3.6.1.4.1.1466.115.121.1.17"; // done
+    String DIT_STRUCTURE_RULE_SYNTAX              = "1.3.6.1.4.1.1466.115.121.1.17";
     
     // RFC 2252, removed in RFC 4517
-    String DL_SUBMIT_PERMISSION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.18"; // done
+    String DL_SUBMIT_PERMISSION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.18";
 
     // RFC 2252, removed in RFC 4517
-    String DSA_QUALITY_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.19"; // done
+    String DSA_QUALITY_SYNTAX                     = "1.3.6.1.4.1.1466.115.121.1.19";
 
     // RFC 2252, removed in RFC 4517
-    String DSE_TYPE_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.20"; // done
+    String DSE_TYPE_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.20";
     
     // RFC 4517, chap 3.3.10
-    String ENHANCED_GUIDE_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.21"; // done
+    String ENHANCED_GUIDE_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.21";
     
     // RFC 4517, chap 3.3.11
-    String FACSIMILE_TELEPHONE_NUMBER_SYNTAX      = "1.3.6.1.4.1.1466.115.121.1.22"; // done
+    String FACSIMILE_TELEPHONE_NUMBER_SYNTAX      = "1.3.6.1.4.1.1466.115.121.1.22";
     
     // RFC 4517, chap 3.3.12
-    String FAX_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.23"; // done
+    String FAX_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.23";
     
     // RFC 4517, chap 3.3.13
-    String GENERALIZED_TIME_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.24"; // done
+    String GENERALIZED_TIME_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.24";
     
     // RFC 4517, chap 3.3.14
-    String GUIDE_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.25"; // done
+    String GUIDE_SYNTAX                           = "1.3.6.1.4.1.1466.115.121.1.25";
     
     // RFC 4517, chap 3.3.15
-    String IA5_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.26"; // done
+    String IA5_STRING_SYNTAX                      = "1.3.6.1.4.1.1466.115.121.1.26";
     
     // RFC 4517, chap 3.3.16
-    String INTEGER_SYNTAX                         = "1.3.6.1.4.1.1466.115.121.1.27"; // done
+    String INTEGER_SYNTAX                         = "1.3.6.1.4.1.1466.115.121.1.27";
     
     // RFC 4517, chap 3.3.17
-    String JPEG_SYNTAX                            = "1.3.6.1.4.1.1466.115.121.1.28"; // done
+    String JPEG_SYNTAX                            = "1.3.6.1.4.1.1466.115.121.1.28";
     
     // RFC 2252, removed in RFC 4517
-    String MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.29"; // done
+    String MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.29";
     
     // RFC 4517, chap 3.3.19
-    String MATCHING_RULE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.30"; // done
+    String MATCHING_RULE_DESCRIPTION_SYNTAX       = "1.3.6.1.4.1.1466.115.121.1.30";
     
     // RFC 4517, chap 3.3.20
-    String MATCHING_RULE_USE_DESCRIPTION_SYNTAX   = "1.3.6.1.4.1.1466.115.121.1.31"; // done
+    String MATCHING_RULE_USE_DESCRIPTION_SYNTAX   = "1.3.6.1.4.1.1466.115.121.1.31";
     
     // RFC 2252, removed in RFC 4517
-    String MAIL_PREFERENCE_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.32"; // done
+    String MAIL_PREFERENCE_SYNTAX                 = "1.3.6.1.4.1.1466.115.121.1.32";
     
     // RFC 2252, removed in RFC 4517
-    String MHS_OR_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.33";  // done
+    String MHS_OR_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.33"; 
     
     // RFC 4517, chap 3.3.21
-    String NAME_AND_OPTIONAL_UID_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.34"; // done
+    String NAME_AND_OPTIONAL_UID_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.34";
     
     // RFC 4517, chap 3.3.22
-    String NAME_FORM_DESCRIPTION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.35"; // done
+    String NAME_FORM_DESCRIPTION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.35";
     
     // RFC 4517, chap 3.3.23
-    String NUMERIC_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.36"; // done
+    String NUMERIC_STRING_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.36";
     
     // RFC 4517, chap 3.3.24
-    String OBJECT_CLASS_DESCRIPTION_SYNTAX        = "1.3.6.1.4.1.1466.115.121.1.37"; // done
+    String OBJECT_CLASS_DESCRIPTION_SYNTAX        = "1.3.6.1.4.1.1466.115.121.1.37";
     
     // RFC 4517, chap 3.3.26
-    String OID_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.38"; // done
+    String OID_SYNTAX                             = "1.3.6.1.4.1.1466.115.121.1.38";
     
     // RFC 4517, chap 3.3.27
-    String OTHER_MAILBOX_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.39"; // done
+    String OTHER_MAILBOX_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.39";
     
     // RFC 4517, chap 3.3.25
-    String OCTET_STRING_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.40"; // done
+    String OCTET_STRING_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.40";
     
     // RFC 4517, chap 3.3.28
-    String POSTAL_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.41"; // done
+    String POSTAL_ADDRESS_SYNTAX                  = "1.3.6.1.4.1.1466.115.121.1.41";
     
     // RFC 2252, removed in RFC 4517
-    String PROTOCOL_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.42"; // done
+    String PROTOCOL_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.42";
     
     // RFC 2252, removed in RFC 4517
-    String PRESENTATION_ADDRESS_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.43"; // done
+    String PRESENTATION_ADDRESS_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.43";
     
     // RFC 4517, chap 3.3.29
-    String PRINTABLE_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.44"; // done
+    String PRINTABLE_STRING_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.44";
     
     // RFC 2252, removed in RFC 4517
-    String SUBTREE_SPECIFICATION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.45"; // done
+    String SUBTREE_SPECIFICATION_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.45";
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.46"; // done
+    String SUPPLIER_INFORMATION_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.46";
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_OR_CONSUMER_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.47"; // done
+    String SUPPLIER_OR_CONSUMER_SYNTAX            = "1.3.6.1.4.1.1466.115.121.1.47";
     
     // RFC 2252, removed in RFC 4517
-    String SUPPLIER_AND_CONSUMER_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.48"; // done
+    String SUPPLIER_AND_CONSUMER_SYNTAX           = "1.3.6.1.4.1.1466.115.121.1.48";
 
     // RFC 2252, removed in RFC 4517, reintroduced in RFC 4523, chap. 2.4
-    String SUPPORTED_ALGORITHM_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.49"; // done
+    String SUPPORTED_ALGORITHM_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.49";
     
     // RFC 4517, chap 3.3.31
-    String TELEPHONE_NUMBER_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.50"; // done
+    String TELEPHONE_NUMBER_SYNTAX                = "1.3.6.1.4.1.1466.115.121.1.50";
 
     // RFC 4517, chap 3.3.32
-    String TELETEX_TERMINAL_IDENTIFIER_SYNTAX     = "1.3.6.1.4.1.1466.115.121.1.51"; // done
+    String TELETEX_TERMINAL_IDENTIFIER_SYNTAX     = "1.3.6.1.4.1.1466.115.121.1.51";
     
     // RFC 4517, chap 3.3.33
-    String TELEX_NUMBER_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.52"; // done 
+    String TELEX_NUMBER_SYNTAX                    = "1.3.6.1.4.1.1466.115.121.1.52"; 
     
     // RFC 4517, chap 3.3.34
-    String UTC_TIME_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.53"; // done
+    String UTC_TIME_SYNTAX                        = "1.3.6.1.4.1.1466.115.121.1.53";
     
     // RFC 4517, chap 3.3.18
-    String LDAP_SYNTAX_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.54"; // done
+    String LDAP_SYNTAX_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.54";
     
     // RFC 2252, removed in RFC 4517
-    String MODIFY_RIGHTS_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.55"; // done
+    String MODIFY_RIGHTS_SYNTAX                   = "1.3.6.1.4.1.1466.115.121.1.55";
     
     // RFC 2252, removed in RFC 4517
-    String LDAP_SCHEMA_DEFINITION_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.56"; // done
+    String LDAP_SCHEMA_DEFINITION_SYNTAX          = "1.3.6.1.4.1.1466.115.121.1.56";
     
     // RFC 2252, removed in RFC 4517
-    String LDAP_SCHEMA_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.57"; // done
+    String LDAP_SCHEMA_DESCRIPTION_SYNTAX         = "1.3.6.1.4.1.1466.115.121.1.57";
     
     // RFC 4517, chap 3.3.30
-    String SUBSTRING_ASSERTION_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.58"; // done
+    String SUBSTRING_ASSERTION_SYNTAX             = "1.3.6.1.4.1.1466.115.121.1.58";
 
     // From draft-ietf-pkix-ldap-v3-01.txt. Obsolete.
-    String ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.59"; // done
+    String ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.59";
 
     //From RFC 4530, chap. 2.1
-    String UUID_SYNTAX                            = "1.3.6.1.1.16.1"; // done
+    String UUID_SYNTAX                            = "1.3.6.1.1.16.1";
     
     // From http://www.openldap.org/faq/data/cache/1145.html
-    String CSN_SYNTAX                             = "1.3.6.1.4.1.4203.666.11.2.1";  // done
+    String CSN_SYNTAX                             = "1.3.6.1.4.1.4203.666.11.2.1"; 
     
     // From http://www.openldap.org/faq/data/cache/1145.html
-    String CSN_SID_SYNTAX                         = "1.3.6.1.4.1.4203.666.11.2.4"; // done
+    String CSN_SID_SYNTAX                         = "1.3.6.1.4.1.4203.666.11.2.4";
 
     // Apache DS
     String JAVA_BYTE_SYNTAX                       = "1.3.6.1.4.1.18060.0.4.1.0.0";
@@ -641,167 +629,167 @@ public interface SchemaConstants
     // ---- MatchingRules -----------------------------------------------------
     //-------------------------------------------------------------------------
     // caseExactIA5Match (RFC 4517, chap. 4.2.3)
-    String CASE_EXACT_IA5_MATCH_MR                        = "caseExactIA5Match"; // done
-    String CASE_EXACT_IA5_MATCH_MR_OID                    = "1.3.6.1.4.1.1466.109.114.1"; // done
+    String CASE_EXACT_IA5_MATCH_MR                        = "caseExactIA5Match";
+    String CASE_EXACT_IA5_MATCH_MR_OID                    = "1.3.6.1.4.1.1466.109.114.1";
     
     // caseIgnoreIA5Match (RFC 4517, chap. 4.2.7)
-    String CASE_IGNORE_IA5_MATCH_MR                       = "caseIgnoreIA5Match"; // done
-    String CASE_IGNORE_IA5_MATCH_MR_OID                   = "1.3.6.1.4.1.1466.109.114.2"; // done
+    String CASE_IGNORE_IA5_MATCH_MR                       = "caseIgnoreIA5Match";
+    String CASE_IGNORE_IA5_MATCH_MR_OID                   = "1.3.6.1.4.1.1466.109.114.2";
     
     // caseIgnoreIA5SubstringsMatch (RFC 4517, chap. 4.2.8)
-    String CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR            = "caseIgnoreIA5SubstringsMatch"; // done
-    String CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID        = "1.3.6.1.4.1.1466.109.114.3"; // done
+    String CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR            = "caseIgnoreIA5SubstringsMatch";
+    String CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID        = "1.3.6.1.4.1.1466.109.114.3";
     
     // objectIdentifierMatch (RFC 4517, chap. 4.2.26)
-    String OBJECT_IDENTIFIER_MATCH_MR                     = "objectIdentifierMatch"; // done
-    String OBJECT_IDENTIFIER_MATCH_MR_OID                 = "2.5.13.0"; // done
+    String OBJECT_IDENTIFIER_MATCH_MR                     = "objectIdentifierMatch";
+    String OBJECT_IDENTIFIER_MATCH_MR_OID                 = "2.5.13.0";
     
     // distinguishedNameMatch (RFC 4517, chap. 4.2.15)
-    String DISTINGUISHED_NAME_MATCH_MR                    = "distinguishedNameMatch"; // done
-    String DISTINGUISHED_NAME_MATCH_MR_OID                = "2.5.13.1"; // done
+    String DISTINGUISHED_NAME_MATCH_MR                    = "distinguishedNameMatch";
+    String DISTINGUISHED_NAME_MATCH_MR_OID                = "2.5.13.1";
     
     // caseIgnoreMatch (RFC 4517, chap. 3.3.19)
-    String CASE_IGNORE_MATCH_MR                           = "caseIgnoreMatch"; // done
-    String CASE_IGNORE_MATCH_MR_OID                       = "2.5.13.2"; // done
+    String CASE_IGNORE_MATCH_MR                           = "caseIgnoreMatch";
+    String CASE_IGNORE_MATCH_MR_OID                       = "2.5.13.2";
     
     // caseIgnoreOrderingMatch (RFC 4517, chap. 4.2.12)
-    String CASE_IGNORE_ORDERING_MATCH_MR                  = "caseIgnoreOrderingMatch"; // done
-    String CASE_IGNORE_ORDERING_MATCH_MR_OID              = "2.5.13.3"; // done
+    String CASE_IGNORE_ORDERING_MATCH_MR                  = "caseIgnoreOrderingMatch";
+    String CASE_IGNORE_ORDERING_MATCH_MR_OID              = "2.5.13.3";
     
     // caseIgnoreSubstringsMatch (RFC 4517, chap. 4.2.13)
-    String CASE_IGNORE_SUBSTRING_MATCH_MR                 = "caseIgnoreSubstringsMatch"; // done
-    String CASE_IGNORE_SUBSTRING_MATCH_MR_OID             = "2.5.13.4"; // done
+    String CASE_IGNORE_SUBSTRING_MATCH_MR                 = "caseIgnoreSubstringsMatch";
+    String CASE_IGNORE_SUBSTRING_MATCH_MR_OID             = "2.5.13.4";
     
     // caseExactMatch (RFC 4517, chap. 4.2.4)
-    String CASE_EXACT_MATCH_MR                            = "caseExactMatch"; // done
-    String CASE_EXACT_MATCH_MR_OID                        = "2.5.13.5"; // done
+    String CASE_EXACT_MATCH_MR                            = "caseExactMatch";
+    String CASE_EXACT_MATCH_MR_OID                        = "2.5.13.5";
     
     // caseExactOrderingMatch (RFC 4517, chap. 4.2.5)
-    String CASE_EXACT_ORDERING_MATCH_MR                   = "caseExactOrderingMatch"; // done
-    String CASE_EXACT_ORDERING_MATCH_MR_OID               = "2.5.13.6"; // done
+    String CASE_EXACT_ORDERING_MATCH_MR                   = "caseExactOrderingMatch";
+    String CASE_EXACT_ORDERING_MATCH_MR_OID               = "2.5.13.6";
     
     // caseExactSubstringsMatch (RFC 4517, chap. 4.2.6)
-    String CASE_EXACT_SUBSTRING_MATCH_MR                  = "caseExactSubstringsMatch"; // done
-    String CASE_EXACT_SUBSTRING_MATCH_MR_OID              = "2.5.13.7"; // done
+    String CASE_EXACT_SUBSTRING_MATCH_MR                  = "caseExactSubstringsMatch";
+    String CASE_EXACT_SUBSTRING_MATCH_MR_OID              = "2.5.13.7";
     
     // numericStringMatch (RFC 4517, chap. 4.2.22)
-    String NUMERIC_STRING_MATCH_MR                        = "numericStringMatch"; // done
-    String NUMERIC_STRING_MATCH_MR_OID                    = "2.5.13.8"; // done
+    String NUMERIC_STRING_MATCH_MR                        = "numericStringMatch";
+    String NUMERIC_STRING_MATCH_MR_OID                    = "2.5.13.8";
     
     // numericStringOrderingMatch (RFC 4517, chap. 4.2.23)
-    String NUMERIC_STRING_ORDERING_MATCH_MR               = "numericStringOrderingMatch"; // done
-    String NUMERIC_STRING_ORDERING_MATCH_MR_OID           = "2.5.13.9"; // done
+    String NUMERIC_STRING_ORDERING_MATCH_MR               = "numericStringOrderingMatch";
+    String NUMERIC_STRING_ORDERING_MATCH_MR_OID           = "2.5.13.9";
     
     // numericStringSubstringsMatch (RFC 4517, chap. 4.2.24)
-    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR             = "numericStringSubstringsMatch"; // done
-    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID         = "2.5.13.10"; // done
+    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR             = "numericStringSubstringsMatch";
+    String NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID         = "2.5.13.10";
     
     // caseIgnoreListMatch (RFC 4517, chap. 4.2.9)
-    String CASE_IGNORE_LIST_MATCH_MR                      = "caseIgnoreListMatch"; // done
-    String CASE_IGNORE_LIST_MATCH_MR_OID                  = "2.5.13.11"; // done
+    String CASE_IGNORE_LIST_MATCH_MR                      = "caseIgnoreListMatch";
+    String CASE_IGNORE_LIST_MATCH_MR_OID                  = "2.5.13.11";
     
     // caseIgnoreListSubstringsMatch (RFC 4517, chap. 4.2.10)
-    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR           = "caseIgnoreListSubstringsMatch"; // done
-    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID       = "2.5.13.12"; // done
+    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR           = "caseIgnoreListSubstringsMatch";
+    String CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID       = "2.5.13.12";
     
     // booleanMatch (RFC 4517, chap. 4.2.2)
-    String BOOLEAN_MATCH_MR                               = "booleanMatch"; // done
-    String BOOLEAN_MATCH_MR_OID                           = "2.5.13.13"; // done
+    String BOOLEAN_MATCH_MR                               = "booleanMatch";
+    String BOOLEAN_MATCH_MR_OID                           = "2.5.13.13";
     
     // integerMatch (RFC 4517, chap. 4.2.19)
-    String INTEGER_MATCH_MR                               = "integerMatch"; // done
-    String INTEGER_MATCH_MR_OID                           = "2.5.13.14"; // done
+    String INTEGER_MATCH_MR                               = "integerMatch";
+    String INTEGER_MATCH_MR_OID                           = "2.5.13.14";
     
     // integerOrderingMatch (RFC 4517, chap. 4.2.20)
-    String INTEGER_ORDERING_MATCH_MR                      = "integerOrderingMatch"; // done
-    String INTEGER_ORDERING_MATCH_MR_OID                  = "2.5.13.15"; // done
+    String INTEGER_ORDERING_MATCH_MR                      = "integerOrderingMatch";
+    String INTEGER_ORDERING_MATCH_MR_OID                  = "2.5.13.15";
 
     // bitStringMatch (RFC 4517, chap. 4.2.1)
-    String BIT_STRING_MATCH_MR                            = "bitStringMatch"; // done
-    String BIT_STRING_MATCH_MR_OID                        = "2.5.13.16"; // done
+    String BIT_STRING_MATCH_MR                            = "bitStringMatch";
+    String BIT_STRING_MATCH_MR_OID                        = "2.5.13.16";
     
     // octetStringMatch (RFC 4517, chap. 4.2.27)
-    String OCTET_STRING_MATCH_MR                          = "octetStringMatch"; // done
-    String OCTET_STRING_MATCH_MR_OID                     = "2.5.13.17"; // done
+    String OCTET_STRING_MATCH_MR                          = "octetStringMatch";
+    String OCTET_STRING_MATCH_MR_OID                     = "2.5.13.17";
     
     // octetStringMatch (RFC 4517, chap. 4.2.28)
-    String OCTET_STRING_ORDERING_MATCH_MR                 = "octetStringOrderingMatch"; // done
-    String OCTET_STRING_ORDERING_MATCH_MR_OID             = "2.5.13.18"; // done
+    String OCTET_STRING_ORDERING_MATCH_MR                 = "octetStringOrderingMatch";
+    String OCTET_STRING_ORDERING_MATCH_MR_OID             = "2.5.13.18";
     
     // octetStringSubstringsMatch
-    String OCTET_STRING_SUBSTRINGS_MATCH_MR               = "octetStringSubstringsMatch"; // done
-    String OCTET_STRING_SUBSTRINGS_MATCH_MR_OID           = "2.5.13.19"; // done
+    String OCTET_STRING_SUBSTRINGS_MATCH_MR               = "octetStringSubstringsMatch";
+    String OCTET_STRING_SUBSTRINGS_MATCH_MR_OID           = "2.5.13.19";
     
     // telephoneNumberMatch (RFC 4517, chap. 4.2.29)
-    String TELEPHONE_NUMBER_MATCH_MR                      = "telephoneNumberMatch"; // done
-    String TELEPHONE_NUMBER_MATCH_MR_OID                  = "2.5.13.20"; // done
+    String TELEPHONE_NUMBER_MATCH_MR                      = "telephoneNumberMatch";
+    String TELEPHONE_NUMBER_MATCH_MR_OID                  = "2.5.13.20";
     
     // telephoneNumberMatch (RFC 4517, chap. 4.2.30)
-    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR           = "telephoneNumberSubstringsMatch"; // done
-    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID       = "2.5.13.21"; // done
+    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR           = "telephoneNumberSubstringsMatch";
+    String TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID       = "2.5.13.21";
     
     // presentationAddressMatch Removed in RFC 4517
-    String PRESENTATION_ADDRESS_MATCH_MATCH_MR            = "presentationAddressMatch"; // done
-    String PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID        = "2.5.13.22"; // done
+    String PRESENTATION_ADDRESS_MATCH_MATCH_MR            = "presentationAddressMatch";
+    String PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID        = "2.5.13.22";
     
     // uniqueMemberMatch (RFC 4517, chap. 4.2.31)
-    String UNIQUE_MEMBER_MATCH_MATCH_MR                   = "uniqueMemberMatch"; // done
-    String UNIQUE_MEMBER_MATCH_MATCH_MR_OID               = "2.5.13.23"; // done
+    String UNIQUE_MEMBER_MATCH_MATCH_MR                   = "uniqueMemberMatch";
+    String UNIQUE_MEMBER_MATCH_MATCH_MR_OID               = "2.5.13.23";
     
     // protocolInformationMatch Removed in RFC 4517
-    String PROTOCOL_INFORMATION_MATCH_MATCH_MR            = "protocolInformationMatch"; // done
-    String PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID        = "2.5.13.24"; // done
+    String PROTOCOL_INFORMATION_MATCH_MATCH_MR            = "protocolInformationMatch";
+    String PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID        = "2.5.13.24";
     
     // "2.5.13.25" is not used ...
     // "2.5.13.26" is not used ...
     
     // generalizedTimeMatch (RFC 4517, chap. 4.2.16)
-    String GENERALIZED_TIME_MATCH_MR                      = "generalizedTimeMatch"; // done
-    String GENERALIZED_TIME_MATCH_MR_OID                  = "2.5.13.27"; // done
+    String GENERALIZED_TIME_MATCH_MR                      = "generalizedTimeMatch";
+    String GENERALIZED_TIME_MATCH_MR_OID                  = "2.5.13.27";
     
     // generalizedTimeOrderingMatch (RFC 4517, chap. 4.2.17)
     String GENERALIZED_TIME_ORDERING_MATCH_MR             = "generalizedTimeOrderingMatch";
     String GENERALIZED_TIME_ORDERING_MATCH_MR_OID         = "2.5.13.28";
 
     // integerFirstComponentMatch (RFC 4517, chap. 4.2.18)
-    String INTEGER_FIRST_COMPONENT_MATCH_MR               = "integerFirstComponentMatch"; // done
-    String INTEGER_FIRST_COMPONENT_MATCH_MR_OID           = "2.5.13.29"; // done
+    String INTEGER_FIRST_COMPONENT_MATCH_MR               = "integerFirstComponentMatch";
+    String INTEGER_FIRST_COMPONENT_MATCH_MR_OID           = "2.5.13.29";
     
     // objectIdentifierFirstComponentMatch (RFC 4517, chap. 4.2.25)
-    String OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR     = "objectIdentifierFirstComponentMatch"; // done
-    String OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID = "2.5.13.30"; // done
+    String OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR     = "objectIdentifierFirstComponentMatch";
+    String OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID = "2.5.13.30";
 
     // directoryStringFirstComponentMatch (RFC 4517, chap. 4.2.14)
-    String DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR      = "directoryStringFirstComponentMatch"; // done
-    String DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID  = "2.5.13.31"; // done
+    String DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR      = "directoryStringFirstComponentMatch";
+    String DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID  = "2.5.13.31";
 
     // wordMatch (RFC 4517, chap. 4.2.32)
-    String WORD_MATCH_MR                                  = "wordMatch"; // done
-    String WORD_MATCH_MR_OID                              = "2.5.13.32"; // done
+    String WORD_MATCH_MR                                  = "wordMatch";
+    String WORD_MATCH_MR_OID                              = "2.5.13.32";
 
     // keywordMatch (RFC 4517, chap. 4.2.21)
-    String KEYWORD_MATCH_MR                               = "keywordMatch"; // done
-    String KEYWORD_MATCH_MR_OID                           = "2.5.13.33"; // done
+    String KEYWORD_MATCH_MR                               = "keywordMatch";
+    String KEYWORD_MATCH_MR_OID                           = "2.5.13.33";
 
     // uuidMatch
-    String UUID_MATCH_MR                                  = "uuidMatch"; // done
-    String UUID_MATCH_MR_OID                              = "1.3.6.1.1.16.2"; // done
+    String UUID_MATCH_MR                                  = "uuidMatch";
+    String UUID_MATCH_MR_OID                              = "1.3.6.1.1.16.2";
     
     // uuidOrderingMatch
-    String UUID_ORDERING_MATCH_MR                         = "uuidOrderingMatch"; // done
-    String UUID_ORDERING_MATCH_MR_OID                     = "1.3.6.1.1.16.3"; // done
+    String UUID_ORDERING_MATCH_MR                         = "uuidOrderingMatch";
+    String UUID_ORDERING_MATCH_MR_OID                     = "1.3.6.1.1.16.3";
     
     // csnMatch 
-    String CSN_MATCH_MR                                   = "csnMatch";  // done
-    String CSN_MATCH_MR_OID                               = "1.3.6.1.4.1.4203.666.11.2.2";  // done
+    String CSN_MATCH_MR                                   = "csnMatch"; 
+    String CSN_MATCH_MR_OID                               = "1.3.6.1.4.1.4203.666.11.2.2"; 
     
     // csnOrderingMatch
-    String CSN_ORDERING_MATCH_MR                          = "csnOrderingMatch";  // done
-    String CSN_ORDERING_MATCH_MR_OID                      = "1.3.6.1.4.1.4203.666.11.2.3";  // done
+    String CSN_ORDERING_MATCH_MR                          = "csnOrderingMatch"; 
+    String CSN_ORDERING_MATCH_MR_OID                      = "1.3.6.1.4.1.4203.666.11.2.3"; 
     
     // csnSidMatch
-    String CSN_SID_MATCH_MR                               = "csnSidMatch";  // done
-    String CSN_SID_MATCH_MR_OID                           = "1.3.6.1.4.1.4203.666.11.2.5";  // done
+    String CSN_SID_MATCH_MR                               = "csnSidMatch"; 
+    String CSN_SID_MATCH_MR_OID                           = "1.3.6.1.4.1.4203.666.11.2.5"; 
     
     // ---- Features ----------------------------------------------------------
     String FEATURE_ALL_OPERATIONAL_ATTRIBUTES             = "1.3.6.1.4.1.4203.1.5.1";
