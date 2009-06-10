@@ -19,7 +19,12 @@
  */
 package org.apache.directory.shared.client.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -28,12 +33,9 @@ import org.apache.directory.server.ldap.LdapService;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Test the LdapConnection class
@@ -82,5 +84,19 @@ public class LdapConnectionTest
                 fail();
             }
         }
+    }
+    
+    
+    @Test
+    public void testGetSupportedControls() throws Exception
+    {
+        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+
+        LdapDN dn = new LdapDN( "uid=admin,ou=system" );
+        connection.bind( dn.getUpName(), "secret" );
+        
+        List<String> controlList = connection.getSupportedConrols();
+        assertNotNull( controlList );
+        assertFalse( controlList.isEmpty() );
     }
 }
