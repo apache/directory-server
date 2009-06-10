@@ -65,8 +65,8 @@ public class ApacheSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 1 CSN                           Y  1.3.6.1.4.1.4203.666.2.1
          * 2 CSNSID                        Y  1.3.6.1.4.1.4203.666.2.4
          */
-        cb.schemaObjectProduced( this, SchemaConstants.UUID_AT_OID, new UuidSyntaxChecker() );
-        cb.schemaObjectProduced( this, SchemaConstants.CSN_AT_OID, new CsnSyntaxChecker() );
-        cb.schemaObjectProduced( this, SchemaConstants.CSN_SID_AT_OID, new CsnSidSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.UUID_SYNTAX, new UuidSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.CSN_SYNTAX, new CsnSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.CSN_SID_SYNTAX, new CsnSidSyntaxChecker() );
     }
 }

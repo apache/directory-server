@@ -262,8 +262,8 @@ public class JdbmStore<E> implements Store<E>
         // Initialize Attribute types used all over this method
         OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        ENTRY_CSN_AT = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT );
-        ENTRY_UUID_AT = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT );
+        ENTRY_CSN_AT = attributeTypeRegistry.lookup( ApacheSchemaConstants.ENTRY_CSN_AT );
+        ENTRY_UUID_AT = attributeTypeRegistry.lookup( ApacheSchemaConstants.ENTRY_UUID_AT );
 
         this.upSuffix = new LdapDN( suffixDn );
         this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
@@ -385,17 +385,17 @@ public class JdbmStore<E> implements Store<E>
         if ( entryCsnIdx == null )
         {
             entryCsnIdx = new JdbmIndex<String, E>();
-            entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
-            systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
-            entryCsnIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
+            entryCsnIdx.setAttributeId( ApacheSchemaConstants.ENTRY_CSN_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
+            entryCsnIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.ENTRY_CSN_AT_OID ), workingDirectory );
         }
         
         if ( entryUuidIdx == null )
         {
             entryUuidIdx = new JdbmIndex<byte[], E>();
-            entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
-            systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
-            entryUuidIdx.init( attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
+            entryUuidIdx.setAttributeId( ApacheSchemaConstants.ENTRY_UUID_AT_OID );
+            systemIndices.put( ApacheSchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
+            entryUuidIdx.init( attributeTypeRegistry.lookup( ApacheSchemaConstants.ENTRY_UUID_AT_OID ), workingDirectory );
         }
         
         if ( objectClassIdx == null )
