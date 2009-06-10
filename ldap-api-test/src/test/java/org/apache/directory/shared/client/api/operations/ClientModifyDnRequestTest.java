@@ -64,12 +64,6 @@ public class ClientModifyDnRequestTest
     
     private String dn = "cn=modDn,ou=system";
 
-    static
-    {
-        BasicConfigurator.configure();
-    }
-    
-    
     @Before
     public void setup() throws Exception
     {
