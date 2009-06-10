@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +42,10 @@ import javax.naming.ldap.Control;
 import javax.net.ssl.SSLContext;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
+import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
 import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
@@ -55,6 +56,8 @@ import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponseImpl;
+import org.apache.directory.shared.ldap.client.api.messages.DeleteRequest;
+import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
@@ -88,6 +91,8 @@ import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
+import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
+import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
 import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
@@ -99,15 +104,19 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultDoneCodec;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntryCodec;
 import org.apache.directory.shared.ldap.codec.search.SearchResultReferenceCodec;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequestCodec;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.ListCursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -221,6 +230,11 @@ public class LdapConnection  extends IoHandlerAdapter
 
     /** a map to hold the response listeners based on the operation id */
     private Map<Integer, OperationResponseListener> listenerMap = new ConcurrentHashMap<Integer, OperationResponseListener>();
+    
+    /** list of controls supported by the server */
+    private List<String> supportedControls;
+
+    private Entry rootDSE;
     
     //--------------------------- Helper methods ---------------------------//
     /**
@@ -1072,7 +1086,8 @@ public class LdapConnection  extends IoHandlerAdapter
         searchRequest.setFilter( filter );
         searchRequest.setScope( scope );
         searchRequest.addAttributes( attributes );
-        
+        searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+
         // Process the request in blocking mode
         return searchInternal( searchRequest, null );
     }
@@ -1224,7 +1239,7 @@ public class LdapConnection  extends IoHandlerAdapter
                     if ( response == null )
                     {
                         // Send an abandon request
-                        abandon( searchMessage.getBindRequest().getMessageId() );
+                        abandon( searchMessage.getSearchRequest().getMessageId() );
                         
                         // We didn't received anything : this is an error
                         LOG.error( "Bind failed : timeout occured" );
@@ -1243,7 +1258,7 @@ public class LdapConnection  extends IoHandlerAdapter
                         }
                     }
                 }
-                while ( !( response instanceof SearchResultDone ) );
+                while ( !( response instanceof SearchResultDoneCodec ) );
 
                 // Release the session lock
                 unlockSession();
@@ -1746,7 +1761,6 @@ public class LdapConnection  extends IoHandlerAdapter
                 unlockSession();
                 LdapException ldapException = new LdapException();
                 ldapException.initCause( e );
-                e.printStackTrace();
                 throw ldapException;
             }
             
@@ -1775,4 +1789,304 @@ public class LdapConnection  extends IoHandlerAdapter
         return modDnResponse;
     }
 
+
+    /**
+     * @see #delete(LdapDN)
+     */
+    public DeleteResponse delete( String dn )  throws LdapException
+    {
+        try
+        {
+            return delete( new LdapDN( dn ) );
+        }
+        catch( InvalidNameException e )
+        {
+            LOG.error( e.getMessage(), e );
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+
+    
+    /**
+     * deletes the entry with the given DN
+     *  
+     * @param dn the target entry's DN
+     * @throws LdapException
+     */
+    public DeleteResponse delete( LdapDN dn )  throws LdapException
+    {
+        return delete( dn, false ); 
+    }
+
+    
+    /**
+     * deletes the entry with the given DN and all its children
+     * 
+     * @param dn the target entry DN
+     * @param deleteAllChildren flag to indicate whether to delete the children
+     * @return delete operation's response
+     * @throws LdapException
+     */
+    public DeleteResponse delete( LdapDN dn, boolean deleteAllChildren )  throws LdapException
+    {
+        DeleteRequest delRequest = new DeleteRequest( dn );
+        
+        if( deleteAllChildren )
+        {
+            if( isControlSupported( CascadeControl.CONTROL_OID ) )
+            {
+                delRequest.add( new CascadeControl() );
+            }
+            else
+            {
+                return deleteChildren( dn, new HashMap() );
+            }
+        }
+            
+        return delete( delRequest, null );
+    }
+
+    
+    /**
+     * removes all child entries present under the given DN and finally the DN itself
+     * 
+     * Working:
+     *          This is a recursive function which maintains a Map<LdapDN,Cursor>.
+     *          The way the cascade delete works is by checking for children for a 
+     *          given DN(i.e opening a search cursor) and if the cursor is empty
+     *          then delete the DN else for each entry's DN present in cursor call
+     *          deleteChildren() with the DN and the reference to the map.
+     *          
+     *          The reason for opening a search cursor is based on an assumption
+     *          that an entry *might* contain children, consider the below DIT fragment
+     *          
+     *          parent
+     *          /     \
+     *        child1   child2
+     *                 /     \
+     *               grand21  grand22
+     *               
+     *           The below method works better in the case where the tree depth is >1 
+     *          
+     *  //FIXME provide another method for optimizing delete operation for a tree with depth <=1
+     *          
+     * @param dn the DN which will be removed after removing its children
+     * @param map a map to hold the Cursor related to a DN 
+     * @throws LdapException
+     */
+    private DeleteResponse deleteChildren( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap ) throws LdapException
+    {
+        LOG.debug( "searching for {}", dn.getUpName() );
+        DeleteResponse delResponse = null;
+        Cursor<SearchResponse> cursor = null;
+        try
+        {
+            if( cursorMap == null )
+            {
+                cursorMap = new HashMap<LdapDN, Cursor<SearchResponse>>();
+            }
+
+            cursor = cursorMap.get( dn ); 
+            if( cursor == null )
+            {
+                cursor = search( dn.getUpName(), "(objectClass=*)", SearchScope.ONELEVEL, SchemaConstants.ENTRY_UUID_AT );
+                LOG.debug( "putting curosr for {}", dn.getUpName() );
+                cursorMap.put( dn, cursor );
+            }
+            
+            if( ! cursor.next() ) // if this is a leaf entry's DN
+            {
+                LOG.debug( "deleting {}", dn.getUpName() );
+                cursorMap.remove( dn );
+                cursor.close();
+                delResponse = delete( new DeleteRequest( dn ), null );
+            }
+            else
+            {
+                do
+                {
+                    SearchResponse searchResp = ( SearchResponse ) cursor.get();
+                    if( searchResp instanceof SearchResultEntry )
+                    {
+                        SearchResultEntry searchResult = ( SearchResultEntry ) searchResp;
+                        deleteChildren( searchResult.getEntry().getDn(), cursorMap );
+                    }
+                }
+                while( cursor.next() );
+                
+                cursorMap.remove( dn );
+                cursor.close();
+                LOG.debug( "deleting {}", dn.getUpName() );
+                delResponse = delete( new DeleteRequest( dn ), null );
+            }
+        }
+        catch( Exception e )
+        {
+            String msg = "Failed to delete child entries under the DN " + dn.getUpName();
+            LOG.error( msg, e );
+            throw new LdapException( msg, e );
+        }
+        
+        return delResponse;
+    }
+    
+    
+    /**
+     * performs a delete operation based on the delete request object.
+     *  
+     * @param delRequest the delete operation's request
+     * @param listener the delete operation response listener
+     * @return delete operation's response, null if a non-null listener value is provided
+     * @throws LdapException
+     */
+    public DeleteResponse delete( DeleteRequest delRequest, DeleteListener listener )  throws LdapException
+    {
+        checkSession();
+    
+        lockSession();
+        
+        LdapMessageCodec deleteMessage = new LdapMessageCodec();
+        
+        int newId = messageId.incrementAndGet();
+        delRequest.setMessageId( newId );
+        deleteMessage.setMessageId( newId );
+
+        DelRequestCodec delCodec = new DelRequestCodec();
+        delCodec.setEntry( delRequest.getTargetDn() );
+
+        deleteMessage.setProtocolOP( delCodec );
+        setControls( delRequest.getControls(), deleteMessage );
+        
+        ldapSession.write( deleteMessage );
+        
+        if( listener == null )
+        {
+            LdapMessageCodec response = null;
+            try
+            {
+                long timeout = getTimeout( delRequest.getTimeout() );
+                response = deleteResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Delete DN failed : timeout occured" );
+                    unlockSession();
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
+            }
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                unlockSession();
+                LdapException ldapException = new LdapException();
+                ldapException.initCause( e );
+                throw ldapException;
+            }
+            
+            unlockSession();
+            
+            return convert( response.getDelResponse() );
+        }
+        else
+        {
+            listenerMap.put( newId, listener );
+            return null;
+        }
+    }
+
+    
+    /**
+     * converts the DeleteResponseCodec to DeleteResponse object.
+     */
+    private DeleteResponse convert( DelResponseCodec delRespCodec )
+    {
+        DeleteResponse response = new DeleteResponse();
+        
+        response.setMessageId( delRespCodec.getMessageId() );
+        response.setLdapResult( convert( delRespCodec.getLdapResult() ) );
+        
+        return response;
+    }
+    
+    
+    /**
+     * checks if a control with the given OID is supported
+     * 
+     * @param controlOID the OID of the control
+     * @return true if the control is supported, false otherwise
+     */
+    public boolean isControlSupported( String controlOID ) throws LdapException
+    {
+        return getSupportedConrols().contains( controlOID );
+    }
+    
+    
+    /**
+     * get the Conrols supported by server.
+     *
+     * @return a list of control OIDs supported by server
+     * @throws LdapException
+     */
+    public List<String> getSupportedConrols() throws LdapException
+    {
+        if( supportedControls != null )
+        {
+            return supportedControls;
+        }
+        
+        if( rootDSE == null )
+        {
+            fetchRootDSE();
+        }
+
+        supportedControls = new ArrayList<String>();
+
+        EntryAttribute attr = rootDSE.get( SchemaConstants.SUPPORTED_CONTROL_AT );
+        Iterator<Value<?>> itr = attr.getAll();
+        
+        while( itr.hasNext() )
+        {
+            supportedControls.add( ( String ) itr.next().get() );
+        }
+
+        return supportedControls;
+    }
+    
+
+    /**
+     * fetches the rootDSE from the server
+     * @throws LdapException
+     */
+    private void fetchRootDSE() throws LdapException
+    {
+        Cursor<SearchResponse> cursor = null;
+        try
+        {
+            cursor = search( "", "(objectClass=*)", SearchScope.OBJECT, "*", "+" );
+            cursor.next();
+            SearchResultEntryImpl searchRes = ( SearchResultEntryImpl ) cursor.get();
+            
+            rootDSE = searchRes.getEntry();
+        }
+        catch( Exception e )
+        {
+            String msg = "Failed to fetch the RootDSE";
+            LOG.error( msg );
+            throw new LdapException( msg, e );
+        }
+        finally
+        {
+            if( cursor != null )
+            {
+                try
+                {
+                    cursor.close();
+                }
+                catch( Exception e )
+                {
+                    LOG.error( "Failed to close open cursor", e );
+                }
+            }
+        }
+    }
 }
