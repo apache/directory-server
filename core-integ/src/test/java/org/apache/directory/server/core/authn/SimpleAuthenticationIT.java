@@ -353,6 +353,62 @@ public class SimpleAuthenticationIT
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
     }
+    
+    
+    @Test
+    public void testSSHA4BytesSalt() throws Exception
+    {
+        apply( service, getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'test123', encrypted using SHA with a 4 bytes salt
+        BasicAttribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SSHA}0TT388zsWzHKtMEpIU/8/W68egchNEWp" );
+        ctx.modifyAttributes( "", new ModificationItem[] {
+            new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = new ServerLdapContext( service, 
+                service.getSession( new LdapDN( userDn ), "test".getBytes() ), new LdapDN( userDn ) );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( Exception e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successful)
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test123".getBytes() ), new LdapDN( userDn ) );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx = new ServerLdapContext( service, 
+            service.getSession( new LdapDN( userDn ), "test123".getBytes() ), new LdapDN( userDn ) );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
 
 
     @Test
@@ -424,7 +480,7 @@ public class SimpleAuthenticationIT
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
 
-        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        // now modify the password for akarasulu : 'secret', encrypted using SMD5
         Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
         ctx.modifyAttributes( "", new ModificationItem[] {
             new ModificationItem( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
@@ -450,7 +506,7 @@ public class SimpleAuthenticationIT
             }
         }
 
-        // try again now with new password (should be successfull)
+        // try again now with new password (should be successful)
         ctx = new ServerLdapContext( service, 
             service.getSession( new LdapDN( userDn ), "secret".getBytes() ), new LdapDN( userDn ) );
         attrs = ctx.getAttributes( "" );
