@@ -44,6 +44,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.AddListener;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
@@ -52,6 +53,7 @@ import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseLi
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequestImpl;
+import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
@@ -86,6 +88,8 @@ import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.LdapResultCodec;
 import org.apache.directory.shared.ldap.codec.TwixTransformer;
 import org.apache.directory.shared.ldap.codec.abandon.AbandonRequestCodec;
+import org.apache.directory.shared.ldap.codec.add.AddRequestCodec;
+import org.apache.directory.shared.ldap.codec.add.AddResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindRequestCodec;
 import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
@@ -674,6 +678,7 @@ public class LdapConnection  extends IoHandlerAdapter
         return true;
     }
     
+    
     //------------------------ The LDAP operations ------------------------//
     // Add operations                                                      //
     //---------------------------------------------------------------------//
@@ -682,75 +687,95 @@ public class LdapConnection  extends IoHandlerAdapter
      * to wait for the response until the AddResponse is returned.
      * 
      * @param entry The entry to add
-     * @result AddResponse The resulting response 
-     *
-    public AddResponse add( Entry entry )
+     * @result the add operation's response 
+     */
+    public AddResponse add( Entry entry ) throws LdapException
     {
         if ( entry == null ) 
         {
-            LOG.debug( "Cannot add empty entry" );
-            return null;
+            String msg = "Cannot add empty entry";
+            LOG.debug( msg );
+            throw new NullPointerException( msg );
         }
         
-        
+        return add( new AddRequest( entry ), null );
     }
     
     
-    public void add( AddRequest addRequest ) throws InvalidConnectionException
+    /**
+     * Add an entry present in the AddRequest to the server.
+     * @param addRequest the request object containing an entry and controls(if any)
+     * @return the add operation's response
+     * @throws LdapException
+     */
+    public AddResponse add( AddRequest addRequest, AddListener listener ) throws LdapException
     {
-        // If the session has not been establish, or is closed, we get out immediately
         checkSession();
 
-        // Guarantee that for this session, we don't have more than one operation
-        // running at the same time
         lockSession();
         
-        // Create the AddRequest
-        LdapDN dn = new LdapDN( name );
+        AddRequestCodec addReqCodec = new AddRequestCodec();
         
-        InternalAddRequest addRequest = new InternalBindRequest();
-        bindRequest.setName( dn );
-        bindRequest.setVersion( LDAP_V3 );
-        
-        // Create the Simple authentication
-        SimpleAuthentication simpleAuth = new SimpleAuthentication();
-        simpleAuth.setSimple( credentials );
+        int newId = messageId.incrementAndGet();
+        LdapMessageCodec message = new LdapMessageCodec();
+        message.setMessageId( newId );
+        addReqCodec.setMessageId( newId );
 
-        bindRequest.setAuthentication( simpleAuth );
+        addReqCodec.setEntry( addRequest.getEntry() );
+        addReqCodec.setEntryDn( addRequest.getEntry().getDn() );
+        setControls( addRequest.getControls(), addReqCodec );
         
-        // Encode the request
-        LdapMessage message = new LdapMessage();
-        message.setMessageId( messageId++ );
-        message.setProtocolOP( bindRequest );
+        message.setProtocolOP( addReqCodec );
         
-        LOG.debug( "-----------------------------------------------------------------" );
-        LOG.debug( "Sending request \n{}", message );
-
         // Send the request to the server
         ldapSession.write( message );
-
-        // Read the response, waiting for it if not available immediately
-        LdapMessage response = bindResponseQueue.poll( timeOut, TimeUnit.MILLISECONDS );
-    
-        // Check that we didn't get out because of a timeout
-        if ( response == null )
+        if( listener == null )
         {
-            // We didn't received anything : this is an error
-            LOG.error( "Bind failed : timeout occured" );
+            LdapMessageCodec response = null;
+            try
+            {
+                long timeout = getTimeout( addRequest.getTimeout() );
+                response = addResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Add failed : timeout occured" );
+                    unlockSession();
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
+            }
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                unlockSession();
+                throw new LdapException( e );
+            }
+            
             unlockSession();
-            throw new Exception( "TimeOut occured" );
+            
+            return convert( response.getAddResponse() );
         }
-        
-        operationMutex.release();
-        
-        // Everything is fine, return the response
-        LdapResponse resp = response.getBindResponse();
-        
-        LOG.debug( "Bind successful : {}", resp );
-        
-        return resp;
+        else
+        {
+            listenerMap.put( newId, listener );
+            return null;
+        }
     }
-    */
+
+    
+    /**
+     * converts the AddResponseCodec to AddResponse.
+     */
+    private AddResponse convert( AddResponseCodec addRespCodec )
+    {
+        AddResponse addResponse = new AddResponse();
+        
+        addResponse.setMessageId( addRespCodec.getMessageId() );
+        addResponse.setLdapResult( convert( addRespCodec.getLdapResult() ) );
+        
+        return addResponse;
+    }
+
     
     //------------------------ The LDAP operations ------------------------//
     // Abandon operations                                                  //
@@ -1374,7 +1399,17 @@ public class LdapConnection  extends IoHandlerAdapter
         {
             case LdapConstants.ADD_RESPONSE :
                 // Store the response into the responseQueue
-                addResponseQueue.add( response ); 
+                AddResponseCodec addRespCodec = response.getAddResponse();
+                addRespCodec.addControl( response.getCurrentControl() );
+                AddListener addListener = ( AddListener ) listenerMap.get( addRespCodec.getMessageId() );
+                if( addListener != null )
+                {
+                    addListener.entryAdded( this, convert( addRespCodec ) );
+                }
+                else
+                {
+                    addResponseQueue.add( response ); 
+                }
                 break;
                 
             case LdapConstants.BIND_RESPONSE: 
@@ -1889,7 +1924,7 @@ public class LdapConnection  extends IoHandlerAdapter
             cursor = cursorMap.get( dn ); 
             if( cursor == null )
             {
-                cursor = search( dn.getUpName(), "(objectClass=*)", SearchScope.ONELEVEL, SchemaConstants.ENTRY_UUID_AT );
+                cursor = search( dn.getUpName(), "(objectClass=*)", SearchScope.ONELEVEL, null ); 
                 LOG.debug( "putting curosr for {}", dn.getUpName() );
                 cursorMap.put( dn, cursor );
             }
