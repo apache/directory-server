@@ -108,10 +108,10 @@ public enum SearchScope
     
     /**
      * Gets the SearchScope enumerated type for the corresponding 
-     * SearchControls scope setting.
+     * JNDI numeric value.
      *
-     * @param searchControls the search controls to get SearchScope for
-     * @return the SearchScope enumerated type for the SearchControls
+     * @param jndiScope the JNDI numeric value to get SearchScope for
+     * @return the SearchScope enumerated type for JNDI numeric value
      */
     public static SearchScope getSearchScope( int jndiScope )
     {
@@ -127,4 +127,33 @@ public enum SearchScope
                 throw new IllegalArgumentException( "Unknown JNDI scope constant value: " + jndiScope );
         }
     }
+
+
+    /**
+     * Gets the SearchScope enumerated type for the corresponding 
+     * LDAP URL scope value of either base, one or sub.
+     *
+     * @param ldapUrlValue the LDAP URL scope value to get SearchScope for
+     * @return the SearchScope enumerated type for the LDAP URL scope value
+     */
+    public static SearchScope getSearchScope( String ldapUrlValue )
+    {
+        if ( "base".equalsIgnoreCase( ldapUrlValue ) )
+        {
+            return OBJECT;
+        }
+        else if ( "one".equalsIgnoreCase( ldapUrlValue ) )
+        {
+            return ONELEVEL;
+        }
+        else if ( "sub".equalsIgnoreCase( ldapUrlValue ) )
+        {
+            return SUBTREE;
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unknown LDAP URL scope value: " + ldapUrlValue );
+        }
+    }
+
 }
