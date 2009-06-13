@@ -80,6 +80,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     
     /** A speedup for logger in debug mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+    
+    /** The SHA1 hash length */
+    private static final int SHA1_LENGTH = 20;
+
+    /** The MD5 hash length */
+    private static final int MD5_LENGTH = 16;
 
     /**
      * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
@@ -163,7 +169,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * format :
      * {<algorithm>}<encrypted password>
      * where the encrypted password format can be :
-     * - MD5/SHA : base64([<salt (8 bytes)>]<password>)
+     * - MD5/SHA : base64([<salt (4 or 8 bytes)>]<password>)
      * - crypt : <salt (2 btytes)><password> 
      * 
      * Algorithm are currently MD5, SMD5, SHA, SSHA, CRYPT and empty
@@ -299,7 +305,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             // be able to encrypt the submitted user password in the next step
             byte[] encryptedStored = splitCredentials( storedPassword, encryptionMethod );
             
-            // Reuse the slatedPassword informations to construct the encrypted
+            // Reuse the saltedPassword informations to construct the encrypted
             // password given by the user.
             byte[] userPassword = encryptPassword( credentials, encryptionMethod );
             
@@ -339,7 +345,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     
     /**
-     * Decopose the stored password in an algorithm, an eventual salt
+     * Decompose the stored password in an algorithm, an eventual salt
      * and the password itself.
      * 
      * If the algorithm is SHA, SSHA, MD5 or SMD5, the part following the algorithm
@@ -351,7 +357,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     private byte[] splitCredentials( byte[] credentials, EncryptionMethod encryptionMethod )
     {
-        int pos = encryptionMethod.algorithm.getName().length() + 2;
+        int algoLength = encryptionMethod.algorithm.getName().length() + 2;
         
         switch ( encryptionMethod.algorithm )
         {
@@ -361,7 +367,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 {
                     // We just have the password just after the algorithm, base64 encoded.
                     // Just decode the password and return it.
-                    return Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
+                    return Base64.decode( new String( credentials, algoLength, credentials.length - algoLength, "UTF-8" ).toCharArray() );
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
@@ -370,6 +376,28 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 }
                 
             case HASH_METHOD_SMD5 :
+                try
+                {
+                    // The password is associated with a salt. Decompose it 
+                    // in two parts, after having decoded the password.
+                    // The salt will be stored into the EncryptionMethod structure
+                    // The salt is at the end of the credentials, and is 8 bytes long
+                    byte[] passwordAndSalt = Base64.decode( new String( credentials, algoLength, credentials.length - algoLength, "UTF-8" ).
+                        toCharArray() );
+                    
+                    int saltLength = passwordAndSalt.length - MD5_LENGTH;
+                    encryptionMethod.salt = new byte[saltLength];
+                    byte[] password = new byte[MD5_LENGTH];
+                    split( passwordAndSalt, 0, password, encryptionMethod.salt );
+                    
+                    return password;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    // do nothing 
+                    return credentials;
+                }
+                
             case HASH_METHOD_SSHA :
                 try
                 {
@@ -377,11 +405,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                     // in two parts, after having decoded the password.
                     // The salt will be stored into the EncryptionMethod structure
                     // The salt is at the end of the credentials, and is 8 bytes long
-                    byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).
+                    byte[] passwordAndSalt = Base64.decode( new String( credentials, algoLength, credentials.length - algoLength, "UTF-8" ).
                         toCharArray() );
                     
-                    encryptionMethod.salt = new byte[8];
-                    byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
+                    int saltLength = passwordAndSalt.length - SHA1_LENGTH;
+                    encryptionMethod.salt = new byte[saltLength];
+                    byte[] password = new byte[SHA1_LENGTH];
                     split( passwordAndSalt, 0, password, encryptionMethod.salt );
                     
                     return password;
@@ -397,8 +426,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 // in two parts, storing the salt into the EncryptionMethod structure.
                 // The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
                 encryptionMethod.salt = new byte[2];
-                byte[] password = new byte[credentials.length - encryptionMethod.salt.length - pos];
-                split( credentials, pos, encryptionMethod.salt, password );
+                byte[] password = new byte[credentials.length - encryptionMethod.salt.length - algoLength];
+                split( credentials, algoLength, encryptionMethod.salt, password );
                 
                 return password;
                 
