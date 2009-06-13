@@ -468,6 +468,15 @@ public abstract class BTreePartition implements Partition
      */
     public abstract void setSubAliasIndexOn( Index<Long,ServerEntry> index ) throws Exception;
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setSuffix( String suffix )
+    {
+        this.suffix = suffix;
+    }
+
 
     public abstract Index<?,ServerEntry> getUserIndex( String attribute ) throws Exception;
 

@@ -97,12 +97,6 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public void setSuffix( String suffix )
-    {
-        super.suffix = suffix;
-    }
-
-
     public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
