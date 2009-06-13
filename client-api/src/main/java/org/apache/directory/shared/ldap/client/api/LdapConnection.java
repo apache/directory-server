@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
+import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
 import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
@@ -138,7 +139,7 @@ import org.slf4j.LoggerFactory;
 
 // TODO : implement a pool
 // TODO : handle the MessageId for an abandonRequest
-// TODO : return the created request, instead of an LdapResponse
+// TODO : return the created request, instead of an LdapResponse ( partly completed )
 
 /**
  * 
@@ -203,7 +204,7 @@ public class LdapConnection  extends IoHandlerAdapter
     private AtomicInteger messageId;
     
     /** A queue used to store the incoming add responses */
-    private BlockingQueue<LdapMessageCodec> addResponseQueue;
+    private BlockingQueue<AddResponse> addResponseQueue;
     
     /** A queue used to store the incoming bind responses */
     private BlockingQueue<BindResponse> bindResponseQueue;
@@ -212,22 +213,22 @@ public class LdapConnection  extends IoHandlerAdapter
     private BlockingQueue<LdapMessageCodec> compareResponseQueue;
     
     /** A queue used to store the incoming delete responses */
-    private BlockingQueue<LdapMessageCodec> deleteResponseQueue;
+    private BlockingQueue<DeleteResponse> deleteResponseQueue;
     
     /** A queue used to store the incoming extended responses */
     private BlockingQueue<LdapMessageCodec> extendedResponseQueue;
     
     /** A queue used to store the incoming modify responses */
-    private BlockingQueue<LdapMessageCodec> modifyResponseQueue;
+    private BlockingQueue<ModifyResponse> modifyResponseQueue;
     
     /** A queue used to store the incoming modifyDN responses */
-    private BlockingQueue<LdapMessageCodec> modifyDNResponseQueue;
+    private BlockingQueue<ModifyDnResponse> modifyDNResponseQueue;
     
     /** A queue used to store the incoming search responses */
-    private BlockingQueue<LdapMessageCodec> searchResponseQueue;
+    private BlockingQueue<SearchResponse> searchResponseQueue;
     
     /** A queue used to store the incoming intermediate responses */
-    private BlockingQueue<LdapMessageCodec> intermediateResponseQueue;
+    private BlockingQueue<IntermediateResponse> intermediateResponseQueue;
 
     /** An operation mutex to guarantee the operation order */
     private Semaphore operationMutex;
@@ -628,15 +629,15 @@ public class LdapConnection  extends IoHandlerAdapter
         ldapSession.setAttribute( "LDAP-Container", ldapMessageContainer );
         
         // Create the responses queues
-        addResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
+        addResponseQueue = new LinkedBlockingQueue<AddResponse>();
         bindResponseQueue = new LinkedBlockingQueue<BindResponse>();
         compareResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
-        deleteResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
+        deleteResponseQueue = new LinkedBlockingQueue<DeleteResponse>();
         extendedResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
-        modifyResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
-        modifyDNResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
-        searchResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
-        intermediateResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
+        modifyResponseQueue = new LinkedBlockingQueue<ModifyResponse>();
+        modifyDNResponseQueue = new LinkedBlockingQueue<ModifyDnResponse>();
+        searchResponseQueue = new LinkedBlockingQueue<SearchResponse>();
+        intermediateResponseQueue = new LinkedBlockingQueue<IntermediateResponse>();
         
         // And return
         return true;
@@ -705,7 +706,7 @@ public class LdapConnection  extends IoHandlerAdapter
     /**
      * Add an entry present in the AddRequest to the server.
      * @param addRequest the request object containing an entry and controls(if any)
-     * @return the add operation's response
+     * @return the add operation's response, null if non-null listener is provided
      * @throws LdapException
      */
     public AddResponse add( AddRequest addRequest, AddListener listener ) throws LdapException
@@ -731,7 +732,7 @@ public class LdapConnection  extends IoHandlerAdapter
         ldapSession.write( message );
         if( listener == null )
         {
-            LdapMessageCodec response = null;
+            AddResponse response = null;
             try
             {
                 long timeout = getTimeout( addRequest.getTimeout() );
@@ -753,7 +754,7 @@ public class LdapConnection  extends IoHandlerAdapter
             
             unlockSession();
             
-            return convert( response.getAddResponse() );
+            return response;
         }
         else
         {
@@ -1252,7 +1253,7 @@ public class LdapConnection  extends IoHandlerAdapter
             try
             {
                 long timeout = getTimeout( searchRequest.getTimeout() );
-                LdapMessageCodec response = null;
+                SearchResponse response = null;
                 List<SearchResponse> searchResponses = new ArrayList<SearchResponse>();
 
                 // We may have more than one response, so loop on the queue
@@ -1273,17 +1274,17 @@ public class LdapConnection  extends IoHandlerAdapter
                     }
                     else
                     {
-                        if ( response instanceof SearchResultEntryCodec )
+                        if ( response instanceof SearchResultEntry )
                         {
-                            searchResponses.add( convert( (SearchResultEntryCodec)response ) );
+                            searchResponses.add( ( SearchResultEntry )response );
                         }
                         else if ( response instanceof SearchResultReference )
                         {
-                            searchResponses.add( convert( (SearchResultReferenceCodec)response ) );
+                            searchResponses.add( ( SearchResultReference )response );
                         }
                     }
                 }
-                while ( !( response instanceof SearchResultDoneCodec ) );
+                while ( !( response instanceof SearchResultDone ) );
 
                 // Release the session lock
                 unlockSession();
@@ -1401,14 +1402,16 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 AddResponseCodec addRespCodec = response.getAddResponse();
                 addRespCodec.addControl( response.getCurrentControl() );
+                
                 AddListener addListener = ( AddListener ) listenerMap.get( addRespCodec.getMessageId() );
+                AddResponse addResp = convert( addRespCodec );
                 if( addListener != null )
                 {
-                    addListener.entryAdded( this, convert( addRespCodec ) );
+                    addListener.entryAdded( this, addResp );
                 }
                 else
                 {
-                    addResponseQueue.add( response ); 
+                    addResponseQueue.add( addResp ); 
                 }
                 break;
                 
@@ -1439,7 +1442,19 @@ public class LdapConnection  extends IoHandlerAdapter
                 
             case LdapConstants.DEL_RESPONSE :
                 // Store the response into the responseQueue
-                deleteResponseQueue.add( response ); 
+                DelResponseCodec delRespCodec = response.getDelResponse();
+                delRespCodec.addControl( response.getCurrentControl() );
+                DeleteResponse delResp = convert( delRespCodec );
+                DeleteListener delListener = ( DeleteListener ) listenerMap.get( delResp.getMessageId() );
+                
+                if( delListener != null )
+                {
+                    delListener.entryDeleted( this, delResp );
+                }
+                else
+                {
+                    deleteResponseQueue.add( delResp ); 
+                }
                 break;
                 
             case LdapConstants.EXTENDED_RESPONSE :
@@ -1453,38 +1468,51 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getIntermediateResponse();
                 intermediateResponseCodec.addControl( response.getCurrentControl() );
                 
+                IntermediateResponse intrmResp = convert( intermediateResponseCodec );                
                 IntermediateResponseListener intrmListener = ( IntermediateResponseListener ) listenerMap.get( intermediateResponseCodec.getMessageId() ); 
                 if ( intrmListener != null )
                 {
-                    intrmListener.responseReceived( this, convert( intermediateResponseCodec ) );
+                    intrmListener.responseReceived( this, intrmResp );
                 }
                 else
                 {
                     // Store the response into the responseQueue
-                    intermediateResponseQueue.add( intermediateResponseCodec );
+                    intermediateResponseQueue.add( intrmResp );
                 }
                 
                 break;
      
             case LdapConstants.MODIFY_RESPONSE :
-                // Store the response into the responseQueue
-                modifyResponseQueue.add( response ); 
+                ModifyResponseCodec modRespCodec = response.getModifyResponse();
+                modRespCodec.addControl( response.getCurrentControl() );
+                
+                ModifyResponse modResp = convert( modRespCodec );
+                ModifyListener modListener = ( ModifyListener ) listenerMap.get( modResp.getMessageId() );
+                
+                if( modListener != null )
+                {
+                    modListener.modifyCompleted( this, modResp );
+                }
+                else
+                {
+                    modifyResponseQueue.add( modResp ); 
+                }
                 break;
                 
             case LdapConstants.MODIFYDN_RESPONSE :
                 
                 ModifyDNResponseCodec modDnCodec = response.getModifyDNResponse();
                 modDnCodec.addControl( response.getCurrentControl() );
-                
+                ModifyDnResponse modDnResp = convert( modDnCodec );
                 ModifyDnListener modDnListener = ( ModifyDnListener ) listenerMap.get( modDnCodec.getMessageId() );
                 if( modDnListener != null )
                 {
-                    modDnListener.modifyDnCompleted( this, convert( modDnCodec ) );
+                    modDnListener.modifyDnCompleted( this, modDnResp );
                 }
                 else
                 {
                     // Store the response into the responseQueue
-                    modifyDNResponseQueue.add( response );
+                    modifyDNResponseQueue.add( modDnResp );
                 }
                 break;
                 
@@ -1493,16 +1521,16 @@ public class LdapConnection  extends IoHandlerAdapter
                 SearchResultDoneCodec searchResultDoneCodec = 
                     response.getSearchResultDone();
                 searchResultDoneCodec.addControl( response.getCurrentControl() );
-                
+                SearchResultDone srchDone = convert( searchResultDoneCodec );
                 // search listener has to be removed from listener map only here
                 searchListener = ( SearchListener ) listenerMap.remove( searchResultDoneCodec.getMessageId() );
                 if ( searchListener != null )
                 {
-                    searchListener.searchDone( this, convert( searchResultDoneCodec ) );
+                    searchListener.searchDone( this, srchDone );
                 }
                 else
                 {
-                    searchResponseQueue.add( searchResultDoneCodec );
+                    searchResponseQueue.add( srchDone );
                 }
                 
                 break;
@@ -1513,14 +1541,15 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getSearchResultEntry();
                 searchResultEntryCodec.addControl( response.getCurrentControl() );
                 
+                SearchResultEntry srchEntry = convert( searchResultEntryCodec );
                 searchListener = ( SearchListener ) listenerMap.get( searchResultEntryCodec.getMessageId() );
                 if ( searchListener != null )
                 {
-                    searchListener.entryFound( this, convert( searchResultEntryCodec ) );
+                    searchListener.entryFound( this, srchEntry );
                 }
                 else
                 {
-                    searchResponseQueue.add( searchResultEntryCodec );
+                    searchResponseQueue.add( srchEntry );
                 }
                 
                 break;
@@ -1531,14 +1560,15 @@ public class LdapConnection  extends IoHandlerAdapter
                     response.getSearchResultReference();
                 searchResultReferenceCodec.addControl( response.getCurrentControl() );
 
+                SearchResultReference srchRef = convert( searchResultReferenceCodec );
                 searchListener = ( SearchListener ) listenerMap.get( searchResultReferenceCodec.getMessageId() );
                 if ( searchListener != null )
                 {
-                    searchListener.referralFound( this, convert( searchResultReferenceCodec ) );
+                    searchListener.referralFound( this, srchRef );
                 }
                 else
                 {
-                    searchResponseQueue.add( searchResultReferenceCodec );
+                    searchResponseQueue.add( srchRef );
                 }
 
                 break;
@@ -1573,7 +1603,7 @@ public class LdapConnection  extends IoHandlerAdapter
             modReq.addModification( itr.next(), modOp );
         }
         
-        return modify( modReq );
+        return modify( modReq, null );
     }
     
     
@@ -1582,10 +1612,11 @@ public class LdapConnection  extends IoHandlerAdapter
      * performs modify operation based on the modifications present in the ModifyRequest.
      *
      * @param modRequest the request for modify operation
-     * @return the modify operation's response
+     * @param listener callback listener which will be called after the operation is completed
+     * @return the modify operation's response, null if non-null listener is provided
      * @throws LdapException in case of modify operation failure or timeout happens
      */
-    public ModifyResponse modify( ModifyRequest modRequest )  throws LdapException
+    public ModifyResponse modify( ModifyRequest modRequest, ModifyListener listener )  throws LdapException
     {
         checkSession();
     
@@ -1606,29 +1637,37 @@ public class LdapConnection  extends IoHandlerAdapter
         
         ldapSession.write( modifyMessage );
 
-        LdapMessageCodec response = null;
-        try
+        if( listener == null )
         {
-            long timeout = getTimeout( modRequest.getTimeout() );
-            response = modifyResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
-            
-            if ( response == null )
+            ModifyResponse response = null;
+            try
             {
-                LOG.error( "Modify failed : timeout occured" );
-                unlockSession();
-                throw new LdapException( TIME_OUT_ERROR );
+                long timeout = getTimeout( modRequest.getTimeout() );
+                response = modifyResponseQueue.poll( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Modify failed : timeout occured" );
+                    unlockSession();
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
             }
-        }
-        catch( Exception e )
-        {
-            LOG.error( NO_RESPONSE_ERROR );
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                unlockSession();
+                throw new LdapException( e );
+            }
+            
             unlockSession();
-            throw new LdapException( e );
+            
+            return response;
         }
-
-        unlockSession();
-        
-        return convert( response.getModifyResponse() );
+        else
+        {
+            listenerMap.put( newId, listener );
+            return null;
+        }
     }
     
     
@@ -1749,7 +1788,7 @@ public class LdapConnection  extends IoHandlerAdapter
      *
      * @param modDnRequest the request
      * @param listener callback listener which will be called after the operation is completed
-     * @return modifyDn operations response
+     * @return modifyDn operations response, null if non-null listener is provided
      * @throws LdapException
      */
     public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest, ModifyDnListener listener ) throws LdapException
@@ -1777,7 +1816,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         if( listener == null )
         {
-            LdapMessageCodec response = null;
+            ModifyDnResponse response = null;
             try
             {
                 long timeout = getTimeout( modDnRequest.getTimeout() );
@@ -1801,7 +1840,7 @@ public class LdapConnection  extends IoHandlerAdapter
             
             unlockSession();
             
-            return convert( response.getModifyDNResponse() );
+            return response;
         }
         else
         {
@@ -1996,7 +2035,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         if( listener == null )
         {
-            LdapMessageCodec response = null;
+            DeleteResponse response = null;
             try
             {
                 long timeout = getTimeout( delRequest.getTimeout() );
@@ -2020,7 +2059,7 @@ public class LdapConnection  extends IoHandlerAdapter
             
             unlockSession();
             
-            return convert( response.getDelResponse() );
+            return response;
         }
         else
         {
