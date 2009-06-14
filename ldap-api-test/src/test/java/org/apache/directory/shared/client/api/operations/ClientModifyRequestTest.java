@@ -21,19 +21,29 @@ package org.apache.directory.shared.client.api.operations;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.Semaphore;
+
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
+import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyRequest;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyResponse;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,13 +61,26 @@ public class ClientModifyRequestTest
     /** The server instance */
     public static LdapServer ldapServer;
 
+    private LdapConnection connection;
+    
+    private CoreSession session;
+    
+    @Before
+    public void setup() throws Exception
+    {
+        connection = new LdapConnection( "localhost", ldapServer.getPort() );
+
+        LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
+        connection.bind( bindDn.getUpName(), "secret" );
+        
+        session = ldapServer.getDirectoryService().getAdminSession();
+    }
+
+    
     @Test
     public void testModify() throws Exception
     {
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( dn.getUpName(), "secret" );
 
         String expected = String.valueOf( System.currentTimeMillis() );
         ModifyRequest modRequest = new ModifyRequest( dn );
@@ -65,7 +88,7 @@ public class ClientModifyRequestTest
 
         connection.modify( modRequest, null );
 
-        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup( dn );
+        ServerEntry entry = session.lookup( dn );
 
         String actual = entry.get( SchemaConstants.SN_AT ).getString();
 
@@ -76,10 +99,7 @@ public class ClientModifyRequestTest
     @Test
     public void testModifyWithEntry() throws Exception
     {
-        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
-
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
-        connection.bind( dn.getUpName(), "secret" );
         
         Entry entry = new DefaultClientEntry( dn );
         
@@ -92,12 +112,45 @@ public class ClientModifyRequestTest
         
         connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
         
-        ServerEntry lookupEntry = ldapServer.getDirectoryService().getAdminSession().lookup( dn );
+        ServerEntry lookupEntry = session.lookup( dn );
 
         String actualSn = lookupEntry.get( SchemaConstants.SN_AT ).getString();
         assertEquals( expectedSn, actualSn );
         
         String actualCn = lookupEntry.get( SchemaConstants.CN_AT ).getString();
         assertEquals( expectedCn, actualCn );
+    }
+    
+    
+    @Test
+    public void modifyAsync() throws Exception
+    {
+        LdapDN dn = new LdapDN( "uid=admin,ou=system" );
+
+        String expected = String.valueOf( System.currentTimeMillis() );
+        ModifyRequest modRequest = new ModifyRequest( dn );
+        modRequest.replace( SchemaConstants.SN_AT, expected );
+
+        final Semaphore lock = new Semaphore(1);
+        lock.acquire();
+
+        ModifyResponse response = connection.modify( modRequest, new ModifyListener()
+        {
+            public void modifyCompleted( LdapConnection connection, ModifyResponse response ) throws LdapException
+            {
+                assertNotNull( response );
+                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+                lock.release();
+            }
+        });
+
+        lock.acquire();
+        assertNull( response );
+
+        ServerEntry entry = session.lookup( dn );
+
+        String actual = entry.get( SchemaConstants.SN_AT ).getString();
+
+        assertEquals( expected, actual );
     }
 }

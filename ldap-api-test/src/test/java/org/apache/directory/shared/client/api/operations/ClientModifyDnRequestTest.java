@@ -20,9 +20,13 @@
 
 package org.apache.directory.shared.client.api.operations;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.Semaphore;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.Level;
@@ -31,8 +35,12 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
+import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
+import org.apache.directory.shared.ldap.client.api.messages.ModifyDnRequest;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyDnResponse;
 import org.apache.directory.shared.ldap.entry.Entry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.junit.Before;
@@ -114,5 +122,32 @@ public class ClientModifyDnRequestTest
         assertTrue( session.exists( new LdapDN( "cn=modDn,ou=users,ou=system" ) ) );
         
         System.out.println( session.lookup( new LdapDN( "cn=modDn,ou=users,ou=system" ) ) );
+    }
+    
+    
+    @Test
+    public void testModifyDnAsync() throws Exception
+    {
+        ModifyDnRequest modDnReq = new ModifyDnRequest();
+        modDnReq.setEntryDn( new LdapDN( dn ) );
+        modDnReq.setNewRdn( new Rdn( "cn=modifyDnWithString" ) );
+        modDnReq.setDeleteOldRdn( true );
+
+        final Semaphore lock = new Semaphore(1);
+        lock.acquire();
+        ModifyDnResponse resp = connection.modifyDn( modDnReq, new ModifyDnListener()
+        {
+            public void modifyDnCompleted( LdapConnection connection, ModifyDnResponse response ) throws LdapException
+            {
+                assertNotNull( response );
+                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+                lock.release();
+            }
+        });
+
+        lock.acquire();
+        assertNull( resp );
+        assertFalse( session.exists( new LdapDN( dn ) ) );
+        assertTrue( session.exists( new LdapDN( "cn=modifyDnWithString,ou=system" ) ) );
     }
 }

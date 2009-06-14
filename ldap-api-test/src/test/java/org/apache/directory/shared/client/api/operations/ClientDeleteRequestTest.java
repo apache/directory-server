@@ -23,10 +23,12 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.Level;
@@ -35,6 +37,8 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
+import org.apache.directory.shared.ldap.client.api.exception.LdapException;
+import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -182,6 +186,31 @@ public class ClientDeleteRequestTest
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
+        assertFalse( session.exists( dn ) );
+    }
+    
+    
+    @Test
+    public void testDeleteAsync() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=grand_child12,cn=child1,cn=parent,ou=system" );
+        
+        assertTrue( session.exists( dn ) );
+
+        final Semaphore lock = new Semaphore(1);
+        lock.acquire();
+        DeleteResponse response = connection.delete( dn, new DeleteListener()
+        {
+            public void entryDeleted( LdapConnection connection, DeleteResponse response ) throws LdapException
+            {
+                assertNotNull( response );
+                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+                lock.release();
+            }
+        });
+        
+        lock.acquire();
+        assertNull( response );
         assertFalse( session.exists( dn ) );
     }
 }
