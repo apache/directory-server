@@ -724,9 +724,10 @@ public class LdapConnection  extends IoHandlerAdapter
         
         // Send the request to the server
         ldapSession.write( message );
+        
+        AddResponse response = null;
         if( listener == null )
         {
-            AddResponse response = null;
             try
             {
                 long timeout = getTimeout( addRequest.getTimeout() );
@@ -745,16 +746,15 @@ public class LdapConnection  extends IoHandlerAdapter
                 unlockSession();
                 throw new LdapException( e );
             }
-            
-            unlockSession();
-            
-            return response;
         }
         else
         {
-            listenerMap.put( newId, listener );
-            return null;
+            listenerMap.put( newId, listener );            
         }
+
+        unlockSession();
+        
+        return response;
     }
 
     
@@ -1396,6 +1396,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 AddResponseCodec addRespCodec = response.getAddResponse();
                 addRespCodec.addControl( response.getCurrentControl() );
+                addRespCodec.setMessageId( response.getMessageId() );
                 
                 AddListener addListener = ( AddListener ) listenerMap.get( addRespCodec.getMessageId() );
                 AddResponse addResp = convert( addRespCodec );
@@ -1437,6 +1438,7 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.DEL_RESPONSE :
                 // Store the response into the responseQueue
                 DelResponseCodec delRespCodec = response.getDelResponse();
+                delRespCodec.setMessageId( response.getMessageId() );
                 delRespCodec.addControl( response.getCurrentControl() );
                 DeleteResponse delResp = convert( delRespCodec );
                 DeleteListener delListener = ( DeleteListener ) listenerMap.get( delResp.getMessageId() );
@@ -1460,6 +1462,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 IntermediateResponseCodec intermediateResponseCodec = 
                     response.getIntermediateResponse();
+                intermediateResponseCodec.setMessageId( response.getMessageId() );
                 intermediateResponseCodec.addControl( response.getCurrentControl() );
                 
                 IntermediateResponse intrmResp = convert( intermediateResponseCodec );                
@@ -1478,6 +1481,7 @@ public class LdapConnection  extends IoHandlerAdapter
      
             case LdapConstants.MODIFY_RESPONSE :
                 ModifyResponseCodec modRespCodec = response.getModifyResponse();
+                modRespCodec.setMessageId( response.getMessageId() );
                 modRespCodec.addControl( response.getCurrentControl() );
                 
                 ModifyResponse modResp = convert( modRespCodec );
@@ -1497,6 +1501,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 
                 ModifyDNResponseCodec modDnCodec = response.getModifyDNResponse();
                 modDnCodec.addControl( response.getCurrentControl() );
+                modDnCodec.setMessageId( response.getMessageId() );
                 ModifyDnResponse modDnResp = convert( modDnCodec );
                 ModifyDnListener modDnListener = ( ModifyDnListener ) listenerMap.get( modDnCodec.getMessageId() );
                 if( modDnListener != null )
@@ -1514,6 +1519,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 SearchResultDoneCodec searchResultDoneCodec = 
                     response.getSearchResultDone();
+                searchResultDoneCodec.setMessageId( response.getMessageId() );
                 searchResultDoneCodec.addControl( response.getCurrentControl() );
                 SearchResultDone srchDone = convert( searchResultDoneCodec );
                 // search listener has to be removed from listener map only here
@@ -1533,6 +1539,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 SearchResultEntryCodec searchResultEntryCodec = 
                     response.getSearchResultEntry();
+                searchResultEntryCodec.setMessageId( response.getMessageId() );
                 searchResultEntryCodec.addControl( response.getCurrentControl() );
                 
                 SearchResultEntry srchEntry = convert( searchResultEntryCodec );
@@ -1552,6 +1559,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 SearchResultReferenceCodec searchResultReferenceCodec = 
                     response.getSearchResultReference();
+                searchResultReferenceCodec.setMessageId( response.getMessageId() );
                 searchResultReferenceCodec.addControl( response.getCurrentControl() );
 
                 SearchResultReference srchRef = convert( searchResultReferenceCodec );
@@ -1631,9 +1639,9 @@ public class LdapConnection  extends IoHandlerAdapter
         
         ldapSession.write( modifyMessage );
 
+        ModifyResponse response = null;
         if( listener == null )
         {
-            ModifyResponse response = null;
             try
             {
                 long timeout = getTimeout( modRequest.getTimeout() );
@@ -1652,16 +1660,15 @@ public class LdapConnection  extends IoHandlerAdapter
                 unlockSession();
                 throw new LdapException( e );
             }
-            
-            unlockSession();
-            
-            return response;
         }
         else
         {
             listenerMap.put( newId, listener );
-            return null;
         }
+        
+        unlockSession();
+        
+        return response;
     }
     
     
@@ -1886,6 +1893,20 @@ public class LdapConnection  extends IoHandlerAdapter
         return delete( dn, false ); 
     }
 
+
+    /**
+     * deletes the entry with the given DN
+     *  
+     * @param dn the target entry's DN
+     * @param listener  the delete operation response listener
+     * @return operation's response, null if a non-null listener value is provided
+     * @throws LdapException
+     */
+    public DeleteResponse delete( LdapDN dn, DeleteListener listener )  throws LdapException
+    {
+        return delete( new DeleteRequest( dn ), listener ); 
+    }
+    
     
     /**
      * deletes the entry with the given DN and all its children
@@ -2027,9 +2048,9 @@ public class LdapConnection  extends IoHandlerAdapter
         
         ldapSession.write( deleteMessage );
         
+        DeleteResponse response = null;
         if( listener == null )
         {
-            DeleteResponse response = null;
             try
             {
                 long timeout = getTimeout( delRequest.getTimeout() );
@@ -2051,15 +2072,15 @@ public class LdapConnection  extends IoHandlerAdapter
                 throw ldapException;
             }
             
-            unlockSession();
-            
-            return response;
         }
         else
         {
             listenerMap.put( newId, listener );
-            return null;
         }
+
+        unlockSession();
+        
+        return response;
     }
 
     
