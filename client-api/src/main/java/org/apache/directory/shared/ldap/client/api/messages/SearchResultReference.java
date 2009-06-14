@@ -30,14 +30,29 @@ import org.apache.directory.shared.ldap.util.LdapURL;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision: 760984 $
  */
-public interface SearchResultReference extends SearchResponse
+public class SearchResultReference extends AbstractMessage implements SearchResponse
 {
+    /** The list of LdapURL referrals */
+    private Referral referral;
+    
+    /**
+     * Creates a new instance of SearchResultReferenceImpl.
+     */
+    public SearchResultReference()
+    {
+        super();
+    }
+
+    
     /**
      * Gets the sequence of LdapUrls as a Referral instance.
      * 
      * @return the sequence of LdapUrls
      */
-    Referral getReferrals();
+    public Referral getReferrals()
+    {
+        return referral;
+    }
 
 
     /**
@@ -45,7 +60,10 @@ public interface SearchResultReference extends SearchResponse
      * 
      * @param referrals the sequence of LdapUrls
      */
-    void setReferral( Referral referral );
+    public void setReferral( Referral referral )
+    {
+        this.referral = referral;
+    }
 
 
     /**
@@ -53,7 +71,15 @@ public interface SearchResultReference extends SearchResponse
      * 
      * @param urls the sequence of LdapUrls
      */
-    void addReferrals( LdapURL... urls );
+    public void addReferrals( LdapURL... urls )
+    {
+        if ( referral == null )
+        {
+            referral = new Referral();
+        }
+        
+        referral.addLdapUrls( urls );
+    }
 
 
     /**
@@ -61,7 +87,15 @@ public interface SearchResultReference extends SearchResponse
      * 
      * @param urls the sequence of LdapUrls
      */
-    void addReferrals( String... urls );
+    public void addReferrals( String... urls )
+    {
+        if ( referral == null )
+        {
+            referral = new Referral();
+        }
+        
+        referral.addLdapUrls( urls );
+    }
 
 
     /**
@@ -69,7 +103,15 @@ public interface SearchResultReference extends SearchResponse
      * 
      * @param urls the sequence of LdapUrls
      */
-    void removeReferrals( LdapURL... urls );
+    public void removeReferrals( LdapURL... urls )
+    {
+        if ( referral == null )
+        {
+            referral = new Referral();
+        }
+        
+        referral.removeLdapUrl( urls );
+    }
 
 
     /**
@@ -77,5 +119,13 @@ public interface SearchResultReference extends SearchResponse
      * 
      * @param urls the sequence of LdapUrls
      */
-    void removeReferrals( String... urls );
+    public void removeReferrals( String... urls )
+    {
+        if ( referral == null )
+        {
+            referral = new Referral();
+        }
+        
+        referral.removeLdapUrl( urls );
+    }
 }

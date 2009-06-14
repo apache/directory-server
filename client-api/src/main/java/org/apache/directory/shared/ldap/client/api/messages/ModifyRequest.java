@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyRequest extends AbstractRequest
+public class ModifyRequest extends AbstractRequest implements RequestWithResponse, AbandonableRequest
 {
     /** DN of the target Entry to be modified */
     private LdapDN dn;

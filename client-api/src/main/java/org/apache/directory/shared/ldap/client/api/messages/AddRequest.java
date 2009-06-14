@@ -18,10 +18,9 @@
  *
  */
 
-package org.apache.directory.shared.ldap.client.api;
+package org.apache.directory.shared.ldap.client.api.messages;
 
 
-import org.apache.directory.shared.ldap.client.api.messages.AbstractRequest;
 import org.apache.directory.shared.ldap.entry.Entry;
 
 
@@ -31,7 +30,7 @@ import org.apache.directory.shared.ldap.entry.Entry;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddRequest extends AbstractRequest
+public class AddRequest extends AbstractRequest implements RequestWithResponse, AbandonableRequest
 {
     /** the entry to be added */
     private Entry entry;

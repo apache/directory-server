@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindRequest extends AbstractRequest
+public class BindRequest extends AbstractRequest implements RequestWithResponse, AbandonableRequest
 {
     /**
      * Distinguished name identifying the name of the authenticating subject -

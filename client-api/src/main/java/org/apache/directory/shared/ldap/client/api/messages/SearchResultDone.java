@@ -26,6 +26,13 @@ package org.apache.directory.shared.ldap.client.api.messages;
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  */
-public interface SearchResultDone extends SearchResponse, ResponseWithResult
+public class SearchResultDone extends AbstractResponseWithResult implements SearchResponse, ResponseWithResult
 {
+    /**
+     * Creates a new instance of SearchResultDoneImpl.
+     */
+    public SearchResultDone()
+    {
+        super();
+    }
 }

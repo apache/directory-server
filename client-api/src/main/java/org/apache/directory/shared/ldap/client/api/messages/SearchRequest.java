@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.client.api.messages;
 
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -32,138 +33,48 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev: 760724 $
  */
-public interface SearchRequest extends AbandonableRequest, RequestWithResponse
+public class SearchRequest extends AbstractRequest implements AbandonableRequest, RequestWithResponse
 {
+    /** Search base distinguished name */
+    private String baseDn;
+
+    /** Search filter expression tree's root node */
+    private String filter;
+
+    /** Search scope enumeration value */
+    private SearchScope scope;
+
+    /** Types only return flag */
+    private boolean typesOnly;
+
+    /** Max size in entries to return */
+    private int sizeLimit;
+
+    /** Max seconds to wait for search to complete */
+    private int timeLimit;
+
+    /** Alias dereferencing mode enumeration value */
+    private AliasDerefMode aliasDerefMode;
+
+    /** Attributes to return */
+    private Set<String> attributes = new HashSet<String>();
+
+    
     /**
-     * Gets the search base as a distinguished name.
      * 
-     * @return the search base
+     * Creates a new instance of SearchRequestImpl.
+     *
+     * @param messageId The message ID
      */
-    String getBaseDn();
-
-
-    /**
-     * Sets the search base as a distinguished name.
-     * 
-     * @param baseDn the search base
-     */
-    void setBaseDn( String baseDn );
-
-
-    /**
-     * Gets the search scope parameter enumeration.
-     * 
-     * @return the scope enumeration parameter.
-     */
-    SearchScope getScope();
-
-
-    /**
-     * Sets the search scope parameter enumeration.
-     * 
-     * @param scope the scope enumeration parameter.
-     */
-    void setScope( SearchScope scope );
-
-
-    /**
-     * Gets the alias handling parameter.
-     * 
-     * @return the alias handling parameter enumeration.
-     */
-    AliasDerefMode getDerefAliases();
-
-
-    /**
-     * Sets the alias handling parameter.
-     * 
-     * @param aliasDerefAliases the alias handling parameter enumeration.
-     */
-    void setDerefAliases( AliasDerefMode aliasDerefAliases );
-
-
-    /**
-     * A sizelimit that restricts the maximum number of entries to be returned
-     * as a result of the search. A value of 0 in this field indicates that no
-     * client-requested sizelimit restrictions are in effect for the search.
-     * Servers may enforce a maximum number of entries to return.
-     * 
-     * @return search size limit.
-     */
-    int getSizeLimit();
-
-
-    /**
-     * Sets sizelimit that restricts the maximum number of entries to be
-     * returned as a result of the search. A value of 0 in this field indicates
-     * that no client-requested sizelimit restrictions are in effect for the
-     * search. Servers may enforce a maximum number of entries to return.
-     * 
-     * @param entriesMax maximum search result entries to return.
-     */
-    void setSizeLimit( int entriesMax );
-
-
-    /**
-     * Gets the timelimit that restricts the maximum time (in seconds) allowed
-     * for a search. A value of 0 in this field indicates that no client-
-     * requested timelimit restrictions are in effect for the search.
-     * 
-     * @return the search time limit in seconds.
-     */
-    int getTimeLimit();
-
-
-    /**
-     * Sets the timelimit that restricts the maximum time (in seconds) allowed
-     * for a search. A value of 0 in this field indicates that no client-
-     * requested timelimit restrictions are in effect for the search.
-     * 
-     * @param secondsMax the search time limit in seconds.
-     */
-    void setTimeLimit( int secondsMax );
-
-
-    /**
-     * An indicator as to whether search results will contain both attribute
-     * types and values, or just attribute types. Setting this field to TRUE
-     * causes only attribute types (no values) to be returned. Setting this
-     * field to FALSE causes both attribute types and values to be returned.
-     * 
-     * @return true for only types, false for types and values.
-     */
-    boolean getTypesOnly();
-
-
-    /**
-     * An indicator as to whether search results will contain both attribute
-     * types and values, or just attribute types. Setting this field to TRUE
-     * causes only attribute types (no values) to be returned. Setting this
-     * field to FALSE causes both attribute types and values to be returned.
-     * 
-     * @param typesOnly
-     *            true for only types, false for types and values.
-     */
-    void setTypesOnly( boolean typesOnly );
-
-
-    /**
-     * Gets the search filter associated with this search request.
-     * 
-     * @return the expression node for the root of the filter expression tree.
-     */
-    String getFilter();
-
-
-    /**
-     * Sets the search filter associated with this search request.
-     * 
-     * @param filter the expression node for the root of the filter 
-     * expression tree.
-     */
-    void setFilter( String filter );
-
-
+    public SearchRequest()
+    {
+        super();
+    }
+    
+    
+    // ------------------------------------------------------------------------
+    // SearchRequest Interface Method Implementations
+    // ------------------------------------------------------------------------
     /**
      * Gets a list of the attributes to be returned from each entry which
      * matches the search filter. There are two special values which may be
@@ -186,7 +97,182 @@ public interface SearchRequest extends AbandonableRequest, RequestWithResponse
      * 
      * @return the attributes to return for this request
      */
-    Set<String> getAttributes();
+    public Set<String> getAttributes()
+    {
+        return attributes;
+    }
+
+
+    /**
+     * Gets the search base as a distinguished name.
+     * 
+     * @return the search base
+     */
+    public String getBaseDn()
+    {
+        return baseDn;
+    }
+
+
+    /**
+     * Sets the search base as a distinguished name.
+     * 
+     * @param baseDn the search base
+     */
+    public void setBaseDn( String baseDn )
+    {
+        this.baseDn = baseDn;
+    }
+
+
+    /**
+     * Gets the alias handling parameter.
+     * 
+     * @return the alias handling parameter enumeration.
+     */
+    public AliasDerefMode getDerefAliases()
+    {
+        return aliasDerefMode;
+    }
+
+
+    /**
+     * Sets the alias handling parameter.
+     * 
+     * @param aliasDerefAliases the alias handling parameter enumeration.
+     */
+    public void setDerefAliases( AliasDerefMode aliasDerefAliases )
+    {
+        this.aliasDerefMode = aliasDerefAliases;
+    }
+
+
+    /**
+     * Gets the search filter associated with this search request.
+     * 
+     * @return the expression node for the root of the filter expression tree.
+     */
+    public String getFilter()
+    {
+        return filter;
+    }
+
+
+    /**
+     * Sets the search filter associated with this search request.
+     * 
+     * @param filter the expression node for the root of the filter 
+     * expression tree.
+     */
+    public void setFilter( String filter )
+    {
+        this.filter = filter;
+    }
+
+
+    /**
+     * Gets the search scope parameter enumeration.
+     * 
+     * @return the scope enumeration parameter.
+     */
+    public SearchScope getScope()
+    {
+        return scope;
+    }
+
+
+    /**
+     * Sets the search scope parameter enumeration.
+     * 
+     * @param scope the scope enumeration parameter.
+     */
+    public void setScope( SearchScope scope )
+    {
+        this.scope = scope;
+    }
+
+
+    /**
+     * A sizelimit that restricts the maximum number of entries to be returned
+     * as a result of the search. A value of 0 in this field indicates that no
+     * client-requested sizelimit restrictions are in effect for the search.
+     * Servers may enforce a maximum number of entries to return.
+     * 
+     * @return search size limit.
+     */
+    public int getSizeLimit()
+    {
+        return sizeLimit;
+    }
+
+
+    /**
+     * Sets sizelimit that restricts the maximum number of entries to be
+     * returned as a result of the search. A value of 0 in this field indicates
+     * that no client-requested sizelimit restrictions are in effect for the
+     * search. Servers may enforce a maximum number of entries to return.
+     * 
+     * @param entriesMax maximum search result entries to return.
+     */
+    public void setSizeLimit( int entriesMax )
+    {
+        sizeLimit = entriesMax;
+    }
+
+
+    /**
+     * Gets the timelimit that restricts the maximum time (in seconds) allowed
+     * for a search. A value of 0 in this field indicates that no client-
+     * requested timelimit restrictions are in effect for the search.
+     * 
+     * @return the search time limit in seconds.
+     */
+    public int getTimeLimit()
+    {
+        return timeLimit;
+    }
+
+
+    /**
+     * Sets the timelimit that restricts the maximum time (in seconds) allowed
+     * for a search. A value of 0 in this field indicates that no client-
+     * requested timelimit restrictions are in effect for the search.
+     * 
+     * @param secondsMax the search time limit in seconds.
+     */
+    public void setTimeLimit( int secondsMax )
+    {
+        timeLimit = secondsMax;
+    }
+
+
+    /**
+     * An indicator as to whether search results will contain both attribute
+     * types and values, or just attribute types. Setting this field to TRUE
+     * causes only attribute types (no values) to be returned. Setting this
+     * field to FALSE causes both attribute types and values to be returned.
+     * 
+     * @return true for only types, false for types and values.
+     */
+    public boolean getTypesOnly()
+    {
+        return typesOnly;
+    }
+
+
+    /**
+     * An indicator as to whether search results will contain both attribute
+     * types and values, or just attribute types. Setting this field to TRUE
+     * causes only attribute types (no values) to be returned. Setting this
+     * field to FALSE causes both attribute types and values to be returned.
+     * 
+     * @param typesOnly
+     *            true for only types, false for types and values.
+     */
+    public void setTypesOnly( boolean typesOnly )
+    {
+        this.typesOnly = typesOnly;
+    }
 
 
     /**
@@ -195,7 +281,25 @@ public interface SearchRequest extends AbandonableRequest, RequestWithResponse
      * @param attributes the attributes description or identifier.
      * @return The object itself, to allow chaining
      */
-    SearchRequest addAttributes( String... attribute );
+    public SearchRequest addAttributes( String... attributes )
+    {
+        if ( ( attributes == null ) || ( attributes.length == 0 ) )
+        {
+            return this;
+        }
+        
+        if ( this.attributes == null )
+        {
+            this.attributes = new HashSet<String>( attributes.length );
+        }
+        
+        for ( String attribute:attributes )
+        {
+            this.attributes.add( attribute );
+        }
+        
+        return this;
+    }
 
 
     /**
@@ -204,5 +308,23 @@ public interface SearchRequest extends AbandonableRequest, RequestWithResponse
      * @param attributes the attributes description or identifier.
      * @return The object itself, to allow chaining
      */
-    SearchRequest removeAttributes( String... attributes );
+    public SearchRequest removeAttributes( String... attributes )
+    {
+        if ( ( attributes == null ) || ( attributes.length == 0 ) )
+        {
+            return this;
+        }
+        
+        if ( this.attributes == null )
+        {
+            this.attributes = new HashSet<String>( attributes.length );
+        }
+        
+        for ( String attribute:attributes )
+        {
+            this.attributes.remove( attribute );
+        }
+        
+        return this;
+    }
 }

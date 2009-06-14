@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeleteRequest extends AbstractRequest
+public class DeleteRequest extends AbstractRequest implements RequestWithResponse, AbandonableRequest
 {
     /** the DN to be deleted */
     private LdapDN targetDn;

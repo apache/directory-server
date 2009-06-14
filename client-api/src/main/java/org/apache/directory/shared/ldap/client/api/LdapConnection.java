@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
 import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
+import org.apache.directory.shared.ldap.client.api.messages.AddRequest;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
@@ -66,14 +67,10 @@ import org.apache.directory.shared.ldap.client.api.messages.ModifyRequest;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyResponse;
 import org.apache.directory.shared.ldap.client.api.messages.Referral;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
-import org.apache.directory.shared.ldap.client.api.messages.SearchRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultDoneImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
-import org.apache.directory.shared.ldap.client.api.messages.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.client.api.messages.future.BindFuture;
 import org.apache.directory.shared.ldap.client.api.protocol.LdapProtocolCodecFactory;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
@@ -413,7 +410,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private SearchResultEntry convert( SearchResultEntryCodec searchEntryResultCodec )
     {
-        SearchResultEntry searchResultEntry = new SearchResultEntryImpl();
+        SearchResultEntry searchResultEntry = new SearchResultEntry();
         
         searchResultEntry.setMessageId( searchEntryResultCodec.getMessageId() );
         searchResultEntry.setEntry( searchEntryResultCodec.getEntry() );
@@ -427,7 +424,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private SearchResultDone convert( SearchResultDoneCodec searchResultDoneCodec )
     {
-        SearchResultDone searchResultDone = new SearchResultDoneImpl();
+        SearchResultDone searchResultDone = new SearchResultDone();
         
         searchResultDone.setMessageId( searchResultDoneCodec.getMessageId() );
         searchResultDone.setLdapResult( convert( searchResultDoneCodec.getLdapResult() ) );
@@ -441,7 +438,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private SearchResultReference convert( SearchResultReferenceCodec searchEntryReferenceCodec )
     {
-        SearchResultReference searchResultReference = new SearchResultReferenceImpl();
+        SearchResultReference searchResultReference = new SearchResultReference();
         
         searchResultReference.setMessageId( searchEntryReferenceCodec.getMessageId() );
 
@@ -1100,7 +1097,7 @@ public class LdapConnection  extends IoHandlerAdapter
         String... attributes ) throws LdapException
     {
         // Create a new SearchRequest object
-        SearchRequest searchRequest = new SearchRequestImpl();
+        SearchRequest searchRequest = new SearchRequest();
         
         searchRequest.setBaseDn( baseDn );
         searchRequest.setFilter( filter );
@@ -2153,7 +2150,7 @@ public class LdapConnection  extends IoHandlerAdapter
         {
             cursor = search( "", "(objectClass=*)", SearchScope.OBJECT, "*", "+" );
             cursor.next();
-            SearchResultEntryImpl searchRes = ( SearchResultEntryImpl ) cursor.get();
+            SearchResultEntry searchRes = ( SearchResultEntry ) cursor.get();
             
             rootDSE = searchRes.getEntry();
         }
