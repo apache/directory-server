@@ -20,9 +20,14 @@
 package org.apache.directory.shared.ldap.client.api.messages;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.util.LdapURL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -88,14 +93,35 @@ import org.apache.directory.shared.ldap.util.LdapURL;
  *       remove LdapUrl objects instead of strings or provide both string and
  *       LdapUrl add/remove methods.
  */
-public interface Referral
+public class Referral
 {
+    /** The logger */
+    static final Logger LOG = LoggerFactory.getLogger( Referral.class );
+
+    /** The list of LDAPUrls */
+    private List<LdapURL> referrals;
+    
     /**
      * Gets an unmodifiable set of alternative referral urls.
      * 
      * @return the alternative url objects.
      */
-    Collection<String> getLdapUrls();
+    public Collection<String> getLdapUrls()
+    {
+        if ( referrals == null )
+        {
+            return new ArrayList<String>();
+        }
+        
+        List<String> urls = new ArrayList<String>( referrals.size() );
+        
+        for ( LdapURL referral:referrals )
+        {
+            urls.add( referral.toString() );
+        }
+        
+        return urls;
+    }
 
 
     /**
@@ -103,7 +129,32 @@ public interface Referral
      * 
      * @param urls the LDAPv3 URLs to add
      */
-    void addLdapUrls( String... urls );
+    public void addLdapUrls( String... urls )
+    {
+        if ( ( urls == null ) || ( urls.length == 0 ) )
+        {
+            return;
+        }
+        
+        if ( referrals == null )
+        {
+            referrals = new ArrayList<LdapURL>( urls.length );
+        }
+        
+        for ( String url:urls )
+        {
+            try
+            {
+                LdapURL ldapUrl = new LdapURL( url );
+                
+                referrals.add( ldapUrl );
+            }
+            catch ( LdapURLEncodingException luee )
+            {
+                LOG.warn( "The given URL '{}' is invalid", url );
+            }
+        }
+    }
 
 
     /**
@@ -111,7 +162,23 @@ public interface Referral
      * 
      * @param urls the LDAPv3 URLs to add
      */
-    void addLdapUrls( LdapURL... urls );
+    public void addLdapUrls( LdapURL... urls )
+    {
+        if ( ( urls == null ) || ( urls.length == 0 ) )
+        {
+            return;
+        }
+        
+        if ( referrals == null )
+        {
+            referrals = new ArrayList<LdapURL>( urls.length );
+        }
+        
+        for ( LdapURL url:urls )
+        {
+            referrals.add( url );
+        }
+    }
 
 
     /**
@@ -119,7 +186,32 @@ public interface Referral
      * 
      * @param urls the LDAPv3 URLs to remove
      */
-    void removeLdapUrl( String... urls );
+    public void removeLdapUrl( String... urls )
+    {
+        if ( ( urls == null ) || ( urls.length == 0 ) )
+        {
+            return;
+        }
+        
+        if ( ( referrals == null ) || ( referrals.size() == 0 ) )
+        {
+            return;
+        }
+        
+        for ( String url:urls )
+        {
+            try
+            {
+                LdapURL ldapUrl = new LdapURL( url );
+                
+                referrals.remove( ldapUrl );
+            }
+            catch ( LdapURLEncodingException luee )
+            {
+                LOG.warn( "The given URL '{}' is invalid", url );
+            }
+        }
+    }
 
 
     /**
@@ -127,5 +219,21 @@ public interface Referral
      * 
      * @param urls the LDAPv3 URLs to remove
      */
-    void removeLdapUrl( LdapURL... urls );
+    public void removeLdapUrl( LdapURL... urls )
+    {
+        if ( ( urls == null ) || ( urls.length == 0 ) )
+        {
+            return;
+        }
+        
+        if ( ( referrals == null ) || ( referrals.size() == 0 ) )
+        {
+            return;
+        }
+        
+        for ( LdapURL url:urls )
+        {
+            referrals.remove( url );
+        }
+    }
 }

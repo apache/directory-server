@@ -19,17 +19,32 @@
  */
 package org.apache.directory.shared.ldap.client.api.messages;
 
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Bind protocol response message used to confirm the results of a bind request
  * message. BindResponse consists simply of an indication from the server of the
  * status of the client's request for authentication.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 760724 $
+ * @version $Rev$, $Date$
  */
-public interface BindResponse extends ResponseWithResult
+public class BindResponse extends AbstractResponseWithResult
 {
+    /** optional property holding SASL authentication response parameters */
+    private byte[] credentials;
+
+    
+    /**
+     * Creates a new instance of BindResponseImpl.
+     */
+    public BindResponse()
+    {
+        super();
+    }
+    
+
     /**
      * Gets the optional property holding SASL authentication response parameters
      * that are SASL mechanism specific. Will return null if the authentication
@@ -37,11 +52,40 @@ public interface BindResponse extends ResponseWithResult
      * 
      * @return the sasl mech. specific credentials or null of auth. is simple
      */
-    byte[] getServerSaslCreds();
-    
+    public byte[] getServerSaslCreds()
+    {
+        return credentials;
+    }
+
     
     /**
      * {@inheritDoc}
      */
-    void setServerSaslCreds( byte[] credentials );
+    public void setServerSaslCreds( byte[] credentials )
+    {
+        this.credentials = credentials;
+    }
+
+
+    /**
+     * Get a String representation of a BindResponse
+     * 
+     * @return A BindResponse String
+     */
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+
+        sb.append( super.toString() );
+        sb.append( "    BindResponse\n" );
+
+        if ( credentials != null )
+        {
+            sb.append( "        Server sasl credentials : '" ).
+                append( StringTools.utf8ToString( credentials ) ).
+                append( "'\n" );
+        }
+
+        return sb.toString();
+    }
 }

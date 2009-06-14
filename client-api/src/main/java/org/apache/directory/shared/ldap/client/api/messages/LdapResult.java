@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.client.api.messages;
 
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
-
 /**
  * LDAPv3 result structure embedded into Responses. See section 4.1.10 in <a
  * href="">RFC 2251</a> for a description of the LDAPResult ASN.1 structure,
@@ -37,29 +36,45 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Revision: 437007 $
+ * @version $Revision: 760984 $
  */
-public interface LdapResult
+public class LdapResult
 {
-    /**
-     * Gets the result code enumeration associated with the response.
-     * Corresponds to the <b> resultCode </b> field within the LDAPResult ASN.1
-     * structure.
-     * 
-     * @return the result code enum value.
-     */
-    ResultCodeEnum getResultCode();
+    /** Lowest matched entry Dn - defaults to empty string */
+    private String matchedDn;
+
+    /** Referral associated with this LdapResult if the errorCode is REFERRAL */
+    private Referral referral;
+
+    /** Decriptive error message - defaults to empty string */
+    private String errorMessage;
+
+    /** Resultant operation error code - defaults to SUCCESS */
+    private ResultCodeEnum resultCode = ResultCodeEnum.SUCCESS;
 
 
     /**
-     * Sets the result code enumeration associated with the response.
-     * Corresponds to the <b> resultCode </b> field within the LDAPResult ASN.1
-     * structure.
+     * Gets the descriptive error message associated with the error code. May be
+     * null for SUCCESS, COMPARETRUE, COMPAREFALSE and REFERRAL operations.
      * 
-     * @param resultCode
-     *            the result code enum value.
+     * @return the descriptive error message.
      */
-    void setResultCode( ResultCodeEnum resultCode );
+    public String getErrorMessage()
+    {
+        return errorMessage;
+    }
+
+
+    /**
+     * Sets the descriptive error message associated with the error code. May be
+     * null for SUCCESS, COMPARETRUE, and COMPAREFALSE operations.
+     * 
+     * @param errorMessage the descriptive error message.
+     */
+    public void setErrorMessage( String errorMessage )
+    {
+        this.errorMessage = errorMessage;
+    }
 
 
     /**
@@ -75,7 +90,10 @@ public interface LdapResult
      * 
      * @return the Dn of the lowest matched entry.
      */
-    String getMatchedDn();
+    public String getMatchedDn()
+    {
+        return matchedDn;
+    }
 
 
     /**
@@ -84,35 +102,36 @@ public interface LdapResult
      * @see #getMatchedDn()
      * @param dn the Dn of the lowest matched entry.
      */
-    void setMatchedDn( String dn );
+    public void setMatchedDn( String matchedDn )
+    {
+        this.matchedDn = matchedDn;
+    }
 
 
     /**
-     * Gets the descriptive error message associated with the error code. May be
-     * null for SUCCESS, COMPARETRUE, COMPAREFALSE and REFERRAL operations.
+     * Gets the result code enumeration associated with the response.
+     * Corresponds to the <b> resultCode </b> field within the LDAPResult ASN.1
+     * structure.
      * 
-     * @return the descriptive error message.
+     * @return the result code enum value.
      */
-    String getErrorMessage();
+    public ResultCodeEnum getResultCode()
+    {
+        return resultCode;
+    }
 
 
     /**
-     * Sets the descriptive error message associated with the error code. May be
-     * null for SUCCESS, COMPARETRUE, and COMPAREFALSE operations.
+     * Sets the result code enumeration associated with the response.
+     * Corresponds to the <b> resultCode </b> field within the LDAPResult ASN.1
+     * structure.
      * 
-     * @param errorMessage
-     *            the descriptive error message.
+     * @param resultCode the result code enum value.
      */
-    void setErrorMessage( String errorMessage );
-
-
-    /**
-     * Gets whether or not this result represents a Referral. For referrals the
-     * error code is set to REFERRAL and the referral property is not null.
-     * 
-     * @return true if this result represents a referral.
-     */
-    boolean isReferral();
+    public void setResultCode( ResultCodeEnum resultCode )
+    {
+        this.resultCode = resultCode;
+    }
 
 
     /**
@@ -121,7 +140,22 @@ public interface LdapResult
      * 
      * @return the referral on REFERRAL errors, null on all others.
      */
-    Referral getReferral();
+    public Referral getReferral()
+    {
+        return referral;
+    }
+
+
+    /**
+     * Gets whether or not this result represents a Referral. For referrals the
+     * error code is set to REFERRAL and the referral property is not null.
+     * 
+     * @return true if this result represents a referral.
+     */
+    public boolean isReferral()
+    {
+        return referral != null;
+    }
 
 
     /**
@@ -132,5 +166,8 @@ public interface LdapResult
      * 
      * @param referral optional referral on REFERRAL errors.
      */
-    void setReferral( Referral referral );
+    public void setReferral( Referral referral )
+    {
+        this.referral = referral;
+    }
 }

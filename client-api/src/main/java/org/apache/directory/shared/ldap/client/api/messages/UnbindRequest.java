@@ -25,6 +25,30 @@ package org.apache.directory.shared.ldap.client.api.messages;
  * 
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  */
-public interface UnbindRequest extends Request
+public class UnbindRequest extends AbstractRequest 
 {
+    /**
+     * 
+     * Creates a new instance of UnbindRequest.
+     */
+    public UnbindRequest()
+    {
+        super();
+    }
+    
+    
+    /**
+     * Get a String representation of a UnBindRequest
+     * 
+     * @return A UnBindRequest String
+     */
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+
+        sb.append( super.toString() );
+        sb.append( "    UnBind Request\n" );
+
+        return sb.toString();
+    }
 }

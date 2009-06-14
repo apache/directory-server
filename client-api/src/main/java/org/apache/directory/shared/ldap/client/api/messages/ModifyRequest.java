@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.client.api.messages;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;

@@ -53,24 +53,18 @@ import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
 import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
-import org.apache.directory.shared.ldap.client.api.messages.AbandonRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
-import org.apache.directory.shared.ldap.client.api.messages.BindRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
-import org.apache.directory.shared.ldap.client.api.messages.BindResponseImpl;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteRequest;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
-import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponseImpl;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
-import org.apache.directory.shared.ldap.client.api.messages.LdapResultImpl;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyDnRequest;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyDnResponse;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyRequest;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyResponse;
 import org.apache.directory.shared.ldap.client.api.messages.Referral;
-import org.apache.directory.shared.ldap.client.api.messages.ReferralImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequestImpl;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
@@ -361,7 +355,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private BindResponse convert( BindResponseCodec bindResponseCodec )
     {
-        BindResponse bindResponse = new BindResponseImpl();
+        BindResponse bindResponse = new BindResponse();
         
         bindResponse.setMessageId( bindResponseCodec.getMessageId() );
         bindResponse.setServerSaslCreds( bindResponseCodec.getServerSaslCreds() );
@@ -376,7 +370,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private IntermediateResponse convert( IntermediateResponseCodec intermediateResponseCodec )
     {
-        IntermediateResponse intermediateResponse = new IntermediateResponseImpl();
+        IntermediateResponse intermediateResponse = new IntermediateResponse();
         
         intermediateResponse.setMessageId( intermediateResponseCodec.getMessageId() );
         intermediateResponse.setResponseName( intermediateResponseCodec.getResponseName() );
@@ -391,13 +385,13 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private LdapResult convert( LdapResultCodec ldapResultCodec )
     {
-        LdapResult ldapResult = new LdapResultImpl();
+        LdapResult ldapResult = new LdapResult();
         
         ldapResult.setErrorMessage( ldapResultCodec.getErrorMessage() );
         ldapResult.setMatchedDn( ldapResultCodec.getMatchedDN() );
         
         // Loop on the referrals
-        Referral referral = new ReferralImpl();
+        Referral referral = new Referral();
         
         if (ldapResultCodec.getReferrals() != null )
         {
@@ -452,7 +446,7 @@ public class LdapConnection  extends IoHandlerAdapter
         searchResultReference.setMessageId( searchEntryReferenceCodec.getMessageId() );
 
         // Loop on the referrals
-        Referral referral = new ReferralImpl();
+        Referral referral = new Referral();
         
         if (searchEntryReferenceCodec.getSearchResultReferences() != null )
         {
@@ -790,7 +784,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public void abandon( int messageId ) throws LdapException
     {
-        AbandonRequest abandonRequest = new AbandonRequestImpl();
+        AbandonRequest abandonRequest = new AbandonRequest();
         abandonRequest.setAbandonedMessageId( messageId );
         
         abandonInternal( abandonRequest );
@@ -895,7 +889,7 @@ public class LdapConnection  extends IoHandlerAdapter
         LOG.debug( "Bind request : {}", name );
 
         // Create the BindRequest
-        BindRequest bindRequest = new BindRequestImpl();
+        BindRequest bindRequest = new BindRequest();
         bindRequest.setName( name );
         bindRequest.setCredentials( credentials );
         

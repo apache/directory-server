@@ -69,7 +69,7 @@ public class SearchResultReferenceImpl extends AbstractMessage implements Search
     {
         if ( referral == null )
         {
-            referral = new ReferralImpl();
+            referral = new Referral();
         }
         
         referral.addLdapUrls( urls );
@@ -83,7 +83,7 @@ public class SearchResultReferenceImpl extends AbstractMessage implements Search
     {
         if ( referral == null )
         {
-            referral = new ReferralImpl();
+            referral = new Referral();
         }
         
         referral.addLdapUrls( urls );
@@ -97,7 +97,7 @@ public class SearchResultReferenceImpl extends AbstractMessage implements Search
     {
         if ( referral == null )
         {
-            referral = new ReferralImpl();
+            referral = new Referral();
         }
         
         referral.removeLdapUrl( urls );
@@ -111,7 +111,7 @@ public class SearchResultReferenceImpl extends AbstractMessage implements Search
     {
         if ( referral == null )
         {
-            referral = new ReferralImpl();
+            referral = new Referral();
         }
         
         referral.removeLdapUrl( urls );

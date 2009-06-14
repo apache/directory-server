@@ -20,25 +20,71 @@
 package org.apache.directory.shared.ldap.client.api.messages;
 
 /**
- * Abandon protocol operation request. It abandons the given message.
+ * Abandon protocol operation request message. It abandons the given message. 
+ * 
+ * Its syntax is : 
+ * AbandonRequest ::= [APPLICATION 16] MessageID 
+ * 
+ * MessageID ::= INTEGER (0 .. maxInt) 
+ * 
+ * maxInt INTEGER ::= 2147483647 -- (2^^31 - 1) --
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface AbandonRequest extends Request
+public class AbandonRequest extends AbstractRequest
 {
+    /** The abandoned message ID */
+    private int abandonedMessageId;
+    
+    
+    /**
+     * 
+     * Creates a new instance of AbandonRequestImpl.
+     */
+    public AbandonRequest()
+    {
+        super();
+    }
+    
+    
     /**
      * Get the abandoned message ID
      * 
      * @return Returns the abandoned MessageId.
      */
-    int getAbandonedMessageId();
+    public int getAbandonedMessageId()
+    {
+        return abandonedMessageId;
+    }
 
-    
+
     /**
      * Set the abandoned message ID
      * 
      * @param abandonedMessageId The abandoned messageID to set.
-     * @return The object itself, to allow chaining
      */
-    AbandonRequest setAbandonedMessageId( int abandonedMessageId );
+    public AbandonRequest setAbandonedMessageId( int abandonedMessageId )
+    {
+        this.abandonedMessageId = abandonedMessageId;
+        
+        return this;
+    }
+    
+    
+    /**
+     * Return a String representing an AbandonRequest
+     * 
+     * @return A String representing the AbandonRequest
+     */
+    public String toString()
+    {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(  super.toString() );
+        sb.append( "    Abandon Request :\n" );
+        sb.append( "        Message Id : " ).append( abandonedMessageId ).append( '\n' );
+
+        return sb.toString();
+    }
 }

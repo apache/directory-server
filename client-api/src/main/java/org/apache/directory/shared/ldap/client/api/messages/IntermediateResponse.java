@@ -21,18 +21,36 @@ package org.apache.directory.shared.ldap.client.api.messages;
 
 
 /**
- * An interface for Intermediate responses.
+ * An class Intermediate responses.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface IntermediateResponse extends Message
+public class IntermediateResponse extends AbstractMessage
 {
+    /** The Response OID */
+    private String responseName;
+
+    /** The response value */
+    private byte[] responseValue;
+    
+    /**
+     * Creates a new instance of IntermediateResponseImpl.
+     */
+    public IntermediateResponse()
+    {
+        super();
+    }
+
+    
     /**
      * Get the original response OID.
      *
      * @return The response OID
      */
-    String getResponseName();
+    public String getResponseName()
+    {
+        return responseName;
+    }
     
     
     /**
@@ -40,7 +58,10 @@ public interface IntermediateResponse extends Message
      *
      * @param responseName The response OID
      */
-    void setResponseName( String responseName );
+    public void setResponseName( String responseName )
+    {
+        this.responseName = responseName;
+    }
     
     
     /**
@@ -48,13 +69,19 @@ public interface IntermediateResponse extends Message
      *
      * @return The response value
      */
-    byte[] getResponseValue();
-    
+    public byte[] getResponseValue()
+    {
+        return responseValue;
+    }
+
     
     /**
      * Sets the response's value
      *
      * @param responseValue The associated response's value
      */
-    void setResponseValue( byte[] responseValue );
+    public void setResponseValue( byte[] responseValue )
+    {
+        this.responseValue = responseValue;
+    }
 }
