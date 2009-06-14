@@ -37,7 +37,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.message.InternalExtendedRequest;
 import org.apache.directory.shared.ldap.message.InternalExtendedResponse;
@@ -137,12 +137,12 @@ public class StartTlsHandler implements ExtendedOperationHandler
     }
 
     
-    public void setLdapServer( LdapService ldapService )
+    public void setLdapServer( LdapServer ldapServer )
     {
         LOG.debug( "Setting LDAP Service" );
         Provider provider = Security.getProvider( "SUN" );
         LOG.debug( "provider = {}", provider );
-        CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapService.getDirectoryService() );
+        CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapServer.getDirectoryService() );
         KeyStore keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
 
         try

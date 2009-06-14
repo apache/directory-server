@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,7 +92,7 @@ public class CompareIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
 
     /**
@@ -102,7 +102,7 @@ public class CompareIT
     @Test
     public void testNormalCompare() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
@@ -124,7 +124,7 @@ public class CompareIT
     @Test
     public void testNormalCompareMissingAttribute() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         // comparison success
         LDAPAttribute attribute = new LDAPAttribute( "sn", "karasulu" );
@@ -153,7 +153,7 @@ public class CompareIT
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -179,7 +179,7 @@ public class CompareIT
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -213,7 +213,7 @@ public class CompareIT
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapService );
+        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[0] );
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -253,9 +253,9 @@ public class CompareIT
     @Test
     public void testCompareWithoutAuthentication() throws LDAPException
     {
-        ldapService.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
-        conn.connect( "localhost", ldapService.getPort() );
+        conn.connect( "localhost", ldapServer.getPort() );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
         
         try
@@ -278,7 +278,7 @@ public class CompareIT
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 

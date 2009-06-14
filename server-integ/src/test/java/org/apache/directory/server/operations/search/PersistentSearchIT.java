@@ -48,7 +48,7 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.entryChange.EntryChangeControlDecoder;
@@ -91,7 +91,7 @@ public class PersistentSearchIT
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN = "cn=Tori Amos";
 
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
 
     /**
@@ -126,8 +126,8 @@ public class PersistentSearchIT
     public void setUpListener( boolean returnECs, PersistentSearchControl control, boolean ignoreEmptyRegistryCheck ) 
         throws Exception
     {
-        ctx = ( EventDirContext ) getWiredContext( ldapService).lookup( BASE );
-        eventService = ldapService.getDirectoryService().getEventService();
+        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
+        eventService = ldapServer.getDirectoryService().getEventService();
         List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
         
         if ( ! ignoreEmptyRegistryCheck )
@@ -152,8 +152,8 @@ public class PersistentSearchIT
     
     public void setUpListener() throws Exception
     {
-        ctx = ( EventDirContext ) getWiredContext( ldapService).lookup( BASE );
-        eventService = ldapService.getDirectoryService().getEventService();
+        ctx = ( EventDirContext ) getWiredContext( ldapServer).lookup( BASE );
+        eventService = ldapServer.getDirectoryService().getEventService();
         List<RegistrationEntry> registrationEntryList = eventService.getRegistrationEntries();
         assertTrue( registrationEntryList.isEmpty() );
         
@@ -582,7 +582,7 @@ public class PersistentSearchIT
 
             try
             {
-                ctx = ( LdapContext ) getWiredContext( ldapService).lookup( BASE );
+                ctx = ( LdapContext ) getWiredContext( ldapServer).lookup( BASE );
                 ctx.setRequestControls( ctxCtls );
                 isReady = true;
                 LOG.debug( "PSearchListener is ready and about to issue persistent search request." );

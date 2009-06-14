@@ -202,12 +202,117 @@ public class DefaultDirectoryService implements DirectoryService
         TRUE,  // The change must me stored 
         FALSE  // The change must not be stred
     };
+    
+    /** The delay to wait between each sync on disk */
+    private long syncPeriodMillis;
+    
+    /** The default delay to wait between sync on disk : 15 seconds */
+    private static final long DEFAULT_SYNC_PERIOD = 15000;
+
+    /** */
+    private Thread workerThread;
+    
+    /** The sync worker thread */
+    private SynchWorker worker = new SynchWorker();
+
    
+    /** The default timeLimit : 100 entries */
+    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
+
+    /** The default timeLimit : 10 seconds */
+    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
+
+    /** The instance Id */
+    private String instanceId;
+    
+    /** The server working directory */
+    private File workingDirectory = new File( "server-work" );
+    
+    /** 
+     * A flag used to shutdown the VM when stopping the server. Useful
+     * when the server is standalone. If the server is embedded, we don't
+     * want to shutdown the VM
+     */
+    private boolean exitVmOnShutdown = true; // allow by default
+    
+    /** A flag used to indicate that a shutdown hook has been installed */
+    private boolean shutdownHookEnabled = true; // allow by default
+    
+    /** Manage anonymous access to entries other than the RootDSE */
+    private boolean allowAnonymousAccess = true; // allow by default
+    
+    /** Manage the basic access control checks */
+    private boolean accessControlEnabled; // off by default
+    
+    /** Manage the operational attributes denormalization */
+    private boolean denormalizeOpAttrsEnabled; // off by default
+    
+    /** The list of declared interceptors */
+    private List<Interceptor> interceptors;
+    
+    /** The System partition */
+    private Partition systemPartition;
+    
+    /** The set of all declared partitions */
+    private Set<Partition> partitions = new HashSet<Partition>();
+    
+    /** A list of LDIF entries to inject at startup */
+    private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
+    
+    /** The event service */
+    private EventService eventService;
+    
+    /** The maximum size for an incoming PDU */
+    private int maxPDUSize = Integer.MAX_VALUE;
+
+
+    
+    /**
+     * The synchronizer thread. It flush data on disk periodically.
+     */
+    class SynchWorker implements Runnable
+    {
+        final Object lock = new Object();
+        
+        /** A flag to stop the thread */
+        boolean stop;
+
+
+        /**
+         * The main loop
+         */
+        public void run()
+        {
+            while ( !stop )
+            {
+                synchronized ( lock )
+                {
+                    try
+                    {
+                        lock.wait( syncPeriodMillis );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        LOG.warn( "SynchWorker failed to wait on lock.", e );
+                    }
+                }
+
+                try
+                {
+                    partitionNexus.sync();
+                }
+                catch ( Exception e )
+                {
+                    LOG.error( "SynchWorker failed to synch directory.", e );
+                }
+            }
+        }
+    }
+    
+    
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-
-
     /**
      * Creates a new instance of the directory service.
      */
@@ -216,6 +321,7 @@ public class DefaultDirectoryService implements DirectoryService
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
+        syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -261,55 +367,6 @@ public class DefaultDirectoryService implements DirectoryService
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-
-
-    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
-    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
-
-    /** The instance Id */
-    private String instanceId;
-    
-    /** The server working directory */
-    private File workingDirectory = new File( "server-work" );
-    
-    /** 
-     * A flag used to shutdown the VM when stopping the server. Useful
-     * when the server is standalone. If the server is embedded, we don't
-     * want to shutdown the VM
-     */
-    private boolean exitVmOnShutdown = true; // allow by default
-    
-    /** A flag used to indicate that a shutdown hook has been installed */
-    private boolean shutdownHookEnabled = true; // allow by default
-    
-    /** Manage anonymous access to entries other than the RootDSE */
-    private boolean allowAnonymousAccess = true; // allow by default
-    
-    /** Manage the basic access control checks */
-    private boolean accessControlEnabled; // off by default
-    
-    /** Manage the operational attributes denormalization */
-    private boolean denormalizeOpAttrsEnabled; // off by default
-    
-    /** The list of declared interceptors */
-    private List<Interceptor> interceptors;
-    
-    /** The System partition */
-    private Partition systemPartition;
-    
-    /** The set of all declared partitions */
-    private Set<Partition> partitions = new HashSet<Partition>();
-    
-    /** A list of LDIF entries to inject at startup */
-    private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
-    private EventService eventService;
-
-    
-    
-    /** The maximum size for an incoming PDU */
-    private int maxPDUSize = Integer.MAX_VALUE;
-
-
     public void setInstanceId( String instanceId )
     {
         this.instanceId = instanceId;
@@ -914,6 +971,15 @@ public class DefaultDirectoryService implements DirectoryService
 
         initialize();
         showSecurityWarnings();
+        
+        // Start the sync thread if required
+        if ( syncPeriodMillis > 0 )
+        {
+            workerThread = new Thread( worker, "SynchWorkerThread" );
+            workerThread.start();
+        }
+
+        
         started = true;
 
         if ( !testEntries.isEmpty() )
@@ -961,6 +1027,26 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         partitionNexus.sync();
         partitionNexus.destroy();
+        
+        // --------------------------------------------------------------------
+        // Shutdown the sync thread
+        // --------------------------------------------------------------------
+        if ( workerThread != null )
+        {
+            worker.stop = true;
+            
+            synchronized ( worker.lock )
+            {
+                worker.lock.notify();
+            }
+    
+            while ( workerThread.isAlive() )
+            {
+                LOG.info( "Waiting for SynchWorkerThread to die." );
+                workerThread.join( 500 );
+            }
+        }
+
         
         // --------------------------------------------------------------------
         // And shutdown the server
@@ -1777,5 +1863,23 @@ public class DefaultDirectoryService implements DirectoryService
     public ReplicationConfiguration getReplicationConfiguration()
     {
         return replicationConfig;
+    }
+    
+    
+    /**
+     * @return the syncPeriodMillis
+     */
+    public long getSyncPeriodMillis()
+    {
+        return syncPeriodMillis;
+    }
+
+
+    /**
+     * @param syncPeriodMillis the syncPeriodMillis to set
+     */
+    public void setSyncPeriodMillis( long syncPeriodMillis )
+    {
+        this.syncPeriodMillis = syncPeriodMillis;
     }
 }

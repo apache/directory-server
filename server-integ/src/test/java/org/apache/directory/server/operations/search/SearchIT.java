@@ -51,7 +51,7 @@ import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.junit.Test;
@@ -168,7 +168,7 @@ public class SearchIT
 {
     private static final String BASE = "ou=system";
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
     private static final String RDN = "cn=Tori Amos";
     private static final String RDN2 = "cn=Rolling-Stones";
@@ -260,7 +260,7 @@ public class SearchIT
     @Test
     public void testSearchByBinaryAttribute() throws Exception 
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
         
         // Search for kate by cn first
@@ -290,7 +290,7 @@ public class SearchIT
     @Test
     public void testSearch() throws Exception
     {
-        LdapContext ctx = getWiredContext( ldapService );
+        LdapContext ctx = getWiredContext( ldapServer );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setTimeLimit( 10 );
@@ -342,7 +342,7 @@ public class SearchIT
      */
     private Set<String> search( String filter ) throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
@@ -431,7 +431,7 @@ public class SearchIT
     @Test
     public void testSearchWithBackslashEscapedBase() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // create additional entry
         Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
@@ -473,7 +473,7 @@ public class SearchIT
     @Test
     public void testSearchValue() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
@@ -612,7 +612,7 @@ public class SearchIT
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
 
-        LdapContext ctx = getWiredContext( ldapService );
+        LdapContext ctx = getWiredContext( ldapServer );
 
         NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
@@ -645,7 +645,7 @@ public class SearchIT
      */
     private void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         DirContext adminCtx = ctx;
 
@@ -678,7 +678,7 @@ public class SearchIT
     @Test
     public void testAddWithObjectclasses() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -714,7 +714,7 @@ public class SearchIT
     @Test
     public void testAddWithMissingObjectclasses() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         String rdn = "cn=Kate Bush";
         SearchControls ctls = new SearchControls();
@@ -747,7 +747,7 @@ public class SearchIT
     @Test
     public void testSubentryControl() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // create a real access control subentry
         createAccessControlSubentry( 
@@ -809,7 +809,7 @@ public class SearchIT
     @Test
     public void testMultiValuedRdnContent() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
@@ -843,7 +843,7 @@ public class SearchIT
     @Test
     public void testMultiValuedRdnName() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
@@ -874,7 +874,7 @@ public class SearchIT
     @Test
     public void testSearchJpeg() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -907,7 +907,7 @@ public class SearchIT
     @Test
     public void testSearchOID() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -934,7 +934,7 @@ public class SearchIT
     @Test
     public void testSearchAttrCN() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -962,7 +962,7 @@ public class SearchIT
     @Test
     public void testSearchAttrName() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -993,7 +993,7 @@ public class SearchIT
     @Test
     public void testSearchAttrCommonName() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1027,7 +1027,7 @@ public class SearchIT
     @Test
     public void testSearchAttrOID() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1060,7 +1060,7 @@ public class SearchIT
     @Test
     public void testSearchAttrC_L() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // create administrative area
         Attributes aaAttrs = new BasicAttributes( true );
@@ -1116,7 +1116,7 @@ public class SearchIT
     @Test
     public void testSearchUsersAttrs() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1149,7 +1149,7 @@ public class SearchIT
     @Test
     public void testSearchOperationalAttrs() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1184,7 +1184,7 @@ public class SearchIT
     @Test
     public void testSearchAllAttrs() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1219,7 +1219,7 @@ public class SearchIT
     @Test
     public void testSearchBadDN() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         
@@ -1237,7 +1237,7 @@ public class SearchIT
     @Test
     public void testSearchInvalidDN() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -1260,7 +1260,7 @@ public class SearchIT
     @Test
     public void testSearchOperationalAttributes() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1293,7 +1293,7 @@ public class SearchIT
     @Test
     public void testSearchUserAttributes() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1326,7 +1326,7 @@ public class SearchIT
     @Test
     public void testSearchUserAttributes_Space() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1344,7 +1344,7 @@ public class SearchIT
     @Test
     public void testSearchUserAttributes_EmptyAttrs() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1362,7 +1362,7 @@ public class SearchIT
     @Test
     public void testSearchUserAttributes_NullAttrs() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1379,7 +1379,7 @@ public class SearchIT
     @Test
     public void testSearchOperationalAndUserAttributes() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
  
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -1438,7 +1438,7 @@ public class SearchIT
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
@@ -1481,7 +1481,7 @@ public class SearchIT
     @Test
     public void testMissingAnyInSubstring_DIRSERVER_1180() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
         attrs.get( "objectClass" ).add( "person" );
@@ -1506,7 +1506,7 @@ public class SearchIT
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes vicious = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute( "objectClass" );
@@ -1542,7 +1542,7 @@ public class SearchIT
     @Test
     public void testUnicodeFilter_DIRSERVER_1347() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes groupOfNames = new BasicAttributes( true );
         Attribute groupOfNamesOC = new BasicAttribute( "objectClass" );
@@ -1603,7 +1603,7 @@ public class SearchIT
     @Test
     public void testSearchUserAttributes_1_1() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         SearchControls ctls = new SearchControls();
 
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );

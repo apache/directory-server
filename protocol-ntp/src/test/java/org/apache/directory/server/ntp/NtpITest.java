@@ -57,10 +57,11 @@ public class NtpITest extends TestCase
     {
         ntpConfig = new NtpServer( );
         port = AvailablePortFinder.getNextAvailable( 10123 );
-        ntpConfig.setTcpTransport( new TcpTransport( port ) );
-        ntpConfig.setUdpTransport( new UdpTransport( port ) );
-        ntpConfig.getDatagramAcceptor().getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
-        ntpConfig.getSocketAcceptor().getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        TcpTransport tcpTransport = new TcpTransport( port );
+        UdpTransport udpTransport = new UdpTransport( port );
+        ntpConfig.setTransports( tcpTransport, udpTransport );
+        ntpConfig.getDatagramAcceptor( udpTransport ).getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
+        ntpConfig.getSocketAcceptor( tcpTransport ).getFilterChain().addLast( "executor", new ExecutorFilter( Executors.newCachedThreadPool() ) );
         ntpConfig.setEnabled( true );
         ntpConfig.start();
 

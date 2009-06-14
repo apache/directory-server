@@ -23,7 +23,7 @@ package org.apache.directory.server.ldap.handlers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -59,31 +59,31 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     private static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
 
     /** The reference on the Ldap server instance */
-    protected LdapService ldapService;
+    protected LdapServer ldapServer;
 
 
     /**
      * @return The associated ldap server instance
      */
-    public final LdapService getLdapServer()
+    public final LdapServer getLdapServer()
     {
-        return ldapService;
+        return ldapServer;
     }
 
 
     /**
      * Associates a Ldap server instance to the message handler
-     * @param ldapService the associated ldap server instance
+     * @param ldapServer the associated ldap server instance
      */
-    public final void setLdapServer( LdapService ldapService )
+    public final void setLdapServer( LdapServer ldapServer )
     {
-        this.ldapService = ldapService;
+        this.ldapServer = ldapServer;
     }
     
     
     /**
      * Checks to see if confidentiality requirements are met.  If the 
-     * LdapService requires confidentiality and the SSLFilter is engaged
+     * LdapServer requires confidentiality and the SSLFilter is engaged
      * this will return true.  If confidentiality is not required this 
      * will return true.  If confidentially is required and the SSLFilter
      * is not engaged in the IoFilterChain this will return false.
@@ -98,7 +98,7 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
     public final boolean isConfidentialityRequirementSatisfied( IoSession session )
     {
        
-       if ( ! ldapService.isConfidentialityRequired() )
+       if ( ! ldapServer.isConfidentialityRequired() )
        {
            return true;
        }
@@ -120,13 +120,13 @@ public abstract class LdapRequestHandler<T extends InternalRequest> implements M
 
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
-        LdapSession ldapSession = ldapService.getLdapSessionManager().getLdapSession( session );
+        LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
         
         //handle( ldapSession, message );
-        // TODO - session you get from LdapService should have the ldapService 
+        // TODO - session you get from LdapServer should have the ldapServer 
         // member already set no?  Should remove these lines where ever they
         // may be if that's the case.
-        ldapSession.setLdapServer( ldapService );
+        ldapSession.setLdapServer( ldapServer );
         
         // protect against insecure conns when confidentiality is required 
         if ( ! isConfidentialityRequirementSatisfied( session ) )

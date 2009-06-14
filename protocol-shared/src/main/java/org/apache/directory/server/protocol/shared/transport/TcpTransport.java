@@ -165,4 +165,13 @@ public class TcpTransport extends AbstractTransport
     {
         return acceptor == null ? null : (SocketAcceptor)acceptor;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "TcpTransport" + super.toString();
+    }
 }

@@ -33,7 +33,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -88,7 +88,7 @@ import org.junit.runner.RunWith;
 })
 public class ClientDeleteRequestTest
 {
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
     private LdapConnection connection;
     
@@ -97,12 +97,12 @@ public class ClientDeleteRequestTest
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapConnection( "localhost", ldapService.getPort() );
+        connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
         connection.bind( bindDn.getUpName(), "secret" );
         
-        session = ldapService.getDirectoryService().getAdminSession();
+        session = ldapServer.getDirectoryService().getAdminSession();
     }
     
     @After

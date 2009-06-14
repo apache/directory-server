@@ -29,7 +29,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,13 +70,13 @@ public class MoveIT
     private static final String NEW_DN = "uid=akarasulu,ou=NewSuperior,ou=system";
     private static final String NEW_DN2 = "uid=elecharny,ou=NewSuperior,ou=system";
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
 
     @Test
     public void testMoveNoRdnChange() throws Exception
     {
-        LdapContext ctx = getWiredContext( ldapService );
+        LdapContext ctx = getWiredContext( ldapServer );
         ctx.rename( DN, NEW_DN );
         
         SearchControls controls = new SearchControls();
@@ -98,7 +98,7 @@ public class MoveIT
     @Test
     public void testMoveAndRdnChange() throws Exception
     {
-        LdapContext ctx = getWiredContext( ldapService );
+        LdapContext ctx = getWiredContext( ldapServer );
         ctx.rename( DN, NEW_DN2 );
         
         SearchControls controls = new SearchControls();

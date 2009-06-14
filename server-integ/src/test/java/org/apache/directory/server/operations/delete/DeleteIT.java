@@ -42,7 +42,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +91,7 @@ public class DeleteIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
 
     /**
@@ -101,7 +101,7 @@ public class DeleteIT
     @Test
     public void testNormalDeleteFailContextNotEmpty() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         // delete failure on non-leaf entry
         try
@@ -125,7 +125,7 @@ public class DeleteIT
     @Test
     public void testNormalDelete() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         // delete success
         conn.delete( "ou=computers,uid=akarasulu,ou=users,ou=system" );
@@ -152,7 +152,7 @@ public class DeleteIT
     @Test
     public void testDeleteNonExistent() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         // delete failure non-existent entry
         try
@@ -175,7 +175,7 @@ public class DeleteIT
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -206,7 +206,7 @@ public class DeleteIT
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -235,7 +235,7 @@ public class DeleteIT
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapService );
+        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
         
         // delete success
         ctx.destroySubcontext( "ou=computers,uid=akarasulu,ou=users,ou=system" );
@@ -273,7 +273,7 @@ public class DeleteIT
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 
@@ -300,7 +300,7 @@ public class DeleteIT
      */
     public void testDeleteWithIllegalName() throws Exception 
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         
         try 
         {

@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 public class LdapConnectionTest
 {
     /** The server instance */
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     
     /**
@@ -59,7 +59,7 @@ public class LdapConnectionTest
     @Test
     public void testBindRequest()
     {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
         
         try
         {
@@ -90,7 +90,7 @@ public class LdapConnectionTest
     @Test
     public void testGetSupportedControls() throws Exception
     {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
         connection.bind( dn.getUpName(), "secret" );

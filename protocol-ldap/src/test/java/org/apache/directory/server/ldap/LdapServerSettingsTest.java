@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 
 
 /**
- * Test to confirm correct behavoir for settings on LdapService bean.
+ * Test to confirm correct behavoir for settings on LdapServer bean.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
@@ -49,7 +49,7 @@ public class LdapServerSettingsTest
     @Test
     public void testAddExtendedOperationHandler() throws Exception
     {
-        LdapService server = new LdapService();
+        LdapServer server = new LdapServer();
         StartTlsHandler handler = new StartTlsHandler();
         server.addExtendedOperationHandler( handler );
         assertEquals( handler, server.getExtendedOperationHandler( handler.getOid() ) );
@@ -61,7 +61,7 @@ public class LdapServerSettingsTest
     @Test
     public void testSetExtendedOperationHandlers()
     {
-        LdapService server = new LdapService();
+        LdapServer server = new LdapServer();
         StartTlsHandler handler = new StartTlsHandler();
         List<ExtendedOperationHandler> handlers = new ArrayList<ExtendedOperationHandler>();
         handlers.add( handler );
@@ -75,7 +75,7 @@ public class LdapServerSettingsTest
     @Test
     public void testSetSaslMechanismHandlers()
     {
-        LdapService server = new LdapService();
+        LdapServer server = new LdapServer();
         Map<String, MechanismHandler> handlers = new HashMap<String,MechanismHandler>();
         MechanismHandler handler = new PlainMechanismHandler();
         handlers.put( SupportedSaslMechanisms.PLAIN, handler );

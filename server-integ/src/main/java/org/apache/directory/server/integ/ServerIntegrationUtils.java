@@ -30,7 +30,7 @@ import netscape.ldap.LDAPConnection;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +53,13 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapService ldapService ) throws Exception
+    public static LdapContext getWiredContext( LdapServer ldapServer ) throws Exception
     {
-        return getWiredContext( ldapService, null );
+        return getWiredContext( ldapServer, null );
     }
 
 
@@ -68,17 +68,17 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapService ldapService, String principalDn, String password ) 
+    public static LdapContext getWiredContext( LdapServer ldapServer, String principalDn, String password ) 
         throws Exception
     {
-        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapService.getPort() );
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -91,16 +91,16 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapService ldapService, Control[] controls ) throws Exception
+    public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
     {
-        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapService.getPort() );
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -113,16 +113,16 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContextThrowOnRefferal( LdapService ldapService ) throws Exception
+    public static LdapContext getWiredContextThrowOnRefferal( LdapServer ldapServer ) throws Exception
     {
-        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapService.getPort() );
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -136,16 +136,16 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContextRefferalIgnore( LdapService ldapService ) throws Exception
+    public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws Exception
     {
-        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapService.getPort() );
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -159,16 +159,16 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * SUN LDAP provider.  The connection is made using the administrative 
      * user as the principalDN.  The context is to the rootDSE.
      *
-     * @param ldapService the LDAP server to get the connection to
+     * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
      * @throws Exception if there are problems creating the context
      */
-    public static LdapContext getWiredContextFollowOnRefferal( LdapService ldapService ) throws Exception
+    public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws Exception
     {
-        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapService.getPort() );
+        LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -177,13 +177,13 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
     
-    public static LDAPConnection getWiredConnection( LdapService ldapService ) throws Exception
+    public static LDAPConnection getWiredConnection( LdapServer ldapServer ) throws Exception
     {
         String testServer = System.getProperty( "ldap.test.server", null );
         
         if ( testServer == null )
         {
-            return getWiredConnection( ldapService, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            return getWiredConnection( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         }
         
         LOG.debug( "ldap.test.server = " + testServer );
@@ -206,11 +206,11 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
     
-    public static LDAPConnection getWiredConnection( LdapService ldapService, String principalDn, String password ) 
+    public static LDAPConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password ) 
         throws Exception
     {
         LDAPConnection conn = new LDAPConnection();
-        conn.connect( 3, "localhost", ldapService.getPort(), principalDn, password );
+        conn.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
         return conn;
     }
 }

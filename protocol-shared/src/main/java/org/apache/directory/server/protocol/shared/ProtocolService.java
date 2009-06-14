@@ -20,10 +20,9 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
-
-import java.util.Set;
 
 
 /**
@@ -64,7 +63,7 @@ public interface ProtocolService
      *
      * @return the MINA DatagramAcceptor used for UDP transports
      */
-    DatagramAcceptor getDatagramAcceptor();
+    DatagramAcceptor getDatagramAcceptor( Transport transport );
 
 
     /**
@@ -73,7 +72,7 @@ public interface ProtocolService
      *
      * @return the MINA SocketAcceptor used for TCP transport
      */
-    SocketAcceptor getSocketAcceptor();
+    SocketAcceptor getSocketAcceptor( Transport transport );
 
 
     /**
@@ -125,24 +124,6 @@ public interface ProtocolService
      * @param name a descriptive name for the kind of this service
      */
     void setServiceName( String name );
-
-
-    /**
-     * Gets the transport protocols used by this service. At this point services
-     * which support more than one transport are configured to bind to that transport
-     * on the same port.
-     *
-     * @return the transport protocols used by this service
-     */
-    //Set<TransportProtocol> getTransportProtocols();
-
-
-    /**
-     * Sets the transport protocols used by this service.
-     *
-     * @param transportProtocols the transport protocols to be used by this service
-     */
-    void setTransportProtocols( Set<TransportProtocol> transportProtocols );
 
 
     /**

@@ -20,20 +20,16 @@ package org.apache.directory.server.protocol.shared;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
  * An abstract base class for a ProtocolService. The start/stop methods have
  * not been implemented.
- *
+ * 
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -51,53 +47,8 @@ public abstract class AbstractProtocolService implements ProtocolService
     /** The service name */
     private String serviceName;
     
-    protected TcpTransport tcpTransport;
-    
-    protected UdpTransport udpTransport;
-    
-    /** The server IP address */
-    //private String ipAddress;
-    
-    /** The service's port, if there is only one (TCP or UDP) */
-    //private int ipPort = -1;
-    
-    /** The TCP port, if defined. */
-    //private int tcpPort = -1;
-    
-    /** The UDP port, if defined. */
-    //private int udpPort = -1;
-    
-    private Set<TransportProtocol> transportProtocols;
-    
-    /** The IoAcceptor used to accept UDP requests */
-    //private DatagramAcceptor datagramAcceptor;
-    
-    /** The IoAcceptor used to accept TCP requests */
-    //private SocketAcceptor socketAcceptor;
-    
-    /** The number of threads to use for the IoAcceptor executor */
-    //private int nbThreads;
-    
-    /** 
-     * The number of threads to use for the TCP transport
-     * protocol based IoAcceptor executor 
-     **/
-    //private int nbTcpThreads;
-    
-    /** 
-     * The number of threads to use for the UDP transport
-     * protocol based IoAcceptor executor 
-     **/
-    //private int nbUdpThreads;
-    
-    /** The backlog for all the transport services */
-    //private int ipBacklog;
-    
-    /** The backlog for the TCP transport services */
-    //private int tcpBacklog;
-    
-    /** The backlog for the UDP transport services */
-    //private int udpBacklog;
+    /** The service transports. We may have more than one */
+    protected Transport[] transports;
     
     /** directory service core where protocol data is backed */
     private DirectoryService directoryService;
@@ -181,166 +132,43 @@ public abstract class AbstractProtocolService implements ProtocolService
     {
         this.serviceName = name;
     }
-
-
-    /*
-    public String getIpAddress()
+    
+    
+    /**
+     * @return the transport
+     */
+    public Transport[] getTransports()
     {
-        return ipAddress;
-    }
-
-
-    public void setIpAddress( String ipAddress )
-    {
-        this.ipAddress = ipAddress;
+        return transports;
     }
 
 
     /**
-     * {@inheritDoc}
-     *
-    public int getIpPort()
+     * Set the underlying transports
+     * @param transport The transports
+     */
+    public void setTransports( Transport... transports )
     {
-        return ipPort;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public int getTcpPort()
-    {
-        return tcpPort;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public int getUdpPort()
-    {
-        return udpPort;
-    }
-    */
-
-    /**
-     * {@inheritDoc}
-     *
-    public void setIpPort( int ipPort )
-    {
-        if ( ( ipPort < 0 ) || ( ipPort > 65535 ) )
+        if ( transports != null ) 
         {
-            throw new IllegalArgumentException( "Invalid port number: " + ipPort );
+            this.transports = new Transport[ transports.length ];
+            System.arraycopy( transports, 0, this.transports, 0, transports.length );
+            
+            for ( Transport transport:transports )
+            {
+                if ( transport.getAcceptor() == null )
+                {
+                    transport.init();
+                }
+            }
         }
-
-        this.ipPort = ipPort;
-        
-        // Now, substitute the existing values by the new one
-         udpPort = ipPort;
-         tcpPort = ipPort;
     }
-
-
-    /**
-     * {@inheritDoc}
-     *
-    public void setTcpPort( int tcpPort )
-    {
-        if ( ( tcpPort < 0 ) || ( tcpPort > 65535 ) )
-        {
-            throw new IllegalArgumentException( "Invalid port number: " + tcpPort );
-        }
-
-        this.tcpPort = tcpPort;
-    }
-
+    
     
     /**
      * {@inheritDoc}
-     *
-    public void setUdpPort( int udpPort )
-    {
-        if ( ( udpPort < 0 ) || ( udpPort > 65535 ) )
-        {
-            throw new IllegalArgumentException( "Invalid port number: " + udpPort );
-        }
-
-        this.udpPort = udpPort;
-    }
-
-    
-    public Set<TransportProtocol> getTransportProtocols()
-    {
-        return transportProtocols;
-    }
-    */
-    
-    
-    /**
-     * @return the TCP transport
      */
-    public TcpTransport getTcpTransport()
-    {
-        return tcpTransport;
-    }
-
-
-    /**
-     * Set the underlying TCP transport
-     * @param transport The TCP transport
-     */
-    public void setTcpTransport( TcpTransport transport )
-    {
-        tcpTransport = transport;
-
-        if ( ( transport != null ) && ( transport.getAcceptor() == null ) )
-        {
-            transport.init();
-        }
-        
-    }
-    
-    
-    /**
-     * Set the underlying UDP transport
-     * @param transport The UDP transport
-     */
-    public void setUdpTransport( UdpTransport transport )
-    {
-        udpTransport = transport;
-
-        if ( ( transport != null ) && ( transport.getAcceptor() == null ) )
-        {
-            transport.init();
-        }
-        
-    }
-    
-    
-    /**
-     * @return the UDP transport
-     */
-    public UdpTransport getUdpTransport()
-    {
-        return udpTransport;
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public void setTransportProtocols( Set<TransportProtocol> transportProtocols )
-    {
-        Set<TransportProtocol> copy = new HashSet<TransportProtocol>( transportProtocols.size() );
-        copy.addAll( transportProtocols );
-        this.transportProtocols = Collections.unmodifiableSet( copy );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public DatagramAcceptor getDatagramAcceptor()
+    public DatagramAcceptor getDatagramAcceptor( Transport udpTransport )
     {
         return (DatagramAcceptor)udpTransport.getAcceptor();
     }
@@ -348,151 +176,9 @@ public abstract class AbstractProtocolService implements ProtocolService
 
     /**
      * {@inheritDoc}
-     * @org.apache.xbean.Property hidden="true"
-     *
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
-    {
-        udpTransport.setAcceptor( datagramAcceptor );
-    }
-
-
-    /**
-     * {@inheritDoc}
      */
-    public SocketAcceptor getSocketAcceptor()
+    public SocketAcceptor getSocketAcceptor( Transport tcpTransport )
     {
         return (SocketAcceptor)tcpTransport.getAcceptor();
     }
-
-
-    /**
-     * {@inheritDoc}
-     * @org.apache.xbean.Property hidden="true"
-     *
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
-    {
-        tcpTransport.setAcceptor( socketAcceptor );
-    }
-
-    
-    /**
-     * @return The number of thread used in the IoAcceptor executor. It is
-     * used if no specific transport protocol is defined, and will be
-     * overloaded by the specific NbUdpThreads or nbTcpThreads if those
-     * transport protocols are defined.
-     *
-    public int getNbThreads() 
-    {
-        return nbThreads;
-    }
-
-
-    /**
-     * @return The number of thread used in the IoAcceptor executor for
-     * a TCP transport protocol based Acceptor.
-     *
-    public int getNbTcpThreads() 
-    {
-        return nbTcpThreads;
-    }
-
-
-    /**
-     * @return The number of thread used in the IoAcceptor executor for
-     * a UDP transport protocol based Acceptor.
-     *
-    public int getNbUdpThreads() 
-    {
-        return nbUdpThreads;
-    }
-
-
-    /**
-     * @param nbThreads The number of thread to affect to the IoAcceptor
-     * executor. This number will be injected into the UDP and TCP
-     * nbThreads value.
-     *
-    public void setNbThreads(int nbThreads) 
-    {
-        this.nbThreads = nbThreads;
-        this.nbTcpThreads = nbThreads;
-        this.nbUdpThreads = nbThreads;
-    }
-
-
-    /**
-     * @param nbThreads The number of thread to affect to the 
-     * TCP transport protocol based IoAcceptor executor
-     *
-    public void setNbTcpThreads(int nbTcpThreads) 
-    {
-        this.nbTcpThreads = nbTcpThreads;
-    }
-
-
-    /**
-     * @param nbThreads The number of thread to affect to the 
-     * UDP transport protocol based IoAcceptor executor
-     *
-    public void setNbUdpThreads(int nbUdpThreads) 
-    {
-        this.nbUdpThreads = nbUdpThreads;
-    }
-
-
-    /**
-     * @return the ipBacklog
-     *
-    public int getIpBacklog() {
-        return ipBacklog;
-    }
-
-
-    /**
-     * @param ipBacklog the ipBacklog to set
-     *
-    public void setIpBacklog(int ipBacklog) {
-        if ( ipBacklog < 0  )
-        {
-            throw new IllegalArgumentException( "Invalid backlog number: " + ipBacklog );
-        }
-
-        this.ipBacklog = ipBacklog;
-        
-        // Now, substitute the existing values by the new one
-        tcpBacklog = ipBacklog;
-        udpBacklog = ipBacklog;
-    }
-
-
-    /**
-     * @return the tcpBacklog
-     *
-    public int getTcpBacklog() {
-        return tcpBacklog;
-    }
-
-
-    /**
-     * @param tcpBacklog the tcpBacklog to set
-     *
-    public void setTcpBacklog(int tcpBacklog) {
-        this.tcpBacklog = tcpBacklog;
-    }
-
-
-    /**
-     * @return the udpBacklog
-     *
-    public int getUdpBacklog() {
-        return udpBacklog;
-    }
-
-
-    /**
-     * @param udpBacklog the udpBacklog to set
-     *
-    public void setUdpBacklog(int udpBacklog) {
-        this.udpBacklog = udpBacklog;
-    }*/
 }

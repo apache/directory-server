@@ -66,8 +66,7 @@ public class Main
         dnsConfiguration = new DnsServer();
         dnsConfiguration.setDirectoryService( directoryService );
         dnsConfiguration.setEnabled( true );
-        dnsConfiguration.setTcpTransport( new TcpTransport( 10053 ) );
-        dnsConfiguration.setUdpTransport( new UdpTransport( 10053 ) );
+        dnsConfiguration.setTransports( new TcpTransport( 10053 ), new UdpTransport( 10053 ) );
         dnsConfiguration.start();
     }
 

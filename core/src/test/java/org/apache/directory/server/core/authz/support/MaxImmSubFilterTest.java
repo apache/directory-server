@@ -58,6 +58,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
@@ -872,6 +873,18 @@ public class MaxImmSubFilterTest
         public void setJournal( Journal journal )
         {
             
+        }
+
+        public void setReplicationConfiguration( ReplicationConfiguration replicationConfig )
+        {
+            // TODO Auto-generated method stub
+            
+        }
+
+        public ReplicationConfiguration getReplicationConfiguration()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 

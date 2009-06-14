@@ -96,4 +96,24 @@ public interface Transport
      * @param backLog The queue size
      */
     void setBackLog( int backLog );
+    
+    
+    /**
+     * Enable or disable SSL
+     * @param sslEnabled if <code>true</code>, SSL is enabled.
+     */
+    void setEnableSSL( boolean sslEnabled );
+    
+    
+    /**
+     * Enable or disable SSL
+     * @param sslEnabled if <code>true</code>, SSL is enabled.
+     */
+    void enableSSL( boolean sslEnabled );
+    
+    
+    /**
+     * @return <code>true</code> id SSL is enabled for this transport
+     */
+    boolean isSSLEnabled();
 }

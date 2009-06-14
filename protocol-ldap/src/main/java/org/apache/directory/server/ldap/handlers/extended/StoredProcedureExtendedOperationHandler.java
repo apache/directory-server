@@ -35,7 +35,7 @@ import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -155,7 +155,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    public void setLdapServer( LdapService ldapService )
+    public void setLdapServer( LdapServer ldapServer )
     {
     }
 }

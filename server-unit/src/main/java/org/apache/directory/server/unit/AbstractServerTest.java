@@ -45,7 +45,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
@@ -100,7 +100,7 @@ public abstract class AbstractServerTest extends TestCase
     protected static int nbTests = 10000;
     protected DirectoryService directoryService;
     protected NioSocketAcceptor socketAcceptor;
-    protected LdapService ldapService;
+    protected LdapServer ldapServer;
 
 
     /**
@@ -254,11 +254,11 @@ public abstract class AbstractServerTest extends TestCase
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        ldapService = new LdapService();
-        ldapService.setTcpTransport( new TcpTransport( port ) );
-        ldapService.setDirectoryService( directoryService );
+        ldapServer = new LdapServer();
+        ldapServer.setTransports( new TcpTransport( port ) );
+        ldapServer.setDirectoryService( directoryService );
 
-        setupSaslMechanisms( ldapService );
+        setupSaslMechanisms( ldapServer );
 
         doDelete( directoryService.getWorkingDirectory() );
         configureDirectoryService();
@@ -267,15 +267,15 @@ public abstract class AbstractServerTest extends TestCase
         configureLdapServer();
 
         // TODO shouldn't this be before calling configureLdapServer() ???
-        ldapService.addExtendedOperationHandler( new StartTlsHandler() );
-        ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+        ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+        ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
-        ldapService.start();
+        ldapServer.start();
         setContexts( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
 
 
-    private void setupSaslMechanisms( LdapService server )
+    private void setupSaslMechanisms( LdapServer server )
     {
         Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String,MechanismHandler>();
 
@@ -298,7 +298,7 @@ public abstract class AbstractServerTest extends TestCase
         mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
         mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-        ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
+        ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
     }
 
 
@@ -384,7 +384,7 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        ldapService.stop();
+        ldapServer.stop();
         try
         {
             directoryService.shutdown();

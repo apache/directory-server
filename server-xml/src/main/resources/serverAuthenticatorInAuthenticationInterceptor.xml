@@ -20,7 +20,7 @@
 -->
 
 
-<spring:beans xmlns="http://apacheds.org/config/${pom.version}"
+<spring:beans xmlns="http://apacheds.org/config/1.5.5-SNAPSHOT"
        xmlns:spring="http://xbean.apache.org/schemas/spring/1.0"
        xmlns:s="http://www.springframework.org/schema/beans">
               
@@ -29,6 +29,7 @@
                            allowAnonymousAccess="true"
                            accessControlEnabled="false"
                            denormalizeOpAttrsEnabled="false"
+                           syncPeriodMillis="15000"
                            maxPDUSize="2000000">
     <systemPartition>
       <!-- use the following partitionConfiguration to override defaults for -->
@@ -123,13 +124,11 @@
   +============================================================+
   -->
   <!--  missing  atou=users,dc=example,dc=com
-  <changePasswordServer>
-    <tcpTransport>
+  <changePasswordServer id="changePasswordServer">
+    <transports>
       <tcpTransport port="60464" nbThreads="2" backLog="50"/>
-    </tcpTransport>
-    <udpTransport>
       <udpTransport port="60464" nbThreads="2" backLog="50"/>
-    </udpTransport>
+    </transports>
     <directoryService>#directoryService</directoryService>
   </changePasswordServer>
 -->
@@ -141,12 +140,11 @@
   -->
   <!--  missing atou=users,dc=example,dc=com
   <kdcServer>
-    <tcpTransport>
+  <kdcServer id="kdcServer">
+    <transports>
       <tcpTransport port="60088" nbThreads="4" backLog="50"/>
-    </tcpTransport>
-    <udpTransport>
       <udpTransport port="60088" nbThreads="4" backLog="50"/>
-    </udpTransport>
+    </transports>
     <directoryService>#directoryService</directoryService>
   </kdcServer>
 -->
@@ -156,65 +154,44 @@
   | NtpServer configuration                                    |
   +============================================================+
   -->
-  <ntpServer>
-    <tcpTransport>
+  <!--ntpServer>
+    <transports>
       <tcpTransport port="60123"/>
-    </tcpTransport>
-    <udpTransport>
       <udpTransport port="60123" nbThreads="1"/>
-    </udpTransport>
-  </ntpServer>
+    </transports>
+  </ntpServer-->
   
   <!-- 
   +============================================================+
   | DnsServer configuration                                    |
   +============================================================+
   -->
-  
   <!--  missing atou=users,dc=example,dc=com
   <dnsServer>
-    <tcpTransport>
+    <transports>
       <tcpTransport port="8053"/>
-    </tcpTransport>
-    <udpTransport>
       <udpTransport port="8053"/>
-    </udpTransport>
+    </transports>
     <directoryService>#directoryService</directoryService>
   </dnsServer>
 -->
 
   <!-- 
   +============================================================+
-  | LDAPS Service configuration                                |
-  +============================================================+
-  -->
-  <ldapService id="ldapsService"
-              enabled="true"
-              enableLdaps="true">
-              
-    <tcpTransport>
-      <tcpTransport port="10686" nbThreads="8" backLog="50"/>
-    </tcpTransport>
-    
-    <directoryService>#directoryService</directoryService>
-  </ldapService>
-
-  <!-- 
-  +============================================================+
   | LDAP Service configuration                                 |
   +============================================================+
   -->
-  <ldapService id="ldapService"
+  <ldapServer id="ldapServer"
               allowAnonymousAccess="false"
               saslHost="ldap.example.com"
               saslPrincipal="ldap/ldap.example.com@EXAMPLE.COM"
               searchBaseDn="ou=users,ou=system"
               maxTimeLimit="15000"
               maxSizeLimit="1000">
-
-    <tcpTransport>
-      <tcpTransport port="10389" nbThreads="8" backLog="50"/>
-    </tcpTransport>
+    <transports>
+      <tcpTransport id="tcp-ldap" port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
+      <tcpTransport id="tcp-ldaps" port="10686" enableSSL="true"/>
+    </transports>
 
     <directoryService>#directoryService</directoryService>
 
@@ -249,15 +226,9 @@
       <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
       <!--storedProcedureExtendedOperationHandler/-->
     </extendedOperationHandlers>
-  </ldapService>
+  </ldapServer>
 
-
-  <apacheDS id="apacheDS"
-            synchPeriodMillis="15000"
-            allowAnonymousAccess="false">
-
-    <directoryService>#directoryService</directoryService>
-    <ldapService>#ldapService</ldapService>
-    <ldapsService>#ldapsService</ldapsService>
+  <apacheDS id="apacheDS">
+    <ldapServer>#ldapServer</ldapServer>
   </apacheDS>
 </spring:beans>

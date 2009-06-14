@@ -24,15 +24,14 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -172,7 +171,8 @@ public class SpringServerTest
     @Test
     public void testSpringServerJdbmPartition() throws Exception {
         // NOTE : This test will only work on systems which have a /tmp temp dir
-        if ( "/tmp".equals( getTmpDir() ) )
+        File tmpDir = getTmpDir();
+        if ( "/tmp".equals( tmpDir.getCanonicalPath() ) )
         {
             ClassLoader classLoader = this.getClass().getClassLoader();
             URL configURL = classLoader.getResource( "serverJdbmPartition.xml" );
@@ -186,10 +186,10 @@ public class SpringServerTest
             // Now, launch the server, and check that the ObjectClass index has been created in OS' tmp directory
             apacheDS.startup();
             
-            File tmpOCdb = new File( getTmpDir(), "objectClass.db" );
+            File tmpOCdb = new File( tmpDir, "dc.db" );
             assertTrue( tmpOCdb.exists() );
     
-            File tmpOClg = new File( getTmpDir(), "objectClass.lg" );
+            File tmpOClg = new File( tmpDir, "dc.lg" );
             assertTrue( tmpOClg.exists() );
             
             // Shutdown and cleanup
@@ -211,7 +211,7 @@ public class SpringServerTest
      * @return
      *      The OS specific tmp dir
      */
-    private File getTmpDir()
+    private File getTmpDir() throws IOException
     {
         return new File( System.getProperty( "java.io.tmpdir" ) );
     }

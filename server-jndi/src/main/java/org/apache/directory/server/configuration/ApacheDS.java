@@ -27,15 +27,13 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.buffer.SimpleBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,39 +68,30 @@ public class ApacheDS
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
     /** The LDAP server protocol handler */
-    private final LdapService ldapService;
-    
-    /** The LDAPS server protocol handler */
-    private final LdapService ldapsService;
+    private final LdapServer ldapServer;
     
     /** The directory service */
-    private final DirectoryService directoryService;
+    private DirectoryService directoryService;
 
 
     /**
      * Creates a new instance of the ApacheDS server
      *  
      * @param directoryService 
-     * @param ldapService
-     * @param ldapsService
+     * @param ldapServer
      */
-    public ApacheDS( DirectoryService directoryService, LdapService ldapService, LdapService ldapsService )
+    public ApacheDS( LdapServer ldapServer )
     {
         LOG.info( "Starting the Apache Directory Server" );
 
+        this.ldapServer = ldapServer;
+        
+        directoryService = ldapServer.getDirectoryService();
+        
         if ( directoryService == null )
         {
-            this.directoryService = new DefaultDirectoryService();
+            directoryService = new DefaultDirectoryService();
         }
-        else
-        {        
-            this.directoryService = directoryService;
-        }
-        
-        this.ldapService = ldapService;
-        this.ldapsService = ldapsService;
-        IoBuffer.setAllocator( new SimpleBufferAllocator() );
-        IoBuffer.setUseDirectBuffer( false );
     }
 
 
@@ -130,29 +119,21 @@ public class ApacheDS
         loadLdifs();
 
         // Start the LDAP server
-        if ( ldapService != null && ! ldapService.isStarted() )
+        if ( ldapServer != null && ! ldapServer.isStarted() )
         {
             LOG.debug( "3. Starting the LDAP server" );
-            ldapService.start();
+            ldapServer.start();
         }
 
-        // Start the LDAPS  server
-        if ( ldapsService != null && ! ldapsService.isStarted() )
-        {
-            LOG.debug(  "4. Starting the LDAPS server" );
-            ldapsService.start();
-        }
-        
         LOG.debug( "Server successfully started" );
     }
 
 
     public boolean isStarted()
     {
-        if ( ldapService != null || ldapsService != null )
+        if ( ldapServer != null )
         {
-             return ( ldapService != null && ldapService.isStarted() )
-                     || ( ldapsService != null && ldapsService.isStarted() );
+             return ( ldapServer.isStarted() );
         }
         
         return directoryService.isStarted();
@@ -161,29 +142,18 @@ public class ApacheDS
 
     public void shutdown() throws Exception
     {
-        if ( ldapService != null && ldapService.isStarted() )
+        if ( ldapServer != null && ldapServer.isStarted() )
         {
-            ldapService.stop();
-        }
-
-        if ( ldapsService != null && ldapsService.isStarted() )
-        {
-            ldapsService.stop();
+            ldapServer.stop();
         }
 
         directoryService.shutdown();
     }
 
 
-    public LdapService getLdapService()
+    public LdapServer getLdapServer()
     {
-        return ldapService;
-    }
-
-
-    public LdapService getLdapsService()
-    {
-        return ldapsService;
+        return ldapServer;
     }
 
 
@@ -213,24 +183,6 @@ public class ApacheDS
     public File getLdifDirectory()
     {
         return ldifDirectory;
-    }
-
-
-    public void setAllowAnonymousAccess( boolean allowAnonymousAccess )
-    {
-        LOG.info( "Set the allowAnonymousAccess flag to {}", allowAnonymousAccess );
-        
-        directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
-        
-        if ( ldapService != null )
-        {
-            ldapService.setAllowAnonymousAccess( allowAnonymousAccess );
-        }
-        
-        if ( ldapsService != null )
-        {
-            ldapsService.setAllowAnonymousAccess( allowAnonymousAccess );
-        }
     }
 
 

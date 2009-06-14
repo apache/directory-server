@@ -96,13 +96,12 @@ public class SaslGssapiBindITest extends AbstractServerTest
     {
         super.setUp();
 
-        ldapService.setSaslHost( "localhost" );
-        ldapService.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
+        ldapServer.setSaslHost( "localhost" );
+        ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
         KdcServer kdcConfig = new KdcServer();
         kdcConfig.setDirectoryService( directoryService );
-        kdcConfig.setTcpTransport( new TcpTransport(6088) );
-        kdcConfig.setUdpTransport( new UdpTransport(6088) );
+        kdcConfig.setTransports( new TcpTransport(6088), new UdpTransport(6088) );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.start();
@@ -132,10 +131,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         }
         
         LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
-        ServerEntry entry = ldapService.getDirectoryService().newEntry( contextDn );
+        ServerEntry entry = ldapServer.getDirectoryService().newEntry( contextDn );
         entry.add( "objectClass", "top", "domain", "extensibleObject" );
         entry.add( "dc", "example" );
-        ldapService.getDirectoryService().getAdminSession().add( entry );
+        ldapServer.getDirectoryService().getAdminSession().add( entry );
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();

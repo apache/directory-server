@@ -118,4 +118,13 @@ public class UdpTransport extends AbstractTransport
         
         return acceptor;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "UdpTransport" + super.toString();
+    }
 }

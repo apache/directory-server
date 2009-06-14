@@ -27,9 +27,9 @@ import org.apache.mina.core.session.IoSession;
 
 
 /**
- * Manages sessions in a thread safe manner for the LdapService.  This class is 
+ * Manages sessions in a thread safe manner for the LdapServer.  This class is 
  * used primarily by the {@link LdapProtocolHandler} to manage sessions and is
- * created by the LdapService which makes it available to the handler.  It's job
+ * created by the LdapServer which makes it available to the handler.  It's job
  * is simple and this class was mainly created to be able to expose the session
  * manager safely to things like the LdapProtocolHandler.
  *
@@ -43,7 +43,7 @@ public class LdapSessionManager
 
     
     /**
-     * Gets the active sessions managed by the LdapService.
+     * Gets the active sessions managed by the LdapServer.
      */
     public LdapSession[] getSessions()
     {
@@ -52,7 +52,7 @@ public class LdapSessionManager
     
 
     /**
-     * Adds a new LdapSession to the LdapService.
+     * Adds a new LdapSession to the LdapServer.
      *
      * @param ldapSession the newly created {@link LdapSession}
      */
@@ -66,7 +66,7 @@ public class LdapSessionManager
     
     
     /**
-     * Removes an LdapSession managed by the {@link LdapService}.  This method
+     * Removes an LdapSession managed by the {@link LdapServer}.  This method
      * has no side effects: meaning it does not perform cleanup tasks after
      * removing the session.  This task is handled by the callers.
      *

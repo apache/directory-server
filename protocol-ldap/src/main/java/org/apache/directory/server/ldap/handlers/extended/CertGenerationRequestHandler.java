@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -103,7 +103,7 @@ public class CertGenerationRequestHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapServer( LdapService ldapService )
+    public void setLdapServer( LdapServer ldapServer )
     {
     }
 

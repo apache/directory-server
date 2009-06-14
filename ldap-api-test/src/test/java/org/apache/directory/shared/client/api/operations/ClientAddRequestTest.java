@@ -29,7 +29,7 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -51,12 +51,12 @@ import org.junit.runner.RunWith;
 public class ClientAddRequestTest
 {
     /** The server instance */
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     @Test
     public void testModify() throws Exception
     {
-        LdapConnection connection = new LdapConnection( "localhost", ldapService.getPort() );
+        LdapConnection connection = new LdapConnection( "localhost", ldapServer.getPort() );
 
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
         connection.bind( bindDn.getUpName(), "secret" );
@@ -67,7 +67,7 @@ public class ClientAddRequestTest
         entry.add( SchemaConstants.CN_AT, "testadd_cn" );
         entry.add( SchemaConstants.SN_AT, "testadd_sn" );
         
-        CoreSession session = ldapService.getDirectoryService().getSession();
+        CoreSession session = ldapServer.getDirectoryService().getSession();
         
         assertFalse( session.exists( dn ) );
         

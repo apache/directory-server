@@ -34,7 +34,7 @@ import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.operations.compare.CompareIT;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class ModifyReferralIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
     
 
     /**
@@ -117,7 +117,7 @@ public class ModifyReferralIT
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -142,7 +142,7 @@ public class ModifyReferralIT
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -172,7 +172,7 @@ public class ModifyReferralIT
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapService );
+        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
         
         // modify failure
         Attribute attr = new BasicAttribute( "description", "referral to akarasulu" );
@@ -200,7 +200,7 @@ public class ModifyReferralIT
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 

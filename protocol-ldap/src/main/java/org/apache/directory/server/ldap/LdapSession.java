@@ -67,8 +67,8 @@ public class LdapSession
     /** The CoreSession */
     private CoreSession coreSession;
     
-    /** A reference on the LdapService instance */
-    private LdapService ldapService;
+    /** A reference on the LdapServer instance */
+    private LdapServer ldapServer;
     
     /** A map of all the running requests */
     private Map<Integer, InternalAbandonableRequest> outstandingRequests;
@@ -364,22 +364,22 @@ public class LdapSession
 
 
     /**
-     *  @return The LdapService reference
+     *  @return The LdapServer reference
      */
-    public LdapService getLdapServer()
+    public LdapServer getLdapServer()
     {
-        return ldapService;
+        return ldapServer;
     }
 
 
     /**
-     * Store a reference on the LdapService intance
+     * Store a reference on the LdapServer intance
      *
-     * @param ldapService the LdapService instance
+     * @param ldapServer the LdapServer instance
      */
-    public void setLdapServer( LdapService ldapService )
+    public void setLdapServer( LdapServer ldapServer )
     {
-        this.ldapService = ldapService;
+        this.ldapServer = ldapServer;
     }
     
     

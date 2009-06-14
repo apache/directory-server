@@ -34,8 +34,13 @@ import org.apache.directory.server.kerberos.shared.store.DirectoryPrincipalStore
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,8 +127,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
-        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
-        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
+        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
 
         prepareEncryptionTypes();
     }
@@ -269,18 +273,53 @@ public class ChangePasswordServer extends DirectoryBackedService
     {
         PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
-        if ( getDatagramAcceptor() != null )
+        if ( ( transports == null ) || ( transports.length == 0 ) )
         {
-            getDatagramAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind();
-        }
+            // Default to UDP with port 464
+            // We have to create a DatagramAcceptor
+            UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
+            setTransports( transport );
+            
+            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
 
-        if ( getSocketAcceptor() != null )
+            // Set the handler
+            acceptor.setHandler( new ChangePasswordProtocolHandler( this, store )  );
+    
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+    
+            // Start the listener
+            acceptor.bind();
+        }
+        else
         {
-            getSocketAcceptor().setCloseOnDeactivation( false );
-            getSocketAcceptor().setReuseAddress( true );
-            getSocketAcceptor().setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            getSocketAcceptor().bind();
+            for ( Transport transport:transports )
+            {
+                IoAcceptor acceptor = transport.getAcceptor();
+
+                // Disable the disconnection of the clients on unbind
+                acceptor.setCloseOnDeactivation( false );
+                
+                if ( transport instanceof UdpTransport )
+                {
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                }
+                else
+                {
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((SocketAcceptor)acceptor).setReuseAddress( true );
+                    
+                    // No Nagle's algorithm
+                    ((SocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                }
+                
+                // Set the handler
+                acceptor.setHandler( new ChangePasswordProtocolHandler( this, store ) );
+                
+                // Bind
+                acceptor.bind();
+            }
         }
         
         LOG.info( "ChangePassword service started." );
@@ -290,13 +329,14 @@ public class ChangePasswordServer extends DirectoryBackedService
 
     public void stop()
     {
-        if ( getDatagramAcceptor() != null )
+        for ( Transport transport :getTransports() )
         {
-            getDatagramAcceptor().dispose(); 
-        }
-        if ( getSocketAcceptor() != null )
-        {
-            getSocketAcceptor().dispose(); 
+            IoAcceptor acceptor = transport.getAcceptor();
+            
+            if ( acceptor != null )
+            {
+                acceptor.dispose();
+            }
         }
 
         LOG.info( "ChangePassword service stopped." );
@@ -354,5 +394,26 @@ public class ChangePasswordServer extends DirectoryBackedService
     public void setPolicyTokenSize( int policyTokenSize )
     {
         this.policyTokenSize = policyTokenSize;
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "ChangePasswordServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
+        
+        if ( getTransports() != null )
+        {
+            for ( Transport transport:getTransports() )
+            {
+                sb.append( "    " ).append( transport ).append( '\n' );
+            }
+        }
+        
+        return sb.toString();
     }
 }

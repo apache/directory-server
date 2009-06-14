@@ -29,6 +29,9 @@ public abstract class AbstractTransport implements Transport
     /** The service's port */
     private int port = -1;
     
+    /** A flag set if SSL is enabled */
+    private boolean sslEnabled = false;
+    
     /** The number of threads to use for the IoAcceptor executor */
     private int nbThreads;
     
@@ -38,10 +41,13 @@ public abstract class AbstractTransport implements Transport
     /** The IoAcceptor used to accept requests */
     protected IoAcceptor acceptor;
     
+    /** The default backlog queue size */
     protected static final int DEFAULT_BACKLOG_NB = 50;
     
+    /** The default hostname */
     protected static final String LOCAL_HOST = "localhost";
     
+    /** The default number of threads */
     protected static final int DEFAULT_NB_THREADS = 3;
 
     /**
@@ -185,16 +191,6 @@ public abstract class AbstractTransport implements Transport
     
     
     /**
-     * Set the IoAcceptor
-     * @param acceptor The IoAcceptor to set
-     *
-    public void setAcceptor ( IoAcceptor acceptor )
-    {
-        this.acceptor = acceptor;
-    }
-    
-    
-    /**
      * {@inheritDoc}
      */
     public int getNbThreads() 
@@ -227,5 +223,63 @@ public abstract class AbstractTransport implements Transport
     public void setBackLog( int backLog )
     {
         this.backlog = backLog;
+    }
+    
+    
+    /**
+     * Enable or disable SSL
+     * @param enableSSL if <code>true</code>, SSL is enabled.
+     */
+    public void setEnableSSL( boolean sslEnabled )
+    {
+        this.sslEnabled = sslEnabled;
+    }
+    
+    
+    /**
+     * Enable or disable SSL
+     * @param enableSSL if <code>true</code>, SSL is enabled.
+     */
+    public void enableSSL( boolean sslEnabled )
+    {
+        this.sslEnabled = sslEnabled;
+    }
+    
+    
+    /**
+     * @return <code>true</code> id SSL is enabled for this transport
+     */
+    public boolean isSSLEnabled()
+    {
+        return sslEnabled;
+    }
+
+    /**
+     * @return  <code>true</code> id SSL is enabled for this transport
+     */
+    public boolean getEnableSSL()
+    {
+        return sslEnabled;
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "[<" ).append( address ).append( ':' ).append( port );
+        sb.append( "], backlog=" ).append( backlog );
+        sb.append( ", nbThreads = " ).append( nbThreads );
+        
+        if ( sslEnabled )
+        {
+            sb.append( ", SSL" );
+        }
+        
+        sb.append( ']' );
+        
+        return sb.toString() ;
     }
 }

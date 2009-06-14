@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -56,7 +56,7 @@ public interface LdapServerFactory
      */
     LdapServerFactory DEFAULT = new LdapServerFactory()
     {
-        public LdapService newInstance() throws Exception
+        public LdapServer newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -67,12 +67,12 @@ public interface LdapServerFactory
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapService ldapService = new LdapService();
-            ldapService.setDirectoryService( service );
+            LdapServer ldapServer = new LdapServer();
+            ldapServer.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapService.setTcpTransport( new TcpTransport( port, 3 ) );
-            ldapService.addExtendedOperationHandler( new StartTlsHandler() );
-            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            ldapServer.setTransports( new TcpTransport( port, 3 ) );
+            ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -92,12 +92,12 @@ public interface LdapServerFactory
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
 
-            return ldapService;
+            return ldapServer;
         }
     };
 
     
-    LdapService newInstance() throws Exception;
+    LdapServer newInstance() throws Exception;
 }

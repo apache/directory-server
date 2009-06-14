@@ -38,7 +38,7 @@ import org.apache.directory.server.integ.SiRunner;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Before;
@@ -188,7 +188,7 @@ import static org.junit.Assert.assertTrue;
 )
 public class PagedSearchIT
 {
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     /**
      * Create the searchControls with a paged size
@@ -302,7 +302,7 @@ public class PagedSearchIT
     @Before
     public void reinitLdapServiceMaxSizeLimit()
     {
-        ldapService.setMaxSizeLimit( LdapService.NO_SIZE_LIMIT );
+        ldapServer.setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
     }
     
     
@@ -317,8 +317,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest1() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 3 );
         
         doLoop( ctx, controls, 3, 4, 10, false );
     }
@@ -335,8 +335,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest2() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 2, 10, false );
     }
@@ -353,9 +353,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest3() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 2, 10, false );
     }
@@ -372,7 +372,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest4() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
         doLoop( ctx, controls, 5, 1, 3, true );
@@ -390,9 +390,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest5() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 3 );
 
         doLoop( ctx, controls, 3, 4, 10, false );
     }
@@ -409,7 +409,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest6() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
         doLoop( ctx, controls, 5, 2, 9, true );
@@ -427,9 +427,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest7() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 2, 10, false );
     }
@@ -446,7 +446,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest8() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
         doLoop( ctx, controls, 5, 1, 5, true );
@@ -464,8 +464,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest9() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -483,8 +483,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest10() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
         doLoop( ctx, controls, 3, 2, 5, true );
@@ -502,8 +502,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest11() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
         
         doLoop( ctx, controls, 4, 1, 3, true );
@@ -521,8 +521,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest12() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -540,8 +540,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest13() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
         doLoop( ctx, controls, 3, 2, 5, true );
@@ -559,8 +559,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest14() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
         doLoop( ctx, controls, 5, 1, 3, true );
@@ -578,8 +578,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest15() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
         
         doLoop( ctx, controls, 4, 2, 5, true );
@@ -597,8 +597,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest16() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
         
         doLoop( ctx, controls, 5, 1, 4, true );
@@ -616,8 +616,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest17() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
         doLoop( ctx, controls, 5, 1, 5, true );
@@ -635,8 +635,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest18() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 3 );
         
         doLoop( ctx, controls, 3, 4, 10, false );
     }
@@ -653,8 +653,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest19() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 2, 10, false );
     }
@@ -671,9 +671,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest20() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 1, 3, true );
     }
@@ -690,7 +690,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest21() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
         doLoop( ctx, controls, 5, 1, 3, true );
@@ -708,9 +708,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest22() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 3 );
         
         doLoop( ctx, controls, 3, 2, 5, true );
     }
@@ -727,7 +727,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest23() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
         
@@ -746,9 +746,9 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest24() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 5 );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 5 );
         
         doLoop( ctx, controls, 5, 1, 5, true );
     }
@@ -765,7 +765,7 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest25() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
         
@@ -784,8 +784,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchTest26() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -803,8 +803,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest27() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -822,8 +822,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest28() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
         
         doLoop( ctx, controls, 4, 1, 3, true );
@@ -841,8 +841,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest29() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -860,8 +860,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest30() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
         doLoop( ctx, controls, 3, 2, 4, true );
@@ -879,8 +879,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest31() throws Exception
     {
-        ldapService.setMaxSizeLimit( 4 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 4 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
         doLoop( ctx, controls, 3, 1, 3, true );
@@ -898,8 +898,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest32() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
         
         doLoop( ctx, controls, 3, 1, 3, true );
@@ -917,8 +917,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest33() throws Exception
     {
-        ldapService.setMaxSizeLimit( 3 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 3 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
         
         doLoop( ctx, controls, 3, 1, 3, true );
@@ -936,8 +936,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchtest34() throws Exception
     {
-        ldapService.setMaxSizeLimit( 5 );
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
+        ldapServer.setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
         doLoop( ctx, controls, 5, 1, 5, true );
@@ -955,8 +955,8 @@ public class PagedSearchIT
     @Test
     public void testPagedSearchWithNegativePL() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, -2 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, -2 );
         
         doLoop( ctx, controls, -2, 1, 10, false );
     }
@@ -968,8 +968,8 @@ public class PagedSearchIT
     @Test 
     public void testPagedSearchWrongCookie() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 3 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 3 );
 
         // Loop over all the elements
         int loop = 0;
@@ -1029,8 +1029,8 @@ public class PagedSearchIT
     @Test 
     public void testPagedSearchModifyingPagedLimit() throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService, "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, LdapService.NO_SIZE_LIMIT, 4 );
+        DirContext ctx = getWiredContext( ldapServer, "cn=user,ou=system", "secret" );
+        SearchControls controls = createSearchControls( ctx, LdapServer.NO_SIZE_LIMIT, 4 );
 
         // Loop over all the elements
         int loop = 0;

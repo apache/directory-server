@@ -38,7 +38,7 @@ import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
@@ -74,7 +74,7 @@ public class SimpleBindIT
     private static final String BASE = "ou=users,ou=system";
 
     
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     
     /**
@@ -121,7 +121,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -159,7 +159,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
@@ -188,7 +188,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
@@ -218,7 +218,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -244,13 +244,13 @@ public class SimpleBindIT
     @Test
     public void testSimpleBindNoUserNoPassword()
     {
-        boolean oldValue = ldapService.getDirectoryService().isAllowAnonymousAccess();
-        ldapService.getDirectoryService().setAllowAnonymousAccess( false );
-        ldapService.setAllowAnonymousAccess( false );
+        boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
+        ldapServer.setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -295,8 +295,8 @@ public class SimpleBindIT
         {
         }
         
-        ldapService.getDirectoryService().setAllowAnonymousAccess( oldValue );
-        ldapService.setAllowAnonymousAccess( oldValue );
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
+        ldapServer.setAllowAnonymousAccess( oldValue );
     }
     
     
@@ -308,7 +308,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -338,7 +338,7 @@ public class SimpleBindIT
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
@@ -366,14 +366,14 @@ public class SimpleBindIT
     @Test
     public void testAnonymousRootDSE()
     {
-        boolean oldValue = ldapService.getDirectoryService().isAllowAnonymousAccess();
-        ldapService.getDirectoryService().setAllowAnonymousAccess( false );
+        boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
+        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
 
         try
         {
             Hashtable<String, String> env = new Hashtable<String, String>();
             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort() );
+            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
 
             DirContext context = new InitialDirContext( env );
 
@@ -398,7 +398,7 @@ public class SimpleBindIT
         }
         finally
         {
-            ldapService.getDirectoryService().setAllowAnonymousAccess( oldValue );
+            ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
         }
     }
 }

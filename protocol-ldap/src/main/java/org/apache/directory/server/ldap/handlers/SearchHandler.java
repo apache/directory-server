@@ -62,8 +62,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.directory.server.ldap.LdapService.NO_SIZE_LIMIT;
-import static org.apache.directory.server.ldap.LdapService.NO_TIME_LIMIT;
+import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
+import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -159,7 +159,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         criteria.setScope( req.getScope() );
         criteria.setEventMask( EventType.getEventTypes( psearchControl.getChangeTypes() ) );
         getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
-        req.addAbandonListener( new SearchAbandonListener( ldapService, handler ) );
+        req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
         return;
     }
     
@@ -244,7 +244,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
          * has been configured with unlimited time and the request specifies 
          * unlimited search time
          */
-        if ( ldapService.getMaxTimeLimit() == NO_TIME_LIMIT && req.getTimeLimit() == NO_TIME_LIMIT )
+        if ( ldapServer.getMaxTimeLimit() == NO_TIME_LIMIT && req.getTimeLimit() == NO_TIME_LIMIT )
         {
             return;
         }
@@ -256,7 +256,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
          */
         if ( req.getTimeLimit() == 0 )
         {
-            cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapService.getMaxTimeLimit(), TimeUnit.SECONDS ) );
+            cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapServer.getMaxTimeLimit(), TimeUnit.SECONDS ) );
             return;
         }
         
@@ -265,7 +265,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
          * less than the maximum limit configured in the server then we 
          * constrain search by the amount specified in the request
          */
-        if ( ldapService.getMaxTimeLimit() >= req.getTimeLimit() )
+        if ( ldapServer.getMaxTimeLimit() >= req.getTimeLimit() )
         {
             cursor.setClosureMonitor( new SearchTimeLimitingMonitor( req.getTimeLimit(), TimeUnit.SECONDS ) );
             return;
@@ -276,7 +276,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
          * than what the server's configured maximum limit allows so we limit
          * the search to the configured limit
          */
-        cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapService.getMaxTimeLimit(), TimeUnit.SECONDS ) );
+        cursor.setClosureMonitor( new SearchTimeLimitingMonitor( ldapServer.getMaxTimeLimit(), TimeUnit.SECONDS ) );
     }
     
     
@@ -298,13 +298,13 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         }
         else
         {
-            if ( ldapService.getMaxSizeLimit() == NO_SIZE_LIMIT )
+            if ( ldapServer.getMaxSizeLimit() == NO_SIZE_LIMIT )
             {
                 return Integer.MAX_VALUE;
             }
             else
             {
-                return ldapService.getMaxSizeLimit();
+                return ldapServer.getMaxSizeLimit();
             }
         }
     }
@@ -346,7 +346,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         EntryFilteringCursor cursor, int sizeLimit, int pagedLimit, boolean isPaged, 
         PagedSearchContext pagedContext, PagedResultsControl pagedResultsControl ) throws Exception
     {
-        req.addAbandonListener( new SearchAbandonListener( ldapService, cursor ) );
+        req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
         LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
         int cookieValue = 0;
@@ -713,7 +713,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             int requestLimit = req.getSizeLimit() == 0 ?
                 Integer.MAX_VALUE : req.getSizeLimit();
 
-            req.addAbandonListener( new SearchAbandonListener( ldapService, cursor ) );
+            req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
             LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
             int sizeLimit = min( requestLimit, serverLimit );

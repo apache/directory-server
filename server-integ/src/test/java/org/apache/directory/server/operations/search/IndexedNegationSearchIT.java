@@ -35,7 +35,7 @@ import org.apache.directory.server.integ.LdapServerFactory;
 import org.apache.directory.server.integ.SiRunner;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
@@ -149,12 +149,12 @@ import static org.junit.Assert.assertFalse;
 )
 public class IndexedNegationSearchIT 
 {
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     
     public static class Factory implements LdapServerFactory
     {
-        public LdapService newInstance() throws Exception
+        public LdapServer newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -180,12 +180,12 @@ public class IndexedNegationSearchIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapService ldapService = new LdapService();
-            ldapService.setDirectoryService( service );
+            LdapServer ldapServer = new LdapServer();
+            ldapServer.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.addExtendedOperationHandler( new StartTlsHandler() );
-            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            ldapServer.setTransports( new TcpTransport( port ) );
+            ldapServer.addExtendedOperationHandler( new StartTlsHandler() );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
             // Setup SASL Mechanisms
             
@@ -205,9 +205,9 @@ public class IndexedNegationSearchIT
             mechanismHandlerMap.put( SupportedSaslMechanisms.NTLM, ntlmMechanismHandler );
             mechanismHandlerMap.put( SupportedSaslMechanisms.GSS_SPNEGO, ntlmMechanismHandler );
 
-            ldapService.setSaslMechanismHandlers( mechanismHandlerMap );
+            ldapServer.setSaslMechanismHandlers( mechanismHandlerMap );
 
-            return ldapService;
+            return ldapServer;
         }
     }
     
@@ -281,7 +281,7 @@ public class IndexedNegationSearchIT
     
     Set<SearchResult> getActorResults( String filter ) throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
+        DirContext ctx = getWiredContext( ldapServer );
         Set<SearchResult> results = new HashSet<SearchResult>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -297,7 +297,7 @@ public class IndexedNegationSearchIT
     
     Set<SearchResult> getResults( String filter ) throws Exception
     {
-        DirContext ctx = getWiredContext( ldapService );
+        DirContext ctx = getWiredContext( ldapServer );
         Set<SearchResult> results = new HashSet<SearchResult>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

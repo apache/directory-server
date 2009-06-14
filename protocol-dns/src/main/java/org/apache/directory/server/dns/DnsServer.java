@@ -27,7 +27,12 @@ import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
+import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +69,7 @@ public class DnsServer extends DirectoryBackedService
     {
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
-        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
-        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
+        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
     }
 
 
@@ -76,37 +80,94 @@ public class DnsServer extends DirectoryBackedService
     {
         RecordStore store = new JndiRecordStoreImpl( getSearchBaseDn(), getSearchBaseDn(), getDirectoryService() );
 
-        if ( getDatagramAcceptor() != null )
+        if ( ( transports == null ) || ( transports.length == 0 ) )
         {
-            getDatagramAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getDatagramAcceptor().bind();
+            // Default to UDP with port 53
+            // We have to create a DatagramAcceptor
+            UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
+            setTransports( transport );
+            
+            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
+            // Set the handler
+            acceptor.setHandler( new DnsProtocolHandler( this, store ) );
+    
+            // Allow the port to be reused even if the socket is in TIME_WAIT state
+            ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+            
+            // Start the listener
+            acceptor.bind();
+        }
+        else
+        {
+            for ( Transport transport:transports )
+            {
+                // Get the acceptor
+                IoAcceptor acceptor = transport.getAcceptor();
+    
+                // Set the handler
+                acceptor.setHandler( new DnsProtocolHandler( this, store ) );
+        
+                if ( transport instanceof UdpTransport )
+                {
+                // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                }
+                else
+                {
+                    // Disable the disconnection of the clients on unbind
+                    acceptor.setCloseOnDeactivation( false );
+                    
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((NioSocketAcceptor)acceptor).setReuseAddress( true );
+                    
+                    // No Nagle's algorithm
+                    ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                }
+        
+                // Start the listener
+                acceptor.bind();
+            }
         }
 
-        if ( getSocketAcceptor() != null )
-        {
-            getSocketAcceptor().setCloseOnDeactivation( false );
-            getSocketAcceptor().setReuseAddress( true );
-            getSocketAcceptor().setHandler( new DnsProtocolHandler( this, store ) );
-            getSocketAcceptor().bind();
-        }
-        
-        LOG.info( "DSN service started." );
-        System.out.println( "DSN service started." );
+        LOG.info( "DNS service started." );
+        System.out.println( "DNS service started." );
     }
 
 
     public void stop() {
-        if ( getDatagramAcceptor() != null )
+        for ( Transport transport :getTransports() )
         {
-            getDatagramAcceptor().dispose();
+            IoAcceptor acceptor = transport.getAcceptor();
+            
+            if ( acceptor != null )
+            {
+                acceptor.dispose();
+            }
         }
         
-        if ( getSocketAcceptor() != null )
+        LOG.info( "DNS service stopped." );
+        System.out.println( "DNS service stopped." );
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "DNSServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
+        
+        if ( getTransports() != null )
         {
-            getSocketAcceptor().dispose();
+            for ( Transport transport:getTransports() )
+            {
+                sb.append( "    " ).append( transport ).append( '\n' );
+            }
         }
         
-        LOG.info( "DSN service stopped." );
-        System.out.println( "DSN service stopped." );
+        return sb.toString();
     }
 }

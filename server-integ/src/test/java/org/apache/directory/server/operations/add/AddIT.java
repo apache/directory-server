@@ -74,9 +74,8 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.integ.LdapServerFactory;
-import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
@@ -160,7 +159,7 @@ public class AddIT
     private static final String BASE_DIRECTORY_APACHE_ORG = "dc=directory,dc=apache,dc=org";
 
 
-    public static LdapService ldapService;
+    public static LdapServer ldapServer;
 
     
     /**
@@ -169,7 +168,7 @@ public class AddIT
      */
     public static class Factory implements LdapServerFactory
     {
-        public LdapService newInstance() throws Exception
+        public LdapServer newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             IntegrationUtils.doDelete( service.getWorkingDirectory() );
@@ -205,14 +204,14 @@ public class AddIT
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
 
-            LdapService ldapService = new LdapService();
-            ldapService.setDirectoryService( service );
+            LdapServer ldapServer = new LdapServer();
+            ldapServer.setDirectoryService( service );
             int port = AvailablePortFinder.getNextAvailable( 1024 );
-            ldapService.setTcpTransport( new TcpTransport( port ) );
-            ldapService.setAllowAnonymousAccess( true );
-            ldapService.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
+            ldapServer.setTransports( new TcpTransport( port ) );
+            ldapServer.setAllowAnonymousAccess( true );
+            ldapServer.addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
 
-            return ldapService;
+            return ldapServer;
         }
     }
 
@@ -225,7 +224,7 @@ public class AddIT
     @Test
     public void testAddObjectClasses() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
@@ -259,7 +258,7 @@ public class AddIT
     @Test
     public void testModifyDescription() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         String newDescription = "More info on the user ...";
 
@@ -288,7 +287,7 @@ public class AddIT
     @Test
     public void testAddWithMissingRequiredAttributes() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // person without sn
         Attributes attrs = new BasicAttributes( true );
@@ -320,7 +319,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptions() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapService );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -362,7 +361,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapService );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -405,7 +404,7 @@ public class AddIT
     @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws Exception
     {
-        LDAPConnection con = getWiredConnection( ldapService );
+        LDAPConnection con = getWiredConnection( ldapServer );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -447,7 +446,7 @@ public class AddIT
     @Test
     public void testAddWithInvalidNumberOfAttributeValues() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // add inetOrgPerson with two displayNames
         Attributes attrs = new BasicAttributes( true );
@@ -481,7 +480,7 @@ public class AddIT
     @Test
     public void testAddAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry
         Attributes entry = new BasicAttributes( true );
@@ -521,7 +520,7 @@ public class AddIT
     @Test
     public void testAddAliasInContainer() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create container
         Attributes container = new BasicAttributes( true );
@@ -588,7 +587,7 @@ public class AddIT
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:"+ ldapService.getPort() +"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:"+ ldapServer.getPort() +"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry
@@ -610,7 +609,7 @@ public class AddIT
     @Test
     public void testAddDeleteAlias() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // Create entry ou=favorite,ou=system
         Attributes entry = new BasicAttributes( true );
@@ -653,7 +652,7 @@ public class AddIT
     public void testAddDeleteAlias2() throws Exception
     {
         // use a partition with suffix size 2
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE_EXAMPLE_COM );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE_EXAMPLE_COM );
 
         // Create entry ou=favorite,dc=example,dc=com
         Attributes entry = new BasicAttributes( true );
@@ -696,7 +695,7 @@ public class AddIT
     public void testAddDeleteAlias3() throws Exception
     {
         // use a partition with suffix size 3
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE_DIRECTORY_APACHE_ORG );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE_DIRECTORY_APACHE_ORG );
 
         // Create entry ou=favorite,dc=directory,dc=apache,dc=org
         Attributes entry = new BasicAttributes( true );
@@ -733,7 +732,7 @@ public class AddIT
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPSearchConstraints();
         constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
         constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
@@ -799,7 +798,7 @@ public class AddIT
     @Test
     public void testOnReferralWitJNDIIgnore() throws Exception
     {
-        LdapContext MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, ldapService.getDirectoryService(), "uid=akarasuluref,ou=users,ou=system" );
+        LdapContext MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, ldapServer.getDirectoryService(), "uid=akarasuluref,ou=users,ou=system" );
 
         // Set to 'ignore'
         MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
@@ -830,7 +829,7 @@ public class AddIT
     {
         LOG.debug( "" );
 
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         conn.setConstraints( constraints );
 
@@ -863,7 +862,7 @@ public class AddIT
     @Test
     public void testOnReferral() throws Exception
     {
-        LDAPConnection conn = getWiredConnection( ldapService );
+        LDAPConnection conn = getWiredConnection( ldapServer );
         LDAPConstraints constraints = new LDAPConstraints();
         constraints.setReferrals( false );
         conn.setConstraints( constraints );
@@ -898,7 +897,7 @@ public class AddIT
     @Test
     public void testThrowOnReferralWithJndi() throws Exception
     {
-        LdapContext ctx = getWiredContextThrowOnRefferal( ldapService );
+        LdapContext ctx = getWiredContextThrowOnRefferal( ldapServer );
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[0] );
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -930,7 +929,7 @@ public class AddIT
     @Test
     public void testDIRSERVER_1183() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
         Attributes attrs = new BasicAttributes( "objectClass", "inetOrgPerson", true );
         attrs.get( "objectClass" ).add( "organizationalPerson" );
         attrs.get( "objectClass" ).add( "person" );
@@ -948,7 +947,7 @@ public class AddIT
     @Test
     public void testAddEntryNoRDNInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -986,7 +985,7 @@ public class AddIT
     @Test
     public void testAddEntryDifferentRDNInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -1031,7 +1030,7 @@ public class AddIT
     @Test
     public void testAddEntryDifferentRDNSingleValuedInEntry() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -1072,7 +1071,7 @@ public class AddIT
     @Test
     public void testAddEntryComposedRDN() throws Exception
     {
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         
         // Create a person
         Attributes person = new BasicAttributes( "objectClass", "inetOrgPerson", true );
@@ -1122,8 +1121,8 @@ public class AddIT
     public void testAddPDUExceedingMaxSize() throws Exception
     {
         // Limit the PDU size to 1024
-        ldapService.getDirectoryService().setMaxPDUSize( 1024 );
-        DirContext ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        ldapServer.getDirectoryService().setMaxPDUSize( 1024 );
+        DirContext ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         // modify object classes, add two more
         Attributes attributes = new BasicAttributes( true );
@@ -1154,9 +1153,9 @@ public class AddIT
         
         // Test again with a bigger size
         // Limit the PDU size to 1024
-        ldapService.getDirectoryService().setMaxPDUSize( 4096 );
+        ldapServer.getDirectoryService().setMaxPDUSize( 4096 );
         
-        ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         person = ( DirContext ) ctx.lookup( RDN );
         
         try
@@ -1170,7 +1169,7 @@ public class AddIT
         }
 
         // Read again from directory
-        ctx = ( DirContext ) getWiredContext( ldapService ).lookup( BASE );
+        ctx = ( DirContext ) getWiredContext( ldapServer ).lookup( BASE );
         person = ( DirContext ) ctx.lookup( RDN );
         
         assertNotNull( person );
@@ -1190,7 +1189,7 @@ public class AddIT
     @Test
     public void testAddUnescapedRdnValue_DIRSERVER_1311() throws Exception
     {
-        LdapContext ctx = ( LdapContext ) getWiredContext( ldapService ).lookup( BASE );
+        LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer ).lookup( BASE );
 
         Attributes tori = new BasicAttributes( true );
         Attribute toriOC = new BasicAttribute( "objectClass" );
@@ -1288,7 +1287,7 @@ public class AddIT
     @Test
     public void test_DIRSERVER_1357() throws Exception
     {
-        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapService ).lookup( "ou=system" );
+        DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( ldapServer ).lookup( "ou=system" );
 
         Attributes salesAttrs = getOrgUnitAttributes( "sales" );
         ctx.createSubcontext( "ou=sales", salesAttrs );

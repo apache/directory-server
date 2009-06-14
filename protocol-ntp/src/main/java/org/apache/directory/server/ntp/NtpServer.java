@@ -24,12 +24,16 @@ import org.apache.directory.server.ntp.protocol.NtpProtocolCodecFactory;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.AbstractProtocolService;
 import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -43,19 +47,18 @@ import java.io.IOException;
  */
 public class NtpServer extends AbstractProtocolService
 {
+    /** logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( NtpServer.class.getName() );
+    
     /**
      * The default IP port.
      */
     private static final int IP_PORT_DEFAULT = 123;
 
-    /**
-     * The default service pid.
-     */
+    /** The default service pid. */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ntp";
 
-    /**
-     * The default service name.
-     */
+    /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
 
@@ -84,12 +87,14 @@ public class NtpServer extends AbstractProtocolService
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
         
-        Transport udpTransport = getUdpTransport();
-        
-        if ( udpTransport != null )
+        if ( ( transports == null ) || ( transports.length == 0 ) )
         {
+            // Default to UDP with port 123
             // We have to create a DatagramAcceptor
-            DatagramAcceptor acceptor = (DatagramAcceptor)udpTransport.getAcceptor();
+            UdpTransport transport = new UdpTransport( IP_PORT_DEFAULT );
+            setTransports( transport );
+            
+            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
 
             // Set the handler
             acceptor.setHandler( ntpProtocolHandler );
@@ -103,46 +108,62 @@ public class NtpServer extends AbstractProtocolService
             // Start the listener
             acceptor.bind();
         }
-
-        Transport tcpTransport = getTcpTransport();
-        
-        if ( tcpTransport != null )
+        else
         {
-            // It's a SocketAcceptor
-            SocketAcceptor acceptor = (SocketAcceptor)tcpTransport.getAcceptor();
-            
-            // Set the handler
-            acceptor.setHandler( ntpProtocolHandler );
+            for ( Transport transport:transports )
+            {
+                IoAcceptor acceptor = transport.getAcceptor();
 
-            // Disable the disconnection of the clients on unbind
-            acceptor.setCloseOnDeactivation( false );
-            
-            // Allow the port to be reused even if the socket is in TIME_WAIT state
-            acceptor.setReuseAddress( true );
-            
-            // No Nagle's algorithm
-            acceptor.getSessionConfig().setTcpNoDelay( true );
-            
-            // Inject the chain
-            acceptor.setFilterChainBuilder( ntpChain );
-
-            // Start the listener
-            acceptor.bind();
+                // Set the handler
+                acceptor.setHandler( ntpProtocolHandler );
+                
+                if ( transport instanceof UdpTransport )
+                {
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                }
+                else
+                {
+                    // Disable the disconnection of the clients on unbind
+                    acceptor.setCloseOnDeactivation( false );
+                    
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((SocketAcceptor)acceptor).setReuseAddress( true );
+                    
+                    // No Nagle's algorithm
+                    ((SocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                }
+                
+                // Inject the chain
+                acceptor.setFilterChainBuilder( ntpChain );
+    
+                // Start the listener
+                acceptor.bind();
+            }
         }
+        
+        LOG.info( "NTP server started." );
+        System.out.println( "NTP server started." );
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public void stop()
     {
-        if ( getDatagramAcceptor() != null )
+        for ( Transport transport :getTransports() )
         {
-            getDatagramAcceptor().dispose();
+            IoAcceptor acceptor = transport.getAcceptor();
+            
+            if ( acceptor != null )
+            {
+                acceptor.dispose();
+            }
         }
-        
-        if ( getSocketAcceptor() != null )
-        {
-            getSocketAcceptor().dispose();
-        }
+
+        LOG.info( "NTP Server stopped." );
+        System.out.println( "NTP Server stopped." );
     }
     
     
@@ -153,16 +174,14 @@ public class NtpServer extends AbstractProtocolService
     {
         StringBuilder sb = new StringBuilder();
         
-        sb.append( "NTPServer[" ).append( getServiceName() ).append( "] :" ).append( '\n' );
+        sb.append( "NTPServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
         
-        if ( getUdpTransport() != null )
+        if ( getTransports() != null )
         {
-            sb.append( "  Listening on UDP:" ).append( getUdpTransport().getPort() ).append( '\n' );
-        }
-
-        if ( getTcpTransport() != null )
-        {
-            sb.append( "  Listening on TCP:" ).append( getTcpTransport().getPort() ).append( '\n' );
+            for ( Transport transport:getTransports() )
+            {
+                sb.append( "    " ).append( transport ).append( '\n' );
+            }
         }
         
         return sb.toString();

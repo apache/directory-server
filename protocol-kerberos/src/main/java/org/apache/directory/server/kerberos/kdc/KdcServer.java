@@ -43,6 +43,7 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,8 +162,7 @@ public class KdcServer extends DirectoryBackedService
         super.setServiceName( DEFAULT_NAME );
         super.setServiceId( DEFAULT_PID );
         super.setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
-        setTcpTransport( new TcpTransport( DEFAULT_IP_PORT ) );
-        setUdpTransport( new UdpTransport( DEFAULT_IP_PORT ) );
+        setTransports( new TcpTransport( DEFAULT_IP_PORT ), new UdpTransport( DEFAULT_IP_PORT ) );
         
 
         prepareEncryptionTypes();
@@ -444,14 +444,15 @@ public class KdcServer extends DirectoryBackedService
         // TODO - for now ignoring this catalog crap
         store = new DirectoryPrincipalStore( getDirectoryService(), new LdapDN(this.getSearchBaseDn())  );
         
-        Transport udpTransport = getUdpTransport();
-
-        // Kerberos can use UDP or TCP
-        if ( udpTransport != null )
+        if ( ( transports == null ) || ( transports.length == 0 ) )
         {
-            IoAcceptor udpAcceptor = udpTransport.getAcceptor();
+            // Default to UDP with port 88
+            // We have to create a DatagramAcceptor
+            UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
+            setTransports( transport );
             
-            // Now, configure the acceptor
+            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
             // Inject the chain
             IoFilterChainBuilder udpChainBuilder = new DefaultIoFilterChainBuilder();
 
@@ -459,45 +460,58 @@ public class KdcServer extends DirectoryBackedService
                     new ProtocolCodecFilter( 
                             KerberosUdpProtocolCodecFactory.getInstance() ) );
 
-            udpAcceptor.setFilterChainBuilder( udpChainBuilder );
-            
+            acceptor.setFilterChainBuilder( udpChainBuilder );
+
             // Inject the protocol handler
-            udpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
+            acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
             
             // Bind to the configured address
-            udpAcceptor.bind();
+            acceptor.bind();
         }
-
-        Transport tcpTransport = getTcpTransport();
-
-        if ( tcpTransport != null )
+        else
         {
-            NioSocketAcceptor tcpAcceptor = (NioSocketAcceptor)tcpTransport.getAcceptor();
+            // Kerberos can use UDP or TCP
+            for ( Transport transport:transports )
+            {
+                IoAcceptor acceptor = transport.getAcceptor();
+                
+                // Now, configure the acceptor
+                // Inject the chain
+                IoFilterChainBuilder chainBuilder = new DefaultIoFilterChainBuilder();
+    
+                if ( transport instanceof TcpTransport )
+                {
+                    // Now, configure the acceptor
+                    // Disable the disconnection of the clients on unbind
+                    acceptor.setCloseOnDeactivation( false );
+                    
+                    // No Nagle's algorithm
+                    ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                    
+                    // Allow the port to be reused even if the socket is in TIME_WAIT state
+                    ((NioSocketAcceptor)acceptor).setReuseAddress( true );
 
-            // Now, configure the acceptor
-            // Disable the disconnection of the clients on unbind
-            tcpAcceptor.setCloseOnDeactivation( false );
-            
-            // No Nagle's algorithm
-            tcpAcceptor.getSessionConfig().setTcpNoDelay( true );
-            
-            // Allow the port to be reused even if the socket is in TIME_WAIT state
-            tcpAcceptor.setReuseAddress( true );
-            
-            // Inject the chain
-            IoFilterChainBuilder tcpChainBuilder = new DefaultIoFilterChainBuilder();
+                    // Inject the codec
+                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
+                        new ProtocolCodecFilter( 
+                                KerberosTcpProtocolCodecFactory.getInstance() ) );
+                }
+                else
+                {
+                    // Inject the codec
+                    ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
+                        new ProtocolCodecFilter( 
+                                KerberosUdpProtocolCodecFactory.getInstance() ) );
+                }
 
-            ((DefaultIoFilterChainBuilder)tcpChainBuilder).addFirst( "codec", 
-                    new ProtocolCodecFilter( 
-                            KerberosTcpProtocolCodecFactory.getInstance() ) );
-
-            tcpAcceptor.setFilterChainBuilder( tcpChainBuilder );
-            
-            // Inject the protocol handler
-            tcpAcceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-            
-            // Bind to the configured address
-            tcpAcceptor.bind();
+                acceptor.setFilterChainBuilder( chainBuilder );
+                
+                // Inject the protocol handler
+                acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
+                
+                // Bind to the configured address
+                acceptor.bind();
+            }
         }
         
         LOG.info( "Kerberos service started." );
@@ -507,14 +521,14 @@ public class KdcServer extends DirectoryBackedService
     
     public void stop()
     {
-        if ( getDatagramAcceptor() != null )
+        for ( Transport transport :getTransports() )
         {
-            getDatagramAcceptor().dispose();
-        }
-        
-        if ( getSocketAcceptor() != null )
-        {
-            getSocketAcceptor().dispose();
+            IoAcceptor acceptor = transport.getAcceptor();
+            
+            if ( acceptor != null )
+            {
+                acceptor.dispose();
+            }
         }
         
         LOG.info( "Kerberos service stopped." );
@@ -541,5 +555,26 @@ public class KdcServer extends DirectoryBackedService
                 }
             }
         }
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "KDCServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
+        
+        if ( getTransports() != null )
+        {
+            for ( Transport transport:getTransports() )
+            {
+                sb.append( "    " ).append( transport ).append( '\n' );
+            }
+        }
+        
+        return sb.toString();
     }
 }
