@@ -63,7 +63,7 @@ public class ClientModifyRequestTest
         ModifyRequest modRequest = new ModifyRequest( dn );
         modRequest.replace( SchemaConstants.SN_AT, expected );
 
-        connection.modify( modRequest );
+        connection.modify( modRequest, null );
 
         ServerEntry entry = ldapService.getDirectoryService().getAdminSession().lookup( dn );
 
