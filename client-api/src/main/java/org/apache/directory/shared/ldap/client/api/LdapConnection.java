@@ -1395,7 +1395,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 addRespCodec.addControl( response.getCurrentControl() );
                 addRespCodec.setMessageId( response.getMessageId() );
                 
-                AddListener addListener = ( AddListener ) listenerMap.get( addRespCodec.getMessageId() );
+                AddListener addListener = ( AddListener ) listenerMap.remove( addRespCodec.getMessageId() );
                 AddResponse addResp = convert( addRespCodec );
                 if( addListener != null )
                 {
@@ -1438,7 +1438,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 delRespCodec.setMessageId( response.getMessageId() );
                 delRespCodec.addControl( response.getCurrentControl() );
                 DeleteResponse delResp = convert( delRespCodec );
-                DeleteListener delListener = ( DeleteListener ) listenerMap.get( delResp.getMessageId() );
+                DeleteListener delListener = ( DeleteListener ) listenerMap.remove( delResp.getMessageId() );
                 
                 if( delListener != null )
                 {
@@ -1482,7 +1482,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 modRespCodec.addControl( response.getCurrentControl() );
                 
                 ModifyResponse modResp = convert( modRespCodec );
-                ModifyListener modListener = ( ModifyListener ) listenerMap.get( modResp.getMessageId() );
+                ModifyListener modListener = ( ModifyListener ) listenerMap.remove( modResp.getMessageId() );
                 
                 if( modListener != null )
                 {
@@ -1500,7 +1500,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 modDnCodec.addControl( response.getCurrentControl() );
                 modDnCodec.setMessageId( response.getMessageId() );
                 ModifyDnResponse modDnResp = convert( modDnCodec );
-                ModifyDnListener modDnListener = ( ModifyDnListener ) listenerMap.get( modDnCodec.getMessageId() );
+                ModifyDnListener modDnListener = ( ModifyDnListener ) listenerMap.remove( modDnCodec.getMessageId() );
                 if( modDnListener != null )
                 {
                     modDnListener.modifyDnCompleted( this, modDnResp );
