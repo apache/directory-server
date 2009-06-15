@@ -20,7 +20,7 @@
 -->
 
 
-<spring:beans xmlns="http://apacheds.org/config/1.5.5-SNAPSHOT"
+<spring:beans xmlns="http://apacheds.org/config/${pom.version}"
        xmlns:spring="http://xbean.apache.org/schemas/spring/1.0"
        xmlns:s="http://www.springframework.org/schema/beans">
 
