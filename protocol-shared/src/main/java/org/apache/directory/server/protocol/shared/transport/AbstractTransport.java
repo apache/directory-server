@@ -72,6 +72,8 @@ public abstract class AbstractTransport implements Transport
     {
        this.address = "localhost";
        this.port = port;
+
+       init();
     }
     
     
@@ -87,6 +89,8 @@ public abstract class AbstractTransport implements Transport
        this.address = "localhost";
        this.port = port;
        this.nbThreads = nbThreads;
+
+       init();
     }
     
     
@@ -101,6 +105,8 @@ public abstract class AbstractTransport implements Transport
     {
        this.address = address;
        this.port = port;
+
+       init();
     }
     
     
@@ -117,6 +123,8 @@ public abstract class AbstractTransport implements Transport
         this.port = port;
         this.nbThreads = nbThreads;
         this.backlog = backLog;
+
+        init();
     }
     
     
@@ -134,6 +142,8 @@ public abstract class AbstractTransport implements Transport
         this.port = port;
         this.nbThreads = nbThreads;
         this.backlog = backLog;
+        
+        init();
     }
     
     
@@ -270,7 +280,7 @@ public abstract class AbstractTransport implements Transport
     {
         StringBuilder sb = new StringBuilder();
         sb.append( "[<" ).append( address ).append( ':' ).append( port );
-        sb.append( "], backlog=" ).append( backlog );
+        sb.append( ">], backlog=" ).append( backlog );
         sb.append( ", nbThreads = " ).append( nbThreads );
         
         if ( sslEnabled )

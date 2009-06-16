@@ -92,6 +92,9 @@ public abstract class AbstractProtocolService implements ProtocolService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setEnabled( boolean enabled )
     {
         this.enabled = enabled;
