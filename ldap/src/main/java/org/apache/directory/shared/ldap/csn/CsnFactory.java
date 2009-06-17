@@ -56,17 +56,20 @@ public class CsnFactory
      */
     public Csn newInstance()
     {
-        long newTimestamp = System.currentTimeMillis();
-        
-        // We will be able to generate 2 147 483 647 CSNs each 10 ms max
-        if ( lastTimestamp == newTimestamp )
+        synchronized ( changeCount )
         {
-            changeCount.incrementAndGet();
-        }
-        else
-        {
-            lastTimestamp = newTimestamp;
-            changeCount.set( 0 );
+            long newTimestamp = System.currentTimeMillis();
+            
+            // We will be able to generate 2 147 483 647 CSNs each 10 ms max
+            if ( lastTimestamp == newTimestamp )
+            {
+                changeCount.incrementAndGet();
+            }
+            else
+            {
+                lastTimestamp = newTimestamp;
+                changeCount.set( 0 );
+            }
         }
 
         return new Csn( lastTimestamp, changeCount.get(), replicaId, 0 );
