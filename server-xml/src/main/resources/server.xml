@@ -209,7 +209,7 @@
             maxTimeLimit="15000"
             maxSizeLimit="1000">
     <transports>
-      <tcpTransport address="localhost" port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
+      <tcpTransport address="0.0.0.0" port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
       <tcpTransport address="localhost" port="10686" enableSSL="true"/>
     </transports>
 
