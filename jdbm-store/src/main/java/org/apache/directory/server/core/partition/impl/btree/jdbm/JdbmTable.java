@@ -600,7 +600,6 @@ public class JdbmTable<K,V> implements Table<K,V>
             {
                 return;
             }
-            
             if ( set.getSize() > numDupLimit )
             {
                 BTree tree = convertToBTree( set );

@@ -1263,6 +1263,7 @@ public class JdbmStore<E> implements Store<E>
             tempId = getParentId( tempId );
         }
         
+        // making entry an ancestor/descendent of itself in sublevel index
         subLevelIdx.add( id, id );
         
         // Now work on the user defined userIndices
@@ -1328,7 +1329,7 @@ public class JdbmStore<E> implements Store<E>
         entryCsnIdx.drop( id );
         entryUuidIdx.drop( id );
 
-        if( parentId != 1 )// should not use getParentId() to compare, onelevel index drops the 'id'
+        if( id != 1 )
         {
             subLevelIdx.drop( id );
         }
