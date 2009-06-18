@@ -421,7 +421,7 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Sets the ChangeLog service for this DirectoryService used for tracking
      * changes (revisions) to the server and using them to revert the server
-     * to earier revisions.
+     * to earlier revisions.
      *
      * @param changeLog the change log service to set
      */
