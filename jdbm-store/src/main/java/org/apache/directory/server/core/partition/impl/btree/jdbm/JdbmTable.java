@@ -369,6 +369,7 @@ public class JdbmTable<K,V> implements Table<K,V>
             return ( V ) bt.find( key );
         }                         
 
+        
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
         if ( values.isAvlTree() )
         {
@@ -770,6 +771,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         byte[] serialized = ( byte[] ) raw;
+        
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
