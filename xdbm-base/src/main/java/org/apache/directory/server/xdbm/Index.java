@@ -168,7 +168,34 @@ public interface Index<K, O>
     void add( K attrVal, Long id ) throws Exception;
 
 
-    void drop( Long id ) throws Exception;
+    /**
+     * Remove all the reference to an entry from the index.
+     * 
+     * As an entry might be referenced more than once in the forward index,
+     * depending on which index we are dealing with, we need to iterate 
+     * over all the values contained into the reverse index for this entryId.
+     * 
+     * For instance, considering the ObjectClass index for an entry having
+     * three ObjectClasses (top, person, inetOrgPerson), then the reverse
+     * index will contain :
+     * 
+     * [entryId, [top, person, inetOrgPerson]]
+     * 
+     * and the forward index will contain many entries like :
+     * [top, [..., entryId, ...]]
+     * [person,  [..., entryId, ...]]
+     * [inetOrgPerson,  [..., entryId, ...]]
+     * 
+     * So dropping the entryId means that we must first get all the values from
+     * the reverse index (and we will get [top, person, inetOrgPerson]) then to
+     * iterate through all those values to remove entryId from the associated 
+     * list of entryIds.
+     * 
+     * 
+     * @param entryId The master table entry ID to remove
+     * @throws Exception
+     */
+    void drop( Long entryId ) throws Exception;
 
 
     void drop( K attrVal, Long id ) throws Exception;

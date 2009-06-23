@@ -471,19 +471,18 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
 
     /**
-     * @see Index#drop(Long)
+     * {@inheritDoc}
      */
-    public void drop( Long id ) throws Exception
+    public void drop( Long entryId ) throws Exception
     {
-        Cursor<Tuple<Long,K>> values = reverse.cursor( id );
-        Tuple<Long,K> tuple = new Tuple<Long,K>( id, null );
-
+        Cursor<Tuple<Long,K>> values = reverse.cursor( entryId );
+        
         while ( values.next() )
         {
-            forward.remove( values.get().getValue(), id );
+            forward.remove( values.get().getValue(), entryId );
         }
 
-        reverse.remove( id );
+        reverse.remove( entryId );
     }
 
 
