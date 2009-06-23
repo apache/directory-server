@@ -475,13 +475,17 @@ public class JdbmIndex<K,O> implements Index<K,O>
      */
     public void drop( Long entryId ) throws Exception
     {
+        // Build a cursor to iterate on all the keys referencing
+        // this entryId
         Cursor<Tuple<Long,K>> values = reverse.cursor( entryId );
-        
+
         while ( values.next() )
         {
+            // Remove the Key -> entryId from the index
             forward.remove( values.get().getValue(), entryId );
         }
 
+        // Remove the id -> key from the reverse index
         reverse.remove( entryId );
     }
 
