@@ -145,7 +145,7 @@ public class ClientDeleteRequestTest
     }
     
 
-    @Ignore( "this method is failing, need to figure out the issue" )
+    @Ignore( "enable this test when the TreeDelete control gets created" )
     @Test
     public void testDeleteWithCascadeControl() throws Exception
     {
