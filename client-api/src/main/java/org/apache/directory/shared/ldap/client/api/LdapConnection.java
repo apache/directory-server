@@ -112,7 +112,6 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.LdapURL;
@@ -1919,9 +1918,10 @@ public class LdapConnection  extends IoHandlerAdapter
         
         if( deleteAllChildren )
         {
-            if( isControlSupported( CascadeControl.CONTROL_OID ) )
+            // TODO replace with a constant name, after adding support for treedelete control in core
+            if( isControlSupported( "1.2.840.113556.1.4.805" ) ) 
             {
-                delRequest.add( new CascadeControl() );
+                //delRequest.add( new TreeDeleteControl() );
             }
             else
             {
