@@ -48,6 +48,17 @@ public class LdapConnectionPool extends GenericObjectPool
     public LdapConnectionPool( PoolableLdapConnectionFactory factory )
     {
         super( factory );
+        this.factory = factory;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setFactory( PoolableLdapConnectionFactory factory )
+    {
+        this.factory = factory;
+        super.setFactory( factory );
     }
 
 
