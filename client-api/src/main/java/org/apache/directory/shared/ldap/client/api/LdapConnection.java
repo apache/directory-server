@@ -237,7 +237,7 @@ public class LdapConnection  extends IoHandlerAdapter
      *
      * @return <code>true</code> if the session is valid.
      */
-    private boolean isSessionValid()
+    public boolean isSessionValid()
     {
         return ( ldapSession != null ) && ldapSession.isConnected();
     }
@@ -606,6 +606,8 @@ public class LdapConnection  extends IoHandlerAdapter
         
         if ( !connectionFuture.isConnected() ) 
         {
+            // disposing connector if not connected
+            connector.dispose();
             return false;
         }
         
