@@ -80,6 +80,12 @@
     </dependency>
     
     <dependency>
+      <groupId>commons-pool</groupId>
+      <artifactId>commons-pool</artifactId>
+      <version>1.5.1</version>
+    </dependency>
+   
+    <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
@@ -87,34 +93,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <configuration />
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antlr-plugin</artifactId>
-        <configuration>
-          <grammars>ACIItem.g ACIItemChecker.g schema-extension.g schema-qdstring.g schema-value.g schema.g subtree-specification.g SubtreeSpecificationChecker.g TriggerSpecification.g</grammars>
-        </configuration>
-        <executions>
-           <execution>
-              <goals>
-                 <goal>generate</goal>
-              </goals>
-           </execution>
-        </executions>
-      </plugin -->
-
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
