@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.client.api;
 
 
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,27 +35,10 @@ import org.slf4j.LoggerFactory;
 public class PoolableLdapConnectionFactory implements PoolableObjectFactory
 {
 
-    /** The selected LDAP port, default value is 10389 */
-    private int ldapPort = 10389;
-
-    /** the remote LDAP host, default value is localhost */
-    private String ldapHost = "127.0.0.1";
-
-    /** A flag indicating if we are using SSL or not, default is false */
-    private boolean useSsl = false;
-
-    /** the user name used for binding, default value is uid=admin,ou=system*/
-    private String userName;
-
-    /** credentials of the user, default value is secret*/
-    private byte[] credentials = StringTools.getBytesUtf8( "secret" );
+    /** configuration object for the connection */
+    private LdapConnectionConfig config;
 
     private static final Logger LOG = LoggerFactory.getLogger( PoolableLdapConnectionFactory.class );
-
-
-    public PoolableLdapConnectionFactory()
-    {
-    }
 
 
     /**
@@ -64,31 +46,11 @@ public class PoolableLdapConnectionFactory implements PoolableObjectFactory
      * Creates a new instance of PoolableLdapConnectionFactory for the
      * server running on localhost at the port 10389
      *
-     * @param userName the DN of the user
-     * @param credentials user's credential
+     * @param config the configuration for creating LdapConnections
      */
-    public PoolableLdapConnectionFactory( String userName, byte[] credentials )
+    public PoolableLdapConnectionFactory( LdapConnectionConfig config )
     {
-        this.userName = userName;
-        this.credentials = credentials;
-    }
-
-
-    /**
-     * 
-     * Creates a new instance of PoolableLdapConnectionFactory.
-     *
-     * @param host hostname where the LDAP server is running 
-     * @param port port of the LDAP server
-     * @param userName the DN of the user
-     * @param credentials user's credential
-     */
-    public PoolableLdapConnectionFactory( String host, int port, String userName, byte[] credentials )
-    {
-        this.ldapHost = host;
-        this.ldapPort = port;
-        this.userName = userName;
-        this.credentials = credentials;
+        this.config = config;
     }
 
 
@@ -120,8 +82,8 @@ public class PoolableLdapConnectionFactory implements PoolableObjectFactory
     {
         LOG.debug( "creating a LDAP connection" );
 
-        LdapConnection connection = new LdapConnection( ldapHost, ldapPort, useSsl );
-        connection.bind( userName, credentials );
+        LdapConnection connection = new LdapConnection( config );
+        connection.bind( config.getName(), config.getCredentials() );
         return connection;
     }
 
@@ -146,33 +108,4 @@ public class PoolableLdapConnectionFactory implements PoolableObjectFactory
         return connection.isSessionValid();
     }
 
-
-    public void setLdapPort( int ldapPort )
-    {
-        this.ldapPort = ldapPort;
-    }
-
-
-    public void setLdapHost( String ldapHost )
-    {
-        this.ldapHost = ldapHost;
-    }
-
-
-    public void setUseSsl( boolean useSsl )
-    {
-        this.useSsl = useSsl;
-    }
-
-
-    public void setUserName( String userName )
-    {
-        this.userName = userName;
-    }
-
-
-    public void setCredentials( byte[] credentials )
-    {
-        this.credentials = credentials;
-    }
 }

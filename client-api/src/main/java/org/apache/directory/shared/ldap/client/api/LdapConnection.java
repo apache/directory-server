@@ -127,8 +127,8 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO : implement a pool
-// TODO : handle the MessageId for an abandonRequest
+// TODO : handle the MessageId for an abandonRequest adding Futures to async methods and
+//        check how to handle the synchronous methods for abandoning
 // TODO : return the created request, instead of an LdapResponse ( partly completed )
 
 /**
@@ -147,32 +147,13 @@ public class LdapConnection  extends IoHandlerAdapter
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( LdapConnection.class );
 
-    /** Define the default ports for LDAP and LDAPS */
-    private static final int DEFAULT_LDAP_PORT = 389; 
-    private static final int DEFAULT_LDAPS_PORT = 636;
-    
-    /** The default host : localhost */
-    private static final String DEFAULT_LDAP_HOST = "127.0.0.1";
-    
-    /** The LDAP version */
-    private static int LDAP_V3 = 3;
-    
     private static final String LDAP_RESPONSE = "LdapReponse";
     
-    /** A flag indicating if we are using SSL or not */
-    private boolean useSsl = false;
-    
-    /** The default timeout for operation : 30 seconds */
-    private static final long DEFAULT_TIMEOUT = 30000L;
-    
     /** The timeout used for response we are waiting for */ 
-    private long timeOut = DEFAULT_TIMEOUT;
+    private long timeOut = LdapConnectionConfig.DEFAULT_TIMEOUT;
     
-    /** The selected LDAP port */
-    private int ldapPort;
-    
-    /** the remote LDAP host */
-    private String ldapHost;
+    /** configuration object for the connection */
+    private LdapConnectionConfig config = new LdapConnectionConfig();
     
     /** The connector open with the remote server */
     private IoConnector connector;
@@ -465,11 +446,23 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection()
     {
-        useSsl = false;
-        ldapPort = DEFAULT_LDAP_PORT;
-        ldapHost = DEFAULT_LDAP_HOST;
+        config.setUseSsl( false );
+        config.setLdapPort( config.getDefaultLdapPort() );
+        config.setLdapHost( config.getDefaultLdapHost() );
         messageId = new AtomicInteger();
         operationMutex = new Semaphore(1);
+    }
+    
+    
+    /**
+     * 
+     * Creates a new instance of LdapConnection with the given connection configuration.
+     *
+     * @param config the configuration of the LdapConnection
+     */
+    public LdapConnection( LdapConnectionConfig config )
+    {
+        this.config = config;
     }
     
     
@@ -481,9 +474,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection( boolean useSsl )
     {
-        this.useSsl = useSsl;
-        ldapPort = ( useSsl ? DEFAULT_LDAPS_PORT : DEFAULT_LDAP_PORT );
-        ldapHost = DEFAULT_LDAP_HOST;
+        config.setUseSsl( useSsl );
+        config.setLdapPort( useSsl ? config.getDefaultLdapsPort() : config.getDefaultLdapPort() );
+        config.setLdapHost( config.getDefaultLdapHost() );
         messageId = new AtomicInteger();
         operationMutex = new Semaphore(1);
     }
@@ -497,9 +490,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection( String server )
     {
-        useSsl = false;
-        ldapPort = DEFAULT_LDAP_PORT;
-        ldapHost = server;
+        config.setUseSsl( false );
+        config.setLdapPort( config.getDefaultLdapPort() );
+        config.setLdapHost( server );
         messageId = new AtomicInteger();
         operationMutex = new Semaphore(1);
     }
@@ -515,9 +508,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection( String server, boolean useSsl )
     {
-        this.useSsl = useSsl;
-        ldapPort = ( useSsl ? DEFAULT_LDAPS_PORT : DEFAULT_LDAP_PORT );
-        ldapHost = DEFAULT_LDAP_HOST;
+        config.setUseSsl( useSsl );
+        config.setLdapPort( useSsl ? config.getDefaultLdapsPort() : config.getDefaultLdapPort() );
+        config.setLdapHost( server );
         messageId = new AtomicInteger();
         operationMutex = new Semaphore(1);
     }
@@ -532,11 +525,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection( String server, int port )
     {
-        useSsl = false;
-        ldapPort = port;
-        ldapHost = server;
-        messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
+        this( server, port, false );
     }
     
     
@@ -551,9 +540,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public LdapConnection( String server, int port, boolean useSsl )
     {
-        this.useSsl = useSsl;
-        ldapPort = port;
-        ldapHost = server;
+        config.setUseSsl( useSsl );
+        config.setLdapPort( port );
+        config.setLdapHost( server );
         messageId = new AtomicInteger();
         operationMutex = new Semaphore(1);
     }
@@ -583,7 +572,7 @@ public class LdapConnection  extends IoHandlerAdapter
             connector.getFilterChain().addLast( "ldapCodec", ldapProtocolFilter );
     
             // If we use SSL, we have to add the SslFilter to the chain
-            if ( useSsl ) 
+            if ( config.isUseSsl() ) 
             {
                 SSLContext sslContext = null; // BogusSslContextFactory.getInstance( false );
                 SslFilter sslFilter = new SslFilter( sslContext );
@@ -596,7 +585,7 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         
         // Build the connection address
-        SocketAddress address = new InetSocketAddress( ldapHost , ldapPort );
+        SocketAddress address = new InetSocketAddress( config.getLdapHost() , config.getLdapPort() );
         
         // And create the connection future
         ConnectFuture connectionFuture = connector.connect( address );
@@ -1020,7 +1009,7 @@ public class LdapConnection  extends IoHandlerAdapter
         BindRequestCodec request =  new BindRequestCodec();
         
         // Set the version
-        request.setVersion( LDAP_V3 );
+        request.setVersion( LdapConnectionConfig.LDAP_V3 );
         
         // Set the name
         try
@@ -2177,4 +2166,16 @@ public class LdapConnection  extends IoHandlerAdapter
             }
         }
     }
+
+
+    /**
+     * gives the configuration information of the connection
+     * 
+     * @return the configuration of the connection
+     */
+    public LdapConnectionConfig getConfig()
+    {
+        return config;
+    }
+    
 }
