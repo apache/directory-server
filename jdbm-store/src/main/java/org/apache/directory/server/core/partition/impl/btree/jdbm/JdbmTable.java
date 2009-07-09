@@ -35,7 +35,10 @@ import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -50,30 +53,36 @@ import java.util.Map;
  */
 public class JdbmTable<K,V> implements Table<K,V>
 {
-    private static final byte[] EMPTY_BYTES = new byte[0];
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTable.class.getSimpleName() );
 
     /** the key to store and retreive the count information */
     private static final String SZSUFFIX = "_btree_sz";
 
     /** the name of this table */
     private final String name;
+
     /** the JDBM record manager for the file this table is managed in */
     private final RecordManager recMan;
+    
     /** whether or not this table allows for duplicates */
     private final boolean allowsDuplicates;
+    
     /** a key comparator for the keys in this Table */
     private final Comparator<K> keyComparator;
+    
     /** a value comparator for the values in this Table */
     private final Comparator<V> valueComparator;
 
     /** the current count of entries in this Table */
     private int count;
+    
     /** the wrappedCursor JDBM btree used in this Table */
     private BTree bt;
 
-
     /** the limit at which we start using btree redirection for duplicates */
     private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
+
     /** a cache of duplicate BTrees */
     private final Map<Long, BTree> duplicateBtrees;
 
@@ -388,6 +397,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
         tree.browse().getNext( tuple );
         //noinspection unchecked
+        
         return ( V ) tuple.getKey();
     }
 
@@ -395,7 +405,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see Table#hasGreaterOrEqual(Object,Object)
      */
-    @SuppressWarnings("unchecked")
     public boolean hasGreaterOrEqual( K key, V val ) throws IOException
     {
         if ( key == null )
@@ -410,6 +419,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isAvlTree() )
         {
             AvlTree<V> set = values.getAvlTree();
@@ -419,6 +429,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // last option is to try a btree with BTreeRedirects
         BTree tree = getBTree( values.getBTreeRedirect() );
+        
         return tree.size() != 0 && btreeHas( tree, val, true );
     }
 
@@ -426,7 +437,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see Table#hasLessOrEqual(Object,Object)
      */
-    @SuppressWarnings("unchecked")
     public boolean hasLessOrEqual( K key, V val ) throws IOException
     {
         if ( key == null )
@@ -441,6 +451,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isAvlTree() )
         {
             AvlTree<V> set = values.getAvlTree();
@@ -450,6 +461,7 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         // last option is to try a btree with BTreeRedirects
         BTree tree = getBTree( values.getBTreeRedirect() );
+        
         return tree.size() != 0 && btreeHas( tree, val, false );
     }
 
@@ -547,6 +559,7 @@ public class JdbmTable<K,V> implements Table<K,V>
         }
         
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isAvlTree() )
         {
             return values.getAvlTree().find( value ) != null;
@@ -570,58 +583,92 @@ public class JdbmTable<K,V> implements Table<K,V>
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public void put( K key, V value ) throws Exception
+    public synchronized void put( K key, V value ) throws Exception
     {
-        if ( value == null || key == null )
+        try
         {
-            throw new IllegalArgumentException( "null for key or value is not valid" );
-        }
-        
-        V replaced;
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "---> Add {} = {}", name, key );
+            }
 
-        if ( ! allowsDuplicates )
-        {
-            replaced = ( V ) bt.insert( key, value, true );
-
-            if ( null == replaced )
+            if ( ( value == null ) || ( key == null ) )
+            {
+                throw new IllegalArgumentException( "null for key or value is not valid" );
+            }
+            
+            V replaced;
+    
+            if ( ! allowsDuplicates )
+            {
+                replaced = ( V ) bt.insert( key, value, true );
+    
+                if ( null == replaced )
+                {
+                    count++;
+                }
+    
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Add ONE {} = {}", name, key );
+                }
+                
+                return;
+            }
+            
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+            
+            if ( values.isAvlTree() )
+            {
+                AvlTree<V> set = values.getAvlTree();
+                replaced = set.insert( value );
+                
+                if ( replaced != null )// if the value already present returns the same value
+                {
+                    return;
+                }
+                if ( set.getSize() > numDupLimit )
+                {
+                    BTree tree = convertToBTree( set );
+                    BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
+                    bt.insert( key, BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
+                    
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "<--- Add new BTREE {} = {}", name, key );
+                    }
+                }
+                else
+                {
+                    bt.insert( key, marshaller.serialize( set ), true );
+                    
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "<--- Add AVL {} = {}", name, key );
+                    }
+                }
+    
+                count++;
+                return;
+            }
+            
+            BTree tree = getBTree( values.getBTreeRedirect() );
+            replaced = ( V ) tree.insert( value, StringTools.EMPTY_BYTES, true );
+            
+            if ( replaced == null )
             {
                 count++;
             }
-
-            return;
-        }
-        
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-        if ( values.isAvlTree() )
-        {
-            AvlTree<V> set = values.getAvlTree();
-            replaced = set.insert( value );
             
-            if ( replaced != null )// if the value already present returns the same value
+            if ( LOG.isDebugEnabled() )
             {
-                return;
+                LOG.debug( "<--- Add BTREE {} = {}", name, key );
             }
-            if ( set.getSize() > numDupLimit )
-            {
-                BTree tree = convertToBTree( set );
-                BTreeRedirect redirect = new BTreeRedirect( tree.getRecid() );
-                bt.insert( key, BTreeRedirectMarshaller.INSTANCE.serialize( redirect ), true );
-            }
-            else
-            {
-                bt.insert( key, marshaller.serialize( set ), true );
-            }
-
-            count++;
-            return;
         }
-        
-        BTree tree = getBTree( values.getBTreeRedirect() );
-        replaced = ( V ) tree.insert( value, EMPTY_BYTES, true );
-        
-        if ( replaced == null )
+        catch ( Exception e )
         {
-            count++;
+            LOG.error( "Error while adding " + key + " on table " + name, e );
+            throw e;
         }
     }
     
@@ -631,70 +678,107 @@ public class JdbmTable<K,V> implements Table<K,V>
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public void remove( K key, V value ) throws IOException
+    public synchronized void remove( K key, V value ) throws IOException
     {
-        if ( key == null )
+        try
         {
-            return;
-        }
-
-        if ( ! allowsDuplicates )
-        {
-            V oldValue = ( V ) bt.find( key );
-        
-            // Remove the value only if it is the same as value.
-            if ( ( oldValue != null ) && oldValue.equals( value ) )
+            if ( LOG.isDebugEnabled() )
             {
-                bt.remove( key );
-                count--;
-                return;
-            }
-
-            return;
-        }
-
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-        
-        if ( values.isAvlTree() )
-        {
-            AvlTree<V> set = values.getAvlTree();
-
-            // If removal succeeds then remove if set is empty else replace it
-            if ( set.remove( value ) != null )
-            {
-                if ( set.isEmpty() )
-                {
-                    bt.remove( key );
-                }
-                else
-                {
-                    bt.insert( key, marshaller.serialize( set ), true );
-                }
-                count--;
-                return;
-            }
-
-            return;
-        }
-
-        // if the number of duplicates falls below the numDupLimit value
-        BTree tree = getBTree( values.getBTreeRedirect() );
-        
-        if ( removeDupFromBTree( tree, value ) )
-        {
-            /*
-             * If we drop below the duplicate limit then we revert from using
-             * a Jdbm BTree to using an in memory AvlTree.
-             */
-            if ( tree.size() <= numDupLimit )
-            {
-                AvlTree<V> avlTree = convertToAvlTree( tree );
-                bt.insert( key, marshaller.serialize( avlTree ), true );
-                recMan.delete( tree.getRecid() );
+                LOG.debug( "---> Remove " + name + " = " + key + ", " + value );
             }
             
-            count--;
-            return;
+            if ( key == null )
+            {
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove NULL key " + name );
+                }
+                return;
+            }
+    
+            if ( ! allowsDuplicates )
+            {
+                V oldValue = ( V ) bt.find( key );
+            
+                // Remove the value only if it is the same as value.
+                if ( ( oldValue != null ) && oldValue.equals( value ) )
+                {
+                    bt.remove( key );
+                    count--;
+                    
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
+                    }
+                    
+                    return;
+                }
+    
+                return;
+            }
+    
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+            
+            if ( values.isAvlTree() )
+            {
+                AvlTree<V> set = values.getAvlTree();
+    
+                // If removal succeeds then remove if set is empty else replace it
+                if ( set.remove( value ) != null )
+                {
+                    if ( set.isEmpty() )
+                    {
+                        bt.remove( key );
+                    }
+                    else
+                    {
+                        bt.insert( key, marshaller.serialize( set ), true );
+                    }
+                    count--;
+
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
+                    }
+                    
+                    return;
+                }
+    
+                return;
+            }
+    
+            // if the number of duplicates falls below the numDupLimit value
+            BTree tree = getBTree( values.getBTreeRedirect() );
+            
+            if ( tree.find( value ) != null )
+            {
+                if ( tree.remove( value ) != null )
+                {
+                    /*
+                     * If we drop below the duplicate limit then we revert from using
+                     * a Jdbm BTree to using an in memory AvlTree.
+                     */
+                    if ( tree.size() <= numDupLimit )
+                    {
+                        AvlTree<V> avlTree = convertToAvlTree( tree );
+                        bt.insert( key, marshaller.serialize( avlTree ), true );
+                        recMan.delete( tree.getRecid() );
+                    }
+                    
+                    count--;
+                    
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
+                    }
+                    
+                    return;
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Error while adding " + key + ", " + value + " on table " + name, e );
         }
     }
 
@@ -702,39 +786,79 @@ public class JdbmTable<K,V> implements Table<K,V>
     /**
      * @see Table#remove(Object)
      */
-    public void remove( K key ) throws IOException
+    public synchronized void remove( K key ) throws IOException
     {
-        if ( key == null )
+        try
         {
-            return;
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "---> Remove {} = {}", name, key );
+            }
+            
+            if ( key == null )
+            {
+                return;
+            }
+    
+            Object returned = bt.remove( key );
+    
+            if ( null == returned )
+            {
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove AVL {} = {} (not found)", name, key );
+                }
+                
+                return;
+            }
+    
+            if ( ! allowsDuplicates )
+            {
+                this.count--;
+             
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove ONE {} = {}", name, key );
+                }
+                
+                return;
+            }
+    
+            byte[] serialized = ( byte[] ) returned;
+    
+            if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+            {
+                BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+                this.count -= tree.size();
+                
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove BTree {} = {}", name, key );
+                }
+                
+                return;
+            }
+            else
+            {
+                AvlTree<V> set = marshaller.deserialize( serialized );
+                this.count -= set.getSize();
+    
+                if ( LOG.isDebugEnabled() )
+                {
+                    LOG.debug( "<--- Remove AVL {} = {}", name, key );
+                }
+                
+                return;
+            }
         }
-
-        Object returned = bt.remove( key );
-
-        if ( null == returned )
+        catch ( Exception e )
         {
-            return;
-        }
-
-        if ( ! allowsDuplicates )
-        {
-            this.count--;
-            return;
-        }
-
-        byte[] serialized = ( byte[] ) returned;
-
-        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
-        {
-            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
-            this.count -= tree.size();
-            return;
-        }
-        else
-        {
-            AvlTree<V> set = marshaller.deserialize( serialized );
-            this.count -= set.getSize();
-            return;
+            LOG.error(  "Exception while removing " + key + " from index " + name, e );
+            
+            if ( e instanceof IOException )
+            {
+                throw (IOException)e;
+            }
         }
     }
 
@@ -833,7 +957,7 @@ public class JdbmTable<K,V> implements Table<K,V>
      *
      * @throws IOException if errors are encountered on the flush
      */
-    public void sync() throws IOException
+    public synchronized void sync() throws IOException
     {
         long recId = recMan.getNamedObject( name + SZSUFFIX );
         recMan.update( recId, count );
@@ -849,8 +973,6 @@ public class JdbmTable<K,V> implements Table<K,V>
     // ------------------------------------------------------------------------
     // Private/Package Utility Methods 
     // ------------------------------------------------------------------------
-
-
     DupsContainer<V> getDupsContainer( byte[] serialized ) throws IOException
     {
         if ( serialized == null )
@@ -928,23 +1050,13 @@ public class JdbmTable<K,V> implements Table<K,V>
     }
 
 
-    private boolean removeDupFromBTree( BTree tree, V value ) throws IOException
-    {
-        Object removed = null;
-        if ( tree.find( value ) != null )
-        {
-            removed = tree.remove( value );
-        }
-        return null != removed;
-    }
-
-
     @SuppressWarnings("unchecked")
     private AvlTree<V> convertToAvlTree( BTree bTree ) throws IOException
     {
         AvlTree<V> avlTree = new AvlTree<V>( valueComparator );
         TupleBrowser browser = bTree.browse();
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+        
         while ( browser.getNext( tuple ) )
         {
             avlTree.insert( ( V ) tuple.getKey() );
@@ -969,10 +1081,12 @@ public class JdbmTable<K,V> implements Table<K,V>
 
         Cursor<V> keys = new AvlTreeCursor<V>( avlTree );
         keys.beforeFirst();
+        
         while ( keys.next() )
         {
-            bTree.insert( keys.get(), EMPTY_BYTES, true );
+            bTree.insert( keys.get(), StringTools.EMPTY_BYTES, true );
         }
+        
         return bTree;
     }
 }

@@ -1160,9 +1160,12 @@ public class JdbmStore<E> implements Store<E>
 
     /**
      * {@inheritDoc}
+     * TODO : We should be able to revert all the changes made to index 
+     * if something went wrong. Also the index should auto-repair : if
+     * an entry does not exist in the Master table, then the index must be updated to reflect this.
      */
     @SuppressWarnings("unchecked")
-    public void add( ServerEntry entry ) throws Exception
+    public synchronized void add( ServerEntry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
@@ -1210,7 +1213,6 @@ public class JdbmStore<E> implements Store<E>
 
         // Start adding the system userIndices
         // Why bother doing a lookup if this is not an alias.
-
         // First, the ObjectClass index
         for ( Value<?> value : objectClass )
         {
@@ -1306,7 +1308,7 @@ public class JdbmStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void delete( Long id ) throws Exception
+    public synchronized void delete( Long id ) throws Exception
     {
         ServerEntry entry = lookup( id );
         Long parentId = getParentId( id );

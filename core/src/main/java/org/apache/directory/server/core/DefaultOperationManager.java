@@ -265,8 +265,8 @@ public class DefaultOperationManager implements OperationManager
             pop();
         }
 
-        LOG.debug( "<< AddOperation successfull" );
-        LOG_CHANGES.debug( "<< AddOperation successfull" );
+        LOG.debug( "<< AddOperation successful" );
+        LOG_CHANGES.debug( "<< AddOperation successful" );
     }
 
 

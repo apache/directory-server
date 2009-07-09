@@ -490,4 +490,42 @@ public class AvlTreeTest
       }
       //3. post-order
     }
+
+
+    @Test
+    public void testRemoveEmptyTree()
+    {
+        tree.remove( null );
+        
+        assertEquals( 0, tree.getSize() );
+
+        tree.remove( 1 );
+        
+        assertEquals( 0, tree.getSize() );
+    }
+
+
+    @Test
+    public void testRemoveOneNode()
+    {
+        tree.insert( 1 );
+        assertEquals( 1, tree.getSize() );
+        
+        tree.remove( 1 );
+        assertEquals( 0, tree.getSize() );
+    }
+
+
+    @Test
+    public void testRemoveOneNodeWithRight()
+    {
+        tree.insert( 1 );
+        tree.insert( 2 );
+        assertEquals( 2, tree.getSize() );
+        assertEquals( "1,2", getInorderForm() );
+        
+        tree.remove( 1 );
+        assertEquals( 1, tree.getSize() );
+        assertEquals( Integer.valueOf( 2 ), tree.getRoot().getKey() );
+    }
 }

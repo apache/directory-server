@@ -104,15 +104,24 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             
             if ( partition instanceof BTreePartition )
             {
-                BTreePartition btPartition = ( BTreePartition ) partition;
-                PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
-                Point pos = getCenteredPosition( frame );
-                pos.y = launchedWindowCount * 20 + pos.y;
-                double multiplier = getAspectRatio() * 20.0;
-                pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
-                frame.setLocation( pos );
-                frame.setVisible( true );
-                launchedWindowCount++;
+                try
+                {
+                    BTreePartition btPartition = ( BTreePartition ) partition;
+                    // TODO : If a partition does not have an initial entry associated, we wil:
+                    // get a NPE : this has to be fixed.
+                    PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
+                    Point pos = getCenteredPosition( frame );
+                    pos.y = launchedWindowCount * 20 + pos.y;
+                    double multiplier = getAspectRatio() * 20.0;
+                    pos.x = ( int ) ( launchedWindowCount * multiplier ) + pos.x;
+                    frame.setLocation( pos );
+                    frame.setVisible( true );
+                    launchedWindowCount++;
+                }
+                catch ( Exception e )
+                {
+                    // Continue
+                }
             }
         }
 

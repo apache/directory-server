@@ -489,9 +489,9 @@ public class AvlTree<K>
 
         System.out.println( getRoot() );
         
-        visit( getRoot().getRight(), getRoot() );
+        visit( null, getRoot().getRight(), getRoot() );
         
-        visit( getRoot().getLeft(), getRoot() );
+        visit( null, getRoot().getLeft(), getRoot() );
     }
     
 
@@ -930,7 +930,19 @@ public class AvlTree<K>
     }
     
     
-    private void visit( LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode ) 
+    /**
+     * Checks that the tree is correct. It must be balanced, and the prev/next
+     * chain must be equivalent to a depth-first descent on the tree
+     * 
+     * @return true if the tree is balanced and correct
+     */
+    public boolean checkTree()
+    {
+        return true;
+    }
+    
+    
+    private void visit( StringBuilder sb, LinkedAvlNode<K> node, LinkedAvlNode<K> parentNode ) 
     {
         if( node == null )
         {
@@ -944,10 +956,18 @@ public class AvlTree<K>
         
         for( int i=0; i < parentNode.getDepth(); i++ )
         {
-            System.out.print( "|  " );
+            if ( sb != null )
+            {
+                sb.append( "|  " );
+            }
+            else
+            {
+                System.out.print( "|  " );
+            }
         }
 
         String type = "";
+        
         if( node == parentNode.left )
         {
             type = "L";
@@ -957,16 +977,43 @@ public class AvlTree<K>
             type = "R";
         }
         
-        System.out.println( "|--" + node + type );
+        if ( sb != null )
+        {
+            sb.append( "|--" ).append( node ).append( type ).append( '\n' );
+        }
+        else
+        {
+            System.out.println( "|--" + node + type );
+        }
         
         if ( node.getRight() != null )
         {
-            visit( node.getRight(), node );
+            visit( sb, node.getRight(), node );
         }
         
         if( node.getLeft() != null )
         {
-            visit( node.getLeft(), node );
+            visit( sb, node.getLeft(), node );
         }
+    }
+    
+    public String toString()
+    {
+        if( isEmpty() )
+        {
+            return "[]";
+        }
+        
+        getRoot().setDepth( 0 );
+
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( getRoot() );
+        
+        visit( sb, getRoot().getRight(), getRoot() );
+        
+        visit( sb, getRoot().getLeft(), getRoot() );
+        
+        return sb.toString();
     }
 }

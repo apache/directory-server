@@ -267,6 +267,14 @@ public class CacheRecordManager
                 throw new WrappedRuntimeException( except );
             }
         }
+        
+        if ( entry._obj instanceof byte[] )
+        {
+            byte[] copy = new byte[((byte[])entry._obj).length];
+            System.arraycopy( entry._obj, 0, copy, 0, ((byte[])entry._obj).length );
+            return copy;
+        }
+        
         return entry._obj;
     }
 
