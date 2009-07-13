@@ -835,23 +835,27 @@ public class LdapConnection  extends IoHandlerAdapter
         int abandonId = abandonRequest.getAbandonedMessageId();
 
         ResponseFuture rf = futureMap.remove( abandonId );
-        if( rf != null )
-        {
-            LOG.debug( "sending cancel signal to future" );
-            rf.cancel( true );
-        }
-        else
-        {
-            LOG.error( "There is no future asscoiated with operation message ID {}, perhaps the operation would have been completed", abandonId );
-        }
-        
         OperationResponseListener listener = listenerMap.remove( abandonId );
 
+        // if the listener is not null, this is a async operation and no need to
+        // send cancel signal on future, sending so will leave a dangling poision object in the corresponding queue
         if( listener != null )
         {
-            LOG.error( "removed the listener associated with the abandoned operation with id {}", abandonId );
+            LOG.debug( "removed the listener associated with the abandoned operation with id {}", abandonId );
         }
-
+        else // this is a sync operation send cancel signal to the corresponding ResponseFuture
+        {
+            if( rf != null )
+            {
+                LOG.debug( "sending cancel signal to future" );
+                rf.cancel( true );
+            }
+            else
+            {
+                // this shouldn't happen
+                LOG.error( "There is no future asscoiated with operation message ID {}, perhaps the operation would have been completed", abandonId );
+            }
+        }
     }
     
     
