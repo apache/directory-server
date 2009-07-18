@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.client.api.exception.InvalidConnectionEx
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.AddListener;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
+import org.apache.directory.shared.ldap.client.api.listeners.CompareListener;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
@@ -57,6 +58,8 @@ import org.apache.directory.shared.ldap.client.api.messages.AddRequest;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
 import org.apache.directory.shared.ldap.client.api.messages.BindResponse;
+import org.apache.directory.shared.ldap.client.api.messages.CompareRequest;
+import org.apache.directory.shared.ldap.client.api.messages.CompareResponse;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteRequest;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
@@ -87,6 +90,8 @@ import org.apache.directory.shared.ldap.codec.bind.BindResponseCodec;
 import org.apache.directory.shared.ldap.codec.bind.LdapAuthentication;
 import org.apache.directory.shared.ldap.codec.bind.SaslCredentials;
 import org.apache.directory.shared.ldap.codec.bind.SimpleAuthentication;
+import org.apache.directory.shared.ldap.codec.compare.CompareRequestCodec;
+import org.apache.directory.shared.ldap.codec.compare.CompareResponseCodec;
 import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
 import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
 import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
@@ -126,10 +131,6 @@ import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-// TODO : handle the MessageId for an abandonRequest adding Futures to async methods and
-//        check how to handle the synchronous methods for abandoning
-// TODO : return the created request, instead of an LdapResponse ( partly completed )
 
 /**
  * 
@@ -181,7 +182,7 @@ public class LdapConnection  extends IoHandlerAdapter
     private BlockingQueue<BindResponse> bindResponseQueue;
     
     /** A queue used to store the incoming compare responses */
-    private BlockingQueue<LdapMessageCodec> compareResponseQueue;
+    private BlockingQueue<CompareResponse> compareResponseQueue;
     
     /** A queue used to store the incoming delete responses */
     private BlockingQueue<DeleteResponse> deleteResponseQueue;
@@ -615,7 +616,7 @@ public class LdapConnection  extends IoHandlerAdapter
         // Create the responses queues
         addResponseQueue = new LinkedBlockingQueue<AddResponse>();
         bindResponseQueue = new LinkedBlockingQueue<BindResponse>();
-        compareResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
+        compareResponseQueue = new LinkedBlockingQueue<CompareResponse>();
         deleteResponseQueue = new LinkedBlockingQueue<DeleteResponse>();
         extendedResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
         modifyResponseQueue = new LinkedBlockingQueue<ModifyResponse>();
@@ -1489,7 +1490,23 @@ public class LdapConnection  extends IoHandlerAdapter
                 
             case LdapConstants.COMPARE_RESPONSE :
                 // Store the response into the responseQueue
-                compareResponseQueue.add( response ); 
+                CompareResponseCodec compResCodec = response.getCompareResponse();
+                compResCodec.setMessageId( response.getMessageId() );
+                compResCodec.addControl( response.getCurrentControl() );
+                CompareResponse compRes = convert( compResCodec );
+                
+                futureMap.remove( compRes.getMessageId() );
+                
+                CompareListener listener = ( CompareListener ) listenerMap.remove( compRes.getMessageId() );
+                if( listener != null )
+                {
+                    listener.attributeCompared( this, compRes );
+                }
+                else
+                {
+                    compareResponseQueue.add( compRes ); 
+                }
+                
                 break;
                 
             case LdapConstants.DEL_RESPONSE :
@@ -2172,6 +2189,131 @@ public class LdapConnection  extends IoHandlerAdapter
         unlockSession();
         
         return response;
+    }
+
+
+    /**
+     * @see #compare(LdapDN, String, Object) 
+     */
+    public CompareResponse compare( String dn, String attributeName, Object value ) throws LdapException
+    {
+        try
+        {
+            return compare( new LdapDN( dn ), attributeName, value );
+        }
+        catch( Exception e )
+        {
+            LOG.error( "Failed to perform compare operation", e );
+            throw new LdapException( e );
+        }
+    }
+
+    
+    /**
+     * compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's DN
+     * @param attributeName the attribute's name
+     * @param value a value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
+     */
+    public CompareResponse compare( LdapDN dn, String attributeName, Object value ) throws LdapException
+    {
+        CompareRequest compareRequest = new CompareRequest();
+        compareRequest.setEntryDn( dn );
+        compareRequest.setAttrName( attributeName );
+        compareRequest.setValue( value );
+        
+        return compare( compareRequest, null );
+    }
+
+    
+    /**
+     * compares an entry's attribute's value with that of the given value
+     *   
+     * @param compareRequest the CompareRequest which contains the target DN, attribute name and value
+     * @param listener a non-null listener if provided will be called to receive this operation's response asynchronously
+     * @return compare operation's reponse
+     * @throws LdapException
+     */
+    public CompareResponse compare( CompareRequest compareRequest, CompareListener listener ) throws LdapException
+    {
+        checkSession();
+
+        lockSession();
+        
+        CompareRequestCodec compareReqCodec = new CompareRequestCodec();
+        
+        int newId = messageId.incrementAndGet();
+        LdapMessageCodec message = new LdapMessageCodec();
+        message.setMessageId( newId );
+        compareReqCodec.setMessageId( newId );
+
+        compareReqCodec.setEntry( compareRequest.getEntryDn() );
+        compareReqCodec.setAttributeDesc( compareRequest.getAttrName() );
+        compareReqCodec.setAssertionValue( compareRequest.getValue() );
+        setControls( compareRequest.getControls(), compareReqCodec );
+        
+        message.setProtocolOP( compareReqCodec );
+        
+        ResponseFuture compareFuture = new ResponseFuture( compareResponseQueue );
+        futureMap.put( newId, compareFuture );
+
+        // Send the request to the server
+        ldapSession.write( message );
+        
+        CompareResponse response = null;
+        if( listener == null )
+        {
+            try
+            {
+                long timeout = getTimeout( compareRequest.getTimeout() );
+                response = ( CompareResponse ) compareFuture.get( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Compare failed : timeout occured" );
+                    unlockSession();
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
+            }
+            catch( InterruptedException ie )
+            {
+                LOG.error( "Operation would have been cancelled", ie );
+                throw new LdapException( ie );
+            }
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                futureMap.remove( newId );
+                unlockSession();
+                throw new LdapException( e );
+            }
+        }
+        else
+        {
+            listenerMap.put( newId, listener );            
+        }
+
+        unlockSession();
+        
+        return response;
+    }
+    
+    
+    /**
+     * converts the CompareResponseCodec to CompareResponse.
+     */
+    private CompareResponse convert( CompareResponseCodec compareRespCodec )
+    {
+        CompareResponse compareResponse = new CompareResponse();
+        
+        compareResponse.setMessageId( compareRespCodec.getMessageId() );
+        compareResponse.setLdapResult( convert( compareRespCodec.getLdapResult() ) );
+        
+        return compareResponse;
     }
 
     
