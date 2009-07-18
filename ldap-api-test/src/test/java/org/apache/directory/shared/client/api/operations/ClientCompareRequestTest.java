@@ -21,7 +21,6 @@ package org.apache.directory.shared.client.api.operations;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,12 +33,10 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
-import org.apache.directory.shared.ldap.client.api.listeners.AddListener;
-import org.apache.directory.shared.ldap.client.api.messages.AddRequest;
-import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
+import org.apache.directory.shared.ldap.client.api.listeners.CompareListener;
+import org.apache.directory.shared.ldap.client.api.messages.CompareRequest;
+import org.apache.directory.shared.ldap.client.api.messages.CompareResponse;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Before;
@@ -47,14 +44,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Tests the add operation
+ * Tests the compare operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 @RunWith(SiRunner.class)
 @CleanupLevel(Level.CLASS)
-public class ClientAddRequestTest
+public class ClientCompareRequestTest
 {
     /** The server instance */
     public static LdapServer ldapServer;
@@ -75,44 +72,39 @@ public class ClientAddRequestTest
     
     
     @Test
-    public void testAdd() throws Exception
+    public void testCompare() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=testadd,ou=system" );
-        Entry entry = new DefaultClientEntry( dn ); 
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
-        entry.add( SchemaConstants.CN_AT, "testadd_cn" );
-        entry.add( SchemaConstants.SN_AT, "testadd_sn" );
+        LdapDN dn = new LdapDN( "uid=admin,ou=system" );
         
-        assertFalse( session.exists( dn ) );
-        
-        AddResponse response = connection.add( entry );
+        CompareResponse response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
         assertNotNull( response );
-        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+        assertTrue( response.isTrue() );
         
-        assertTrue( session.exists( dn ) );
+        response = connection.compare( dn.getUpName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
+        assertNotNull( response );
+        assertTrue( response.isTrue() );
     }
 
     
     @Test
-    public void testAddAsync() throws Exception
+    public void testCompareAsync() throws Exception
     {
-        LdapDN dn = new LdapDN( "cn=testAsyncAdd,ou=system" );
-        Entry entry = new DefaultClientEntry( dn ); 
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
-        entry.add( SchemaConstants.CN_AT, "testAsyncAdd_cn" );
-        entry.add( SchemaConstants.SN_AT, "testAsyncAdd_sn" );
-        
-        assertFalse( session.exists( dn ) );
+        LdapDN dn = new LdapDN( "uid=admin,ou=system" );
 
         final Semaphore lock = new Semaphore( 1 );
         lock.acquire();
+        CompareRequest compareRequest = new CompareRequest();
+        compareRequest.setEntryDn( dn );
+        compareRequest.setAttrName( SchemaConstants.UID_AT );
+        compareRequest.setValue( "admin" );
         
-        connection.add( new AddRequest( entry ), new AddListener()
+        connection.compare( compareRequest, new CompareListener()
         {
-            public void entryAdded( LdapConnection connection, AddResponse response ) throws LdapException
+            
+            public void attributeCompared( LdapConnection connection, CompareResponse response ) throws LdapException
             {
                 assertNotNull( response );
-                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+                assertTrue( response.isTrue() );
                 lock.release();
             }
         });
