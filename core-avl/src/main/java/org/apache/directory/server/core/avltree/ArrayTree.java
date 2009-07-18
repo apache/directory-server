@@ -46,9 +46,6 @@ public class ArrayTree<K>
     /** The extend size to use when increasing the array size */
     private static final int INCREMENT = 16;
     
-    /** The current position in the array */
-    private int position;
-
     /**
      * Creates a new instance of AVLTree.
      *
@@ -59,7 +56,31 @@ public class ArrayTree<K>
         this.comparator = comparator;
         array = (K[])new Object[INCREMENT];
         size = 0;
-        position = 0;
+    }
+    
+    
+    /**
+     * Creates a new instance of AVLTree.
+     *
+     * @param comparator the comparator to be used for comparing keys
+     */
+    public ArrayTree( Comparator<K> comparator, K[] array )
+    {
+        this.comparator = comparator;
+        
+        if ( array != null )
+        {
+            size = array.length;
+            int arraySize = size;
+            
+            if ( size % INCREMENT != 0 )
+            {
+                arraySize += INCREMENT - size % INCREMENT;
+            }
+            
+            this.array = (K[])new Object[arraySize];
+            System.arraycopy( array, 0, this.array, 0, size );
+        }
     }
     
     
@@ -73,14 +94,29 @@ public class ArrayTree<K>
     
     
     /**
-     * Inserts a key.
+     * Inserts a key. Null value insertion is not allowed.
      *
-     * @param key the item to be inserted
+     * @param key the item to be inserted, should not be null
      * @return the replaced key if it already exists
      * Note: Ignores if the given key already exists.
      */
     public K insert( K key )
     {
+        if ( key == null )
+        {
+            // We don't allow null values in the tree
+            return null;
+        }
+        
+        // Check if the key already exists, and if so, return the
+        // existing one
+        K existing = find( key );
+        
+        if ( existing != null )
+        {
+            return existing;
+        }
+        
         if ( size == array.length )
         {
             // The array is full, let's extend it
@@ -89,15 +125,19 @@ public class ArrayTree<K>
             System.arraycopy( array, 0, newArray, 0, size );
             array = newArray;
         }
-        
+
+        // Currently, just add the element at the end of the array
+        // and sort the array. We could be more efficient by inserting the
+        // element at the right position by splitting the array in two
+        // parts and copying the right part one slot on the right.
         array[size++] = key;
         Arrays.sort( array, 0, size, comparator );
         
-        return key;
+        return null;
     }
     
     
-    /**
+    /**q<
      * Reduce the array size if neede
      */
     private void reduceArray()
@@ -122,7 +162,7 @@ public class ArrayTree<K>
     public K remove( K key )
     {
         // Search for the key position in the tree
-        int pos = findPosition( key );
+        int pos = getPosition( key );
         
         if ( pos != -1 )
         {
@@ -163,7 +203,7 @@ public class ArrayTree<K>
      * 
      * @return the number of nodes present in this tree
      */
-    public int getSize()
+    public int size()
     {
         return size;
     }
@@ -217,33 +257,19 @@ public class ArrayTree<K>
      * Get the element at a given position
      * @param position The position in the tree
      * @return The found key, or null if the position is out of scope
+     * @throws ArrayIndexOutOfBoundsException If the position is not within the array boundaries
      */
-    public K get( int position )
+    public K get( int position ) throws ArrayIndexOutOfBoundsException
     {
         if ( ( position < 0 ) || ( position >= size ) )
         {
-            return null;
+            throw new ArrayIndexOutOfBoundsException();
         }
         
         return array[position];
     }
     
     
-    /**
-     * Get the element at the current position
-     * @return The found key, or null if the position is out of scope
-     */
-    public K get()
-    {
-        if ( ( position < 0 ) || ( position >= size ) )
-        {
-            return null;
-        }
-        
-        return array[position];
-    }
-    
-
     /**
      * Get the first element in the tree. It sets the current position to this
      * element.
@@ -251,50 +277,14 @@ public class ArrayTree<K>
      */
     public K getFirst()
     {
-        position = 0;
-        
         if ( size != 0 )
         {
-            return array[position];
+            return array[0];
         }
         else
         {
             return null;
         }
-    }
-    
-    
-    /**
-     * Get the next element in the tree, from the current position. The position is
-     * changed accordingly
-     * @return The next element of this tree
-     */
-    public K getNext()
-    {
-        if ( ( position < 0 ) || ( position >= size - 1 ) )
-        {
-            return null;
-        }
-        
-        position++;
-        return array[position];
-    }
-    
-    
-    /**
-     * Get the previous element in the tree, from the current position. The position is
-     * changed accordingly
-     * @return The previous element of this tree
-     */
-    public K getPrevious()
-    {
-        if ( ( position <= 0 ) || ( position > size  - 1 ) )
-        {
-            return null;
-        }
-        
-        position--;
-        return array[position];
     }
     
     
@@ -305,11 +295,9 @@ public class ArrayTree<K>
      */
     public K getLast()
     {
-        position = size - 1;
-        
         if ( size != 0 )
         {
-            return array[position];
+            return array[size - 1];
         }
         else
         {
@@ -327,56 +315,111 @@ public class ArrayTree<K>
      */
     public K findGreater( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
             return null;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
-        
-        while ( previousCurrent != current )
+        switch ( size )
         {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                if ( current == size - 1 )
+            case 0 :
+                return null;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) > 0 )
                 {
-                    return null;
+                    return array[0];
                 }
                 else
                 {
-                    position = current + 1;
-                    return array[position];
+                    return null;
                 }
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (start + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (start + end ) >> 1 ;
-            }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) > 0 )
+                {
+                    return array[0];
+                }
+                else if ( comparator.compare( array[1], key ) > 0 )
+                {
+                    return array[1];
+                }
+                else
+                {
+                    return null;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        // Current can't be equal to zero at this point
+                        return array[current + 1];
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        int res = comparator.compare( array[start], key );
+                        
+                        if ( res <= 0 )
+                        {
+                            if ( start == size )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start + 1];
+                            }
+                        }
+
+                        return array[start];
+                        
+                    case 2 :
+                        res = comparator.compare( array[start], key );
+                        
+                        if ( res <= 0 )
+                        {
+                            res = comparator.compare( array[start + 1], key );
+                            
+                            if ( res <= 0 )
+                            {
+                                if ( start == size - 2)
+                                {
+                                    return null;
+                                }
+                            
+                                return array[start + 2];
+                            }
+                            
+                            return array[start + 1];
+                        }
+
+                        return array[start];
+                }
         }
         
-        // We haven't found the element, so take the next one
-        if ( current == size - 1 )
-        {
-            return null;
-        }
-        else
-        {
-            position = current + 1;
-            return array[position];
-        }
+        return null;
     }
 
 
@@ -389,49 +432,112 @@ public class ArrayTree<K>
      */
     public K findGreaterOrEqual( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
             return null;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
+        switch ( size )
+        {
+            case 0 :
+                return null;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) >= 0 )
+                {
+                    return array[0];
+                }
+                else
+                {
+                    return null;
+                }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) >= 0 )
+                {
+                    return array[0];
+                }
+                else if ( comparator.compare( array[1], key ) >= 0 )
+                {
+                    return array[1];
+                }
+                else
+                {
+                    return null;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        return array[current];
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        int res = comparator.compare( array[start], key );
+                        
+                        if ( res >= 0)
+                        {
+                            return array[start];
+                        }
+                        else
+                        {
+                            if ( start == size - 1 )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start + 1];
+                            }
+                        }
+                        
+                    case 2 :
+                        res = comparator.compare( array[start], key );
+                        
+                        if ( res < 0 )
+                        {
+                            res = comparator.compare( array[start + 1], key );
+                            
+                            if ( res < 0 )
+                            {
+                                if ( start == size - 2)
+                                {
+                                    return null;
+                                }
+                            
+                                return array[start + 2];
+                            }
+                            
+                            return array[start + 1];
+                        }
 
-        while ( previousCurrent != current )
-        {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                position = current;
-                return array[current];
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (current + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (current + start ) >> 1 ;
-            }
+                        return array[start];
+                }
         }
         
-        // We haven't found the element, so take the next one
-        if ( current == size - 1 )
-        {
-            return null;
-        }
-        else
-        {
-            position = current + 1;
-            return array[position];
-        }
+        return null;
     }
 
 
@@ -444,56 +550,132 @@ public class ArrayTree<K>
      */
     public K findLess( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
             return null;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
-        
-        while ( previousCurrent != current )
+        switch ( size )
         {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                if ( current == 0 )
+            case 0 :
+                return null;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) >= 0 )
                 {
                     return null;
                 }
                 else
                 {
-                    position = current - 1;
-                    return array[position];
+                    return array[0];
                 }
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (current + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (current + start ) >> 1 ;
-            }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) >= 0 )
+                {
+                    return null;
+                }
+                else if ( comparator.compare( array[1], key ) >= 0 )
+                {
+                    return array[0];
+                }
+                else
+                {
+                    return array[1];
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        // Current can't be equal to zero at this point
+                        return array[current - 1];
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        // Three cases :
+                        // o The value is equal to the current position, or below
+                        // the current position :
+                        //   - if the current position is at the beginning
+                        //     of the array, return null
+                        //   - otherwise, return the previous position in the array
+                        // o The value is above the current position :
+                        //   - return the current position
+                        int res = comparator.compare( array[start], key );
+                        
+                        if ( res >= 0)
+                        {
+                            // start can be equal to 0. Check that
+                            if ( start == 1 )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start - 1];
+                            }
+                        }
+                        else
+                        {
+                            return array[start];
+                        }
+                        
+                    case 2 :
+                        // Four cases :
+                        // o the value is equal the current position, or below 
+                        //   the first position :
+                        //   - if the current position is at the beginning
+                        //     of the array, return null
+                        //   - otherwise, return the previous element
+                        // o the value is above the first position but below
+                        //   or equal the second position, return the first position
+                        // o otherwise, return the second position
+                        res = comparator.compare( array[start], key );
+                        
+                        if ( res >= 0 )
+                        {
+                            if ( start == 0 )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start - 1];
+                            }
+                        }
+                        else if ( comparator.compare( array[start + 1], key ) >= 0 )
+                        {
+                            return array[start];
+                        }
+                        else
+                        {
+                            return  array[start + 1];
+                        }
+                }
         }
         
-        // We haven't found the element, so take the previous one
-        if ( current == 0 )
-        {
-            return null;
-        }
-        else
-        {
-            position = current;
-            return array[current];
-        }
+        return null;
     }
 
 
@@ -506,135 +688,577 @@ public class ArrayTree<K>
      */
     public K findLessOrEqual( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
             return null;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
-        
-        while ( previousCurrent != current )
+        switch ( size )
         {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                position = current;
-                return array[current];
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (current + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (current + start ) >> 1 ;
-            }
+            case 0 :
+                return null;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) <= 0 )
+                {
+                    return array[0];
+                }
+                else
+                {
+                    return null;
+                }
+                
+            case 2 :
+                int res = comparator.compare( array[0], key );
+                
+                if ( res > 0 )
+                {
+                    return null;
+                }
+                else if ( res == 0 )
+                {
+                    return array[0];
+                }
+                
+                res = comparator.compare( array[1], key );
+                
+                if ( res == 0 )
+                {
+                    return array[1];
+                }
+                else if ( comparator.compare( array[1], key ) > 0 )
+                {
+                    return array[0];
+                }
+                else
+                {
+                    return array[1];
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        return array[current];
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        // Three cases :
+                        // o The value is equal to the current position, or below
+                        // the current position :
+                        //   - if the current position is at the beginning
+                        //     of the array, return null
+                        //   - otherwise, return the previous position in the array
+                        // o The value is above the current position :
+                        //   - return the current position
+                        res = comparator.compare( array[start], key );
+                        
+                        if ( res > 0)
+                        {
+                            // start can be equal to 0. Check that
+                            if ( start == 1 )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start - 1];
+                            }
+                        }
+                        else
+                        {
+                            return array[start];
+                        }
+                        
+                    case 2 :
+                        // Four cases :
+                        // o the value is equal the current position, or below 
+                        //   the first position :
+                        //   - if the current position is at the beginning
+                        //     of the array, return null
+                        //   - otherwise, return the previous element
+                        // o the value is above the first position but below
+                        //   or equal the second position, return the first position
+                        // o otherwise, return the second position
+                        res = comparator.compare( array[start], key );
+                        
+                        if ( res > 0 )
+                        {
+                            if ( start == 0 )
+                            {
+                                return null;
+                            }
+                            else
+                            {
+                                return array[start - 1];
+                            }
+                        }
+                        
+                        res = comparator.compare( array[start + 1], key );
+                        
+                        if ( res > 0 )
+                        {
+                            return array[start];
+                        }
+                        else
+                        {
+                            return  array[start + 1];
+                        }
+                }
         }
         
-        // We haven't found the element, so take the previous one
-        if ( current == 0 )
-        {
-            return null;
-        }
-        else
-        {
-            position = current - 1;
-            return array[position];
-        }
+        return null;
     }
     
     
     /**
-     * Find 
+     * Find an element in the array. 
      *
      * @param key the key to find
-     * @return the list of traversed LinkedAvlNode.
+     * @return the found node, or null
      */
     public K find( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
-            position = 0;
             return null;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
-        
-        while ( previousCurrent != current )
+        switch ( size )
         {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                position = current;
-                return key;
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (current + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (current + start ) >> 1 ;
-            }
+            case 0 :
+                return null;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) == 0 )
+                {
+                    return array[0];
+                }
+                else
+                {
+                    return null;
+                }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) == 0 )
+                {
+                    return array[0];
+                }
+                else if ( comparator.compare( array[1], key ) == 0 )
+                {
+                    return array[1];
+                }
+                else
+                {
+                    return  null;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        return array[current];
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        if ( comparator.compare(  array[start], key ) == 0 )
+                        {
+                            return array[start];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                        
+                    case 2 :
+                        if ( comparator.compare( array[start], key ) == 0 )
+                        {
+                            return array[start];
+                        }
+                        else if ( comparator.compare( array[end], key ) == 0 )
+                        {
+                            return array[end];
+                        }
+                        else
+                        {
+                            return  null;
+                        }
+                }
         }
         
-        position = 0;
         return null;
     }
     
 
-    private int findPosition( K key )
+    /**
+     * Find the element position in the array. 
+     *
+     * @param key the key to find
+     * @return the position in the array, or -1 if not found
+     */
+    public int getPosition( K key )
     {
-        if ( size == 0 )
+        if ( key == null )
         {
             return -1;
         }
         
-        int current = size >> 1;
-        int end = size;
-        int start = 0;
-        int previousCurrent = -1;
-        
-        while ( previousCurrent != current )
+        switch ( size )
         {
-            int res = comparator.compare( array[current], key ) ;
-            
-            if ( res == 0 )
-            {
-                position = current;
-                return current;
-            }
-            else if ( res < 0 )
-            {
-                start = current;
-                previousCurrent = current;
-                current = (current + end ) >> 1;
-            }
-            else
-            {
-                end = current;
-                previousCurrent = current;
-                current = (current + start ) >> 1 ;
-            }
+            case 0 :
+                return -1;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) == 0 )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) == 0 )
+                {
+                    return 0;
+                }
+                else if ( comparator.compare( array[1], key ) == 0 )
+                {
+                    return 1;
+                }
+                else
+                {
+                    return  -1;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        return current;
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        if ( comparator.compare(  array[start], key ) == 0 )
+                        {
+                            return start;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                        
+                    case 2 :
+                        if ( comparator.compare( array[start], key ) == 0 )
+                        {
+                            return start;
+                        }
+                        else if ( comparator.compare( array[end], key ) == 0 )
+                        {
+                            return end;
+                        }
+                        else
+                        {
+                            return  -1;
+                        }
+                }
         }
         
         return -1;
+    }
+    
+    
+    /**
+     * Find the element position in the array, or the position of the closest greater element in the array. 
+     *
+     * @param key the key to find
+     * @return the position in the array, or -1 if not found
+     */
+    public int getAfterPosition( K key )
+    {
+        if ( key == null )
+        {
+            return -1;
+        }
+        
+        switch ( size )
+        {
+            case 0 :
+                return -1;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) > 0 )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+                
+            case 2 :
+                if ( comparator.compare( array[0], key ) > 0 )
+                {
+                    return 0;
+                }
+                
+                if ( comparator.compare( array[1], key ) > 0 )
+                {
+                    return 1;
+                }
+                else
+                {
+                    return  -1;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        if ( current != size - 1 )
+                        {
+                            return current + 1;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        if ( comparator.compare( array[start], key ) > 0 )
+                        {
+                            return start;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                        
+                    case 2 :
+                        if ( comparator.compare( array[start], key ) > 0 )
+                        {
+                            return start;
+                        }
+                        
+                        if ( comparator.compare( array[end], key ) > 0 )
+                        {
+                            return end;
+                        }
+                        else
+                        {
+                            return  -1;
+                        }
+                }
+        }
+        
+        return -1;
+    }
+    
+    
+    /**
+     * Find the element position in the array, or the position of the closest greater element in the array. 
+     *
+     * @param key the key to find
+     * @return the position in the array, or -1 if not found
+     */
+    public int getBeforePosition( K key )
+    {
+        if ( key == null )
+        {
+            return -1;
+        }
+        
+        switch ( size )
+        {
+            case 0 :
+                return -1;
+                
+            case 1 :
+                if ( comparator.compare( array[0], key ) < 0 )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+                
+            case 2 :
+                if ( comparator.compare( array[1], key ) < 0 )
+                {
+                    return 1;
+                }
+                
+                if ( comparator.compare( array[0], key ) < 0 )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return  -1;
+                }
+                
+            default :
+                // Split the array in two parts, the left part an the right part
+                int current = size >> 1;
+                int start = 0;
+                int end = size - 1;
+                
+                while ( end - start + 1 > 2 )
+                {
+                    int res = comparator.compare( array[current], key ) ;
+                    
+                    if ( res == 0 )
+                    {
+                        if ( current == 0 )
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return current - 1;
+                        }
+                    }
+                    else if ( res < 0 )
+                    {
+                        start = current;
+                        current = (current + end + 1) >> 1;
+                    }
+                    else
+                    {
+                        end = current;
+                        current = (current + start + 1) >> 1 ;
+                    }
+                }
+                
+                switch ( end - start + 1 )
+                {
+                    case 1 :
+                        if ( comparator.compare(  array[start], key ) < 0 )
+                        {
+                            return start;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                        
+                    case 2 :
+                        if ( comparator.compare( array[end], key ) < 0 )
+                        {
+                            return end;
+                        }
+                        
+                        if ( comparator.compare( array[start], key ) < 0 )
+                        {
+                            return start;
+                        }
+                        else
+                        {
+                            return  -1;
+                        }
+                }
+        }
+        
+        return -1;
+    }
+
+    
+    /**
+     * Tells if a key exist in the array.
+     * 
+     * @param key The key to look for
+     * @return true if the key exist in the array
+     */
+    public boolean contains( K key )
+    {
+        return find( key ) != null;
     }
     
     

@@ -47,6 +47,9 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
 
     /** A flag to tell if we are before the first node */
     private boolean isBeforeFirst = true;
+    
+    /** The current position in the array */
+    private int current;
  
     
     /**
@@ -56,6 +59,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public ArrayTreeCursor( ArrayTree<K> array )
     {
         this.array = array;
+        current = -1;
     }
 
     
@@ -72,18 +76,20 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        K found = array.findGreater( element );
+        int found = array.getAfterPosition( element );
         
-        if ( found == null )
+        if ( found == -1 )
         {
-            node = array.getLast();
-            onNode = false;
-            isAfterLast = true;
-            isBeforeFirst = false;
+            // As the element has not been found, we move after the last
+            // position
+            afterLast();
             return;
         }
 
-        node = found;
+        // The element has been found, we have to pick the node,
+        // set the current position, and update the flags.
+        current = found;
+        //node = array.get( current );
         isAfterLast = false;
         isBeforeFirst = false;
         onNode = false;
@@ -96,6 +102,8 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public void afterLast() throws Exception 
     {
         checkNotClosed( "afterLast" );
+        
+        current = array.size() - 1;
         node = array.getLast();
         isBeforeFirst = false;
         isAfterLast = true;
@@ -125,22 +133,21 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
             return;
         }
 
-        K found = array.findLess( element );
-        
-        if ( found == null )
+        int found = array.getBeforePosition( element );
+
+        // If the element has not been found, move to the
+        // first position
+        if ( found < 0 )
         {
-            node = array.getFirst();
-            isAfterLast = false;
-            isBeforeFirst = true;
-        }
-        else
-        {
-            node = found;
-            isAfterLast = false;
-            isBeforeFirst = false;
+            beforeFirst();
+            return;
         }
         
-        onNode = false;
+        current = found;
+        isAfterLast = false;
+        isBeforeFirst = false;
+        onNode = true;
+        node = array.get( current );
     }
 
 
@@ -150,6 +157,8 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public void beforeFirst() throws Exception 
     {
         checkNotClosed( "beforeFirst" );
+        
+        current = 0;
         node = array.getFirst();
         isBeforeFirst = true;
         isAfterLast = false;
@@ -164,6 +173,7 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     {
         checkNotClosed( "first" );
         
+        current = 0;
         node = array.getFirst();
         isBeforeFirst = false;
         isAfterLast = false;
@@ -202,6 +212,8 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public boolean last() throws Exception 
     {
         checkNotClosed( "last" );
+
+        current = array.size() - 1;
         node = array.getLast();
         isBeforeFirst = false;
         isAfterLast = false;
@@ -216,27 +228,41 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     {
         checkNotClosed( "next" );
         
-        if ( isAfterLast )
+        // If the array is empty, return false
+        if ( array.size() == 0 )
         {
             return false;
         }
-
-        if ( isBeforeFirst )
+        
+        // If we are at the beginning
+        if ( isBeforeFirst ) 
         {
+            current = 0;
             node = array.getFirst();
             isBeforeFirst = false;
             isAfterLast = false;
             onNode = node != null;
             return onNode;
         }
-
-        node = array.getNext();
-        onNode = node != null;
         
-        if ( !onNode )
+        if ( isAfterLast )
         {
-            isAfterLast = true;
+            return false;
         }
+
+        if ( onNode )
+        {
+            current++;
+            
+            if ( current == array.size() )
+            {
+                afterLast();
+                return false;
+            }
+        }
+        
+        node = array.get( current );
+        onNode = node != null;
         
         return onNode;
     }
@@ -248,7 +274,12 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous" );
-
+        
+        if ( array.size() == 0 )
+        {
+            return false;
+        }
+        
         if ( isBeforeFirst )
         {
             return false;
@@ -256,19 +287,26 @@ public class ArrayTreeCursor<K> extends AbstractCursor<K>
 
         if ( isAfterLast )
         {
+            current = array.size() - 1;
             node = array.getLast();
             isBeforeFirst = false;
             isAfterLast = false;
             return onNode = node != null;
         }
 
-        node = array.getPrevious();
-        onNode = node != null;
-        
-        if ( !onNode )
+        if ( onNode )
         {
-            isBeforeFirst = true;
+            current--;
+    
+            if ( current < 0 )
+            {
+                beforeFirst();
+                return false;
+            }
         }
+        
+        node = array.get( current );
+        onNode = node != null;
         
         return onNode;
     }
