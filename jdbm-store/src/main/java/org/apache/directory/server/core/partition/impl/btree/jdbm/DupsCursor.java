@@ -22,8 +22,8 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import jdbm.btree.BTree;
 
-import org.apache.directory.server.core.avltree.AvlTree;
-import org.apache.directory.server.core.avltree.AvlTreeCursor;
+import org.apache.directory.server.core.avltree.ArrayTree;
+import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -112,10 +112,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
             containerTuple.setBoth( containerCursor.get() );
             DupsContainer<V> values = containerTuple.getValue();
 
-            if ( values.isAvlTree() )
+            if ( values.isArrayTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
-                dupsCursor = new AvlTreeCursor<V>( set );
+                ArrayTree<V> set = values.getArrayTree();
+                dupsCursor = new ArrayTreeCursor<V>( set );
             }
             else
             {
@@ -154,7 +154,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
         checkNotClosed( "afterValue()" );
         /*
          * There is a subtle difference between after and before handling
-         * with dupicate key values.  Say we have the following tuples:
+         * with duplicate key values.  Say we have the following tuples:
          *
          * (0, 0)
          * (1, 1)
@@ -187,10 +187,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
             containerTuple.setBoth( containerCursor.get() );
             DupsContainer<V> values = containerTuple.getValue();
 
-            if ( values.isAvlTree() )
+            if ( values.isArrayTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
-                dupsCursor = new AvlTreeCursor<V>( set );
+                ArrayTree<V> set = values.getArrayTree();
+                dupsCursor = new ArrayTreeCursor<V>( set );
             }
             else
             {
@@ -263,9 +263,9 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
             containerTuple.setBoth( containerCursor.get() );
             DupsContainer<V> values = containerTuple.getValue();
 
-            if ( containerTuple.getValue().isAvlTree() )
+            if ( containerTuple.getValue().isArrayTree() )
             {
-                dupsCursor = new AvlTreeCursor<V>( values.getAvlTree() );
+                dupsCursor = new ArrayTreeCursor<V>( values.getArrayTree() );
             }
             else
             {
@@ -300,10 +300,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
             containerTuple.setBoth( containerCursor.get() );
             DupsContainer<V> values = containerTuple.getValue();
 
-            if ( values.isAvlTree() )
+            if ( values.isArrayTree() )
             {
-                AvlTree<V> set = values.getAvlTree();
-                dupsCursor = new AvlTreeCursor<V>( set );
+                ArrayTree<V> set = values.getArrayTree();
+                dupsCursor = new ArrayTreeCursor<V>( set );
             }
             else
             {
@@ -355,10 +355,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
                 containerTuple.setBoth( containerCursor.get() );
                 DupsContainer<V> values = containerTuple.getValue();
 
-                if ( values.isAvlTree() )
+                if ( values.isArrayTree() )
                 {
-                    AvlTree<V> set = values.getAvlTree();
-                    dupsCursor = new AvlTreeCursor<V>( set );
+                    ArrayTree<V> set = values.getArrayTree();
+                    dupsCursor = new ArrayTreeCursor<V>( set );
                 }
                 else
                 {
@@ -406,10 +406,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
                 containerTuple.setBoth( containerCursor.get() );
                 DupsContainer<V> values = containerTuple.getValue();
 
-                if ( values.isAvlTree() )
+                if ( values.isArrayTree() )
                 {
-                    AvlTree<V> set = values.getAvlTree();
-                    dupsCursor = new AvlTreeCursor<V>( set );
+                    ArrayTree<V> set = values.getArrayTree();
+                    dupsCursor = new ArrayTreeCursor<V>( set );
                 }
                 else
                 {

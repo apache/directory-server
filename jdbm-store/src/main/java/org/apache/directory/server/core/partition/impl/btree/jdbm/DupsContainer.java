@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.avltree.AvlTree;
+import org.apache.directory.server.core.avltree.ArrayTree;
 
 
 /**
@@ -34,20 +34,20 @@ import org.apache.directory.server.core.avltree.AvlTree;
  */
 public class DupsContainer<V>
 {
-    private final AvlTree<V> avlTree;
+    private final ArrayTree<V> arrayTree;
     private final BTreeRedirect btreeRedirect;
 
 
-    DupsContainer( AvlTree<V> avlTree )
+    DupsContainer( ArrayTree<V> arrayTree )
     {
-        this.avlTree = avlTree;
+        this.arrayTree = arrayTree;
         btreeRedirect = null;
     }
 
 
     DupsContainer( BTreeRedirect btreeRedirect )
     {
-        avlTree = null;
+        arrayTree = null;
         this.btreeRedirect = btreeRedirect;
     }
 
@@ -58,20 +58,20 @@ public class DupsContainer<V>
     }
 
 
-    final boolean isAvlTree()
+    final boolean isArrayTree()
     {
-        return avlTree != null;
+        return arrayTree != null;
     }
 
 
-    final AvlTree<V> getAvlTree()
+    final ArrayTree<V> getArrayTree()
     {
-        if ( avlTree == null )
+        if ( arrayTree == null )
         {
-            throw new IllegalStateException( "this is not a avlTree container" );
+            throw new IllegalStateException( "this is not an arrayTree container" );
         }
 
-        return avlTree;
+        return arrayTree;
     }
 
 

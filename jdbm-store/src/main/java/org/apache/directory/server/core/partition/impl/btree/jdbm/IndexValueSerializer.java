@@ -23,9 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import org.apache.directory.server.core.avltree.AvlTree;
-import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
-import org.apache.directory.server.core.entry.ServerEntrySerializer;
+import org.apache.directory.server.core.avltree.ArrayTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +64,10 @@ public class IndexValueSerializer implements Serializer
      */
     public byte[] serialize( Object obj ) throws IOException
     {
-        if ( obj instanceof AvlTree )
+        if ( obj instanceof ArrayTree )
         {
             LOG.debug( "Serializing an AvlTree" );
-            return serialize( (AvlTree<?>)obj );
+            return serialize( (ArrayTree<?>)obj );
         }
         else if ( obj instanceof BTree )
         {
@@ -138,9 +136,9 @@ public class IndexValueSerializer implements Serializer
 
     
     /**
-     * Serialize a BTree value
+     * Serialize a AvlTree value
      */
-    private byte[] serialize( AvlTree<?> avlTree ) throws IOException
+    private byte[] serialize( ArrayTree<?> arrayTree ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );

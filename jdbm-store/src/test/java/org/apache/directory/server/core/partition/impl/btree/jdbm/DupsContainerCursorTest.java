@@ -150,7 +150,7 @@ public class DupsContainerCursorTest
 
         Tuple<Integer,DupsContainer<Integer>> tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 1 ) );
-        assertEquals( 1, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertEquals( 1, ( int ) tuple.getValue().getArrayTree().getFirst() );
 
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
@@ -174,13 +174,13 @@ public class DupsContainerCursorTest
 
         Tuple<Integer,DupsContainer<Integer>> tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 3 ) );
-        assertEquals( 3, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertEquals( 3, ( int ) tuple.getValue().getArrayTree().getFirst() );
 
         cursor.before( new Tuple<Integer,DupsContainer<Integer>>( 7, null ) );
         cursor.next();
         tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 7 ) );
-        assertEquals( 7, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertEquals( 7, ( int ) tuple.getValue().getArrayTree().getFirst() );
 
         cursor.last();
         cursor.next();
@@ -193,7 +193,7 @@ public class DupsContainerCursorTest
         cursor.next();
         tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 1 ) );
-        assertEquals( 1, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertEquals( 1, ( int ) tuple.getValue().getArrayTree().getFirst() );
 
         cursor.afterLast();
         assertFalse( cursor.next() );
@@ -209,7 +209,7 @@ public class DupsContainerCursorTest
         cursor.next(); // this moves onto tuple with key 2
         tuple = cursor.get();
         assertTrue( tuple.getKey().equals( 2 ) );
-        assertEquals( 2, ( int ) tuple.getValue().getAvlTree().getFirst().getKey() );
+        assertEquals( 2, ( int ) tuple.getValue().getArrayTree().getFirst() );
     }
 
 
