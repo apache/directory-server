@@ -43,6 +43,11 @@ public class DefaultJournal implements Journal
     /** An instance of the Journal store */
     private JournalStore store;
 
+    /** 
+     * A parameter indicating the number of operations stored in a journal
+     * before it is rotated. If set to 0, no rotation is done
+     */ 
+    private int rotation;
     
     /**
      * {@inheritDoc}
@@ -119,6 +124,24 @@ public class DefaultJournal implements Journal
     }
 
 
+    /**
+     * @return the rotation
+     */
+    public int getRotation()
+    {
+        return rotation;
+    }
+
+
+    /**
+     * @param rotation the rotation to set
+     */
+    public void setRotation( int rotation )
+    {
+        this.rotation = rotation;
+    }
+
+    
     public void setEnabled( boolean enabled )
     {
         // TODO Auto-generated method stub

@@ -64,14 +64,20 @@ public class DefaultChangeLog implements ChangeLog
     /** A volatile flag used to avoid store switching when in use */
     private volatile boolean storeInitialized = false;
 
-    private boolean exposeChangeLog;
+    /** A flag used to tell if the changeLog system is vivible by the clients */
+    private boolean exposed;
 
     // default values for ChangeLogStorePartition containers
-    private String partitionSuffix = "ou=changelog";
-    private String revContainerName = "ou=revisions";
-    private String tagContainerName = "ou=tags";
+    private static final String DEFAULT_PARTITION_SUFFIX = "ou=changelog";
+    private static final String DEFAULT_REV_CONTAINER_NAME = "ou=revisions";
+    private static final String DEFAULT_TAG_CONTAINER_NAME = "ou=tags";
 
+    // default values for ChangeLogStorePartition containers
+    private String partitionSuffix = DEFAULT_PARTITION_SUFFIX;
+    private String revContainerName = DEFAULT_REV_CONTAINER_NAME;
+    private String tagContainerName = DEFAULT_TAG_CONTAINER_NAME;
 
+    
     /**
      * {@inheritDoc}
      */
@@ -299,7 +305,7 @@ public class DefaultChangeLog implements ChangeLog
             
             store.init( service );
 
-            if ( exposeChangeLog && isTagSearchSupported() )
+            if ( exposed && isTagSearchSupported() )
             {
                 TaggableSearchableChangeLogStore tmp = ( TaggableSearchableChangeLogStore ) store;
                 
@@ -344,25 +350,25 @@ public class DefaultChangeLog implements ChangeLog
 
 
     /**
-     * @see ChangeLog#isExposeChangeLog()
+     * {@inheritDoc}
      */
-    public boolean isExposeChangeLog()
+    public boolean isExposed()
     {
-        return exposeChangeLog;
+        return exposed;
     }
 
 
     /**
-     * @see ChangeLog#setExposeChangeLog(boolean)
+     * {@inheritDoc}
      */
-    public void setExposeChangeLog( boolean exposeChangeLog )
+    public void setExposed( boolean exposed )
     {
-        this.exposeChangeLog = exposeChangeLog;
+        this.exposed = exposed;
     }
 
 
     /**
-     * @see ChangeLog#setPartitionSuffix(String)
+     * {@inheritDoc}
      */
     public void setPartitionSuffix( String suffix )
     {
@@ -371,7 +377,7 @@ public class DefaultChangeLog implements ChangeLog
 
 
     /**
-     * @see ChangeLog#setRevisionsContainerName(String)
+     * {@inheritDoc}
      */
     public void setRevisionsContainerName( String revContainerName )
     {
@@ -380,7 +386,7 @@ public class DefaultChangeLog implements ChangeLog
 
 
     /**
-     * @see ChangeLog#setTagsContainerName(String)
+     * {@inheritDoc}
      */
     public void setTagsContainerName( String tagContainerName )
     {

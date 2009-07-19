@@ -103,4 +103,16 @@ public interface Journal
      * @throws Exception If something went wrong
      */
     void destroy() throws Exception;
+
+
+    /**
+     * @return the rotation
+     */
+    int getRotation();
+
+
+    /**
+     * @param rotation the rotation to set
+     */
+    void setRotation( int rotation );
 }

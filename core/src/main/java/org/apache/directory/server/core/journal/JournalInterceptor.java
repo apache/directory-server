@@ -58,12 +58,6 @@ public class JournalInterceptor extends BaseInterceptor
     /** A shared number stored within each change */ 
     private AtomicLong revision;
     
-    /** 
-     * A parameter indicating the number of operations stored in a journal
-     * before it is rotated. If set to 0, no rotation is done
-     */ 
-    private int rotation;
-    
     /** the Journal service to log changes to */
     private Journal journal;
     
@@ -368,22 +362,4 @@ public class JournalInterceptor extends BaseInterceptor
             throw e;
         }
    }
-
-
-    /**
-     * @return the rotation
-     */
-    public int getRotation()
-    {
-        return rotation;
-    }
-
-
-    /**
-     * @param rotation the rotation to set
-     */
-    public void setRotation( int rotation )
-    {
-        this.rotation = rotation;
-    }
 }

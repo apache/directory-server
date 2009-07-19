@@ -225,15 +225,14 @@ public interface ChangeLog
     /**
      * Exposes the contents of ChangeLog to clients if set to true. Default setting is false.
      *
-     * @param exposeChangeLog true to expose the contents, false to not expose.
+     * @param exposed true to expose the contents, false to not expose.
      */
-    void setExposeChangeLog( boolean exposeChangeLog );
+    void setExposed( boolean exposed );
     
     /**
-     * DODO: Add Javadoc
-     * @return
+     * @return true if the changeLog system is visible by clients
      */
-    boolean isExposeChangeLog();
+    boolean isExposed();
     
     /**
      * The prefix of the partition. Default value is <i>ou=changelog</i>.
