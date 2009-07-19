@@ -53,8 +53,8 @@ public class SearchRequest extends AbstractRequest implements AbandonableRequest
     /** Max seconds to wait for search to complete */
     private int timeLimit;
 
-    /** Alias dereferencing mode enumeration value */
-    private AliasDerefMode aliasDerefMode;
+    /** Alias dereferencing mode enumeration value, default is set to "always" */
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
     /** Attributes to return */
     private Set<String> attributes = new HashSet<String>();
