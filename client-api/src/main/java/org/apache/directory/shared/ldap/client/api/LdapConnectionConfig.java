@@ -20,6 +20,11 @@
 
 package org.apache.directory.shared.ldap.client.api;
 
+import java.security.SecureRandom;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
+
 
 /**
  * A class to hold the configuration for creating an LdapConnection.
@@ -44,6 +49,8 @@ public class LdapConnectionConfig
     /** The default timeout for operation : 30 seconds */
     public static final long DEFAULT_TIMEOUT = 30000L;
 
+    /** the default protocol used for creating SSL context */
+    public static final String DEFAULT_SSL_PROTOCOL = "TLS";
     
     // --- private members ----
     
@@ -62,7 +69,18 @@ public class LdapConnectionConfig
     /** user's credentials ( current implementation supports password only); it must be a non-null value */
     private byte[] credentials;
 
+    /** an array of key managers, if set, will be used while initializing the SSL context */
+    private KeyManager[] keyManagers;
+    
+    /** an instance of SecureRandom, if set, will be used while initializing the SSL context */
+    private SecureRandom secureRandom;
+    
+    /** an array of certificate trust managers, if set, will be used while initializing the SSL context */
+    private TrustManager[] trustManagers;
 
+    /** name of the protocol used for creating SSL context, default value is "TLS" */
+    private String sslProtocol = DEFAULT_SSL_PROTOCOL;
+    
     public boolean isUseSsl()
     {
         return useSsl;
@@ -152,4 +170,52 @@ public class LdapConnectionConfig
         return LDAP_V3;
     }
 
+
+    public TrustManager[] getTrustManagers()
+    {
+        return trustManagers;
+    }
+
+
+    public void setTrustManagers( TrustManager[] trustManagers )
+    {
+        this.trustManagers = trustManagers;
+    }
+
+
+    public String getSslProtocol()
+    {
+        return sslProtocol;
+    }
+
+
+    public void setSslProtocol( String sslProtocol )
+    {
+        this.sslProtocol = sslProtocol;
+    }
+
+
+    public KeyManager[] getKeyManagers()
+    {
+        return keyManagers;
+    }
+
+
+    public void setKeyManagers( KeyManager[] keyManagers )
+    {
+        this.keyManagers = keyManagers;
+    }
+
+
+    public SecureRandom getSecureRandom()
+    {
+        return secureRandom;
+    }
+
+
+    public void setSecureRandom( SecureRandom secureRandom )
+    {
+        this.secureRandom = secureRandom;
+    }
+    
 }

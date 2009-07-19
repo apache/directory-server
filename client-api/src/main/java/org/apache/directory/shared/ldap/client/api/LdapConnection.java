@@ -467,6 +467,8 @@ public class LdapConnection  extends IoHandlerAdapter
     public LdapConnection( LdapConnectionConfig config )
     {
         this.config = config;
+        messageId = new AtomicInteger();
+        operationMutex = new Semaphore(1);
     }
     
     
@@ -578,10 +580,20 @@ public class LdapConnection  extends IoHandlerAdapter
             // If we use SSL, we have to add the SslFilter to the chain
             if ( config.isUseSsl() ) 
             {
-                SSLContext sslContext = null; // BogusSslContextFactory.getInstance( false );
-                SslFilter sslFilter = new SslFilter( sslContext );
-                sslFilter.setUseClientMode(true);
-                connector.getFilterChain().addLast( "sslFilter", sslFilter );
+                try
+                {
+                    SSLContext sslContext = SSLContext.getInstance( config.getSslProtocol() );
+                    sslContext.init( config.getKeyManagers(), config.getTrustManagers(), config.getSecureRandom() );
+
+                    SslFilter sslFilter = new SslFilter( sslContext );
+                    sslFilter.setUseClientMode(true);
+                    connector.getFilterChain().addFirst( "sslFilter", sslFilter );
+                }
+                catch( Exception e )
+                {
+                    LOG.error( "Failed to initialize the SSL context", e );
+                    throw new LdapException( e );
+                }
             }
     
             // Inject the protocolHandler
