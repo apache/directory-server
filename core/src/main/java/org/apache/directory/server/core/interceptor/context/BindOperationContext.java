@@ -103,6 +103,7 @@ public class BindOperationContext implements OperationContext
      * <li>ANONYMOUS</li>
      * <li>SIMPLE</li>
      * <li>STRONG (sasl)</li>
+     * <li>UNAUTHENT</li>
      * <li>INVALID</li>
      */
     public AuthenticationLevel getAuthenticationLevel()
