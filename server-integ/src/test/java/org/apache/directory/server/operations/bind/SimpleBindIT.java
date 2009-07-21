@@ -34,18 +34,30 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResult;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPUrl;
+
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 
 
 /**
@@ -262,37 +274,62 @@ public class SimpleBindIT
         try
         {
             ctx = new InitialDirContext(env);
+            fail();
         }
         catch ( NamingException ne )
         {
-            fail();
+            // Expected, as the server forbid anonymous access
         }
         
-        // We should be anonymous here. 
         // Check that we can read the rootDSE
         try
         {
-            Attributes attrs = ctx.getAttributes( "", attrIDs );
-            
-            assertNotNull( attrs );
-            assertEquals( "Apache Software Foundation", attrs.get( "vendorName" ).get() );
+            // Use the netscape API as JNDI cannot be used to do a search without
+            // first binding.
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPSearchResults results = LDAPConnection.search( url );
+
+            if ( results.hasMoreElements() ) 
+            {
+                LDAPEntry entry = results.next();
+
+                LDAPAttribute vendorName = entry.getAttribute( "vendorName" );
+
+                if ( vendorName != null )
+                {
+                    assertEquals( "Apache Software Foundation", vendorName.getStringValueArray()[0] );
+                }
+                else
+                {
+                    fail();
+                }
+            }
+            else
+            {
+                fail();
+            }
         }
-        catch ( NamingException ne )
+        catch ( LDAPException e )
         {
-            fail();
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
         }
 
         // Check that we cannot read another entry being anonymous
         try
         {
-            Attributes attrs = ctx.getAttributes( "uid=admin,ou=system", attrIDs );
-            
-            assertNotNull( attrs );
-            assertEquals( 0, attrs.size() );
-            fail( "Should not be able to read the root DSE" );
+            // Use the netscape API as JNDI cannot be used to do a search without
+            // first binding.
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), 
+                "uid=admin,ou=system", attrIDs, 0, "(ObjectClass=*)" );
+            LDAPSearchResults results = LDAPConnection.search( url );
+
+            fail();
         }
-        catch ( NamingException ne )
+        catch ( LDAPException e )
         {
+            // Expected
+            assertTrue( true);
         }
         
         ldapServer.getDirectoryService().setAllowAnonymousAccess( oldValue );
@@ -364,34 +401,40 @@ public class SimpleBindIT
      * The configuration for this test case MUST disable anonymous access.
      */
     @Test
-    public void testAnonymousRootDSE()
+    public void testAnonymousRootDSESearch()
     {
+        
         boolean oldValue = ldapServer.getDirectoryService().isAllowAnonymousAccess();
         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
 
         try
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+            // Use the netscape API as JNDI cannot be used to do a search without
+            // first binding.
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPSearchResults results = LDAPConnection.search( url );
 
-            DirContext context = new InitialDirContext( env );
-
-            String[] attrIDs =
-                { "vendorName" };
-
-            Attributes attrs = context.getAttributes( "", attrIDs );
-
-            String vendorName = null;
-
-            if ( attrs.get( "vendorName" ) != null )
+            if ( results.hasMoreElements() ) 
             {
-                vendorName = ( String ) attrs.get( "vendorName" ).get();
-            }
+                LDAPEntry entry = results.next();
 
-            assertEquals( "Apache Software Foundation", vendorName );
+                LDAPAttribute vendorName = entry.getAttribute( "vendorName" );
+
+                if ( vendorName != null )
+                {
+                    assertEquals( "Apache Software Foundation", vendorName.getStringValueArray()[0] );
+                }
+                else
+                {
+                    fail();
+                }
+            }
+            else
+            {
+                fail();
+            }
         }
-        catch ( NamingException e )
+        catch ( LDAPException e )
         {
             e.printStackTrace();
             fail( "Should not have caught exception." );

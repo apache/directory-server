@@ -39,6 +39,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPUrl;
+
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -190,44 +197,28 @@ public class MiscBindIT
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
-        boolean connected = false;
-        while ( !connected )
-        {
-            try
-            {
-                ic = new InitialDirContext( env );
-                connected = true;
-            }
-            catch ( Exception e )
-            {
-                // We should not get here
-                fail();
-            }
-        }
-
-        ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
-        
         try
         {
-            ic.search( "", "(objectClass=*)", new SearchControls() );
-            fail( "If anonymous binds are disabled we should never get here!" );
+            ic = new InitialDirContext( env );
+            fail();
         }
-        catch ( NoPermissionException e )
+        catch ( Exception e )
         {
+            // We should get here
         }
-
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass" );
-        attrs.put( oc );
-        oc.add( "top" );
-        oc.add( "organizationalUnit" );
 
         try
         {
-            ic.createSubcontext( "ou=blah", attrs );
+            // Use the netscape API as JNDI cannot be used to do a search without
+            // first binding.
+            LDAPUrl url = new LDAPUrl( "localhost", ldapServer.getPort(), "ou=system", new String[]{"vendorName"}, 0, "(ObjectClass=*)" );
+            LDAPSearchResults results = LDAPConnection.search( url );
+
+            fail();
         }
-        catch ( NoPermissionException e )
+        catch ( LDAPException e )
         {
+            // Expected result
         }
     }
 

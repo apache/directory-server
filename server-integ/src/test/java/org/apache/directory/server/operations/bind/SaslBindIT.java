@@ -30,7 +30,6 @@ import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -294,40 +293,6 @@ public class SaslBindIT
          catch ( NamingException ne )
          {
              fail( "Should not have caught exception." );
-         }
-     }
-
-
-     /**
-      * Tests to make sure binds below the RootDSE require authentication.
-      */
-     @Test
-     public void testAnonymousBelowRootDSE()
-     {
-         ldapServer.getDirectoryService().setAllowAnonymousAccess( false );
-         
-         try
-         {
-             Hashtable<String, String> env = new Hashtable<String, String>();
-             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-             env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
-
-             DirContext context = new InitialDirContext( env );
-
-             String[] attrIDs =
-                 { "vendorName" };
-
-             context.getAttributes( "dc=example,dc=com", attrIDs );
-
-             fail( "Should not have gotten here." );
-         }
-         catch ( NoPermissionException npe )
-         {
-             assertTrue( npe.getMessage().contains( "error code 50" ) );
-         }
-         catch ( NamingException ne )
-         {
-             fail( "Should not have gotten here" );
          }
      }
 

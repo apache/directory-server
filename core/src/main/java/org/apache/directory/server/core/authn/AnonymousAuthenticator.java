@@ -50,12 +50,8 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public LdapPrincipal authenticate( BindOperationContext opContext ) throws NamingException
     {
-        // We only allow Anonymous binds if the service allows them _or_
-        // if the user wants to bind on the rootDSE
-        // TODO : Fix this ASAP !!! This is a backdoor, we should not allow
-        // a user to get in as anonymous simply because the bind request DN
-        // is empty !
-        if ( getDirectoryService().isAllowAnonymousAccess() || opContext.getDn().isEmpty() )
+        // We only allow Anonymous binds if the service allows them
+        if ( getDirectoryService().isAllowAnonymousAccess() )
         {
             return LdapPrincipal.ANONYMOUS;
         }
