@@ -44,6 +44,7 @@ public abstract class ToolCommand
     private InstallationLayout layout;
     private ApacheDS apacheDS;
 
+    private InstanceLayout instanceLayout;
 
     protected ToolCommand( String name )
     {
@@ -78,6 +79,18 @@ public abstract class ToolCommand
     public void setLayout( InstallationLayout layout )
     {
         this.layout = layout;
+    }
+
+
+    public void setInstanceLayout( InstanceLayout instanceLayout )
+    {
+        this.instanceLayout = instanceLayout;
+    }
+
+    
+    public InstanceLayout getInstanceLayout()
+    {
+        return instanceLayout;
     }
 
 

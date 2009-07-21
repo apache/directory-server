@@ -20,14 +20,11 @@
 package org.apache.directory.server.tools;
 
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.directory.server.configuration.ApacheDS;
-import org.springframework.context.ApplicationContext;
-import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 
 
 /**
@@ -98,14 +95,14 @@ public class ApachedsTools
         if ( cmdline.getOptionValue( 'i' ) != null )
         {
             cmd.setLayout( cmdline.getOptionValue( 'i' ) );
-            if ( !cmd.isQuietEnabled() )
-            {
-                System.out.println( "loading settings from: " + cmd.getLayout().getConfigurationFile() );
-            }
-            ApplicationContext factory = null;
-            URL configUrl = cmd.getLayout().getConfigurationFile().toURL();
-            factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-            cmd.setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
+//            if ( !cmd.isQuietEnabled() )
+//            {
+//                System.out.println( "loading settings from: " + cmd.getLayout().getConfigurationFile() );
+//            }
+//            ApplicationContext factory = null;
+//            URL configUrl = cmd.getLayout().getConfigurationFile().toURL();
+//            factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+//            cmd.setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
         }
         else if ( cmdline.hasOption( 'c' ) )
         {
@@ -113,6 +110,11 @@ public class ApachedsTools
             System.exit( 1 );
         }
 
+        if ( cmdline.getOptionValue( 'z' ) != null )
+        {
+            cmd.setInstanceLayout( new InstanceLayout( new File( cmdline.getOptionValue( 'z' ) ) ) );
+        }
+        
         cmd.execute( cmdline );
     }
 

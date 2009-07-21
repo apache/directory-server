@@ -104,6 +104,8 @@ public class BaseCommand
 
         Option op = new Option( "i", "install-path", true, "path to installation directory" );
         getGlobal().addOption( op );
+        op = new Option( "z", "instance-path", true, "path to ADS instance directory" );
+        getGlobal().addOption( op );
         op = new Option( "b", "banner", false, "suppress banner print outs" );
         getGlobal().addOption( op );
         op = new Option( "d", "debug", false, "toggle debug mode" );
