@@ -193,13 +193,6 @@
       <ntlmMechanismHandler mech-name="GSS-SPNEGO" ntlmProviderFqcn="com.foo.Bar"/>
     </saslMechanismHandlers>
 
-    <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
-    <saslQop>
-      <s:value>auth</s:value>
-      <s:value>auth-int</s:value>
-      <s:value>auth-conf</s:value>
-    </saslQop>
-
     <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
     <saslRealms>
       <s:value>example.com</s:value>
