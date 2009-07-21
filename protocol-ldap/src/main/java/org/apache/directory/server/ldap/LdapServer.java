@@ -824,39 +824,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * Sets the desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
-     * 
-     * We build a string from this list, where QoP are comma delimited 
-     *
-     * @org.apache.xbean.Property nestedType="java.lang.String"
-     *
-     * @param saslQop The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
-     */
-    public void setSaslQop( Set<String> saslQop )
-    {
-        StringBuilder qopList = new StringBuilder();
-        boolean isFirst = true;
-
-        for ( String qop:saslQop )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                qopList.append( ',' );
-            }
-            
-            qopList.append( qop );
-        }
-
-        this.saslQopString = qopList.toString();
-        this.saslQop = saslQop;
-    }
-
-
-    /**
      * Returns the realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      *
      * @return The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
