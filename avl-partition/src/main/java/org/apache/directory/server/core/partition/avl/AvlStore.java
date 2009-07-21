@@ -200,6 +200,8 @@ public class AvlStore<E> implements Store<E>
             subLevelIdx.add( tempId, id );
             tempId = getParentId( tempId );
         }
+        
+        // making entry an ancestor/descendent of itself in sublevel index
         subLevelIdx.add( id, id );
         
         // Now work on the user defined userIndices
@@ -273,7 +275,7 @@ public class AvlStore<E> implements Store<E>
         updnIdx.drop( id );
         oneLevelIdx.drop( id );
 
-        if( parentId != 1 )// should not use getParentId() to compare, onelevel index drops the 'id'
+        if( id != 1 )
         {
             subLevelIdx.drop( id );
         }
