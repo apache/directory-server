@@ -317,8 +317,20 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
 
         while ( (count < sizeLimit ) && cursor.next() )
         {
+            // Handle closed session
             if ( session.getIoSession().isClosing() )
             {
+                // The client has closed the connection
+                LOG.debug( "Request terminated for message {}, the client has closed the session", 
+                    req.getMessageId() );
+                break;
+            }
+
+            if ( cursor.isClosed() )
+            {
+                // The cursor has been closed by an abandon request.
+                LOG.debug( "Request terminated by an AbandonRequest for message {}", 
+                    req.getMessageId() );
                 break;
             }
             
