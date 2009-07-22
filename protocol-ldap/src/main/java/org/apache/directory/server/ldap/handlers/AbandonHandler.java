@@ -45,6 +45,6 @@ public class AbandonHandler extends LdapRequestHandler<InternalAbandonRequest>
             return;
         }
 
-        session.abandonOutstandingRequest( request.getAbandoned() );
+        session.abandonOutstandingRequest( abandonedId );
     }
 }
