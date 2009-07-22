@@ -400,19 +400,19 @@ public interface SchemaConstants
     // governingStructureRule
     String GOVERNING_STRUCTURE_RULE_AT = "governingStructureRule";
     String GOVERNING_STRUCTURE_RULE_AT_OID = "2.5.21.10";
-
-    // UUID
-    //String UUID_AT = "UUID";
-    //String UUID_AT_OID = "1.3.6.1.1.16.1";
-
-    // CSN
-    //String CSN_AT = "CSN";
-    //String CSN_AT_OID = "1.3.6.1.4.1.4203.666.2.1";
-
-    // CSNSID
-    //String CSN_SID_AT = "CSN_SID";
-    //String CSN_SID_AT_OID = "1.3.6.1.4.1.4203.666.2.4";
-
+    
+    // entryUUID
+    String ENTRY_UUID_AT = "entryUUID";
+    String ENTRY_UUID_AT_OID = "1.3.6.1.1.16.4";
+    
+    // entryCSN
+    String ENTRY_CSN_AT = "entryCSN";
+    String ENTRY_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.7";
+    
+    // contextCSN
+    String CONTEXT_CSN_AT = "contextCSN";
+    String CONTEXT_CSN_AT_OID = "1.3.6.1.4.1.4203.666.1.25";
+    
     // entryDN
     String ENTRY_DN_AT = "entryDN";
     String ENTRY_DN_AT_OID = "1.3.6.1.1.20";
