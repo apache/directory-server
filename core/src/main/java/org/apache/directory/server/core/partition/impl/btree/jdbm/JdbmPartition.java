@@ -234,11 +234,11 @@ public class JdbmPartition extends BTreePartition
                 {
                     store.setObjectClassIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.ENTRY_CSN_AT_OID ) )
+                else if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) )
                 {
                     store.setEntryCsnIndex( ( Index<String,ServerEntry> ) index );
                 }
-                else if ( oid.equals( ApacheSchemaConstants.ENTRY_UUID_AT_OID ) )
+                else if ( oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
                 {
                     store.setEntryUuidIndex( ( Index<byte[],ServerEntry> ) index );
                 }

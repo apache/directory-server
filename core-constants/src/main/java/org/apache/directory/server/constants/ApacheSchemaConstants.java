@@ -131,18 +131,6 @@ public interface ApacheSchemaConstants
     String UNIX_FILE_AT                             = "unixFilePath";
     String UNIX_FILE_AT_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.20";
 
-    // entryUUID
-    String ENTRY_UUID_AT                            = "entryUUID";
-    String ENTRY_UUID_AT_OID                        = "1.3.6.1.1.16.4";
-    
-    // entryCSN
-    String ENTRY_CSN_AT                             = "entryCSN";
-    String ENTRY_CSN_AT_OID                         = "1.3.6.1.4.1.4203.666.1.7";
-    
-    // contextCSN
-    String CONTEXT_CSN_AT                           = "contextCSN";
-    String CONTEXT_CSN_AT_OID                       = "1.3.6.1.4.1.4203.666.1.25";
-    
     // entryDeleted
     String ENTRY_DELETED_AT                         = "entryDeleted";
     String ENTRY_DELETED_AT_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.31";

@@ -22,7 +22,6 @@ package org.apache.directory.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -76,10 +75,10 @@ public class ApachemetaNormalizerProducer extends AbstractBootstrapProducer
         
         // For entryUuid
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, ApacheSchemaConstants.ENTRY_UUID_AT_OID, normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.ENTRY_UUID_AT_OID, normalizer );
         
         // For entryCSN
         normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, ApacheSchemaConstants.ENTRY_CSN_AT_OID, normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.ENTRY_CSN_AT_OID, normalizer );
     }
 }

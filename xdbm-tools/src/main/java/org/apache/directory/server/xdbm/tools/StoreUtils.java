@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.tools;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -32,6 +31,7 @@ import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -298,8 +298,8 @@ public class StoreUtils
      */
     public static void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
-        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
-        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         
         store.add( entry );
     }

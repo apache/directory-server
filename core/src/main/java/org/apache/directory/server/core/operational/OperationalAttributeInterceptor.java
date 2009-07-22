@@ -196,8 +196,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
         // its String value
-        entry.put( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
-        entry.put( ApacheSchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
+        entry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         
         nextInterceptor.add( opContext );
     }

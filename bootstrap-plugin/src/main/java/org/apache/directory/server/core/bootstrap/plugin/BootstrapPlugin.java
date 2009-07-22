@@ -944,8 +944,8 @@ public class BootstrapPlugin extends AbstractMojo
      */
     private void injectEntryInStore( Store<ServerEntry> store, ServerEntry entry ) throws Exception
     {
-        entry.add( ApacheSchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
-        entry.add( ApacheSchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+        entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
 
         store.add( entry );
     }
