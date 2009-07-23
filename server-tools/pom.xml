@@ -100,6 +100,16 @@
       <version>${org.apache.directory.shared.version}</version>
       <artifactId>shared-cursor</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -109,8 +119,9 @@
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
-            <manifestFile>src/main/manifest/MANIFEST.MF</manifestFile>
             <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>../lib/</classpathPrefix>
               <mainClass>org.apache.directory.server.tools.ApachedsTools</mainClass>
             </manifest>
           </archive>
@@ -125,4 +136,3 @@
     </resources>
   </build>
 </project>
-
