@@ -669,7 +669,7 @@ public class ImportCommand extends ToolCommand
             long t1 = System.currentTimeMillis();
 
             System.out.println( "Done!" );
-            System.out.println( nbAdd + " users added in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
+            System.out.println( nbAdd + " entries added in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
         }
         else
         {
@@ -718,7 +718,7 @@ public class ImportCommand extends ToolCommand
             long t1 = System.currentTimeMillis();
 
             System.out.println( "Done!" );
-            System.out.println( nbMod + " users changed in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
+            System.out.println( nbMod + " entries changed in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
         }
 
         // Logout to the server
