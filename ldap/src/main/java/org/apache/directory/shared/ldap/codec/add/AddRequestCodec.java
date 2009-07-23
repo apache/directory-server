@@ -176,18 +176,33 @@ public class AddRequestCodec extends LdapMessageCodec
     /**
      * Add a new value to the current attribute
      * 
-     * @param value The value to be added
+     * @param value The value to add
      */
-    public void addAttributeValue( Object value )
+    public void addAttributeValue( String value )
     {
-        if ( value instanceof String )
-        {
-            currentAttribute.add( ( String ) value );
-        }
-        else
-        {
-            currentAttribute.add( ( byte[] ) value );
-        }
+        currentAttribute.add( value );
+    }
+
+
+    /**
+     * Add a new value to the current attribute
+     * 
+     * @param value The value to add
+     */
+    public void addAttributeValue( org.apache.directory.shared.ldap.entry.Value<?> value )
+    {
+        currentAttribute.add( value );
+    }
+
+
+    /**
+     * Add a new value to the current attribute
+     * 
+     * @param value The value to add
+     */
+    public void addAttributeValue( byte[] value )
+    {
+        currentAttribute.add( value );
     }
 
 

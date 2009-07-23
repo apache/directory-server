@@ -160,7 +160,18 @@ public class AddRequestDsml extends AbstractRequestDsml
      */
     public void addAttributeValue( Object value )
     {
-        ( ( AddRequestCodec ) instance ).addAttributeValue( value );
+        if ( value instanceof Value<?> )
+        {
+            ( ( AddRequestCodec ) instance ).addAttributeValue( ( Value<?> ) value );
+        }
+        else if ( value instanceof String )
+        {
+            ( ( AddRequestCodec ) instance ).addAttributeValue( ( String ) value );
+        }
+        else if ( value instanceof byte[] )
+        {
+            ( ( AddRequestCodec ) instance ).addAttributeValue( ( byte[] ) value );
+        }
     }
 
 

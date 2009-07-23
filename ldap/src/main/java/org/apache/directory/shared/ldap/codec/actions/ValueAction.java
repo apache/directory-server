@@ -46,10 +46,12 @@ public class ValueAction extends GrammarAction
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
+
     public ValueAction()
     {
         super( "Store a value" );
     }
+
 
     /**
      * The initialization action
@@ -80,15 +82,21 @@ public class ValueAction extends GrammarAction
                 {
                     log.debug( "Adding value {}", StringTools.dumpBytes( ( byte[] ) value ) );
                 }
+
+                addRequest.addAttributeValue( ( byte[] ) value );
             }
             else
             {
                 value = StringTools.utf8ToString( tlv.getValue().getData() );
 
-                log.debug( "Adding value {}" + value );
+                if ( IS_DEBUG )
+                {
+                    log.debug( "Adding value {}" + value );
+                }
+
+                addRequest.addAttributeValue( ( String ) value );
             }
 
-            addRequest.addAttributeValue( value );
         }
 
         // We can have an END transition
