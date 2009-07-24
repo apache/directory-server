@@ -85,11 +85,12 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
+import org.apache.mina.filter.executor.UnorderedThreadPoolExecutor;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.slf4j.Logger;
@@ -380,7 +381,8 @@ public class LdapServer extends DirectoryBackedService
             // (NOTE : this has to be double checked)
             ((DefaultIoFilterChainBuilder)chain).addLast( "executor", 
                     new ExecutorFilter( 
-                        new OrderedThreadPoolExecutor( transport.getNbThreads() ) ) );
+                        new UnorderedThreadPoolExecutor( transport.getNbThreads() ),
+                        IoEventType.MESSAGE_RECEIVED ) );
 
             /*
              * The server is now initialized, we can
