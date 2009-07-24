@@ -21,8 +21,10 @@
 package org.apache.directory.shared.client.api.operations;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.CoreSession;
@@ -34,10 +36,12 @@ import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.SearchRequest;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -66,7 +70,7 @@ public class ClientAbandonRequestTest
     private LdapConnection connection;
 
     private CoreSession session;
-
+    
     private static final Logger LOG = LoggerFactory.getLogger( LdapConnection.class );
 
 
@@ -75,6 +79,7 @@ public class ClientAbandonRequestTest
     {
         connection = new LdapConnection( "localhost", ldapServer.getPort() );
         LdapDN bindDn = new LdapDN( "uid=admin,ou=system" );
+        connection.setTimeOut( 0L );
         connection.bind( bindDn.getUpName(), "secret" );
 
         session = ldapServer.getDirectoryService().getSession();
@@ -84,15 +89,10 @@ public class ClientAbandonRequestTest
     @Test
     public void testAbandonSearch() throws Exception
     {
-        // injecting some large number of values to keep the
+        // injecting some values to keep the
         // followed search operation to run for a while
+        int numEntries = 20;
         
-        // NOTE: currently the search for 1000 entries is very fast hence is not getting
-        // aborted but the client ignores the returned search results
-        // I tried with 10000 entries but only to encounter a OOM :(
-        // TODO test this with higher number of entries to actually let the server abort
-        // the operation
-        int numEntries = 1000;
         for ( int i = 0; i < numEntries; i++ )
         {
             String s = String.valueOf( i );
@@ -105,6 +105,8 @@ public class ClientAbandonRequestTest
             connection.add( entry );
         }
 
+        System.out.println( "done, searching now..." );
+        
         SearchRequest sr = new SearchRequest();
         sr.setFilter( "(cn=*)" );
         sr.setBaseDn( "ou=system" );
@@ -112,11 +114,13 @@ public class ClientAbandonRequestTest
         sr.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
 
         final AtomicInteger count = new AtomicInteger( 0 );
+        final AtomicBoolean abandonned = new AtomicBoolean( false );
 
         SearchListener sl = new SearchListener()
         {
             public void searchDone( LdapConnection connection, SearchResultDone searchResultDone ) throws LdapException
             {
+                System.out.println( "Search done" );
             }
 
 
@@ -130,16 +134,41 @@ public class ClientAbandonRequestTest
                 throws LdapException
             {
                 count.incrementAndGet();
-                LOG.debug( "fetched entry count {}" + count );
+                
+                // Stop the search after a few results, here 13
+                if ( count.get() == 13 )
+                {
+                    int id = searchResultEntry.getMessageId();
+                    assertEquals( 22, id );
+                    System.out.println( "Abandonning message " + id );
+                    connection.abandon( id );
+                    abandonned.set( true );
+                }
             }
         };
 
+        // Launch the search now
         connection.search( sr, sl );
+        
+        while ( !abandonned.get() )
+        {
+            Thread.sleep( 100 );
+        }
 
-        // message ID will be 1(for bind) + numEntries(add ops) + 1 (abandon) 
-        connection.abandon( numEntries + 2 );
+        assertTrue( count.get() < numEntries );
 
-        assertTrue( numEntries != count.get() );
+        // Now do a simple synchronous search
+        Cursor<SearchResponse> results = connection.search( sr );
+        
+        results.beforeFirst();
+        int n = 0;
+        
+        while ( results.next() )
+        {
+            results.get();
+            n++;
+        }
+        
+        assertEquals( 21, n );
     }
-
 }
