@@ -326,7 +326,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
                 break;
             }
 
-            if ( cursor.isClosed() )
+            if ( req.isAbandoned() )
             {
                 // The cursor has been closed by an abandon request.
                 LOG.debug( "Request terminated by an AbandonRequest for message {}", 
@@ -336,6 +336,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             
             ClonedServerEntry entry = cursor.get();
             session.getIoSession().write( generateResponse( session, req, entry ) );
+            LOG.debug( "Sending {}", entry.getDn() );
             count++;
         }
         
