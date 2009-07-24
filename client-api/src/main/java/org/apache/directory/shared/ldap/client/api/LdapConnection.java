@@ -125,8 +125,12 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
+import org.apache.mina.filter.executor.UnorderedThreadPoolExecutor;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
@@ -250,42 +254,6 @@ public class LdapConnection  extends IoHandlerAdapter
     public LdapMessageCodec getResponse()
     {
         return (LdapMessageCodec)ldapSession.getAttribute( LDAP_RESPONSE );
-    }
-    
-    
-    /**
-     * Handle the lock mechanism on session. It's only a temporary lock,
-     * just for the necessary time to send the request. As we are using
-     * internally an asynchronous mechanism, once the data are written, 
-     * we can release the lock. Thus one can send a search request
-     * followed by an abandon request as soon as the search request
-     * has been written, even before having received the first response. 
-     */
-    private void lockSession() throws LdapException
-    {
-        try
-        {
-            operationMutex.acquire();
-        }
-        catch ( InterruptedException ie )
-        {
-            String message = "Cannot acquire the session lock";
-            LOG.error(  message );
-            LdapException ldapException = 
-                new LdapException( message );
-            ldapException.initCause( ie );
-            
-            throw ldapException;
-        }
-    }
-
-    
-    /**
-     * Unlock the session
-     */
-    private void unlockSession()
-    {
-        operationMutex.release();
     }
 
     
@@ -595,6 +563,11 @@ public class LdapConnection  extends IoHandlerAdapter
                     throw new LdapException( e );
                 }
             }
+            
+            connector.getFilterChain().addLast( "executor", 
+                new ExecutorFilter( 
+                    new UnorderedThreadPoolExecutor( 2 ),
+                    IoEventType.MESSAGE_RECEIVED ) );
     
             // Inject the protocolHandler
             connector.setHandler( this );
@@ -710,8 +683,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         checkSession();
 
-        lockSession();
-        
         AddRequestCodec addReqCodec = new AddRequestCodec();
         
         int newId = messageId.incrementAndGet();
@@ -742,7 +713,6 @@ public class LdapConnection  extends IoHandlerAdapter
                 if ( response == null )
                 {
                     LOG.error( "Add failed : timeout occured" );
-                    unlockSession();
                     throw new LdapException( TIME_OUT_ERROR );
                 }
             }
@@ -755,7 +725,6 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                unlockSession();
                 throw new LdapException( e );
             }
         }
@@ -764,8 +733,6 @@ public class LdapConnection  extends IoHandlerAdapter
             listenerMap.put( newId, listener );            
         }
 
-        unlockSession();
-        
         return response;
     }
 
@@ -991,9 +958,6 @@ public class LdapConnection  extends IoHandlerAdapter
             // Get the response, blocking
             BindResponse bindResponse = ( BindResponse ) bindFuture.get( timeout, TimeUnit.MILLISECONDS );
 
-            // Release the session lock
-            unlockSession();
-            
             // Everything is fine, return the response
             LOG.debug( "Bind successful : {}", bindResponse );
             
@@ -1009,7 +973,6 @@ public class LdapConnection  extends IoHandlerAdapter
             
             // We didn't received anything : this is an error
             LOG.error( "Bind failed : timeout occured" );
-            unlockSession();
             throw new LdapException( TIME_OUT_ERROR );
         }
         catch ( Exception ie )
@@ -1018,13 +981,13 @@ public class LdapConnection  extends IoHandlerAdapter
             LOG.error( "The response queue has been emptied, no response will be find." );
             LdapException ldapException = new LdapException();
             ldapException.initCause( ie );
-            unlockSession();
             
             // Send an abandon request
             if( !bindFuture.isCancelled() )
             {
                 abandon( bindRequest.getMessageId() );
             }
+            
             throw ldapException;
         }
     }
@@ -1044,10 +1007,6 @@ public class LdapConnection  extends IoHandlerAdapter
         // If the session has not been establish, or is closed, we get out immediately
         checkSession();
 
-        // Guarantee that for this session, we don't have more than one operation
-        // running at the same time
-        lockSession();
-        
         // Create the new message and update the messageId
         LdapMessageCodec bindMessage = new LdapMessageCodec();
 
@@ -1079,7 +1038,7 @@ public class LdapConnection  extends IoHandlerAdapter
             LOG.error( "The given dn '{}' is not valid", bindRequest.getName() );
             LdapException ldapException = new LdapException();
             ldapException.initCause( ine );
-            unlockSession();
+
             throw ldapException;
         }
         
@@ -1199,10 +1158,6 @@ public class LdapConnection  extends IoHandlerAdapter
         // If the session has not been establish, or is closed, we get out immediately
         checkSession();
     
-        // Guarantee that for this session, we don't have more than one operation
-        // running at the same time
-        lockSession();
-        
         // Create the new message and update the messageId
         LdapMessageCodec searchMessage = new LdapMessageCodec();
         
@@ -1226,7 +1181,7 @@ public class LdapConnection  extends IoHandlerAdapter
             LOG.error( "The given dn '{}' is not valid", searchRequest.getBaseDn() );
             LdapException ldapException = new LdapException();
             ldapException.initCause( ine );
-            unlockSession();
+
             throw ldapException;
         }
         
@@ -1259,7 +1214,7 @@ public class LdapConnection  extends IoHandlerAdapter
             LOG.error( "The given filter '{}' is not valid", searchRequest.getFilter() );
             LdapException ldapException = new LdapException();
             ldapException.initCause( pe );
-            unlockSession();
+
             throw ldapException;
         }
         
@@ -1314,7 +1269,7 @@ public class LdapConnection  extends IoHandlerAdapter
                         
                         // We didn't received anything : this is an error
                         LOG.error( "Search failed : timeout occured" );
-                        unlockSession();
+
                         throw new LdapException( TIME_OUT_ERROR );
                     }
                     else
@@ -1331,9 +1286,6 @@ public class LdapConnection  extends IoHandlerAdapter
                 }
                 while ( !( response instanceof SearchResultDone ) );
 
-                // Release the session lock
-                unlockSession();
-                
                 LOG.debug( "Search successful, {} elements found", searchResponses.size() );
                 
                 return new ListCursor<SearchResponse>( searchResponses );
@@ -1354,6 +1306,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 {
                     abandon( searchMessage.getBindRequest().getMessageId() );
                 }
+                
                 throw ldapException;
             }
         }
@@ -1380,10 +1333,6 @@ public class LdapConnection  extends IoHandlerAdapter
         
         // If the session has not been establish, or is closed, we get out immediately
         checkSession();
-        
-        // Guarantee that for this session, we don't have more than one operation
-        // running at the same time
-        lockSession();
         
         // Create the UnbindRequest
         UnBindRequestCodec unbindRequest = new UnBindRequestCodec();
@@ -1715,8 +1664,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         checkSession();
     
-        lockSession();
-        
         LdapMessageCodec modifyMessage = new LdapMessageCodec();
         
         int newId = messageId.incrementAndGet();
@@ -1746,7 +1693,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 if ( response == null )
                 {
                     LOG.error( "Modify failed : timeout occured" );
-                    unlockSession();
+
                     throw new LdapException( TIME_OUT_ERROR );
                 }
             }
@@ -1759,7 +1706,7 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                unlockSession();
+
                 throw new LdapException( e );
             }
         }
@@ -1767,8 +1714,6 @@ public class LdapConnection  extends IoHandlerAdapter
         {
             listenerMap.put( newId, listener );
         }
-        
-        unlockSession();
         
         return response;
     }
@@ -1898,8 +1843,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         checkSession();
     
-        lockSession();
-        
         LdapMessageCodec modifyDnMessage = new LdapMessageCodec();
         
         int newId = messageId.incrementAndGet();
@@ -1931,7 +1874,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 if ( response == null )
                 {
                     LOG.error( "Modifying DN failed : timeout occured" );
-                    unlockSession();
+
                     throw new LdapException( TIME_OUT_ERROR );
                 }
             }
@@ -1944,13 +1887,11 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                unlockSession();
+
                 LdapException ldapException = new LdapException();
                 ldapException.initCause( e );
                 throw ldapException;
             }
-            
-            unlockSession();
             
             return response;
         }
@@ -1979,7 +1920,7 @@ public class LdapConnection  extends IoHandlerAdapter
     /**
      * @see #delete(LdapDN)
      */
-    public DeleteResponse delete( String dn )  throws LdapException
+    public DeleteResponse delete( String dn ) throws LdapException
     {
         try
         {
@@ -1999,12 +1940,34 @@ public class LdapConnection  extends IoHandlerAdapter
      * @param dn the target entry's DN
      * @throws LdapException
      */
-    public DeleteResponse delete( LdapDN dn )  throws LdapException
+    public DeleteResponse delete( LdapDN dn ) throws LdapException
     {
-        return delete( dn, false ); 
+        return delete( dn, false, null ); 
     }
 
 
+    /**
+     * deletes the entry with the given DN
+     *  
+     * @param dn the target entry's DN
+     * @param listener  the delete operation response listener
+     * @return operation's response, null if a non-null listener value is provided
+     * @throws LdapException
+     */
+    public DeleteResponse delete( String dn, DeleteListener listener )  throws LdapException
+    {
+        try
+        {
+            return delete( new LdapDN( dn ), listener );
+        }
+        catch( InvalidNameException e )
+        {
+            LOG.error( e.getMessage(), e );
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+    
+    
     /**
      * deletes the entry with the given DN
      *  
@@ -2020,18 +1983,16 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
-     * deletes the entry with the given DN and all its children
-     * 
-     * @param dn the target entry DN
-     * @param deleteAllChildren flag to indicate whether to delete the children
-     * @return delete operation's response
+     * deletes the entry with the given DN
+     *  
+     * @param dn the target entry's DN
+     * @param listener  the delete operation response listener
+     * @return operation's response, null if a non-null listener value is provided
      * @throws LdapException
      */
-    public DeleteResponse delete( LdapDN dn, boolean deleteAllChildren )  throws LdapException
+    public DeleteResponse delete( LdapDN dn, boolean deleteChildren, DeleteListener listener )  throws LdapException
     {
-        DeleteRequest delRequest = new DeleteRequest( dn );
-        
-        if( deleteAllChildren )
+        if( deleteChildren )
         {
             // TODO replace with a constant name, after adding support for treedelete control in core
             if( isControlSupported( "1.2.840.113556.1.4.805" ) ) 
@@ -2043,8 +2004,22 @@ public class LdapConnection  extends IoHandlerAdapter
                 return deleteChildren( dn, new HashMap() );
             }
         }
-            
-        return delete( delRequest, null );
+        
+        return delete( new DeleteRequest( dn ), listener ); 
+    }
+    
+    
+    /**
+     * deletes the entry with the given DN and all its children
+     * 
+     * @param dn the target entry DN
+     * @param deleteChildren flag to indicate whether to delete the children
+     * @return delete operation's response
+     * @throws LdapException
+     */
+    public DeleteResponse delete( LdapDN dn, boolean deleteChildren )  throws LdapException
+    {
+        return delete( dn, deleteChildren, null );
     }
 
     
@@ -2144,8 +2119,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         checkSession();
     
-        lockSession();
-        
         LdapMessageCodec deleteMessage = new LdapMessageCodec();
         
         int newId = messageId.incrementAndGet();
@@ -2174,7 +2147,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 if ( response == null )
                 {
                     LOG.error( "Delete DN failed : timeout occured" );
-                    unlockSession();
+
                     throw new LdapException( TIME_OUT_ERROR );
                 }
             }
@@ -2187,7 +2160,7 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                unlockSession();
+
                 LdapException ldapException = new LdapException();
                 ldapException.initCause( e );
                 throw ldapException;
@@ -2198,8 +2171,6 @@ public class LdapConnection  extends IoHandlerAdapter
             listenerMap.put( newId, listener );
         }
 
-        unlockSession();
-        
         return response;
     }
 
@@ -2254,8 +2225,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         checkSession();
 
-        lockSession();
-        
         CompareRequestCodec compareReqCodec = new CompareRequestCodec();
         
         int newId = messageId.incrementAndGet();
@@ -2287,7 +2256,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 if ( response == null )
                 {
                     LOG.error( "Compare failed : timeout occured" );
-                    unlockSession();
+
                     throw new LdapException( TIME_OUT_ERROR );
                 }
             }
@@ -2300,7 +2269,7 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                unlockSession();
+
                 throw new LdapException( e );
             }
         }
@@ -2309,8 +2278,6 @@ public class LdapConnection  extends IoHandlerAdapter
             listenerMap.put( newId, listener );            
         }
 
-        unlockSession();
-        
         return response;
     }
     
