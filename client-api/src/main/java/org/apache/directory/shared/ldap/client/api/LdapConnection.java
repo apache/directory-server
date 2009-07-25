@@ -752,14 +752,13 @@ public class LdapConnection  extends IoHandlerAdapter
 
     
     //------------------------ The LDAP operations ------------------------//
-    // Abandon operations                                                  //
-    //  The Abandon request just have one parameter : the MessageId to     //
-    // abandon. We also have to allow controls and a client timeout.       //
-    // The abandonRequest is always non-blocking, because no response is   //
-    // expected                                                            //
-    //---------------------------------------------------------------------//
+
     /**
-     * A simple abandon request. 
+     * Abandons a request submitted to the server for performing a particular operation
+     * 
+     * The abandonRequest is always non-blocking, because no response is expected
+     * 
+     * @param messageId the ID of the request message sent to the server 
      */
     public void abandon( int messageId ) throws LdapException
     {
@@ -771,7 +770,12 @@ public class LdapConnection  extends IoHandlerAdapter
 
     
     /**
-     * An abandon request with potentially some controls and timeout. 
+     * An abandon request essentially with the request message ID of the operation to be cancelled
+     * and/or potentially some controls and timeout (the controls and timeout are not mandatory).
+     * 
+     * The abandonRequest is always non-blocking, because no response is expected
+     *  
+     * @param abandonRequest the abandon operation's request
      */
     public void abandon( AbandonRequest abandonRequest ) throws LdapException
     {
@@ -839,9 +843,6 @@ public class LdapConnection  extends IoHandlerAdapter
     }
     
     
-    //------------------------ The LDAP operations ------------------------//
-    // Bind operations                                                     //
-    //---------------------------------------------------------------------//
     /**
      * Anonymous Bind on a server. 
      *
@@ -1082,9 +1083,6 @@ public class LdapConnection  extends IoHandlerAdapter
     }
     
 
-    //------------------------ The LDAP operations ------------------------//
-    // Search operations                                                   //
-    //---------------------------------------------------------------------//
     /**
      * Do a search, on the base object, using the given filter. The
      * SearchRequest parameters default to :
@@ -1144,7 +1142,8 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
-     * {@inheritDoc}
+     * performs search in a synchronous mode (as if a null search listener is passed) 
+     * @see #search(SearchRequest, SearchListener)
      */
     public Cursor<SearchResponse> search( SearchRequest searchRequest ) throws LdapException
     {
@@ -2004,7 +2003,7 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             else
             {
-                return deleteChildren( dn, new HashMap() );
+                return deleteRecursive( dn, new HashMap() );
             }
         }
         else
@@ -2057,7 +2056,7 @@ public class LdapConnection  extends IoHandlerAdapter
      * @param map a map to hold the Cursor related to a DN 
      * @throws LdapException
      */
-    private DeleteResponse deleteChildren( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap ) throws LdapException
+    private DeleteResponse deleteRecursive( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap ) throws LdapException
     {
         LOG.debug( "searching for {}", dn.getUpName() );
         DeleteResponse delResponse = null;
@@ -2092,7 +2091,7 @@ public class LdapConnection  extends IoHandlerAdapter
                     if( searchResp instanceof SearchResultEntry )
                     {
                         SearchResultEntry searchResult = ( SearchResultEntry ) searchResp;
-                        deleteChildren( searchResult.getEntry().getDn(), cursorMap );
+                        deleteRecursive( searchResult.getEntry().getDn(), cursorMap );
                     }
                 }
                 while( cursor.next() );
