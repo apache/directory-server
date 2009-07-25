@@ -38,6 +38,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.BasicControl;
 import javax.naming.ldap.Control;
 import javax.net.ssl.SSLContext;
 
@@ -129,7 +130,6 @@ import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.filter.executor.UnorderedThreadPoolExecutor;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
@@ -1992,20 +1992,27 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public DeleteResponse delete( LdapDN dn, boolean deleteChildren, DeleteListener listener )  throws LdapException
     {
+        DeleteRequest delRequest = null;
+        
         if( deleteChildren )
         {
-            // TODO replace with a constant name, after adding support for treedelete control in core
-            if( isControlSupported( "1.2.840.113556.1.4.805" ) ) 
+            String treeDeleteOid = "1.2.840.113556.1.4.805";
+            if( isControlSupported( treeDeleteOid ) ) 
             {
-                //delRequest.add( new TreeDeleteControl() );
+                delRequest = new DeleteRequest( dn );
+                delRequest.add( new BasicControl( treeDeleteOid ) );
             }
             else
             {
                 return deleteChildren( dn, new HashMap() );
             }
         }
+        else
+        {
+            delRequest = new DeleteRequest( dn );
+        }
         
-        return delete( new DeleteRequest( dn ), listener ); 
+        return delete( delRequest, listener ); 
     }
     
     
