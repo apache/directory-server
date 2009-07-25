@@ -179,7 +179,7 @@ public class ClientDeleteRequestTest
         
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteChildren", LdapDN.class, Map.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", LdapDN.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
         
         DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null );
