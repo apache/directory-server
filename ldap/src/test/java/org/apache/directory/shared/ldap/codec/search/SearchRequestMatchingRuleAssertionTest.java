@@ -388,7 +388,7 @@ public class SearchRequestMatchingRuleAssertionTest
 
         assertEquals( "test", extensibleMatchFilter.getMatchingRule() );
         assertNull( extensibleMatchFilter.getType() );
-        assertEquals( "", extensibleMatchFilter.getMatchValue().toString() );
+        assertNull( extensibleMatchFilter.getMatchValue().get() );
         assertFalse( extensibleMatchFilter.isDnAttributes() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
@@ -675,7 +675,7 @@ public class SearchRequestMatchingRuleAssertionTest
 
         assertNull( extensibleMatchFilter.getMatchingRule() );
         assertNull( extensibleMatchFilter.getType() );
-        assertEquals( "test", extensibleMatchFilter.getMatchValue() );
+        assertEquals( "test", StringTools.utf8ToString( (byte[])extensibleMatchFilter.getMatchValue().get() ) );
         assertFalse( extensibleMatchFilter.isDnAttributes() );
 
         List<EntryAttribute> attributes = sr.getAttributes();

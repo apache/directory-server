@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue().get() );
+        assertEquals( "people", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof ApproximateNode );
     }
 
@@ -115,7 +116,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "ou;lang-de", node.getAttribute() );
-        assertEquals( "#Basdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
     }
 
 
@@ -127,7 +128,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "ou;lang-de;version-124", node.getAttribute() );
-        assertEquals( "#Basdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
     }
 
 
@@ -139,7 +140,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode)node.clone();
         assertEquals( "1.3.4.2;lang-de;version-124", node.getAttribute() );
-        assertEquals( "#Basdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
     }
 
 
@@ -173,7 +174,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = ( SimpleNode) node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue().get() );
+        assertEquals( "people", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
     }
 
@@ -186,7 +187,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = (SimpleNode) node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people/in/my/company", node.getValue().get() );
+        assertEquals( "people/in/my/company", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
     }
 
@@ -194,11 +195,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm1() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:dn:stupidMatch:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:dn:stupidMatch:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = ( ExtensibleNode ) node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -208,11 +209,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm1WithNumericOid() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = ( ExtensibleNode )node.clone();
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -222,11 +223,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm1NoDnAttr() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:stupidMatch:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:stupidMatch:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = ( ExtensibleNode ) node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -237,11 +238,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm1NoAttrNoMatchingRule() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(ou:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = (ExtensibleNode) node.clone();
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( null, node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -251,11 +252,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm2() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:dn:stupidMatch:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:dn:stupidMatch:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = ( ExtensibleNode ) node.clone();
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -265,9 +266,9 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm2WithNumericOid() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:dn:1.3434.23.2:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:dn:1.3434.23.2:=dummyAssertion\\23\\2A)" );
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -277,11 +278,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm2NoDnAttr() throws ParseException
     {
-        ExtensibleNode node1 = ( ExtensibleNode ) FilterParser.parse( "(:stupidMatch:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node1 = ( ExtensibleNode ) FilterParser.parse( "(:stupidMatch:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         ExtensibleNode node = ( ExtensibleNode )node1.clone();
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -291,11 +292,11 @@ public class FilterCloneTest
     @Test
     public void testExtensibleFilterForm2NoDnAttrWithNumericOidNoAttr() throws ParseException
     {
-        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:1.3434.23.2:=dummyAssertion\\23\\ac)" );
+        ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( "(:1.3434.23.2:=dummyAssertion\\23\\2A)" );
         // just check that it doesnt throw for now
         node = ( ExtensibleNode) node.clone();
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#*", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -504,7 +505,7 @@ public class FilterCloneTest
         node = ( SimpleNode )node.clone();
         
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "", node.getValue().get() );
+        assertNull( node.getValue().get() );
         assertTrue( node instanceof EqualityNode );
     }
 
@@ -520,7 +521,7 @@ public class FilterCloneTest
         // just check that it doesnt throw for now
         node = ( SimpleNode ) node.clone();
         assertEquals( "uid", node.getAttribute() );
-        assertEquals( "#f1", node.getValue().get() );
+        assertEquals( "#f1", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
     }
 

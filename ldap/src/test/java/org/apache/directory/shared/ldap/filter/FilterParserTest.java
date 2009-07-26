@@ -23,6 +23,8 @@ package org.apache.directory.shared.ldap.filter;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -85,9 +87,9 @@ public class FilterParserTest
     {
         String str = "(ou~=people)";
 
-        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+        SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue().get() );
+        assertEquals( "people", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof ApproximateNode );
         String str2 = node.toString();
         assertEquals( str, str2 );
@@ -161,7 +163,7 @@ public class FilterParserTest
         String str = "(ou;lang-de>=\\23\\42asdl fkajsd)";     // \23 = '#'
         SimpleNode node = ( SimpleNode ) FilterParser.parse( str );
         assertEquals( "ou;lang-de", node.getAttribute() );
-        assertEquals( "#Basdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         String  str2 = node.toString();
         assertEquals( "(ou;lang-de>=#Basdl fkajsd)", str2 );
     }
@@ -174,7 +176,7 @@ public class FilterParserTest
         String str = "(ou;lang-de;version-124>=\\23\\42asdl fkajsd)";
         SimpleNode node = ( SimpleNode ) FilterParser.parse( str );
         assertEquals( "ou;lang-de;version-124", node.getAttribute() );
-        assertEquals( "#Basdl fkajsd", node.getValue().get() );
+        assertEquals( "#Basdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         String  str2 = node.toString();
         assertEquals( "(ou;lang-de;version-124>=#Basdl fkajsd)", str2 );
     }
@@ -187,7 +189,7 @@ public class FilterParserTest
         String str = "(1.3.4.2;lang-de;version-124>=\\23\\42afdl fkajsd)";
         SimpleNode node = ( SimpleNode ) FilterParser.parse( str );
         assertEquals( "1.3.4.2;lang-de;version-124", node.getAttribute() );
-        assertEquals( "#Bafdl fkajsd", node.getValue().get() );
+        assertEquals( "#Bafdl fkajsd", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         String  str2 = node.toString();
         assertEquals( "(1.3.4.2;lang-de;version-124>=#Bafdl fkajsd)", str2 );
     }
@@ -224,7 +226,7 @@ public class FilterParserTest
         String str = "(ou=people)";
         SimpleNode node = ( SimpleNode ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people", node.getValue().get() );
+        assertEquals( "people", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
         String  str2 = node.toString();
         assertEquals( str, str2 );
@@ -253,9 +255,9 @@ public class FilterParserTest
     public void testEqualsWithForwardSlashFilter() throws ParseException
     {
         String str = "(ou=people/in/my/company)";
-        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+        SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "people/in/my/company", node.getValue().get() );
+        assertEquals( "people/in/my/company", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
         String str2 = node.toString();
         assertEquals( str, str2 );
@@ -265,10 +267,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm1() throws ParseException
     {
-        String str = "(ou:dn:stupidMatch:=dummyAssertion\\23\\ac)";
+        String str = "(ou:dn:stupidMatch:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -278,10 +280,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm1WithNumericOid() throws ParseException
     {
-        String str = "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\ac)";
+        String str = "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -291,10 +293,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm1NoDnAttr() throws ParseException
     {
-        String str = "(ou:stupidMatch:=dummyAssertion\\23\\ac)";
+        String str = "(ou:stupidMatch:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -306,7 +308,7 @@ public class FilterParserTest
     {
         try
         {
-            FilterParser.parse( "(ou:stupidMatch;lang-de:=dummyAssertion\\23\\ac)" );
+            FilterParser.parse( "(ou:stupidMatch;lang-de:=dummyAssertion\\23\\c4\\8d)" );
             fail( "we should never get here" );
         }
         catch ( ParseException e )
@@ -319,10 +321,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm1NoAttrNoMatchingRule() throws ParseException
     {
-        String str = "(ou:=dummyAssertion\\23\\ac)";
+        String str = "(ou:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( null, node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -332,10 +334,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm2() throws ParseException
     {
-        String str = "(:dn:stupidMatch:=dummyAssertion\\23\\ac)";
+        String str = "(:dn:stupidMatch:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -347,7 +349,7 @@ public class FilterParserTest
     {
         try
         {
-            FilterParser.parse( "(:dn:stupidMatch;lang-en:=dummyAssertion\\23\\ac)" );
+            FilterParser.parse( "(:dn:stupidMatch;lang-en:=dummyAssertion\\23\\c4\\8d)" );
             fail( "we should never get here" );
         }
         catch ( ParseException e )
@@ -360,10 +362,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm2WithNumericOid() throws ParseException
     {
-        String str = "(:dn:1.3434.23.2:=dummyAssertion\\23\\ac)";
+        String str = "(:dn:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -373,10 +375,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm2NoDnAttr() throws ParseException
     {
-        String str = "(:stupidMatch:=dummyAssertion\\23\\ac)";
+        String str = "(:stupidMatch:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -386,10 +388,10 @@ public class FilterParserTest
     @Test
     public void testExtensibleFilterForm2NoDnAttrWithNumericOidNoAttr() throws ParseException
     {
-        String str = "(:1.3434.23.2:=dummyAssertion\\23\\ac)";
+        String str = "(:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)";
         ExtensibleNode node = ( ExtensibleNode ) FilterParser.parse( str );
         assertEquals( null, node.getAttribute() );
-        assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
+        assertEquals( "dummyAssertion#\u010D", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertFalse( node.hasDnAttributes() );
         assertTrue( node instanceof ExtensibleNode );
@@ -425,15 +427,15 @@ public class FilterParserTest
         FilterParser.parse( "(1.2.3.4=*)" );
         FilterParser.parse( "(ou=people)" );
         FilterParser.parse( "(ou=people/in/my/company)" );
-        FilterParser.parse( "(ou:dn:stupidMatch:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(ou:stupidMatch:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(ou:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(1.2.3.4:1.3434.23.2:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(:dn:stupidMatch:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(:dn:1.3434.23.2:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(:stupidMatch:=dummyAssertion\\23\\ac)" );
-        FilterParser.parse( "(:1.3434.23.2:=dummyAssertion\\23\\ac)" );
+        FilterParser.parse( "(ou:dn:stupidMatch:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(1.2.3.4:dn:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(ou:stupidMatch:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(ou:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(1.2.3.4:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(:dn:stupidMatch:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(:dn:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(:stupidMatch:=dummyAssertion\\23\\c4\\8d)" );
+        FilterParser.parse( "(:1.3434.23.2:=dummyAssertion\\23\\c4\\8d)" );
     }
 
 
@@ -609,7 +611,7 @@ public class FilterParserTest
         assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
-        assertFalse( node.getAny().contains( "" ) );
+        assertFalse( node.getAny().contains( new ClientStringValue( "" ) ) );
         assertTrue( node.getAny().contains( "e" ) );
         assertTrue( node.getAny().contains( "b" ) );
         assertTrue( node.getAny().contains( "c" ) );
@@ -651,7 +653,7 @@ public class FilterParserTest
         assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
-        assertFalse( node.getAny().contains( "" ) );
+        assertFalse( node.getAny().contains( new ClientStringValue( "" ) ) );
         assertTrue( node.getAny().contains( "e" ) );
         assertTrue( node.getAny().contains( "b" ) );
         assertTrue( node.getAny().contains( "c" ) );
@@ -731,11 +733,11 @@ public class FilterParserTest
         try
         {
             String s = new String( bytes, "UTF-8" );
-            String str = "(cn=" + s + ")";
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+            String str = "(cn=\\C2\\A2)";
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
             assertEquals( "cn", node.getAttribute() );
-            String val = node.getValue().get();
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
             assertEquals( "a2", Integer.toHexString( ( int ) val.charAt( 0 ) ) ); // char is U+00A2
             String str2 = node.toString();
             assertEquals( str, str2 );
@@ -756,16 +758,16 @@ public class FilterParserTest
 
         try
         {
-            String str = "(cn=\\c2\\a2)";
+            String str = "(cn=\\C2\\A2)";
             String s = new String( bytes, "UTF-8" );
-            String strOut = "(cn=" + s + ")";
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
             assertEquals( "cn", node.getAttribute() );
-            String val = ( String ) node.getValue().get();
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
             assertEquals( "a2", Integer.toHexString( ( int ) val.charAt( 0 ) ) ); // char is U+00A2
             String str2 = node.toString();
-            assertEquals( strOut, str2 );
+            assertEquals( str, str2 );
         }
         catch ( UnsupportedEncodingException e )
         {
@@ -784,11 +786,11 @@ public class FilterParserTest
         try
         {
             String s = new String( bytes, "UTF-8" );
-            String str = "(cn=" + s + ")";
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+            String str = "(cn=\\E2\\89\\A0)";
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
             assertEquals( "cn", node.getAttribute() );
-            String val = node.getValue().get();
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
             assertEquals( "2260", Integer.toHexString( ( int ) val.charAt( 0 ) ) );
             String str2 = node.toString();
             assertEquals( str, str2 );
@@ -809,16 +811,16 @@ public class FilterParserTest
 
         try
         {
-            String str = "(cn=\\e2\\89\\a0aa)";
+            String str = "(cn=\\E2\\89\\A0aa)";
             String s = new String( bytes, "UTF-8" );
-            String strOut = "(cn=" + s + "aa)";
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
             assertEquals( "cn", node.getAttribute() );
-            String val = ( String ) node.getValue().get();
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
             assertEquals( "2260", Integer.toHexString( ( int ) val.charAt( 0 ) ) );
             String str2 = node.toString();
-            assertEquals( strOut, str2 );
+            assertEquals( str, str2 );
         }
         catch ( UnsupportedEncodingException e )
         {
@@ -837,11 +839,11 @@ public class FilterParserTest
         try
         {
             String s = new String( bytes, "UTF-8" );
-            String str = "(cn=" + s + ")";
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+            String str = "(cn=\\E3\\81\\99)";
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
 
             assertEquals( "cn", node.getAttribute() );
-            String val = node.getValue().get();
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
             assertEquals( "3059", Integer.toHexString( ( int ) val.charAt( 0 ) ) );
             String str2 = node.toString();
             assertEquals( str, str2 );
@@ -862,16 +864,15 @@ public class FilterParserTest
 
         try
         {
-            String str = "(cn=\\e3\\81\\99)";
+            String str = "(cn=\\E3\\81\\99)";
             String s = new String( bytes, "UTF-8" );
-            String strOut = "(cn=" + s + ")";
 
-            SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+            SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
             assertEquals( "cn", node.getAttribute() );
-            String val = node.getValue().get();
-            assertEquals( "3059", Integer.toHexString( ( int ) val.charAt( 0 ) ) );
+            String val = StringTools.utf8ToString( (byte[])node.getValue().get() );
+            assertEquals( "3059", Integer.toHexString( val.charAt( 0 ) ) );
             String str2 = node.toString();
-            assertEquals( strOut, str2 );
+            assertEquals( str, str2 );
         }
         catch ( UnsupportedEncodingException e )
         {
@@ -888,9 +889,9 @@ public class FilterParserTest
     public void testEqualsFilterWithPoundInValue() throws ParseException
     {
         String str = "(uid=#f1)";
-        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+        SimpleNode<?> node = ( SimpleNode<?> ) FilterParser.parse( str );
         assertEquals( "uid", node.getAttribute() );
-        assertEquals( "#f1", node.getValue().get() );
+        assertEquals( "#f1", StringTools.utf8ToString( (byte[])node.getValue().get() ) );
         assertTrue( node instanceof EqualityNode );
         assertEquals( str, node.toString() );
     }
@@ -933,7 +934,7 @@ public class FilterParserTest
             ExprNode aEqb = node.getFirstChild();
             assertTrue( aEqb instanceof EqualityNode );
             assertEquals( "objectClass", ((EqualityNode<?>)aEqb).getAttribute() );
-            assertEquals( "nisNetgroup", ((EqualityNode<?>)aEqb).getValue().get() );
+            assertEquals( "nisNetgroup", StringTools.utf8ToString((byte[])((EqualityNode<?>)aEqb).getValue().get() ) );
             
             // Check the or node
             ExprNode orNode = node.getChildren().get( 1 );
@@ -981,10 +982,10 @@ public class FilterParserTest
     @Test
     public void testQuotedChars() throws ParseException
     {
-        String str = "(cn='~%\\28'$'\\5c)"; // note \28='(' and \5c='\'
+        String str = "(cn='~%\\28'$'\\5C)"; // note \28='(' and \5c='\'
         ExprNode node = FilterParser.parse( str );
         assertTrue( node instanceof EqualityNode );
-        assertEquals( "'~%('$'\\", ( ( EqualityNode<String> ) node ).getValue().get() );
+        assertEquals( "'~%('$'\\", StringTools.utf8ToString( (byte[]) ( ( EqualityNode<?> ) node ).getValue().get() ) );
         String str2 = node.toString();
         assertEquals( str, str2 );
     }
@@ -997,7 +998,7 @@ public class FilterParserTest
         String str = "(cn='~%\\28'$'\\5Cac)"; // note \28='(' and \5c='\'
         ExprNode node = FilterParser.parse( str );
         assertTrue( node instanceof EqualityNode );
-        assertEquals( "'~%('$'\\ac", ( ( EqualityNode<String> ) node ).getValue().get() );
+        assertEquals( "'~%('$'\\ac", StringTools.utf8ToString( (byte[])( ( EqualityNode<?> ) node ).getValue().get() ) );
         String str2 = node.toString();
         assertEquals( str.toUpperCase(), str2.toUpperCase() );
     }
@@ -1018,7 +1019,7 @@ public class FilterParserTest
         assertTrue( node.getAny().contains( "=" ) );
         assertEquals( "*bb", node.getFinal() );
         String str2 = node.toString();
-        assertEquals( "(ou=\\5c*\\00*=*\\2abb)", str2 );
+        assertEquals( "(ou=\\5C*\\00*=*\\2Abb)", str2 );
     }
 
 
@@ -1052,4 +1053,21 @@ public class FilterParserTest
         System.out.println( " Delta = " + (t3 - t2) );
     }
     */
+
+
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBinaryValueEscaped() throws ParseException
+    {
+        byte[] bytes =
+            {   0x29, 0x4C, 0x04, (byte)0xB5, 
+                (byte)0xD4, (byte)0xED, 0x38, 0x46, 
+                (byte)0x87, (byte)0xEE, 0x77, 0x58, 
+                0x5C, 0x32, (byte)0xAD, (byte)0x91 }; 
+
+        String str = "(objectguid=\\29\\4C\\04\\B5\\D4\\ED\\38\\46\\87\\EE\\77\\58\\5C\\32\\AD\\91)";
+        SimpleNode<String> node = ( SimpleNode<String> ) FilterParser.parse( str );
+    }
 }
