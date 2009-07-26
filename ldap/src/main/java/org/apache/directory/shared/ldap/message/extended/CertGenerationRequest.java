@@ -50,7 +50,7 @@ public class CertGenerationRequest extends ExtendedRequestImpl
 
     private static final Logger LOG = LoggerFactory.getLogger( CertGenerationRequest.class );
 
-    public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.6";
+    public static final String EXTENSION_OID = "1.3.6.1.4.1.18060.0.1.8";
 
     /**
      * 
