@@ -22,8 +22,8 @@ package org.apache.directory.shared.ldap.filter;
 
 import java.text.ParseException;
 
-import javax.naming.InvalidNameException;
-
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Position;
@@ -211,17 +211,20 @@ public class FilterParser
      * HEX            = '0'-'9' / 'A'-'F' / 'a'-'f'
      * unicodeSubset     = %x01-27 / %x2B-5B / %x5D-FFFF
      */
-    private static String parseAssertionValue( String filter, Position pos, boolean preserveEscapedChars ) throws ParseException
+    private static Value<?> parseAssertionValue( String filter, Position pos, boolean preserveEscapedChars ) throws ParseException
     {
         int start = pos.start;
-        boolean foundHex = false;
-
         char c = StringTools.charAt( filter, pos.start );
+        
+        // Create a buffer big enough to contain the value once converted
+        byte[] value = new byte[ filter.length() - pos.start];
+        int current = 0;
 
         do
         {
             if ( StringTools.isUnicodeSubset( c ) )
             {
+                value[current++] = (byte)c;
                 pos.start++;
             }
             else if ( StringTools.isCharASCII( filter, pos.start, '\\' ) )
@@ -242,8 +245,8 @@ public class FilterParser
                 // second hex
                 if ( StringTools.isHex( filter, pos.start ) )
                 {
+                    value[current++] = StringTools.getHexValue( filter.charAt( pos.start - 1 ), filter.charAt( pos.start ) );
                     pos.start++;
-                    foundHex = true;
                 }
                 else
                 {
@@ -258,23 +261,21 @@ public class FilterParser
         }
         while ( ( c = StringTools.charAt( filter, pos.start ) ) != '\0' );
 
-        String ret = filter.substring( start, pos.start );
-        if ( !preserveEscapedChars && foundHex )
+        if ( current != 0 )
         {
-            try
-            {
-                ret = StringTools.decodeEscapedHex( ret );
-            }
-            catch ( InvalidNameException e )
-            {
-                throw new ParseException( "Unable to decode escaped hex sequences: '" + ret + "': " + e, pos.start );
-            }
+            byte[] result = new byte[ current ];
+            System.arraycopy( value, 0, result, 0, current );
+            
+            return new ClientBinaryValue( result );
         }
-        return ret;
+        else
+        {
+            return new ClientBinaryValue();
+        }
     }
 
 
-    private static String parseAssertionValue( String filter, Position pos ) throws ParseException
+    private static Value<?> parseAssertionValue( String filter, Position pos ) throws ParseException
     {
         return parseAssertionValue( filter, pos, false );
     }
@@ -283,7 +284,7 @@ public class FilterParser
     /**
      * Parse a substring
      */
-    private static ExprNode parseSubstring( String attr, String initial, String filter, Position pos )
+    private static ExprNode parseSubstring( String attr, Value<?> initial, String filter, Position pos )
         throws ParseException
     {
         if ( StringTools.isCharASCII( filter, pos.start, '*' ) )
@@ -291,11 +292,12 @@ public class FilterParser
             // We have found a '*' : this is a substring
             SubstringNode node = new SubstringNode( attr );
 
-            if ( !StringTools.isEmpty( initial ) )
+            if ( initial != null && !initial.isNull() )
             {
                 // We have a substring starting with a value : val*...
-                // Set the initial value
-                node.setInitial( initial );
+                // Set the initial value. It must be a String
+                String initialStr = StringTools.utf8ToString( (byte[])initial.get() );
+                node.setInitial( initialStr );
             }
 
             pos.start++;
@@ -303,16 +305,17 @@ public class FilterParser
             // 
             while ( true )
             {
-                String assertionValue = parseAssertionValue( filter, pos );
+                Value<?> assertionValue = parseAssertionValue( filter, pos );
 
                 // Is there anything else but a ')' after the value ?
                 if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
                 {
                     // Nope : as we have had [initial] '*' (any '*' ) *,
                     // this is the final
-                    if ( !StringTools.isEmpty( assertionValue ) )
+                    if ( !assertionValue.isNull() )
                     {
-                        node.setFinal( assertionValue );
+                        String finalStr = StringTools.utf8ToString( (byte[])assertionValue.get() );
+                        node.setFinal( finalStr );
                     }
 
                     return node;
@@ -322,9 +325,10 @@ public class FilterParser
                     // We have a '*' : it's an any
                     // If the value is empty, that means we have more than 
                     // one consecutive '*' : do nothing in this case.
-                    if ( !StringTools.isEmpty( assertionValue ) )
+                    if ( !assertionValue.isNull() )
                     {
-                        node.addAny( assertionValue );
+                        String anyStr = StringTools.utf8ToString( (byte[])assertionValue.get() );
+                        node.addAny( anyStr );
                     }
 
                     pos.start++;
@@ -374,7 +378,6 @@ public class FilterParser
         if ( StringTools.isCharASCII( filter, pos.start, '*' ) )
         {
             // To be a present node, the next char should be a ')'
-            //StringTools.trimLeft( filter, pos );
             pos.start++;
 
             if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
@@ -393,18 +396,18 @@ public class FilterParser
         else if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
         {
             // An empty equality Node
-            return new EqualityNode( attr, new ClientStringValue( "" ) );
+            return new EqualityNode( attr, new ClientBinaryValue() );
         }
         else
         {
             // A substring or an equality node
-            String value = parseAssertionValue( filter, pos );
+            Value<?> value = parseAssertionValue( filter, pos );
 
             // Is there anything else but a ')' after the value ?
             if ( StringTools.isCharASCII( filter, pos.start, ')' ) )
             {
                 // This is an equality node
-                return new EqualityNode( attr, new ClientStringValue( value ) );
+                return new EqualityNode( attr, value );
             }
 
             return parseSubstring( attr, value, filter, pos );
@@ -430,9 +433,6 @@ public class FilterParser
         LeafNode node = null;
         String attr = null;
 
-        // Relax the grammar a bit : we can have spaces 
-        // StringTools.trimLeft( filter, pos );
-
         if ( c == '\0' )
         {
             throw new ParseException( "Bad char", pos.start );
@@ -447,9 +447,6 @@ public class FilterParser
         {
             // We must have an attribute
             attr = AttributeUtils.parseAttribute( filter, pos, true );
-
-            // Relax the grammar a bit : we can have spaces 
-            // StringTools.trimLeft( filter, pos );
 
             // Now, we may have a present, substring, simple or an extensible
             c = StringTools.charAt( filter, pos.start );
@@ -474,7 +471,7 @@ public class FilterParser
                     pos.start++;
 
                     // Parse the value and create the node
-                    node = new ApproximateNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
+                    node = new ApproximateNode( attr, parseAssertionValue( filter, pos ) );
                     return node;
 
                 case '>':
@@ -490,7 +487,7 @@ public class FilterParser
                     pos.start++;
 
                     // Parse the value and create the node
-                    node = new GreaterEqNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
+                    node = new GreaterEqNode( attr, parseAssertionValue( filter, pos ) );
                     return node;
 
                 case '<':
@@ -506,7 +503,7 @@ public class FilterParser
                     pos.start++;
 
                     // Parse the value and create the node
-                    node = new LessEqNode( attr, new ClientStringValue( parseAssertionValue( filter, pos ) ) );
+                    node = new LessEqNode( attr, parseAssertionValue( filter, pos ) );
                     return node;
 
                 case ':':
@@ -536,30 +533,18 @@ public class FilterParser
     {
         BranchNode bNode = ( BranchNode ) node;
 
-        // Relax the grammar a bit : we can have spaces 
-        // StringTools.trimLeft( filter, pos );
-
         // We must have at least one filter
         ExprNode child = parseFilterInternal( filter, pos );
 
         // Add the child to the node children
         bNode.addNode( child );
 
-        // Relax the grammar a bit : we can have spaces 
-        // StringTools.trimLeft( filter, pos );
-
-        // Now, iterate though all the remaining filters, if any
+        // Now, iterate recusively though all the remaining filters, if any
         while ( ( child = parseFilterInternal( filter, pos ) ) != null )
         {
             // Add the child to the node children
             bNode.addNode( child );
-
-            // Relax the grammar a bit : we can have spaces 
-            // StringTools.trimLeft( filter, pos );
         }
-
-        // Relax the grammar a bit : we can have spaces 
-        // StringTools.trimLeft( filter, pos );
 
         return node;
     }
@@ -582,9 +567,6 @@ public class FilterParser
     private static ExprNode parseFilterComp( String filter, Position pos ) throws ParseException
     {
         ExprNode node = null;
-
-        // Relax the grammar a bit : we can have spaces 
-        // StringTools.trimLeft( filter, pos );
 
         if ( pos.start == pos.length )
         {
@@ -633,9 +615,6 @@ public class FilterParser
      */
     private static ExprNode parseFilterInternal( String filter, Position pos ) throws ParseException
     {
-        // relax the grammar by allowing spaces
-        // StringTools.trimLeft( filter, pos );
-
         // Check for the left '('
         if ( !StringTools.isCharASCII( filter, pos.start, '(' ) )
         {
@@ -652,9 +631,6 @@ public class FilterParser
 
         pos.start++;
 
-        // relax the grammar by allowing spaces
-        // StringTools.trimLeft( filter, pos );
-
         // parse the filter component
         ExprNode node = parseFilterComp( filter, pos );
 
@@ -662,9 +638,6 @@ public class FilterParser
         {
             throw new ParseException( "Bad filter", pos.start );
         }
-
-        // relax the grammar by allowing spaces
-        // StringTools.trimLeft( filter, pos );
 
         // Check that we have a right ')'
         if ( !StringTools.isCharASCII( filter, pos.start, ')' ) )

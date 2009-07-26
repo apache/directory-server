@@ -3457,6 +3457,59 @@ public class StringTools
 
 
     /**
+     * Convert an escaoed list of bytes to a byte[]
+     * 
+     * @param str the string containing hex escapes
+     * @return the converted byte[]
+     */
+    public static final byte[] convertEscapedHex( String str ) throws InvalidNameException
+    {
+        if ( str == null )
+        {
+            throw new InvalidNameException( "Expected string to be non-null " +
+            "with valid index."  );
+        }
+        
+        int length = str.length();
+        
+        if ( length == 0 )
+        {
+            throw new InvalidNameException( "Expected string to be non-empty " +
+            "with valid index."  );
+        }
+        
+        // create buffer and add everything before start of scan
+        byte[] buf = new byte[ str.length()/3];
+        int pos = 0;
+        
+        // start scaning until we find an escaped series of bytes
+        for ( int i = 0; i < length; i++ )
+        {
+            char c = str.charAt( i );
+            
+            if ( c == '\\' )
+            {
+                // we have the start of a hex escape sequence
+                if ( isHex( str, i+1 ) && isHex ( str, i+2 ) )
+                {
+                    byte value = ( byte ) ( (StringTools.HEX_VALUE[str.charAt( i+1 )] << 4 ) + 
+                        StringTools.HEX_VALUE[str.charAt( i+2 )] );
+                    
+                    i+=2;
+                    buf[pos++] = value;
+                }
+            }
+            else
+            {
+                throw new InvalidNameException( "The DN must contain valid escaped characters." );
+            }
+        }
+
+        return buf;
+    }
+
+
+    /**
      * Collects an hex sequence from a string, and returns the value
      * as an integer, after having modified the initial value (the escaped
      * hex value is transsformed to the byte it represents).

@@ -23,6 +23,11 @@ package org.apache.directory.shared.ldap.filter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.util.StringTools;
+
 
 /**
  * Abstract implementation of a expression node.
@@ -144,17 +149,64 @@ public abstract class AbstractExprNode implements ExprNode
      * @param value Right hand side of "attrId=value" assertion occurring in an LDAP search filter.
      * @return Escaped version of <code>value</code>
      */
-    protected static String escapeFilterValue( Object value )
+    protected static Value<?> escapeFilterValue( Value<?> value )
     {
         StringBuilder sb = null;
         String val;
 
-        if ( !( value instanceof String ) )
+        if ( !( value instanceof ClientStringValue ) )
         {
-            return value.toString();
+            sb = new StringBuilder( ((ClientBinaryValue)value).getReference().length * 3 );
+            
+            for ( byte b:((ClientBinaryValue)value).getReference() )
+            {
+                if ( ( b < 0x7F ) && ( b >= 0 ) )
+                {
+                    switch ( b )
+                    {
+                        case '*' :
+                            sb.append( "\\2A" );
+                            break;
+                            
+                        case '(' :
+                            sb.append( "\\28" );
+                            break;
+                            
+                        case ')' :
+                            sb.append( "\\29" );
+                            break;
+                            
+                        case '\\' :
+                            sb.append( "\\5C" );
+                            break;
+                            
+                        case '\0' :
+                            sb.append( "\\00" );
+                            break;
+                            
+                        default :
+                            sb.append( (char)b );
+                    }
+                }
+                else
+                {
+                    sb.append( '\\' );
+                    String digit = Integer.toHexString( ((byte)b) & 0x00FF );
+                    
+                    if ( digit.length() == 1 )
+                    {
+                        sb.append( '0' );
+                    }
+
+                    sb.append( digit.toUpperCase() );
+                }
+            }
+            
+            return new ClientStringValue( sb.toString() );
         }
 
-        val = ( String ) value;
+        val = ( ( ClientStringValue ) value ).get();
+        
         for ( int i = 0; i < val.length(); i++ )
         {
             char ch = val.charAt( i );
@@ -163,21 +215,26 @@ public abstract class AbstractExprNode implements ExprNode
             switch ( ch )
             {
                 case '*':
-                    replace = "\\2a";
+                    replace = "\\2A";
                     break;
+                    
                 case '(':
                     replace = "\\28";
                     break;
+                    
                 case ')':
                     replace = "\\29";
                     break;
+                    
                 case '\\':
-                    replace = "\\5c";
+                    replace = "\\5C";
                     break;
+                    
                 case '\0':
                     replace = "\\00";
                     break;
             }
+            
             if ( replace != null )
             {
                 if ( sb == null )
@@ -193,7 +250,7 @@ public abstract class AbstractExprNode implements ExprNode
             }
         }
 
-        return ( sb == null ? val : sb.toString() );
+        return ( sb == null ? value : new ClientStringValue( sb.toString() ) );
     }
 
 

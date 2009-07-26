@@ -22,6 +22,9 @@ package org.apache.directory.shared.ldap.filter;
 
 import java.util.Arrays;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -34,7 +37,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class ExtensibleNode extends LeafNode
 {
     /** The value of the attribute to match for */
-    private byte[] value;
+    private Value<?> value;
 
     /** The matching rules id */
     private String matchingRuleId;
@@ -63,32 +66,11 @@ public class ExtensibleNode extends LeafNode
      * @param matchingRuleId the OID of the matching rule
      * @param dnAttributes the dn attributes
      */
-    public ExtensibleNode(String attribute, String value, String matchingRuleId, boolean dnAttributes)
-    {
-        this( attribute, StringTools.getBytesUtf8( value ), matchingRuleId, dnAttributes );
-    }
-
-
-    /**
-     * Creates a new ExtensibleNode object.
-     * 
-     * @param attribute the attribute used for the extensible assertion
-     * @param value the value to match for
-     * @param matchingRuleId the OID of the matching rule
-     * @param dnAttributes the dn attributes
-     */
-    public ExtensibleNode( String attribute, byte[] value, String matchingRuleId, boolean dnAttributes )
+    public ExtensibleNode( String attribute, Value<?> value, String matchingRuleId, boolean dnAttributes )
     {
         super( attribute, AssertionType.EXTENSIBLE );
 
-        if ( value != null )
-        {
-            this.value = new byte[ value.length ];
-            System.arraycopy( value, 0, this.value, 0, value.length );
-        } else {
-            this.value = null;
-        }
-
+        this.value = value;
         this.matchingRuleId = matchingRuleId;
         this.dnAttributes = dnAttributes;
     }
@@ -160,27 +142,34 @@ public class ExtensibleNode extends LeafNode
      * 
      * @return the value
      */
-    public final byte[] getValue()
+    public final Value<?> getValue()
     {
-        if ( value == null )
-        {
-            return null;
-        }
-
-        final byte[] copy = new byte[ value.length ];
-        System.arraycopy( value, 0, copy, 0, value.length );
-        return copy;
+        return value;
     }
 
 
+    /** 
+     * @return representation of value, escaped for use in a filter if required 
+     */
+    public Value<?> getEscapedValue()
+    {
+        if ( value instanceof ClientStringValue )
+        {
+            return AbstractExprNode.escapeFilterValue( value );
+        }
+        
+        return value;
+    }
+
+    
     /**
      * Sets the value.
      * 
      * @param value the value
      */
-    public final void setValue( String value)
+    public final void setValue( Value<?> value)
     {
-        this.value = StringTools.getBytesUtf8( value );
+        this.value = value;
     }
 
     
@@ -195,7 +184,7 @@ public class ExtensibleNode extends LeafNode
         h = h*17 + super.hashCode();
         h = h*17 + ( dnAttributes ? 1 : 0 );
         h = h*17 + matchingRuleId.hashCode();
-        h = h*17 + Arrays.hashCode( value );
+        h = h*17 + value.hashCode();
         
         return h;
     }
@@ -215,9 +204,7 @@ public class ExtensibleNode extends LeafNode
         buf.append( "-EXTENSIBLE-" );
         buf.append( matchingRuleId );
         buf.append( "-" );
-        buf.append( StringTools.utf8ToString( value ) );
-        buf.append( "/" );
-        buf.append( StringTools.dumpBytes( value ) );
+        buf.append( value );
 
         buf.append( super.toString() );
         

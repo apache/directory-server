@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -119,6 +121,15 @@ public class SubstringNode extends LeafNode
     }
 
 
+    /** 
+     * @return representation of the inital, escaped for use in a filter if required 
+     *
+    public String getEscapedInitial()
+    {
+        return AbstractExprNode.escapeFilterValue( initialPattern );
+    }
+    
+    
     /**
      * Gets the initial fragment.
      * 
@@ -149,6 +160,20 @@ public class SubstringNode extends LeafNode
     }
 
 
+    /** 
+     * @return representation of the final, escaped for use in a filter if required 
+     *
+    public Value<?> getEscapedFinal()
+    {
+        if ( finalPattern instanceof ClientStringValue )
+        {
+            return AbstractExprNode.escapeFilterValue( finalPattern );
+        }
+        
+        return finalPattern;
+    }
+    
+    
     /**
      * Set the final pattern
      * @param finalPattern The final pattern
@@ -159,6 +184,30 @@ public class SubstringNode extends LeafNode
     }
 
 
+    /** 
+     * @return representation of the any, escaped for use in a filter if required 
+     *
+    public List<Value<?>> getEscapedAny()
+    {
+        if ( anyPattern != null )
+        {
+            List<Value<?>> anyEscaped = new ArrayList<Value<?>>(anyPattern.size() );
+            
+            for ( Value<?> value:anyPattern )
+            {
+                if ( value instanceof ClientStringValue )
+                {
+                    anyEscaped.add( AbstractExprNode.escapeFilterValue( value ) );
+                }
+            }
+            
+            return anyEscaped;
+        }
+        
+        return anyPattern;
+    }
+    
+    
     /**
      * Gets the list of wildcard surrounded any fragments.
      * 
@@ -199,6 +248,8 @@ public class SubstringNode extends LeafNode
      */
     public final Pattern getRegex( Normalizer normalizer ) throws NamingException
     {
+        boolean isBinary = false;
+        
         if ( ( anyPattern != null ) && ( anyPattern.size() > 0 ) )
         {
             String[] any = new String[anyPattern.size()];
@@ -285,7 +336,7 @@ public class SubstringNode extends LeafNode
 
         if ( null != initialPattern )
         {
-            buf.append( AbstractExprNode.escapeFilterValue(initialPattern) ).append( '*' );
+            buf.append( AbstractExprNode.escapeFilterValue( new ClientStringValue( initialPattern ) ) ).append( '*' );
         }
         else
         {
@@ -296,14 +347,14 @@ public class SubstringNode extends LeafNode
         {
             for ( String any:anyPattern )
             {
-                buf.append( AbstractExprNode.escapeFilterValue(any) );
+                buf.append( AbstractExprNode.escapeFilterValue( new ClientStringValue( any ) ) );
                 buf.append( '*' );
             }
         }
 
         if ( null != finalPattern )
         {
-            buf.append( AbstractExprNode.escapeFilterValue(finalPattern) );
+            buf.append( AbstractExprNode.escapeFilterValue( new ClientStringValue( finalPattern ) ) );
         }
 
         buf.append( super.toString() );

@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequestCodec;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -1544,7 +1545,7 @@ public class SearchRequestTest extends AbstractTest
 
         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) filter;
 
-        assertEquals( "A Value", extensibleMatchFilter.getMatchValue() );
+        assertEquals( "A Value", extensibleMatchFilter.getMatchValue().get() );
 
         assertEquals( false, extensibleMatchFilter.isDnAttributes() );
     }
@@ -1578,7 +1579,7 @@ public class SearchRequestTest extends AbstractTest
 
         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) filter;
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) extensibleMatchFilter.getMatchValue() ) );
+        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) extensibleMatchFilter.getMatchValue().get() ) );
 
         assertEquals( false, extensibleMatchFilter.isDnAttributes() );
     }

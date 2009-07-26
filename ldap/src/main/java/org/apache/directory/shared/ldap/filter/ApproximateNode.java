@@ -58,7 +58,7 @@ public class ApproximateNode<T> extends SimpleNode<T>
     {
         StringBuilder buf = new StringBuilder();
     
-        buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( getValueEscaped() );
+        buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( getEscapedValue() );
 
         buf.append( super.toString() );
         

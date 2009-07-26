@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.filter;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 
 
 /**
@@ -85,15 +87,9 @@ public abstract class SimpleNode<T> extends LeafNode
     /** 
      * @return representation of value, escaped for use in a filter if required 
      */
-    protected Object getValueEscaped()
+    public Value<?> getEscapedValue()
     {
-        Object valueEscaped = value.get();
-
-        if ( valueEscaped instanceof String )
-        {
-            valueEscaped = AbstractExprNode.escapeFilterValue( valueEscaped );
-        }
-        return valueEscaped;
+        return AbstractExprNode.escapeFilterValue( value );
     }
 
 

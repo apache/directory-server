@@ -2619,11 +2619,14 @@ public class Dsmlv2Grammar extends AbstractGrammar implements IGrammar
                 {
                     if ( ParserUtils.isBase64BinaryValue( xpp, typeValue ) )
                     {
-                        filter.setMatchValue( Base64.decode( nextText.trim().toCharArray() ) );
+                        filter.setMatchValue( 
+                            new ClientBinaryValue( 
+                                Base64.decode( nextText.trim().toCharArray() ) ) );
                     }
                     else
                     {
-                        filter.setMatchValue( nextText.trim() );
+                        filter.setMatchValue( 
+                            new ClientStringValue( nextText.trim() ) );
                     }
                 }
             }

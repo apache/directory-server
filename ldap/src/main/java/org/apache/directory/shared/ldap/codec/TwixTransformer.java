@@ -69,6 +69,7 @@ import org.apache.directory.shared.ldap.codec.search.controls.subEntry.SubEntryC
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -558,28 +559,14 @@ public class TwixTransformer
                         attribute = filter.getType();
                     }
 
-                    Object value = filter.getMatchValue();
+                    Value<?> value = filter.getMatchValue();
 
                     if ( filter.getMatchingRule() != null )
                     {
                         matchingRule = filter.getMatchingRule();
                     }
 
-                    if ( value instanceof String )
-                    {
-                        branch = new ExtensibleNode( attribute, (String)value, matchingRule, filter.isDnAttributes() );
-                    }
-                    else
-                    {
-                        if ( value != null )
-                        {
-                            branch = new ExtensibleNode( attribute, (byte[])value, matchingRule, filter.isDnAttributes() );
-                        }
-                        else
-                        {
-                            branch = new ExtensibleNode( attribute, (byte[])null, matchingRule, filter.isDnAttributes() );
-                        }
-                    }
+                    branch = new ExtensibleNode( attribute, value, matchingRule, filter.isDnAttributes() );
                 }
 
                 return branch;
@@ -718,7 +705,7 @@ public class TwixTransformer
                     String attribute = ((ExtensibleNode)exprNode).getAttribute();
                     String matchingRule = ((ExtensibleNode)exprNode).getMatchingRuleId();
                     boolean dnAttributes = ((ExtensibleNode)exprNode).hasDnAttributes();
-                    Object value = ((ExtensibleNode)exprNode).getValue();
+                    Value<?> value = ((ExtensibleNode)exprNode).getValue();
 
                     if ( attribute != null )
                     {

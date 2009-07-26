@@ -27,6 +27,8 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -56,7 +58,7 @@ public class ExtensibleMatchFilter extends Filter
     private byte[] typeBytes;
 
     /** Matching rule value */
-    private Object matchValue;
+    private org.apache.directory.shared.ldap.entry.Value<?> matchValue;
 
     /** The dnAttributes flag */
     private boolean dnAttributes = false;
@@ -138,7 +140,7 @@ public class ExtensibleMatchFilter extends Filter
      * 
      * @return Returns the matchValue.
      */
-    public Object getMatchValue()
+    public org.apache.directory.shared.ldap.entry.Value<?> getMatchValue()
     {
         return matchValue;
     }
@@ -149,7 +151,7 @@ public class ExtensibleMatchFilter extends Filter
      * 
      * @param matchValue The matchValue to set.
      */
-    public void setMatchValue( Object matchValue )
+    public void setMatchValue( org.apache.directory.shared.ldap.entry.Value<?> matchValue )
     {
         this.matchValue = matchValue;
     }
@@ -225,15 +227,15 @@ public class ExtensibleMatchFilter extends Filter
 
         if ( matchValue != null )
         {
-            if ( matchValue instanceof String )
+            if ( matchValue instanceof ClientStringValue )
             {
-                int matchValueLength = StringTools.getBytesUtf8( ( String ) matchValue ).length;
+                int matchValueLength = (( ClientStringValue ) matchValue ).get().length();
                 extensibleMatchLength += 1 + TLV.getNbBytes( matchValueLength ) + matchValueLength;
             }
             else
             {
-                extensibleMatchLength += 1 + TLV.getNbBytes( ( ( byte[] ) matchValue ).length )
-                    + ( ( byte[] ) matchValue ).length;
+                int bytesLength = ( (ClientBinaryValue) matchValue ).get().length;
+                extensibleMatchLength += 1 + TLV.getNbBytes( bytesLength ) + bytesLength;
             }
         }
 
@@ -304,9 +306,9 @@ public class ExtensibleMatchFilter extends Filter
             {
                 buffer.put( ( byte ) LdapConstants.MATCH_VALUE_TAG );
 
-                if ( matchValue instanceof String )
+                if ( matchValue instanceof ClientStringValue )
                 {
-                    byte[] matchValueBytes = StringTools.getBytesUtf8( ( String ) matchValue );
+                    byte[] matchValueBytes = StringTools.getBytesUtf8( (( ClientStringValue ) matchValue).get() );
                     buffer.put( TLV.getBytes( matchValueBytes.length ) );
 
                     if ( matchValueBytes.length != 0 )
@@ -316,11 +318,12 @@ public class ExtensibleMatchFilter extends Filter
                 }
                 else
                 {
-                    buffer.put( TLV.getBytes( ( ( byte[] ) matchValue ).length ) );
+                    int bytesLength = ( ( ClientBinaryValue ) matchValue ).get().length;
+                    buffer.put( TLV.getBytes( bytesLength ) );
 
-                    if ( ( ( byte[] ) matchValue ).length != 0 )
+                    if ( bytesLength != 0 )
                     {
-                        buffer.put( ( byte[] ) matchValue );
+                        buffer.put( ((ClientBinaryValue)matchValue).get() );
                     }
                 }
 
