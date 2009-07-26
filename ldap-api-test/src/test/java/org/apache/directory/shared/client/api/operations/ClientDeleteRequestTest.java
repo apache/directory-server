@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.integ.Level;
@@ -145,7 +146,6 @@ public class ClientDeleteRequestTest
     }
     
 
-    @Ignore( "enable this test when the TreeDelete control gets created" )
     @Test
     public void testDeleteWithCascadeControl() throws Exception
     {
@@ -179,16 +179,55 @@ public class ClientDeleteRequestTest
         
         assertTrue( session.exists( dn ) );
 
-        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", LdapDN.class, Map.class );
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", LdapDN.class, Map.class, DeleteListener.class );
         deleteChildrenMethod.setAccessible( true );
         
-        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null );
+        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, null );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
         assertFalse( session.exists( dn ) );
     }
+
     
+    /**
+     * @see #testDeleteWithoutCascadeControl()
+     */
+    @Test
+    public void testDeleteAsyncWithoutCascadeControl() throws Exception
+    {
+        LdapDN dn = new LdapDN( "cn=parent,ou=system" );
+        
+        assertTrue( session.exists( dn ) );
+
+        Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", LdapDN.class, Map.class, DeleteListener.class );
+        deleteChildrenMethod.setAccessible( true );
+    
+        final AtomicInteger count = new AtomicInteger();
+        
+        DeleteListener listener = new DeleteListener()
+        {
+            public void entryDeleted( LdapConnection connection, DeleteResponse response ) throws LdapException
+            {
+                assertNotNull( response );
+                assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
+                count.incrementAndGet();
+            }
+        };
+        
+        DeleteResponse response = ( DeleteResponse ) deleteChildrenMethod.invoke( connection, dn, null, listener );
+        
+        assertNull( response );
+        
+        int numDNs = 5; // total number of entries expected to be deleted
+        while( count.get() != numDNs )
+        {
+            Thread.sleep( 1000 );
+        }
+
+        assertFalse( session.exists( dn ) );
+    }
+
     
     @Test
     public void testDeleteAsync() throws Exception
