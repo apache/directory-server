@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.client.api.listeners.AddListener;
 import org.apache.directory.shared.ldap.client.api.listeners.BindListener;
 import org.apache.directory.shared.ldap.client.api.listeners.CompareListener;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
+import org.apache.directory.shared.ldap.client.api.listeners.ExtendedListener;
 import org.apache.directory.shared.ldap.client.api.listeners.IntermediateResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyDnListener;
 import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
@@ -63,6 +64,8 @@ import org.apache.directory.shared.ldap.client.api.messages.CompareRequest;
 import org.apache.directory.shared.ldap.client.api.messages.CompareResponse;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteRequest;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
+import org.apache.directory.shared.ldap.client.api.messages.ExtendedRequest;
+import org.apache.directory.shared.ldap.client.api.messages.ExtendedResponse;
 import org.apache.directory.shared.ldap.client.api.messages.IntermediateResponse;
 import org.apache.directory.shared.ldap.client.api.messages.LdapResult;
 import org.apache.directory.shared.ldap.client.api.messages.ModifyDnRequest;
@@ -95,6 +98,8 @@ import org.apache.directory.shared.ldap.codec.compare.CompareRequestCodec;
 import org.apache.directory.shared.ldap.codec.compare.CompareResponseCodec;
 import org.apache.directory.shared.ldap.codec.del.DelRequestCodec;
 import org.apache.directory.shared.ldap.codec.del.DelResponseCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedRequestCodec;
+import org.apache.directory.shared.ldap.codec.extended.ExtendedResponseCodec;
 import org.apache.directory.shared.ldap.codec.intermediate.IntermediateResponseCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequestCodec;
 import org.apache.directory.shared.ldap.codec.modify.ModifyResponseCodec;
@@ -192,7 +197,7 @@ public class LdapConnection  extends IoHandlerAdapter
     private BlockingQueue<DeleteResponse> deleteResponseQueue;
     
     /** A queue used to store the incoming extended responses */
-    private BlockingQueue<LdapMessageCodec> extendedResponseQueue;
+    private BlockingQueue<ExtendedResponse> extendedResponseQueue;
     
     /** A queue used to store the incoming modify responses */
     private BlockingQueue<ModifyResponse> modifyResponseQueue;
@@ -603,7 +608,7 @@ public class LdapConnection  extends IoHandlerAdapter
         bindResponseQueue = new LinkedBlockingQueue<BindResponse>();
         compareResponseQueue = new LinkedBlockingQueue<CompareResponse>();
         deleteResponseQueue = new LinkedBlockingQueue<DeleteResponse>();
-        extendedResponseQueue = new LinkedBlockingQueue<LdapMessageCodec>();
+        extendedResponseQueue = new LinkedBlockingQueue<ExtendedResponse>();
         modifyResponseQueue = new LinkedBlockingQueue<ModifyResponse>();
         modifyDNResponseQueue = new LinkedBlockingQueue<ModifyDnResponse>();
         searchResponseQueue = new LinkedBlockingQueue<SearchResponse>();
@@ -1489,8 +1494,22 @@ public class LdapConnection  extends IoHandlerAdapter
                 break;
                 
             case LdapConstants.EXTENDED_RESPONSE :
-                // Store the response into the responseQueue
-                extendedResponseQueue.add( response ); 
+                ExtendedResponseCodec extResCodec = response.getExtendedResponse();
+                extResCodec.setMessageId( response.getMessageId() );
+                extResCodec.addControl( response.getCurrentControl() );
+                
+                ExtendedResponse extResponse = convert( extResCodec );
+                ExtendedListener extListener = ( ExtendedListener ) listenerMap.remove( extResCodec.getMessageId() );
+                if( extListener != null )
+                {
+                    extListener.extendedOperationCompleted( this, extResponse );
+                }
+                else
+                {
+                    // Store the response into the responseQueue
+                    extendedResponseQueue.add( extResponse ); 
+                }
+                
                 break;
                 
             case LdapConstants.INTERMEDIATE_RESPONSE:
@@ -2319,6 +2338,89 @@ public class LdapConnection  extends IoHandlerAdapter
         return response;
     }
     
+    
+    /**
+     * requests the server to perform an extended operation based on the given request.
+     * 
+     * @param extendedRequest the object containing the details of the extended operation to be performed
+     * @param listener an ExtendedListener instance, if a non-null instance is provided the result will be sent to this listener    
+     * @return extended operation's reponse, or null if a non-null listener instance is provided
+     * @throws LdapException
+     */
+    public ExtendedResponse extended( ExtendedRequest extendedRequest, ExtendedListener listener ) throws LdapException
+    {
+        checkSession();
+        
+        ExtendedRequestCodec extReqCodec = new ExtendedRequestCodec();
+        
+        int newId = messageId.incrementAndGet();
+        LdapMessageCodec message = new LdapMessageCodec();
+        message.setMessageId( newId );
+        extReqCodec.setMessageId( newId );
+
+        extReqCodec.setRequestName( extendedRequest.getOid() );
+        extReqCodec.setRequestValue( extendedRequest.getValue() );
+        setControls( extendedRequest.getControls(), extReqCodec );
+        
+        message.setProtocolOP( extReqCodec );
+        
+        ResponseFuture extendedFuture = new ResponseFuture( extendedResponseQueue );
+        futureMap.put( newId, extendedFuture );
+
+        // Send the request to the server
+        ldapSession.write( message );
+        
+        ExtendedResponse response = null;
+        if( listener == null )
+        {
+            try
+            {
+                long timeout = getTimeout( extendedRequest.getTimeout() );
+                response = ( ExtendedResponse ) extendedFuture.get( timeout, TimeUnit.MILLISECONDS );
+                
+                if ( response == null )
+                {
+                    LOG.error( "Extended operation failed : timeout occured" );
+
+                    throw new LdapException( TIME_OUT_ERROR );
+                }
+            }
+            catch( InterruptedException ie )
+            {
+                LOG.error( "Operation would have been cancelled", ie );
+                throw new LdapException( ie );
+            }
+            catch( Exception e )
+            {
+                LOG.error( NO_RESPONSE_ERROR );
+                futureMap.remove( newId );
+
+                throw new LdapException( e );
+            }
+        }
+        else
+        {
+            listenerMap.put( newId, listener );            
+        }
+
+        return response;
+    }
+
+    
+    /**
+     * converts the ExtendedResponseCodec to ExtendedResponse.
+     */
+    private ExtendedResponse convert( ExtendedResponseCodec extRespCodec )
+    {
+        ExtendedResponse extResponse = new ExtendedResponse();
+        
+        extResponse.setValue( extRespCodec.getResponse() );
+        extResponse.setMessageId( extRespCodec.getMessageId() );
+        extResponse.setLdapResult( convert( extRespCodec.getLdapResult() ) );
+        
+        return extResponse;
+    }
+
     
     /**
      * checks if a control with the given OID is supported
