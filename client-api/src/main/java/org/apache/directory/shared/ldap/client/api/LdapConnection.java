@@ -43,6 +43,8 @@ import javax.naming.ldap.Control;
 import javax.net.ssl.SSLContext;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
+import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.AddListener;
@@ -2414,6 +2416,21 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         ExtendedResponse extResponse = new ExtendedResponse();
         
+        OID oid = null;
+        try
+        {
+            if( extRespCodec.getResponseName() != null )
+            {
+                oid = new OID( extRespCodec.getResponseName() );
+            }
+        }
+        catch( DecoderException e )
+        {
+            // can happen in case of a PROTOCOL_ERROR result, ignore 
+            //LOG.error( "invalid response name {}", extRespCodec.getResponseName() );
+        }
+        
+        extResponse.setOid( oid );
         extResponse.setValue( extRespCodec.getResponse() );
         extResponse.setMessageId( extRespCodec.getMessageId() );
         extResponse.setLdapResult( convert( extRespCodec.getLdapResult() ) );
