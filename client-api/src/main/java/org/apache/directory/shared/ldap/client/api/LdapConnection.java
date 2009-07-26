@@ -876,6 +876,19 @@ public class LdapConnection  extends IoHandlerAdapter
 
     
     /**
+     * An Unauthenticated Authentication Bind on a server. (cf RFC 4513,
+     * par 5.1.2)
+     *
+     * @param name The name we use to authenticate the user.
+     * @return The BindResponse LdapResponse 
+     */
+    public BindResponse bind( LdapDN name ) throws Exception
+    {
+        return bind( name, (byte[])null );
+    }
+
+    
+    /**
      * Simple Bind on a server.
      *
      * @param name The name we use to authenticate the user. It must be a 
@@ -889,6 +902,33 @@ public class LdapConnection  extends IoHandlerAdapter
     }
 
 
+    /**
+     * Simple Bind on a server.
+     *
+     * @param name The name we use to authenticate the user. It must be a 
+     * valid DN
+     * @param credentials The password. It can't be null 
+     * @return The BindResponse LdapResponse 
+     */
+    public BindResponse bind( LdapDN name, String credentials ) throws LdapException
+    {
+        return bind( name, StringTools.getBytesUtf8( credentials ) );
+    }
+
+    
+    /**
+     * Simple Bind on a server.
+     *
+     * @param name The name we use to authenticate the user.
+     * @param credentials The password.
+     * @return The BindResponse LdapResponse 
+     */
+    public BindResponse bind( LdapDN name, byte[] credentials )  throws LdapException
+    {
+        return bind( name.getUpName(), credentials );
+    }
+
+    
     /**
      * Simple Bind on a server.
      *
