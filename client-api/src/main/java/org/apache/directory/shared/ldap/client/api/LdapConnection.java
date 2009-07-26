@@ -2003,7 +2003,7 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             else
             {
-                return deleteRecursive( dn, new HashMap() );
+                return deleteRecursive( dn, new HashMap(), listener );
             }
         }
         else
@@ -2050,13 +2050,17 @@ public class LdapConnection  extends IoHandlerAdapter
      *               
      *           The below method works better in the case where the tree depth is >1 
      *          
+     *   In the case of passing a non-null DeleteListener, the return value will always be null, cause the
+     *   operation is treated as asynchronous and response result will be sent using the listener callback
+     *   
      *  //FIXME provide another method for optimizing delete operation for a tree with depth <=1
      *          
      * @param dn the DN which will be removed after removing its children
-     * @param map a map to hold the Cursor related to a DN 
+     * @param map a map to hold the Cursor related to a DN
+     * @param listener  the delete operation response listener 
      * @throws LdapException
      */
-    private DeleteResponse deleteRecursive( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap ) throws LdapException
+    private DeleteResponse deleteRecursive( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap, DeleteListener listener ) throws LdapException
     {
         LOG.debug( "searching for {}", dn.getUpName() );
         DeleteResponse delResponse = null;
@@ -2081,7 +2085,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 LOG.debug( "deleting {}", dn.getUpName() );
                 cursorMap.remove( dn );
                 cursor.close();
-                delResponse = delete( new DeleteRequest( dn ), null );
+                delResponse = delete( new DeleteRequest( dn ), listener );
             }
             else
             {
@@ -2091,7 +2095,7 @@ public class LdapConnection  extends IoHandlerAdapter
                     if( searchResp instanceof SearchResultEntry )
                     {
                         SearchResultEntry searchResult = ( SearchResultEntry ) searchResp;
-                        deleteRecursive( searchResult.getEntry().getDn(), cursorMap );
+                        deleteRecursive( searchResult.getEntry().getDn(), cursorMap, listener );
                     }
                 }
                 while( cursor.next() );
@@ -2099,7 +2103,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 cursorMap.remove( dn );
                 cursor.close();
                 LOG.debug( "deleting {}", dn.getUpName() );
-                delResponse = delete( new DeleteRequest( dn ), null );
+                delResponse = delete( new DeleteRequest( dn ), listener );
             }
         }
         catch( Exception e )
