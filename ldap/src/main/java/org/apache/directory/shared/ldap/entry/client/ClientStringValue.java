@@ -83,17 +83,6 @@ public class ClientStringValue extends AbstractValue<String>
     // Value<String> Methods
     // -----------------------------------------------------------------------
     /**
-     * Get the stored value.
-     *
-     * @return The stored value
-     */
-    public String get()
-    {
-        return wrapped;
-    }
-
-
-    /**
      * Get a copy of the stored value.
      *
      * @return A copy of the stored value.
@@ -302,8 +291,17 @@ public class ClientStringValue extends AbstractValue<String>
     {
         return false;
     }
-
-
+    
+    
+    /**
+     * @return The length of the interned value
+     */
+    public int length()
+    {
+        return wrapped != null ? wrapped.length() : 0;
+    }
+    
+    
     /**
      * @see Externalizable#readExternal(ObjectInput)
      */

@@ -180,4 +180,10 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
      * @return <code>true</code> if the value is Binary, <code>false</code> otherwise
      */
     boolean isBinary();
+    
+    
+    /**
+     * @return The length of the interned value
+     */
+    int length();
 }

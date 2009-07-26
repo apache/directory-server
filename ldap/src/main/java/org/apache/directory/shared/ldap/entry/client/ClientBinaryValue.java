@@ -348,6 +348,15 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
     {
         return true;
     }
+    
+    
+    /**
+     * @return The length of the interned value
+     */
+    public int length()
+    {
+        return wrapped != null ? wrapped.length : 0;
+    }
 
 
     /**
