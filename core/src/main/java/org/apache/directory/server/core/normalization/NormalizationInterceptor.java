@@ -48,6 +48,9 @@ import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -55,6 +58,7 @@ import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,6 +262,15 @@ public class NormalizationInterceptor extends BaseInterceptor
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
+        
+        AttributeType at = opContext.getSession().getDirectoryService().getRegistries().getAttributeTypeRegistry().lookup( opContext.getOid() );
+        
+        if ( at.getSyntax().isHumanReadable() && ( opContext.getValue() instanceof ClientBinaryValue ) )
+        {
+            String value = StringTools.utf8ToString( ((Value<byte[]>)opContext.getValue()).get() );
+            opContext.setValue( new ClientStringValue( value ) );
+        }
+        
         return next.compare( opContext );
     }
     

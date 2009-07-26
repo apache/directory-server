@@ -46,6 +46,17 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import netscape.ldap.LDAPAsynchronousConnection;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPMessage;
+import netscape.ldap.LDAPSearchListener;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPUrl;
+
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
@@ -54,6 +65,7 @@ import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.control.SubentriesControl;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1625,4 +1637,68 @@ public class SearchIT
         result.close();
     }
 
+    /**
+     * test an abandonned search request.
+     */
+    @Ignore
+    @Test
+    public void testAbandonnedRequest() throws Exception
+    {
+        LDAPConnection asyncCnx = new LDAPConnection();
+        
+        try
+        {
+            // Use the netscape API as JNDI cannot be used to do a search without
+            // first binding.
+            //conn.connect( 3, "localhost", ldapServer.getPort(), "uid=admin,ou=system", "secret" );
+           
+            asyncCnx.connect( 3, "localhost", ldapServer.getPort(), "uid=admin,ou=system", "secret" );
+            
+            // First, add 1000 entries in the server
+            for ( int i = 0; i < 1000; i++ )
+            {
+                LDAPAttributeSet attrs = new LDAPAttributeSet();
+                LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+                    { "top", "person" } );
+                attrs.add( ocls );
+                attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+                attrs.add( new LDAPAttribute( "cn", "user" + i ) );
+
+                String dn = "cn=user" + i + "," + BASE;
+                LDAPEntry kate = new LDAPEntry( dn, attrs );
+
+                asyncCnx.add( kate );
+            }
+            
+            // Searches for all the entries in ou=system
+            LDAPSearchListener listener = asyncCnx.search( "ou=system", LDAPConnection.SCOPE_SUB,
+                "(ObjectClass=*)", new String[]{"*"}, false, (LDAPSearchListener)null);
+
+            // Now loop on all the elements found, and abandon after 10 elements returned
+            int count = 0;
+            LDAPMessage msg = null;
+            
+            while ( (msg = listener.getResponse() ) != null ) 
+            {
+                count++;
+
+                if ( count == 10 )
+                {
+                    //asyncCnx.abandon( msg.getMessageID() );
+                }
+            }
+            
+            assertEquals( 100, count );
+        }
+        catch ( LDAPException e )
+        {
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
+        }
+        finally
+        {
+            // Reset the allowAnonymousAccess flag
+           asyncCnx.disconnect();
+        }
+    }
 }

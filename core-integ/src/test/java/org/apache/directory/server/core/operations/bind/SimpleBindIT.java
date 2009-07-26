@@ -189,7 +189,7 @@ public class SimpleBindIT
         }
         catch ( InvalidNameException ine )
         {
-            assertEquals( "Bad DN : admin", ine.getMessage() );
+            assertEquals( "No more characters available at position 5", ine.getMessage() );
         }
         catch ( NamingException ne )
         {

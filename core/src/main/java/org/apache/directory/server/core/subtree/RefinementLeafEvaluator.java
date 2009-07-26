@@ -97,20 +97,26 @@ public class RefinementLeafEvaluator
         }
 
         // check if AVA value exists in attribute
-        if ( objectClasses.contains( node.getValue() ) )
-        {
-            return true;
-        }
-
         // If the filter value for the objectClass is an OID we need to resolve a name
         String value = null;
+        
         if ( node.getValue() instanceof ClientStringValue )
         {
             value = ( String ) node.getValue().get();
+
+            if ( objectClasses.contains( value ) )
+            {
+                return true;
+            }
         }
         else if ( node.getValue() instanceof ClientBinaryValue )
         {
-            value = "#" + StringTools.toHexString( ( byte[] ) node.getValue().get() );
+            value = StringTools.utf8ToString(  ( byte[] ) node.getValue().get() );
+            
+            if ( objectClasses.contains( value ) )
+            {
+                return true;
+            }
         }
         else
         {
@@ -124,6 +130,7 @@ public class RefinementLeafEvaluator
             while ( list.hasNext() )
             {
                 String objectClass = ( String ) list.next();
+                
                 if ( objectClasses.contains( objectClass ) )
                 {
                     return true;

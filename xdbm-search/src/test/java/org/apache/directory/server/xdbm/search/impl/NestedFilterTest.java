@@ -48,6 +48,7 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.slf4j.Logger;
@@ -160,12 +161,14 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", 
+            StringTools.utf8ToString( (byte[])cursor.get().getValue() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", 
+            StringTools.utf8ToString( (byte[])cursor.get().getValue() ) );
 
         assertFalse( cursor.next() );
     }
