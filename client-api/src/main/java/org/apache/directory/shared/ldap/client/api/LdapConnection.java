@@ -2436,6 +2436,67 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
+     * @see #extended(OID, byte[])
+     */
+    public ExtendedResponse extended( String oid ) throws LdapException
+    {
+        return extended( oid, null );
+    }
+
+    
+    /**
+     * @see #extended(OID, byte[])
+     */
+    public ExtendedResponse extended( String oid, byte[] value ) throws LdapException
+    {
+        try
+        {
+            return extended( new OID( oid ), value );
+        }
+        catch( DecoderException e )
+        {
+            LOG.error( "Failed to decode the OID {}", oid );
+            throw new LdapException( e );
+        }
+    }
+    
+    
+    /**
+     * @see #extended(OID, byte[])
+     */
+    public ExtendedResponse extended( OID oid ) throws LdapException
+    {
+        return extended( oid, null );
+    }
+    
+
+    /**
+     * sends a extended operation request to the server with the given OID and value
+     * 
+     * @param oid the object identifier of the extended operation
+     * @param value value to be used by the extended operation, can be a null value 
+     * @return extended operation's response
+     * @throws LdapException
+     */
+    public ExtendedResponse extended( OID oid, byte[] value ) throws LdapException
+    {
+        ExtendedRequest extRequest = new ExtendedRequest( oid );
+        extRequest.setValue( value );
+        
+        return extended( extRequest );
+    }
+
+    
+    /**
+     * @see #extended(ExtendedRequest, ExtendedListener) 
+     */
+    public ExtendedResponse extended( ExtendedRequest extendedRequest ) throws LdapException
+    {
+        return extended( extendedRequest, null );
+    }
+    
+    
+    /**
      * requests the server to perform an extended operation based on the given request.
      * 
      * @param extendedRequest the object containing the details of the extended operation to be performed
