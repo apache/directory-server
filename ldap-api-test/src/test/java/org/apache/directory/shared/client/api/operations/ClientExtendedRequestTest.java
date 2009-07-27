@@ -70,9 +70,7 @@ public class ClientExtendedRequestTest
     @Test
     public void testExtended() throws Exception
     {
-        ExtendedRequest extendedRequest = new ExtendedRequest( StartTlsRequest.OID );
-        
-        ExtendedResponse response = connection.extended( extendedRequest, null );
+        ExtendedResponse response = connection.extended( StartTlsRequest.OID );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
