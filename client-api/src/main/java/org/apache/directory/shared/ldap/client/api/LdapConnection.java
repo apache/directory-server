@@ -120,6 +120,8 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -2249,7 +2251,24 @@ public class LdapConnection  extends IoHandlerAdapter
     /**
      * @see #compare(LdapDN, String, Object) 
      */
-    public CompareResponse compare( String dn, String attributeName, Object value ) throws LdapException
+    public CompareResponse compare( String dn, String attributeName, String value ) throws LdapException
+    {
+        try
+        {
+            return compare( new LdapDN( dn ), attributeName, value );
+        }
+        catch( Exception e )
+        {
+            LOG.error( "Failed to perform compare operation", e );
+            throw new LdapException( e );
+        }
+    }
+    
+    
+    /**
+     * @see #compare(LdapDN, String, Object) 
+     */
+    public CompareResponse compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
         try
         {
@@ -2273,16 +2292,51 @@ public class LdapConnection  extends IoHandlerAdapter
      * @return compare operation's response
      * @throws LdapException
      */
-    public CompareResponse compare( LdapDN dn, String attributeName, Object value ) throws LdapException
+    public CompareResponse compare( LdapDN dn, String attributeName, String value ) throws LdapException
+    {
+        return compare( dn, attributeName, new ClientStringValue( value ) );
+    }
+
+
+    /**
+     * @see #compare(LdapDN, String, Object) 
+     */
+    public CompareResponse compare( LdapDN dn, String attributeName, byte[] value ) throws LdapException
+    {
+        return compare( dn, attributeName, new ClientBinaryValue( value ) );
+    }
+
+    
+    /**
+     * @see #compare(LdapDN, String, Object) 
+     */
+    public CompareResponse compare( String dn, String attributeName, Value<?> value ) throws LdapException
+    {
+        try
+        {
+            return compare( new LdapDN( dn ), attributeName, value );
+        }
+        catch( Exception e )
+        {
+            LOG.error( "Failed to perform compare operation", e );
+            throw new LdapException( e );
+        }
+    }
+    
+    
+    /**
+     * @see #compare(LdapDN, String, Object) 
+     */
+    public CompareResponse compare( LdapDN dn, String attributeName, Value<?> value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequest();
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( attributeName );
-        compareRequest.setValue( value );
+        compareRequest.setValue( value.get() );
         
         return compare( compareRequest, null );
     }
-
+    
     
     /**
      * compares an entry's attribute's value with that of the given value
