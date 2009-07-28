@@ -46,7 +46,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPAsynchronousConnection;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
@@ -54,8 +53,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPMessage;
 import netscape.ldap.LDAPSearchListener;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPUrl;
 
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
@@ -285,17 +282,35 @@ public class SearchIT
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
 
-        // TODO enable this test here
-        // Failing here below this due to the frontend interpretting the byte[]
-        // as a String value.  I see the value sent to the SearchHandler of the
-        // filter to be a String looking like: "[B@17210a5".
-        
         enm = ctx.search( "", "(&(cn=Kate Bush)(userCertificate={0}))", new Object[] {certData}, controls );
         assertTrue( enm.hasMore() );
         sr = ( SearchResult ) enm.next();
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
+
+        enm = ctx.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
+        assertTrue( enm.hasMore() );
+        int count = 0;
+        Set<String> expected = new HashSet<String>();
+        expected.add( "cn=Kate Bush" );
+        expected.add( "cn=Tori Amos" );
+        expected.add( "cn=Rolling-Stones" );
+        expected.add( "cn=Heather Nova" );
+        
+        while ( enm.hasMore() )
+        {
+            count++;
+            sr = ( SearchResult ) enm.next();
+            assertNotNull( sr );
+            
+            assertTrue( expected.contains( sr.getName() ) );
+            expected.remove( sr.getName() );
+        }
+        
+        assertEquals( 4, count );
+        assertFalse( enm.hasMore() );
+        assertEquals( 0, expected.size() );
     }
 
     
