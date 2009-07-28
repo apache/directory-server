@@ -91,7 +91,7 @@ public class ClientAbandonRequestTest
     {
         // injecting some values to keep the
         // followed search operation to run for a while
-        int numEntries = 20;
+        final int numEntries = 100;
         
         for ( int i = 0; i < numEntries; i++ )
         {
@@ -139,7 +139,7 @@ public class ClientAbandonRequestTest
                 if ( count.get() == 13 )
                 {
                     int id = searchResultEntry.getMessageId();
-                    assertEquals( 22, id );
+                    assertEquals( numEntries + 2, id );
                     System.out.println( "Abandonning message " + id );
                     connection.abandon( id );
                     abandonned.set( true );
@@ -169,6 +169,6 @@ public class ClientAbandonRequestTest
             n++;
         }
         
-        assertEquals( 21, n );
+        assertTrue( n == numEntries + 1 );
     }
 }
