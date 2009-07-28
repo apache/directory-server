@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 
@@ -65,9 +64,9 @@ public class AttributeClassLoader extends ClassLoader
         
         Value<?> value = attribute.get();
         
-        if ( value instanceof ServerBinaryValue )
+        if ( value.isBinary() )
         {
-            classBytes = ((ServerBinaryValue)value).get();
+            classBytes = value.getBytes();
 
             return defineClass( name, classBytes, 0, classBytes.length );
         }

@@ -114,6 +114,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      */
     public DefaultAuthorizationInterceptor()
     {
+        // Nothing to do
     }
 
 
@@ -162,7 +163,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         for ( Value<?> value:uniqueMember )
         {
-            LdapDN memberDn = new LdapDN( ( String ) value.get() );
+            LdapDN memberDn = new LdapDN( value.getString() );
             memberDn.normalize( normalizerMapping );
             newAdministrators.add( memberDn.getNormName() );
         }

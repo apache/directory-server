@@ -143,7 +143,7 @@ public class TriggerInterceptor extends BaseInterceptor
         
         for ( Value<?> value:subentries )
         {
-            String subentryDn = ( String ) value.get();
+            String subentryDn = value.getString();
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
         }
     }
@@ -168,7 +168,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         for ( Value<?> value:entryTrigger )
         {
-            String triggerString = ( String ) value.get();
+            String triggerString = value.getString();
             TriggerSpecification item;
 
             try

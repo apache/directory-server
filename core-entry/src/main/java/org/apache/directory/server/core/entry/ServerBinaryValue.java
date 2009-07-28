@@ -202,7 +202,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             }
             else
             {
-                normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
+                normalizedValue = normalizer.normalize( this ).getBytes();
                 setNormalized( true );
             }
             

@@ -232,7 +232,7 @@ public class GroupCache
         {
 
             // get and normalize the DN of the member
-            String memberDn = ( String ) value.get();
+            String memberDn = value.getString();
 
             try
             {
@@ -260,7 +260,7 @@ public class GroupCache
         for ( Value<?> value : members )
         {
             // get and normalize the DN of the member
-            String memberDn = ( String ) value.get();
+            String memberDn = value.getString();
 
             try
             {

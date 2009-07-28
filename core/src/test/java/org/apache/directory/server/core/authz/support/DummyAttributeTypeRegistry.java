@@ -30,6 +30,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -131,9 +133,14 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             {
                                 private static final long serialVersionUID = 1L;
 
-                                public Object normalize( Object value ) throws NamingException
+                                public Value<?> normalize( Value<?> value ) throws NamingException
                                 {
-                                    return StringTools.deepTrimToLower( value.toString() );
+                                    return new ClientStringValue( StringTools.deepTrimToLower( value.getString() ) );
+                                }
+                                
+                                public String normalize( String value ) throws NamingException
+                                {
+                                    return StringTools.deepTrimToLower( value );
                                 }
                             };
                         }
@@ -407,9 +414,14 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             {
                                 private static final long serialVersionUID = 1L;
 
-                                public Object normalize( Object value ) throws NamingException
+                                public Value<?> normalize( Value<?> value ) throws NamingException
                                 {
-                                    return StringTools.deepTrimToLower( value.toString() );
+                                    return new ClientStringValue( StringTools.deepTrimToLower( value.getString() ) );
+                                }
+
+                                public String normalize( String value ) throws NamingException
+                                {
+                                    return StringTools.deepTrimToLower( value );
                                 }
                             };
                         }

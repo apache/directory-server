@@ -149,7 +149,7 @@ public class DescriptionParsers
             try
             {
                 syntaxCheckerDescriptions[pos++] = 
-                    syntaxCheckerParser.parseSyntaxCheckerDescription( (String)value.get() );
+                    syntaxCheckerParser.parseSyntaxCheckerDescription( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -180,12 +180,12 @@ public class DescriptionParsers
         {
             try
             {
-                normalizerDescriptions[pos++] = normalizerParser.parseNormalizerDescription( (String)value.get() );
+                normalizerDescriptions[pos++] = normalizerParser.parseNormalizerDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the normalizerDescription syntax: " + value.get(), 
+                    "The following does not conform to the normalizerDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -211,12 +211,12 @@ public class DescriptionParsers
         {
             try
             {
-                comparatorDescriptions[pos++] = comparatorParser.parseComparatorDescription( ( String ) value.get() );
+                comparatorDescriptions[pos++] = comparatorParser.parseComparatorDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the comparatorDescription syntax: " + value.get(), 
+                    "The following does not conform to the comparatorDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -252,12 +252,12 @@ public class DescriptionParsers
             
             try
             {
-                desc = attributeTypeParser.parseAttributeTypeDescription( ( String ) value.get() );
+                desc = attributeTypeParser.parseAttributeTypeDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the attributeTypeDescription syntax: " + value.get(), 
+                    "The following does not conform to the attributeTypeDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -387,12 +387,12 @@ public class DescriptionParsers
             
             try
             {
-                desc = objectClassParser.parseObjectClassDescription( ( String ) value.get() );
+                desc = objectClassParser.parseObjectClassDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the objectClassDescription syntax: " + value.get(), 
+                    "The following does not conform to the objectClassDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -488,12 +488,12 @@ public class DescriptionParsers
             
             try
             {
-                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( ( String ) value.get() );
+                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the matchingRuleUseDescription syntax: " + value.get(), 
+                    "The following does not conform to the matchingRuleUseDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -535,12 +535,12 @@ public class DescriptionParsers
             
             try
             {
-                desc = syntaxParser.parseLdapSyntaxDescription( ( String ) value.get() );
+                desc = syntaxParser.parseLdapSyntaxDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ldapSyntaxDescription syntax: " + value.get(), 
+                    "The following does not conform to the ldapSyntaxDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -589,12 +589,12 @@ public class DescriptionParsers
 
             try
             {
-                desc = matchingRuleParser.parseMatchingRuleDescription( ( String ) value.get() );
+                desc = matchingRuleParser.parseMatchingRuleDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the matchingRuleDescription syntax: " + value.get(), 
+                    "The following does not conform to the matchingRuleDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -642,12 +642,12 @@ public class DescriptionParsers
      
             try
             {
-                desc = ditStructureRuleParser.parseDITStructureRuleDescription( ( String ) value.get() );
+                desc = ditStructureRuleParser.parseDITStructureRuleDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ditStructureRuleDescription syntax: " + value.get(), 
+                    "The following does not conform to the ditStructureRuleDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -691,12 +691,12 @@ public class DescriptionParsers
      
             try
             {
-                desc = ditContentRuleParser.parseDITContentRuleDescription( ( String ) value.get() );
+                desc = ditContentRuleParser.parseDITContentRuleDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ditContentRuleDescription syntax: " + value.get(), 
+                    "The following does not conform to the ditContentRuleDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
@@ -742,12 +742,12 @@ public class DescriptionParsers
             
             try
             {
-                desc = nameFormParser.parseNameFormDescription( ( String  ) value.get() );
+                desc = nameFormParser.parseNameFormDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the nameFormDescription syntax: " + value.get(), 
+                    "The following does not conform to the nameFormDescription syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;

@@ -119,7 +119,9 @@ public class ExpressionEvaluator implements Evaluator
         {
             for ( ExprNode child: bnode.getChildren() )
             {
-                if ( !evaluate( child, dn, entry ) )
+                boolean res = evaluate( child, dn, entry );
+                
+                if ( !res )
                 {
                     return false;
                 }

@@ -160,7 +160,7 @@ public class LdapClassLoader extends ClassLoader
                 
                 for ( Value<?> val : attr )
                 {
-                    LdapDN dn = new LdapDN( ( String ) val.get() );
+                    LdapDN dn = new LdapDN( val.getString() );
                     dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
                     searchContexts.add( dn );
                 }

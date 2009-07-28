@@ -421,7 +421,7 @@ public class ServerStringValueTest
         ssv.set( "" );
         
         assertNotSame( ssv, ssv1 );
-        assertEquals( "", ssv.get() );
+        assertEquals( "", ssv.getString() );
         
         ssv.set(  "  This is    a   TEST  " );
         ssv1 = ssv.clone();
@@ -638,12 +638,12 @@ public class ServerStringValueTest
                 
                 if ( o1 != null )
                 {
-                    n1 = o1.get();
+                    n1 = o1.getString();
                 }
 
                 if ( o2 != null )
                 {
-                    n2 = o2.get();
+                    n2 = o2.getString();
                 }
 
                 if ( n1 == null )
@@ -697,7 +697,7 @@ public class ServerStringValueTest
         String normalized = ssv.getNormalizedValue();
         
         assertEquals( "test test", normalized );
-        assertEquals( "  Test   Test  ", ssv.get() );
+        assertEquals( "  Test   Test  ", ssv.getString() );
         
         ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
@@ -717,7 +717,7 @@ public class ServerStringValueTest
         String normalized = ssv.getNormalizedValue();
         
         assertEquals( "test", normalized );
-        assertEquals( "test", ssv.get() );
+        assertEquals( "test", ssv.getString() );
         
         ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
@@ -736,8 +736,8 @@ public class ServerStringValueTest
         ssv.normalize();
         String normalized = ssv.getNormalizedValue();
         
-        assertEquals( null, normalized );
-        assertEquals( null, ssv.get() );
+        assertNull( normalized );
+        assertNull( ssv.get() );
         
         ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
@@ -757,7 +757,7 @@ public class ServerStringValueTest
         String normalized = ssv.getNormalizedValue();
         
         assertEquals( "", normalized );
-        assertEquals( "", ssv.get() );
+        assertEquals( "", ssv.getString() );
         
         ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         
@@ -773,8 +773,7 @@ public class ServerStringValueTest
         // First check with a value which will be normalized
         ServerStringValue ssv = new ServerStringValue( at, "  " );
         
-        //assertEquals( "", normalized );
-        assertEquals( "  ", ssv.get() );
+        assertEquals( "  ", ssv.getString() );
         
         ServerStringValue ssvSer = deserializeValue( serializeValue( ssv ), at );
         

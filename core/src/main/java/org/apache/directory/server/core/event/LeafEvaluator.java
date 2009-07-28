@@ -30,7 +30,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -45,7 +44,6 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -266,9 +264,9 @@ public class LeafEvaluator implements Evaluator
         
         if ( at.getSyntax().isHumanReadable() )
         {
-            if ( node.getValue() instanceof ClientBinaryValue )
+            if ( node.getValue().isBinary() )
             {
-                value = new ClientStringValue( StringTools.utf8ToString( (byte[])node.getValue().get() ) );
+                value = new ClientStringValue( node.getValue().getString() );
             }
             else
             {
@@ -286,17 +284,10 @@ public class LeafEvaluator implements Evaluator
         }
 
         // get the normalized AVA filter value
-        Object filterValue = normalizer.normalize( value.get() );
+        Value<?> filterValue = normalizer.normalize( value );
 
         // check if the normalized value is present
-        if ( filterValue instanceof String )
-        {
-            if ( attr.contains( ( String ) filterValue ) )
-            {
-                return true;
-            }
-        }
-        else if ( attr.contains( ( byte[] ) filterValue ) )
+        if ( attr.contains( filterValue ) )
         {
             return true;
         }
@@ -308,9 +299,9 @@ public class LeafEvaluator implements Evaluator
          */
         for ( Value<?> val : attr )
         {
-            Object normValue = normalizer.normalize( val.get() );
+            Value<?> normValue = normalizer.normalize( val );
 
-            if ( 0 == comparator.compare( normValue, filterValue ) )
+            if ( 0 == comparator.compare( normValue.get(), filterValue.get() ) )
             {
                 return true;
             }

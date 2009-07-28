@@ -129,13 +129,13 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 {
                     if ( isHR )
                     {
-                        serverValue = new ServerStringValue( attributeType, (String)clientValue.get() );
+                        serverValue = new ServerStringValue( attributeType, clientValue.getString() );
                     }
                     else
                     {
                         // We have to convert the value to a binary value first
                         serverValue = new ServerBinaryValue( attributeType, 
-                            StringTools.getBytesUtf8( (String)clientValue.get() ) );
+                            clientValue.getBytes() );
                     }
                 }
                 else if ( clientValue instanceof ClientBinaryValue )
@@ -144,11 +144,11 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                     {
                         // We have to convert the value to a String value first
                         serverValue = new ServerStringValue( attributeType, 
-                            StringTools.utf8ToString( (byte[])clientValue.get() ) );
+                            clientValue.getString() );
                     }
                     else
                     {
-                        serverValue = new ServerBinaryValue( attributeType, (byte[])clientValue.get() );
+                        serverValue = new ServerBinaryValue( attributeType, clientValue.getBytes() );
                     }
                 }
 
@@ -433,7 +433,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             {
                 if ( attributeType.getSyntax().isHumanReadable() )
                 {
-                    if ( val == null )
+                    if ( ( val == null ) || val.isNull() )
                     {
                         Value<String> nullSV = new ServerStringValue( attributeType, (String)null );
                         
@@ -456,7 +456,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                     else if ( val instanceof ClientStringValue )
                     {
                         // If we get a Client value, convert it to a Server value first 
-                        Value<String> serverStringValue = new ServerStringValue( attributeType, (String)val.get() ); 
+                        Value<String> serverStringValue = new ServerStringValue( attributeType, val.getString() ); 
                         
                         if ( !values.contains( serverStringValue ) )
                         {
@@ -486,7 +486,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                     }
                     else if ( ( val instanceof ClientBinaryValue ) )
                     {
-                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, (byte[])val.get() ); 
+                        Value<byte[]> serverBinaryValue = new ServerBinaryValue( attributeType, val.getBytes() ); 
                         
                         if ( !values.contains( serverBinaryValue ) )
                         {
@@ -649,7 +649,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 }
                 else if ( val instanceof ClientStringValue )
                 {
-                    ServerStringValue serverValue = new ServerStringValue( attributeType, (String)val.get() );
+                    ServerStringValue serverValue = new ServerStringValue( attributeType, val.isNull() ? (String)null : val.getString() );
                     
                     if ( !values.contains( serverValue ) )
                     {
@@ -1161,11 +1161,11 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             
             if ( value instanceof ServerStringValue )
             {
-                clientValue = new ClientStringValue( (String)value.get() );
+                clientValue = new ClientStringValue( value.getString() );
             }
             else
             {
-                clientValue = new ClientBinaryValue( (byte[])value.get() );
+                clientValue = new ClientBinaryValue( value.getBytes() );
             }
             
             clientAttribute.add( clientValue );

@@ -296,7 +296,7 @@ public class SchemaOperationControl
         for ( Value<?> value:oc )
         {
 
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -345,7 +345,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -394,7 +394,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -423,7 +423,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -459,7 +459,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -487,7 +487,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -515,7 +515,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getOidRegistry().getOid( ( String ) value.get() );
+            String oid = registries.getOidRegistry().getOid( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {

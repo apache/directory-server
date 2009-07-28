@@ -80,7 +80,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
             ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
 
             // The password is stored in a non H/R attribute, but it's a String
-            String strUserPassword = StringTools.utf8ToString( userPassword.get() );
+            String strUserPassword = userPassword.getString();
 
             if ( log.isDebugEnabled() )
             {
@@ -94,7 +94,7 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
             if ( entry.get( SchemaConstants.CN_AT ) != null )
             {
                 ServerStringValue attr = (ServerStringValue)entry.get( SchemaConstants.CN_AT ).get();
-                username = attr.get();
+                username = attr.getString();
             }
 
             // If userPassword fails checks, throw new NamingException.
@@ -149,24 +149,19 @@ public class PasswordPolicyInterceptor extends BaseInterceptor
                     if ( userPassword instanceof ServerStringValue )
                     {
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, attr );
-                        pwd = ((ServerStringValue)userPassword).get();
+                        pwd = ((ServerStringValue)userPassword).getString();
                     }
                     else if ( userPassword instanceof ServerBinaryValue )
                     {
                         ServerBinaryValue password = (ServerBinaryValue)userPassword;
                         
-                        String string = "";
-                        
-                        if ( password != null )
-                        {
-                            string = StringTools.utf8ToString( password.get() );
-                        }
+                        String string = password.getString();
 
                         if ( log.isDebugEnabled() )
                         {
                             StringBuffer sb = new StringBuffer();
                             sb.append( "'" + string + "' ( " );
-                            sb.append( StringTools.dumpBytes( password.get() ).trim() );
+                            sb.append( StringTools.dumpBytes( password.getBytes() ).trim() );
                             sb.append( " )" );
                             log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                         }

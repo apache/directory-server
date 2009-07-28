@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -48,6 +49,7 @@ import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -73,6 +75,7 @@ public class NestedFilterTest
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     Optimizer optimizer;
+    FilterNormalizingVisitor visitor;
 
     
     public NestedFilterTest() throws Exception
@@ -92,6 +95,9 @@ public class NestedFilterTest
         bootstrapSchemas.add( new CollectiveSchema() );
         loader.loadWithDependencies( bootstrapSchemas, registries );
         attributeRegistry = registries.getAttributeTypeRegistry();
+        
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        visitor = new FilterNormalizingVisitor( ncn, registries );
     }
 
     
@@ -149,6 +155,7 @@ public class NestedFilterTest
         String filter = "(|(&(cn=J*)(sn=w*))(ou=apache))";
 
         ExprNode exprNode = FilterParser.parse( filter );
+        exprNode.accept( visitor );
         optimizer.annotate( exprNode );
         
         IndexCursor<?,ServerEntry> cursor = cursorBuilder.build( exprNode );
@@ -161,14 +168,12 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", 
-            StringTools.utf8ToString( (byte[])cursor.get().getValue() ) );
+        assertEquals( "apache", cursor.get().getValue());
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "apache", 
-            StringTools.utf8ToString( (byte[])cursor.get().getValue() ) );
+        assertEquals( "apache", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
     }

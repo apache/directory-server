@@ -136,7 +136,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             log.debug( "Adding the entry '{}' for DN '{}'.", entry, normName.getUpName() );
 
             ServerBinaryValue userPassword = (ServerBinaryValue)entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
-            String strUserPassword = StringTools.utf8ToString( userPassword.get() );
+            String strUserPassword = userPassword.getString();
 
             if ( log.isDebugEnabled() )
             {
@@ -149,7 +149,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             Value<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
             
-            String principalName = (String)principalNameValue.get();
+            String principalName = principalNameValue.getString();
 
             log.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
 
@@ -244,18 +244,18 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
                 if ( firstValue instanceof ServerStringValue )
                 {
-                    password = ((ServerStringValue)firstValue).get();
+                    password = ((ServerStringValue)firstValue).getString();
                     log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
                 else if ( firstValue instanceof ServerBinaryValue )
                 {
-                    password = StringTools.utf8ToString( ((ServerBinaryValue)firstValue).get() );
+                    password = ((ServerBinaryValue)firstValue).getString();
 
                     if ( log.isDebugEnabled() )
                     {
                         StringBuffer sb = new StringBuffer();
                         sb.append( "'" + password + "' ( " );
-                        sb.append( StringTools.dumpBytes( ((ServerBinaryValue)firstValue).get() ).trim() );
+                        sb.append( StringTools.dumpBytes( ((ServerBinaryValue)firstValue).getBytes() ).trim() );
                         sb.append( " )" );
                         log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                     }

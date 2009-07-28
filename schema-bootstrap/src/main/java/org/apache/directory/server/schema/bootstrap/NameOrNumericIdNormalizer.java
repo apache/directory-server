@@ -24,11 +24,12 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.syntaxes.NumericOidSyntaxChecker;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -42,9 +43,16 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class NameOrNumericIdNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
+    
     private NumericOidSyntaxChecker checker = new NumericOidSyntaxChecker();
+    
     private transient OidRegistry registry;
+    
+    
+    /** A static instance of this normalizer */
+    public static final NameOrNumericIdNormalizer INSTANCE = new NameOrNumericIdNormalizer();
     
     
     public NameOrNumericIdNormalizer( OidRegistry registry )
@@ -53,39 +61,30 @@ public class NameOrNumericIdNormalizer implements Normalizer
     }
     
     
+    /**
+     * 
+     */
     public NameOrNumericIdNormalizer()
     {
+        // Nothing to do
     }
     
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
+    /**
+     * {@inheritDoc} 
      */
-    public Object normalize( Object value ) throws NamingException
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
-        String strValue;
-
         if ( value == null )
         {
             return null;
         }
         
-        if ( value instanceof String )
-        {
-            strValue = ( String ) value;
-        }
-        else if ( value instanceof byte[] )
-        {
-            strValue = StringTools.utf8ToString( ( byte[] ) value ); 
-        }
-        else
-        {
-            strValue = value.toString();
-        }
+        String strValue = value.getString();
 
         if ( strValue.length() == 0 )
         {
-            return "";
+            return new ClientStringValue( "" );
         }
         
         // if value is a numeric id then return it as is
@@ -97,7 +96,40 @@ public class NameOrNumericIdNormalizer implements Normalizer
         // if it is a name we need to do a lookup
         if ( registry.hasOid( strValue ) )
         {
-            return registry.getOid( strValue );
+            return new ClientStringValue( registry.getOid( strValue ) );
+        }
+        
+        // if all else fails
+        throw new LdapNamingException( "Encountered name based id of " + value 
+            + " which was not found in the OID registry" , ResultCodeEnum.OTHER );
+    }
+    
+    
+    /**
+     * {@inheritDoc} 
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+        
+        if ( value.length() == 0 )
+        {
+            return value;
+        }
+        
+        // if value is a numeric id then return it as is
+        if ( checker.isValidSyntax( value ) )
+        {
+            return value;
+        }
+        
+        // if it is a name we need to do a lookup
+        if ( registry.hasOid( value ) )
+        {
+            return registry.getOid( value );
         }
         
         // if all else fails

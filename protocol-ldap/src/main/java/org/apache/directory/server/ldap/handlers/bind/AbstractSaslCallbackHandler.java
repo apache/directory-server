@@ -182,7 +182,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 if ( userPassword != null )
                 {
                     // We assume that we have only one password available
-                    byte[] password = (byte[])userPassword.get().get();
+                    byte[] password = userPassword.get().getBytes();
                     
                     String strPassword = StringTools.utf8ToString( password );
                     passwordCB.setPassword( strPassword.toCharArray() );

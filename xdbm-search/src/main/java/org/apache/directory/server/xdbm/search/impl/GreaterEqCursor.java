@@ -297,7 +297,8 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             {
                 checkNotClosed( "previous()" );
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
-                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), greaterEqEvaluator.getExpression().getValue().get() ) >= 0 )
+                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(), 
+                    greaterEqEvaluator.getExpression().getValue().get() ) >= 0 )
                 {
                     return available = true;
                 }

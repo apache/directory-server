@@ -206,7 +206,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             
             for ( Value<?> value:names )
             {
-                targetRegistries.getOidRegistry().register( ( String ) value.get(), oid );
+                targetRegistries.getOidRegistry().register( value.getString(), oid );
             }
         }
         

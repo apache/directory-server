@@ -197,7 +197,7 @@ public class TupleCache
 
         for ( Value<?> value : aciAttr )
         {
-            String aci = ( String ) value.get();
+            String aci = value.getString();
             ACIItem item = null;
 
             try

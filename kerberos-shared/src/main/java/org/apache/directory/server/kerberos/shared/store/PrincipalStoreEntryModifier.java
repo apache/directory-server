@@ -290,7 +290,7 @@ public class PrincipalStoreEntryModifier
                 throw new IllegalStateException( "Kerberos key should not be a String." );
             }
 
-            byte[] encryptionKeyBytes = ( byte[] ) val.get();
+            byte[] encryptionKeyBytes = val.getBytes();
             EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
             map.put( encryptionKey.getKeyType(), encryptionKey );
         }

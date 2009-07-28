@@ -648,7 +648,7 @@ public class DefaultServerEntryTest
         entry.add( atCN, "test1" );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         
         // Test some more addition
         entry.add( atCN, "test2", "test3" );
@@ -703,7 +703,7 @@ public class DefaultServerEntryTest
         entry.add( atPassword, test1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( test1, entry.get( atPassword ).get().getBytes() ) );
         
         // Test some more addition
         entry.add( atPassword, test2, test3 );
@@ -768,7 +768,7 @@ public class DefaultServerEntryTest
         entry.add( atCN, test1 );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         
         // Test some more addition
         entry.add( atCN, test2, test3 );
@@ -808,7 +808,7 @@ public class DefaultServerEntryTest
         entry.add( atPassword, testB1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( b1, entry.get( atPassword ).get().getBytes() ) );
         
         // Test some more addition
         entry.add( atPassword, testB2, testB3 );
@@ -862,7 +862,7 @@ public class DefaultServerEntryTest
         assertEquals( "cn", entry.get( atCN ).getId() );
         assertEquals( "CN", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         
         // Test some more addition
         entry.add( "CN", "test2", "test3" );
@@ -917,7 +917,7 @@ public class DefaultServerEntryTest
         entry.add( "userPassword", test1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( test1, entry.get( atPassword ).get().getBytes() ) );
         
         // Test some more addition
         entry.add( "userPassword", test2, test3 );
@@ -982,7 +982,7 @@ public class DefaultServerEntryTest
         entry.add( "cN", test1 );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         assertTrue( entry.containsAttribute( atCN ) );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
@@ -1026,7 +1026,7 @@ public class DefaultServerEntryTest
         entry.add( "userPASSWORD", testB1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( b1, entry.get( atPassword ).get().getBytes() ) );
         assertTrue( entry.containsAttribute( atPassword ) );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
@@ -1079,7 +1079,7 @@ public class DefaultServerEntryTest
         entry.add( "cn", atCN, "test1" );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         
         // Test some more addition
         entry.add( "CN", atCN, "test2", "test3" );
@@ -1134,7 +1134,7 @@ public class DefaultServerEntryTest
         entry.add( "userPassword", atPassword, test1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( test1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( test1, entry.get( atPassword ).get().getBytes() ) );
         
         // Test some more addition
         entry.add( "userPassword", atPassword, test2, test3 );
@@ -1199,7 +1199,7 @@ public class DefaultServerEntryTest
         entry.add( "cN", atCN, test1 );
         assertNotNull( entry.get( atCN ) );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test1", entry.get( atCN ).get().get() );
+        assertEquals( "test1", entry.get( atCN ).get().getString() );
         assertTrue( entry.containsAttribute( atCN ) );
         assertEquals( "cN", entry.get( atCN ).getUpId() );
         
@@ -1243,7 +1243,7 @@ public class DefaultServerEntryTest
         entry.add( "userPASSWORD", atPassword, testB1 );
         assertNotNull( entry.get( atPassword ) );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( b1, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( b1, entry.get( atPassword ).get().getBytes() ) );
         assertTrue( entry.containsAttribute( atPassword ) );
         assertEquals( "userPASSWORD", entry.get( atPassword ).getUpId() );
         
@@ -2441,7 +2441,7 @@ public class DefaultServerEntryTest
         
         replaced = entry.put(  "cN", "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( "test", replaced.get().get() );
+        assertEquals( "test", replaced.get().getString() );
         
         assertEquals( 2, entry.size() );
         assertNotNull( entry.get( "cn" ) );
@@ -2565,7 +2565,7 @@ public class DefaultServerEntryTest
         
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
-        assertEquals( "france", entry.get( "l" ).get().get() );
+        assertEquals( "france", entry.get( "l" ).get().getString() );
         
         ServerAttribute sb = new DefaultServerAttribute( atC, "countryTest" );
         ServerAttribute sc = new DefaultServerAttribute( atGN, "test" );
@@ -2574,11 +2574,11 @@ public class DefaultServerEntryTest
 
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTest", entry.get( atC ).get().get() );
+        assertEquals( "countryTest", entry.get( atC ).get().getString() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "test", entry.get( atGN ).get().get() );
+        assertEquals( "test", entry.get( atGN ).get().getString() );
         assertNotNull( entry.get( atStreet) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().get() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
         
         // Test a replacement
         EntryAttribute sbb = new DefaultServerAttribute( atC, "countryTestTest" );
@@ -2586,15 +2586,15 @@ public class DefaultServerEntryTest
         List<EntryAttribute> result = entry.put( sbb, scc );
         
         assertEquals( 2, result.size() );
-        assertEquals( "countryTest", result.get(0).get().get() );
-        assertEquals( "test", result.get(1).get().get() );
+        assertEquals( "countryTest", result.get(0).get().getString() );
+        assertEquals( "test", result.get(1).get().getString() );
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTestTest", entry.get( atC ).get().get() );
+        assertEquals( "countryTestTest", entry.get( atC ).get().getString() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "testtest", entry.get( atGN ).get().get() );
+        assertEquals( "testtest", entry.get( atGN ).get().getString() );
         assertNotNull( entry.get( atStreet) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().get() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
         
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
@@ -2648,7 +2648,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().get() );
+        assertEquals( "test", entry.get( atCN ).get().getString() );
         
         // Add more than one value
         entry.put( atCN, "test1", "test2", "test3" );
@@ -2710,7 +2710,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
         assertEquals( 1, entry.get( atPwd ).size() );
-        assertTrue( Arrays.equals( password, (byte[])entry.get( atPwd ).get().get() ) );
+        assertTrue( Arrays.equals( password, entry.get( atPwd ).get().getBytes() ) );
         
         // Add more than one value
         entry.put( atPwd, test1, test2, test3 );
@@ -2768,7 +2768,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().get() );
+        assertEquals( "test", entry.get( atCN ).get().getString() );
         
         // Add more than one value
         entry.put( atCN, new ServerStringValue( atCN, "test1" ),
@@ -2830,7 +2830,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().get() );
+        assertEquals( "test", entry.get( atCN ).get().getString() );
         
         // Add more than one value
         entry.put( "cn", "test1", "test2", "test3" );
@@ -2897,7 +2897,7 @@ public class DefaultServerEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertEquals( 1, entry.get( atPassword ).size() );
-        assertTrue( Arrays.equals( test, (byte[])entry.get( atPassword ).get().get() ) );
+        assertTrue( Arrays.equals( test, entry.get( atPassword ).get().getBytes() ) );
         
         // Add more than one value
         entry.put( "userPassword", test1, test2, test3 );
@@ -3594,12 +3594,12 @@ public class DefaultServerEntryTest
         sa.add( "test" );
         
         // Check that the value has been added to the entry
-        assertEquals( "test", entry.get( "sn" ).get().get() ); 
+        assertEquals( "test", entry.get( "sn" ).get().getString() ); 
         
         // Now add a new SN empty AT : it should replace the existing one.
         AttributeType atSNEmpty = registries.getAttributeTypeRegistry().lookup( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
-        assertEquals( "test", sa.get().get() ); 
+        assertEquals( "test", sa.get().getString() ); 
         assertNotNull( entry.get(  "sn" ) );
         assertNull( entry.get(  "sn" ).get() );
         
@@ -3685,12 +3685,12 @@ public class DefaultServerEntryTest
         sa.add( "test" );
         
         // Check that the value has been added to the entry
-        assertEquals( "test", entry.get( "sn" ).get().get() ); 
+        assertEquals( "test", entry.get( "sn" ).get().getString() ); 
         
         // Now add a new SN empty AT : it should replace the existing one.
         AttributeType atSNEmpty = registries.getAttributeTypeRegistry().lookup( "sn" );
         sa = entry.set( atSNEmpty ).get( 0 );
-        assertEquals( "test", sa.get().get() ); 
+        assertEquals( "test", sa.get().getString() ); 
         assertNotNull( entry.get(  "sn" ) );
         assertNull( entry.get(  "sn" ).get() );
     }

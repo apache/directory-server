@@ -48,8 +48,6 @@ import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
@@ -58,7 +56,6 @@ import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +66,11 @@ import java.util.Map;
  * A name normalization service.  This service makes sure all relative and distinuished
  * names are normalized before calls are made against the respective interface methods
  * on {@link PartitionNexus}.
+ * 
+ * The Filters are also normalized.
+ * 
+ * If the RDN AttributeTypes are not present in the entry for an Add request,
+ * they will be added.
  *
  * @org.apache.xbean.XBean
  *
@@ -81,7 +83,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( NormalizationInterceptor.class );
 
     /** a filter node value normalizer and undefined node remover */
-    private NormalizingVisitor normVisitor;
+    private FilterNormalizingVisitor normVisitor;
 
     /** The association between attributeTypes and their normalizers */
     private Map<String, OidNormalizer> attrNormalizers; 
@@ -94,11 +96,12 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void init( DirectoryService directoryService ) throws Exception
     {
+        LOG.debug( "Initialiazing the NormalizationInterceptor" );
+        
         OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        normVisitor = new NormalizingVisitor( ncn, directoryService.getRegistries() );
-        //expVisitor = new ExpandingVisitor( attributeRegistry );
+        normVisitor = new FilterNormalizingVisitor( ncn, directoryService.getRegistries() );
         attrNormalizers = attributeRegistry.getNormalizerMapping();
     }
 
@@ -112,7 +115,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
-
+    /**
+     * {@inheritDoc}
+     */
     public void add( NextInterceptor nextInterceptor, AddOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -122,6 +127,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void delete( NextInterceptor nextInterceptor, DeleteOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -129,6 +137,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -136,6 +147,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
     {
         LdapDN rdn = new LdapDN();
@@ -148,6 +162,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -156,6 +173,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
         throws Exception
     {
@@ -170,11 +190,16 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public EntryFilteringCursor search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
 
         ExprNode filter = opContext.getFilter();
+        
+        // Normalize the filter
         ExprNode result = ( ExprNode ) filter.accept( normVisitor );
 
         if ( result == null )
@@ -192,6 +217,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -199,6 +227,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public EntryFilteringCursor list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -206,6 +237,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     private String[] normalizeAttrsId( String[] attrIds ) throws Exception
     {
         if ( attrIds == null )
@@ -226,6 +260,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public ClonedServerEntry lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -243,8 +280,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
-
-    
+    /**
+     * {@inheritDoc}
+     */
     public LdapDN getMatchedName ( NextInterceptor nextInterceptor, GetMatchedNameOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -252,6 +290,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public LdapDN getSuffix ( NextInterceptor nextInterceptor, GetSuffixOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -259,15 +300,18 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
         
         AttributeType at = opContext.getSession().getDirectoryService().getRegistries().getAttributeTypeRegistry().lookup( opContext.getOid() );
         
-        if ( at.getSyntax().isHumanReadable() && ( opContext.getValue() instanceof ClientBinaryValue ) )
+        if ( at.getSyntax().isHumanReadable() && ( opContext.getValue().isBinary() ) )
         {
-            String value = StringTools.utf8ToString( ((Value<byte[]>)opContext.getValue()).get() );
+            String value = opContext.getValue().getString();
             opContext.setValue( new ClientStringValue( value ) );
         }
         
@@ -275,6 +319,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
     
     
+    /**
+     * {@inheritDoc}
+     */
     public void bind( NextInterceptor next, BindOperationContext opContext )  throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -282,6 +329,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -289,6 +339,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws Exception
     {
         opContext.getDn().normalize( attrNormalizers );
@@ -314,8 +367,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         // Loop on all the AVAs
         for ( AttributeTypeAndValue ava : rdn )
         {
-            String value = ( String ) ava.getNormValue();
-            String upValue = ( String ) ava.getUpValue();
+            String value = ava.getNormValue().getString();
+            String upValue = ava.getUpValue().getString();
             String upId = ava.getUpType();
 
             // Check that the entry contains this AVA
@@ -365,6 +418,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     private void addUnescapedUpValue( ServerEntry entry, String upId, String upValue ) throws Exception
     {
         Object unescapedUpValue = Rdn.unescapeValue( upValue );
+
         if ( unescapedUpValue instanceof String )
         {
             entry.add( upId, ( String ) unescapedUpValue );
@@ -374,5 +428,4 @@ public class NormalizationInterceptor extends BaseInterceptor
             entry.add( upId, ( byte[] ) unescapedUpValue );
         }
     }
-
 }

@@ -778,7 +778,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             
             for ( Value<?> val : ref )
             {
-                String url = ( String ) val.get();
+                String url = val.getString();
                 
                 if ( ! url.startsWith( "ldap" ) )
                 {
@@ -1158,7 +1158,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         
         for ( Value<?> refval : refAttr )
         {
-            String refstr = ( String ) refval.get();
+            String refstr = refval.getString();
             
             // need to add non-ldap URLs as-is
             if ( ! refstr.startsWith( "ldap" ) )
@@ -1250,7 +1250,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( ( String ) ( subschemaSubentry.get() ) );
+        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( ds.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
         

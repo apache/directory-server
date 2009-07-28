@@ -176,7 +176,7 @@ public class TriggerSpecCache
 
             try
             {
-                item = triggerSpecParser.parse( ( String ) value.get() );
+                item = triggerSpecParser.parse( value.getString() );
                 subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )

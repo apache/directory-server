@@ -813,7 +813,7 @@ public abstract class ServerContext implements EventContext
         {
             for ( AttributeTypeAndValue atav : rdn )
             {
-                serverEntry.put( atav.getUpType(), ( String ) atav.getNormValue() );
+                serverEntry.put( atav.getUpType(), atav.getNormValue().getString() );
             }
         }
     }

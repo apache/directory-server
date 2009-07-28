@@ -85,7 +85,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         
         public CachingDnNormalizer()
         {
-            super( new DnNormalizer() );
+            super( DnNormalizer.INSTANCE );
         }
 
         
@@ -322,7 +322,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * ( 2.5.13.23 NAME 'uniqueMemberMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
          */
-        normalizer = new NameAndOptionalUIDNormalizer();
+        normalizer = NameAndOptionalUIDNormalizer.INSTANCE;
         cb.schemaObjectProduced( this, SchemaConstants.UNIQUE_MEMBER_MATCH_MATCH_MR_OID, normalizer );
 
         /*

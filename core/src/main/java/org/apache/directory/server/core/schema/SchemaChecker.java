@@ -103,7 +103,7 @@ public class SchemaChecker
         // check that there is at least one structural objectClass in the replacement set
         for ( Value<?> value:attribute )
         {
-            ObjectClass ocType = registry.lookup( ( String ) value.get() );
+            ObjectClass ocType = registry.lookup( value.getString() );
 
             if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
@@ -165,7 +165,7 @@ public class SchemaChecker
         // check that there is at least one structural objectClass in the replacement set
         for ( Value<?> value:objectClass )
         {
-            ObjectClass ocType = registry.lookup( ( String ) value.get() );
+            ObjectClass ocType = registry.lookup( value.getString() );
             
             if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
@@ -218,7 +218,7 @@ public class SchemaChecker
         // Fist gather the value to remove
         for ( Value<?> value:attribute )
         {
-            if ( ((String)value.get()).length() == 0 )
+            if ( value.getString().length() == 0 )
             {
                 removed.add( value );
             }
@@ -258,7 +258,7 @@ public class SchemaChecker
         // check resultant set of objectClass values for a structural objectClass
         for ( Value<?> objectClass:cloned )
         {
-            ObjectClass oc = registry.lookup( (String)objectClass.get() );
+            ObjectClass oc = registry.lookup( objectClass.getString() );
             
             if ( oc.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
@@ -572,7 +572,7 @@ public class SchemaChecker
         
         for ( Value<?> value:attribute )
         {
-            if ( rdnValue.equals( (String)value.get() ) )
+            if ( rdnValue.equals( value.getString() ) )
             {
                 String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                 msg += id + " on entry " + name + " and violates schema constraints";
@@ -647,7 +647,7 @@ public class SchemaChecker
                 
                 for ( Value<?> value:rdnAttr )
                 {
-                    if ( rdnValue.equals( (String)value.get() ) )
+                    if ( rdnValue.equals( value.getString() ) )
                     {
                         String msg = "Modify operation attempts to delete RDN attribute values in use for ";
                         msg += id + " on entry " + name + " and violates schema constraints";

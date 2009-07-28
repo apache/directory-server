@@ -579,31 +579,15 @@ public class DefaultPartitionNexus extends PartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        Object reqVal = normalizer.normalize( ((Value<?>)compareContext.getValue()).get() );
+        Value<?> reqVal = normalizer.normalize( compareContext.getValue() );
 
         for ( Value<?> value:attr )
         {
-            Object attrValObj = normalizer.normalize( value.get() );
+            Value<?> attrValObj = normalizer.normalize( value );
             
-            if ( attrValObj instanceof String )
+            if ( attrValObj.equals( reqVal ) )
             {
-                String attrVal = ( String ) attrValObj;
-                if ( ( reqVal instanceof String ) && attrVal.equals( reqVal ) )
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                byte[] attrVal = ( byte[] ) attrValObj;
-                if ( reqVal instanceof byte[] )
-                {
-                    return Arrays.equals( attrVal, ( byte[] ) reqVal );
-                }
-                else if ( reqVal instanceof String )
-                {
-                    return Arrays.equals( attrVal, StringTools.getBytesUtf8( ( String ) reqVal ) );
-                }
+                return true;
             }
         }
 

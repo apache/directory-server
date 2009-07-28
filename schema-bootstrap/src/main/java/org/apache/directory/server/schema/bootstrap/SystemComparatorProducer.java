@@ -82,7 +82,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
     {
         public NameAndOptionalUIDCachingNormalizingComparator()        
         {
-            super( new CachingNormalizer( new NameAndOptionalUIDNormalizer() ), new NameAndOptionalUIDComparator() );
+            super( new CachingNormalizer( NameAndOptionalUIDNormalizer.INSTANCE ), new NameAndOptionalUIDComparator() );
         }
     }
     

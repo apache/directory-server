@@ -1216,7 +1216,7 @@ public class JdbmStore<E> implements Store<E>
         // First, the ObjectClass index
         for ( Value<?> value : objectClass )
         {
-            objectClassIdx.add( (String)value.get(), id );
+            objectClassIdx.add( value.getString(), id );
         }
         
         
@@ -1322,7 +1322,7 @@ public class JdbmStore<E> implements Store<E>
         
         for ( Value<?> value : objectClass )
         {
-            objectClassIdx.drop( (String)value.get(), id );
+            objectClassIdx.drop( value.getString(), id );
         }
 
         ndnIdx.drop( id );
@@ -1440,7 +1440,7 @@ public class JdbmStore<E> implements Store<E>
         {
             for ( Value<?> value : mods )
             {
-                objectClassIdx.drop( (String)value.get(), id );
+                objectClassIdx.drop( value.getString(), id );
             }
         }
         else if ( hasUserIndexOn( modsOid ) )
@@ -1503,7 +1503,7 @@ public class JdbmStore<E> implements Store<E>
         {
             for ( Value<?> value : mods )
             {
-                objectClassIdx.drop( (String)value.get(), id );
+                objectClassIdx.drop( value.getString(), id );
             }
         }
         else if ( hasUserIndexOn( modsOid ) )
@@ -1542,14 +1542,17 @@ public class JdbmStore<E> implements Store<E>
 
             for ( Value<?> value : mods )
             {
+                entryAttr.remove( value );
+                /*
                 if ( value instanceof ServerStringValue )
                 {
-                    entryAttr.remove( ( String ) value.get() );
+                    entryAttr.remove( value.getString() );
                 }
                 else
                 {
-                    entryAttr.remove( ( byte[] ) value.get() );
+                    entryAttr.remove( value.getBytes() );
                 }
+                */
             }
 
             // if nothing is left just remove empty attribute
@@ -1601,7 +1604,7 @@ public class JdbmStore<E> implements Store<E>
             
             for ( Value<?> value : mods )
             {
-                objectClassIdx.add( (String)value.get(), id );
+                objectClassIdx.add( value.getString(), id );
             }
         }
         else if ( hasUserIndexOn( modsOid ) )
@@ -1771,10 +1774,10 @@ public class JdbmStore<E> implements Store<E>
         for ( AttributeTypeAndValue newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            String newNormValue = ( String ) newAtav.getNormValue();
+            String newNormValue = newAtav.getNormValue().getString();
             AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
             
-            Object unEscapedRdn = Rdn.unescapeValue( (String)newAtav.getUpValue() );
+            Object unEscapedRdn = Rdn.unescapeValue( newAtav.getUpValue().getString() );
             
             Value<?> value = null;
             
@@ -1841,7 +1844,7 @@ public class JdbmStore<E> implements Store<E>
                 if ( mustRemove )
                 {
                     String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = ( String ) oldAtav.getNormValue();
+                    String oldNormValue = oldAtav.getNormValue().getString();
                     AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 

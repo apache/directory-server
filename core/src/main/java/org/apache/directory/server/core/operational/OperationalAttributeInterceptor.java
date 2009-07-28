@@ -143,7 +143,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( (String)subschemaSubentry.get() );
+        subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         
         CREATE_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
@@ -485,7 +485,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = atRegistry.lookup( rdn.getNormType() ).getName();
-                String value = (String)rdn.getAtav().getNormValue(); 
+                String value = rdn.getAtav().getNormValue().getString(); 
                 newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }

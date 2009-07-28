@@ -22,6 +22,8 @@ package org.apache.directory.server.schema;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -37,10 +39,17 @@ import javax.naming.NamingException;
  */
 public class NameAndOptionalUIDNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
 
     private AttributeTypeRegistry attrRegistry;
     
+    public final static NameAndOptionalUIDNormalizer INSTANCE = new NameAndOptionalUIDNormalizer();
+    
+    public NameAndOptionalUIDNormalizer()
+    {
+        // Do nothing
+    }
     
     public NameAndOptionalUIDNormalizer( AttributeTypeRegistry attrRegistry )
     {
@@ -48,76 +57,106 @@ public class NameAndOptionalUIDNormalizer implements Normalizer
     }
     
     
-    public NameAndOptionalUIDNormalizer()
-    {
-    }
- 
-    
     public void setRegistries( Registries registries )
     {
         this.attrRegistry = registries.getAttributeTypeRegistry();
     }
     
 
-    public Object normalize( Object value ) throws NamingException
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
-        if ( value instanceof byte[] )
-        {
-            value = StringTools.utf8ToString( ( byte[] ) value );
-        }
-
-        if ( value instanceof String )
-        {
-            String nameAndUid = (String)value;
+        String nameAndUid = value.getString();
             
-            if ( nameAndUid.length() == 0 )
+        if ( nameAndUid.length() == 0 )
+        {
+            return null;
+        }
+        
+        // Let's see if we have an UID part
+        int sharpPos = nameAndUid.lastIndexOf( '#' );
+        
+        if ( sharpPos != -1 )
+        {
+            // Now, check that we don't have another '#'
+            if ( nameAndUid.indexOf( '#' ) != sharpPos )
             {
-                return false;
+                // Yes, we have one : this is not allowed, it should have been
+                // escaped.
+                return null;
             }
             
-            // Let's see if we have an UID part
-            int sharpPos = nameAndUid.lastIndexOf( '#' );
+            // This is an UID if the '#' is immediately
+            // followed by a BitString, except if the '#' is
+            // on the last position
+            String uid = nameAndUid.substring( sharpPos + 1 );
             
-            if ( sharpPos != -1 )
+            if ( sharpPos > 0 )
             {
-                // Now, check that we don't have another '#'
-                if ( nameAndUid.indexOf( '#' ) != sharpPos )
-                {
-                    // Yes, we have one : this is not allowed, it should have been
-                    // escaped.
-                    return false;
-                }
+                LdapDN dn = new LdapDN( nameAndUid.substring( 0, sharpPos ) );
                 
-                // This is an UID if the '#' is immediatly
-                // followed by a BitString, except if the '#' is
-                // on the last position
-                String uid = nameAndUid.substring( sharpPos + 1 );
+                dn.normalize( attrRegistry.getNormalizerMapping() );
                 
-                if ( sharpPos > 0 )
-                {
-                    LdapDN dn = new LdapDN( nameAndUid.substring( 0, sharpPos ) );
-                    
-                    dn.normalize( attrRegistry.getNormalizerMapping() );
-                    
-                    return dn.getNormName() + '#' + uid;
-                }
-                else
-                {
-                    throw new IllegalStateException( "I do not know how to handle NameAndOptionalUID normalization with objects of class: " 
-                        + (value == null ? null : value.getClass() ) );
-                }
+                return new ClientStringValue( dn.getNormName() + '#' + uid );
             }
             else
             {
-                // No UID, the strValue is a DN
-                // Return the normalized DN
-                return new LdapDN( nameAndUid ).getNormName();
+                throw new IllegalStateException( "I do not know how to handle NameAndOptionalUID normalization with objects of class: " 
+                    + value.getClass() );
             }
         }
         else
         {
-            throw new IllegalStateException( "I do not know how to handle NameAndOptionalUID normalization with objects of class: " 
-                + (value == null ? null : value.getClass() ) );
+            // No UID, the strValue is a DN
+            // Return the normalized DN
+            return new ClientStringValue( new LdapDN( nameAndUid ).getNormName() );
+        }
+    }
+
+
+    public String normalize( String value ) throws NamingException
+    {
+        if ( StringTools.isEmpty( value ) )
+        {
+            return null;
+        }
+        
+        // Let's see if we have an UID part
+        int sharpPos = value.lastIndexOf( '#' );
+        
+        if ( sharpPos != -1 )
+        {
+            // Now, check that we don't have another '#'
+            if ( value.indexOf( '#' ) != sharpPos )
+            {
+                // Yes, we have one : this is not allowed, it should have been
+                // escaped.
+                return null;
+            }
+            
+            // This is an UID if the '#' is immediatly
+            // followed by a BitString, except if the '#' is
+            // on the last position
+            String uid = value.substring( sharpPos + 1 );
+            
+            if ( sharpPos > 0 )
+            {
+                LdapDN dn = new LdapDN( value.substring( 0, sharpPos ) );
+                
+                dn.normalize( attrRegistry.getNormalizerMapping() );
+                
+                return dn.getNormName() + '#' + uid;
+            }
+            else
+            {
+                throw new IllegalStateException( "I do not know how to handle NameAndOptionalUID normalization with objects of class: " 
+                    + value.getClass() );
+            }
+        }
+        else
+        {
+            // No UID, the strValue is a DN
+            // Return the normalized DN
+            return new LdapDN( value ).getNormName();
         }
     }
 }

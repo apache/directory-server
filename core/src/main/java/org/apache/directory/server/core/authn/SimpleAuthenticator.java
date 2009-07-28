@@ -38,7 +38,6 @@ import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -623,14 +622,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             userPassword = userPasswordAttr.get();
 
-            if ( userPassword instanceof ServerStringValue )
-            {
-                return StringTools.getBytesUtf8( (String)userPassword.get() );
-            }
-            else
-            {
-                return (byte[])userPassword.get();
-            }
+            return userPassword.getBytes();
         }
     }
 

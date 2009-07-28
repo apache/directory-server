@@ -825,10 +825,10 @@ public class JdbmStoreTest
         
         ServerEntry lookedup = store.lookup( store.getEntryId( dn.toNormName() ) );
         
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().get() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
         
         store.modify( dn, mods );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().get() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
         
         // testing the store.modify( dn, mod, entry ) API
         ServerEntry entry = new DefaultServerEntry( registries, dn );
@@ -836,7 +836,7 @@ public class JdbmStoreTest
         entry.add( "sn", attribVal );
         
         store.modify( dn, ModificationOperation.REPLACE_ATTRIBUTE, entry );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().get() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
     }
     
     
@@ -901,6 +901,6 @@ public class JdbmStoreTest
         assertNull( lookedup.get( "ou" ) ); // before replacing
         
         store.modify( dn, mods );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().get() );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

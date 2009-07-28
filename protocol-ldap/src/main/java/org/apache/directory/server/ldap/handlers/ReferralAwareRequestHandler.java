@@ -199,7 +199,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
 
         for ( Value<?> value : refAttr )
         {
-            String ref = ( String ) value.get();
+            String ref = value.getString();
 
             LOG.debug( "Calculating LdapURL for referrence value {}", ref );
 
@@ -298,7 +298,7 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
 
         for ( Value<?> value : refAttr )
         {
-            String ref = ( String ) value.get();
+            String ref = value.getString();
 
             LOG.debug( "Calculating LdapURL for referrence value {}", ref );
 

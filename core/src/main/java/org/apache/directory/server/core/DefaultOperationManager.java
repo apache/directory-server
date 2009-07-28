@@ -102,7 +102,7 @@ public class DefaultOperationManager implements OperationManager
         for ( Value<?> url:refs )
         {
             // we have to replace the parent by the referral
-            LdapURL ldapUrl = new LdapURL( (String)url.get() );
+            LdapURL ldapUrl = new LdapURL( url.getString() );
             
             // We have a problem with the DN : we can't use the UpName,
             // as we may have some spaces around the ',' and '+'.
@@ -140,7 +140,7 @@ public class DefaultOperationManager implements OperationManager
             // we have to replace the parent by the referral
             try
             {
-                LdapURL ldapUrl = new LdapURL( (String)url.get() );
+                LdapURL ldapUrl = new LdapURL( url.getString() );
                 
                 StringBuilder urlString = new StringBuilder();
     
@@ -182,7 +182,7 @@ public class DefaultOperationManager implements OperationManager
             catch ( LdapURLEncodingException luee )
             {
                 // The URL is not correct, returns it as is
-                urls.add( (String)url.get() );
+                urls.add( url.getString() );
             }
         }
         

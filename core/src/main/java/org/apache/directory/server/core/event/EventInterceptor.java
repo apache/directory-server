@@ -41,7 +41,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.normalization.NormalizingVisitor;
+import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -70,7 +70,7 @@ public class EventInterceptor extends BaseInterceptor
     
     private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
     private DirectoryService ds;
-    private NormalizingVisitor filterNormalizer;
+    private FilterNormalizingVisitor filterNormalizer;
     private Evaluator evaluator;
     private ExecutorService executor;
     
@@ -85,7 +85,7 @@ public class EventInterceptor extends BaseInterceptor
         OidRegistry oidRegistry = ds.getRegistries().getOidRegistry();
         AttributeTypeRegistry attributeRegistry = ds.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        filterNormalizer = new NormalizingVisitor( ncn, ds.getRegistries() );
+        filterNormalizer = new FilterNormalizingVisitor( ncn, ds.getRegistries() );
         evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, 
             new ArrayBlockingQueue<Runnable>( 100 ) );

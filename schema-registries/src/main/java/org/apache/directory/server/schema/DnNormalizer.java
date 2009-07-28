@@ -20,26 +20,31 @@
 package org.apache.directory.server.schema;
 
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
 /**
- * 
+ * Normalizer a DN
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class DnNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
+    
+    /** A static instance of this normalizer */
+    public static final DnNormalizer INSTANCE = new DnNormalizer();
 
-    // @TODO use this later for seting up normalization
+    // @TODO use this later for setting up normalization
     private AttributeTypeRegistry attrRegistry;
     
     
@@ -48,39 +53,63 @@ public class DnNormalizer implements Normalizer
         this.attrRegistry = attrRegistry;
     }
     
-    
+
+    /**
+     * Empty constructor
+     */
     public DnNormalizer()
     {
+        // Nothing to do
     }
- 
-    
+
+
     public void setRegistries( Registries registries )
     {
         this.attrRegistry = registries.getAttributeTypeRegistry();
     }
     
 
-    public Object normalize( Object value ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
         LdapDN dn = null;
         
-        if ( value instanceof LdapDN )
-        {
-            dn = ( LdapDN ) ( ( LdapDN ) value ).clone();
-        }
-        else if ( value instanceof Name )
-        {
-            dn = new LdapDN( ( Name ) value );
-        }
-        else if ( value instanceof String )
-        {
-            dn = new LdapDN( ( String ) value );
-        }
-        else
-        {
-            throw new IllegalStateException( "I do not know how to handle dn normalization with objects of class: " 
-                + (value == null ? null : value.getClass() ) );
-        }
+        String dnStr = value.getString();
+        
+        dn = new LdapDN( dnStr );
+        
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        return new ClientStringValue( dn.getNormName() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        LdapDN dn = null;
+        
+        dn = new LdapDN( value );
+        
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        return dn.getNormName();
+    }
+
+
+    /**
+     * Normalize a DN
+     * @param value The DN to normalize
+     * @return A normalized DN
+     * @throws NamingException
+     */
+    public String normalize( LdapDN value ) throws NamingException
+    {
+        LdapDN dn = null;
+        
+        dn = new LdapDN( value );
         
         dn.normalize( attrRegistry.getNormalizerMapping() );
         return dn.getNormName();

@@ -113,7 +113,7 @@ public class SubstringEvaluator implements Evaluator
 
         for ( Value<?> value: attr )
         {
-            String normValue = ( String ) normalizer.normalize( value );
+            String normValue = normalizer.normalize( value.getString() );
 
             // Once match is found cleanup and return true
 

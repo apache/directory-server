@@ -543,7 +543,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             
             for ( Value<?> value:dependencies )
             {
-                String dependency = ( String ) value.get();
+                String dependency = value.getString();
                 
                 if ( ! loaded.containsKey( dependency ) )
                 {
@@ -559,7 +559,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
             
             for ( Value<?> value:dependencies )
             {
-                String dependency = ( String ) value.get();
+                String dependency = value.getString();
                 
                 if ( ! allSchemas.contains( dependency ) )
                 {

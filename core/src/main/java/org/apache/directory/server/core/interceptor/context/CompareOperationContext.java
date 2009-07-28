@@ -23,7 +23,6 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
@@ -146,7 +145,7 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      * @return The value to compare
      */
-    public Object getValue() 
+    public Value<?> getValue() 
     {
         return value;
     }
@@ -179,9 +178,9 @@ public class CompareOperationContext extends AbstractOperationContext
         return "CompareContext for DN '" + getDn().getUpName() + "'" + 
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
-                    ( ( value instanceof ClientStringValue ) ?
-                            ((ClientStringValue)value).get() :
-                            ( ( value instanceof ClientBinaryValue ) ?
+                    ( ( !value.isBinary() ) ?
+                            value.getString() :
+                            ( ( value.isBinary() ) ?
                                     StringTools.dumpBytes( ((ClientBinaryValue)value).getReference() ) : 
                                         "unknown value type" ) )
                         + "'"

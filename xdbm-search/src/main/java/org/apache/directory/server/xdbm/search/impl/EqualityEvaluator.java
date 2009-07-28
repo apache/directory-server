@@ -226,7 +226,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
                 String serverValue = ((Value<String>)value).getNormalizedValue();
                 String nodeValue = null;
                 
-                if ( node.getValue() instanceof ClientBinaryValue )
+                if ( node.getValue().isBinary() )
                 {
                     nodeValue = StringTools.utf8ToString( ((Value<byte[]>)node.getValue()).getNormalizedValue() );
                 }

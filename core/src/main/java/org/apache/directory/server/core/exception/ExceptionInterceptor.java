@@ -126,7 +126,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = new LdapDN( ( String ) attr.get() );
+        subschemSubentryDn = new LdapDN( attr.getString() );
         subschemSubentryDn.normalize( normalizerMap );
     }
 

@@ -1230,7 +1230,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         }
         
         // We have to check that we are checking the ObjectClass attributeType
-        if ( ((ServerAttribute)objectClass).getAttributeType() != OBJECT_CLASS_AT )
+        if ( !((ServerAttribute)objectClass).getAttributeType().equals( OBJECT_CLASS_AT ) )
         {
             return false;
         }
@@ -1246,7 +1246,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         for ( Value<?> value:objectClass )
         {
             // Loop on all the values, and check if they are present
-            if ( !attribute.contains( value ) )
+            if ( !attribute.contains( value.getString() ) )
             {
                 return false;
             }

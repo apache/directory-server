@@ -89,7 +89,7 @@ public class ReferralInterceptor extends BaseInterceptor
     {
         ServerStringValue ref = ( ServerStringValue ) value;
 
-        String refVal = ref.get();
+        String refVal = ref.getString();
 
         LdapURL ldapUrl = new LdapURL( refVal );
 
@@ -217,7 +217,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( ( String ) ( subschemaSubentry.get() ) );
+        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
     }

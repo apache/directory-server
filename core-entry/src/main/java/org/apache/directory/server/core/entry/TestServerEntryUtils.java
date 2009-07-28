@@ -24,6 +24,9 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
@@ -266,16 +269,23 @@ public class TestServerEntryUtils
         
         mr.normalizer = new Normalizer()
         {
+            // The serial UID
             private static final long serialVersionUID = 1L;
 
-            public Object normalize( Object value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws NamingException
             {
-                if ( value instanceof String )
+                if ( !value.isBinary() )
                 {
-                    return ( ( String ) value ).toLowerCase();
+                    return new ClientStringValue( value.getString().toLowerCase() );
                 }
 
                 throw new IllegalStateException( "expected string to normalize" );
+            }
+            
+            
+            public String normalize( String value ) throws NamingException
+            {
+                return value.toLowerCase();
             }
         };
         
@@ -372,15 +382,18 @@ public class TestServerEntryUtils
         
         mr.normalizer = new Normalizer()
         {
+            // The serial UID
             private static final long serialVersionUID = 1L;
             
-            public Object normalize( Object value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws NamingException
             {
-                if ( value instanceof byte[] )
+                if ( value.isBinary() )
                 {
-                    byte[] val = (byte[])value;
+                    byte[] val = value.getBytes();
+                    
                     // each byte will be changed to be > 0, and spaces will be trimmed
                     byte[] newVal = new byte[ val.length ];
+                    
                     int i = 0;
                     
                     for ( byte b:val )
@@ -388,9 +401,14 @@ public class TestServerEntryUtils
                         newVal[i++] = (byte)(b & 0x007F); 
                     }
                     
-                    return StringTools.trim( newVal );
+                    return new ClientBinaryValue( StringTools.trim( newVal ) );
                 }
 
+                throw new IllegalStateException( "expected byte[] to normalize" );
+            }
+
+            public String normalize( String value ) throws NamingException
+            {
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
         };

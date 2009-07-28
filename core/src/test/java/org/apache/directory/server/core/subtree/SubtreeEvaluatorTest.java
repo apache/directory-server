@@ -27,19 +27,27 @@ import junit.framework.TestCase;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
@@ -52,21 +60,28 @@ public class SubtreeEvaluatorTest extends TestCase
 {
     private Registries registries;
     private SubtreeEvaluator evaluator;
+    FilterNormalizingVisitor visitor;
+    AttributeTypeRegistry attributeRegistry;
 
 
     private void init() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+        OidRegistry oidRegistry = new DefaultOidRegistry();
+        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         registries = bsRegistries;
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );
         schemas.add( new ApacheSchema() );
         schemas.add( new CoreSchema() );
         loader.loadWithDependencies( schemas, bsRegistries );
+        attributeRegistry = registries.getAttributeTypeRegistry();
+        
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        visitor = new FilterNormalizingVisitor( ncn, registries );
     }
 
-
+    @BeforeClass
     protected void setUp() throws Exception
     {
         init();
@@ -74,6 +89,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @AfterClass
     protected void tearDown() throws Exception
     {
         evaluator = null;
@@ -81,6 +97,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testDefaults() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -99,6 +116,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testWithBase() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -118,6 +136,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testWithMinMax() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -148,6 +167,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testWithMinMaxAndChopAfter() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -182,6 +202,7 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testWithMinMaxAndChopBefore() throws Exception
     {
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
@@ -216,9 +237,11 @@ public class SubtreeEvaluatorTest extends TestCase
     }
 
 
+    @Test
     public void testWithMinMaxAndSimpleRefinement() throws Exception
     {
         ExprNode refinement = FilterParser.parse( "(objectClass=person)" );
+        refinement.accept( visitor );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setRefinement( refinement );
@@ -273,9 +296,11 @@ public class SubtreeEvaluatorTest extends TestCase
     }
     
     
+    @Test
     public void testWithFilter() throws Exception
     {
         ExprNode filter = FilterParser.parse( "(&(cn=Ersin)(objectClass=person))" );
+        filter.accept( visitor );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setRefinement( filter );

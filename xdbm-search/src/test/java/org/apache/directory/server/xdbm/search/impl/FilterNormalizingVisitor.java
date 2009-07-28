@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.normalization;
+package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.ArrayList;
@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +60,12 @@ import org.slf4j.LoggerFactory;
  * node must be inspected by code outside of this visitor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 770988 $
  */
-public class NormalizingVisitor implements FilterVisitor
+public class FilterNormalizingVisitor implements FilterVisitor
 {
     /** logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( NormalizingVisitor.class );
+    private static final Logger log = LoggerFactory.getLogger( FilterNormalizingVisitor.class );
 
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
@@ -119,7 +118,7 @@ public class NormalizingVisitor implements FilterVisitor
      * @param ncn The name component normalizer to use
      * @param registries The global registries
      */
-    public NormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
+    public FilterNormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
     {
         this.ncn = ncn;
         this.registries = registries;
@@ -127,7 +126,10 @@ public class NormalizingVisitor implements FilterVisitor
 
 
     /**
-     * A private method used to normalize a value
+     * A private method used to normalize a value. At this point, the value
+     * is a Value<byte[]>, we have to translate it to a Value<String> if its
+     * AttributeType is H-R. Then we have to normalize the value accordingly
+     * to the AttributeType Normalizer.
      * 
      * @param attribute The attribute's ID
      * @param value The value to normalize
@@ -143,30 +145,13 @@ public class NormalizingVisitor implements FilterVisitor
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                if ( value.isBinary() )
-                {
-                    normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, StringTools
-                        .utf8ToString( ( byte[] ) value.get() ) ) );
-                }
-                else
-                {
-                    normalized = new ClientStringValue( ( String ) ncn.normalizeByName( attribute, ( String ) value
-                        .get() ) );
-                }
+                normalized = new ClientStringValue( 
+                    (String) ncn.normalizeByName( attribute, value.getString() ) );
             }
             else
             {
-                if ( value.isBinary() )
-                {
-                    normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, ( byte[] ) value
-                        .get() ) );
-                }
-                else
-                {
-                    normalized = new ClientBinaryValue( ( byte[] ) ncn.normalizeByName( attribute, ( String ) value
-                        .get() ) );
-
-                }
+                normalized = new ClientBinaryValue( 
+                    (byte[]) ncn.normalizeByName( attribute, value.getBytes() ) );
             }
 
             return normalized;
@@ -176,7 +161,6 @@ public class NormalizingVisitor implements FilterVisitor
             log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
             return null;
         }
-
     }
 
 
@@ -285,7 +269,7 @@ public class NormalizingVisitor implements FilterVisitor
 
                 if ( normAny != null )
                 {
-                    normAnys.add( ( String ) normAny.get() );
+                    normAnys.add( normAny.getString() );
                 }
             }
 
@@ -313,7 +297,7 @@ public class NormalizingVisitor implements FilterVisitor
 
             if ( normInitial != null )
             {
-                node.setInitial( ( String ) normInitial.get() );
+                node.setInitial( normInitial.getString() );
             }
             else
             {
@@ -324,7 +308,7 @@ public class NormalizingVisitor implements FilterVisitor
 
             if ( normFinal != null )
             {
-                node.setFinal( ( String ) normFinal.get() );
+                node.setFinal( normFinal.getString() );
             }
             else
             {

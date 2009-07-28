@@ -231,7 +231,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Value<?> subschemaSubentry = 
             directoryService.getPartitionNexus().getRootDSE( null ).
                 get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDnName = new LdapDN( (String)(subschemaSubentry.get()) );
+        LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry.getString() );
         subschemaSubentryDnName.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
     }
@@ -313,7 +313,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         
         for ( Value<?> value:subentries )
         {
-            String subentryDn = ( String ) value.get();
+            String subentryDn = value.getString();
             tuples.addAll( tupleCache.getACITuples( subentryDn ) );
         }
     }
@@ -338,7 +338,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value:entryAci )
         {
-            String aciString = ( String ) value.get();
+            String aciString = value.getString();
             ACIItem item;
 
             try
@@ -391,7 +391,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value:subentryAci )
         {
-            String aciString = ( String ) value.get();
+            String aciString = value.getString();
             ACIItem item;
 
             try

@@ -986,7 +986,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     case ADD_ATTRIBUTE:
                         for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
                         {
-                            ocFinalState.add( ( String ) value.get() );
+                            ocFinalState.add( value.getString() );
                         }
 
                         break;
@@ -994,7 +994,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     case REMOVE_ATTRIBUTE:
                         for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
                         {
-                            ocFinalState.remove( ( String ) value.get() );
+                            ocFinalState.remove( value.getString() );
                         }
 
                         break;

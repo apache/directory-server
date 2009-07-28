@@ -107,7 +107,6 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,7 +215,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        LdapDN subschemaSubentryDn = new LdapDN( ( String ) ( subschemaSubentry.get() ) );
+        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
@@ -725,14 +724,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 SimpleNode node = ( SimpleNode ) filter;
                 String objectClass;
 
-                if ( node.getValue() instanceof ClientStringValue )
-                {
-                    objectClass = ( String ) node.getValue().get();
-                }
-                else
-                {
-                    objectClass = node.getValue().get().toString();
-                }
+                objectClass = node.getValue().getString();
 
                 String objectClassOid = null;
 
@@ -849,7 +841,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( Value<?> objectClass : objectClasses )
         {
-            ObjectClass ocSpec = registry.lookup( ( String ) objectClass.get() );
+            ObjectClass ocSpec = registry.lookup( objectClass.getString() );
 
             for ( AttributeType must : ocSpec.getMustList() )
             {
@@ -987,7 +979,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( Value<?> objectClass : objectClasses )
         {
-            String objectClassName = ( String ) objectClass.get();
+            String objectClassName = objectClass.getString();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -1023,7 +1015,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value<?> value : objectClasses )
         {
-            String ocName = ( String ) value.get();
+            String ocName = value.getString();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMustList();
@@ -1052,7 +1044,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
         {
-            String ocName = ( String ) objectClass.get();
+            String ocName = objectClass.getString();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMayList();
@@ -1094,7 +1086,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Construct the new list of ObjectClasses
         for ( Value<?> ocValue : objectClassAttr )
         {
-            String ocName = ( String ) ocValue.get();
+            String ocName = ocValue.getString();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -1188,13 +1180,13 @@ public class SchemaInterceptor extends BaseInterceptor
             for ( AttributeTypeAndValue atav : oldRDN )
             {
                 AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue();
+                String value = ( String ) atav.getNormValue().getString();
                 tmpEntry.remove( type, value );
             }
             for ( AttributeTypeAndValue atav : newRdn )
             {
                 AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue();
+                String value = ( String ) atav.getNormValue().getString();
                 if ( !tmpEntry.contains( type, value ) )
                 {
                     tmpEntry.add( new DefaultServerAttribute( type, value ) );
@@ -1293,7 +1285,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
             {
-                keybuf.append( value.get() );
+                keybuf.append( value.getString() );
             }
 
             if ( !modset.add( keybuf.toString() ) && ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE ) )
@@ -1627,18 +1619,8 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 for ( Value<?> value : attribute )
                 {
-                    Object attrValue = value.get();
-
-                    if ( attrValue instanceof String )
-                    {
-                        binaries.add( new ServerBinaryValue( ( ( ServerAttribute ) attribute ).getAttributeType(),
-                            StringTools.getBytesUtf8( ( String ) attrValue ) ) );
-                    }
-                    else
-                    {
-                        binaries.add( new ServerBinaryValue( ( ( ServerAttribute ) attribute ).getAttributeType(),
-                            ( byte[] ) attrValue ) );
-                    }
+                    binaries.add( new ServerBinaryValue( ( ( ServerAttribute ) attribute ).getAttributeType(),
+                        value.getBytes() ) );
                 }
 
                 attribute.clear();
@@ -1768,7 +1750,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    String supName = (String)sup.get();
+                    String supName = sup.getString();
                     
                     ObjectClass superior = ocRegistry.lookup( supName );
 
@@ -2070,9 +2052,8 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 catch ( Exception ne )
                 {
-                    String message = "Attribute value '"
-                        + ( value instanceof ServerStringValue ? value.get() : StringTools.dumpBytes( ( byte[] ) value
-                            .get() ) ) + "' for attribute '" + attribute.getUpId() + "' is syntactically incorrect";
+                    String message = "Attribute value '" + value.getString()
+                         + "' for attribute '" + attribute.getUpId() + "' is syntactically incorrect";
                     LOG.info( message );
 
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
@@ -2104,7 +2085,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 // Let's transform it
                 try
                 {
-                    String valStr = new String( ( byte[] ) value.get(), "UTF-8" );
+                    String valStr = new String( value.getBytes(), "UTF-8" );
                     attribute.remove( value );
                     attribute.add( valStr );
                     isModified = true;
@@ -2146,7 +2127,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 // Let's transform it
                 try
                 {
-                    byte[] valBytes = ( ( String ) value.get() ).getBytes( "UTF-8" );
+                    byte[] valBytes = value.getString().getBytes( "UTF-8" );
 
                     attribute.remove( value );
                     attribute.add( valBytes );

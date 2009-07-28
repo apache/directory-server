@@ -47,7 +47,7 @@ import static org.junit.Assert.assertEquals;
 public class NormalizationVisitorTest
 {
     /** a filter node value normalizer and undefined node remover */
-    private static NormalizingVisitor normVisitor;
+    private static FilterNormalizingVisitor normVisitor;
     
     /** A reference to the directory service */
     private static DirectoryService service;
@@ -60,7 +60,7 @@ public class NormalizationVisitorTest
         OidRegistry oidRegistry = service.getRegistries().getOidRegistry();
         AttributeTypeRegistry attributeRegistry = service.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        normVisitor = new NormalizingVisitor( ncn, service.getRegistries() );
+        normVisitor = new FilterNormalizingVisitor( ncn, service.getRegistries() );
     }
 
     @Test

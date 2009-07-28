@@ -29,6 +29,8 @@ import java.util.Arrays;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
@@ -83,11 +85,11 @@ public class ServerBinaryValueTest
         {
             private static final long serialVersionUID = 1L;
             
-            public Object normalize( Object value ) throws NamingException
+            public Value<?> normalize( Value<?> value ) throws NamingException
             {
-                if ( value instanceof byte[] )
+                if ( value.isBinary() )
                 {
-                    byte[] val = (byte[])value;
+                    byte[] val = value.getBytes();
                     // each byte will be changed to be > 0, and spaces will be trimmed
                     byte[] newVal = new byte[ val.length ];
                     int i = 0;
@@ -97,9 +99,15 @@ public class ServerBinaryValueTest
                         newVal[i++] = (byte)(b & 0x007F); 
                     }
                     
-                    return StringTools.trim( newVal );
+                    return new ClientBinaryValue( StringTools.trim( newVal ) );
                 }
 
+                throw new IllegalStateException( "expected byte[] to normalize" );
+            }
+
+        
+            public String normalize( String value ) throws NamingException
+            {
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
         };
@@ -291,7 +299,7 @@ public class ServerBinaryValueTest
         sbv.set( StringTools.EMPTY_BYTES );
         
         assertNotSame( sbv, sbv1 );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.getBytes() ) );
         
         sbv.set(  BYTES2 );
         sbv1 = sbv.clone();
@@ -593,7 +601,7 @@ public class ServerBinaryValueTest
         byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
-        assertTrue( Arrays.equals( v1, sbv.get() ) );
+        assertTrue( Arrays.equals( v1, sbv.getBytes() ) );
         
         ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
@@ -633,7 +641,7 @@ public class ServerBinaryValueTest
         byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, normalized ) );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, sbv.getBytes() ) );
         
         ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         
@@ -656,7 +664,7 @@ public class ServerBinaryValueTest
         byte[] normalized = sbv.getNormalizedValueReference();
         
         assertTrue( Arrays.equals( v1Norm, normalized ) );
-        assertTrue( Arrays.equals( v1, sbv.get() ) );
+        assertTrue( Arrays.equals( v1, sbv.getBytes() ) );
         
         ServerBinaryValue sbvSer = deserializeValue( serializeValue( sbv ), at );
         

@@ -129,7 +129,7 @@ public class SchemaEntityFactory
             
             for ( Value<?> value:depsAttr )
             {
-                depsSet.add( (String)value.get() );
+                depsSet.add( value.getString() );
             }
 
             dependencies = depsSet.toArray( EMPTY );
@@ -212,8 +212,8 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
 
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
-        String syntaxOid = ( String ) entry.get( oidAT ).get().get();
+        String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
+        String syntaxOid = entry.get( oidAT ).get().getString();
         return getSyntaxChecker( syntaxOid, className, entry.get( byteCodeAT ), 
             targetRegistries );
     }
@@ -333,7 +333,7 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
         
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
+        String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
         return getComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
@@ -426,7 +426,7 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
         
-        String className = ( String ) entry.get( MetaSchemaConstants.M_FQCN_AT ).get().get();
+        String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
         return getNormalizer( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
@@ -592,7 +592,7 @@ public class SchemaEntityFactory
         
         for ( Value<?> value:attr )
         {
-            strings[pos++] = (String)value.get();
+            strings[pos++] = value.getString();
         }
         
         return strings;
@@ -716,7 +716,7 @@ public class SchemaEntityFactory
             
             for ( Value<?> name:names )
             {
-                values.add( (String)name.get() );
+                values.add( name.getString() );
             }
             
             mso.setNames( values.toArray( EMPTY ) );

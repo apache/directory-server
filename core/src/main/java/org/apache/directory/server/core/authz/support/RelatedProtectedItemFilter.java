@@ -191,7 +191,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     String attrOid = oidRegistry.getOid( attr.getID() );
                     AttributeType attrType = attrRegistry.lookup( attrOid );
                     
-                    if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue.get(), attrType ) )
+                    if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
                     {
                         return true;
                     }

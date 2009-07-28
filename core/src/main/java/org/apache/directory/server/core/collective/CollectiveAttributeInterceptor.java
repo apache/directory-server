@@ -154,7 +154,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             
             for ( Value<?> value:collectiveExclusions )
             {
-                AttributeType attrType = atRegistry.lookup( ( String ) value.get() );
+                AttributeType attrType = atRegistry.lookup( value.getString() );
                 exclusions.add( attrType.getOid() );
             }
         }
@@ -194,7 +194,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         for ( Value<?> value:collectiveAttributeSubentries )
         {
-            String subentryDnStr = ( String ) value.get();
+            String subentryDnStr = value.getString();
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             
             /*
@@ -270,7 +270,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 for ( Value<?> subentryColVal:subentryColAttr )
                 {
-                    entryColAttr.add( (String)subentryColVal.get() );
+                    entryColAttr.add( subentryColVal.getString() );
                 }
             }
         }
