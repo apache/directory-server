@@ -35,8 +35,6 @@ import org.apache.directory.shared.ldap.codec.LdapConstants;
 import org.apache.directory.shared.ldap.codec.LdapMessageCodec;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -297,16 +295,8 @@ public class AddRequestCodec extends LdapMessageCodec
 
                     for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                     {
-                        if ( value instanceof ClientStringValue )
-                        {
-                            int valueLength = StringTools.getBytesUtf8( ( String ) value.get() ).length;
-                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                        }
-                        else
-                        {
-                            int valueLength = ( ( byte[] ) value.get() ).length;
-                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                        }
+                        int valueLength = value.getBytes().length;
+                        localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
                     }
 
                     localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
@@ -404,13 +394,13 @@ public class AddRequestCodec extends LdapMessageCodec
                     {
                         for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                         {
-                            if ( value instanceof ClientBinaryValue )
+                            if ( value.isBinary() )
                             {
-                                Value.encode( buffer, ( byte[] ) value.get() );
+                                Value.encode( buffer, value.getBytes() );
                             }
                             else
                             {
-                                Value.encode( buffer, ( String ) value.get() );
+                                Value.encode( buffer, value.getString() );
                             }
                         }
                     }

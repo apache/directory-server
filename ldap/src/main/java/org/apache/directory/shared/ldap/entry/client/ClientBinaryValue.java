@@ -192,7 +192,7 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
             }
             else
             {
-                normalizedValue = (byte[])normalizer.normalize( wrapped );
+                normalizedValue = normalizer.normalize( this ).getBytes();
                 normalized = true;
             }
         }
@@ -359,6 +359,29 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
     }
 
 
+    /**
+     * Get the wrapped value as a byte[]. This method returns a copy of 
+     * the wrapped byte[].
+     * 
+     * @return the wrapped value as a byte[]
+     */
+    public byte[] getBytes()
+    {
+        return getCopy();
+    }
+    
+    
+    /**
+     * Get the wrapped value as a String.
+     *
+     * @return the wrapped value as a String
+     */
+    public String getString()
+    {
+        return StringTools.utf8ToString( wrapped );
+    }
+    
+    
     /**
      * @see Externalizable#readExternal(ObjectInput)
      */

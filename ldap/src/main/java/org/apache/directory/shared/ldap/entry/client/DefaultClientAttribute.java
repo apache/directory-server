@@ -108,7 +108,7 @@ public class DefaultClientAttribute implements ClientAttribute
         {
             for ( Value<?> val:vals )
             {
-                if ( ( val instanceof ClientStringValue ) || ( val instanceof ClientBinaryValue ) )
+                if ( ( val instanceof ClientStringValue ) || ( val.isBinary() ) )
                 {
                     add( val );
                 }
@@ -161,9 +161,9 @@ public class DefaultClientAttribute implements ClientAttribute
     {
         Value<?> value = get();
         
-        if ( value instanceof ClientBinaryValue )
+        if ( value.isBinary() )
         {
-            return (byte[])value.get();
+            return value.getBytes();
         }
         else
         {
@@ -192,7 +192,7 @@ public class DefaultClientAttribute implements ClientAttribute
         
         if ( value instanceof ClientStringValue )
         {
-            return (String)value.get();
+            return value.getString();
         }
         else
         {
@@ -454,7 +454,7 @@ public class DefaultClientAttribute implements ClientAttribute
                         // The attributeType is binary, convert the
                         // value to a BinaryValue
                         ClientBinaryValue cbv = new ClientBinaryValue();
-                        cbv.set( StringTools.getBytesUtf8( (String)val.get() ) );
+                        cbv.set( val.getBytes() );
                         
                         if ( !contains( cbv ) )
                         {
@@ -496,7 +496,7 @@ public class DefaultClientAttribute implements ClientAttribute
                         // The attribute Type is HR, convert the
                         // value to a StringValue
                         ClientStringValue csv = new ClientStringValue();
-                        csv.set( StringTools.utf8ToString( (byte[])val.get() ) );
+                        csv.set( val.getString() );
                         
                         if ( !contains( csv ) )
                         {
@@ -704,7 +704,7 @@ public class DefaultClientAttribute implements ClientAttribute
                 }
                 else
                 {
-                    byte[] binaryVal = (byte[])val.get();
+                    byte[] binaryVal = val.getBytes();
                     
                     // We have to convert the binary value to a String
                     if ( ! values.contains( new ClientStringValue( StringTools.utf8ToString( binaryVal ) ) ) )
@@ -721,7 +721,7 @@ public class DefaultClientAttribute implements ClientAttribute
             // contained in the object
             for ( Value<?> val:vals )
             {
-                if ( val instanceof ClientBinaryValue )
+                if ( val.isBinary() )
                 {
                     if ( !values.contains( val ) )
                     {
@@ -730,7 +730,7 @@ public class DefaultClientAttribute implements ClientAttribute
                 }
                 else
                 {
-                    String stringVal = (String)val.get();
+                    String stringVal = val.getString();
                     
                     // We have to convert the binary value to a String
                     if ( ! values.contains( new ClientBinaryValue( StringTools.getBytesUtf8( stringVal ) ) ) )
@@ -1039,7 +1039,7 @@ public class DefaultClientAttribute implements ClientAttribute
                 else
                 {
                     // Convert the binary value to a string value
-                    byte[] binaryVal = (byte[])val.get();
+                    byte[] binaryVal = val.getBytes();
                     removed &= values.remove( new ClientStringValue( StringTools.utf8ToString( binaryVal ) ) );
                 }
             }
@@ -1048,15 +1048,7 @@ public class DefaultClientAttribute implements ClientAttribute
         {
             for ( Value<?> val:vals )
             {
-                if ( val instanceof ClientBinaryValue )
-                {
-                    removed &= values.remove( val );
-                }
-                else
-                {
-                    String stringVal = (String)val.get();
-                    removed &= values.remove( new ClientBinaryValue( StringTools.getBytesUtf8( stringVal ) ) );
-                }
+                removed &= values.remove( val );
             }
         }
         

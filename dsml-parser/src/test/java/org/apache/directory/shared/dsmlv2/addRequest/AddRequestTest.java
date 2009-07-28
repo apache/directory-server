@@ -368,7 +368,7 @@ public class AddRequestTest extends AbstractTest
         Iterator<Value<?>> valueIterator = attribute.iterator();
         assertTrue( valueIterator.hasNext() );
         Value<?> value = valueIterator.next();
-        assertEquals( "top", value.get() );
+        assertEquals( "top", value.getString() );
     }
 
 
@@ -407,7 +407,7 @@ public class AddRequestTest extends AbstractTest
         assertTrue( valueIterator.hasNext() );
         Value<?> value = valueIterator.next();
         assertTrue( value.isBinary() );
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) value.get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", value.getString() );
     }
 
 
@@ -445,10 +445,10 @@ public class AddRequestTest extends AbstractTest
         Iterator<Value<?>> valueIterator = attribute.iterator();
         assertTrue( valueIterator.hasNext() );
         Value<?> value = valueIterator.next();
-        assertEquals( "top", value.get() );
+        assertEquals( "top", value.getString() );
         assertTrue( valueIterator.hasNext() );
         value = valueIterator.next();
-        assertEquals( "person", value.get() );
+        assertEquals( "person", value.getString() );
         assertFalse( valueIterator.hasNext() );
     }
 
@@ -496,10 +496,10 @@ public class AddRequestTest extends AbstractTest
         Iterator<Value<?>> valueIterator = attribute.iterator();
         assertTrue( valueIterator.hasNext() );
         Value<?> value = valueIterator.next();
-        assertEquals( "top", value.get() );
+        assertEquals( "top", value.getString() );
         assertTrue( valueIterator.hasNext() );
         value = valueIterator.next();
-        assertEquals( "person", value.get() );
+        assertEquals( "person", value.getString() );
         assertFalse( valueIterator.hasNext() );
     }
 

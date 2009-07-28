@@ -274,19 +274,8 @@ public class SearchResultEntryCodec extends LdapMessageCodec
 
                         for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                         {
-                            if ( value instanceof ClientStringValue )
-                            {
-                                String stringValue = ( String ) value.get();
-
-                                int stringLength = StringTools.getBytesUtf8( stringValue ).length;
-                                localValuesLength += 1 + TLV.getNbBytes( stringLength ) + stringLength;
-                            }
-                            else
-                            {
-                                byte[] binaryValue = ( byte[] ) value.get();
-                                localValuesLength += 1 + TLV.getNbBytes( binaryValue.length ) + binaryValue.length;
-                            }
-
+                            byte[] binaryValue = value.getBytes();
+                            localValuesLength += 1 + TLV.getNbBytes( binaryValue.length ) + binaryValue.length;
                         }
 
                         localAttributeLength += 1 + TLV.getNbBytes( localValuesLength ) + localValuesLength;
@@ -394,13 +383,13 @@ public class SearchResultEntryCodec extends LdapMessageCodec
                         {
                             for ( org.apache.directory.shared.ldap.entry.Value<?> value : attribute )
                             {
-                                if ( value instanceof ClientStringValue )
+                                if ( !value.isBinary() )
                                 {
-                                    Value.encode( buffer, ( String ) value.get() );
+                                    Value.encode( buffer, value.getString() );
                                 }
                                 else
                                 {
-                                    Value.encode( buffer, ( byte[] ) value.get() );
+                                    Value.encode( buffer, value.getBytes() );
                                 }
                             }
                         }

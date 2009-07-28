@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.name;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -61,7 +62,7 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
 
     public Object normalizeByName( String name, byte[] val ) throws NamingException
     {
-        return normalizer.normalize( val );
+        return normalizer.normalize( new ClientBinaryValue( val ) );
     }
 
 
@@ -73,7 +74,7 @@ public class SimpleNameComponentNormalizer implements NameComponentNormalizer
 
     public Object normalizeByOid( String oid, byte[] val ) throws NamingException
     {
-        return normalizer.normalize( val );
+        return normalizer.normalize( new ClientBinaryValue( val ) );
     }
 
 

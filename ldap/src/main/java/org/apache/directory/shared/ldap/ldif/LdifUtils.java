@@ -28,8 +28,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -477,21 +475,21 @@ public class LdifUtils
             lineBuffer.append( attr.getId() );
             
             // First, deal with null value (which is valid)
-            if ( value == null )
+            if ( value.isNull() )
             {
                 lineBuffer.append( ':' );
             }
-            else if ( value instanceof ClientBinaryValue )
+            else if ( value.isBinary() )
             {
                 // It is binary, so we have to encode it using Base64 before adding it
-                char[] encoded = Base64.encode( ( byte[] ) value.get() );
+                char[] encoded = Base64.encode( value.getBytes() );
                 
                 lineBuffer.append( ":: " + new String( encoded ) );                            
             }
-            else if ( value instanceof ClientStringValue )
+            else if ( !value.isBinary() )
             {
                 // It's a String but, we have to check if encoding isn't required
-                String str = (String) value.get();
+                String str = value.getString();
                 
                 if ( !LdifUtils.isLDIFSafe( str ) )
                 {

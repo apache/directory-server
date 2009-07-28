@@ -66,6 +66,25 @@ public interface Value<T> extends Cloneable, Externalizable, Comparable<Value<T>
     
     
     /**
+     * Get the wrapped value as a byte[]. If the original value
+     * is binary, this method will return a copy of the wrapped byte[]
+     *
+     * @return the wrapped value as a byte[]
+     */
+    byte[] getBytes();
+    
+    
+    /**
+     * Get the wrapped value as a String. If the original value
+     * is binary, this method will return the value as if it was 
+     * an UTF-8 encoded String.
+     *
+     * @return the wrapped value as a String
+     */
+    String getString();
+    
+    
+    /**
      * Get a reference on the stored value.
      *
      * @return a reference on the wrapped value.

@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.AbstractValue;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,7 @@ public class ClientStringValue extends AbstractValue<String>
     {
         // Why should we invalidate the normalized value if it's we're setting the
         // wrapper to it's current value?
-        if ( ( wrapped != null ) && wrapped.equals( get() ) )
+        if ( !StringTools.isEmpty( wrapped ) && wrapped.equals( getString() ) )
         {
             return;
         }
@@ -299,6 +300,27 @@ public class ClientStringValue extends AbstractValue<String>
     public int length()
     {
         return wrapped != null ? wrapped.length() : 0;
+    }
+    
+    
+    /**
+     * Get the wrapped value as a byte[].
+     * @return the wrapped value as a byte[]
+     */
+    public byte[] getBytes()
+    {
+        return StringTools.getBytesUtf8( wrapped );
+    }
+    
+    
+    /**
+     * Get the wrapped value as a String.
+     *
+     * @return the wrapped value as a String
+     */
+    public String getString()
+    {
+        return wrapped != null ? wrapped : "";
     }
     
     

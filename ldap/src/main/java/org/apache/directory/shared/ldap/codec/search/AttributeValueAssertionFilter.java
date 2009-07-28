@@ -28,9 +28,6 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.AttributeValueAssertion;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -159,14 +156,7 @@ public class AttributeValueAssertionFilter extends Filter
 
         int assertionValueLength = 0;
 
-        if ( assertionValue instanceof ClientStringValue )
-        {
-            assertionValueLength = StringTools.getBytesUtf8( ((ClientStringValue)assertionValue).get() ).length;
-        }
-        else
-        {
-            assertionValueLength = ((ClientBinaryValue)assertionValue).get().length;
-        }
+        assertionValueLength = assertionValue.getBytes().length;
 
         avaLength += 1 + TLV.getNbBytes( assertionValueLength ) + assertionValueLength;
 
@@ -231,13 +221,13 @@ public class AttributeValueAssertionFilter extends Filter
         Value.encode( buffer, assertion.getAttributeDesc() );
 
         // The assertion desc
-        if ( assertion.getAssertionValue().get() instanceof String )
+        if ( assertion.getAssertionValue().isBinary() )
         {
-            Value.encode( buffer, ( String ) assertion.getAssertionValue().get() );
+            Value.encode( buffer, assertion.getAssertionValue().getString() );
         }
         else
         {
-            Value.encode( buffer, ( byte[] ) assertion.getAssertionValue().get() );
+            Value.encode( buffer, assertion.getAssertionValue().getBytes() );
         }
 
         return buffer;

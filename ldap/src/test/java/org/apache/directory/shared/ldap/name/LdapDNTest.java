@@ -3235,37 +3235,37 @@ public class LdapDNTest
         assertEquals( " cn = Amos\\,Tori ", dn1.getRdn().getUpName() );
         AttributeTypeAndValue atav1 = dn1.getRdn().getAtav();
         assertEquals( "cn", atav1.getUpType() );
-        assertEquals( "Amos\\,Tori", ( String ) atav1.getUpValue() );
+        assertEquals( "Amos\\,Tori", atav1.getUpValue().getString() );
 
         // antlr parser: hexstring with trailing spaces
         LdapDN dn3 = new LdapDN( " cn = #414243 , ou=system " );
         assertEquals( " cn = #414243 ", dn3.getRdn().getUpName() );
         AttributeTypeAndValue atav3 = dn3.getRdn().getAtav();
         assertEquals( "cn", atav3.getUpType() );
-        assertEquals( "#414243", ( String ) atav3.getUpValue() );
-        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "ABC" ), ( byte[] ) atav3.getNormValue() ) );
+        assertEquals( "#414243", atav3.getUpValue().getString() );
+        assertTrue( Arrays.equals( StringTools.getBytesUtf8( "ABC" ),atav3.getNormValue().getBytes() ) );
 
         // antlr parser: 
         LdapDN dn4 = new LdapDN( " cn = \\41\\42\\43 , ou=system " );
         assertEquals( " cn = \\41\\42\\43 ", dn4.getRdn().getUpName() );
         AttributeTypeAndValue atav4 = dn4.getRdn().getAtav();
         assertEquals( "cn", atav4.getUpType() );
-        assertEquals( "\\41\\42\\43", ( String ) atav4.getUpValue() );
-        assertEquals( "ABC", ( String ) atav4.getNormValue() );
+        assertEquals( "\\41\\42\\43", atav4.getUpValue().getString() );
+        assertEquals( "ABC", atav4.getNormValue().getString() );
 
         // antlr parser: quotestring with trailing spaces
         LdapDN dn5 = new LdapDN( " cn = \"ABC\" , ou=system " );
         assertEquals( " cn = \"ABC\" ", dn5.getRdn().getUpName() );
         AttributeTypeAndValue atav5 = dn5.getRdn().getAtav();
         assertEquals( "cn", atav5.getUpType() );
-        assertEquals( "\"ABC\"", ( String ) atav5.getUpValue() );
-        assertEquals( "ABC", ( String ) atav5.getNormValue() );
+        assertEquals( "\"ABC\"", atav5.getUpValue().getString() );
+        assertEquals( "ABC", atav5.getNormValue().getString() );
 
         // fast parser: string value with trailing spaces 
         LdapDN dn2 = new LdapDN( " cn = Amos Tori , ou=system " );
         assertEquals( " cn = Amos Tori ", dn2.getRdn().getUpName() );
         AttributeTypeAndValue atav2 = dn2.getRdn().getAtav();
         assertEquals( "cn", atav2.getUpType() );
-        assertEquals( "Amos Tori", ( String ) atav2.getUpValue() );
+        assertEquals( "Amos Tori", atav2.getUpValue().getString() );
     }
 }

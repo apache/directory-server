@@ -272,7 +272,7 @@ public class ModifyRequestTest extends AbstractTest
 
         EntryAttribute attribute = modification.getAttribute();
 
-        assertEquals( "CN=John Smith, DC=microsoft, DC=com", attribute.get( 0 ).get() );
+        assertEquals( "CN=John Smith, DC=microsoft, DC=com", attribute.get( 0 ).getString() );
     }
 
 
@@ -317,7 +317,7 @@ public class ModifyRequestTest extends AbstractTest
                 'a', 'r', 'n', 'y', ',', ' ', 'o', 'u', '=', 'p', 'e', 'o', 'p', 'l', 'e', ',', ' ', 'd', 'c', '=',
                 'e', 'x', 'a', 'm', 'p', 'l', 'e', ',', ' ', 'd', 'c', '=', 'c', 'o', 'm' }, "UTF-8" );
 
-        assertEquals( expected, new String( ( byte[] ) attribute.get( 0 ).get(), "UTF-8" ) );
+        assertEquals( expected, attribute.get( 0 ).getString() );
     }
 
 
@@ -356,7 +356,7 @@ public class ModifyRequestTest extends AbstractTest
 
         EntryAttribute attribute = modification.getAttribute();
 
-        assertEquals( "CN=Steve Jobs, DC=apple, DC=com", attribute.get( 0 ).get() );
+        assertEquals( "CN=Steve Jobs, DC=apple, DC=com", attribute.get( 0 ).getString() );
     }
 
 
@@ -541,8 +541,8 @@ public class ModifyRequestTest extends AbstractTest
         EntryAttribute attribute = modification.getAttribute();
 
         assertEquals( 2, attribute.size() );
-        assertEquals( "CN=John Smith, DC=microsoft, DC=com", attribute.get( 0 ).get() );
-        assertEquals( "CN=Steve Jobs, DC=apple, DC=com", attribute.get( 1 ).get() );
+        assertEquals( "CN=John Smith, DC=microsoft, DC=com", attribute.get( 0 ).getString() );
+        assertEquals( "CN=Steve Jobs, DC=apple, DC=com", attribute.get( 1 ).getString() );
     }
 
 
@@ -582,7 +582,7 @@ public class ModifyRequestTest extends AbstractTest
         EntryAttribute attribute = modification.getAttribute();
 
         assertEquals( 1, attribute.size() );
-        assertEquals( "", attribute.get( 0 ).get() );
+        assertEquals( "", attribute.get( 0 ).getString() );
     }
 
 

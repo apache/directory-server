@@ -561,7 +561,7 @@ public class ModifyRequestTest
         String attrValue = attributeValue.getString();
         assertEquals( "Paris", attrValue );
 
-        attrValue = (String)attributeValue.get( 1 ).get();
+        attrValue = attributeValue.get( 1 ).getString();
         assertEquals( "London", attrValue );
 
         modification = modifications.get( 1 );
@@ -1281,7 +1281,7 @@ public class ModifyRequestTest
         String attrValue = attributeValue.getString();
         assertEquals( "a", attrValue );
 
-        attrValue = ( String ) attributeValue.get( 1 ).get();
+        attrValue = attributeValue.get( 1 ).getString();
         assertEquals( "b", attrValue );
 
         // Check the length

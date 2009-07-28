@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.name;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.DNUtils;
 import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -824,7 +826,18 @@ public class RdnParser
             {
                 if ( rdn != null )
                 {
-                    rdn.addAttributeTypeAndValue( type, type, value, value );
+                    if ( value instanceof String )
+                    {
+                        rdn.addAttributeTypeAndValue( type, type, 
+                            new ClientStringValue( (String)value ), 
+                            new ClientStringValue( (String)value ) );
+                    }
+                    else
+                    {
+                        rdn.addAttributeTypeAndValue( type, type, 
+                            new ClientBinaryValue( (byte[])value ), 
+                            new ClientBinaryValue( (byte[])value ) );
+                    }
                 }
             }
 
@@ -979,7 +992,19 @@ public class RdnParser
         }
 
         String upValue = StringTools.utf8ToString( dn, start2, pos.length );
-        rdn.addAttributeTypeAndValue( type, type, upValue, value );
+        
+        if ( value instanceof String )
+        {
+            rdn.addAttributeTypeAndValue( type, type, 
+                new ClientStringValue( upValue ), 
+                new ClientStringValue( (String)value ) );
+        }
+        else
+        {
+            rdn.addAttributeTypeAndValue( type, type, 
+                new ClientStringValue( upValue ), 
+                new ClientBinaryValue( (byte[])value ) );
+        }
         
         rdn.normalize();
 

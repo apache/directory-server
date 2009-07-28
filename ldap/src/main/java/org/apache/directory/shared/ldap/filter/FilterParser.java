@@ -24,7 +24,6 @@ import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -296,7 +295,7 @@ public class FilterParser
             {
                 // We have a substring starting with a value : val*...
                 // Set the initial value. It must be a String
-                String initialStr = StringTools.utf8ToString( (byte[])initial.get() );
+                String initialStr = initial.getString();
                 node.setInitial( initialStr );
             }
 
@@ -314,7 +313,7 @@ public class FilterParser
                     // this is the final
                     if ( !assertionValue.isNull() )
                     {
-                        String finalStr = StringTools.utf8ToString( (byte[])assertionValue.get() );
+                        String finalStr = assertionValue.getString();
                         node.setFinal( finalStr );
                     }
 
@@ -327,7 +326,7 @@ public class FilterParser
                     // one consecutive '*' : do nothing in this case.
                     if ( !assertionValue.isNull() )
                     {
-                        String anyStr = StringTools.utf8ToString( (byte[])assertionValue.get() );
+                        String anyStr = assertionValue.getString();
                         node.addAny( anyStr );
                     }
 

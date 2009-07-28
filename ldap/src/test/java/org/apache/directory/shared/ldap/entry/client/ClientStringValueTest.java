@@ -162,7 +162,7 @@ public class ClientStringValueTest
         ClientStringValue csv = new ClientStringValue( "" );
         
         assertNotNull( csv.get() );
-        assertEquals( "", csv.get() );
+        assertEquals( "", csv.getString() );
         assertFalse( csv.isNormalized() );
         assertTrue( csv.isValid( new Ia5StringSyntaxChecker() ) );
         assertFalse( csv.isNull() );
@@ -482,10 +482,10 @@ public class ClientStringValueTest
         
         assertNotSame( csv, csv1 );
         assertNull( csv1.get() );
-        assertEquals( "", csv.get() );
+        assertEquals( "", csv.getString() );
         
         csv.set(  "  This is    a   TEST  " );
-        csv1 = (ClientStringValue)csv.clone();
+        csv1 = csv.clone();
         
         assertEquals( csv, csv1 );
         

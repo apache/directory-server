@@ -23,6 +23,8 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -34,6 +36,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class RegexNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
     
     /** the perl 5 regex engine */
@@ -72,18 +75,18 @@ public class RegexNormalizer implements Normalizer
 
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(Object)
+     * {@inheritDoc}
      */
-    public Object normalize( final Object value )
+    public Value<?> normalize( final Value<?> value )
     {
         if ( value == null )
         {
             return null;
         }
 
-        if ( value instanceof String )
+        if ( !value.isBinary() )
         {
-            String str = ( String ) value;
+            String str = value.getString();
 
             for ( int i = 0; i < matchers.length; i++ )
             {
@@ -91,13 +94,37 @@ public class RegexNormalizer implements Normalizer
                 str = matchers[i].replaceAll( str );
             }
 
-            return str;
+            return new ClientStringValue( str );
         }
 
         return value;
     }
 
 
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value )
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+
+        String str = value;
+        
+        for ( int i = 0; i < matchers.length; i++ )
+        {
+
+            str = matchers[i].replaceAll( str );
+        }
+
+        return str;
+    }
+    
+    
     /**
      * @see java.lang.Object#toString()
      */

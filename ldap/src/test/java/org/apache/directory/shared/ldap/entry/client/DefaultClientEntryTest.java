@@ -1107,7 +1107,7 @@ public class DefaultClientEntryTest
         assertEquals( 2, entry.get( "cn" ).size() );
         assertTrue( entry.remove( "cn", "test1", "test3" ) );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertEquals( "test2", entry.get( "cn" ).get().get() );
+        assertEquals( "test2", entry.get( "cn" ).get().getString() );
         
         assertFalse( entry.remove( "cn", "test3" ) );
         assertFalse( entry.remove( "void", "whatever" ) );

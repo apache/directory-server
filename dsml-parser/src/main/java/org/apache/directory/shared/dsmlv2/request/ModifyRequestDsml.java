@@ -119,7 +119,7 @@ public class ModifyRequestDsml extends AbstractRequestDsml
                         }
                         else
                         {
-                            modElement.addElement( "value" ).setText( ( String ) value.get() );
+                            modElement.addElement( "value" ).setText( value.getString() );
                         }
                     }
                 }

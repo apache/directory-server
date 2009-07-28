@@ -153,7 +153,7 @@ public class ExtensibleNode extends LeafNode
      */
     public Value<?> getEscapedValue()
     {
-        if ( value instanceof ClientStringValue )
+        if ( !value.isBinary() )
         {
             return AbstractExprNode.escapeFilterValue( value );
         }

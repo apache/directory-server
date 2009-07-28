@@ -35,6 +35,7 @@ import java.util.Arrays;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -58,11 +59,11 @@ public class ClientBinaryValueTest
     {
         private static final long serialVersionUID = 1L;
         
-        public Object normalize( Object value ) throws NamingException
+        public Value<?> normalize( Value<?> value ) throws NamingException
         {
-            if ( value instanceof byte[] )
+            if ( value.isBinary() )
             {
-                byte[] val = (byte[])value;
+                byte[] val = value.getBytes();
                 // each byte will be changed to be > 0, and spaces will be trimmed
                 byte[] newVal = new byte[ val.length ];
                 int i = 0;
@@ -72,12 +73,17 @@ public class ClientBinaryValueTest
                     newVal[i++] = (byte)(b & 0x007F); 
                 }
                 
-                return StringTools.trim( newVal );
+                return new ClientBinaryValue( StringTools.trim( newVal ) );
             }
 
             throw new IllegalStateException( "expected byte[] to normalize" );
         }
-    };
+
+        public String normalize( String value ) throws NamingException
+        {
+            throw new IllegalStateException( "expected byte[] to normalize" );
+        }
+};
 
     
     /**
@@ -87,13 +93,18 @@ public class ClientBinaryValueTest
     {
         private static final long serialVersionUID = 1L;
         
-        public Object normalize( Object value ) throws NamingException
+        public Value<?> normalize( Value<?> value ) throws NamingException
         {
-            if ( value instanceof byte[] )
+            if ( value.isBinary() )
             {
-                return StringTools.EMPTY_BYTES;
+                return new ClientBinaryValue( StringTools.EMPTY_BYTES );
             }
 
+            throw new IllegalStateException( "expected byte[] to normalize" );
+        }
+
+        public String normalize( String value ) throws NamingException
+        {
             throw new IllegalStateException( "expected byte[] to normalize" );
         }
     };
@@ -240,7 +251,7 @@ public class ClientBinaryValueTest
     {
         ClientBinaryValue cbv = new ClientBinaryValue( null );
         
-        assertEquals( null, cbv.get() );
+        assertNull( cbv.get() );
         assertFalse( cbv.isNormalized() );
         assertTrue( cbv.isValid( BINARY_CHECKER ) );
         assertTrue( cbv.isNull() );
@@ -253,7 +264,7 @@ public class ClientBinaryValueTest
     {
         ClientBinaryValue cbv = new ClientBinaryValue( StringTools.EMPTY_BYTES );
         
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getBytes() ) );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getCopy() ) );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getReference() ) );
         assertFalse( cbv.isNormalized() );
@@ -270,7 +281,7 @@ public class ClientBinaryValueTest
     {
         ClientBinaryValue cbv = new ClientBinaryValue( BYTES1 );
         
-        assertTrue( Arrays.equals( BYTES1, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES1, cbv.getBytes() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getCopy() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getReference() ) );
         assertFalse( cbv.isNormalized() );
@@ -288,7 +299,7 @@ public class ClientBinaryValueTest
         
         cbv.set( BYTES1 );
         
-        assertTrue( Arrays.equals( BYTES1, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES1, cbv.getBytes() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getCopy() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getReference() ) );
         assertFalse( cbv.isNormalized() );
@@ -304,7 +315,7 @@ public class ClientBinaryValueTest
     {
         ClientBinaryValue cbv = new ClientBinaryValue( BYTES2 );
         
-        assertTrue( Arrays.equals( BYTES2, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES2, cbv.getBytes() ) );
         assertTrue( Arrays.equals( BYTES2, cbv.getCopy() ) );
         assertTrue( Arrays.equals( BYTES2, cbv.getReference() ) );
         assertFalse( cbv.isNormalized() );
@@ -333,19 +344,19 @@ public class ClientBinaryValueTest
         cbv.set( StringTools.EMPTY_BYTES );
         cbv.normalize( BINARY_NORMALIZER );
         assertTrue( cbv.isNormalized() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getBytes() ) );
         assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getNormalizedValue() ) );
         
         cbv.set( BYTES1 );
         cbv.normalize( BINARY_NORMALIZER );
         assertTrue( cbv.isNormalized() );
-        assertTrue( Arrays.equals( BYTES1, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES1, cbv.getBytes() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getNormalizedValue() ) );
 
         cbv.set( BYTES2 );
         cbv.normalize( BINARY_NORMALIZER );
         assertTrue( cbv.isNormalized() );
-        assertTrue( Arrays.equals( BYTES2, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES2, cbv.getBytes() ) );
         assertTrue( Arrays.equals( BYTES1, cbv.getNormalizedValue() ) );
     }
 
@@ -410,8 +421,8 @@ public class ClientBinaryValueTest
 
         cbv.getReference()[0] = 0x11;
         
-        assertTrue( Arrays.equals( BYTES_MOD, cbv.get() ) );
-        assertTrue( Arrays.equals( BYTES1, copy.get() ) );
+        assertTrue( Arrays.equals( BYTES_MOD, cbv.getBytes() ) );
+        assertTrue( Arrays.equals( BYTES1, copy.getBytes() ) );
     }
 
 
@@ -433,7 +444,7 @@ public class ClientBinaryValueTest
 
         cbv.getReference()[0] = 0x11;
         assertTrue( Arrays.equals( BYTES1, copy ) );
-        assertTrue( Arrays.equals( BYTES_MOD, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES_MOD, cbv.getBytes() ) );
     }
 
 
@@ -504,7 +515,7 @@ public class ClientBinaryValueTest
 
         cbv.getReference()[0] = 0x11;
         assertTrue( Arrays.equals( BYTES_MOD, reference ) );
-        assertTrue( Arrays.equals( BYTES_MOD, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES_MOD, cbv.getBytes() ) );
     }
 
 
@@ -517,16 +528,16 @@ public class ClientBinaryValueTest
         
         cbv.set( StringTools.EMPTY_BYTES );
         assertNotNull( cbv.get() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getBytes() ) );
         
         cbv.set( BYTES1 );
-        byte[] get = cbv.get();
+        byte[] get = cbv.getBytes();
         
         assertTrue( Arrays.equals( BYTES1, get ) );
 
         cbv.getReference()[0] = 0x11;
         assertTrue( Arrays.equals( BYTES1, get ) );
-        assertTrue( Arrays.equals( BYTES_MOD, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES_MOD, cbv.getBytes() ) );
     }
 
 
@@ -668,14 +679,14 @@ public class ClientBinaryValueTest
 
         cbv.set( StringTools.EMPTY_BYTES );
         assertNotNull( cbv.get() );
-        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.get() ) );
+        assertTrue( Arrays.equals( StringTools.EMPTY_BYTES, cbv.getBytes() ) );
         assertFalse( cbv.isNormalized() );
         assertTrue( cbv.isValid( BINARY_CHECKER ) );
         assertFalse( cbv.isNull() );
 
         cbv.set( BYTES1 );
         assertNotNull( cbv.get() );
-        assertTrue( Arrays.equals( BYTES1, cbv.get() ) );
+        assertTrue( Arrays.equals( BYTES1, cbv.getBytes() ) );
         assertFalse( cbv.isNormalized() );
         assertTrue( cbv.isValid( BINARY_CHECKER ) );
         assertFalse( cbv.isNull() );

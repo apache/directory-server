@@ -27,6 +27,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.Position;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -174,7 +175,9 @@ public enum FastLdapDnParser implements NameParser
         // SPACE*
         matchSpaces( name, pos );
 
-        rdn.addAttributeTypeAndValue( type, type, upValue, value );
+        rdn.addAttributeTypeAndValue( type, type, 
+            new ClientStringValue( upValue ), 
+            new ClientStringValue( value ) );
 
         rdn.setUpName( name.substring( rdnStart, pos.start ) );
         rdn.normalize();

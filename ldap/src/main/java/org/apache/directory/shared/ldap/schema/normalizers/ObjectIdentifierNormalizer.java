@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -33,21 +35,48 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class ObjectIdentifierNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
 
-    public Object normalize( Object value ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
         if ( value == null )
         {
             return null;
         }
 
-        if ( !( value instanceof String ) )
+        String str = value.getString().trim();
+
+        if ( str.length() == 0 )
         {
-            return value;
+            return new ClientStringValue( "" );
+        }
+        else if ( Character.isDigit( str.charAt( 0 ) ) )
+        {
+            // We do this test to avoid a lowerCasing which cost time
+            return new ClientStringValue( str );
+        }
+        else
+        {
+            return new ClientStringValue( str.toLowerCase() );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( value == null )
+        {
+            return null;
         }
 
-        String str = ( ( String ) value ).trim();
+        String str = value.trim();
 
         if ( str.length() == 0 )
         {

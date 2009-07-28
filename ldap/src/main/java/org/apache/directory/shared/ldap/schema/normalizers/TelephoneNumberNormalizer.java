@@ -24,10 +24,10 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.PrepareString;
-import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -37,22 +37,37 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class TelephoneNumberNormalizer implements Normalizer
 {
+    // The serial UID
    static final long serialVersionUID = 1L;
 
-   public Object normalize( Object value ) throws NamingException
+   /**
+    * {@inheritDoc}
+    */
+   public Value<?> normalize( Value<?> value ) throws NamingException
    {
        try
        {
-           if ( value instanceof byte[] )
-           {
-               return PrepareString.normalize( StringTools.utf8ToString( ( byte[] ) value ), 
-                   PrepareString.StringType.TELEPHONE_NUMBER );
-           }
-           else
-           {
-               return PrepareString.normalize( ( String ) value,
-                   PrepareString.StringType.TELEPHONE_NUMBER );
-           }
+           String normalized = PrepareString.normalize( value.getString(),
+               PrepareString.StringType.TELEPHONE_NUMBER );
+           
+           return new ClientStringValue( normalized );
+       }
+       catch ( IOException ioe )
+       {
+           throw new NamingException( "Invalid value : " + value );
+       }
+   }
+
+
+   /**
+    * {@inheritDoc}
+    */
+   public String normalize( String value ) throws NamingException
+   {
+       try
+       {
+           return PrepareString.normalize( value,
+               PrepareString.StringType.TELEPHONE_NUMBER );
        }
        catch ( IOException ioe )
        {

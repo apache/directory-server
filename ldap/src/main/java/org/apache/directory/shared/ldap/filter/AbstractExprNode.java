@@ -154,7 +154,7 @@ public abstract class AbstractExprNode implements ExprNode
         StringBuilder sb = null;
         String val;
 
-        if ( !( value instanceof ClientStringValue ) )
+        if ( value.isBinary() )
         {
             sb = new StringBuilder( ((ClientBinaryValue)value).getReference().length * 3 );
             
@@ -205,7 +205,7 @@ public abstract class AbstractExprNode implements ExprNode
             return new ClientStringValue( sb.toString() );
         }
 
-        val = ( ( ClientStringValue ) value ).get();
+        val = ( ( ClientStringValue ) value ).getString();
         
         for ( int i = 0; i < val.length(); i++ )
         {

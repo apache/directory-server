@@ -198,7 +198,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "top", assertion.getAssertionValue().get() );
+        assertEquals( "top", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (...
         equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
@@ -208,7 +208,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "ou", assertion.getAttributeDesc() );
-        assertEquals( "contacts", assertion.getAssertionValue().get() );
+        assertEquals( "contacts", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter ) andFilters.get( 1 );
@@ -222,7 +222,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "ttt", assertion.getAssertionValue().get() );
+        assertEquals( "ttt", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -363,7 +363,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "top", assertion.getAssertionValue().get() );
+        assertEquals( "top", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass~=top) (ou<=contacts) ) (...
         AttributeValueAssertionFilter lessOrEqual = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
@@ -373,7 +373,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "ou", assertion.getAttributeDesc() );
-        assertEquals( "contacts", assertion.getAssertionValue().get() );
+        assertEquals( "contacts", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass~=top) (ou<=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter ) andFilters.get( 1 );
@@ -387,7 +387,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "ttt", assertion.getAssertionValue().get() );
+        assertEquals( "ttt", assertion.getAssertionValue().getString() );
 
         // The attributes
         List<EntryAttribute> attributes = sr.getAttributes();
@@ -555,7 +555,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "ttt", assertion.getAssertionValue().get() );
+        assertEquals( "ttt", assertion.getAssertionValue().getString() );
 
         // The attributes
         List<EntryAttribute> attributes = sr.getAttributes();
@@ -962,31 +962,31 @@ public class SearchRequestTest
             .getAssertion();
 
         assertEquals( "uid", assertion.getAttributeDesc() );
-        assertEquals( "akarasulu", assertion.getAssertionValue().get() );
+        assertEquals( "akarasulu", assertion.getAssertionValue().getString() );
 
         // cn=aok
         assertion = ( ( AttributeValueAssertionFilter ) orFilter.getOrFilter().get( 1 ) ).getAssertion();
 
         assertEquals( "cn", assertion.getAttributeDesc() );
-        assertEquals( "aok", assertion.getAssertionValue().get() );
+        assertEquals( "aok", assertion.getAssertionValue().getString() );
 
         // ou = Human Resources
         assertion = ( ( AttributeValueAssertionFilter ) orFilter.getOrFilter().get( 2 ) ).getAssertion();
 
         assertEquals( "ou", assertion.getAttributeDesc() );
-        assertEquals( "Human Resources", assertion.getAssertionValue().get() );
+        assertEquals( "Human Resources", assertion.getAssertionValue().getString() );
 
         // l=Santa Clara
         assertion = ( ( AttributeValueAssertionFilter ) orFilter.getOrFilter().get( 3 ) ).getAssertion();
 
         assertEquals( "l", assertion.getAttributeDesc() );
-        assertEquals( "Santa Clara", assertion.getAssertionValue().get() );
+        assertEquals( "Santa Clara", assertion.getAssertionValue().getString() );
 
         // cn=abok
         assertion = ( ( AttributeValueAssertionFilter ) orFilter.getOrFilter().get( 4 ) ).getAssertion();
 
         assertEquals( "cn", assertion.getAttributeDesc() );
-        assertEquals( "abok", assertion.getAssertionValue().get() );
+        assertEquals( "abok", assertion.getAssertionValue().getString() );
 
         // The attributes
         List<EntryAttribute> attributes = sr.getAttributes();
@@ -1245,7 +1245,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "top", assertion.getAssertionValue().get() );
+        assertEquals( "top", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (...
         equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
@@ -1255,7 +1255,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "2.5.4.11", assertion.getAttributeDesc() );
-        assertEquals( "contacts", assertion.getAssertionValue().get() );
+        assertEquals( "contacts", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter ) andFilters.get( 1 );
@@ -1269,7 +1269,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "organizationalUnitName", assertion.getAttributeDesc() );
-        assertEquals( "ttt", assertion.getAssertionValue().get() );
+        assertEquals( "ttt", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -1556,7 +1556,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "top", assertion.getAssertionValue().get() );
+        assertEquals( "top", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (...
         equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
@@ -1566,7 +1566,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "ou", assertion.getAttributeDesc() );
-        assertEquals( "contacts", assertion.getAssertionValue().get() );
+        assertEquals( "contacts", assertion.getAssertionValue().getString() );
 
         // (& (| (objectclass=top) (ou=contacts) ) (! ...
         NotFilter notFilter = ( NotFilter ) andFilters.get( 1 );
@@ -1580,7 +1580,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectclass", assertion.getAttributeDesc() );
-        assertEquals( "ttt", assertion.getAssertionValue().get() );
+        assertEquals( "ttt", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -2550,7 +2550,7 @@ public class SearchRequestTest
         AttributeValueAssertion assertion = greaterThanFilter.getAssertion();
 
         assertEquals( "test", assertion.getAttributeDesc() );
-        assertEquals( "", assertion.getAssertionValue().get() );
+        assertEquals( "", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -2633,7 +2633,7 @@ public class SearchRequestTest
         AttributeValueAssertion assertion = greaterThanFilter.getAssertion();
 
         assertEquals( "test", assertion.getAttributeDesc() );
-        assertEquals( "", assertion.getAssertionValue().get() );
+        assertEquals( "", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -2728,7 +2728,7 @@ public class SearchRequestTest
         AttributeValueAssertion assertion = greaterThanFilter.getAssertion();
 
         assertEquals( "test", assertion.getAttributeDesc() );
-        assertEquals( "", assertion.getAssertionValue().get() );
+        assertEquals( "", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
 
@@ -2993,7 +2993,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "pgpdisabled", assertion.getAttributeDesc() );
-        assertEquals( "0", assertion.getAssertionValue().get() );
+        assertEquals( "0", assertion.getAssertionValue().getString() );
 
         // Check the encoding
         // We won't check the whole PDU, as it may differs because
@@ -3091,7 +3091,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3200,7 +3200,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3314,7 +3314,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(a=b)(c=d))
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters.get( 1 );
@@ -3324,7 +3324,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3439,7 +3439,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3560,7 +3560,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(&(a=b)(c=d)
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters2.get( 1 );
@@ -3570,7 +3570,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3690,7 +3690,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(&(a=b))(c=d))
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters.get( 1 );
@@ -3700,7 +3700,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3825,7 +3825,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(&(a=b)(c=d)...
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters2.get( 1 );
@@ -3835,7 +3835,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
         
         // (&(&(a=b)(c=d))(e=f))
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters.get( 1 );
@@ -3845,7 +3845,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "e", assertion.getAttributeDesc() );
-        assertEquals( "f", assertion.getAssertionValue().get() );
+        assertEquals( "f", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -3965,7 +3965,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(a=b)(|(...
         OrFilter orFilter = ( OrFilter ) andFilters.get( 1 );
@@ -3982,7 +3982,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
 
         // (&(a=b)(|(c=d)(e=f)))
         equalityMatch = ( AttributeValueAssertionFilter ) orFilters.get( 1 );
@@ -3992,7 +3992,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "e", assertion.getAttributeDesc() );
-        assertEquals( "f", assertion.getAssertionValue().get() );
+        assertEquals( "f", assertion.getAssertionValue().getString() );
         
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -4114,7 +4114,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(&(a=b))(&...
         andFilter2 = ( AndFilter ) andFilters.get( 1 );
@@ -4131,7 +4131,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -4256,7 +4256,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "a", assertion.getAttributeDesc() );
-        assertEquals( "b", assertion.getAssertionValue().get() );
+        assertEquals( "b", assertion.getAssertionValue().getString() );
 
         // (&(&(a=b)(c=d))...
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters2.get( 1 );
@@ -4266,7 +4266,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "c", assertion.getAttributeDesc() );
-        assertEquals( "d", assertion.getAssertionValue().get() );
+        assertEquals( "d", assertion.getAssertionValue().getString() );
         
         // (&(&(a=b)(c=d))(&...
         andFilter2 = ( AndFilter ) andFilters.get( 1 );
@@ -4283,7 +4283,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "e", assertion.getAttributeDesc() );
-        assertEquals( "f", assertion.getAssertionValue().get() );
+        assertEquals( "f", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -4421,7 +4421,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "e", assertion.getAttributeDesc() );
-        assertEquals( "f", assertion.getAssertionValue().get() );
+        assertEquals( "f", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -4585,7 +4585,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "uid", assertion.getAttributeDesc() );
-        assertEquals( "buster ", assertion.getAssertionValue().get() );
+        assertEquals( "buster ", assertion.getAssertionValue().getString() );
 
         // (&(uid=buster)(sbAttribute=Buy))
         equalityMatch = ( AttributeValueAssertionFilter ) andFilters.get( 1 );
@@ -4595,7 +4595,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "sbAttribute", assertion.getAttributeDesc() );
-        assertEquals( "Buy ", assertion.getAssertionValue().get() );
+        assertEquals( "Buy ", assertion.getAssertionValue().getString() );
 
         List<EntryAttribute> attributes = sr.getAttributes();
         assertEquals( 0, attributes.size() );
@@ -4695,7 +4695,7 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "objectClass", assertion.getAttributeDesc() );
-        assertEquals( "person", assertion.getAssertionValue().get() );
+        assertEquals( "person", assertion.getAssertionValue().getString() );
 
         // (&(a=b)(|
         OrFilter orFilter = ( OrFilter ) andFilters.get( 1 );
@@ -4721,6 +4721,6 @@ public class SearchRequestTest
         assertNotNull( assertion );
 
         assertEquals( "sn", assertion.getAttributeDesc() );
-        assertEquals( "Jagger", assertion.getAssertionValue().get() );
+        assertEquals( "Jagger", assertion.getAssertionValue().getString() );
     }
 }

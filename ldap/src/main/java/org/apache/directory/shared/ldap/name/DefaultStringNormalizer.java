@@ -21,6 +21,8 @@ package org.apache.directory.shared.ldap.name;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -36,30 +38,59 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DefaultStringNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
     
+    /** A default String normalizer */
     private static final DefaultStringNormalizer NORMALIZER = new DefaultStringNormalizer();
     
-    public Object normalize( Object value ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
-        String str = ( String ) value;
+        String str = value.getString();
         
-        if ( str == null || str.length() == 0 )
+        if ( StringTools.isEmpty( str ) )
         {
-            return str;
+            return new ClientStringValue( str );
         }
         
         if ( str.charAt( 0 ) == '#' )
         {
-            return StringTools.decodeHexString( str );
+            return new ClientStringValue( StringTools.decodeHexString( str ) );
         }
         
         if ( str.indexOf( '\\' ) != -1 )
         {
-            return StringTools.decodeEscapedHex( str );
+            return new ClientStringValue( StringTools.decodeEscapedHex( str ) );
         }
         
-        return str;
+        return new ClientStringValue( str );
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( StringTools.isEmpty( value ) )
+        {
+            return value;
+        }
+        
+        if ( value.charAt( 0 ) == '#' )
+        {
+            return StringTools.decodeHexString( value );
+        }
+        
+        if ( value.indexOf( '\\' ) != -1 )
+        {
+            return StringTools.decodeEscapedHex( value );
+        }
+        
+        return value;
     }
 
     
@@ -70,7 +101,7 @@ public class DefaultStringNormalizer implements Normalizer
      * @return The normalized object
      * @throws NamingException If the normalization throws an error
      */
-    public static Object normalizeString( String string ) throws NamingException
+    public static String normalizeString( String string ) throws NamingException
     {
         return NORMALIZER.normalize( string );
     }

@@ -103,7 +103,7 @@ public class SearchResultEntryDsml extends LdapResponseDecorator implements Dsml
                 }
                 else
                 {
-                    attributeElement.addElement( "value" ).addText( value.get().toString() );
+                    attributeElement.addElement( "value" ).addText( value.getString() );
                 }
             }
         }

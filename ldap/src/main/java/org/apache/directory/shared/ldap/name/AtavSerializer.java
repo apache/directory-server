@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +75,8 @@ public class AtavSerializer
              StringTools.isEmpty( atav.getNormType() ) ||
              ( atav.getStart() < 0 ) ||
              ( atav.getLength() < 2 ) ||             // At least a type and '='
-             ( atav.getUpValue() == null ) ||
-             ( atav.getNormValue() == null ) )
+             ( atav.getUpValue().isNull() ) ||
+             ( atav.getNormValue().isNull() ) )
         {
             String message = "Cannot serialize an wrong ATAV, ";
             
@@ -97,11 +100,11 @@ public class AtavSerializer
             {
                 message += "the length should not be < 2";
             }
-            else if ( atav.getUpValue() == null )
+            else if ( atav.getUpValue().isNull() )
             {
                 message += "the upValue should not be null";
             }
-            else if ( atav.getNormValue() == null )
+            else if ( atav.getNormValue().isNull() )
             {
                 message += "the value should not be null";
             }
@@ -116,21 +119,21 @@ public class AtavSerializer
         out.writeUTF( atav.getUpType() );
         out.writeUTF( atav.getNormType() );
         
-        boolean isHR = ( atav.getNormValue() instanceof String );
+        boolean isHR = !atav.getNormValue().isBinary();
         
         out.writeBoolean( isHR );
         
         if ( isHR )
         {
-            out.writeUTF( (String)atav.getUpValue() );
-            out.writeUTF( (String)atav.getNormValue() );
+            out.writeUTF( atav.getUpValue().getString() );
+            out.writeUTF( atav.getNormValue().getString() );
         }
         else
         {
-            out.writeInt( ((byte[])atav.getUpValue()).length );
-            out.write( (byte[])atav.getUpValue() );
-            out.writeInt( ((byte[])atav.getNormValue()).length );
-            out.write( (byte[])atav.getNormValue() );
+            out.writeInt( atav.getUpValue().length() );
+            out.write( atav.getUpValue().getBytes() );
+            out.writeInt( atav.getNormValue().length() );
+            out.write( atav.getNormValue().getBytes() );
         }
     }
     
@@ -158,8 +161,8 @@ public class AtavSerializer
         
         if ( isHR )
         {
-            String upValue = in.readUTF();
-            String normValue = in.readUTF();
+            Value<String> upValue = new ClientStringValue( in.readUTF() );
+            Value<String> normValue = new ClientStringValue( in.readUTF() );
             AttributeTypeAndValue atav = 
                 new AttributeTypeAndValue( upType, normType, upValue, normValue, start, length, upName );
             
@@ -176,7 +179,9 @@ public class AtavSerializer
             in.readFully( normValue );
 
             AttributeTypeAndValue atav = 
-                new AttributeTypeAndValue( upType, normType, upValue, normValue, start, length, upName );
+                new AttributeTypeAndValue( upType, normType, 
+                    new ClientBinaryValue( upValue) , 
+                    new ClientBinaryValue( normValue ), start, length, upName );
             
             return atav;
         }

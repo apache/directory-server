@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.PrepareString;
 import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
@@ -40,22 +42,39 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DeepTrimNormalizer implements Normalizer
 {
+    // The serial UID
    private static final long serialVersionUID = 1L;
 
-   public Object normalize( Object value ) throws NamingException
+   /**
+    * {@inheritDoc}
+    */
+   public Value<?> normalize( Value<?> value ) throws NamingException
    {
        try
        {
-           if ( value instanceof byte[] )
-           {
-               return PrepareString.normalize( StringTools.utf8ToString( ( byte[] ) value ), 
-                   PrepareString.StringType.DIRECTORY_STRING );
-           }
-           else
-           {
-               return PrepareString.normalize( ( String ) value,
-                   PrepareString.StringType.DIRECTORY_STRING );
-           }
+           String normalized = PrepareString.normalize( value.getString(), 
+               PrepareString.StringType.DIRECTORY_STRING ); 
+           
+           return new ClientStringValue( normalized ); 
+       }
+       catch ( IOException ioe )
+       {
+           throw new NamingException( "Invalid value : " + value );
+       }
+   }
+
+
+   /**
+    * {@inheritDoc}
+    */
+   public String normalize( String value ) throws NamingException
+   {
+       try
+       {
+           String normalized = PrepareString.normalize( value, 
+               PrepareString.StringType.DIRECTORY_STRING ); 
+           
+           return normalized; 
        }
        catch ( IOException ioe )
        {

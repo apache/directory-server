@@ -27,8 +27,6 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -215,7 +213,7 @@ public class ExtensibleMatchFilter extends Filter
     {
         if ( matchingRule != null )
         {
-            matchingRuleBytes = StringTools.getBytesUtf8(  matchingRule );
+            matchingRuleBytes = StringTools.getBytesUtf8( matchingRule );
             extensibleMatchLength = 1 + TLV.getNbBytes( matchingRuleBytes.length ) + matchingRuleBytes.length;
         }
 
@@ -227,16 +225,8 @@ public class ExtensibleMatchFilter extends Filter
 
         if ( matchValue != null )
         {
-            if ( matchValue instanceof ClientStringValue )
-            {
-                int matchValueLength = (( ClientStringValue ) matchValue ).get().length();
-                extensibleMatchLength += 1 + TLV.getNbBytes( matchValueLength ) + matchValueLength;
-            }
-            else
-            {
-                int bytesLength = ( (ClientBinaryValue) matchValue ).get().length;
-                extensibleMatchLength += 1 + TLV.getNbBytes( bytesLength ) + bytesLength;
-            }
+            int bytesLength = matchValue.getBytes().length;
+            extensibleMatchLength += 1 + TLV.getNbBytes( bytesLength ) + bytesLength;
         }
 
         if ( dnAttributes )
@@ -306,25 +296,13 @@ public class ExtensibleMatchFilter extends Filter
             {
                 buffer.put( ( byte ) LdapConstants.MATCH_VALUE_TAG );
 
-                if ( matchValue instanceof ClientStringValue )
-                {
-                    byte[] matchValueBytes = StringTools.getBytesUtf8( (( ClientStringValue ) matchValue).get() );
-                    buffer.put( TLV.getBytes( matchValueBytes.length ) );
+                byte[] bytes = matchValue.getBytes();
+                int bytesLength = bytes.length;
+                buffer.put( TLV.getBytes( bytesLength ) );
 
-                    if ( matchValueBytes.length != 0 )
-                    {
-                        buffer.put( matchValueBytes );
-                    }
-                }
-                else
+                if ( bytesLength != 0 )
                 {
-                    int bytesLength = ( ( ClientBinaryValue ) matchValue ).get().length;
-                    buffer.put( TLV.getBytes( bytesLength ) );
-
-                    if ( bytesLength != 0 )
-                    {
-                        buffer.put( ((ClientBinaryValue)matchValue).get() );
-                    }
+                    buffer.put( bytes );
                 }
 
             }

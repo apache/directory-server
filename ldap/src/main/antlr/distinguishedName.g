@@ -28,6 +28,8 @@ import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NameParser;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.parsers.ParserMonitor;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -295,7 +297,18 @@ attributeTypeAndValue [Rdn rdn] returns [String upName = ""]
         {
             try
             {
-                rdn.addAttributeTypeAndValue( type, type, value.upValue, value.normValue );
+                if ( value.normValue instanceof String )
+                {
+                    rdn.addAttributeTypeAndValue( type, type, 
+                        new ClientStringValue( value.upValue ), 
+                        new ClientStringValue( (String)value.normValue ) );
+                }
+                else
+                {
+                    rdn.addAttributeTypeAndValue( type, type, 
+                        new ClientStringValue( value.upValue ), 
+                        new ClientBinaryValue( (byte[])value.normValue ) );
+                }
                 { upName += value.upValue + value.trailingSpaces; }
             }
             catch ( InvalidNameException e )

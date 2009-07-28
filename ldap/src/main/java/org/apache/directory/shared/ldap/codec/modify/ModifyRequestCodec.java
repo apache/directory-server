@@ -363,16 +363,8 @@ public class ModifyRequestCodec extends LdapMessageCodec
                 {
                     for ( org.apache.directory.shared.ldap.entry.Value<?> value:modification.getAttribute() )
                     {
-                        if ( value instanceof ClientStringValue )
-                        {
-                            int valueLength = StringTools.getBytesUtf8( (String)value.get() ).length;
-                            localValuesLength += 1 + TLV.getNbBytes( valueLength ) + valueLength;
-                        }
-                        else
-                        {
-                            localValuesLength += 1 + TLV.getNbBytes( ( ( byte[] ) value.getReference() ).length )
-                                + ( ( byte[] ) value.getReference() ).length;
-                        }
+                        localValuesLength += 1 + TLV.getNbBytes( value.getBytes().length )
+                            + value.getBytes().length;
                     }
                 }
 
@@ -486,13 +478,13 @@ public class ModifyRequestCodec extends LdapMessageCodec
                     {
                         for ( org.apache.directory.shared.ldap.entry.Value<?> value:modification.getAttribute() )
                         {
-                            if ( value instanceof ClientStringValue )
+                            if ( !value.isBinary() )
                             {
-                                Value.encode( buffer, ( String ) value.get() );
+                                Value.encode( buffer, value.getString() );
                             }
                             else
                             {
-                                Value.encode( buffer, ( byte[] ) value.getReference() );
+                                Value.encode( buffer, value.getBytes() );
                             }
                         }
                     }

@@ -946,7 +946,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "foobar", assertion.getAssertionValue().get() );
+        assertEquals( "foobar", assertion.getAssertionValue().getString() );
     }
 
 
@@ -984,7 +984,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) assertion.getAssertionValue().get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1087,7 +1087,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "foobar", assertion.getAssertionValue().get() );
+        assertEquals( "foobar", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1125,7 +1125,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) assertion.getAssertionValue().get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1228,7 +1228,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "foobar", assertion.getAssertionValue().get() );
+        assertEquals( "foobar", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1266,7 +1266,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) assertion.getAssertionValue().get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1369,7 +1369,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "foobar", assertion.getAssertionValue().get() );
+        assertEquals( "foobar", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1407,7 +1407,7 @@ public class SearchRequestTest extends AbstractTest
 
         assertEquals( "sn", assertion.getAttributeDesc() );
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) assertion.getAssertionValue().get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", assertion.getAssertionValue().getString() );
     }
 
 
@@ -1545,7 +1545,7 @@ public class SearchRequestTest extends AbstractTest
 
         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) filter;
 
-        assertEquals( "A Value", extensibleMatchFilter.getMatchValue().get() );
+        assertEquals( "A Value", extensibleMatchFilter.getMatchValue().getString() );
 
         assertEquals( false, extensibleMatchFilter.isDnAttributes() );
     }
@@ -1579,7 +1579,7 @@ public class SearchRequestTest extends AbstractTest
 
         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) filter;
 
-        assertEquals( "DSMLv2.0 rocks!!", new String( ( byte[] ) extensibleMatchFilter.getMatchValue().get() ) );
+        assertEquals( "DSMLv2.0 rocks!!", extensibleMatchFilter.getMatchValue().getString() );
 
         assertEquals( false, extensibleMatchFilter.isDnAttributes() );
     }

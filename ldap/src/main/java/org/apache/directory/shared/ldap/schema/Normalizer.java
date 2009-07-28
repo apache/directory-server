@@ -24,6 +24,8 @@ import java.io.Serializable;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+
 
 /**
  * Converts attribute values to a canonical form.
@@ -36,11 +38,18 @@ public interface Normalizer extends Serializable
     /**
      * Gets the normalized value.
      * 
-     * @param value
-     *            the value to normalize. It must *not* be null !
+     * @param value the value to normalize. It must *not* be null !
      * @return the normalized form for a value
-     * @throws NamingException
-     *             if an error results during normalization
+     * @throws NamingException if an error results during normalization
      */
-    Object normalize( Object value ) throws NamingException;
+    Value<?> normalize( Value<?> value ) throws NamingException;
+
+    /**
+     * Gets the normalized value.
+     * 
+     * @param value the value to normalize. It must *not* be null !
+     * @return the normalized form for a value
+     * @throws NamingException if an error results during normalization
+     */
+    String normalize( String value ) throws NamingException;
 }

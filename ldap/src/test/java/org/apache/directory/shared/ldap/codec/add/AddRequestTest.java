@@ -623,7 +623,7 @@ public class AddRequestTest
 
         for ( Value<?> value:attribute )
         {
-            assertEquals( "", value.get() );
+            assertEquals( "", value.getString() );
         }
 
         // Check the length
@@ -712,7 +712,7 @@ public class AddRequestTest
  
         for ( Value<?> value:attribute )
         {
-            assertEquals( "", value.get() );
+            assertEquals( "", value.getString() );
         }
 
         // Check the length

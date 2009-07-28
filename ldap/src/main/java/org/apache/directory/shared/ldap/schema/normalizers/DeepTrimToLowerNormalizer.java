@@ -24,10 +24,10 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.PrepareString;
-import org.apache.directory.shared.ldap.schema.PrepareString.StringType;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -41,9 +41,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DeepTrimToLowerNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
 
-    public Object normalize( Object value ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
         if ( value == null )
         {
@@ -52,16 +56,34 @@ public class DeepTrimToLowerNormalizer implements Normalizer
 
         try
         {
-            if ( value instanceof byte[] )
-            {
-                return PrepareString.normalize( StringTools.utf8ToString( ( byte[] ) value ), 
-                    PrepareString.StringType.CASE_IGNORE );
-            }
-            else
-            {
-                return PrepareString.normalize( ( String ) value,
-                    PrepareString.StringType.CASE_IGNORE );
-            }
+            String normalized = PrepareString.normalize( value.getString(),
+                PrepareString.StringType.CASE_IGNORE );
+            
+            return new ClientStringValue( normalized );
+        }
+        catch ( IOException ioe )
+        {
+            throw new NamingException( "Invalid value : " + value );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+
+        try
+        {
+            String normalized = PrepareString.normalize( value,
+                PrepareString.StringType.CASE_IGNORE );
+            
+            return normalized;
         }
         catch ( IOException ioe )
         {

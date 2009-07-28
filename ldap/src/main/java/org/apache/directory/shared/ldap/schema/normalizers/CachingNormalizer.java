@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
@@ -77,27 +78,46 @@ public class CachingNormalizer implements Normalizer
 
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
-     * 
-     * @param value the value to normalize. It must *not* be null !
-     * @return the normalized form for a value
-     * @throws NamingException if an error results during normalization
+     * {@inheritDoc}
      */
-    public Object normalize( Object value ) throws NamingException
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
         if ( value == null )
         {
             return null;
         }
 
-        Object result = cache.get( value );
+        Value<?> result =(Value<?>)cache.get( value );
 
         if ( result != null )
         {
             return result;
         }
 
-        Object normalized = normalizer.normalize( value );
+        Value<?> normalized = normalizer.normalize( value );
+        cache.put( value, normalized );
+        return normalized;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+
+        String normalized =(String)cache.get( value );
+
+        if ( normalized != null )
+        {
+            return normalized;
+        }
+
+        normalized = normalizer.normalize( value );
         cache.put( value, normalized );
         return normalized;
     }

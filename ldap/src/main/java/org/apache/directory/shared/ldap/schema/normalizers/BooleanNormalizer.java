@@ -22,8 +22,9 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -35,28 +36,36 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class BooleanNormalizer implements Normalizer
 {
+    // The serial UID
     private static final long serialVersionUID = 1L;
 
 
-    public Object normalize( Object value ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public Value<?> normalize( Value<?> value ) throws NamingException
     {
         if ( value == null )
         {
             return null;
         }
 
-        String strValue;
-
-        if ( value instanceof byte[] )
-        {
-            strValue = StringTools.utf8ToString( ( byte[] ) value );
-        }
-        else
-        {
-            strValue = ( String ) value;
-        }
-
-        return strValue.trim().toUpperCase();
+        String strValue = value.getString();
+        
+        return new ClientStringValue( strValue.trim().toUpperCase() );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String normalize( String value ) throws NamingException
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+
+        return value.trim().toUpperCase();
+    }
 }

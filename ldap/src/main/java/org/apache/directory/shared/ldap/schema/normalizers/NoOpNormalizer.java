@@ -22,6 +22,7 @@ package org.apache.directory.shared.ldap.schema.normalizers;
 
 import java.io.Serializable;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -33,27 +34,33 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  */
 public class NoOpNormalizer implements Normalizer, Serializable
 {
-    public static final NoOpNormalizer INSTANCE = new NoOpNormalizer();
+    // The serial UID
     static final long serialVersionUID = -7817763636668562489L;
     
-
-    /**
-     * Creates a do nothing normalizer.
-     */
-    public NoOpNormalizer()
-    {
-    }
-
+    /** A static instance of this normalizer */
+    public static final NoOpNormalizer INSTANCE = new NoOpNormalizer();
 
     /**
      * Returns the value argument as-is without alterations all the time.
      * 
-     * @param value
-     *            any value
+     * @param value any value
      * @return the value argument returned as-is
      * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
      */
-    public Object normalize( Object value )
+    public Value<?> normalize( Value<?> value )
+    {
+        return value;
+    }
+    
+    
+    /**
+     * Returns the value argument as-is without alterations all the time.
+     * 
+     * @param value any value
+     * @return the value argument returned as-is
+     * @see org.apache.directory.shared.ldap.schema.Normalizer#normalize(java.lang.Object)
+     */
+    public String normalize( String value )
     {
         return value;
     }

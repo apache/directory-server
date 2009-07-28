@@ -277,7 +277,7 @@ public class DefaultClientAttributeTest
         EntryAttribute attr1 = new DefaultClientAttribute( "test" );
         
         attr1.add( (String)null );
-        assertNull( attr1.getString() );
+        assertEquals( "", attr1.getString() );
 
         EntryAttribute attr2 = new DefaultClientAttribute( "test" );
         
@@ -466,7 +466,7 @@ public class DefaultClientAttributeTest
         for ( Value<?> val:attr )
         {
             assertTrue( val instanceof ClientStringValue );
-            assertEquals( values[pos++], val.get() );
+            assertEquals( values[pos++], val.getString() );
         }
     }
 
@@ -641,7 +641,7 @@ public class DefaultClientAttributeTest
         int nbAdded = attr1.add( (byte[])null );
         assertEquals( 1, nbAdded );
         assertFalse( attr1.isHR() );
-        assertTrue( Arrays.equals( NULL_BINARY_VALUE.get(), attr1.getBytes() ) );
+        assertTrue( Arrays.equals( NULL_BINARY_VALUE.getBytes(), attr1.getBytes() ) );
         
         EntryAttribute attr2 = new DefaultClientAttribute( "test" );
         
@@ -882,13 +882,13 @@ public class DefaultClientAttributeTest
         EntryAttribute attr2 = new DefaultClientAttribute( "test" );
         
         attr2.add( "a", "b", "c" );
-        assertEquals( "a", attr2.get().get() );
+        assertEquals( "a", attr2.get().getString() );
         
         attr2.remove( "a" );
-        assertEquals( "b", attr2.get().get() );
+        assertEquals( "b", attr2.get().getString() );
 
         attr2.remove( "b" );
-        assertEquals( "c", attr2.get().get() );
+        assertEquals( "c", attr2.get().getString() );
 
         attr2.remove( "c" );
         assertNull( attr2.get() );
@@ -896,13 +896,13 @@ public class DefaultClientAttributeTest
         EntryAttribute attr3 = new DefaultClientAttribute( "test" );
         
         attr3.add( BYTES1, BYTES2, BYTES3 );
-        assertTrue( Arrays.equals( BYTES1, (byte[])attr3.get().get() ) );
+        assertTrue( Arrays.equals( BYTES1, attr3.get().getBytes() ) );
         
         attr3.remove( BYTES1 );
-        assertTrue( Arrays.equals( BYTES2, (byte[])attr3.get().get() ) );
+        assertTrue( Arrays.equals( BYTES2, attr3.get().getBytes() ) );
 
         attr3.remove( BYTES2 );
-        assertTrue( Arrays.equals( BYTES3, (byte[])attr3.get().get() ) );
+        assertTrue( Arrays.equals( BYTES3, attr3.get().getBytes() ) );
 
         attr3.remove( BYTES3 );
         assertNull( attr2.get() );
@@ -934,9 +934,9 @@ public class DefaultClientAttributeTest
         attr.add(  "a", "b", "c" );
         iterator = attr.getAll(); 
         assertTrue( iterator.hasNext() );
-        assertEquals( "a", iterator.next().get() );
-        assertEquals( "b", iterator.next().get() );
-        assertEquals( "c", iterator.next().get() );
+        assertEquals( "a", iterator.next().getString() );
+        assertEquals( "b", iterator.next().getString() );
+        assertEquals( "c", iterator.next().getString() );
         assertFalse( iterator.hasNext() );
     }
 
@@ -1185,7 +1185,7 @@ public class DefaultClientAttributeTest
         int nbAdded = attr1.put( (byte[])null );
         assertEquals( 1, nbAdded );
         assertFalse( attr1.isHR() );
-        assertTrue( Arrays.equals( NULL_BINARY_VALUE.get(), attr1.getBytes() ) );
+        assertTrue( Arrays.equals( NULL_BINARY_VALUE.getBytes(), attr1.getBytes() ) );
         
         EntryAttribute attr2 = new DefaultClientAttribute( "test" );
         
@@ -1602,7 +1602,7 @@ public class DefaultClientAttributeTest
         assertEquals( dca.toString(), dcaSer.toString() );
         assertEquals( "commonname", dcaSer.getId() );
         assertEquals( "CommonName", dcaSer.getUpId() );
-        assertNull( dcaSer.getString() );
+        assertEquals( "", dcaSer.getString() );
         assertEquals( 1, dcaSer.size() );
         assertTrue( dcaSer.contains( (String)null ) );
         assertTrue( dcaSer.isHR() );

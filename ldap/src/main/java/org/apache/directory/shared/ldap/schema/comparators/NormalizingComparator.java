@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.comparators;
 import java.util.Comparator;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public class NormalizingComparator implements Comparator
 
         try
         {
-            n1 = normalizer.normalize( o1 );
+            n1 = normalizer.normalize( (String)o1 );
         }
         catch ( NamingException e )
         {
@@ -82,7 +83,7 @@ public class NormalizingComparator implements Comparator
 
         try
         {
-            n2 = normalizer.normalize( o2 );
+            n2 = normalizer.normalize( (String)o2 );
         }
         catch ( NamingException e )
         {

@@ -111,7 +111,7 @@ public class AddRequestDsml extends AbstractRequestDsml
                     }
                     else
                     {
-                        attributeElement.addElement( "value" ).addText( value.get().toString() );
+                        attributeElement.addElement( "value" ).addText( value.getString() );
                     }
                 }
             }

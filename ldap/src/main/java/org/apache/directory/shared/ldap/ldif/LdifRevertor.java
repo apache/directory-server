@@ -345,14 +345,14 @@ public class LdifRevertor
         {
             // No need to add something which has already been added
             // in the previous modification
-            if ( !entry.contains( ava.getNormType(), (String)ava.getNormValue() ) &&
+            if ( !entry.contains( ava.getNormType(), ava.getNormValue().getString() ) &&
                  !(ava.getNormType().equals( oldRdn.getNormType() ) &&
                    ava.getNormValue().equals( oldRdn.getNormValue() ) ) )
             {
                 // Create the modification, which is an Add
                 Modification modification = new ClientModification( 
                     ModificationOperation.REMOVE_ATTRIBUTE, 
-                    new DefaultClientAttribute( oldRdn.getUpType(), (String)ava.getUpValue() ) );
+                    new DefaultClientAttribute( oldRdn.getUpType(), ava.getUpValue().getString() ) );
                 
                 restored.addModificationItem( modification );
             }
@@ -494,7 +494,7 @@ public class LdifRevertor
                     }
                     else
                     {
-                        if ( entry.contains( atav.getNormType(), (String)atav.getNormValue() ) )
+                        if ( entry.contains( atav.getNormType(), atav.getNormValue().getString() ) )
                         {
                             existInEntry = true;
                         }
@@ -574,7 +574,7 @@ public class LdifRevertor
                     {
                         overlapping = true;
                     }
-                    else if ( entry.contains( atav.getNormType(), (String)atav.getNormValue() ) )
+                    else if ( entry.contains( atav.getNormType(), atav.getNormValue().getString() ) )
                     {
                         existInEntry = true;
                     }

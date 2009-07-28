@@ -69,7 +69,7 @@ public class AttributeTypeAndValueTest
     {
         try
         {
-            new AttributeTypeAndValue( null, null, null, null );
+            new AttributeTypeAndValue( null, null, (String)null, (String)null );
             fail();
         }
         catch ( InvalidNameException ine )
@@ -87,7 +87,7 @@ public class AttributeTypeAndValueTest
     {
         try
         {
-            new AttributeTypeAndValue( "  ", " ", null, null );
+            new AttributeTypeAndValue( "  ", " ", (String)null, (String)null );
             fail();
         }
         catch ( InvalidNameException ine )
@@ -103,19 +103,19 @@ public class AttributeTypeAndValueTest
     @Test
     public void testAttributeTypeAndValueValidType() throws InvalidNameException
     {
-        AttributeTypeAndValue atav = new AttributeTypeAndValue( "A", "a", null, null );
+        AttributeTypeAndValue atav = new AttributeTypeAndValue( "A", "a", (String)null, (String)null );
         assertEquals( "a=", atav.toString() );
         assertEquals( "A=", atav.getUpName() );
         
-        atav = new AttributeTypeAndValue( "  A  ", "a", null, null );
+        atav = new AttributeTypeAndValue( "  A  ", "a", (String)null, (String)null );
         assertEquals( "a=", atav.toString() );
         assertEquals( "  A  =", atav.getUpName() );
         
-        atav = new AttributeTypeAndValue( "  A  ", null, null, null );
+        atav = new AttributeTypeAndValue( "  A  ", null, (String)null, (String)null );
         assertEquals( "a=", atav.toString() );
         assertEquals( "  A  =", atav.getUpName() );
         
-        atav = new AttributeTypeAndValue( null, "a", null, null );
+        atav = new AttributeTypeAndValue( null, "a", (String)null, (String)null );
         assertEquals( "a=", atav.toString() );
         assertEquals( "a=", atav.getUpName() );
         
@@ -159,8 +159,8 @@ public class AttributeTypeAndValueTest
     @Test
     public void testCompareToEquals() throws InvalidNameException
     {
-        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "b", "b" );
-        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "b", "b" );
+        AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a","b", "b" );
+        AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a","b", "b" );
 
         assertEquals( 0, atav1.compareTo( atav2 ) );
     }
@@ -187,6 +187,7 @@ public class AttributeTypeAndValueTest
     public void testCompareAtav1TypeSuperior() throws InvalidNameException
     {
         AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "b", "b", "b", "b" );
+            
         AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "b", "b" );
 
         assertEquals( 1, atav1.compareTo( atav2 ) );

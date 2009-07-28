@@ -244,7 +244,7 @@ public class AttributeUtils
      * @return <code>true</code> if the value exists in the attribute</code>
      * @throws NamingException If something went wrong while accessing the data
      */
-    public static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    public static boolean containsValue( Attribute attr, Value<?> compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
         if ( attr.contains( compared ) )
@@ -267,7 +267,7 @@ public class AttributeUtils
 
         if ( type.getSyntax().isHumanReadable() )
         {
-            String comparedStr = ( String ) normalizer.normalize( compared );
+            String comparedStr = normalizer.normalize( compared.getString() );
 
             for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
             {
@@ -282,19 +282,19 @@ public class AttributeUtils
         {
             byte[] comparedBytes = null;
 
-            if ( compared instanceof String )
+            if ( !compared.isBinary() )
             {
-                if ( ( ( String ) compared ).length() < 3 )
+                if ( compared.getString().length() < 3 )
                 {
                     return false;
                 }
 
-                // Tansform the String to a byte array
+                // Transform the String to a byte array
                 int state = 1;
-                comparedBytes = new byte[( ( String ) compared ).length() / 3];
+                comparedBytes = new byte[compared.getString().length() / 3];
                 int pos = 0;
 
-                for ( char c : ( ( String ) compared ).toCharArray() )
+                for ( char c : compared.getString().toCharArray() )
                 {
                     switch ( state )
                     {
@@ -338,7 +338,7 @@ public class AttributeUtils
             }
             else
             {
-                comparedBytes = ( byte[] ) compared;
+                comparedBytes = compared.getBytes();
             }
 
             for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
@@ -427,6 +427,7 @@ public class AttributeUtils
     }
 
 
+    /*
     public static boolean containsAnyValues( Attribute attr, Object[] compared, AttributeType type )
         throws NamingException
     {
@@ -476,6 +477,7 @@ public class AttributeUtils
 
         return false;
     }
+    */
 
 
     /**
@@ -1057,7 +1059,7 @@ public class AttributeUtils
      * @param type the attribute type
      * @return the value removed from the attribute, otherwise null
      * @throws NamingException if something went wrong while removing the value
-     */
+     *
     public static Object removeValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
@@ -1082,7 +1084,7 @@ public class AttributeUtils
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
 
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); )
             {
                 String value = ( String ) values.nextElement();
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
@@ -1154,7 +1156,7 @@ public class AttributeUtils
                 comparedBytes = ( byte[] ) compared;
             }
 
-            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/)
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
 
@@ -1262,7 +1264,7 @@ public class AttributeUtils
             // Looping on values
             for ( Iterator<Value<?>> valueIterator = entryAttribute.iterator(); valueIterator.hasNext(); )
             {
-                Value<?> value = ( Value<?> ) valueIterator.next();
+                Value<?> value = valueIterator.next();
                 attribute.add( value.get() );
             }
 

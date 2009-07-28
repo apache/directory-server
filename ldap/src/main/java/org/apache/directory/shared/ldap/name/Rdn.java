@@ -33,6 +33,8 @@ import java.util.TreeSet;
 import javax.naming.InvalidNameException;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,7 +237,9 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
     */
    public Rdn( String upType, String normType, String upValue, String normValue ) throws InvalidNameException
    {
-       addAttributeTypeAndValue( upType, normType, upValue, normValue );
+       addAttributeTypeAndValue( upType, normType, 
+           new ClientStringValue( upValue), 
+           new ClientStringValue( normValue ) );
 
        upName = upType + '=' + upValue;
        start = 0;
@@ -323,13 +327,13 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
            case 1:
                // We have a single AttributeTypeAndValue
                // We will trim and lowercase type and value.
-               if ( atav.getNormValue() instanceof String )
+               if ( !atav.getNormValue().isBinary() )
                {
                    normName = atav.getNormalizedValue();
                }
                else
                {
-                   normName = atav.getNormType() + "=#" + StringTools.dumpHexPairs( (byte[])atav.getNormValue() );
+                   normName = atav.getNormType() + "=#" + StringTools.dumpHexPairs( atav.getNormValue().getBytes() );
                }
 
                break;
@@ -374,12 +378,12 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
    // We need this method to be visible from the DnParser class, but not
    // from outside this package.
    @SuppressWarnings({"unchecked"})
-   /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Object upValue, Object value ) 
+   /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Value<?> upValue, Value<?> value ) 
        throws InvalidNameException
    {
        // First, let's normalize the type
        String normalizedType = StringTools.lowerCaseAscii(type);
-       Object normalizedValue = value;
+       Value<?> normalizedValue = value;
 
        switch ( nbAtavs )
        {
@@ -508,7 +512,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
            case 1:
                if ( StringTools.equals( atav.getNormType(), normalizedType ) )
                {
-                   return atav.getNormValue();
+                   return atav.getNormValue().get();
                }
 
                return "";
@@ -903,10 +907,10 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
                return null;
 
            case 1:
-               return atav.getNormValue();
+               return atav.getNormValue().get();
 
            default:
-               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormValue();
+               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormValue().get();
        }
    }
 
@@ -916,7 +920,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
     * 
     * @return The first User provided value of this RDN
     */
-   public Object getUpValue()
+   public String getUpValue()
    {
        switch ( nbAtavs )
        {
@@ -924,10 +928,10 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
                return null;
 
            case 1:
-               return atav.getUpValue();
+               return atav.getUpValue().getString();
 
            default:
-               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getUpValue();
+               return ((TreeSet<AttributeTypeAndValue>)atavs).first().getUpValue().getString();
        }
    }
 
@@ -945,7 +949,7 @@ public class Rdn implements Cloneable, Comparable, Externalizable, Iterable<Attr
                 return null;
                 
             case 1:
-                return (String)atav.getNormValue();
+                return atav.getNormValue().getString();
                 
             default:
                 return ((TreeSet<AttributeTypeAndValue>)atavs).first().getNormalizedValue();

@@ -563,13 +563,13 @@ public class LdifEntry implements Cloneable, Externalizable
             
             for ( Value<?> value:attribute )
             {
-                if ( value instanceof ClientStringValue )
+                if ( !value.isBinary() )
                 {
-                    sb.append(  "            " ).append( value.get() ).append('\n' );
+                    sb.append(  "            " ).append( value.getString() ).append('\n' );
                 }
                 else
                 {
-                    sb.append(  "            " ).append( StringTools.dumpBytes( (byte[])value.get() ) ).append('\n' );
+                    sb.append(  "            " ).append( StringTools.dumpBytes( value.getBytes() ) ).append('\n' );
                 }
             }
         }
@@ -615,13 +615,13 @@ public class LdifEntry implements Cloneable, Externalizable
             {
                 for ( Value<?> value:attribute )
                 {
-                    if ( value instanceof ClientStringValue )
+                    if ( !value.isBinary() )
                     {
-                        sb.append(  "                " ).append( (String)value.get() ).append('\n' );
+                        sb.append(  "                " ).append( value.getString() ).append('\n' );
                     }
                     else
                     {
-                        sb.append(  "                " ).append( StringTools.dumpBytes( (byte[]) value.get() ) ).append('\n' );
+                        sb.append(  "                " ).append( StringTools.dumpBytes( value.getBytes() ) ).append('\n' );
                     }
                 }
             }

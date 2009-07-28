@@ -36,6 +36,8 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -1376,13 +1378,15 @@ public class LdapDN implements Name, Externalizable
      */
     private static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer ) throws NamingException
     {
-        Object upValue = rdn.getUpValue();
+        String upValue = rdn.getUpValue();
         String upType = rdn.getUpType();
         rdn.clear();
-        Object normStringValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
-        Object normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
+        String normStringValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
+        String normValue = oidNormalizer.getNormalizer().normalize( normStringValue );
 
-        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, normValue );
+        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), 
+            new ClientStringValue( upValue ), 
+            new ClientStringValue( normValue ) );
     }
 
     /**
