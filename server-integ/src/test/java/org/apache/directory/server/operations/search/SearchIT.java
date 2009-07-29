@@ -170,7 +170,9 @@ import org.junit.runner.RunWith;
     "objectClass: person\n" +
     "objectClass: top\n" +
     "cn: Kim Wilde\n" +
-    "sn: Wilde\n\n"
+    "sn: Wilde\n" +
+    "description: an American singer-songwriter+sexy blond\n\n"
+    
     }
 )
 public class SearchIT 
@@ -1715,5 +1717,23 @@ public class SearchIT
             // Reset the allowAnonymousAccess flag
            asyncCnx.disconnect();
         }
+    }
+
+
+    @Test
+    public void testSearchSubstringWithPlus() throws Exception
+    {
+        LdapContext ctx = getWiredContext( ldapServer );
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setTimeLimit( 10 );
+        
+        NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(description=*+*)", controls );
+        
+        assertTrue( result.hasMore() );
+        
+        SearchResult entry = result.next();
+
+        assertEquals( "Kim Wilde", entry.getAttributes().get( "cn" ).get() );
     }
 }
