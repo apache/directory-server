@@ -2065,26 +2065,68 @@ public class LdapDNTest
     @Test
     public void testStartsWith() throws Exception
     {
-        Name name0 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing,ou=East" );
-        Name name1 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing,ou=East" );
-        Name name2 = new LdapDN( "cn=John,ou=Marketing,ou=East" );
-        Name name3 = new LdapDN( "ou=Marketing,ou=East" );
-        Name name4 = new LdapDN( "ou=East" );
-        Name name5 = new LdapDN( "" );
+        Name n0 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing,ou=East" );
+        Name n1 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing,ou=East" );
+        Name n2 = new LdapDN( "cn=John,ou=Marketing,ou=East" );
+        Name n3 = new LdapDN( "ou=Marketing,ou=East" );
+        Name n4 = new LdapDN( "ou=East" );
+        Name n5 = new LdapDN( "" );
 
-        Name name6 = new LdapDN( "cn=HomeDir" );
-        Name name7 = new LdapDN( "cn=HomeDir,cn=John" );
-        Name name8 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing" );
+        Name n6 = new LdapDN( "cn=HomeDir" );
+        Name n7 = new LdapDN( "cn=HomeDir,cn=John" );
+        Name n8 = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing" );
 
-        assertTrue( name0.startsWith( name1 ) );
-        assertTrue( name0.startsWith( name2 ) );
-        assertTrue( name0.startsWith( name3 ) );
-        assertTrue( name0.startsWith( name4 ) );
-        assertTrue( name0.startsWith( name5 ) );
+        // Check with LdapDN
+        assertTrue( n0.startsWith( n1 ) );
+        assertTrue( n0.startsWith( n2 ) );
+        assertTrue( n0.startsWith( n3 ) );
+        assertTrue( n0.startsWith( n4 ) );
+        assertTrue( n0.startsWith( n5 ) );
 
-        assertTrue( !name0.startsWith( name6 ) );
-        assertTrue( !name0.startsWith( name7 ) );
-        assertTrue( !name0.startsWith( name8 ) );
+        assertTrue( !n0.startsWith( n6 ) );
+        assertTrue( !n0.startsWith( n7 ) );
+        assertTrue( !n0.startsWith( n8 ) );
+        
+        Name nn0 = new LdapDN( "cn=zero" );
+        Name nn10 = new LdapDN( "cn=one,cn=zero" );
+        Name nn210 = new LdapDN( "cn=two,cn=one,cn=zero" );
+        Name nn3210 = new LdapDN( "cn=three,cn=two,cn=one,cn=zero" );
+        
+        assertTrue( nn0.startsWith( nn0 ) );
+        assertTrue( nn10.startsWith( nn0 ) );
+        assertTrue( nn210.startsWith( nn0 ) );
+        assertTrue( nn3210.startsWith( nn0 ) );
+
+        assertTrue( nn10.startsWith( nn10 ) );
+        assertTrue( nn210.startsWith( nn10 ) );
+        assertTrue( nn3210.startsWith( nn10 ) );
+
+        assertTrue( nn210.startsWith( nn210 ) );
+        assertTrue( nn3210.startsWith( nn210 ) );
+
+        assertTrue( nn3210.startsWith( nn3210 ) );
+        
+        // Check with LdapName
+        Name name0 = new LdapName( "cn=zero" );
+        Name name10 = new LdapName( "cn=one,cn=zero" );
+        Name name210 = new LdapName( "cn=two,cn=one,cn=zero" );
+        Name name3210 = new LdapName( "cn=three,cn=two,cn=one,cn=zero" );
+        
+        // Check with Name
+        assertTrue( nn0.startsWith( name0 ) );
+        assertTrue( nn10.startsWith( name0 ) );
+        assertTrue( nn210.startsWith( name0 ) );
+        assertTrue( nn3210.startsWith( name0 ) );
+
+        assertTrue( nn10.startsWith( name10 ) );
+        assertTrue( nn210.startsWith( name10 ) );
+        assertTrue( nn3210.startsWith( name10 ) );
+
+        assertTrue( nn210.startsWith( name210 ) );
+        assertTrue( nn3210.startsWith( name210 ) );
+
+        assertTrue( nn3210.startsWith( name3210 ) );
+        
 
         assertTrue( "Starting DN fails with ADS LdapDN", 
             new LdapDN( "ou=foo,dc=apache,dc=org" ).startsWith( new LdapDN( "dc=apache,dc=org" ) ) );
@@ -2695,6 +2737,88 @@ public class LdapDNTest
     @Test
     public void testEndsWithName() throws NamingException
     {
+        Name name0 = new LdapName( "cn=zero" );
+        Name name10 = new LdapName( "cn=one,cn=zero" );
+        Name name210 = new LdapName( "cn=two,cn=one,cn=zero" );
+        Name name3210 = new LdapName( "cn=three,cn=two,cn=one,cn=zero" );
+        Name name321 =  new LdapName( "cn=three,cn=two,cn=one" );
+        Name name32 =  new LdapName( "cn=three,cn=two" );
+        Name name3 =  new LdapName( "cn=three" );
+        Name name21 =  new LdapName( "cn=two,cn=one" );
+        Name name2 =  new LdapName( "cn=two" );
+        Name name1 =  new LdapName( "cn=one" );
+        
+        // Check with Name
+        assertTrue( name0.startsWith( name0 ) );
+        assertTrue( name10.startsWith( name0 ) );
+        assertTrue( name210.startsWith( name0 ) );
+        assertTrue( name3210.startsWith( name0 ) );
+
+        assertTrue( name10.startsWith( name10 ) );
+        assertTrue( name210.startsWith( name10 ) );
+        assertTrue( name3210.startsWith( name10 ) );
+
+        assertTrue( name210.startsWith( name210 ) );
+        assertTrue( name3210.startsWith( name210 ) );
+
+        assertTrue( name3210.startsWith( name3210 ) );
+        
+        assertTrue( name3210.endsWith( name3 ) );
+        assertTrue( name3210.endsWith( name32 ) );
+        assertTrue( name3210.endsWith( name321 ) );
+        assertTrue( name3210.endsWith( name3210 ) );
+
+        assertTrue( name210.endsWith( name2 ) );
+        assertTrue( name210.endsWith( name21 ) );
+        assertTrue( name210.endsWith( name210 ) );
+
+        assertTrue( name10.endsWith( name1 ) );
+        assertTrue( name10.endsWith( name10 ) );
+
+        assertTrue( name0.endsWith( name0 ) );
+        
+        // Check with DN
+        Name n0 = new LdapDN( "cn=zero" );
+        Name n10 = new LdapDN( "cn=one,cn=zero" );
+        Name n210 = new LdapDN( "cn=two,cn=one,cn=zero" );
+        Name n3210 = new LdapDN( "cn=three,cn=two,cn=one,cn=zero" );
+        Name n321 =  new LdapDN( "cn=three,cn=two,cn=one" );
+        Name n32 =  new LdapDN( "cn=three,cn=two" );
+        Name n3 =  new LdapDN( "cn=three" );
+        Name n21 =  new LdapDN( "cn=two,cn=one" );
+        Name n2 =  new LdapDN( "cn=two" );
+        Name n1 =  new LdapDN( "cn=one" );
+        
+        assertTrue( n3210.endsWith( n3 ) );
+        assertTrue( n3210.endsWith( n32 ) );
+        assertTrue( n3210.endsWith( n321 ) );
+        assertTrue( n3210.endsWith( n3210 ) );
+
+        assertTrue( n210.endsWith( n2 ) );
+        assertTrue( n210.endsWith( n21 ) );
+        assertTrue( n210.endsWith( n210 ) );
+
+        assertTrue( n10.endsWith( n1 ) );
+        assertTrue( n10.endsWith( n10 ) );
+
+        assertTrue( n0.endsWith( n0 ) );
+
+        // Check with DN/Name now
+        assertTrue( n3210.endsWith( name3 ) );
+        assertTrue( n3210.endsWith( name32 ) );
+        assertTrue( n3210.endsWith( name321 ) );
+        assertTrue( n3210.endsWith( name3210 ) );
+
+        assertTrue( n210.endsWith( name2 ) );
+        assertTrue( n210.endsWith( name21 ) );
+        assertTrue( n210.endsWith( name210 ) );
+
+        assertTrue( n10.endsWith( name1 ) );
+        assertTrue( n10.endsWith( name10 ) );
+
+        assertTrue( n0.endsWith( name0 ) );
+        
+        
         Name jName = new LdapName( "cn=four,cn=three,cn=two,cn=one" );
         Name aName = new LdapDN( "cn=four,cn=three,cn=two,cn=one" );
 
@@ -2702,6 +2826,10 @@ public class LdapDNTest
             "cn=seven,cn=six,cn=five" ) ) );
         assertEquals( jName.endsWith( new LdapName( "cn=three,cn=two,cn=one" ) ), aName.endsWith( new LdapDN(
             "cn=three,cn=two,cn=one" ) ) );
+        assertEquals( jName.endsWith( new LdapName( "cn=two,cn=one" ) ), aName.endsWith( new LdapDN(
+        "cn=three,cn=two,cn=one" ) ) );
+        
+        assertTrue( aName.endsWith( new LdapName( "cn=four,cn=three" ) ) );
     }
 
 

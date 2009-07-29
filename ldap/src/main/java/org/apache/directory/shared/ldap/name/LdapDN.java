@@ -36,7 +36,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -688,6 +687,11 @@ public class LdapDN implements Name, Externalizable
      */
     public boolean endsWith( Name name )
     {
+        if ( name == null )
+        {
+            return true;
+        }
+        
         if ( name instanceof LdapDN )
         {
             LdapDN nameDN = ( LdapDN ) name;
@@ -719,8 +723,42 @@ public class LdapDN implements Name, Externalizable
         }
         else
         {
-            // We don't accept a Name which is not a LdapName
-            return name == null;
+            if ( name.size() == 0 )
+            {
+                return true;
+            }
+
+            if ( name.size() > size() )
+            {
+                // The name is longer than the current LdapDN.
+                return false;
+            }
+
+            // Ok, iterate through all the RDN of the name
+            int nameSize = name.size();
+            
+            for ( int i = name.size() - 1; i >= 0; i-- )
+            {
+                Rdn ldapRdn = rdns.get( nameSize - i - 1 );
+                Rdn nameRdn = null;
+
+                try
+                {
+                    nameRdn = new Rdn( name.get( i ) );
+                }
+                catch ( InvalidNameException e )
+                {
+                    LOG.error( "Failed to parse RDN for name " + name.toString(), e );
+                    return false;
+                }
+
+                if ( nameRdn.compareTo( ldapRdn ) != 0 )
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
