@@ -55,8 +55,10 @@ public class HttpServer
     /** a collection to hold the configured web applications */
     private Set<WebApp> webApps;
 
+    /** the default port to be used when no configuration file is provided */
     private int port = 8080;
 
+    /** an internal flag to check the server configuration */
     private boolean configured = false;
 
     private static final Logger LOG = LoggerFactory.getLogger( HttpServer.class );
