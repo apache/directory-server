@@ -244,4 +244,16 @@
   <apacheDS id="apacheDS">
     <ldapServer>#ldapServer</ldapServer>
   </apacheDS>
+  
+  <!-- uncomment the below line to start the jetty(v6.1.14) http server
+       This can be used to provide access to the data present in DIT via http
+       using a web application
+  -->
+  <!-- 
+   <httpServer id="httpServer" port="7009" >
+   <webApps>
+    <webApp warFile="/path/to/war/file" contextPath="/myApp"/>
+   </webApps>
+  </httpServer>
+   -->
 </spring:beans>

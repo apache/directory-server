@@ -380,6 +380,7 @@
     <module>server-replication</module>
     <module>xbean-spring</module>
     <module>ldap-api-test</module>
+    <module>http-integration</module>
   </modules>
 
   <reporting>

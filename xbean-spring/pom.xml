@@ -132,6 +132,14 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.server.http</groupId>
+      <artifactId>apacheds-http-integration</artifactId>
+      <version>${pom.version}</version>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
     </dependency>
