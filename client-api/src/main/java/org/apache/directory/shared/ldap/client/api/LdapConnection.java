@@ -2004,7 +2004,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public DeleteResponse delete( LdapDN dn ) throws LdapException
     {
-        return delete( dn, false, null ); 
+        return delete( dn, null ); 
     }
 
 
@@ -2052,45 +2052,51 @@ public class LdapConnection  extends IoHandlerAdapter
      * @return operation's response, null if a non-null listener value is provided
      * @throws LdapException
      */
-    public DeleteResponse delete( LdapDN dn, boolean deleteChildren, DeleteListener listener )  throws LdapException
+    public DeleteResponse deleteTree( LdapDN dn, DeleteListener listener )  throws LdapException
     {
-        DeleteRequest delRequest = null;
-        
-        if( deleteChildren )
+        String treeDeleteOid = "1.2.840.113556.1.4.805";
+        if( isControlSupported( treeDeleteOid ) ) 
         {
-            String treeDeleteOid = "1.2.840.113556.1.4.805";
-            if( isControlSupported( treeDeleteOid ) ) 
-            {
-                delRequest = new DeleteRequest( dn );
-                delRequest.add( new BasicControl( treeDeleteOid ) );
-            }
-            else
-            {
-                return deleteRecursive( dn, new HashMap(), listener );
-            }
+            DeleteRequest delRequest = new DeleteRequest( dn );
+            delRequest.add( new BasicControl( treeDeleteOid ) );
+            return delete( delRequest, listener ); 
         }
         else
         {
-            delRequest = new DeleteRequest( dn );
+            return deleteRecursive( dn, null, listener );
         }
-        
-        return delete( delRequest, listener ); 
     }
     
+
+    /**
+     * @see #deleteTree(LdapDN)
+     */
+    public DeleteResponse deleteTree( String dn )  throws LdapException
+    {
+        try
+        {
+            return deleteTree( new LdapDN( dn ) );
+        }
+        catch( InvalidNameException e )
+        {
+            LOG.error( e.getMessage(), e );
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+
     
     /**
      * deletes the entry with the given DN and all its children
      * 
      * @param dn the target entry DN
-     * @param deleteChildren flag to indicate whether to delete the children
      * @return delete operation's response
      * @throws LdapException
      */
-    public DeleteResponse delete( LdapDN dn, boolean deleteChildren )  throws LdapException
+    public DeleteResponse deleteTree( LdapDN dn )  throws LdapException
     {
-        return delete( dn, deleteChildren, null );
+        return deleteTree( dn, null );
     }
-
+    
     
     /**
      * removes all child entries present under the given DN and finally the DN itself
