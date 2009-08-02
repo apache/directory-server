@@ -153,7 +153,7 @@ public class ClientDeleteRequestTest
         
         assertTrue( session.exists( dn ) );
         
-        DeleteResponse response = connection.delete( dn, true );
+        DeleteResponse response = connection.deleteTree( dn );
         assertNotNull( response );
         assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
         
