@@ -64,9 +64,6 @@ public class ServerBinaryValue extends ClientBinaryValue
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
-    /** A flag set if the normalized data is different from the wrapped data */
-    private transient boolean same;
-
 
     // -----------------------------------------------------------------------
     // utility methods
@@ -191,35 +188,28 @@ public class ServerBinaryValue extends ClientBinaryValue
             return;
         }
         
-        if ( getReference() != null )
+        if ( wrapped != null )
         {
             Normalizer normalizer = getNormalizer();
     
             if ( normalizer == null )
             {
-                normalizedValue = getCopy();
-                setNormalized( false );
-            }
-            else
-            {
-                normalizedValue = normalizer.normalize( this ).getBytes();
-                setNormalized( true );
-            }
-            
-            if ( Arrays.equals( super.getReference(), normalizedValue ) )
-            {
+                normalizedValue = wrapped;
+                normalized = false;
                 same = true;
             }
             else
             {
-                same = false;
+                normalizedValue = normalizer.normalize( this ).getBytes();
+                normalized = true;
+                same = Arrays.equals( wrapped, normalizedValue );
             }
         }
         else
         {
             normalizedValue = null;
             same = true;
-            setNormalized( false );
+            normalized = false;
         }
     }
 
@@ -364,15 +354,6 @@ public class ServerBinaryValue extends ClientBinaryValue
         }
         
         return valid;
-    }
-
-    
-    /**
-     * @return Tells if the wrapped value and the normalized value are the same 
-     */
-    public final boolean isSame()
-    {
-        return same;
     }
     
 
