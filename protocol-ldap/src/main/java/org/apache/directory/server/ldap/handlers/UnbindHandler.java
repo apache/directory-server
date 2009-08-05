@@ -39,11 +39,13 @@ public class UnbindHandler extends LdapRequestHandler<InternalUnbindRequest>
     private static final Logger LOG = LoggerFactory.getLogger( UnbindHandler.class );
 
 
-    public void handle( LdapSession session, InternalUnbindRequest request ) throws Exception
+    public void handle( LdapSession session, InternalUnbindRequest unbindRequest ) throws Exception
     {
+        LOG.debug( "Received: {}", unbindRequest );
+
         try
         {
-            session.getCoreSession().unbind( request );
+            session.getCoreSession().unbind( unbindRequest );
             session.getIoSession().close( true );
             ldapServer.getLdapSessionManager().removeLdapSession( session.getIoSession() );
         }
