@@ -80,6 +80,7 @@ import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultDone;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
 import org.apache.directory.shared.ldap.client.api.messages.SearchResultReference;
+import org.apache.directory.shared.ldap.client.api.messages.future.BindFuture;
 import org.apache.directory.shared.ldap.client.api.messages.future.ResponseFuture;
 import org.apache.directory.shared.ldap.client.api.protocol.LdapProtocolCodecFactory;
 import org.apache.directory.shared.ldap.codec.ControlCodec;
@@ -120,8 +121,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
@@ -133,6 +132,7 @@ import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoEventType;
@@ -215,9 +215,6 @@ public class LdapConnection  extends IoHandlerAdapter
     /** A queue used to store the incoming intermediate responses */
     private BlockingQueue<IntermediateResponse> intermediateResponseQueue;
 
-    /** An operation mutex to guarantee the operation order */
-    private Semaphore operationMutex;
-
     /** a map to hold the response listeners based on the operation id */
     private Map<Integer, OperationResponseListener> listenerMap = new ConcurrentHashMap<Integer, OperationResponseListener>();
     
@@ -249,6 +246,11 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     private void checkSession() throws InvalidConnectionException
     {
+        if ( ldapSession == null )
+        {
+            throw new InvalidConnectionException( "Cannot connect on the server, the connection is null" );
+        }
+        
         if ( !isSessionValid() )
         {
             throw new InvalidConnectionException( "Cannot connect on the server, the connection is invalid" );
@@ -431,7 +433,6 @@ public class LdapConnection  extends IoHandlerAdapter
         config.setLdapPort( config.getDefaultLdapPort() );
         config.setLdapHost( config.getDefaultLdapHost() );
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
     
     
@@ -445,7 +446,6 @@ public class LdapConnection  extends IoHandlerAdapter
     {
         this.config = config;
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
     
     
@@ -461,7 +461,6 @@ public class LdapConnection  extends IoHandlerAdapter
         config.setLdapPort( useSsl ? config.getDefaultLdapsPort() : config.getDefaultLdapPort() );
         config.setLdapHost( config.getDefaultLdapHost() );
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
     
     
@@ -477,7 +476,6 @@ public class LdapConnection  extends IoHandlerAdapter
         config.setLdapPort( config.getDefaultLdapPort() );
         config.setLdapHost( server );
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
     
     
@@ -495,7 +493,6 @@ public class LdapConnection  extends IoHandlerAdapter
         config.setLdapPort( useSsl ? config.getDefaultLdapsPort() : config.getDefaultLdapPort() );
         config.setLdapHost( server );
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
     
     
@@ -527,7 +524,6 @@ public class LdapConnection  extends IoHandlerAdapter
         config.setLdapPort( port );
         config.setLdapHost( server );
         messageId = new AtomicInteger();
-        operationMutex = new Semaphore(1);
     }
 
     
@@ -575,7 +571,7 @@ public class LdapConnection  extends IoHandlerAdapter
             
             connector.getFilterChain().addLast( "executor", 
                 new ExecutorFilter( 
-                    new UnorderedThreadPoolExecutor( 2 ),
+                    new UnorderedThreadPoolExecutor( 10 ),
                     IoEventType.MESSAGE_RECEIVED ) );
     
             // Inject the protocolHandler
@@ -685,6 +681,18 @@ public class LdapConnection  extends IoHandlerAdapter
     /**
      * Add an entry present in the AddRequest to the server.
      * @param addRequest the request object containing an entry and controls(if any)
+     * @return the add operation's response
+     * @throws LdapException
+     */
+    public AddResponse add( AddRequest addRequest ) throws LdapException
+    {
+        return add( addRequest, null );
+    }
+    
+    /**
+     * Add an entry present in the AddRequest to the server.
+     * @param addRequest the request object containing an entry and controls(if any)
+     * @param listener A listener used for an asynchronous add operation
      * @return the add operation's response, null if non-null listener is provided
      * @throws LdapException
      */
@@ -769,7 +777,7 @@ public class LdapConnection  extends IoHandlerAdapter
      * 
      * @param messageId the ID of the request message sent to the server 
      */
-    public void abandon( int messageId ) throws LdapException
+    public void abandon( int messageId )
     {
         AbandonRequest abandonRequest = new AbandonRequest();
         abandonRequest.setAbandonedMessageId( messageId );
@@ -786,7 +794,7 @@ public class LdapConnection  extends IoHandlerAdapter
      *  
      * @param abandonRequest the abandon operation's request
      */
-    public void abandon( AbandonRequest abandonRequest ) throws LdapException
+    public void abandon( AbandonRequest abandonRequest )
     {
         abandonInternal( abandonRequest );
     }
@@ -859,7 +867,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind() throws LdapException
     {
-        return bind( (String)null, (byte[])null );
+        LOG.debug( "Anonymous Bind request" );
+
+        return bind( StringTools.EMPTY, StringTools.EMPTY_BYTES );
     }
     
     
@@ -873,7 +883,9 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( String name ) throws Exception
     {
-        return bind( name, (byte[])null );
+        LOG.debug( "Bind request : {}", name );
+
+        return bind( name, StringTools.EMPTY_BYTES );
     }
 
     
@@ -886,7 +898,18 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( LdapDN name ) throws Exception
     {
-        return bind( name, (byte[])null );
+        if ( name == null )
+        {
+            LOG.debug( "Anonymous Bind request : {}", name );
+
+            return bind( StringTools.EMPTY, StringTools.EMPTY_BYTES );
+        }
+        else
+        {
+            LOG.debug( "Unauthenticated Bind request : {}", name );
+
+            return bind( name.getUpName(), StringTools.EMPTY_BYTES );
+        }
     }
 
     
@@ -900,6 +923,8 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( String name, String credentials ) throws LdapException
     {
+        LOG.debug( "Bind request : {}", name );
+
         return bind( name, StringTools.getBytesUtf8( credentials ) );
     }
 
@@ -914,7 +939,16 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( LdapDN name, String credentials ) throws LdapException
     {
-        return bind( name, StringTools.getBytesUtf8( credentials ) );
+        LOG.debug( "Bind request : {}", name );
+
+        if ( name == null )
+        {
+            return bind( StringTools.EMPTY, StringTools.getBytesUtf8( credentials ) );
+        }
+        else
+        {
+            return bind( name.getUpName(), StringTools.getBytesUtf8( credentials ) );
+        }
     }
 
     
@@ -927,6 +961,8 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( LdapDN name, byte[] credentials )  throws LdapException
     {
+        LOG.debug( "Bind request : {}", name );
+
         return bind( name.getUpName(), credentials );
     }
 
@@ -948,17 +984,20 @@ public class LdapConnection  extends IoHandlerAdapter
         bindRequest.setName( name );
         bindRequest.setCredentials( credentials );
         
-        BindResponse response = bindInternal( bindRequest );
+        BindResponse response = bind( bindRequest, null );
 
-        if ( response.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+        if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( " Bind successfull" );
+            if ( response.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
+            {
+                LOG.debug( " Bind successfull" );
+            }
+            else
+            {
+                LOG.debug( " Bind failure {}", response );
+            }
         }
-        else
-        {
-            LOG.debug( " Bind failure {}", response );
-        }
-
+        
         return response;
     }
     
@@ -972,7 +1011,7 @@ public class LdapConnection  extends IoHandlerAdapter
      */
     public BindResponse bind( BindRequest bindRequest ) throws LdapException
     {
-        return bindInternal( bindRequest );
+        return bind( bindRequest, null );
     }
         
 
@@ -982,74 +1021,7 @@ public class LdapConnection  extends IoHandlerAdapter
      * @param bindRequest The BindRequest to send
      * @param listener The listener 
      */
-    public ResponseFuture bind( BindRequest bindRequest, BindListener bindListener ) throws LdapException 
-    {
-        return bindAsyncInternal( bindRequest, bindListener );
-    }
-    
-    
-    /**
-     * Do the bind blocking or non-blocking, depending on the listener value.
-     *
-     * @param bindRequest The BindRequest to send
-     * @param listener The listener (Can be null) 
-     */
-    private BindResponse bindInternal( BindRequest bindRequest ) throws LdapException 
-    {
-        // Create the future to get the result
-        ResponseFuture bindFuture = bindAsyncInternal( bindRequest, null );
-        
-        // And get the result
-        try
-        {
-            // Read the response, waiting for it if not available immediately
-            long timeout = getTimeout( bindRequest.getTimeout() );
-            
-            // Get the response, blocking
-            BindResponse bindResponse = ( BindResponse ) bindFuture.get( timeout, TimeUnit.MILLISECONDS );
-
-            // Everything is fine, return the response
-            LOG.debug( "Bind successful : {}", bindResponse );
-            
-            return bindResponse;
-        }
-        catch ( TimeoutException te )
-        {
-            // Send an abandon request
-            if( !bindFuture.isCancelled() )
-            {
-                abandon( bindRequest.getMessageId() );
-            }
-            
-            // We didn't received anything : this is an error
-            LOG.error( "Bind failed : timeout occured" );
-            throw new LdapException( TIME_OUT_ERROR );
-        }
-        catch ( Exception ie )
-        {
-            // Catch all other exceptions
-            LOG.error( "The response queue has been emptied, no response will be find." );
-            LdapException ldapException = new LdapException();
-            ldapException.initCause( ie );
-            
-            // Send an abandon request
-            if( !bindFuture.isCancelled() )
-            {
-                abandon( bindRequest.getMessageId() );
-            }
-            
-            throw ldapException;
-        }
-    }
-
-    
-    /**
-     * Do the bind non-blocking
-     *
-     * @param bindRequest The BindRequest to send
-     * @param listener The listener (Can be null) 
-     */
-    private ResponseFuture bindAsyncInternal( BindRequest bindRequest, BindListener bindListener ) throws LdapException 
+    public BindResponse bind( BindRequest bindRequest, BindListener bindListener ) throws LdapException 
     {
         // First try to connect, if we aren't already connected.
         connect();
@@ -1121,17 +1093,65 @@ public class LdapConnection  extends IoHandlerAdapter
         LOG.debug( "-----------------------------------------------------------------" );
         LOG.debug( "Sending request \n{}", bindMessage );
 
-        ResponseFuture rf = new ResponseFuture( bindResponseQueue );
-        futureMap.put( newId, rf );
+        ResponseFuture responseFuture = new ResponseFuture( bindResponseQueue );
+        futureMap.put( newId, responseFuture );
 
         // Send the request to the server
         ldapSession.write( bindMessage );
-
-        // Return the associated future
-        return rf;
+        
+        if ( bindListener == null )
+        {
+            // And get the result
+            try
+            {
+                // Read the response, waiting for it if not available immediately
+                long timeout = getTimeout( bindRequest.getTimeout() );
+                
+                // Get the response, blocking
+                BindResponse bindResponse = (BindResponse)responseFuture.get( timeout, TimeUnit.MILLISECONDS );
+    
+                // Everything is fine, return the response
+                LOG.debug( "Bind successful : {}", bindResponse );
+                
+                return bindResponse;
+            }
+            catch ( TimeoutException te )
+            {
+                // Send an abandon request
+                if( !responseFuture.isCancelled() )
+                {
+                    abandon( bindRequest.getMessageId() );
+                }
+                
+                // We didn't received anything : this is an error
+                LOG.error( "Bind failed : timeout occured" );
+                throw new LdapException( TIME_OUT_ERROR );
+            }
+            catch ( Exception ie )
+            {
+                // Catch all other exceptions
+                LOG.error( "The response queue has been emptied, no response will be find." );
+                LdapException ldapException = new LdapException();
+                ldapException.initCause( ie );
+                
+                // Send an abandon request
+                if( !responseFuture.isCancelled() )
+                {
+                    abandon( bindRequest.getMessageId() );
+                }
+                
+                throw ldapException;
+            }
+        }
+        else
+        {
+            // Return null.
+            listenerMap.put( newId, bindListener );
+            return null;
+        }
     }
     
-
+    
     /**
      * Do a search, on the base object, using the given filter. The
      * SearchRequest parameters default to :
@@ -1324,11 +1344,11 @@ public class LdapConnection  extends IoHandlerAdapter
                     {
                         if ( response instanceof SearchResultEntry )
                         {
-                            searchResponses.add( ( SearchResultEntry )response );
+                            searchResponses.add( response );
                         }
                         else if ( response instanceof SearchResultReference )
                         {
-                            searchResponses.add( ( SearchResultReference )response );
+                            searchResponses.add( response );
                         }
                     }
                 }
@@ -1401,10 +1421,10 @@ public class LdapConnection  extends IoHandlerAdapter
         
         // Send the request to the server
         ldapSession.write( unbindMessage );
-
-        // Release the LdapSession
-        operationMutex.release();
         
+        //  We now have to close the connection
+        close();
+
         // And get out
         LOG.debug( "Unbind successful" );
     }
@@ -1447,6 +1467,7 @@ public class LdapConnection  extends IoHandlerAdapter
         // this check is necessary to prevent adding an abandoned operation's
         // result(s) to corresponding queue
         ResponseFuture rf = futureMap.get( response.getMessageId() );
+        
         if( rf == null )
         {
             LOG.error( "There is no future associated with the messageId {}, ignoring the message", response.getMessageId()  );
@@ -1479,12 +1500,14 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.BIND_RESPONSE: 
                 // Store the response into the responseQueue
                 BindResponseCodec bindResponseCodec = response.getBindResponse();
+                bindResponseCodec.setMessageId( response.getMessageId() );
                 bindResponseCodec.addControl( response.getCurrentControl() );
                 BindResponse bindResponse = convert( bindResponseCodec );
 
                 futureMap.remove( bindResponseCodec.getMessageId() );
                 // remove the listener from the listener map
                 BindListener bindListener = ( BindListener ) listenerMap.remove( bindResponseCodec.getMessageId() );
+                
                 if ( bindListener != null )
                 {
                     bindListener.bindCompleted( this, bindResponse );
@@ -1980,13 +2003,18 @@ public class LdapConnection  extends IoHandlerAdapter
 
 
     /**
-     * @see #delete(LdapDN)
+     * deletes the entry with the given DN
+     *  
+     * @param dn the target entry's DN as a String
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
     public DeleteResponse delete( String dn ) throws LdapException
     {
         try
         {
-            return delete( new LdapDN( dn ) );
+            DeleteRequest deleteRequest = new DeleteRequest( new LdapDN( dn ) );
+
+            return delete( deleteRequest, null );
         }
         catch( InvalidNameException e )
         {
@@ -2000,82 +2028,64 @@ public class LdapConnection  extends IoHandlerAdapter
      * deletes the entry with the given DN
      *  
      * @param dn the target entry's DN
-     * @throws LdapException
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
     public DeleteResponse delete( LdapDN dn ) throws LdapException
     {
-        return delete( dn, null ); 
+        DeleteRequest deleteRequest = new DeleteRequest( dn );
+        
+        return delete( deleteRequest, null ); 
     }
 
 
     /**
-     * deletes the entry with the given DN
+     * deletes the entry with the given DN, and all its children
      *  
      * @param dn the target entry's DN
-     * @param listener  the delete operation response listener
-     * @return operation's response, null if a non-null listener value is provided
-     * @throws LdapException
+     * @return operation's response
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
-    public DeleteResponse delete( String dn, DeleteListener listener )  throws LdapException
-    {
-        try
-        {
-            return delete( new LdapDN( dn ), listener );
-        }
-        catch( InvalidNameException e )
-        {
-            LOG.error( e.getMessage(), e );
-            throw new LdapException( e.getMessage(), e );
-        }
-    }
-    
-    
-    /**
-     * deletes the entry with the given DN
-     *  
-     * @param dn the target entry's DN
-     * @param listener  the delete operation response listener
-     * @return operation's response, null if a non-null listener value is provided
-     * @throws LdapException
-     */
-    public DeleteResponse delete( LdapDN dn, DeleteListener listener )  throws LdapException
-    {
-        return delete( new DeleteRequest( dn ), listener ); 
-    }
-    
-    
-    /**
-     * deletes the entry with the given DN
-     *  
-     * @param dn the target entry's DN
-     * @param listener  the delete operation response listener
-     * @return operation's response, null if a non-null listener value is provided
-     * @throws LdapException
-     */
-    public DeleteResponse deleteTree( LdapDN dn, DeleteListener listener )  throws LdapException
+    public DeleteResponse deleteTree( LdapDN dn ) throws LdapException
     {
         String treeDeleteOid = "1.2.840.113556.1.4.805";
-        if( isControlSupported( treeDeleteOid ) ) 
+        
+        if ( isControlSupported( treeDeleteOid ) ) 
         {
             DeleteRequest delRequest = new DeleteRequest( dn );
             delRequest.add( new BasicControl( treeDeleteOid ) );
-            return delete( delRequest, listener ); 
+            return delete( delRequest, null ); 
         }
         else
         {
-            return deleteRecursive( dn, null, listener );
+            return deleteRecursive( dn, null, null );
         }
     }
-    
 
+    
     /**
-     * @see #deleteTree(LdapDN)
+     * deletes the entry with the given DN, and all its children
+     *  
+     * @param dn the target entry's DN as a String
+     * @return operation's response
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
-    public DeleteResponse deleteTree( String dn )  throws LdapException
+    public DeleteResponse deleteTree( String dn ) throws LdapException
     {
         try
         {
-            return deleteTree( new LdapDN( dn ) );
+            String treeDeleteOid = "1.2.840.113556.1.4.805";
+            LdapDN ldapDn = new LdapDN( dn );
+            
+            if ( isControlSupported( treeDeleteOid ) ) 
+            {
+                DeleteRequest delRequest = new DeleteRequest( ldapDn );
+                delRequest.add( new BasicControl( treeDeleteOid ) );
+                return delete( delRequest, null ); 
+            }
+            else
+            {
+                return deleteRecursive( ldapDn, null, null );
+            }
         }
         catch( InvalidNameException e )
         {
@@ -2083,21 +2093,8 @@ public class LdapConnection  extends IoHandlerAdapter
             throw new LdapException( e.getMessage(), e );
         }
     }
+    
 
-    
-    /**
-     * deletes the entry with the given DN and all its children
-     * 
-     * @param dn the target entry DN
-     * @return delete operation's response
-     * @throws LdapException
-     */
-    public DeleteResponse deleteTree( LdapDN dn )  throws LdapException
-    {
-        return deleteTree( dn, null );
-    }
-    
-    
     /**
      * removes all child entries present under the given DN and finally the DN itself
      * 
@@ -2127,24 +2124,26 @@ public class LdapConnection  extends IoHandlerAdapter
      * @param dn the DN which will be removed after removing its children
      * @param map a map to hold the Cursor related to a DN
      * @param listener  the delete operation response listener 
-     * @throws LdapException
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
     private DeleteResponse deleteRecursive( LdapDN dn, Map<LdapDN, Cursor<SearchResponse>> cursorMap, DeleteListener listener ) throws LdapException
     {
         LOG.debug( "searching for {}", dn.getUpName() );
         DeleteResponse delResponse = null;
         Cursor<SearchResponse> cursor = null;
+        
         try
         {
-            if( cursorMap == null )
+            if ( cursorMap == null )
             {
                 cursorMap = new HashMap<LdapDN, Cursor<SearchResponse>>();
             }
 
             cursor = cursorMap.get( dn ); 
+            
             if( cursor == null )
             {
-                cursor = search( dn.getUpName(), "(objectClass=*)", SearchScope.ONELEVEL, null ); 
+                cursor = search( dn.getUpName(), "(objectClass=*)", SearchScope.ONELEVEL, (String[])null ); 
                 LOG.debug( "putting curosr for {}", dn.getUpName() );
                 cursorMap.put( dn, cursor );
             }
@@ -2160,7 +2159,8 @@ public class LdapConnection  extends IoHandlerAdapter
             {
                 do
                 {
-                    SearchResponse searchResp = ( SearchResponse ) cursor.get();
+                    SearchResponse searchResp = cursor.get();
+                    
                     if( searchResp instanceof SearchResultEntry )
                     {
                         SearchResultEntry searchResult = ( SearchResultEntry ) searchResp;
@@ -2187,12 +2187,26 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
-     * performs a delete operation based on the delete request object.
+     * Performs a synchronous delete operation based on the delete request object.
+     *  
+     * @param delRequest the delete operation's request
+     * @return delete operation's response, null if a non-null listener value is provided
+     * @throws LdapException If the DN is not valid or if the deletion failed
+     */
+    public DeleteResponse delete( DeleteRequest delRequest )  throws LdapException
+    {
+        // Just call the delete method with a null listener
+        return delete( delRequest, null );
+    }
+
+
+    /**
+     * Performs a delete operation based on the delete request object.
      *  
      * @param delRequest the delete operation's request
      * @param listener the delete operation response listener
      * @return delete operation's response, null if a non-null listener value is provided
-     * @throws LdapException
+     * @throws LdapException If the DN is not valid or if the deletion failed
      */
     public DeleteResponse delete( DeleteRequest delRequest, DeleteListener listener )  throws LdapException
     {
@@ -2216,6 +2230,7 @@ public class LdapConnection  extends IoHandlerAdapter
         ldapSession.write( deleteMessage );
         
         DeleteResponse response = null;
+        
         if( listener == null )
         {
             try
@@ -2255,13 +2270,25 @@ public class LdapConnection  extends IoHandlerAdapter
 
 
     /**
-     * @see #compare(LdapDN, String, Object) 
+     * Compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's String DN
+     * @param attributeName the attribute's name
+     * @param value a String value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
      */
     public CompareResponse compare( String dn, String attributeName, String value ) throws LdapException
     {
         try
         {
-            return compare( new LdapDN( dn ), attributeName, value );
+            CompareRequest compareRequest = new CompareRequest();
+            compareRequest.setEntryDn( new LdapDN( dn ) );
+            compareRequest.setAttrName( attributeName );
+            compareRequest.setValue( value );
+            
+            return compare( compareRequest, null );
         }
         catch( Exception e )
         {
@@ -2269,16 +2296,28 @@ public class LdapConnection  extends IoHandlerAdapter
             throw new LdapException( e );
         }
     }
-    
-    
+
+
     /**
-     * @see #compare(LdapDN, String, Object) 
+     * Compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's String DN
+     * @param attributeName the attribute's name
+     * @param value a byte[] value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
      */
     public CompareResponse compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
         try
         {
-            return compare( new LdapDN( dn ), attributeName, value );
+            CompareRequest compareRequest = new CompareRequest();
+            compareRequest.setEntryDn( new LdapDN( dn ) );
+            compareRequest.setAttrName( attributeName );
+            compareRequest.setValue( value );
+            
+            return compare( compareRequest, null );
         }
         catch( Exception e )
         {
@@ -2287,40 +2326,27 @@ public class LdapConnection  extends IoHandlerAdapter
         }
     }
 
-    
+
     /**
-     * compares a whether a given attribute's value matches that of the 
+     * Compares a whether a given attribute's value matches that of the 
      * existing value of the attribute present in the entry with the given DN
      *
-     * @param dn the target entry's DN
+     * @param dn the target entry's String DN
      * @param attributeName the attribute's name
-     * @param value a value with which the target entry's attribute value to be compared with
+     * @param value a Value<?> value with which the target entry's attribute value to be compared with
      * @return compare operation's response
      * @throws LdapException
-     */
-    public CompareResponse compare( LdapDN dn, String attributeName, String value ) throws LdapException
-    {
-        return compare( dn, attributeName, new ClientStringValue( value ) );
-    }
-
-
-    /**
-     * @see #compare(LdapDN, String, Object) 
-     */
-    public CompareResponse compare( LdapDN dn, String attributeName, byte[] value ) throws LdapException
-    {
-        return compare( dn, attributeName, new ClientBinaryValue( value ) );
-    }
-
-    
-    /**
-     * @see #compare(LdapDN, String, Object) 
      */
     public CompareResponse compare( String dn, String attributeName, Value<?> value ) throws LdapException
     {
         try
         {
-            return compare( new LdapDN( dn ), attributeName, value );
+            CompareRequest compareRequest = new CompareRequest();
+            compareRequest.setEntryDn( new LdapDN( dn ) );
+            compareRequest.setAttrName( attributeName );
+            compareRequest.setValue( value );
+            
+            return compare( compareRequest, null );
         }
         catch( Exception e )
         {
@@ -2328,10 +2354,59 @@ public class LdapConnection  extends IoHandlerAdapter
             throw new LdapException( e );
         }
     }
-    
+
     
     /**
-     * @see #compare(LdapDN, String, Object) 
+     * Compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's DN
+     * @param attributeName the attribute's name
+     * @param value a String value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
+     */
+    public CompareResponse compare( LdapDN dn, String attributeName, String value ) throws LdapException
+    {
+        CompareRequest compareRequest = new CompareRequest();
+        compareRequest.setEntryDn( dn );
+        compareRequest.setAttrName( attributeName );
+        compareRequest.setValue( value );
+        
+        return compare( compareRequest, null );
+    }
+
+    
+    /**
+     * Compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's DN
+     * @param attributeName the attribute's name
+     * @param value a byte[] value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
+     */
+    public CompareResponse compare( LdapDN dn, String attributeName, byte[] value ) throws LdapException
+    {
+        CompareRequest compareRequest = new CompareRequest();
+        compareRequest.setEntryDn( dn );
+        compareRequest.setAttrName( attributeName );
+        compareRequest.setValue( value );
+        
+        return compare( compareRequest, null );
+    }
+
+
+    /**
+     * Compares a whether a given attribute's value matches that of the 
+     * existing value of the attribute present in the entry with the given DN
+     *
+     * @param dn the target entry's DN
+     * @param attributeName the attribute's name
+     * @param value a Value<?> value with which the target entry's attribute value to be compared with
+     * @return compare operation's response
+     * @throws LdapException
      */
     public CompareResponse compare( LdapDN dn, String attributeName, Value<?> value ) throws LdapException
     {
@@ -2348,8 +2423,21 @@ public class LdapConnection  extends IoHandlerAdapter
      * compares an entry's attribute's value with that of the given value
      *   
      * @param compareRequest the CompareRequest which contains the target DN, attribute name and value
+     * @return compare operation's response
+     * @throws LdapException
+     */
+    public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
+    {
+        return compare( compareRequest, null );
+    }
+    
+    
+    /**
+     * compares an entry's attribute's value with that of the given value
+     *   
+     * @param compareRequest the CompareRequest which contains the target DN, attribute name and value
      * @param listener a non-null listener if provided will be called to receive this operation's response asynchronously
-     * @return compare operation's reponse
+     * @return compare operation's response
      * @throws LdapException
      */
     public CompareResponse compare( CompareRequest compareRequest, CompareListener listener ) throws LdapException
