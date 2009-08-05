@@ -188,12 +188,15 @@ public class ClientBinaryValue extends AbstractValue<byte[]>
         {
             if ( wrapped == null )
             {
+                normalizedValue = wrapped;
                 normalized = true;
+                same = true;
             }
             else
             {
                 normalizedValue = normalizer.normalize( this ).getBytes();
                 normalized = true;
+                same = Arrays.equals( wrapped, normalizedValue );
             }
         }
     }
