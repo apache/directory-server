@@ -50,6 +50,8 @@ public abstract class AbstractValue<T> implements Value<T>
     /** cached results of the isValid() method call */
     protected Boolean valid;
 
+    /** A flag set if the normalized data is different from the wrapped data */
+    protected transient boolean same;
     
     /**
      * Reset the value
@@ -63,6 +65,9 @@ public abstract class AbstractValue<T> implements Value<T>
     }
 
     
+    /**
+     * {@inheritDoc}
+     */
     public Value<T> clone()
     {
         try
@@ -159,6 +164,15 @@ public abstract class AbstractValue<T> implements Value<T>
         return wrapped == null; 
     }
     
+    
+    /**
+     * @return Tells if the wrapped value and the normalized value are the same 
+     */
+    public final boolean isSame()
+    {
+        return same;
+    }
+
     
     /**
      * Check if the Valid flag is set or not. This flag is set by a call
