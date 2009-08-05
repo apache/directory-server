@@ -135,6 +135,7 @@ public class ClientModifyDnRequestTest
 
         final Semaphore lock = new Semaphore(1);
         lock.acquire();
+
         ModifyDnResponse resp = connection.modifyDn( modDnReq, new ModifyDnListener()
         {
             public void modifyDnCompleted( LdapConnection connection, ModifyDnResponse response ) throws LdapException

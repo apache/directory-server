@@ -20,7 +20,6 @@
 package org.apache.directory.shared.client.api.operations;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -37,7 +36,6 @@ import org.apache.directory.shared.ldap.client.api.listeners.CompareListener;
 import org.apache.directory.shared.ldap.client.api.messages.CompareRequest;
 import org.apache.directory.shared.ldap.client.api.messages.CompareResponse;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +90,6 @@ public class ClientCompareRequestTest
         LdapDN dn = new LdapDN( "uid=admin,ou=system" );
 
         final Semaphore lock = new Semaphore( 1 );
-        lock.acquire();
         CompareRequest compareRequest = new CompareRequest();
         compareRequest.setEntryDn( dn );
         compareRequest.setAttrName( SchemaConstants.UID_AT );

@@ -40,12 +40,12 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
 import org.apache.directory.shared.ldap.client.api.exception.LdapException;
 import org.apache.directory.shared.ldap.client.api.listeners.DeleteListener;
+import org.apache.directory.shared.ldap.client.api.messages.DeleteRequest;
 import org.apache.directory.shared.ldap.client.api.messages.DeleteResponse;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -238,7 +238,8 @@ public class ClientDeleteRequestTest
 
         final Semaphore lock = new Semaphore(1);
         lock.acquire();
-        DeleteResponse response = connection.delete( dn, new DeleteListener()
+        
+        DeleteResponse response = connection.delete( new DeleteRequest( dn ), new DeleteListener()
         {
             public void entryDeleted( LdapConnection connection, DeleteResponse response ) throws LdapException
             {
