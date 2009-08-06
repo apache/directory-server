@@ -20,18 +20,30 @@
 package org.apache.directory.server.ldap.handlers.bind.gssapi;
 
 
-import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import java.security.PrivilegedExceptionAction;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.kerberos.KerberosKey;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
-import java.security.PrivilegedExceptionAction;
-import java.util.Map;
+
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
+import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.message.InternalBindRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -45,33 +57,37 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, InternalBindRequest bindRequest ) throws Exception
     {
-        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
+        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
         if ( ss == null )
         {
-            Subject subject = ( Subject ) ldapSession.getIoSession().getAttribute( "saslSubject" );
+            //Subject subject = ( Subject ) ldapSession.getIoSession().getAttribute( "saslSubject" );
 
-            final Map<String, String> saslProps = ( Map<String, String> ) ldapSession.getIoSession().getAttribute( "saslProps" );
-            final String saslHost = ( String ) ldapSession.getIoSession().getAttribute( "saslHost" );
+            Subject subject = getSubject( ldapSession.getLdapServer() );
+            final String saslHost = ( String ) ldapSession.getSaslProperty( SaslConstants.SASL_HOST );
+            final Map<String, String> saslProps = ( Map<String, String> ) ldapSession
+                .getSaslProperty( SaslConstants.SASL_PROPS );
 
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( 
-                ldapSession.getCoreSession().getDirectoryService(), ldapSession, bindRequest );
+            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
+
+            final CallbackHandler callbackHandler = new GssapiCallbackHandler( ldapSession, adminSession, bindRequest );
 
             ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
                 public SaslServer run() throws Exception
                 {
-                    return Sasl.createSaslServer( SupportedSaslMechanisms.GSSAPI, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
+                    return Sasl.createSaslServer( SupportedSaslMechanisms.GSSAPI, SaslConstants.LDAP_PROTOCOL,
+                        saslHost, saslProps, callbackHandler );
                 }
             } );
 
-            ldapSession.getIoSession().setAttribute( SaslConstants.SASL_SERVER, ss );
+            ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -80,6 +96,11 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         // Store the host in the ldap session
         String saslHost = ldapSession.getLdapServer().getSaslHost();
         ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
+
+        Map<String, String> saslProps = new HashMap<String, String>();
+        saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
+        //saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
+        ldapSession.putSaslProperty( SaslConstants.SASL_PROPS, saslProps );
     }
 
 
@@ -99,5 +120,57 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
         ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
         ldapSession.removeSaslProperty( SaslConstants.SASL_AUTHENT_USER );
+    }
+
+
+    private Subject getSubject( LdapServer ldapServer ) throws Exception
+    {
+        String servicePrincipalName = ldapServer.getSaslPrincipal();
+        KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
+        GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
+
+        PrincipalStoreEntry entry = null;
+
+        try
+        {
+            entry = findPrincipal( ldapServer, getPrincipal );
+        }
+        catch ( ServiceConfigurationException sce )
+        {
+            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
+                + ldapServer.getSearchBaseDn() + ".";
+            throw new ServiceConfigurationException( message, sce );
+        }
+
+        if ( entry == null )
+        {
+            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
+                + ldapServer.getSearchBaseDn() + ".";
+            throw new ServiceConfigurationException( message );
+        }
+
+        Subject subject = new Subject();
+
+        for ( EncryptionType encryptionType : entry.getKeyMap().keySet() )
+        {
+            EncryptionKey key = entry.getKeyMap().get( encryptionType );
+
+            byte[] keyBytes = key.getKeyValue();
+            int type = key.getKeyType().getOrdinal();
+            int kvno = key.getKeyVersion();
+
+            KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );
+
+            subject.getPrivateCredentials().add( serviceKey );
+        }
+
+        return subject;
+    }
+
+
+    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
+    {
+        CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
+        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, new LdapDN( ldapServer.getSearchBaseDn() ) );
     }
 }

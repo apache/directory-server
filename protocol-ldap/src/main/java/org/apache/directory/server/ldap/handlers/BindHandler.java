@@ -24,9 +24,6 @@ import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
-import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosKey;
-import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
@@ -35,16 +32,10 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
-import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -55,7 +46,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +65,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     /** A Hashed Adapter mapping SASL mechanisms to their handlers. */
     private Map<String, MechanismHandler> handlers;
 
+
     /**
      * Set the mechanisms handler map.
      * 
@@ -84,7 +75,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     {
         this.handlers = handlers;
     }
-    
+
 
     /**
      * Handle the Simple authentication.
@@ -101,24 +92,24 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             // We already have a bound session for this user. We have to
             // abandon it first.
             ldapSession.getCoreSession().unbind();
-            
+
             // Reset the status to Anonymous
             ldapSession.setAnonymous();
         }
 
         // Now, bind the user
-        
+
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
         BindOperationContext opContext = new BindOperationContext( null );
-        
+
         // Stores the DN of the user to check, and its password
         opContext.setDn( bindRequest.getName() );
         opContext.setCredentials( bindRequest.getCredentials() );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( opContext, bindRequest );
-        
+
         try
         {
             /*
@@ -139,13 +130,12 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
              * and delegate appropriately.
              */
             ClonedServerEntry principalEntry = null;
-            
+
             try
             {
-                principalEntry = getLdapServer().getDirectoryService()
-                    .getAdminSession().lookup( bindRequest.getName() );
+                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getName() );
             }
-            catch ( NameNotFoundException e ) 
+            catch ( NameNotFoundException e )
             {
                 // this is OK
             }
@@ -159,9 +149,9 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
                 return;
             }
-            
-            if (principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT, 
-                     SchemaConstants.REFERRAL_OC ) )
+
+            if ( principalEntry.getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
+                SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );
                 InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
@@ -180,15 +170,15 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
             // And call the OperationManager bind operation.
             getLdapServer().getDirectoryService().getOperationManager().bind( opContext );
-            
+
             // As a result, store the created session in the Core Session
             ldapSession.setCoreSession( opContext.getSession() );
-            
-            if ( ! ldapSession.getCoreSession().isAnonymous() )
+
+            if ( !ldapSession.getCoreSession().isAnonymous() )
             {
                 ldapSession.setAuthenticated();
             }
-            
+
             // Return the successful response
             sendBindSuccess( ldapSession, bindRequest, null );
         }
@@ -218,12 +208,12 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             }
 
             Name name = null;
-            
+
             if ( e instanceof LdapAuthenticationException )
             {
                 name = ( ( LdapAuthenticationException ) e ).getResolvedName();
             }
-            
+
             if ( ( name != null )
                 && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
                     || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
@@ -235,19 +225,18 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
     }
-    
-    
+
+
     /**
      * Check if the mechanism exists.
      */
     private boolean checkMechanism( LdapSession ldapSession, String saslMechanism ) throws Exception
     {
         // Guard clause:  Reject unsupported SASL mechanisms.
-        if ( ! ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
+        if ( !ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
         {
-            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml " + 
-                "configuration file (supportedMechanisms field)", 
-                saslMechanism );
+            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml "
+                + "configuration file (supportedMechanisms field)", saslMechanism );
 
             return false;
         }
@@ -256,16 +245,18 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             return true;
         }
     }
-    
-    
+
+
     /**
-     * For challenge/response exchange, generate the challenge 
+     * For challenge/response exchange, generate the challenge. 
+     * If the exchange is complete then send bind success.
      *
      * @param ldapSession
      * @param ss
      * @param bindRequest
      */
-    private void generateSaslChallenge( LdapSession ldapSession, SaslServer ss, InternalBindRequest bindRequest )
+    private void generateSaslChallengeOrComplete( LdapSession ldapSession, SaslServer ss,
+        InternalBindRequest bindRequest ) throws Exception
     {
         InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
 
@@ -279,7 +270,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         {
             // Compute the challenge
             byte[] tokenBytes = ss.evaluateResponse( bindRequest.getCredentials() );
-    
+
             if ( ss.isComplete() )
             {
                 // This is the end of the C/R exchange
@@ -292,7 +283,28 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
                      */
                     ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
                 }
-                
+
+                LdapPrincipal ldapPrincipal = ( LdapPrincipal ) ldapSession
+                    .getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
+                if ( ldapPrincipal != null )
+                {
+                    DirectoryService ds = ldapSession.getLdapServer().getDirectoryService();
+                    String saslMechanism = bindRequest.getSaslMechanism();
+                    CoreSession userSession = ds.getSession( ldapPrincipal.getJndiName(), ldapPrincipal
+                        .getUserPassword(), saslMechanism, null );
+
+                    // Set the user session into the ldap session 
+                    ldapSession.setCoreSession( userSession );
+                }
+
+                // Mark the user as authenticated
+                ldapSession.setAuthenticated();
+
+                // Call the cleanup method for the selected mechanism
+                MechanismHandler handler = ( MechanismHandler ) ldapSession
+                    .getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
+                handler.cleanup( ldapSession );
+
                 // Return the successful response
                 sendBindSuccess( ldapSession, bindRequest, tokenBytes );
             }
@@ -300,17 +312,17 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             {
                 // The SASL bind must continue, we are sending the computed challenge
                 LOG.info( "Continuation token had length " + tokenBytes.length );
-                
+
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
                 InternalBindResponse resp = ( InternalBindResponse ) bindRequest.getResultResponse();
 
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
-                
+
                 // Switch to AuthPending
                 ldapSession.setAuthPending();
-                
+
                 // And write back the response
                 ldapSession.getIoSession().write( resp );
                 LOG.debug( "Returning final authentication data to client to complete context." );
@@ -318,21 +330,11 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         }
         catch ( SaslException se )
         {
-            LOG.error( se.getMessage() );
-            result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
-            result.setErrorMessage( ResultCodeEnum.INVALID_CREDENTIALS.toString() + ": " 
-                + se.getMessage() );
-            
-            // Reinitialize the state to Anonymous and clear the sasl properties
-            ldapSession.clearSaslProperties();
-            ldapSession.setAnonymous();
-            
-            // Write back the error response
-            ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+            sendInvalidCredentials( ldapSession, bindRequest, se );
         }
     }
-    
-    
+
+
     /**
      * Send back an AUTH-METH-NOT-SUPPORTED error message to the client
      */
@@ -342,20 +344,20 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         // saslProperty map
         ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
-        
+
         // And send the response to the client
         InternalLdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
         bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-        bindResult.setErrorMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": " 
+        bindResult.setErrorMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": "
             + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
-        
+
         // Write back the error
         ldapSession.getIoSession().write( bindRequest.getResultResponse() );
 
         return;
     }
-    
-    
+
+
     /**
      * Send back an INVALID-CREDENTIAL error message to the user. If we have an exception
      * as a third argument, then send back the associated message to the client. 
@@ -363,9 +365,9 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     private void sendInvalidCredentials( LdapSession ldapSession, InternalBindRequest bindRequest, Exception e )
     {
         InternalLdapResult result = bindRequest.getResultResponse().getLdapResult();
-        
+
         String message = "";
-        
+
         if ( e != null )
         {
             message = ResultCodeEnum.INVALID_CREDENTIALS + ": " + e.getMessage();
@@ -374,20 +376,20 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         {
             message = ResultCodeEnum.INVALID_CREDENTIALS.toString();
         }
-        
+
         LOG.error( message );
         result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
         result.setErrorMessage( message );
-        
+
         // Reinitialize the state to Anonymous and clear the sasl properties
         ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
-        
+
         // Write back the error response
         ldapSession.getIoSession().write( bindRequest.getResultResponse() );
     }
-    
-    
+
+
     /**
      * Send a SUCCESS message back to the client.
      */
@@ -397,8 +399,8 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         InternalBindResponse response = ( InternalBindResponse ) bindRequest.getResultResponse();
         response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         response.setServerSaslCreds( tokenBytes );
-        
-        if ( ! ldapSession.getCoreSession().isAnonymous() )
+
+        if ( !ldapSession.getCoreSession().isAnonymous() )
         {
             // If we have not been asked to authenticate as Anonymous, authenticate the user
             ldapSession.setAuthenticated();
@@ -408,34 +410,35 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             // Otherwise, switch back to Anonymous
             ldapSession.setAnonymous();
         }
-        
+
         // Clean the SaslProperties, we don't need them anymore
-        MechanismHandler handler = (MechanismHandler)ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
-        
+        MechanismHandler handler = ( MechanismHandler ) ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
+
         if ( handler != null )
         {
             handler.cleanup( ldapSession );
         }
 
         ldapSession.getIoSession().write( response );
-        
+
         LOG.debug( "Returned SUCCESS message: {}.", response );
     }
 
-    
-    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest, DirectoryService ds ) throws Exception
+
+    private void handleSaslAuthPending( LdapSession ldapSession, InternalBindRequest bindRequest, DirectoryService ds )
+        throws Exception
     {
         // First, check that we have the same mechanism
         String saslMechanism = bindRequest.getSaslMechanism();
-        
+
         // The empty mechanism is also a request for a new Bind session
-        if ( StringTools.isEmpty( saslMechanism ) || 
-            !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
+        if ( StringTools.isEmpty( saslMechanism )
+            || !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
         {
             sendAuthMethNotSupported( ldapSession, bindRequest );
             return;
         }
-        
+
         // We have already received a first BindRequest, and sent back some challenge.
         // First, check if the mechanism is the same
         MechanismHandler mechanismHandler = handlers.get( saslMechanism );
@@ -443,70 +446,22 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         if ( mechanismHandler == null )
         {
             String message = "Handler unavailable for " + saslMechanism;
-            
+
             // Clear the saslProperties, and move to the anonymous state
             ldapSession.clearSaslProperties();
             ldapSession.setAnonymous();
-            
+
             LOG.error( message );
             throw new IllegalArgumentException( message );
         }
 
         // Get the previously created SaslServer instance
         SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
-        
-        /*
-         * SaslServer will throw an exception if the credentials are null.
-         */
-        if ( bindRequest.getCredentials() == null )
-        {
-            bindRequest.setCredentials( StringTools.EMPTY_BYTES );
-        }
-        
-        byte[] tokenBytes = ss.evaluateResponse( bindRequest.getCredentials() );
-        
-        if ( ss.isComplete() )
-        {
-            if ( tokenBytes != null )
-            {
-                /*
-                 * There may be a token to return to the client.  We set it here
-                 * so it will be returned in a SUCCESS message, after an LdapContext
-                 * has been initialized for the client.
-                 */
-                ldapSession.putSaslProperty( SaslConstants.SASL_CREDS, tokenBytes );
-            }
-            
-            // Create the user's coreSession
-            try
-            {
-                LdapPrincipal ldapPrincipal = (LdapPrincipal)ldapSession.getSaslProperty( SaslConstants.SASL_AUTHENT_USER );
-                
-                CoreSession userSession = ds.getSession( ldapPrincipal.getJndiName(), ldapPrincipal.getUserPassword(), saslMechanism, null );
-                
-                // Set the user session into the ldap session 
-                ldapSession.setCoreSession( userSession );
-                
-                // Mark the user as authenticated
-                ldapSession.setAuthenticated();
-                
-                // Call the cleanup method for the selected mechanism
-                MechanismHandler handler = (MechanismHandler)ldapSession.getSaslProperty( SaslConstants.SASL_MECH_HANDLER );
-                handler.cleanup( ldapSession );
 
-                // And send a Success response
-                sendBindSuccess( ldapSession, bindRequest, tokenBytes );
-            }
-            catch ( Exception e )
-            {
-                // TODO - why is this exception being ignored?  Isn't this 
-                // really bad?
-                LOG.error( "Exception encountered while processing Sasl BindRequest", e );
-            }
-        }
+        generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
     }
-    
-    
+
+
     /**
      * Handle the SASL authentication. If the mechanism is known, we are
      * facing three cases :
@@ -537,20 +492,20 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
     {
         String saslMechanism = bindRequest.getSaslMechanism();
         DirectoryService ds = getLdapServer().getDirectoryService();
-        
+
         // Case #2 : the user does have a session. We have to unbind him
         if ( ldapSession.isAuthenticated() )
         {
             // We already have a bound session for this user. We have to
             // close the previous session first.
             ldapSession.getCoreSession().unbind();
-            
+
             // Reset the status to Anonymous
             ldapSession.setAnonymous();
-            
+
             // Clean the sasl properties
             ldapSession.clearSaslProperties();
-            
+
             // Now we can continue as if the client was Anonymous from the beginning
         }
 
@@ -570,23 +525,22 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
 
                 // Store the mechanism in the ldap session
                 ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
-                
 
                 // Get the handler for this mechanism
                 MechanismHandler mechanismHandler = handlers.get( saslMechanism );
-                
+
                 // Store the mechanism handler in the salsProperties
                 ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
-                
+
                 // Initialize the mechanism specific data
                 mechanismHandler.init( ldapSession );
 
                 // Get the SaslServer instance which manage the C/R exchange
                 SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
-                
+
                 // We have to generate a challenge
-                generateSaslChallenge( ldapSession, ss, bindRequest );
-                
+                generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
+
                 // And get back
                 return;
             }
@@ -601,94 +555,11 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
             {
                 sendInvalidCredentials( ldapSession, bindRequest, se );
             }
-            
+
             return;
         }
     }
 
-
-    /**
-     * Create a list of all the configured realms.
-     * 
-     * @param ldapServer the LdapServer for which we want to get the realms
-     * @return a list of realms, separated by spaces
-     */
-    private String getActiveRealms( LdapServer ldapServer )
-    {
-        StringBuilder realms = new StringBuilder();
-        boolean isFirst = true;
-
-        for ( String realm:ldapServer.getSaslRealms() )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                realms.append( ' ' );
-            }
-            
-            realms.append( realm );
-        }
-
-        return realms.toString();
-    }
-
-
-    private Subject getSubject( LdapServer ldapServer ) throws Exception
-    {
-        String servicePrincipalName = ldapServer.getSaslPrincipal();
-
-        KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
-        GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
-
-        PrincipalStoreEntry entry = null;
-
-        try
-        {
-            entry = findPrincipal( ldapServer, getPrincipal );
-        }
-        catch ( ServiceConfigurationException sce )
-        {
-            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
-            throw new ServiceConfigurationException( message, sce );
-        }
-
-        if ( entry == null )
-        {
-            String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + ldapServer.getSearchBaseDn() + ".";
-            throw new ServiceConfigurationException( message );
-        }
-
-        Subject subject = new Subject();
-
-        for ( EncryptionType encryptionType:entry.getKeyMap().keySet() )
-        {
-            EncryptionKey key = entry.getKeyMap().get( encryptionType );
-
-            byte[] keyBytes = key.getKeyValue();
-            int type = key.getKeyType().getOrdinal();
-            int kvno = key.getKeyVersion();
-
-            KerberosKey serviceKey = new KerberosKey( servicePrincipal, keyBytes, type, kvno );
-
-            subject.getPrivateCredentials().add( serviceKey );
-        }
-
-        return subject;
-    }
-    
-
-    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
-    {
-        CoreSession adminSession = ldapServer.getDirectoryService().getAdminSession();
-
-        return ( PrincipalStoreEntry ) getPrincipal.execute( adminSession, null );
-    }    
-    
 
     /**
      * Deal with a received BindRequest
@@ -703,7 +574,7 @@ public class BindHandler extends LdapRequestHandler<InternalBindRequest>
         LOG.debug( "Received: {}", bindRequest );
 
         // Guard clause:  LDAP version 3
-        if ( ! bindRequest.getVersion3() )
+        if ( !bindRequest.getVersion3() )
         {
             LOG.error( "Bind error : Only LDAP v3 is supported." );
             InternalLdapResult bindResult = bindRequest.getResultResponse().getLdapResult();

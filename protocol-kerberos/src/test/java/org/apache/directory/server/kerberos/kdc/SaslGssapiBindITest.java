@@ -83,7 +83,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
     {
         String krbConfPath = getClass().getResource( "krb5.conf" ).getFile();
         System.setProperty( "java.security.krb5.conf", krbConfPath );
-        System.setProperty( "sun.security.krb5.debug" , "false" ); 
+        System.setProperty( "sun.security.krb5.debug", "false" );
     }
 
 
@@ -101,7 +101,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
         KdcServer kdcConfig = new KdcServer();
         kdcConfig.setDirectoryService( directoryService );
-        kdcConfig.setTransports( new TcpTransport(6088), new UdpTransport(6088) );
+        kdcConfig.setTransports( new TcpTransport( 6088 ), new UdpTransport( 6088 ) );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.start();
@@ -126,10 +126,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
             ModificationItem[] mods = new ModificationItem[]
-                    {new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled )};
+                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
-        
+
         LdapDN contextDn = new LdapDN( "dc=example,dc=com" );
         ServerEntry entry = ldapServer.getDirectoryService().newEntry( contextDn );
         entry.add( "objectClass", "top", "domain", "extensibleObject" );
@@ -160,7 +160,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         users.createSubcontext( "uid=ldap", attrs );
     }
 
-    
+
     protected void configureDirectoryService() throws NamingException
     {
         directoryService.setAllowAnonymousAccess( false );
@@ -171,10 +171,10 @@ public class SaslGssapiBindITest extends AbstractServerTest
         partition.setId( "example" );
         partition.setSuffix( "dc=example,dc=com" );
 
-        Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "dc" ) );
-        indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
+        Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "dc" ) );
+        indexedAttrs.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
         partition.setIndexedAttributes( indexedAttrs );
 
         partitions.add( partition );
@@ -256,7 +256,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
             // Bad username:  Client not found in Kerberos database
             // Bad password:  Integrity check on decrypted field failed
             fail( "Authentication failed:  " + le.getMessage() );
-            assertTrue( false );
         }
 
         // 2. Perform JNDI work as authenticated Subject.
@@ -266,48 +265,47 @@ public class SaslGssapiBindITest extends AbstractServerTest
             {
                 //FIXME activate this code as soon as the GSSAPIMechanismHandler is fixed.
                 //Currently GSSAPI authentication for the ldap server is broken
-//                try
-//                {
-//                    // Create the initial context
-//                    Hashtable<String, String> env = new Hashtable<String, String>();
-//                    env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-//                    env.put( Context.PROVIDER_URL, "ldap://127.0.0.1:" + port );
-//
-//                    // Request the use of the "GSSAPI" SASL mechanism
-//                    // Authenticate by using already established Kerberos credentials
-//                    env.put( Context.SECURITY_AUTHENTICATION, "GSSAPI" );
-//
-//                    // Request privacy protection
-//                    env.put( "javax.security.sasl.qop", "auth-conf" );
-//
-//                    // Request mutual authentication
-//                    env.put( "javax.security.sasl.server.authentication", "true" );
-//
-//                    // Request high-strength cryptographic protection
-//                    env.put( "javax.security.sasl.strength", "high" );
-//
-//                    DirContext ctx = new InitialDirContext( env );
-//
-//                    String[] attrIDs =
-//                        { "uid" };
-//
-//                    Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-//
-//                    String uid = null;
-//
-//                    if ( attrs.get( "uid" ) != null )
-//                    {
-//                        uid = ( String ) attrs.get( "uid" ).get();
-//                    }
-//
-//                    assertEquals( uid, "hnelson" );
-//                }
-//                catch ( NamingException e )
-//                {
-//                    fail( "Should not have caught exception:  " + e.getMessage() + e.getRootCause() );
-//                    e.printStackTrace();
-//                   
-//                }
+                try
+                {
+                    // Create the initial context
+                    Hashtable<String, String> env = new Hashtable<String, String>();
+                    env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+                    // Request the use of the "GSSAPI" SASL mechanism
+                    // Authenticate by using already established Kerberos credentials
+                    env.put( Context.SECURITY_AUTHENTICATION, "GSSAPI" );
+
+                    // Request privacy protection
+                    env.put( "javax.security.sasl.qop", "auth-conf" );
+
+                    // Request mutual authentication
+                    env.put( "javax.security.sasl.server.authentication", "true" );
+
+                    // Request high-strength cryptographic protection
+                    env.put( "javax.security.sasl.strength", "high" );
+
+                    DirContext ctx = new InitialDirContext( env );
+
+                    String[] attrIDs =
+                        { "uid" };
+
+                    Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+                    String uid = null;
+
+                    if ( attrs.get( "uid" ) != null )
+                    {
+                        uid = ( String ) attrs.get( "uid" ).get();
+                    }
+
+                    assertEquals( uid, "hnelson" );
+                }
+                catch ( NamingException e )
+                {
+                    e.printStackTrace();
+                    fail( "Should not have caught exception:  " + e.getMessage() + e.getRootCause() );
+                }
 
                 return null;
             }
