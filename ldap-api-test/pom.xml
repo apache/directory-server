@@ -111,6 +111,9 @@
           <includes>
             <include>**/*Test.java</include>
           </includes>
+          <excludes>
+            <exclude>**/ClientDeleteRequestTest.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
