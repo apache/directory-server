@@ -1237,7 +1237,8 @@ public class SchemaInterceptor extends BaseInterceptor
         }
         else
         {
-            entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+            // Get the entry we already read at the beginning
+            entry = opContext.getEntry();
         }
 
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
@@ -1536,6 +1537,321 @@ public class SchemaInterceptor extends BaseInterceptor
         next.modify( opContext );
     }
 
+    
+    public void modify2( NextInterceptor next, ModifyOperationContext opContext ) throws Exception
+    {
+        ServerEntry entry;
+        LdapDN name = opContext.getDn();
+        List<Modification> mods = opContext.getModItems();
+
+        // handle operations against the schema subentry in the schema service
+        // and never try to look it up in the nexus below
+        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDnNorm ) )
+        {
+            entry = schemaService.getSubschemaEntry( SCHEMA_SUBENTRY_RETURN_ATTRIBUTES );
+            entry.setDn( name );
+        }
+        else
+        {
+            entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        }
+
+        // First, we get the entry from the backend. If it does not exist, then we throw an exception
+        ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods , entry );
+
+        if ( entry == null )
+        {
+            LOG.error( "No entry with this name :{}", name );
+            throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
+        }
+
+        // We will use this temporary entry to check that the modifications
+        // can be applied as atomic operations
+        ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
+
+        Set<String> modset = new HashSet<String>();
+        Modification objectClassMod = null;
+
+        // Check that we don't have two times the same modification.
+        // This is somehow useless, as modification operations are supposed to
+        // be atomic, so we may have a sucession of Add, DEL, ADD operations
+        // for the same attribute, and this will be legal.
+        // @TODO : check if we can remove this test.
+        for ( Modification mod : mods )
+        {
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            {
+                objectClassMod = mod;
+            }
+
+            // Freak out under some weird cases
+            if ( mod.getAttribute().size() == 0 )
+            {
+                // not ok for add but ok for replace and delete
+                if ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE )
+                {
+                    throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.",
+                        ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                }
+            }
+
+            StringBuffer keybuf = new StringBuffer();
+            keybuf.append( mod.getOperation() );
+            keybuf.append( mod.getAttribute().getId() );
+
+            for ( Value<?> value : ( ServerAttribute ) mod.getAttribute() )
+            {
+                keybuf.append( value.getString() );
+            }
+
+            if ( !modset.add( keybuf.toString() ) && ( mod.getOperation() == ModificationOperation.ADD_ATTRIBUTE ) )
+            {
+                throw new LdapAttributeInUseException( "found two copies of the following modification item: " + mod );
+            }
+        }
+
+        // Get the objectClass attribute.
+        EntryAttribute objectClass;
+
+        if ( objectClassMod == null )
+        {
+            objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+
+            if ( objectClass == null )
+            {
+                objectClass = new DefaultServerAttribute( SchemaConstants.OBJECT_CLASS_AT, OBJECT_CLASS );
+            }
+        }
+        else
+        {
+            objectClass = getResultantObjectClasses( objectClassMod.getOperation(), objectClassMod.getAttribute(),
+                tmpEntry.get( SchemaConstants.OBJECT_CLASS_AT ) );
+        }
+
+        ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
+
+        // Now, apply the modifications on the cloned entry before applying it on the
+        // real object.
+        for ( Modification mod : mods )
+        {
+            ModificationOperation modOp = mod.getOperation();
+            ServerAttribute change = ( ServerAttribute ) mod.getAttribute();
+
+            // TODO/ handle http://issues.apache.org/jira/browse/DIRSERVER-1198
+            if ( ( change.getAttributeType() == null ) && !atRegistry.hasAttributeType( change.getUpId() )
+                && !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
+            {
+                throw new LdapInvalidAttributeIdentifierException();
+            }
+
+            // We will forbid modification of operational attributes which are not
+            // user modifiable.
+            AttributeType attributeType = change.getAttributeType();
+            
+            if ( attributeType == null )
+            {
+                attributeType = atRegistry.lookup( change.getUpId() );
+            }
+
+            if ( !attributeType.isCanUserModify() )
+            {
+                throw new NoPermissionException( "Cannot modify the attribute '" + change.getUpId() + "'" );
+            }
+
+            switch ( modOp )
+            {
+                case ADD_ATTRIBUTE:
+                    EntryAttribute attr = tmpEntry.get( attributeType.getName() );
+
+                    if ( attr != null )
+                    {
+                        for ( Value<?> value : change )
+                        {
+                            attr.add( value );
+                        }
+                    }
+                    else
+                    {
+                        attr = new DefaultServerAttribute( change.getUpId(), attributeType );
+
+                        for ( Value<?> value : change )
+                        {
+                            attr.add( value );
+                        }
+
+                        tmpEntry.put( attr );
+                    }
+
+                    break;
+
+                case REMOVE_ATTRIBUTE:
+                    if ( tmpEntry.get( change.getId() ) == null )
+                    {
+                        LOG.error( "Trying to remove an non-existant attribute: " + change.getUpId() );
+                        throw new LdapNoSuchAttributeException();
+                    }
+
+                    // We may have to remove the attribute or only some values
+                    if ( change.size() == 0 )
+                    {
+                        // No value : we have to remove the entire attribute
+                        // Check that we aren't removing a MUST attribute
+                        if ( isRequired( change.getUpId(), objectClass ) )
+                        {
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
+                        
+                        attr = tmpEntry.get( change.getUpId() );
+                        if ( attr != null )
+                        {
+                            tmpEntry.removeAttributes( change.getUpId() );
+                        }
+                    }
+                    else
+                    {
+                        // for required attributes we need to check if all values are removed
+                        // if so then we have a schema violation that must be thrown
+                        if ( isRequired( change.getUpId(), objectClass ) && isCompleteRemoval( change, entry ) )
+                        {
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
+
+                        // Now remove the attribute and all its values
+                        EntryAttribute modified = tmpEntry.removeAttributes( change.getId() ).get( 0 );
+
+                        // And inject back the values except the ones to remove
+                        for ( Value<?> value : change )
+                        {
+                            modified.remove( value );
+                        }
+
+                        // ok, done. Last check : if the attribute does not content any more value;
+                        // and if it's a MUST one, we should thow an exception
+                        if ( ( modified.size() == 0 ) && isRequired( change.getId(), objectClass ) )
+                        {
+                            LOG.error( "Trying to remove a required attribute: " + change.getUpId() );
+                            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+                        }
+
+                        // Put back the attribute in the entry only if it has values left in it
+                        if ( modified.size() > 0 )
+                        {
+                            tmpEntry.put( modified );
+                        }
+                    }
+
+                    SchemaChecker
+                        .preventRdnChangeOnModifyRemove( name, modOp, change, this.registries.getOidRegistry() );
+                    SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change,
+                        objectClass );
+                    break;
+
+                case REPLACE_ATTRIBUTE:
+                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, registries.getOidRegistry() );
+                    SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
+
+                    attr = tmpEntry.get( change.getUpId() );
+
+                    if ( attr != null )
+                    {
+                        tmpEntry.removeAttributes( change.getUpId() );
+                    }
+
+                    attr = new DefaultServerAttribute( change.getUpId(), attributeType );
+
+                    if ( change.size() != 0 )
+                    {
+                        for ( Value<?> value : change )
+                        {
+                            attr.add( value );
+                        }
+
+                        tmpEntry.put( attr );
+                    }
+
+                    break;
+            }
+        }
+
+        check( name, tmpEntry );
+
+        // let's figure out if we need to add or take away from mods to maintain 
+        // the objectClass attribute with it's hierarchy of ancestors 
+        if ( objectClassMod != null )
+        {
+            ServerAttribute alteredObjectClass = ( ServerAttribute ) objectClass.clone();
+            alterObjectClasses( alteredObjectClass );
+
+            if ( !alteredObjectClass.equals( objectClass ) )
+            {
+                ServerAttribute ocMods = ( ServerAttribute ) objectClassMod.getAttribute();
+
+                switch ( objectClassMod.getOperation() )
+                {
+                    case ADD_ATTRIBUTE:
+                        if ( ocMods.contains( SchemaConstants.TOP_OC ) )
+                        {
+                            ocMods.remove( SchemaConstants.TOP_OC );
+                        }
+
+                        for ( Value<?> value : alteredObjectClass )
+                        {
+                            if ( !objectClass.contains( value ) )
+                            {
+                                ocMods.add( value );
+                            }
+                        }
+
+                        break;
+
+                    case REMOVE_ATTRIBUTE:
+                        for ( Value<?> value : alteredObjectClass )
+                        {
+                            if ( !objectClass.contains( value ) )
+                            {
+                                ocMods.remove( value );
+                            }
+                        }
+
+                        break;
+
+                    case REPLACE_ATTRIBUTE:
+                        for ( Value<?> value : alteredObjectClass )
+                        {
+                            if ( !objectClass.contains( value ) )
+                            {
+                                ocMods.add( value );
+                            }
+                        }
+
+                        break;
+
+                    default:
+                }
+            }
+        }
+
+        if ( name.startsWith( schemaBaseDN ) )
+        {
+            LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
+
+            schemaManager.modify( opContext, entry, targetEntry, opContext
+                .hasRequestControl( CascadeControl.CONTROL_OID ) );
+        }
+        else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
+        {
+            LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
+
+            schemaManager.modifySchemaSubentry( opContext, entry, targetEntry, opContext
+                .hasRequestControl( CascadeControl.CONTROL_OID ) );
+            return;
+        }
+
+        next.modify( opContext );
+    }
+    
 
     /**
      * Filter the attributes by removing the ones which are not allowed
