@@ -139,6 +139,11 @@ public class ServerEntryUtils
             {
                 Object value = values.nextElement();
                 
+                if ( value == null )
+                {
+                    continue;
+                }
+                
                 if ( serverAttribute.isHR() )
                 {
                     if ( value instanceof String )
