@@ -135,7 +135,7 @@ public class LdifRevertor
                 case ADD_ATTRIBUTE:
                     EntryAttribute mod = modification.getAttribute();
 
-                    EntryAttribute previous = modifiedEntry.get( mod.getId() );
+                    EntryAttribute previous = clonedEntry.get( mod.getId() );
 
                     if ( mod.equals( previous ) )
                     {
@@ -150,7 +150,7 @@ public class LdifRevertor
                 case REMOVE_ATTRIBUTE:
                     mod = modification.getAttribute();
 
-                    previous = modifiedEntry.get( mod.getId() );
+                    previous = clonedEntry.get( mod.getId() );
 
                     if ( previous == null )
                     {
@@ -162,7 +162,7 @@ public class LdifRevertor
                     {
                         reverseModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, previous );
                         reverseModifications.add( 0, reverseModification );
-                        continue;
+                        break;
                     }
 
                     reverseModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, mod );
@@ -172,7 +172,7 @@ public class LdifRevertor
                 case REPLACE_ATTRIBUTE:
                     mod = modification.getAttribute();
 
-                    previous = modifiedEntry.get( mod.getId() );
+                    previous = clonedEntry.get( mod.getId() );
 
                     /*
                      * The server accepts without complaint replace 
@@ -183,7 +183,7 @@ public class LdifRevertor
                      * modification for the reverse direction which should
                      * do nothing as well.  
                      */
-                    if ( mod.get() == null && previous == null )
+                    if ( ( mod.get() == null ) && ( previous == null ) )
                     {
                         reverseModification = new ClientModification( ModificationOperation.REPLACE_ATTRIBUTE,
                             new DefaultClientAttribute( mod.getId() ) );
@@ -349,10 +349,10 @@ public class LdifRevertor
                  !(ava.getNormType().equals( oldRdn.getNormType() ) &&
                    ava.getNormValue().equals( oldRdn.getNormValue() ) ) )
             {
-                // Create the modification, which is an Add
+                // Create the modification, which is an Remove
                 Modification modification = new ClientModification( 
                     ModificationOperation.REMOVE_ATTRIBUTE, 
-                    new DefaultClientAttribute( oldRdn.getUpType(), ava.getUpValue().getString() ) );
+                    new DefaultClientAttribute( ava.getUpType(), ava.getUpValue().getString() ) );
                 
                 restored.addModificationItem( modification );
             }

@@ -515,9 +515,10 @@ public class LdifRevertorTest
             "replace: ou\n" +
             "ou: apache\n" +
             "ou: acme corp\n" +
+            "ou: BigCompany inc.\n" +
             "-\n" +
             "replace: l\n" +
-            "l: USA\n" +
+            "l: FR\n" +
             "-\n" +
             "delete: l\n" +
             "l: FR\n" +
