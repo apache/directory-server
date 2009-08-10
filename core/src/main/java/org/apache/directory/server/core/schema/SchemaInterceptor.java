@@ -1240,6 +1240,9 @@ public class SchemaInterceptor extends BaseInterceptor
             // Get the entry we already read at the beginning
             entry = opContext.getEntry();
         }
+        
+        boolean schemaModification = name.startsWith( schemaBaseDN );
+        boolean subSchemaModification = subschemaSubentryDnNorm.equals( name.getNormName() );
 
         // First, we get the entry from the backend. If it does not exist, then we throw an exception
         ServerEntry targetEntry = (ServerEntry)SchemaUtils.getTargetEntry( mods , entry );
@@ -1310,7 +1313,7 @@ public class SchemaInterceptor extends BaseInterceptor
         else
         {
             objectClass = getResultantObjectClasses( objectClassMod.getOperation(), objectClassMod.getAttribute(),
-                tmpEntry.get( SchemaConstants.OBJECT_CLASS_AT ) );
+                tmpEntry.get( SchemaConstants.OBJECT_CLASS_AT ).clone() );
         }
 
         ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
@@ -1409,7 +1412,15 @@ public class SchemaInterceptor extends BaseInterceptor
                         // And inject back the values except the ones to remove
                         for ( Value<?> value : change )
                         {
-                            modified.remove( value );
+                            if ( modified.contains( value ) )
+                            {
+                                modified.remove( value );
+                            }
+                            else if ( !subSchemaModification )
+                            {
+                                // We are trying to remove an not existing value : error
+                                throw new LdapNoSuchAttributeException( "Value " + value + " does not exist in the " + modified + " AT" );
+                            }
                         }
 
                         // ok, done. Last check : if the attribute does not content any more value;
@@ -1518,14 +1529,14 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
-        if ( name.startsWith( schemaBaseDN ) )
+        if ( schemaModification )
         {
             LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
 
             schemaManager.modify( opContext, entry, targetEntry, opContext
                 .hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
-        else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
+        else if ( subSchemaModification )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
