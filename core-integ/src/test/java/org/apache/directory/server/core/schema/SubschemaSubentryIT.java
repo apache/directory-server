@@ -377,7 +377,6 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         // check add no schema info
         // -------------------------------------------------------------------
-        
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );

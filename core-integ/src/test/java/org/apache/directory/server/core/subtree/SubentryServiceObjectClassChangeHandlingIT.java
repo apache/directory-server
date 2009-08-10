@@ -71,17 +71,6 @@ public class SubentryServiceObjectClassChangeHandlingIT
     }
 
 
-    public Attributes getModsForIntroducingNewOC() throws NamingException
-    {
-        Attributes changes = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "organizationalPerson" );
-        changes.put( objectClass );
-        changes.put( "ou", "Test Organizational Unit" );
-        return changes;
-    }
-
-
     public Attributes getCollectiveAttributeTestSubentry( String cn )
     {
         Attributes subentry = new BasicAttributes( true );
@@ -135,7 +124,8 @@ public class SubentryServiceObjectClassChangeHandlingIT
         addAdministrativeRoles();
         sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
             getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
-        sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
+        Attributes entry = getTestEntry( "testEntry" );
+        sysRoot.createSubcontext( "cn=testEntry", entry );
 
         //----------------------------------------------------------------------
 
@@ -147,8 +137,13 @@ public class SubentryServiceObjectClassChangeHandlingIT
         assertNull( collectiveAttributeSubentries );
 
         //----------------------------------------------------------------------
-
-        sysRoot.modifyAttributes( "cn=testEntry", DirContext.ADD_ATTRIBUTE, getModsForIntroducingNewOC() );
+        ModificationItem[] modItems = new ModificationItem[2];
+        Attribute objectClass = new BasicAttribute( "ObjectClass", "organizationalPerson" );
+        modItems[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, objectClass );
+        Attribute ou = new BasicAttribute( "ou", "Test Organizational Unit" );
+        modItems[1] = new ModificationItem( DirContext.ADD_ATTRIBUTE, ou );
+        
+        sysRoot.modifyAttributes( "cn=testEntry", modItems );
 
         results = getAllEntries();
         testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );

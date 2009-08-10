@@ -179,7 +179,16 @@ public class ModifyRemoveIT
         
         // Now test remove of value ( bar ) that does not exist in cn
         mod = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute( "cn", "bar" ) );
-        ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
+        try
+        {
+            ctx.modifyAttributes( RDN, new ModificationItem[] { mod } );
+            fail();
+        }
+        catch ( NoSuchAttributeException nsae )
+        {
+            assertTrue( true );
+        }
+        
         tori = ctx.getAttributes( RDN );
         assertNotNull( tori.get( "objectClass" ) );
         assertNotNull( tori.get( "cn" ) );
@@ -387,10 +396,16 @@ public class ModifyRemoveIT
         Attributes attrs2 = new BasicAttributes( true );
         attrs2.put( attr2 );
     
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
-        
-        // We shopuld not get an exception
-        assertTrue( true );
+        try
+        {
+            ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs2 );
+            // We should get an exception
+            fail();
+        }
+        catch( NoSuchAttributeException nsae )
+        {
+            assertTrue( true );
+        }
     }
 
 

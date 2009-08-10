@@ -29,24 +29,20 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
 import org.junit.runner.RunWith;
  
@@ -510,7 +506,7 @@ public class ModifyDelIT
     /**
      * Delete a value not present in an existing AT
      */
-    @Test
+    @Test( expected = LdapNoSuchAttributeException.class )
     public void testModifyDelExistingEntryValueNotPresentInExistingAT() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );

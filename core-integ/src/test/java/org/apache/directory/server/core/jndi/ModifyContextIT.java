@@ -258,7 +258,7 @@ public class ModifyContextIT
     }
 
     
-    @Test
+    @Test( expected = LdapNoSuchAttributeException.class )
     public void testRemoveNonExistingValue() throws Exception
     {
         createData();
@@ -267,21 +267,5 @@ public class ModifyContextIT
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
         sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
-
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        attributes = ctx.getAttributes( "" );
-        assertFalse( attributes.get( "ou" ).contains( "testCases" ) );
-
-        Attribute attribute = attributes.get( "creatorsName" );
-        assertNull( attribute );
-
-        attribute = attributes.get( "createTimestamp" );
-        assertNull( attribute );
-
-        attribute = attributes.get( "modifiersName" );
-        assertNull( attribute );
-
-        attributes.get( "modifyTimestamp" );
-        assertNull( attribute );
     }
 }
