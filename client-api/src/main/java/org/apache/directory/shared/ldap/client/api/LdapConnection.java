@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -132,7 +131,6 @@ import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoEventType;
@@ -154,9 +152,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapConnection  extends IoHandlerAdapter
 {
-    private static final String TIME_OUT_ERROR = "TimeOut occured";
-
-    private static final String NO_RESPONSE_ERROR = "The response queue has been emptied, no response was found.";
 
     /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( LdapConnection.class );
@@ -225,6 +220,18 @@ public class LdapConnection  extends IoHandlerAdapter
     private List<String> supportedControls;
 
     private Entry rootDSE;
+
+
+    // ~~~~~~~~~~~~~~~~~ common error messages ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    private static final String OPERATION_CANCELLED = "Operation would have been cancelled";
+
+    private static final String TIME_OUT_ERROR = "TimeOut occured";
+
+    private static final String NO_RESPONSE_ERROR = "The response queue has been emptied, no response was found.";
+
+    private static final String COMPARE_FAILED = "Failed to perform compare operation";
+    
     
     //--------------------------- Helper methods ---------------------------//
     /**
@@ -564,8 +571,9 @@ public class LdapConnection  extends IoHandlerAdapter
                 }
                 catch( Exception e )
                 {
-                    LOG.error( "Failed to initialize the SSL context", e );
-                    throw new LdapException( e );
+                    String msg = "Failed to initialize the SSL context";
+                    LOG.error( msg, e );
+                    throw new LdapException( msg, e );
                 }
             }
             
@@ -735,14 +743,14 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
-                throw new LdapException( e );
+                throw new LdapException( NO_RESPONSE_ERROR, e );
             }
         }
         else
@@ -1057,8 +1065,9 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch ( InvalidNameException ine )
         {
-            LOG.error( "The given dn '{}' is not valid", bindRequest.getName() );
-            LdapException ldapException = new LdapException();
+            String msg = "The given dn '" + bindRequest.getName() + "' is not valid";
+            LOG.error( msg );
+            LdapException ldapException = new LdapException( msg );
             ldapException.initCause( ine );
 
             throw ldapException;
@@ -1130,8 +1139,8 @@ public class LdapConnection  extends IoHandlerAdapter
             catch ( Exception ie )
             {
                 // Catch all other exceptions
-                LOG.error( "The response queue has been emptied, no response will be find." );
-                LdapException ldapException = new LdapException();
+                LOG.error( NO_RESPONSE_ERROR, ie );
+                LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
                 ldapException.initCause( ie );
                 
                 // Send an abandon request
@@ -1246,8 +1255,9 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch ( InvalidNameException ine )
         {
-            LOG.error( "The given dn '{}' is not valid", searchRequest.getBaseDn() );
-            LdapException ldapException = new LdapException();
+            String msg = "The given dn '" + searchRequest.getBaseDn() + "' is not valid";
+            LOG.error( msg );
+            LdapException ldapException = new LdapException( msg );
             ldapException.initCause( ine );
 
             throw ldapException;
@@ -1279,8 +1289,9 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch ( ParseException pe )
         {
-            LOG.error( "The given filter '{}' is not valid", searchRequest.getFilter() );
-            LdapException ldapException = new LdapException();
+            String msg = "The given filter '" + searchRequest.getFilter() + "' is not valid";
+            LOG.error( msg );
+            LdapException ldapException = new LdapException( msg );
             ldapException.initCause( pe );
 
             throw ldapException;
@@ -1360,13 +1371,13 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch ( Exception e )
             {
-                LOG.error( "The response queue has been emptied, no response will be find." );
-                LdapException ldapException = new LdapException();
+                LOG.error( NO_RESPONSE_ERROR, e );
+                LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
                 ldapException.initCause( e );
                 
                 // Send an abandon request
@@ -1784,15 +1795,15 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
 
-                throw new LdapException( e );
+                throw new LdapException( NO_RESPONSE_ERROR, e );
             }
         }
         else
@@ -1965,15 +1976,15 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
 
-                LdapException ldapException = new LdapException();
+                LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
                 ldapException.initCause( e );
                 throw ldapException;
             }
@@ -2247,15 +2258,15 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
 
-                LdapException ldapException = new LdapException();
+                LdapException ldapException = new LdapException( NO_RESPONSE_ERROR );
                 ldapException.initCause( e );
                 throw ldapException;
             }
@@ -2292,8 +2303,8 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch( Exception e )
         {
-            LOG.error( "Failed to perform compare operation", e );
-            throw new LdapException( e );
+            LOG.error( COMPARE_FAILED, e );
+            throw new LdapException( COMPARE_FAILED, e );
         }
     }
 
@@ -2321,8 +2332,8 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch( Exception e )
         {
-            LOG.error( "Failed to perform compare operation", e );
-            throw new LdapException( e );
+            LOG.error( COMPARE_FAILED, e );
+            throw new LdapException( COMPARE_FAILED, e );
         }
     }
 
@@ -2350,8 +2361,8 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch( Exception e )
         {
-            LOG.error( "Failed to perform compare operation", e );
-            throw new LdapException( e );
+            LOG.error( COMPARE_FAILED, e );
+            throw new LdapException( COMPARE_FAILED, e );
         }
     }
 
@@ -2481,15 +2492,15 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
 
-                throw new LdapException( e );
+                throw new LdapException( NO_RESPONSE_ERROR, e );
             }
         }
         else
@@ -2549,8 +2560,9 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         catch( DecoderException e )
         {
-            LOG.error( "Failed to decode the OID {}", oid );
-            throw new LdapException( e );
+            String msg = "Failed to decode the OID " + oid;
+            LOG.error( msg );
+            throw new LdapException( msg, e );
         }
     }
     
@@ -2638,15 +2650,15 @@ public class LdapConnection  extends IoHandlerAdapter
             }
             catch( InterruptedException ie )
             {
-                LOG.error( "Operation would have been cancelled", ie );
-                throw new LdapException( ie );
+                LOG.error( OPERATION_CANCELLED, ie );
+                throw new LdapException( OPERATION_CANCELLED, ie );
             }
             catch( Exception e )
             {
                 LOG.error( NO_RESPONSE_ERROR );
                 futureMap.remove( newId );
 
-                throw new LdapException( e );
+                throw new LdapException( NO_RESPONSE_ERROR, e );
             }
         }
         else
