@@ -1188,7 +1188,7 @@ public class LdapConnection  extends IoHandlerAdapter
         searchRequest.setFilter( filter );
         searchRequest.setScope( scope );
         searchRequest.addAttributes( attributes );
-        searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+        searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
 
         // Process the request in blocking mode
         return searchInternal( searchRequest, null );
