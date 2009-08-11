@@ -335,8 +335,6 @@ public class ModifyDelIT
         createData( sysRoot );
 
         // A new description attribute value
-        String deletedValue = "she has blond hair";
-
         Attributes attrs = new BasicAttributes( "description", true );
         Attribute descr = new BasicAttribute( "description" );
         descr.add( "an American singer-songwriter" );
@@ -388,7 +386,7 @@ public class ModifyDelIT
     
     
     /**
-     * Remove a non existing AT from an entry, the AT is notpart of MAY/MUST
+     * Remove a non existing AT from an entry, the AT is not part of MAY/MUST
      */
     @Test( expected = LdapNoSuchAttributeException.class )
     public void testModifyDelExistingEntryNonExistingATNotInMayMust() throws Exception

@@ -23,17 +23,9 @@ package org.apache.directory.server.core.operations.modify;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
@@ -43,23 +35,16 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
-import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
  
@@ -153,12 +138,8 @@ import org.junit.runner.RunWith;
 )
 public class ModifyAddIT
 {
-    private static final String BASE = "ou=system";
-    private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
-    private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
     private static final String RDN_HEATHER_NOVA = "cn=Heather Nova";
-    private static final String FILTER = "(objectclass=*)";
 
     public static DirectoryService service;
 
