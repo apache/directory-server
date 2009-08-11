@@ -1972,20 +1972,20 @@ public class SubschemaSubentryIT
     // Private Utility Methods 
     // -----------------------------------------------------------------------
     
-
     private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
     {
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
-        Attribute attr = new BasicAttribute( opAttr );
+        
+        // Uses ModificationItem to keep the modification ordering
+        ModificationItem[] modifications = new ModificationItem[ descriptions.size()];
+        int i = 0;
+        
         for ( String description : descriptions )
         {
-            attr.add( description );
+            modifications[i++] = new ModificationItem( op, new BasicAttribute( opAttr, description ) );
         }
         
-        Attributes mods = new BasicAttributes( true );
-        mods.put( attr );
-        
-        getRootContext( service ).modifyAttributes( dn, op, mods );
+        getRootContext( service ).modifyAttributes( dn, modifications );
     }
     
     
@@ -2013,6 +2013,7 @@ public class SubschemaSubentryIT
     {
         InputStream in = getClass().getResourceAsStream( resource );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+
         while ( in.available() > 0 )
         {
             out.write( in.read() );
