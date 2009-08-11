@@ -63,7 +63,7 @@ import java.util.Map;
 
 
 /**
- * A name normalization service.  This service makes sure all relative and distinuished
+ * A name normalization service.  This service makes sure all relative and distinguished
  * names are normalized before calls are made against the respective interface methods
  * on {@link PartitionNexus}.
  * 
