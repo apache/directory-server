@@ -53,6 +53,15 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
 
     // ------------------------------------------------------------------------
     // BootstrapProducer Methods
+    // We need comparator for :
+    // - exactDnAsStringMatch  1.3.6.1.4.1.18060.0.4.1.1.1  (ComparableComparator)
+    // - bigIntegerMatch       1.3.6.1.4.1.18060.0.4.1.1.2  (LongComparator)
+    // - jdbmStringMatch       1.3.6.1.4.1.18060.0.4.1.1.3  (StringComparator)
+    // - uuidMatch             1.3.6.1.1.16.2  (UUIDComparator)
+    // - uuidOrderingMatch     1.3.6.1.1.16.3  (UUIDComparator)
+    // - CSNMatch              1.3.6.1.4.1.4203.666.11.2.2  (CsnComparator)
+    // - CSNOrderingMatch      1.3.6.1.4.1.4203.666.11.2.3  (CsnComparator)
+    // - CSNSIDMatch           1.3.6.1.4.1.4203.666.11.2.5  (CsnSidComparator)
     // ------------------------------------------------------------------------
 
     /**

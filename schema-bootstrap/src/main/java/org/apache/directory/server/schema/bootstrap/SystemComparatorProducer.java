@@ -86,6 +86,51 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         }
     }
     
+    
+    // ------------------------------------------------------------------------
+    // BootstrapProducer Methods
+    // We need comparators for 
+    // o objectIdentifierMatch                2.5.13.0  (ObjectIdentifierComparator)
+    // o distinguishedNameMatch               2.5.13.1  (DnComparator)
+    // o caseIgnoreMatch                      2.5.13.2  (DeepTrimToLowerCachingNormalizingComparator)
+    // o caseIgnoreOrderingMatch              2.5.13.3  (DeepTrimToLowerCachingNormalizingComparator)
+    // o caseIgnoreSubstringsMatch            2.5.13.4  (DeepTrimToLowerCachingNormalizingComparator)
+    // o caseExactMatch                       2.5.13.5  (DeepTrimCachingNormalizingComparator)
+    // o caseExactOrderingMatch               2.5.13.6  (ComparableComparator)
+    // o caseExactSubstringsMatch             2.5.13.7  (DeepTrimCachingNormalizingComparator)
+    // o numericStringMatch                   2.5.13.8  (ComparableComparator)
+    // o numericStringOrderingMatch           2.5.13.9  (ComparableComparator)
+    // o numericStringSubstringsMatch         2.5.13.10  (ComparableComparator)
+    // o caseIgnoreListMatch                  2.5.13.11  (DeepTrimToLowerCachingNormalizingComparator)
+    // o caseIgnoreListSubstringsMatch        2.5.13.12  (DeepTrimToLowerCachingNormalizingComparator)
+    // o booleanMatch                         2.5.13.13  (ComparableComparator)
+    // o integerMatch                         2.5.13.14  (ComparableComparator)
+    // o integerOrderingMatch                 2.5.13.15  (IntegerOrderingComparator)
+    // o bitStringMatch                       2.5.13.16  (ComparableComparator)
+    // o octetStringMatch                     2.5.13.17  (ByteArrayComparator)
+    // o octetStringOrderingMatch             2.5.13.18  (ByteArrayComparator)
+    // o octetStringSubstringsMatch           2.5.13.19  (ByteArrayComparator)
+    // o telephoneNumberMatch                 2.5.13.20  (TelephoneNumberComparator)
+    // o telephoneNumberSubstringsMatch       2.5.13.21  (ComparableComparator)
+    // o presentationAddressMatch             2.5.13.22  (ComparableComparator)
+    // o uniqueMemberMatch                    2.5.13.23  (NameAndOptionalUIDComparator)
+    // o protocolInformationMatch             2.5.13.24  (ComparableComparator)
+    // o generalizedTimeMatch                 2.5.13.27  (ComparableComparator)
+    // o generalizedTimeOrderingMatch         2.5.13.28  (ComparableComparator)
+    // o integerFirstComponentMatch           2.5.13.29  (ComparableComparator)
+    // o objectIdentifierFirstComponentMatch  2.5.13.30  (ComparableComparator)
+    // o directoryStringFirstComponentMatch   2.5.13.31  (ComparableComparator)
+    // o wordMatch                            2.5.13.32  (ComparableComparator)
+    // o keywordMatch                         2.5.13.33  (ComparableComparator)
+    // o caseExactIA5Match                    1.3.6.1.4.1.1466.109.114.1  (DeepTrimCachingNormalizingComparator)
+    // o caseIgnoreIA5Match                   1.3.6.1.4.1.1466.109.114.2  (DeepTrimToLowerCachingNormalizingComparator)
+    // o caseIgnoreIA5SubstringsMatch         1.3.6.1.4.1.1466.109.114.3  (DeepTrimToLowerCachingNormalizingComparator)
+    // ------------------------------------------------------------------------
+    
+    
+    /**
+     * {@inheritDoc}
+     */
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
         Comparator comparator;

@@ -61,11 +61,17 @@ public class ApachemetaComparatorProducer extends AbstractBootstrapProducer
     
     // ------------------------------------------------------------------------
     // BootstrapProducer Methods
+    // We need comparators for 
+    // - nameOrNumericIdMatch      1.3.6.1.4.1.18060.0.4.0.1.0  (NameOrNumericIdComparator)
+    // - objectClassTypeMatch      1.3.6.1.4.1.18060.0.4.0.1.1  (ObjectClassTypeComparator)
+    // - numericOidMatch           1.3.6.1.4.1.18060.0.4.0.1.2  (StringComparator)
+    // - supDITStructureRuleMatch  1.3.6.1.4.1.18060.0.4.0.1.3  (DeepTrimToLowerNormalizingComparator)
+    // - ruleIDMatch               1.3.6.1.4.1.18060.0.4.0.1.4  (DeepTrimToLowerNormalizingComparator)
     // ------------------------------------------------------------------------
 
 
     /**
-     * @see BootstrapProducer#produce(Registries, ProducerCallback)
+     * {@inheritDoc}
      */
     public void produce( Registries registries, ProducerCallback cb )
         throws NamingException
