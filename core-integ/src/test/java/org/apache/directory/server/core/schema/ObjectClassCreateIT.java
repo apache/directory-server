@@ -266,7 +266,6 @@ public class ObjectClassCreateIT
         }
         catch ( NamingException ne )
         {
-            ne.printStackTrace();
             fail();
         }
         
@@ -310,7 +309,6 @@ public class ObjectClassCreateIT
         }
         catch ( NamingException ne )
         {
-            ne.printStackTrace();
             fail();
         }
         
