@@ -66,14 +66,14 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     @Test
     public void testNumericOid() throws ParseException
     {
-        SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testNumericOid( parser, "FQCN org.apache.directory.SimpleSyntaxChecker" );
     }
 
 
     @Test
     public void testDescription() throws ParseException
     {
-        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testDescription( parser, "1.1", "FQCN org.apache.directory.SimpleSyntaxChecker" );
     }
 
 
@@ -84,10 +84,10 @@ public class SyntaxCheckerDescriptionSchemaParserTest
         SyntaxCheckerDescription scd = null;
 
         // FQCN simple p
-        value = "( 1.1 FQCN org.apache.directory.SimpleComparator )";
+        value = "( 1.1 FQCN org.apache.directory.SimpleSyntaxChecker )";
         scd = parser.parseSyntaxCheckerDescription( value );
         assertNotNull( scd.getFqcn() );
-        assertEquals( "org.apache.directory.SimpleComparator", scd.getFqcn() );
+        assertEquals( "org.apache.directory.SimpleSyntaxChecker", scd.getFqcn() );
     }
 
 
@@ -98,7 +98,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest
         SyntaxCheckerDescription scd = null;
 
         // FQCN simple p
-        value = "( 1.1 FQCN org.apache.directory.SimpleComparator BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
+        value = "( 1.1 FQCN org.apache.directory.SimpleSyntaxChecker BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
         scd = parser.parseSyntaxCheckerDescription( value );
         assertNotNull( scd.getBytecode() );
         assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", scd.getBytecode() );
@@ -108,7 +108,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest
     @Test
     public void testExtensions() throws ParseException
     {
-        SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleComparator" );
+        SchemaParserTestUtils.testExtensions( parser, "1.1", "FQCN org.apache.directory.SimpleSyntaxChecker" );
     }
 
 
