@@ -31,7 +31,10 @@
   <packaging>jar</packaging>  
 
   <description>
-    Unit testing framework for ApacheDS Server JNDI Provider
+    A JUnit 4.x based unit testing framework applying LDAP operations over the 
+    wire against an LDAP server. Right now the LDAP server is ApacheDS because
+    the start, stop and cleanup of the server are easily controlled.  This may
+    change in the future.
   </description>
 
   <dependencies>
@@ -87,6 +90,21 @@
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>all</shadedClassifierName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
