@@ -625,6 +625,15 @@ public interface SchemaConstants
     String JAVA_LONG_SYNTAX                       = "1.3.6.1.4.1.18060.0.4.1.0.3";
     String JAVA_INT_SYNTAX                        = "1.3.6.1.4.1.18060.0.4.1.0.4";
 
+    // Comparator syntax
+    String COMPARATOR_SYNTAX                      = "1.3.6.1.4.1.18060.0.4.1.0.5";
+    
+    // Normalizer Syntax
+    String NORMALIZER_SYNTAX                      = "1.3.6.1.4.1.18060.0.4.1.0.6";
+    
+    // SyntaxChecker Syntax
+    String SYNTAX_CHECKER_SYNTAX                  = "1.3.6.1.4.1.18060.0.4.1.0.7";
+    
     //-------------------------------------------------------------------------
     // ---- MatchingRules -----------------------------------------------------
     //-------------------------------------------------------------------------
@@ -790,6 +799,18 @@ public interface SchemaConstants
     // csnSidMatch
     String CSN_SID_MATCH_MR                               = "csnSidMatch"; 
     String CSN_SID_MATCH_MR_OID                           = "1.3.6.1.4.1.4203.666.11.2.5"; 
+    
+    // ComparatorMatch
+    String COMPARATOR_MATCH_MR                            = "comparatorMatch"; 
+    String COMPARATOR_MATCH_MR_OID                        = "1.3.6.1.4.1.18060.0.4.1.1.5"; 
+    
+    // NormalizerMatch
+    String NORMALIZER_MATCH_MR                            = "normalizerMatch"; 
+    String NORMALIZER_MATCH_MR_OID                        = "1.3.6.1.4.1.18060.0.4.1.1.6"; 
+    
+    // SyntaxCheckerMatch
+    String SYNTAX_CHECKER_MATCH_MR                        = "syntaxCheckerMatch"; 
+    String SYNTAX_CHECKER_MATCH_MR_OID                    = "1.3.6.1.4.1.18060.0.4.1.1.7"; 
     
     // ---- Features ----------------------------------------------------------
     String FEATURE_ALL_OPERATIONAL_ATTRIBUTES             = "1.3.6.1.4.1.4203.1.5.1";
