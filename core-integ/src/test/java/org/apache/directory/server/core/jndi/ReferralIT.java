@@ -119,7 +119,7 @@ public class ReferralIT
         referral.get( "ref" ).add( ref2 );
         referral.put( "ou", "users" );
 
-        // Just in case if server is a remote server destroy remaing referral
+        // Just in case if server is a remote server destroy remaining referral
         td.rootCtx.addToEnvironment( Context.REFERRAL, "ignore" );
         try
         {
