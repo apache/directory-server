@@ -91,7 +91,7 @@ public class NormalizerDescriptionSchemaParserTest
         NormalizerDescription nd = null;
 
         // FQCN simple p
-        value = "( 1.1 FQCN org.apache.directory.SimpleComparator BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
+        value = "( 1.1 FQCN org.apache.directory.SimpleNormalizer BYTECODE ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789==== )";
         nd = parser.parseNormalizerDescription( value );
         assertNotNull( nd.getBytecode() );
         assertEquals( "ABCDEFGHIJKLMNOPQRSTUVWXYZ+/abcdefghijklmnopqrstuvwxyz0123456789====", nd.getBytecode() );
