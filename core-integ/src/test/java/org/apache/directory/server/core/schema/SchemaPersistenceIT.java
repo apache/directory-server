@@ -114,7 +114,6 @@ public class SchemaPersistenceIT
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             throw e;
         }
     }
