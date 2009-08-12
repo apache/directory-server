@@ -311,7 +311,6 @@ public class SimpleBindIT
         }
         catch ( LDAPException e )
         {
-            e.printStackTrace();
             fail( "Should not have caught exception." );
         }
 
@@ -436,7 +435,6 @@ public class SimpleBindIT
         }
         catch ( LDAPException e )
         {
-            e.printStackTrace();
             fail( "Should not have caught exception." );
         }
         finally
