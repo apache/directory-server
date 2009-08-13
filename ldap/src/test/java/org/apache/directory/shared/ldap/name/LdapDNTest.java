@@ -2003,10 +2003,7 @@ public class LdapDNTest
 
 
     /**
-     * Class to test for get
-     *
-     * @throws Exception
-     *             anything goes wrong
+     * Test the get( int ) method
      */
     @Test
     public void testGet() throws Exception
@@ -2018,6 +2015,19 @@ public class LdapDNTest
         assertEquals( "ou=East", name.get( 0 ) );
     }
 
+
+    /**
+     * Test the getRdn( int ) method
+     */
+    @Test
+    public void testGetRdn() throws Exception
+    {
+        LdapDN name = new LdapDN( "cn=HomeDir,cn=John,ou=Marketing,ou=East" );
+        assertEquals( "cn=HomeDir", name.getRdn( 3 ).getUpName() );
+        assertEquals( "cn=John", name.getRdn( 2 ).getUpName() );
+        assertEquals( "ou=Marketing", name.getRdn( 1 ).getUpName() );
+        assertEquals( "ou=East", name.getRdn( 0 ).getUpName() );
+    }
 
     /**
      * Class to test for getSuffix
