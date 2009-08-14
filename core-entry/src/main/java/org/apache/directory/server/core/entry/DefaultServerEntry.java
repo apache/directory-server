@@ -2494,14 +2494,16 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
         if ( dn.isNormalized() )
         {
-            sb.append( "[n]" );
+            sb.append( "[n]: " );
+            sb.append( dn.getUpName() );
         }
         else
         {
-            sb.append(  "[]" );
+            sb.append( "[]: " );
+            sb.append( dn );
         }
         
-        sb.append( ": " ).append( dn ).append( '\n' );
+        sb.append( '\n' );
         
         // First dump the ObjectClass attribute
         if ( containsAttribute( OBJECT_CLASS_AT ) )
