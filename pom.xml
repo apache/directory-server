@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>15</version>
+    <version>16</version>
   </parent>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-parent</artifactId>
