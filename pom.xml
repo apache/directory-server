@@ -207,6 +207,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <minmemory>512m</minmemory>
+          <maxmemory>1g</maxmemory>
           <aggregate>true</aggregate>
           <linksource>true</linksource>
         </configuration>
