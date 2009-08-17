@@ -39,7 +39,7 @@
     <distMgmtSiteUrl>scpexe://vm094.oxylos.org/var/www/html/projects/apacheds/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>0.9.15-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>0.9.15</org.apache.directory.shared.version>
     <skin.version>1.0.0</skin.version>
   </properties>
 
@@ -69,7 +69,7 @@
       <dependency>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-bootstrappers</artifactId>
-        <version>1.1.6-SNAPSHOT</version>
+        <version>1.1.6</version>
       </dependency>
 
       <dependency>
