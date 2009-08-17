@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.5-SNAPSHOT</version>
+    <version>1.5.5</version>
   </parent>
   <artifactId>apacheds-bootstrap-plugin</artifactId>
   <name>ApacheDS Bootstrap Plugin</name>
@@ -123,7 +123,9 @@
 
   <!-- Somehow inheritence of <scm> doesn' works correctly ? -->
   <scm>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/tags/apacheds-parent-1.5.5</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/tags/apacheds-parent-1.5.5/apacheds-bootstrap-plugin</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/tags/apacheds-parent-1.5.5/apacheds-bootstrap-plugin</developerConnection>
   </scm>
 </project>
 
