@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.5</version>
+    <version>1.5.6-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-core-plugin</artifactId>
   <name>ApacheDS Core Plugin (Maven 2)</name>
@@ -95,9 +95,9 @@
 
   <!-- Somehow inheritence of <scm> doesn' works correctly ? -->
   <scm>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/tags/1.5.5</url>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.5/apacheds-core-plugin</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/tags/1.5.5/apacheds-core-plugin</developerConnection>
+    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk/apacheds-core-plugin</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk/apacheds-core-plugin</developerConnection>
   </scm>
 </project>
 
