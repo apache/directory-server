@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -52,8 +53,10 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.integ.SiRunner;
 import org.apache.directory.server.ldap.LdapServer;
@@ -389,4 +392,69 @@ public class StartTlsIT
             ctx.close();
         }
     }
+    
+    /**
+     * Test for DIRSERVER-1373.
+     */
+    @Test
+    public void testUpdateCertificate() throws Exception
+    {
+        // create a secure connection
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapServer.getPort() );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        LdapContext ctx = new InitialLdapContext( env, null );
+        StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
+        tls.setHostnameVerifier( new HostnameVerifier() {
+            public boolean verify( String hostname, SSLSession session )
+            {
+                return true;
+            } 
+        } );
+        tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
+
+        // create a new certificate
+        String newIssuerDN = "cn=new_issuer_dn";
+        String newSubjectDN = "cn=new_subject_dn";
+        ServerEntry entry = ldapServer.getDirectoryService().getAdminSession().lookup(
+            new LdapDN( "uid=admin,ou=system" ) );
+        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
+
+        // now update the certificate (over the wire)
+        ModificationItem[] mods = new ModificationItem[3];
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PRIVATE_KEY_AT, entry.get( TlsKeyGenerator.PRIVATE_KEY_AT ).getBytes() ) );
+        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.PUBLIC_KEY_AT, entry.get( TlsKeyGenerator.PUBLIC_KEY_AT ).getBytes() ) );
+        mods[2] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            TlsKeyGenerator.USER_CERTIFICATE_AT, entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
+        ctx.modifyAttributes( "uid=admin,ou=system", mods );
+        ctx.close();
+
+        ldapServer.reloadSslContext();
+        
+        // create a new secure connection
+        ctx = new InitialLdapContext( env, null );
+        tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
+        tls.setHostnameVerifier( new HostnameVerifier() {
+            public boolean verify( String hostname, SSLSession session )
+            {
+                return true;
+            } 
+        } );
+        tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
+
+        // check the received certificate, it must contain the updated server certificate
+        X509Certificate[] lastReceivedServerCertificates = BogusTrustManagerFactory.lastReceivedServerCertificates;
+        assertNotNull( lastReceivedServerCertificates );
+        assertEquals( 1, lastReceivedServerCertificates.length );
+        String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
+        String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
+        assertEquals( "Expected the new certificate with the new issuer", newIssuerDN.toLowerCase(), issuerDN.toLowerCase() );
+        assertEquals( "Expected the new certificate with the new subject", newSubjectDN.toLowerCase(), subjectDN.toLowerCase() );
+    }
+
 }

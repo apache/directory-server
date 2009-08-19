@@ -40,6 +40,11 @@ import javax.net.ssl.X509TrustManager;
  */
 class BogusTrustManagerFactory extends TrustManagerFactorySpi
 {
+    /**
+     * Hack to be able to access the last received server certificate from unit tests.
+     * Use with care, this is in no way thread safe!
+     */
+    static X509Certificate[] lastReceivedServerCertificates;
 
     static final X509TrustManager X509 = new X509TrustManager()
     {
@@ -50,6 +55,7 @@ class BogusTrustManagerFactory extends TrustManagerFactorySpi
 
         public void checkServerTrusted( X509Certificate[] x509Certificates, String s ) throws CertificateException
         {
+            lastReceivedServerCertificates = x509Certificates;
         }
 
 

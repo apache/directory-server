@@ -35,22 +35,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
-import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.server.ldap.handlers.AbandonHandler;
 import org.apache.directory.server.ldap.handlers.AddHandler;
 import org.apache.directory.server.ldap.handlers.BindHandler;
 import org.apache.directory.server.ldap.handlers.CompareHandler;
 import org.apache.directory.server.ldap.handlers.DeleteHandler;
 import org.apache.directory.server.ldap.handlers.ExtendedHandler;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
 import org.apache.directory.server.ldap.handlers.ModifyHandler;
 import org.apache.directory.server.ldap.handlers.SearchHandler;
 import org.apache.directory.server.ldap.handlers.UnbindHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.ldap.replication.ReplicationSystem;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
@@ -215,6 +217,10 @@ public class LdapServer extends DirectoryBackedService
     
     private ReplicationSystem replicationSystem;
 
+    private KeyStore keyStore = null;
+
+    private IoFilterChainBuilder chainBuilder;
+    
     /**
      * Creates an LDAP protocol provider.
      */
@@ -315,6 +321,77 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
+    
+    /**
+     * loads the digital certificate either from a keystore file or from the admin entry in DIT
+     */
+    private void loadKeyStore() throws Exception
+    {
+        if ( StringTools.isEmpty( keystoreFile ) )
+        {
+            Provider provider = Security.getProvider( "SUN" );
+            LOG.debug( "provider = {}", provider );
+            CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
+            keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" ) {};
+            
+            try
+            {
+                keyStore.load( null, null );
+            }
+            catch ( Exception e )
+            {
+                // nothing really happens with this keystore
+            }
+        }
+        else
+        {
+            keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+            FileInputStream fis = new FileInputStream( keystoreFile );
+            
+            keyStore.load( fis, null );
+        }
+    }
+
+    
+    /**
+     * reloads the SSL context by replacing the existing SslFilter
+     * with a new SslFilter after reloading the keystore.
+     * 
+     * Note: should be called to reload the keystore after changing the digital certificate.
+     */
+    public void reloadSslContext() throws Exception
+    {
+        if( !started )
+        {
+            return;
+        }
+
+        LOG.info( "reloading SSL context..." );
+        
+        loadKeyStore();
+        
+        DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
+        String sslFilterName = "sslFilter";
+        if( dfcb.contains( sslFilterName ) )
+        {
+            DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyStore, certificatePassword );
+            dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
+            newChain = null;
+        }
+
+        StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
+        if( handler != null )
+        {
+            //FIXME dirty hack. IMO StartTlsHandler's code requires a cleanup
+            // cause the keystore loading and sslcontext creation code is duplicated
+            // both in the LdapService as well as StatTlsHandler
+            handler.setLdapServer( this );
+        }
+        
+        LOG.info( "reloaded SSL context successfully" );
+    }
+
+    
     /**
      * @throws IOException if we cannot bind to the specified port
      * @throws NamingException if the LDAP server cannot be started
@@ -338,33 +415,7 @@ public class LdapServer extends DirectoryBackedService
             
             if ( transport.isSSLEnabled() )
             {
-                KeyStore keyStore = null;
-                
-                if ( StringTools.isEmpty( keystoreFile ) )
-                {
-                    Provider provider = Security.getProvider( "SUN" );
-                    LOG.debug( "provider = {}", provider );
-                    CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
-                    keyStore = new AdsKeyStore( coreKeyStoreSpi, provider, "JKS" );
-                    
-                    try
-                    {
-                        keyStore.load( null, null );
-                    }
-                    catch ( Exception e )
-                    {
-                        // nothing really happens with this keystore
-                    }
-                }
-                else
-                {
-                    keyStore = AdsKeyStore.getInstance( KeyStore.getDefaultType() );
-                    FileInputStream fis = new FileInputStream( keystoreFile );
-                    
-                    
-                    keyStore.load( fis, null );
-                }
-                
+                loadKeyStore();
                 chain = LdapsInitializer.init( keyStore, certificatePassword );
             }
             else
@@ -479,7 +530,9 @@ public class LdapServer extends DirectoryBackedService
             // Set the backlog to the default value when it's below 0
             transport.setBackLog( 50 );
         }
-
+        
+        this.chainBuilder = chainBuilder;
+        
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
         for ( ExtendedOperationHandler h : extendedOperationHandlers )
