@@ -443,8 +443,7 @@ public class ServerStringValueTest
      */
     @Test public void testConstrainedString()
     {
-        s.setSyntaxChecker( new SyntaxChecker() {
-            public String getSyntaxOid() { return "1.1.1.1"; }
+        s.setSyntaxChecker( new SyntaxChecker( "1.1.1.1" ) {
             public boolean isValidSyntax( Object value )
             {
                 if ( value instanceof String )
@@ -454,8 +453,6 @@ public class ServerStringValueTest
                 }
                 return false;
             }
-            public void assertSyntax( Object value ) throws NamingException
-            { if ( ! isValidSyntax( value ) ) {throw new InvalidAttributeValueException(); }}
         });
 
         mr.syntax = s;
