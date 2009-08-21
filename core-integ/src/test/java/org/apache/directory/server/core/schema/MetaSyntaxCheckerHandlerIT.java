@@ -553,10 +553,11 @@ public class MetaSyntaxCheckerHandlerIT
     }
 
     
-    public static class BogusSyntaxChecker implements SyntaxChecker
+    public static class BogusSyntaxChecker extends SyntaxChecker
     {
         public BogusSyntaxChecker()
         {
+        	super(OID);
         }
         
         public void assertSyntax( Object value ) throws NamingException

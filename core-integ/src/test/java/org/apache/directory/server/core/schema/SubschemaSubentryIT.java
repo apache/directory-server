@@ -37,8 +37,8 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
@@ -249,7 +249,7 @@ public class SubschemaSubentryIT
         if ( isPresent )
         {
             assertNotNull( syntaxCheckerDescription );
-            assertEquals( oid, syntaxCheckerDescription.getNumericOid() );
+            assertEquals( oid, syntaxCheckerDescription.getOid() );
         }
         else
         {
@@ -271,7 +271,7 @@ public class SubschemaSubentryIT
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
 
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries() );
-            assertEquals( oid, syntaxChecker.getSyntaxOid() );
+            assertEquals( oid, syntaxChecker.getOid() );
         }
         else
         {
@@ -407,7 +407,8 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "comparators" );
-        ComparatorDescription comparatorDescription = null; 
+        LdapComparatorDescription comparatorDescription = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
@@ -421,7 +422,7 @@ public class SubschemaSubentryIT
         if ( isPresent )
         {
             assertNotNull( comparatorDescription );
-            assertEquals( oid, comparatorDescription.getNumericOid() );
+            assertEquals( oid, comparatorDescription.getOid() );
         }
         else
         {
@@ -574,7 +575,7 @@ public class SubschemaSubentryIT
         if ( isPresent )
         {
             assertNotNull( normalizerDescription );
-            assertEquals( oid, normalizerDescription.getNumericOid() );
+            assertEquals( oid, normalizerDescription.getOid() );
         }
         else
         {
