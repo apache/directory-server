@@ -26,7 +26,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.AbstractSchemaObject;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
 

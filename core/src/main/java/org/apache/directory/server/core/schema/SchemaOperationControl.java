@@ -73,7 +73,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -678,11 +678,11 @@ public class SchemaOperationControl
         {
             case( COMPARATOR_INDEX ):
                 MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
-                ComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
+                LdapComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
                 
-                for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
+                for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    comparatorHandler.delete( comparatorDescription.getNumericOid(), doCascadeModify );
+                    comparatorHandler.delete( comparatorDescription.getOid(), doCascadeModify );
                     subentryModifier.delete( opContext, comparatorDescription );
                 }
                 break;
@@ -692,7 +692,7 @@ public class SchemaOperationControl
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    normalizerHandler.delete( normalizerDescription.getNumericOid(), doCascadeModify );
+                    normalizerHandler.delete( normalizerDescription.getOid(), doCascadeModify );
                     subentryModifier.delete( opContext, normalizerDescription );
                 }
                 break;
@@ -702,7 +702,7 @@ public class SchemaOperationControl
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid(), doCascadeModify );
+                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getOid(), doCascadeModify );
                     subentryModifier.delete( opContext, syntaxCheckerDescription );
                 }
                 break;
@@ -817,9 +817,9 @@ public class SchemaOperationControl
         {
             case( COMPARATOR_INDEX ):
                 MetaComparatorHandler comparatorHandler = ( MetaComparatorHandler ) handler;
-                ComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
+            LdapComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
                 
-                for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
+                for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
                     comparatorHandler.add( comparatorDescription );
                     subentryModifier.add( opContext, comparatorDescription );

@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.Syntax;
@@ -809,17 +810,16 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ClonedServerEntry attrs = lookupPartition( resultDN );
-            Comparator comparator = factory.getComparator( attrs, targetRegistries );
-            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), attrs );
+            LdapComparator<?> comparator = factory.getLdapComparator( attrs, targetRegistries );
+            LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), attrs );
             targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );
         }
     }
 
 
-    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
+    private LdapComparatorDescription getLdapComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
     {
-        ComparatorDescription description = new ComparatorDescription();
-        description.setNumericOid( getOid( entry ) );
+    	LdapComparatorDescription description = new LdapComparatorDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
@@ -847,8 +847,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry ) 
         throws Exception
     {
-        SyntaxCheckerDescription description = new SyntaxCheckerDescription();
-        description.setNumericOid( getOid( entry ) );
+        SyntaxCheckerDescription description = new SyntaxCheckerDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );

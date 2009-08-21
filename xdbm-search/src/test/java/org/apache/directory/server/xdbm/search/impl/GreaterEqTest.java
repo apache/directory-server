@@ -670,13 +670,12 @@ public class GreaterEqTest
         AttributeType at = new NoMatchingRuleAttributeType();
         registries.getAttributeTypeRegistry().register( at );
         registries.getSyntaxRegistry().register( at.getSyntax() );
-        SyntaxCheckerDescription desc = new SyntaxCheckerDescription();
+        SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
         List<String> names = new ArrayList<String>();
         names.add( "bogus" );
         desc.setNames( names );
-        desc.setNumericOid( at.getSyntax().getOid() );
         desc.setObsolete( false );
         registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
 
@@ -692,13 +691,12 @@ public class GreaterEqTest
         AttributeType at = new OrderingOnlyMatchingRuleAttributeType();
         registries.getAttributeTypeRegistry().register( at );
         registries.getSyntaxRegistry().register( at.getSyntax() );
-        SyntaxCheckerDescription desc = new SyntaxCheckerDescription();
+        SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
         List<String> names = new ArrayList<String>();
         names.add( "bogus" );
         desc.setNames( names );
-        desc.setNumericOid( at.getSyntax().getOid() );
         desc.setObsolete( false );
         registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
 

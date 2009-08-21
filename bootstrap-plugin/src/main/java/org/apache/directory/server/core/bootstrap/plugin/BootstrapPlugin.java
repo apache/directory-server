@@ -637,15 +637,15 @@ public class BootstrapPlugin extends AbstractMojo
 
         for ( SyntaxChecker syntaxChecker : syntaxCheckerRegistry )
         {
-            String schemaName = syntaxCheckerRegistry.getSchemaName( syntaxChecker.getSyntaxOid() );
+            String schemaName = syntaxCheckerRegistry.getSchemaName( syntaxChecker.getOid() );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
-            getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getSyntaxOid() );
+            getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getOid() );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=syntaxCheckers" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
             ServerEntry entry = attributesFactory.getAttributes( syntaxChecker, schema, registries );
-            dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntaxChecker.getSyntaxOid() );
+            dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntaxChecker.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
             injectEntryInStore( store, entry );

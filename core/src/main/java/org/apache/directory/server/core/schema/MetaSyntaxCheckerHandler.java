@@ -77,8 +77,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     private SyntaxCheckerDescription getSyntaxCheckerDescription( String schemaName, ServerEntry entry ) 
         throws Exception
     {
-        SyntaxCheckerDescription description = new SyntaxCheckerDescription();
-        description.setNumericOid( getOid( entry ) );
+        SyntaxCheckerDescription description = new SyntaxCheckerDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );

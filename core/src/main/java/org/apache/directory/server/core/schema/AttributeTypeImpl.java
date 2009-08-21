@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
@@ -39,7 +38,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaObject
+class AttributeTypeImpl extends AbstractAttributeType implements SchemaObject
 {
     private static final long serialVersionUID = 1L;
 

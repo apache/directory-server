@@ -41,15 +41,16 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -231,15 +232,15 @@ public class SchemaEntityFactory
             attr = new DefaultServerAttribute( byteCodeAT, bytecode );
         }
         
-        return getSyntaxChecker( syntaxCheckerDescription.getNumericOid(), 
+        return getSyntaxChecker( syntaxCheckerDescription.getOid(), 
             syntaxCheckerDescription.getFqcn(), attr, targetRegistries );
     }
     
     
-    private Comparator getComparator( String className, EntryAttribute bytecode, Registries targetRegistries ) 
+    private LdapComparator<?> getLdapComparator( String className, EntryAttribute bytecode, Registries targetRegistries ) 
         throws NamingException
     {
-        Comparator comparator = null;
+        LdapComparator<?> comparator = null;
         Class<?> clazz = null;
         
         if ( bytecode == null ) 
@@ -275,7 +276,7 @@ public class SchemaEntityFactory
         
         try
         {
-            comparator = ( Comparator ) clazz.newInstance();
+            comparator = ( LdapComparator<?> ) clazz.newInstance();
         }
         catch ( InstantiationException e )
         {
@@ -297,7 +298,7 @@ public class SchemaEntityFactory
     }
     
     
-    public Comparator getComparator( ComparatorDescription comparatorDescription, Registries targetRegistries ) 
+    public LdapComparator<?> getLdapComparator( LdapComparatorDescription comparatorDescription, Registries targetRegistries ) 
         throws NamingException
     {
         ServerAttribute attr = null;
@@ -309,7 +310,7 @@ public class SchemaEntityFactory
             attr = new DefaultServerAttribute( byteCodeAT, bytecode );
         }
         
-        return getComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
+        return getLdapComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
     }
     
     
@@ -320,7 +321,7 @@ public class SchemaEntityFactory
      * @return the loaded Comparator
      * @throws NamingException if anything fails during loading
      */
-    public Comparator getComparator( ServerEntry entry, Registries targetRegistries ) throws NamingException
+    public LdapComparator<?> getLdapComparator( ServerEntry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -334,7 +335,7 @@ public class SchemaEntityFactory
         }
         
         String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
-        return getComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
+        return getLdapComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
     
@@ -695,17 +696,17 @@ public class SchemaEntityFactory
     }
     
 
-    private void setSchemaObjectProperties( MutableSchemaObject mso, ServerEntry entry ) throws NamingException
+    private void setSchemaObjectProperties( SchemaObject so, ServerEntry entry ) throws NamingException
     {
         if ( entry.get( MetaSchemaConstants.M_OBSOLETE_AT ) != null )
         {
             String val = entry.get( MetaSchemaConstants.M_OBSOLETE_AT ).getString();
-            mso.setObsolete( val.equalsIgnoreCase( "TRUE" ) );
+            so.setObsolete( val.equalsIgnoreCase( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ) != null )
         {
-            mso.setDescription( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).getString() ); 
+            so.setDescription( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ).getString() ); 
         }
 
         EntryAttribute names = entry.get( MetaSchemaConstants.M_NAME_AT );
@@ -719,7 +720,7 @@ public class SchemaEntityFactory
                 values.add( name.getString() );
             }
             
-            mso.setNames( values.toArray( EMPTY ) );
+            so.setNames( values );
         }
     }
 }

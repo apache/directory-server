@@ -66,10 +66,10 @@ public class NisSyntaxCheckerProducer extends AbstractBootstrapProducer
 
         // 1.3.6.1.1.1.0.0 - RFC2307 NIS Netgroup Triple
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.1.1.0.0" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, syntaxChecker.getOid(), syntaxChecker );
 
         // 1.3.6.1.1.1.0.1 - RFC2307 Boot Parameter Syntax
         syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.1.1.0.1" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, syntaxChecker.getOid(), syntaxChecker );
     }
 }

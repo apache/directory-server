@@ -131,7 +131,7 @@ public class AttributesFactory
         ServerEntry entry = new DefaultServerEntry( registries );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
-        entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getSyntaxOid() );
+        entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );

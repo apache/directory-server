@@ -29,7 +29,6 @@ import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
 

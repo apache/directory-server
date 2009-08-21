@@ -24,11 +24,10 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 
 
-class SyntaxImpl extends AbstractSyntax implements MutableSchemaObject
+class SyntaxImpl extends AbstractSyntax
 {
     private static final long serialVersionUID = 1L;
     private final SyntaxCheckerRegistry registry;

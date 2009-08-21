@@ -41,7 +41,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -78,13 +79,13 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
-        Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
+        LdapComparator<?> comparator = factory.getLdapComparator( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
             comparatorRegistry.unregister( oid );
-            ComparatorDescription description = getComparatorDescription( schema.getSchemaName(), targetEntry );
+            LdapComparatorDescription description = getLdapComparatorDescription( schema.getSchemaName(), targetEntry );
             comparatorRegistry.register( description, comparator );
             
             return SCHEMA_MODIFIED;
@@ -94,10 +95,9 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    private ComparatorDescription getComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
+    private LdapComparatorDescription getLdapComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
     {
-        ComparatorDescription description = new ComparatorDescription();
-        description.setNumericOid( getOid( entry ) );
+    	LdapComparatorDescription description = new LdapComparatorDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
@@ -129,20 +129,20 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         checkNewParent( parentDn );
         checkOidIsUniqueForComparator( entry );
         
-        Comparator comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
-            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), entry );
+        	LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
     
     
-    public void add( ComparatorDescription comparatorDescription ) throws Exception
+    public void add( LdapComparatorDescription comparatorDescription ) throws Exception
     {
-        Comparator comparator = factory.getComparator( comparatorDescription, targetRegistries );
+        LdapComparator<?> comparator = factory.getComparator( comparatorDescription, targetRegistries );
         String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
         
         if ( comparatorDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
@@ -201,10 +201,10 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            Comparator comparator = factory.getComparator( entry, targetRegistries );
+            LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
             comparatorRegistry.unregister( oldOid );
-            ComparatorDescription comparatorDescription = getComparatorDescription( schema.getSchemaName(), entry );
-            comparatorDescription.setNumericOid( oid );
+            LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
+            comparatorDescription.changeOid( oid );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
@@ -230,7 +230,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        Comparator comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -239,8 +239,8 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
         if ( ! newSchema.isDisabled() )
         {
-            ComparatorDescription comparatorDescription = getComparatorDescription( newSchema.getSchemaName(), entry );
-            comparatorDescription.setNumericOid( oid );
+        	LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( newSchema.getSchemaName(), entry );
+            comparatorDescription.changeOid( oid );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
@@ -263,7 +263,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        Comparator comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -272,7 +272,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         
         if ( ! newSchema.isDisabled() )
         {
-            ComparatorDescription comparatorDescription = getComparatorDescription( newSchema.getSchemaName(), entry );
+        	LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( newSchema.getSchemaName(), entry );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }

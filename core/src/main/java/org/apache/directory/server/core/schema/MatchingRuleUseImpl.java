@@ -27,7 +27,6 @@ import org.apache.directory.shared.ldap.schema.AbstractSchemaObject;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 
 
 /**

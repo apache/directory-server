@@ -51,7 +51,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -144,15 +144,15 @@ public class SchemaSubentryModifier
             buf.append( SchemaConstants.NAME_FORMS_AT );
         }
 
-        buf.append( ",cn=" ).append( obj.getSchema() ).append( ",ou=schema" );
+        buf.append( ",cn=" ).append( obj.getSchemaName() ).append( ",ou=schema" );
         return new LdapDN( buf.toString() );
     }
     
 
-    public void add( OperationContext opContext, ComparatorDescription comparatorDescription ) throws Exception
+    public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );   
-        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Entry entry = getEntry( dn, comparatorDescription );
 
@@ -174,7 +174,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Entry entry = getEntry( dn, syntaxCheckerDescription );
         opContext.add( (ServerEntry)entry, BYPASS );
@@ -183,7 +183,7 @@ public class SchemaSubentryModifier
     
     public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
     {
-        Schema schema = dao.getSchema( obj.getSchema() );
+        Schema schema = dao.getSchema( obj.getSchemaName() );
         LdapDN dn = getDn( obj );
         ServerEntry entry = factory.getAttributes( obj, schema, 
             opContext.getSession().getDirectoryService().getRegistries() );
@@ -203,7 +203,7 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         opContext.delete( dn, BYPASS );
     }
@@ -212,22 +212,22 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         opContext.delete( dn, BYPASS );
     }
 
 
-    public void delete( OperationContext opContext, ComparatorDescription comparatorDescription ) throws Exception
+    public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         opContext.delete( dn, BYPASS );
     }
 
 
-    private Entry getEntry( LdapDN dn, ComparatorDescription comparatorDescription )
+    private Entry getEntry( LdapDN dn, LdapComparatorDescription comparatorDescription )
     {
         Entry entry = new DefaultServerEntry( registries, dn );
         
@@ -236,7 +236,7 @@ public class SchemaSubentryModifier
                     MetaSchemaConstants.META_TOP_OC,
                     MetaSchemaConstants.META_COMPARATOR_OC );
         
-        entry.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
 
         if ( comparatorDescription.getBytecode() != null )
@@ -263,7 +263,7 @@ public class SchemaSubentryModifier
             MetaSchemaConstants.META_TOP_OC,
             MetaSchemaConstants.META_NORMALIZER_OC );
         
-        entry.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
 
         if ( normalizerDescription.getBytecode() != null )
@@ -281,7 +281,7 @@ public class SchemaSubentryModifier
     }
 
 
-    private String getSchema( AbstractSchemaDescription desc ) 
+    private String getSchema( SchemaObject desc ) 
     {
         if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
         {
@@ -301,7 +301,7 @@ public class SchemaSubentryModifier
             MetaSchemaConstants.META_TOP_OC,
             MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
 
-        entry.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
+        entry.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
 
         if ( syntaxCheckerDescription.getBytecode() != null )

@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 
@@ -141,12 +141,12 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.COMPARATORS_AT ) );
 
-        Iterator<ComparatorDescription> list = 
-            registries.getComparatorRegistry().comparatorDescriptionIterator();
+        Iterator<LdapComparatorDescription> list = 
+            registries.getComparatorRegistry().ldapComparatorDescriptionIterator();
         
         while ( list.hasNext() )
         {
-            ComparatorDescription description = list.next();
+        	LdapComparatorDescription description = list.next();
             attr.add( SchemaUtils.render( description ) );
         }
 

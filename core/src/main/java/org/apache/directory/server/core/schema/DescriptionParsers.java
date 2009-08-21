@@ -38,14 +38,14 @@ import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
@@ -81,7 +81,7 @@ public class DescriptionParsers
     private static final String[] EMPTY = new String[0];
     private static final Integer[] EMPTY_INT_ARRAY = new Integer[0];
 
-    private static final ComparatorDescription[] EMPTY_COMPARATORS = new ComparatorDescription[0];
+    private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
     private static final Syntax[] EMPTY_SYNTAXES = new Syntax[0];
@@ -196,14 +196,14 @@ public class DescriptionParsers
     }
     
 
-    public ComparatorDescription[] parseComparators( EntryAttribute attr ) throws NamingException
+    public LdapComparatorDescription[] parseComparators( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_COMPARATORS;
         }
         
-        ComparatorDescription[] comparatorDescriptions = new ComparatorDescription[attr.size()];
+        LdapComparatorDescription[] comparatorDescriptions = new LdapComparatorDescription[attr.size()];
         
         int pos = 0;
         
@@ -774,14 +774,14 @@ public class DescriptionParsers
      * @param desc the source description object to copy properties from
      * @param obj the mutable schema object to copy properites to
      */
-    private void setSchemaObjectProperties( AbstractSchemaDescription desc, MutableSchemaObject obj )
+    private void setSchemaObjectProperties( AbstractSchemaDescription desc, SchemaObject obj )
     {
         obj.setDescription( desc.getDescription() );
-        obj.setSchema( getSchema( desc ) );
+        obj.setSchemaName( getSchema( desc ) );
 
         if ( ! ( desc instanceof LdapSyntaxDescription ) )
         {
-            obj.setNames( desc.getNames().toArray( EMPTY ) );
+            obj.setNames( desc.getNames() );
             obj.setObsolete( desc.isObsolete() );
         }
     }

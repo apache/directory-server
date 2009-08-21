@@ -28,6 +28,7 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer;
 import org.apache.directory.server.schema.bootstrap.ProducerCallback;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
@@ -67,7 +68,7 @@ public class NisComparatorProducer extends AbstractBootstrapProducer
      */
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
-        Comparator comparator;
+        LdapComparator<?> comparator;
 
         /* Really an openLDAP matching rule but its used in he nis so its here
          *

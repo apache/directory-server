@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.AbstractSchemaObject;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MutableSchemaObject;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 
@@ -36,7 +35,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObject, ObjectClass
+class ObjectClassImpl extends AbstractSchemaObject implements SchemaObject, ObjectClass
 {
     private static final long serialVersionUID = 1L;
     private final ObjectClass[] EMPTY_OC_ARRAY = new ObjectClass[0];
