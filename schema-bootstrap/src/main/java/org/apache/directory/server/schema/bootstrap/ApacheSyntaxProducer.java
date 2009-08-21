@@ -26,13 +26,13 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.CsnSidSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.CsnSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.JavaByteSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.JavaIntegerSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.JavaLongSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.JavaShortSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.UuidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.JavaByteSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.JavaIntegerSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.JavaLongSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.JavaShortSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.UuidSyntaxChecker;
 
 
 

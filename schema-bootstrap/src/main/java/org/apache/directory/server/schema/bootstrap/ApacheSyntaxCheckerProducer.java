@@ -25,9 +25,9 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.schema.syntaxes.CsnSidSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.CsnSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.UuidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.UuidSyntaxChecker;
 
 
 /**

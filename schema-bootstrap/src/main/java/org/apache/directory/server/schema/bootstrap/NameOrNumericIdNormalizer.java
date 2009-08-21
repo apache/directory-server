@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.syntaxes.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.NumericOidSyntaxChecker;
 
 
 /**

@@ -106,7 +106,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

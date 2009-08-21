@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

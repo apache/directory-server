@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxes.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import static org.junit.Assert.assertEquals;
