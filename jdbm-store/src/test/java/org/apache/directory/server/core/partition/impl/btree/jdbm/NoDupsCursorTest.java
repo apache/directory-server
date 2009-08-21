@@ -27,15 +27,19 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
 
 import java.io.File;
-import java.util.Comparator;
 import java.util.Iterator;
 
 import jdbm.RecordManager;
@@ -256,7 +260,7 @@ public class NoDupsCursorTest
 
     private class MockComparatorRegistry implements ComparatorRegistry
     {
-        private Comparator<Integer> comparator = new Comparator<Integer>()
+        private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
         {
             public int compare( Integer i1, Integer i2 )
             {
@@ -270,12 +274,12 @@ public class NoDupsCursorTest
         }
 
 
-        public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
+        public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
         {
         }
 
 
-        public Comparator lookup( String oid ) throws NamingException
+        public LdapComparator<?> lookup( String oid ) throws NamingException
         {
             return comparator;
         }
@@ -293,7 +297,7 @@ public class NoDupsCursorTest
         }
 
 
-        public Iterator<ComparatorDescription> comparatorDescriptionIterator()
+        public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
         {
             return null;
         }

@@ -38,7 +38,8 @@ import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -186,7 +187,7 @@ public class KeyTupleBTreeCursorTest
     
     private class MockComparatorRegistry implements ComparatorRegistry
     {
-        private Comparator<Integer> comparator = new Comparator<Integer>()
+        private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
         {
             public int compare( Integer i1, Integer i2 )
             {
@@ -200,12 +201,12 @@ public class KeyTupleBTreeCursorTest
         }
 
 
-        public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
+        public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
         {
         }
 
 
-        public Comparator lookup( String oid ) throws NamingException
+        public LdapComparator<?> lookup( String oid ) throws NamingException
         {
             return comparator;
         }
@@ -223,7 +224,7 @@ public class KeyTupleBTreeCursorTest
         }
 
 
-        public Iterator<ComparatorDescription> comparatorDescriptionIterator()
+        public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
         {
             return null;
         }

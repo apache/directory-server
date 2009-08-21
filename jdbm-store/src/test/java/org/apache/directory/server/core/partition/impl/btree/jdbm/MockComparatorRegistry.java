@@ -21,10 +21,10 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 
 import javax.naming.NamingException;
-import java.util.Comparator;
 import java.util.Iterator;
 
 
@@ -36,7 +36,7 @@ import java.util.Iterator;
 */
 class MockComparatorRegistry implements ComparatorRegistry
 {
-    private Comparator<Integer> comparator = new Comparator<Integer>()
+    private LdapComparator<Integer> comparator = new LdapComparator<Integer>( "1.1.1" )
     {
         public int compare( Integer i1, Integer i2 )
         {
@@ -50,12 +50,12 @@ class MockComparatorRegistry implements ComparatorRegistry
     }
 
 
-    public void register( ComparatorDescription description, Comparator comparator ) throws NamingException
+    public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
     {
     }
 
 
-    public Comparator lookup( String oid ) throws NamingException
+    public LdapComparator<?> lookup( String oid ) throws NamingException
     {
         return comparator;
     }
@@ -73,7 +73,7 @@ class MockComparatorRegistry implements ComparatorRegistry
     }
 
 
-    public Iterator<ComparatorDescription> comparatorDescriptionIterator()
+    public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
     {
         return null;
     }
