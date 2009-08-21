@@ -30,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +51,10 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     private static final boolean DEBUG = LOG.isDebugEnabled();
 
     /** the comparators in this registry */
-    private final Map<String,Comparator<?>> byOidComparator;
+    private final Map<String, LdapComparator<?>> byOidComparator;
     
     /** maps oids to a comparator description */
-    private final Map<String, ComparatorDescription> oidToDescription;
+    private final Map<String, LdapComparatorDescription> oidToDescription;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -65,8 +66,8 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
      */
     public DefaultComparatorRegistry()
     {
-        byOidComparator = new ConcurrentHashMap<String, Comparator<?>>();
-        oidToDescription = new ConcurrentHashMap<String, ComparatorDescription>();
+        byOidComparator = new ConcurrentHashMap<String, LdapComparator<?>>();
+        oidToDescription = new ConcurrentHashMap<String, LdapComparatorDescription>();
     }
 
 
@@ -76,9 +77,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public void register( ComparatorDescription description, Comparator<?> comparator ) throws NamingException
+    public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
     {
-        String oid = description.getNumericOid();
+        String oid = description.getOid();
         
         if ( byOidComparator.containsKey( oid ) )
         {
@@ -100,7 +101,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * Return the schema, contained in the first position of the extensions
      */
-    private static String getSchema( ComparatorDescription desc )
+    private static String getSchema( LdapComparatorDescription desc )
     {
         List<String> values = desc.getExtensions().get( "X-SCHEMA" );
         
@@ -157,7 +158,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
             throw new NamingException( msg );
         }
 
-        ComparatorDescription description = oidToDescription.get( oid );
+        LdapComparatorDescription description = oidToDescription.get( oid );
         
         if ( description != null )
         {
@@ -205,7 +206,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         
         for ( String oid : oids )
         {
-            ComparatorDescription description = oidToDescription.get( oid );
+        	LdapComparatorDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
             
             if ( schemaNameForOid.equalsIgnoreCase( schemaName ) )
@@ -226,7 +227,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         
         for ( String oid : oids )
         {
-            ComparatorDescription description = oidToDescription.get( oid );
+        	LdapComparatorDescription description = oidToDescription.get( oid );
             String schemaNameForOid = getSchema( description );
             
             if ( schemaNameForOid.equalsIgnoreCase( originalSchemaName ) )
@@ -242,7 +243,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<ComparatorDescription> comparatorDescriptionIterator()
+    public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
     {
         return oidToDescription.values().iterator();
     }

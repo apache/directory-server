@@ -74,7 +74,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
      */
     public void register( SyntaxCheckerDescription syntaxCheckerDescription, SyntaxChecker syntaxChecker ) throws NamingException
     {
-        String oid = syntaxChecker.getSyntaxOid();
+        String oid = syntaxChecker.getOid();
         
         if ( byOidSyntaxChecker.containsKey( oid ) )
         {

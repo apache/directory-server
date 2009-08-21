@@ -25,7 +25,8 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescription;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 
 
 /**
@@ -54,7 +55,7 @@ public interface ComparatorRegistry extends Iterable<String>
      * @throws NamingException if the Comparator is already registered or the 
      *      registration operation is not supported
      */
-    void register( ComparatorDescription description, Comparator<?> comparator ) throws NamingException;
+    void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException;
 
 
     /**
@@ -92,7 +93,7 @@ public interface ComparatorRegistry extends Iterable<String>
      * 
      * @return Iterator of numeric OID strings 
      */
-    Iterator<ComparatorDescription> comparatorDescriptionIterator();
+    Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator();
 
     
     /**
