@@ -50,6 +50,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -242,14 +243,13 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 break;
                 
             case COMPARATOR_PRODUCER :
-                Comparator comparator = ( Comparator ) schemaObject;
+                LdapComparator<?> comparator = ( LdapComparator<?> ) schemaObject;
                 ComparatorRegistry comparatorRegistry;
                 comparatorRegistry = registries.getComparatorRegistry();
                 
-                ComparatorDescription comparatorDescription = new ComparatorDescription();
+                LdapComparatorDescription comparatorDescription = new LdapComparatorDescription( id );
                 comparatorDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
                 comparatorDescription.setFqcn( comparator.getClass().getName() );
-                comparatorDescription.setNumericOid( id );
                 
                 comparatorRegistry.register( comparatorDescription, comparator );
                 break;
@@ -259,10 +259,9 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 SyntaxCheckerRegistry syntaxCheckerRegistry;
                 syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
                 
-                SyntaxCheckerDescription syntaxCheckerDescription = new SyntaxCheckerDescription();
+                SyntaxCheckerDescription syntaxCheckerDescription = new SyntaxCheckerDescription( id );
                 syntaxCheckerDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
                 syntaxCheckerDescription.setFqcn( syntaxChecker.getClass().getName() );
-                syntaxCheckerDescription.setNumericOid( id );
                 
                 syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
                 break;
