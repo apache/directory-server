@@ -129,7 +129,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                         public Normalizer getNormalizer() throws NamingException
                         {
-                            return new Normalizer()
+                            return new Normalizer( "1.1.1" )
                             {
                                 private static final long serialVersionUID = 1L;
 
@@ -410,7 +410,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                         public Normalizer getNormalizer() throws NamingException
                         {
-                            return new Normalizer()
+                            return new Normalizer( "1.1.1" )
                             {
                                 private static final long serialVersionUID = 1L;
 
