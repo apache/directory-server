@@ -243,19 +243,30 @@ public class DupsContainerCursorTest
         }
 
 
+        public void register(LdapComparator<?> comparator ) throws NamingException
+        {
+        }
+
+
         public LdapComparator<?> lookup( String oid ) throws NamingException
         {
             return comparator;
         }
 
 
-        public boolean hasComparator( String oid )
+        public boolean contains( String oid )
         {
             return true;
         }
 
 
-        public Iterator<String> iterator()
+        public Iterator<LdapComparator<?>> iterator()
+        {
+            return null;
+        }
+
+
+        public Iterator<String> oidsIterator()
         {
             return null;
         }

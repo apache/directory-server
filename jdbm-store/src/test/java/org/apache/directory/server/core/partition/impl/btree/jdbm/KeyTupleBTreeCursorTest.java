@@ -212,18 +212,29 @@ public class KeyTupleBTreeCursorTest
         }
 
 
-        public boolean hasComparator( String oid )
+        public boolean contains( String oid )
         {
             return true;
         }
 
 
-        public Iterator<String> iterator()
+        public void register(LdapComparator<?> comparator ) throws NamingException
+        {
+        }
+
+
+        public Iterator<LdapComparator<?>> iterator()
         {
             return null;
         }
 
 
+        public Iterator<String> oidsIterator()
+        {
+            return null;
+        }
+
+        
         public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
         {
             return null;

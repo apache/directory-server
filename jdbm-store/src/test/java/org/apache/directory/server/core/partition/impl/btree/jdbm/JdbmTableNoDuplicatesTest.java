@@ -369,15 +369,26 @@ public class JdbmTableNoDuplicatesTest
         }
 
 
-        public boolean hasComparator( String oid )
+        public boolean contains( String oid )
         {
             return true;
         }
 
 
-        public Iterator<String> iterator()
+        public Iterator<LdapComparator<?>> iterator()
         {
             return null;
+        }
+
+
+        public Iterator<String> oidsIterator()
+        {
+            return null;
+        }
+
+        
+        public void register(LdapComparator<?> comparator ) throws NamingException
+        {
         }
 
 
