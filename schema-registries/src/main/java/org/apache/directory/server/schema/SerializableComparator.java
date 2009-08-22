@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 
 
 /**

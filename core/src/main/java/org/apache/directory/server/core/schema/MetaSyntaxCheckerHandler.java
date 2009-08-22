@@ -29,8 +29,6 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -42,6 +40,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -56,7 +56,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 {
     private final SchemaEntityFactory factory;
     private final SyntaxCheckerRegistry syntaxCheckerRegistry;
-    private final SyntaxRegistry syntaxRegistry;
+    private final LdapSyntaxRegistry ldapSyntaxRegistry;
     private final AttributeType byteCodeAT;
     private final AttributeType descAT;
     private final AttributeType fqcnAT;
@@ -66,7 +66,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     {
         super( targetRegistries, loader );
         this.syntaxCheckerRegistry = targetRegistries.getSyntaxCheckerRegistry();
-        this.syntaxRegistry = targetRegistries.getSyntaxRegistry();
+        this.ldapSyntaxRegistry = targetRegistries.getLdapSyntaxRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
         this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
         this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
@@ -128,7 +128,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         String oid = getOid( entry );
-        if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) )
+        if ( super.targetRegistries.getSyntaxCheckerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema syntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -174,7 +174,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
     public void delete( String oid, boolean cascade ) throws NamingException
     {
-        if ( syntaxRegistry.hasSyntax( oid ) )
+        if ( ldapSyntaxRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
                 + " cannot be deleted until all " 
@@ -182,7 +182,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        if ( syntaxCheckerRegistry.hasSyntaxChecker( oid ) )
+        if ( syntaxCheckerRegistry.contains( oid ) )
         {
             syntaxCheckerRegistry.unregister( oid );
         }
@@ -193,7 +193,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     {
         String oldOid = getOid( entry );
 
-        if ( syntaxRegistry.hasSyntax( oldOid ) )
+        if ( ldapSyntaxRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -204,7 +204,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         Schema schema = getSchema( name );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
-        if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
+        if ( super.targetRegistries.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -217,7 +217,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
             syntaxCheckerRegistry.unregister( oldOid );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), entry );
-            syntaxCheckerDescription.setNumericOid( newOid );
+            syntaxCheckerDescription.changeOid( newOid );
             syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
@@ -229,7 +229,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        if ( syntaxRegistry.hasSyntax( oldOid ) )
+        if ( ldapSyntaxRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -242,7 +242,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         
         String newOid = ( String ) newRdn.getValue();
-        if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
+        if ( super.targetRegistries.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -260,7 +260,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         {
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( newSchema.getSchemaName(), entry );
-            syntaxCheckerDescription.setNumericOid( newOid );
+            syntaxCheckerDescription.changeOid( newOid );
             syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
@@ -272,7 +272,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oid = getOid( entry );
 
-        if ( syntaxRegistry.hasSyntax( oid ) )
+        if ( ldapSyntaxRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
                 + " cannot be moved to another schema until all " 

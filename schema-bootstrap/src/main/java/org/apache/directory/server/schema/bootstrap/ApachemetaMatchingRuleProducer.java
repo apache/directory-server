@@ -29,7 +29,6 @@ import jdbm.helper.StringComparator;
 import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -39,6 +38,7 @@ import org.apache.directory.shared.ldap.schema.comparators.ObjectIdentifierCompa
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ObjectIdentifierNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 
 
 /**
@@ -96,7 +96,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         private final String[] NAMES = new String[] { "ruleIdMatch" };
         
         
-        RuleIdMatch( SyntaxRegistry registry ) throws NamingException
+        RuleIdMatch( LdapSyntaxRegistry registry ) throws NamingException
         {
             syntax = registry.lookup( SchemaConstants.IA5_STRING_SYNTAX );
         }
@@ -161,7 +161,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         LdapSyntax syntax;
         
         
-        public SupDITStructureRuleMatch( SyntaxRegistry registry ) throws NamingException
+        public SupDITStructureRuleMatch( LdapSyntaxRegistry registry ) throws NamingException
         {
             this.syntax = registry.lookup( SchemaConstants.DIT_STRUCTURE_RULE_SYNTAX );
         }
@@ -228,7 +228,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         final String[] NAMES = new String[] { "numericOidMatch" };
         LdapSyntax syntax;
         
-        public NumericOidMatch( SyntaxRegistry registry ) throws NamingException
+        public NumericOidMatch( LdapSyntaxRegistry registry ) throws NamingException
         {
             this.syntax = registry.lookup( SchemaConstants.OID_SYNTAX );
         }

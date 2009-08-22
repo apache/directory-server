@@ -22,9 +22,9 @@ package org.apache.directory.server.core.schema;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
 class SyntaxImpl extends AbstractSyntax

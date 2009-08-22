@@ -95,7 +95,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
 
             if ( mr == null )
             {
-                normalizer = NoOpNormalizer.INSTANCE;
+                normalizer = new NoOpNormalizer( mr.getOid() );
                 comparator = null;
             }
             else

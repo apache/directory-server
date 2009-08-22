@@ -26,10 +26,10 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

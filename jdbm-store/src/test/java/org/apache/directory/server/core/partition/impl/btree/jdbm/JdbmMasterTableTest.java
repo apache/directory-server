@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 
 import java.io.File;
 import java.util.Set;

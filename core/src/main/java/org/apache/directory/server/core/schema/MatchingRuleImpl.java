@@ -24,19 +24,19 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 
 
 class MatchingRuleImpl extends AbstractMatchingRule implements MutableSchemaObject
 {
     private static final long serialVersionUID = 1L;
-    private final SyntaxRegistry syntaxRegistry;
+    private final LdapSyntaxRegistry syntaxRegistry;
     private final ComparatorRegistry comparatorRegistry;
     private final NormalizerRegistry normalizerRegistry;
     private final String syntaxOid;

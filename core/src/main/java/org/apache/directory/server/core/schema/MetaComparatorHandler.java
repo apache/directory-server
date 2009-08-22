@@ -29,8 +29,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -43,6 +41,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -176,7 +176,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        if ( comparatorRegistry.hasComparator( oid ) )
+        if ( comparatorRegistry.contains( oid ) )
         {
             comparatorRegistry.unregister( oid );
         }
@@ -280,7 +280,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     
     private void checkOidIsUniqueForComparator( String oid ) throws NamingException
     {
-        if ( super.targetRegistries.getComparatorRegistry().hasComparator( oid ) )
+        if ( super.targetRegistries.getComparatorRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema comparator is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -292,7 +292,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     {
         String oid = getOid( entry );
         
-        if ( super.targetRegistries.getComparatorRegistry().hasComparator( oid ) )
+        if ( super.targetRegistries.getComparatorRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema comparator is not unique.", 
                 ResultCodeEnum.OTHER );

@@ -29,16 +29,17 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authz.support.ACITupleFilter;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -286,9 +287,8 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                 public LdapSyntax getSyntax() throws NamingException
                 {
-                    return new LdapSyntax()
+                    return new LdapSyntax( "1.1.1" )
                     {
-
                         private static final long serialVersionUID = 1L;
 
                         public boolean isHumanReadable()
@@ -299,40 +299,6 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                         public SyntaxChecker getSyntaxChecker() throws NamingException
                         {
                             return null;
-                        }
-
-                        public boolean isObsolete()
-                        {
-                            return false;
-                        }
-
-                        public String getOid()
-                        {
-                            return null;
-                        }
-
-                        public String[] getNamesRef()
-                        {
-                            return null;
-                        }
-
-                        public String getName()
-                        {
-                            return null;
-                        }
-
-                        public String getDescription()
-                        {
-                            return null;
-                        }
-
-                        public String getSchema()
-                        {
-                            return null;
-                        }
-
-                        public void setSchema( String schemaName )
-                        {
                         }
                     };
                 }
@@ -352,7 +318,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                         public LdapSyntax getSyntax() throws NamingException
                         {
-                            return new LdapSyntax()
+                            return new LdapSyntax( "1.1.1" )
                             {
                                 private static final long serialVersionUID = 1L;
 
@@ -366,44 +332,10 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                                 {
                                     return null;
                                 }
-
-                                public boolean isObsolete()
-                                {
-                                    return false;
-                                }
-
-                                public String getOid()
-                                {
-                                    return null;
-                                }
-
-                                public String[] getNamesRef()
-                                {
-                                    return null;
-                                }
-
-                                public String getName()
-                                {
-                                    return null;
-                                }
-
-                                public String getDescription()
-                                {
-                                    return null;
-                                }
-
-                                public String getSchema()
-                                {
-                                    return null;
-                                }
-
-                                public void setSchema( String schemaName )
-                                {
-                                }
                             };
                         }
 
-                        public Comparator getComparator() throws NamingException
+                        public LdapComparator<?> getComparator() throws NamingException
                         {
                             return null;
                         }

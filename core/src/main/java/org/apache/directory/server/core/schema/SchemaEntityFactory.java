@@ -551,8 +551,8 @@ public class SchemaEntityFactory
     public LdapSyntax getSyntax( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
-        SyntaxImpl syntax = new SyntaxImpl( oid, targetRegistries.getSyntaxCheckerRegistry() );
-        syntax.setSchema( schema );
+        LdapSyntax syntax = new LdapSyntax( oid );
+        syntax.setSchemaName( schema );
         
         if ( entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ) != null )
         {

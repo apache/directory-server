@@ -21,21 +21,14 @@ package org.apache.directory.server.schema.bootstrap;
 
 
 import java.util.Comparator;
+import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.NormalizerRegistry;
-import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSchemaObject;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -44,6 +37,13 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
 /**
@@ -102,7 +102,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A mutable Syntax for the bootstrap phase that uses the
      * syntaxCheckerRegistry to dynamically resolve syntax checkers.
      */
-    public static class BootstrapSyntax extends AbstractSyntax
+    public static class BootstrapSyntax extends LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         final SyntaxCheckerRegistry registry;
@@ -115,9 +115,9 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
         
         
-        public void setSchema( String schema )
+        public void setSchema( String schemaName )
         {
-            super.setSchema( schema );
+            setSchemaName( schemaName );
         }
 
 
@@ -133,7 +133,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        public void setNames( String[] names )
+        public void setNames( List<String> names )
         {
             super.setNames( names );
         }
@@ -154,7 +154,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     public static class BootstrapMatchingRule extends AbstractMatchingRule
     {
         private static final long serialVersionUID = 1L;
-        final SyntaxRegistry syntaxRegistry;
+        final LdapSyntaxRegistry syntaxRegistry;
         final NormalizerRegistry normalizerRegistry;
         final ComparatorRegistry comparatorRegistry;
         String syntaxOid;
@@ -227,7 +227,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     {
         private static final long serialVersionUID = 4050205236738471984L;
 
-        private final SyntaxRegistry syntaxRegistry;
+        private final LdapSyntaxRegistry syntaxRegistry;
         private final MatchingRuleRegistry matchingRuleRegistry;
         private final AttributeTypeRegistry attributeTypeRegistry;
         private String superiorId;

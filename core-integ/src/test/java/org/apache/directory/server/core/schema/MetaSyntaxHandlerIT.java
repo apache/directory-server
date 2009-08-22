@@ -25,14 +25,14 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 
 import static org.junit.Assert.assertEquals;
@@ -82,9 +82,9 @@ public class MetaSyntaxHandlerIT
     public static DirectoryService service;
 
 
-    private static SyntaxRegistry getSyntaxRegistry()
+    private static LdapSyntaxRegistry getLdapSyntaxRegistry()
     {
-        return service.getRegistries().getSyntaxRegistry();
+        return service.getRegistries().getLdapSyntaxRegistry();
     }
 
 
@@ -128,8 +128,8 @@ public class MetaSyntaxHandlerIT
         createDummySyntaxChecker( OID, "apachemeta" );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getSyntaxRegistry().hasSyntax( OID ) );
-        assertEquals( getSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( getLdapSyntaxRegistry().contains( OID ) );
+        assertEquals( getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
     }
     
     
@@ -143,12 +143,12 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "syntax should be removed from the registry after being deleted", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
 
         //noinspection EmptyCatchBlock
         try
         {
-            getSyntaxRegistry().lookup( OID );
+            getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting it" );
         }
         catch( NamingException e )
@@ -169,19 +169,19 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old syntax OID should be removed from the registry after being renamed", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
 
         //noinspection EmptyCatchBlock
         try
         {
-            getSyntaxRegistry().lookup( OID );
+            getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting the syntax" );
         }
         catch( NamingException e )
         {
         }
 
-        assertTrue( getSyntaxRegistry().hasSyntax( NEW_OID ) );
+        assertTrue( getLdapSyntaxRegistry().contains( NEW_OID ) );
     }
 
 
@@ -199,10 +199,10 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "syntax OID should still be present", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
         
         assertEquals( "syntax schema should be set to apache not apachemeta", 
-            getSyntaxRegistry().getSchemaName( OID ), "apache" );
+            getLdapSyntaxRegistry().getSchemaName( OID ), "apache" );
     }
 
 
@@ -220,13 +220,13 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old syntax OID should NOT be present", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
         
         assertTrue( "new syntax OID should be present", 
-            getSyntaxRegistry().hasSyntax( NEW_OID ) );
+            getLdapSyntaxRegistry().contains( NEW_OID ) );
         
         assertEquals( "syntax with new oid should have schema set to apache NOT apachemeta", 
-            getSyntaxRegistry().getSchemaName( NEW_OID ), "apache" );
+            getLdapSyntaxRegistry().getSchemaName( NEW_OID ), "apache" );
     }
 
     
@@ -235,7 +235,7 @@ public class MetaSyntaxHandlerIT
     {
         testAddSyntax();
         
-        LdapSyntax syntax = getSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );
@@ -247,12 +247,12 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "syntax OID should still be present", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
         
         assertEquals( "syntax schema should be set to apachemeta", 
-            getSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+            getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
         
-        syntax = getSyntaxRegistry().lookup( OID );
+        syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION1 );
     }
 
@@ -262,7 +262,7 @@ public class MetaSyntaxHandlerIT
     {
         testAddSyntax();
         
-        LdapSyntax syntax = getSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );
@@ -273,12 +273,12 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "syntax OID should still be present", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
         
         assertEquals( "syntax schema should be set to apachemeta", 
-            getSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+            getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
 
-        syntax = getSyntaxRegistry().lookup( OID );
+        syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION1 );
     }
     
@@ -307,7 +307,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after delete failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
     
     
@@ -334,7 +334,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after move failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
 
@@ -361,7 +361,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after move failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
     
@@ -420,7 +420,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after rename failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
 
@@ -451,7 +451,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after move failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
 
@@ -477,7 +477,7 @@ public class MetaSyntaxHandlerIT
         }
 
         assertTrue( "syntax should still be in the registry after move failure", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
     
     
@@ -499,7 +499,7 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
 
@@ -518,7 +518,7 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "syntax OID should no longer be present", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
     }
 
 
@@ -532,7 +532,7 @@ public class MetaSyntaxHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "syntax OID should NOT be present when added to disabled nis schema", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
 
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -540,10 +540,10 @@ public class MetaSyntaxHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "syntax OID should be present when moved to enabled schema", 
-            getSyntaxRegistry().hasSyntax( OID ) );
+            getLdapSyntaxRegistry().contains( OID ) );
         
         assertEquals( "syntax should be in apachemeta schema after move", 
-            getSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+            getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
     }
 
 

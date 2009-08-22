@@ -28,8 +28,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -42,6 +40,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -176,7 +176,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        if ( normalizerRegistry.hasNormalizer( oid ) )
+        if ( normalizerRegistry.contains( oid ) )
         {
             normalizerRegistry.unregister( oid );
         }
@@ -282,7 +282,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     
     private void checkOidIsUniqueForNormalizer( String oid ) throws NamingException
     {
-        if ( super.targetRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
+        if ( super.targetRegistries.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -294,7 +294,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     {
         String oid = getOid( entry );
         
-        if ( super.targetRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
+        if ( super.targetRegistries.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
                 ResultCodeEnum.OTHER );

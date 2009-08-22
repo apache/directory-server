@@ -41,14 +41,8 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.Bo
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapSyntax;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.NormalizerRegistry;
-import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -59,6 +53,12 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,7 +274,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                     ( ( BootstrapSyntax ) syntax ).setSchema( schema.getSchemaName() );
                 }
 
-                SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
+                LdapSyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
                 syntaxRegistry.register( syntax );
                 break;
                 

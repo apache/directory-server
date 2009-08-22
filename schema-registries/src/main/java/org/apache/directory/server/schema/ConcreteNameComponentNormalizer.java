@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,7 +206,7 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
         
         if ( mrule == null )
         {
-            return NoOpNormalizer.INSTANCE;
+            return new NoOpNormalizer( id );
         }
         
         return type.getEquality().getNormalizer();

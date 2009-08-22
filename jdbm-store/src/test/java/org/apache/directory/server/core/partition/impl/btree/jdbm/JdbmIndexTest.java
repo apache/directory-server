@@ -38,6 +38,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 
 import java.util.Set;
 import java.util.HashSet;

@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
@@ -95,8 +95,8 @@ public class DescriptionParsers
 
     private final Registries globalRegistries;
     
-    private final ComparatorDescriptionSchemaParser comparatorParser =
-        new ComparatorDescriptionSchemaParser();
+    private final LdapComparatorDescriptionSchemaParser comparatorParser =
+        new LdapComparatorDescriptionSchemaParser();
     private final NormalizerDescriptionSchemaParser normalizerParser =
         new NormalizerDescriptionSchemaParser();
     private final SyntaxCheckerDescriptionSchemaParser syntaxCheckerParser =
@@ -518,7 +518,7 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public LdapSyntax[] parseSyntaxes( EntryAttribute attr ) throws Exception
+    public LdapSyntax[] parseLdapSyntaxes( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {
@@ -546,7 +546,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            if ( ! dao.hasSyntaxChecker( desc.getNumericOid() ) )
+            if ( ! dao.hasSyntaxChecker( desc.getOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of a syntax without the prior creation of a " +
@@ -554,10 +554,10 @@ public class DescriptionParsers
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
-            SyntaxImpl syntax = new SyntaxImpl( desc.getNumericOid(), globalRegistries.getSyntaxCheckerRegistry() );
-            setSchemaObjectProperties( desc, syntax );
-            syntax.setHumanReadable( isHumanReadable( desc ) );
-            syntaxes[pos++] = syntax;
+            LdapSyntax ldapSyntax = new LdapSyntax( desc.getOid() );
+            setSchemaObjectProperties( desc, ldapSyntax );
+            ldapSyntax.setHumanReadable( isHumanReadable( desc ) );
+            syntaxes[pos++] = ldapSyntax;
         }
         
         return syntaxes;
@@ -774,7 +774,7 @@ public class DescriptionParsers
      * @param desc the source description object to copy properties from
      * @param obj the mutable schema object to copy properites to
      */
-    private void setSchemaObjectProperties( AbstractSchemaDescription desc, SchemaObject obj )
+    private void setSchemaObjectProperties( SchemaObject desc, SchemaObject obj )
     {
         obj.setDescription( desc.getDescription() );
         obj.setSchemaName( getSchema( desc ) );
@@ -824,7 +824,7 @@ public class DescriptionParsers
      * @param desc the schema description 
      * @return the schema name for the schema entity
      */
-    private String getSchema( AbstractSchemaDescription desc ) 
+    private String getSchema( SchemaObject desc ) 
     {
         List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA );
         

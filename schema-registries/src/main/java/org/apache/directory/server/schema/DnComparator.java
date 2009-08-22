@@ -25,9 +25,9 @@ import java.util.Comparator;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 
 
 /**

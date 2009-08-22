@@ -59,16 +59,9 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.server.schema.registries.NormalizerRegistry;
-import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
-import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
@@ -82,6 +75,13 @@ import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -606,18 +606,18 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( "" );
 
-        SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
+        LdapSyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
 
-        for ( LdapSyntax syntax : syntaxRegistry )
+        for ( LdapSyntax ldapSyntax : syntaxRegistry )
         {
-            getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
-            LdapDN dn = checkCreateSchema( syntax.getSchema() );
-            Schema schema = registries.getLoadedSchemas().get( syntax.getSchema() );
+            getLog().info( "\t\t o [" + ldapSyntax.getSchemaName() + "] - " + getNameOrNumericoid( ldapSyntax ) );
+            LdapDN dn = checkCreateSchema( ldapSyntax.getSchemaName() );
+            Schema schema = registries.getLoadedSchemas().get( ldapSyntax.getSchemaName() );
             dn.add( SchemaConstants.OU_AT + "=syntaxes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
-            ServerEntry entry = attributesFactory.getAttributes( syntax, schema, registries );
-            dn.add( MetaSchemaConstants.M_OID_AT + "=" + syntax.getOid() );
+            ServerEntry entry = attributesFactory.getAttributes( ldapSyntax, schema, registries );
+            dn.add( MetaSchemaConstants.M_OID_AT + "=" + ldapSyntax.getOid() );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             entry.setDn( dn );
             injectEntryInStore( store, entry );

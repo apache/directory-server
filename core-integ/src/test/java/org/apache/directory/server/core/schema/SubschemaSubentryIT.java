@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
@@ -103,8 +103,8 @@ public class SubschemaSubentryIT
         new SyntaxCheckerDescriptionSchemaParser();
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER =
         new AttributeTypeDescriptionSchemaParser();
-    private ComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser =
-        new ComparatorDescriptionSchemaParser();
+    private LdapComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser =
+        new LdapComparatorDescriptionSchemaParser();
     private NormalizerDescriptionSchemaParser normalizerDescriptionSchemaParser =
         new NormalizerDescriptionSchemaParser();
     private LdapSyntaxDescriptionSchemaParser ldapSyntaxDescriptionSchemaParser =
@@ -294,11 +294,11 @@ public class SubschemaSubentryIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+            assertTrue( service.getRegistries().getSyntaxCheckerRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+            assertFalse( service.getRegistries().getSyntaxCheckerRegistry().contains( oid ) );
         }
     }
 
@@ -461,11 +461,11 @@ public class SubschemaSubentryIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getComparatorRegistry().hasComparator( oid ) );
+            assertTrue( service.getRegistries().getComparatorRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getComparatorRegistry().hasComparator( oid ) );
+            assertFalse( service.getRegistries().getComparatorRegistry().contains( oid ) );
         }
     }
     
@@ -614,11 +614,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getNormalizerRegistry().hasNormalizer( oid ) );
+            assertTrue( service.getRegistries().getNormalizerRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getNormalizerRegistry().hasNormalizer( oid ) );
+            assertFalse( service.getRegistries().getNormalizerRegistry().contains( oid ) );
         }
     }
     
@@ -767,11 +767,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getSyntaxRegistry().hasSyntax( oid ) );
+            assertTrue( service.getRegistries().getLdapSyntaxRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getSyntaxRegistry().hasSyntax( oid ) );
+            assertFalse( service.getRegistries().getLdapSyntaxRegistry().contains( oid ) );
         }
     }
     
