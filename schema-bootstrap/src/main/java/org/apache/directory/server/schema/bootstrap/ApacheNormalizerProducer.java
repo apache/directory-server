@@ -56,35 +56,35 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
         Normalizer normalizer;
 
         // For exactDnAsStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.1
-        normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.1", normalizer );
+        normalizer = new NoOpNormalizer( SchemaConstants.EXACT_DN_AS_STRING_MATCH_MR_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.EXACT_DN_AS_STRING_MATCH_MR_OID, normalizer );
 
         // For bigIntegerMatch -> 1.3.6.1.4.1.18060.0.4.1.1.2
-        normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.2", normalizer );
+        normalizer = new NoOpNormalizer( SchemaConstants.BIG_INTEGER_MATCH_MR_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.BIG_INTEGER_MATCH_MR_OID, normalizer );
 
         // For jdbmStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.3
-        normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.3", normalizer );
+        normalizer = new NoOpNormalizer( SchemaConstants.JDBM_STRING_MATCH_MR_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.JDBM_STRING_MATCH_MR_OID, normalizer );
 
         // For uuidMatch -> 1.3.6.1.1.16.2
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.UUID_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.UUID_MATCH_MR_OID, normalizer );
 
         // For uuidOrderingMatch -> 1.3.6.1.1.16.3
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.UUID_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.UUID_ORDERING_MATCH_MR_OID, normalizer );
 
         // For CSNMatch -> 1.3.6.1.4.1.4203.666.11.2.2
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.CSN_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CSN_MATCH_MR_OID, normalizer );
 
         // For CSNOrderingMatch -> 1.3.6.1.4.1.4203.666.11.2.3
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CSN_ORDERING_MATCH_MR_OID, normalizer );
 
         // For CSNSidMatch -> 1.3.6.1.4.1.4203.666.11.2.5
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.CSN_SID_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CSN_SID_MATCH_MR_OID, normalizer );
     }
 }
