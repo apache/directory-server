@@ -85,7 +85,7 @@ public class ServerStringValueTest
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.syntax = s;
         mr.comparator = new StringComparator();
-        mr.normalizer = new DeepTrimToLowerNormalizer();
+        mr.normalizer = new DeepTrimToLowerNormalizer( "1.1.2.1" );
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
@@ -494,7 +494,7 @@ public class ServerStringValueTest
                 throw new IllegalArgumentException( "Not a valid value" );
             }
         };
-        mr.normalizer = new NoOpNormalizer();
+        mr.normalizer = new NoOpNormalizer( mr.getOid() );
         at.setEquality( mr );
         at.setSyntax( s );
 
