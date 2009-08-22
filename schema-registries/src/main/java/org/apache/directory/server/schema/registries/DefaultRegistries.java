@@ -33,6 +33,18 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITContentRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITStructureRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
 /**
@@ -163,7 +175,7 @@ public class DefaultRegistries implements Registries
     }
 
 
-    public SyntaxRegistry getSyntaxRegistry()
+    public LdapSyntaxRegistry getSyntaxRegistry()
     {
         return syntaxRegistry;
     }

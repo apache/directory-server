@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.NameForm;
+import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

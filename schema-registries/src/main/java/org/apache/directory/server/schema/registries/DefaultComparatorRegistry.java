@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

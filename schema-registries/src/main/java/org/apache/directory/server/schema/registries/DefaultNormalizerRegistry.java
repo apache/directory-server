@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -25,6 +25,17 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITContentRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITStructureRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
 /**
@@ -69,7 +80,7 @@ public interface Registries
 
     SyntaxCheckerRegistry getSyntaxCheckerRegistry();
 
-    SyntaxRegistry getSyntaxRegistry();
+    LdapSyntaxRegistry getLdapSyntaxRegistry();
 
     List<Throwable> checkRefInteg();
 

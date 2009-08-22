@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
