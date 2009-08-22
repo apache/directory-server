@@ -59,7 +59,7 @@ public class ApachemetaNormalizerProducer extends AbstractBootstrapProducer
         Normalizer normalizer = null;
         
         normalizer = new NameOrNumericIdNormalizer( registries.getOidRegistry() );
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.0", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.NAME"1.3.6.1.4.1.18060.0.4.0.1.0", normalizer );
 
         normalizer = new NoOpNormalizer();
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.1", normalizer );

@@ -549,8 +549,9 @@ public class BootstrapPlugin extends AbstractMojo
 
         ComparatorRegistry comparatorRegistry = registries.getComparatorRegistry();
 
-        for ( String oid : comparatorRegistry )
+        while ( comparatorRegistry.oidsIterator().hasNext() )
         {
+            String oid = comparatorRegistry.oidsIterator().next();
             String schemaName = comparatorRegistry.getSchemaName( oid );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
@@ -578,8 +579,9 @@ public class BootstrapPlugin extends AbstractMojo
 
         NormalizerRegistry normalizerRegistry = registries.getNormalizerRegistry();
 
-        for ( String oid : normalizerRegistry )
+        while ( normalizerRegistry.oidsIterator().hasNext() )
         {
+            String oid = normalizerRegistry.oidsIterator().next();
             String schemaName = normalizerRegistry.getSchemaName( oid );
             Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
@@ -606,7 +608,7 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "------------------------------------------------------------------------" );
         getLog().info( "" );
 
-        LdapSyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
+        LdapSyntaxRegistry syntaxRegistry = registries.getLdapSyntaxRegistry();
 
         for ( LdapSyntax ldapSyntax : syntaxRegistry )
         {

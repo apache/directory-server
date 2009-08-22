@@ -728,7 +728,7 @@ public class SubschemaSubentryIT
         if ( isPresent )
         {
             assertNotNull( syntaxDescription );
-            assertEquals( oid, syntaxDescription.getNumericOid() );
+            assertEquals( oid, syntaxDescription.getOid() );
         }
         else
         {

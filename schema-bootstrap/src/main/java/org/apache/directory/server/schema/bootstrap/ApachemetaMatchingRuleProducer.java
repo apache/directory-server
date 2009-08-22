@@ -31,6 +31,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -288,14 +289,14 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
     public static class ObjectClassTypeMatch implements MatchingRule
     {
         private static final long serialVersionUID = 1L;
-        public static final Comparator COMPARATOR = new ApachemetaComparatorProducer.ObjectClassTypeComparator(); 
+        public static final LdapComparator<?> COMPARATOR = new ApachemetaComparatorProducer.ObjectClassTypeComparator(); 
         public static final Normalizer NORMALIZER = new NoOpNormalizer();
         public static final LdapSyntax SYNTAX = new ApachemetaSyntaxProducer.ObjectClassTypeSyntax();
         public static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.1";
         
         private static final String[] NAMES = new String[] { "objectClassTypeMatch" };
         
-        public Comparator getComparator() throws NamingException
+        public LdapComparator<?> getComparator() throws NamingException
         {
             return COMPARATOR;
         }

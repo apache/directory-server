@@ -177,14 +177,14 @@ public class TestServerEntryUtils
     /**
      * A local Syntax class used for the tests
      */
-    static class S extends AbstractSyntax
+    static class S extends LdapSyntax
     {
         private static final long serialVersionUID = 0L;
         SyntaxChecker checker;
 
         public S( String oid, boolean humanReadible )
         {
-            super( oid, humanReadible );
+            super( oid, "", humanReadible );
         }
 
         public void setSyntaxChecker( SyntaxChecker checker )
