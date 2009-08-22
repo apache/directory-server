@@ -97,6 +97,29 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     /**
      * {@inheritDoc}
      */
+    public void register( SyntaxChecker syntaxChecker ) throws NamingException
+    {
+        String oid = syntaxChecker.getOid();
+        
+        if ( byOidSyntaxChecker.containsKey( oid ) )
+        {
+            String msg = "SyntaxChecker with OID " + oid + " already registered!";
+            LOG.warn( msg );
+            throw new NamingException( msg );
+        }
+
+        byOidSyntaxChecker.put( oid, syntaxChecker );
+        
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "registered syntaxChecher for OID {}", oid );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public SyntaxChecker lookup( String oid ) throws NamingException
     {
         SyntaxChecker syntaxChecker = byOidSyntaxChecker.get( oid );
@@ -120,7 +143,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     /**
      * {@inheritDoc}
      */
-    public boolean hasSyntaxChecker( String oid )
+    public boolean contains( String oid )
     {
         return byOidSyntaxChecker.containsKey( oid );
     }
@@ -161,6 +184,15 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
         }
         
         return ext.get( 0 );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Iterator<String> oidsIterator()
+    {
+        return byOidSyntaxChecker.keySet().iterator();
     }
 
 

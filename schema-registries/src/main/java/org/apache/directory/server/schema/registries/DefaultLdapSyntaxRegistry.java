@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
+public class DefaultLdapSyntaxRegistry implements LdapSyntaxRegistry
 {
     /** static class logger */
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultSyntaxRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultLdapSyntaxRegistry.class );
     
     /** Speedup for DEBUG mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -65,7 +65,7 @@ public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
      * @param registry used by this registry for OID to name resolution of
      * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultSyntaxRegistry( OidRegistry registry )
+    public DefaultLdapSyntaxRegistry( OidRegistry registry )
     {
         this.oidRegistry = registry;
         byOidSyntax = new ConcurrentHashMap<String,LdapSyntax>();
@@ -97,7 +97,6 @@ public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
         LOG.error( msg );
         throw new NamingException( msg );
     }
-
 
     /**
      * {@inheritDoc}
@@ -134,7 +133,7 @@ public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
     /**
      * {@inheritDoc}
      */
-    public boolean hasSyntax( String id )
+    public boolean contains( String id )
     {
         try
         {
@@ -171,7 +170,7 @@ public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
        
         if ( syntax != null )
         {
-            return syntax.getSchema();
+            return syntax.getSchemaName();
         }
 
         String msg = "OID " + oid + " not found in oid to Syntax map!";
@@ -186,6 +185,15 @@ public class DefaultSyntaxRegistry implements LdapSyntaxRegistry
     public Iterator<LdapSyntax> iterator()
     {
         return byOidSyntax.values().iterator();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Iterator<String> oidsIterator()
+    {
+        return byOidSyntax.keySet().iterator();
     }
 
 

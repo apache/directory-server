@@ -70,7 +70,7 @@ public class DefaultRegistries implements Registries
     private DefaultNormalizerRegistry normalizerRegistry;
     private OidRegistry oidRegistry;
     private DefaultSyntaxCheckerRegistry syntaxCheckerRegistry;
-    private DefaultSyntaxRegistry syntaxRegistry;
+    private DefaultLdapSyntaxRegistry syntaxRegistry;
     private Map<String,Schema> loadedByName = new HashMap<String, Schema>();
     private final SchemaLoader schemaLoader;
     private final String name;
@@ -92,7 +92,7 @@ public class DefaultRegistries implements Registries
         normalizerRegistry = new DefaultNormalizerRegistry();
         comparatorRegistry = new DefaultComparatorRegistry();
         syntaxCheckerRegistry = new DefaultSyntaxCheckerRegistry();
-        syntaxRegistry = new DefaultSyntaxRegistry( oidRegistry );
+        syntaxRegistry = new DefaultLdapSyntaxRegistry( oidRegistry );
         matchingRuleRegistry = new DefaultMatchingRuleRegistry( oidRegistry );
         attributeTypeRegistry = new DefaultAttributeTypeRegistry( oidRegistry );
         objectClassRegistry = new DefaultObjectClassRegistry( oidRegistry );

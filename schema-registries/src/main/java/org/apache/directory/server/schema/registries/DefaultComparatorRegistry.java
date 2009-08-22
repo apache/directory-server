@@ -21,7 +21,6 @@ package org.apache.directory.server.schema.registries;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +99,29 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
 
     
     /**
+     * {@inheritDoc}
+     */
+    public void register( LdapComparator<?> comparator ) throws NamingException
+    {
+        String oid = comparator.getOid();
+        
+        if ( byOidComparator.containsKey( oid ) )
+        {
+            String msg = "Comparator '" + comparator + "' with OID " + oid + " already registered!";
+            LOG.warn( msg );
+            throw new NamingException( msg );
+        }
+
+        byOidComparator.put( oid, comparator );
+        
+        if ( DEBUG )
+        {
+            LOG.debug( "registed comparator with OID: {}", oid );
+        }
+    }
+
+    
+    /**
      * Return the schema, contained in the first position of the extensions
      */
     private static String getSchema( LdapComparatorDescription desc )
@@ -118,9 +140,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public Comparator<?> lookup( String oid ) throws NamingException
+    public LdapComparator<?> lookup( String oid ) throws NamingException
     {
-        Comparator<?> c = byOidComparator.get( oid );
+        LdapComparator<?> c = byOidComparator.get( oid );
         
         if ( c == null )
         {
@@ -141,7 +163,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public boolean hasComparator( String oid )
+    public boolean contains( String oid )
     {
         return byOidComparator.containsKey( oid );
     }
@@ -175,9 +197,18 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> iterator()
+    public Iterator<String> oidsIterator()
     {
         return byOidComparator.keySet().iterator();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Iterator<LdapComparator<?>> iterator()
+    {
+        return byOidComparator.values().iterator();
     }
 
 

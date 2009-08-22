@@ -81,7 +81,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
      */
     public void register( NormalizerDescription description, Normalizer normalizer ) throws NamingException
     {
-        String oid = description.getNumericOid();
+        String oid = description.getOid();
         
         if ( byOidNormalizer.containsKey( oid ) )
         {
@@ -100,6 +100,29 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public void register( Normalizer normalizer ) throws NamingException
+    {
+        String oid = normalizer.getOid();
+        
+        if ( byOidNormalizer.containsKey( oid ) )
+        {
+            String msg = "Normalizer already registered for OID " + oid;
+            LOG.warn( msg );
+            throw new NamingException( msg );
+        }
+
+        byOidNormalizer.put( oid, normalizer );
+        
+        if ( DEBUG )
+        {
+            LOG.debug( "registered normalizer with oid: {}", oid );
+        }
+    }
+
+    
     /**
      * {@inheritDoc}
      */
@@ -126,7 +149,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     /**
      * {@inheritDoc}
      */
-    public boolean hasNormalizer( String oid )
+    public boolean contains( String oid )
     {
         return byOidNormalizer.containsKey( oid );
     }
@@ -173,9 +196,18 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> iterator()
+    public Iterator<String> oidsIterator()
     {
         return byOidNormalizer.keySet().iterator();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Iterator<Normalizer> iterator()
+    {
+        return byOidNormalizer.values().iterator();
     }
 
 
