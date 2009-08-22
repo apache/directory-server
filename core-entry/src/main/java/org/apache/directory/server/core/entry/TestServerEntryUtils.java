@@ -267,7 +267,7 @@ public class TestServerEntryUtils
             }
         };
         
-        mr.normalizer = new Normalizer()
+        mr.normalizer = new Normalizer( "1.1.1" )
         {
             // The serial UID
             private static final long serialVersionUID = 1L;
@@ -380,7 +380,7 @@ public class TestServerEntryUtils
             }
         };
         
-        mr.normalizer = new Normalizer()
+        mr.normalizer = new Normalizer( "1.1.1" )
         {
             // The serial UID
             private static final long serialVersionUID = 1L;

@@ -81,7 +81,7 @@ public class ServerBinaryValueTest
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.syntax = s;
         mr.comparator = new ByteArrayComparator();
-        mr.normalizer = new Normalizer()
+        mr.normalizer = new Normalizer( "1.1.1" )
         {
             private static final long serialVersionUID = 1L;
             
