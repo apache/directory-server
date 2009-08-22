@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -163,7 +162,7 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
+        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Entry entry = getEntry( dn, normalizerDescription );
 

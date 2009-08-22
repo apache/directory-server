@@ -30,6 +30,7 @@ import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
@@ -57,9 +58,9 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
     
     public static class DeepTrimToLowerCachingNormalizingComparator extends NormalizingComparator
     {
-        public DeepTrimToLowerCachingNormalizingComparator()        
+        public DeepTrimToLowerCachingNormalizingComparator( String oid )        
         {
-            super( new CachingNormalizer( new DeepTrimToLowerNormalizer() ), new ComparableComparator() );
+            super( new CachingNormalizer( oid, new DeepTrimToLowerNormalizer( oid ) ), new ComparableComparator() );
         }
     }
 

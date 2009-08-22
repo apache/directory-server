@@ -78,8 +78,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     
     private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws Exception
     {
-        NormalizerDescription description = new NormalizerDescription();
-        description.setNumericOid( getOid( entry ) );
+        NormalizerDescription description = new NormalizerDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );
@@ -207,7 +206,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
             normalizerRegistry.unregister( oldOid );
             
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), entry );
-            normalizerDescription.setNumericOid( oid );
+            normalizerDescription.changeOid( oid );
             normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
@@ -243,7 +242,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
         if ( ! newSchema.isDisabled() )
         {
             NormalizerDescription normalizerDescription = getNormalizerDescription( newSchema.getSchemaName(), entry );
-            normalizerDescription.setNumericOid( oid );
+            normalizerDescription.changeOid( oid );
             normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }

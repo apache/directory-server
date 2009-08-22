@@ -57,9 +57,9 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
     {
         private static final long serialVersionUID = 1L;
 
-        public CachingDeepTrimToLowerNormalizer()
+        public CachingDeepTrimToLowerNormalizer( String oid )
         {
-            super( new DeepTrimToLowerNormalizer() );
+            super( oid, new DeepTrimToLowerNormalizer( oid) );
         }
     }
     
@@ -68,9 +68,9 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
     {
         private static final long serialVersionUID = 1L;
 
-        public CachingDeepTrimNormalizer()
+        public CachingDeepTrimNormalizer( String oid )
         {
-            super( new DeepTrimNormalizer() );
+            super( oid, new DeepTrimNormalizer( oid ) );
         }
     }
     
@@ -83,9 +83,9 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
         private final static Class<?>[] parameterTypes = new Class<?>[] { Registries.class };
 
         
-        public CachingDnNormalizer()
+        public CachingDnNormalizer( String oid )
         {
-            super( DnNormalizer.INSTANCE );
+            super( oid, DnNormalizer.INSTANCE );
         }
 
         

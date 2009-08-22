@@ -129,7 +129,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         checkNewParent( parentDn );
         checkOidIsUniqueForComparator( entry );
         
-        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getLdapComparator( entry, targetRegistries );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
@@ -142,7 +142,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     
     public void add( LdapComparatorDescription comparatorDescription ) throws Exception
     {
-        LdapComparator<?> comparator = factory.getComparator( comparatorDescription, targetRegistries );
+        LdapComparator<?> comparator = factory.getLdapComparator( comparatorDescription, targetRegistries );
         String schemaName = MetaSchemaConstants.SCHEMA_OTHER;
         
         if ( comparatorDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
@@ -201,7 +201,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
+            LdapComparator<?> comparator = factory.getLdapComparator( entry, targetRegistries );
             comparatorRegistry.unregister( oldOid );
             LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
             comparatorDescription.changeOid( oid );
@@ -230,7 +230,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getLdapComparator( entry, targetRegistries );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -263,7 +263,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        LdapComparator<?> comparator = factory.getComparator( entry, targetRegistries );
+        LdapComparator<?> comparator = factory.getLdapComparator( entry, targetRegistries );
         
         if ( ! oldSchema.isDisabled() )
         {

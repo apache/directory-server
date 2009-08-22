@@ -752,8 +752,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     private NormalizerDescription getNormalizerDescription( String schemaName, ServerEntry entry ) throws Exception
     {
-        NormalizerDescription description = new NormalizerDescription();
-        description.setNumericOid( getOid( entry ) );
+        NormalizerDescription description = new NormalizerDescription( getOid( entry ) );
         List<String> values = new ArrayList<String>();
         values.add( schemaName );
         description.addExtension( MetaSchemaConstants.X_SCHEMA, values );

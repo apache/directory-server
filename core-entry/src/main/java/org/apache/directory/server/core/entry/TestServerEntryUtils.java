@@ -29,7 +29,6 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -203,12 +202,8 @@ public class TestServerEntryUtils
     {
         S s = new S( "1.1.1.1", true );
 
-        s.setSyntaxChecker( new SyntaxChecker()
+        s.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
         {
-            public String getSyntaxOid()
-            {
-                return "1.1.1.1";
-            }
             public boolean isValidSyntax( Object value )
             {
                 if ( !( value instanceof String ) )
@@ -226,14 +221,6 @@ public class TestServerEntryUtils
                     }
                 }
                 return true;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
             }
         } );
 
@@ -302,23 +289,11 @@ public class TestServerEntryUtils
 
         S s = new S( "1.1.1", true );
 
-        s.setSyntaxChecker( new SyntaxChecker()
+        s.setSyntaxChecker( new SyntaxChecker( "1.1.2" )
         {
-            public String getSyntaxOid()
-            {
-                return "1.1.1";
-            }
             public boolean isValidSyntax( Object value )
             {
                 return ((String)value == null) || (((String)value).length() < 7) ;
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
             }
         } );
 
@@ -334,7 +309,7 @@ public class TestServerEntryUtils
             }
         };
         
-        mr.normalizer = new DeepTrimToLowerNormalizer();
+        mr.normalizer = new DeepTrimToLowerNormalizer( mr.getOid());
         
         at.setEquality( mr );
         at.setSyntax( s );
@@ -348,23 +323,11 @@ public class TestServerEntryUtils
 
         S s = new S( "1.2.1", true );
 
-        s.setSyntaxChecker( new SyntaxChecker()
+        s.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
         {
-            public String getSyntaxOid()
-            {
-                return "1.2.1";
-            }
             public boolean isValidSyntax( Object value )
             {
                 return ( value == null ) || ( ((byte[])value).length < 5 );
-            }
-
-            public void assertSyntax( Object value ) throws NamingException
-            {
-                if ( ! isValidSyntax( value ) )
-                {
-                    throw new InvalidAttributeValueException();
-                }
             }
         } );
 

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DitContentRuleImpl extends AbstractSchemaObject implements MutableSchemaObject, DITContentRule
+public class DitContentRuleImpl extends AbstractSchemaObject implements SchemaObject, DITContentRule
 {
     private static final long serialVersionUID = 1L;
     private static final String[] EMPTY_STR_ARRAY = new String[0];

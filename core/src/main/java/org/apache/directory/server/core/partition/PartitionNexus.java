@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.context.ListSuffixOperationC
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -84,13 +85,21 @@ public abstract class PartitionNexus implements Partition
         {
             Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
             
-            oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-            oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
-            oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+            // UID normalizer
+            OidNormalizer uidOidNormalizer = new OidNormalizer( "uid",
+                new NoOpNormalizer( SchemaConstants.UID_AT_OID ) );
             
-            oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-            oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
-            oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+            oidsMap.put( SchemaConstants.UID_AT, uidOidNormalizer );
+            oidsMap.put( SchemaConstants.USER_ID_AT, uidOidNormalizer );
+            oidsMap.put( SchemaConstants.UID_AT_OID, uidOidNormalizer );
+            
+            // OU normalizer
+            OidNormalizer ouOidNormalizer = new OidNormalizer( "ou",
+                new DeepTrimToLowerNormalizer( SchemaConstants.OU_AT_OID ) );
+            
+            oidsMap.put( SchemaConstants.OU_AT, ouOidNormalizer );
+            oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, ouOidNormalizer );
+            oidsMap.put( SchemaConstants.OU_AT_OID,ouOidNormalizer );
 
             adminDn.normalize( oidsMap );
         }
