@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 
@@ -576,7 +576,7 @@ public class MetaSyntaxCheckerHandlerIT
     }
 
     
-    class DummySyntax implements Syntax
+    class DummySyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
 

@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
@@ -708,9 +708,9 @@ public class SchemaOperationControl
                 break;
             case( SYNTAX_INDEX ):
                 MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
-                Syntax[] syntaxes = parsers.parseSyntaxes( mods );
+                LdapSyntax[] syntaxes = parsers.parseSyntaxes( mods );
                 
-                for ( Syntax syntax : syntaxes )
+                for ( LdapSyntax syntax : syntaxes )
                 {
                     syntaxHandler.delete( syntax, doCascadeModify );
                     subentryModifier.deleteSchemaObject( opContext, syntax );
@@ -847,9 +847,9 @@ public class SchemaOperationControl
                 break;
             case( SYNTAX_INDEX ):
                 MetaSyntaxHandler syntaxHandler = ( MetaSyntaxHandler ) handler;
-                Syntax[] syntaxes = parsers.parseSyntaxes( mods );
+                LdapSyntax[] syntaxes = parsers.parseSyntaxes( mods );
                 
-                for ( Syntax syntax : syntaxes )
+                for ( LdapSyntax syntax : syntaxes )
                 {
                     syntaxHandler.add( syntax );
                     subentryModifier.addSchemaObject( opContext, syntax );

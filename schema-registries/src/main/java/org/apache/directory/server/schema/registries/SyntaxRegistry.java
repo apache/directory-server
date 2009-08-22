@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 
 
 /**
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<Syntax>
+public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<LdapSyntax>
 {
     /**
      * Looks up a Syntax by its unique Object Identifier or by name.
@@ -43,7 +43,7 @@ public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<Syntax>
      * @throws NamingException if there is a backing store failure or the Syntax
      * does not exist.
      */
-    Syntax lookup( String id ) throws NamingException;
+    LdapSyntax lookup( String id ) throws NamingException;
 
 
     /**
@@ -53,7 +53,7 @@ public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<Syntax>
      * @throws NamingException if the syntax is already registered or the 
      * registration operation is not supported
      */
-    void register( Syntax syntax ) throws NamingException;
+    void register( LdapSyntax syntax ) throws NamingException;
 
 
     /**
@@ -71,5 +71,5 @@ public interface SyntaxRegistry extends SchemaObjectRegistry, Iterable<Syntax>
      *
      * @return an Iterator over all the Syntaxes within this registry
      */
-    Iterator<Syntax> iterator();
+    Iterator<LdapSyntax> iterator();
 }

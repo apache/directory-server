@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 
@@ -570,7 +570,7 @@ public class MetaNormalizerHandlerIT
             return null;
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return null;
         }

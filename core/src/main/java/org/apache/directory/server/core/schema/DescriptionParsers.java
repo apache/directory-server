@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
@@ -84,7 +84,7 @@ public class DescriptionParsers
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
-    private static final Syntax[] EMPTY_SYNTAXES = new Syntax[0];
+    private static final LdapSyntax[] EMPTY_SYNTAXES = new LdapSyntax[0];
     private static final MatchingRule[] EMPTY_MATCHING_RULES = new MatchingRule[0];
     private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
     private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
@@ -518,14 +518,14 @@ public class DescriptionParsers
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
-    public Syntax[] parseSyntaxes( EntryAttribute attr ) throws Exception
+    public LdapSyntax[] parseSyntaxes( EntryAttribute attr ) throws Exception
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_SYNTAXES;
         }
         
-        Syntax[] syntaxes = new Syntax[attr.size()];
+        LdapSyntax[] syntaxes = new LdapSyntax[attr.size()];
 
         int pos = 0;
         

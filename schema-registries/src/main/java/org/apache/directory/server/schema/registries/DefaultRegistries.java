@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 
 
 /**
@@ -208,7 +208,7 @@ public class DefaultRegistries implements Registries
         list = syntaxRegistry.iterator();
         while ( list.hasNext() )
         {
-            Syntax syntax = ( Syntax ) list.next();
+            LdapSyntax syntax = ( LdapSyntax ) list.next();
             resolve( syntax, errors );
         }
 
@@ -223,7 +223,7 @@ public class DefaultRegistries implements Registries
      * @param errors the list of errors to add exceptions to
      * @return true if it succeeds, false otherwise
      */
-    private boolean resolve( Syntax syntax, List<Throwable> errors )
+    private boolean resolve( LdapSyntax syntax, List<Throwable> errors )
     {
         if ( syntax == null )
         {

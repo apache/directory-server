@@ -30,7 +30,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 
 
 class MatchingRuleImpl extends AbstractMatchingRule implements MutableSchemaObject
@@ -56,7 +56,7 @@ class MatchingRuleImpl extends AbstractMatchingRule implements MutableSchemaObje
     }
 
 
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         return syntaxRegistry.lookup( syntaxOid );
     }

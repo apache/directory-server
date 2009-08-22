@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.comparators.ObjectIdentifierComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
@@ -92,7 +92,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
     {
         private static final long serialVersionUID = 1L;
         private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.4";
-        private final Syntax syntax;
+        private final LdapSyntax syntax;
         private final String[] NAMES = new String[] { "ruleIdMatch" };
         
         
@@ -111,7 +111,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return new DeepTrimToLowerNormalizer();
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntax;
         }
@@ -158,7 +158,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.3";
         private static final long serialVersionUID = 1L;
         String[] NAMES = new String[] { "supDITStructureRuleMatch" };
-        Syntax syntax;
+        LdapSyntax syntax;
         
         
         public SupDITStructureRuleMatch( SyntaxRegistry registry ) throws NamingException
@@ -177,7 +177,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return new DeepTrimToLowerNormalizer();
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntax;
         }
@@ -226,7 +226,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         private static final long serialVersionUID = 1L;
 
         final String[] NAMES = new String[] { "numericOidMatch" };
-        Syntax syntax;
+        LdapSyntax syntax;
         
         public NumericOidMatch( SyntaxRegistry registry ) throws NamingException
         {
@@ -243,7 +243,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return new ObjectIdentifierNormalizer();
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntax;
         }
@@ -290,7 +290,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         private static final long serialVersionUID = 1L;
         public static final Comparator COMPARATOR = new ApachemetaComparatorProducer.ObjectClassTypeComparator(); 
         public static final Normalizer NORMALIZER = new NoOpNormalizer();
-        public static final Syntax SYNTAX = new ApachemetaSyntaxProducer.ObjectClassTypeSyntax();
+        public static final LdapSyntax SYNTAX = new ApachemetaSyntaxProducer.ObjectClassTypeSyntax();
         public static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.1";
         
         private static final String[] NAMES = new String[] { "objectClassTypeMatch" };
@@ -306,7 +306,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
             return NORMALIZER;
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return SYNTAX;
         }

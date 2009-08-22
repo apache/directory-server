@@ -80,7 +80,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -608,7 +608,7 @@ public class BootstrapPlugin extends AbstractMojo
 
         SyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
 
-        for ( Syntax syntax : syntaxRegistry )
+        for ( LdapSyntax syntax : syntaxRegistry )
         {
             getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
             LdapDN dn = checkCreateSchema( syntax.getSchema() );

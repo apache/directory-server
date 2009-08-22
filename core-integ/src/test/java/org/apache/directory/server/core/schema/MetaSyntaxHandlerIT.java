@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 
 import static org.junit.Assert.assertEquals;
@@ -235,7 +235,7 @@ public class MetaSyntaxHandlerIT
     {
         testAddSyntax();
         
-        Syntax syntax = getSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = getSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );
@@ -262,7 +262,7 @@ public class MetaSyntaxHandlerIT
     {
         testAddSyntax();
         
-        Syntax syntax = getSyntaxRegistry().lookup( OID );
+        LdapSyntax syntax = getSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );

@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** a map of entries using an OID for the key and a Syntax for the value */
-    private final Map<String,Syntax> byOidSyntax;
+    private final Map<String,LdapSyntax> byOidSyntax;
     
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
     private final OidRegistry oidRegistry;
@@ -67,7 +67,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     public DefaultSyntaxRegistry( OidRegistry registry )
     {
         this.oidRegistry = registry;
-        byOidSyntax = new ConcurrentHashMap<String,Syntax>();
+        byOidSyntax = new ConcurrentHashMap<String,LdapSyntax>();
     }
 
 
@@ -77,10 +77,10 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     /**
      * {@inheritDoc}
      */
-    public Syntax lookup( String id ) throws NamingException
+    public LdapSyntax lookup( String id ) throws NamingException
     {
         id = oidRegistry.getOid( id );
-        Syntax syntax = byOidSyntax.get( id );
+        LdapSyntax syntax = byOidSyntax.get( id );
 
         if ( syntax != null )
         {
@@ -101,7 +101,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     /**
      * {@inheritDoc}
      */
-    public void register( Syntax syntax ) throws NamingException
+    public void register( LdapSyntax syntax ) throws NamingException
     {
         String oid = syntax.getOid();
         
@@ -166,7 +166,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         String oid = oidRegistry.getOid( id );
-        Syntax syntax = byOidSyntax.get( oid );
+        LdapSyntax syntax = byOidSyntax.get( oid );
        
         if ( syntax != null )
         {
@@ -182,7 +182,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     /**
      * {@inheritDoc}
      */
-    public Iterator<Syntax> iterator()
+    public Iterator<LdapSyntax> iterator()
     {
         return byOidSyntax.values().iterator();
     }

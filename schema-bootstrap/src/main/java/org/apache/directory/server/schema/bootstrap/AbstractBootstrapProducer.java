@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
@@ -201,7 +201,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
 
         // accessors
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntaxRegistry.lookup( syntaxOid );
         }
@@ -254,7 +254,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         private String syntaxId;
         
         /** The Syntax associated with the syntaxID */
-        private Syntax syntax;
+        private LdapSyntax syntax;
 
 
         public BootstrapAttributeType(String oid, Registries registries)
@@ -395,7 +395,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         /**
          * @return The Syntax associated with the AttributeType
          */
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             if ( syntax == null )
             {

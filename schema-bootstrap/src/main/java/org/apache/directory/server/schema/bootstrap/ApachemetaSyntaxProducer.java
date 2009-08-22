@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.NumericStringSyntaxChecker;
@@ -60,7 +60,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     public void produce( Registries registries, ProducerCallback cb )
         throws NamingException
     {
-        Syntax syntax = null;
+        LdapSyntax syntax = null;
         
         syntax = new NameOrNumericIdSyntax();
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
@@ -79,7 +79,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     }
     
     
-    public static class NumericOidSyntax implements Syntax
+    public static class NumericOidSyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.2";
@@ -133,7 +133,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     }
 
 
-    public static class NameOrNumericIdSyntax implements Syntax
+    public static class NameOrNumericIdSyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.0";
@@ -187,7 +187,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     }
 
 
-    public static class ObjectClassTypeSyntax implements Syntax
+    public static class ObjectClassTypeSyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.1";
@@ -241,7 +241,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
     }
 
 
-    public static class NumberSyntax implements Syntax
+    public static class NumberSyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.4";
@@ -294,7 +294,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         }
     }
 
-    public static class ObjectNameSyntax implements Syntax
+    public static class ObjectNameSyntax implements LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.6";

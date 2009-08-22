@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
@@ -99,7 +99,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public Syntax getSyntax() throws NamingException
+                public LdapSyntax getSyntax() throws NamingException
                 {
                     return null;
                 }
@@ -117,7 +117,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                     {
                         private static final long serialVersionUID = 1L;
 
-                        public Syntax getSyntax() throws NamingException
+                        public LdapSyntax getSyntax() throws NamingException
                         {
                             return null;
                         }
@@ -284,9 +284,9 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
-                public Syntax getSyntax() throws NamingException
+                public LdapSyntax getSyntax() throws NamingException
                 {
-                    return new Syntax()
+                    return new LdapSyntax()
                     {
 
                         private static final long serialVersionUID = 1L;
@@ -350,9 +350,9 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                     {
                         private static final long serialVersionUID = 1L;
 
-                        public Syntax getSyntax() throws NamingException
+                        public LdapSyntax getSyntax() throws NamingException
                         {
-                            return new Syntax()
+                            return new LdapSyntax()
                             {
                                 private static final long serialVersionUID = 1L;
 

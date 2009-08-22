@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
@@ -71,7 +71,7 @@ public class NoMatchingRuleAttributeType implements AttributeType
     }
 
 
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         return new BogusSyntax();
     }

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -262,11 +262,11 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        Iterator<Syntax> list = registries.getSyntaxRegistry().iterator();
+        Iterator<LdapSyntax> list = registries.getSyntaxRegistry().iterator();
 
         while ( list.hasNext() )
         {
-            Syntax syntax = list.next();
+            LdapSyntax syntax = list.next();
             attr.add( SchemaUtils.render( syntax ).toString() );
         }
 

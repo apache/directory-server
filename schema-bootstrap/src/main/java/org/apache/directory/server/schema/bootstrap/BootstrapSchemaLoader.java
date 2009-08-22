@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
@@ -267,7 +267,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 break;
                 
             case SYNTAX_PRODUCER :
-                Syntax syntax = ( Syntax ) schemaObject;
+                LdapSyntax syntax = ( LdapSyntax ) schemaObject;
                 
                 if ( schemaObject instanceof BootstrapSyntax )
                 {

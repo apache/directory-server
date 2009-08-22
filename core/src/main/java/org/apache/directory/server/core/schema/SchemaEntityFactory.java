@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
@@ -548,7 +548,7 @@ public class SchemaEntityFactory
     }
 
 
-    public Syntax getSyntax( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
+    public LdapSyntax getSyntax( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         SyntaxImpl syntax = new SyntaxImpl( oid, targetRegistries.getSyntaxCheckerRegistry() );

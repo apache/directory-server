@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
@@ -57,9 +57,9 @@ public class AttributesFactory
 {
     public ServerEntry getAttributes( SchemaObject obj, Schema schema, Registries registries ) throws NamingException
     {
-        if ( obj instanceof Syntax )
+        if ( obj instanceof LdapSyntax )
         {
-            return getAttributes( ( Syntax ) obj, schema, registries );
+            return getAttributes( ( LdapSyntax ) obj, schema, registries );
         }
         else if ( obj instanceof MatchingRule )
         {
@@ -140,7 +140,7 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( Syntax syntax, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, Registries registries ) throws NamingException
     {
         ServerEntry entry = new DefaultServerEntry( registries );
 

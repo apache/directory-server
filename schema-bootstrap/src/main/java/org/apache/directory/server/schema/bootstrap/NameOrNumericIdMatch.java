@@ -28,7 +28,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 
 /**
  * Document me!
@@ -44,7 +44,7 @@ public class NameOrNumericIdMatch implements MatchingRule
     private final static String OID = "1.3.6.1.4.1.18060.0.4.0.1.0";
     private transient Normalizer normalizer;
     private transient Comparator comparator;
-    private transient Syntax syntax;
+    private transient LdapSyntax syntax;
     private final String schema;
     
     
@@ -93,7 +93,7 @@ public class NameOrNumericIdMatch implements MatchingRule
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.MatchingRule#getSyntax()
      */
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         return syntax;
     }

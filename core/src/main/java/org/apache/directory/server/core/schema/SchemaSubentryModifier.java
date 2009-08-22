@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -110,7 +110,7 @@ public class SchemaSubentryModifier
         StringBuffer buf = new StringBuffer();
         buf.append( "m-oid=" ).append( obj.getOid() ).append( ",ou=" );
 
-        if ( obj instanceof Syntax )
+        if ( obj instanceof LdapSyntax )
         {
             buf.append( "syntaxes" );
         }

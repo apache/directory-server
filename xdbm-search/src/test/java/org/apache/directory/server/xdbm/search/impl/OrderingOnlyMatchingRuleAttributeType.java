@@ -72,7 +72,7 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
     }
 
 
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         return new BogusSyntax();
     }
@@ -97,7 +97,7 @@ public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
             private static final long serialVersionUID = 1L;
 
 
-            public Syntax getSyntax() throws NamingException
+            public LdapSyntax getSyntax() throws NamingException
             {
                 return new BogusSyntax();
             }

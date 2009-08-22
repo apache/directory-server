@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 
 
@@ -48,7 +48,7 @@ class AttributeTypeImpl extends AbstractAttributeType implements SchemaObject
     private String syntaxOid;
     
     /** The syntax associated with the syntaxID */
-    private Syntax syntax;
+    private LdapSyntax syntax;
     
     /** The equality OID associated with this AttributeType */
     private String equalityOid;
@@ -237,7 +237,7 @@ class AttributeTypeImpl extends AbstractAttributeType implements SchemaObject
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.AttributeType#getSyntax()
      */
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         if ( syntax == null )
         {
@@ -262,7 +262,7 @@ class AttributeTypeImpl extends AbstractAttributeType implements SchemaObject
      * @return the Syntax for the attributeType
      * @throws NamingException if no syntax can be found for the attributeType
      */
-    private Syntax findSyntax( AttributeType at ) throws NamingException
+    private LdapSyntax findSyntax( AttributeType at ) throws NamingException
     {
         if ( at == null )
         {

@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 
 
 /**
@@ -66,7 +66,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         String oid = getOid( entry );
         Schema schema = getSchema( name );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
+        LdapSyntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
@@ -88,7 +88,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkOidIsUnique( entry );
         
         String schemaName = getSchemaName( name );
-        Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
+        LdapSyntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
         add( syntax );
     }
 
@@ -110,12 +110,12 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         
         
         String schemaName = getSchemaName( name );
-        Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
+        LdapSyntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
         delete( syntax, cascade );
     }
 
 
-    public void delete( Syntax syntax, boolean cascade ) throws Exception
+    public void delete( LdapSyntax syntax, boolean cascade ) throws Exception
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         if ( ! schema.isDisabled() )
@@ -149,7 +149,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
+        LdapSyntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
@@ -191,7 +191,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, newSchema.getSchemaName() );
+        LdapSyntax syntax = factory.getSyntax( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )
         {
@@ -232,7 +232,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
-        Syntax syntax = factory.getSyntax( entry, targetRegistries, newSchema.getSchemaName() );
+        LdapSyntax syntax = factory.getSyntax( entry, targetRegistries, newSchema.getSchemaName() );
         
         if ( ! oldSchema.isDisabled() )
         {
@@ -279,7 +279,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
      * @param syntax the syntax that is to be added to this handler's registries
      * @throws NamingException if there are problems access schema data
      */
-    public void add( Syntax syntax ) throws Exception
+    public void add( LdapSyntax syntax ) throws Exception
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         

@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -567,7 +567,7 @@ public class MetaComparatorHandlerIT
             return null;
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return null;
         }

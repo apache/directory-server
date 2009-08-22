@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 
 import javax.naming.NamingException;
@@ -66,7 +66,7 @@ public class NoEqMatchAttribute implements AttributeType
     }
 
 
-    public Syntax getSyntax() throws NamingException
+    public LdapSyntax getSyntax() throws NamingException
     {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }

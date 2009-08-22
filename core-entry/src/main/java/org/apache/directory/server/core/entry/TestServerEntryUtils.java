@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -53,7 +53,7 @@ public class TestServerEntryUtils
     {
         private static final long serialVersionUID = 0L;
         AttributeType superior;
-        Syntax syntax;
+        LdapSyntax syntax;
         MatchingRule equality;
         MatchingRule ordering;
         MatchingRule substr;
@@ -69,7 +69,7 @@ public class TestServerEntryUtils
         }
 
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntax;
         }
@@ -99,7 +99,7 @@ public class TestServerEntryUtils
         }
 
 
-        public void setSyntax( Syntax syntax )
+        public void setSyntax( LdapSyntax syntax )
         {
             this.syntax = syntax;
         }
@@ -129,7 +129,7 @@ public class TestServerEntryUtils
     static class MR extends AbstractMatchingRule
     {
         private static final long serialVersionUID = 0L;
-        Syntax syntax;
+        LdapSyntax syntax;
         Comparator comparator;
         Normalizer normalizer;
 
@@ -138,7 +138,7 @@ public class TestServerEntryUtils
             super( oid );
         }
 
-        public Syntax getSyntax() throws NamingException
+        public LdapSyntax getSyntax() throws NamingException
         {
             return syntax;
         }
@@ -155,7 +155,7 @@ public class TestServerEntryUtils
         }
 
 
-        public void setSyntax( Syntax syntax )
+        public void setSyntax( LdapSyntax syntax )
         {
             this.syntax = syntax;
         }
