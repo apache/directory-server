@@ -360,7 +360,7 @@ public class SyncReplConsumer implements SearchListener, IntermediateResponseLis
             LOG.debug( "state name {}", state.name() );
 
             EntryAttribute entryUUID = remoteEntry.get( "entryUUID" );
-            LOG.debug( "entryUUID = {}", entryUUID.getString() );
+            LOG.debug( "entryUUID = {}", ( entryUUID == null ? null : entryUUID.getString() ) );
 
             switch ( state )
             {
