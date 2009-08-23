@@ -244,7 +244,8 @@ public class SyncreplRunnerUI implements ActionListener
         entryInjector = new EntryInjector( provServerHost, provServerPort, provServerBindDn, provServerPwd );
         entryInjector.enable( false );
         entryInjector.setBorder( new TitledBorder( "Entry Injector" ) );
-
+        entryInjector.setConfig( config );
+        
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         frame.setTitle( "Syncrepl consumer UI" );

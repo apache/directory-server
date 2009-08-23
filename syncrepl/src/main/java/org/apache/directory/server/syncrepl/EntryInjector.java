@@ -25,10 +25,17 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 import org.apache.directory.shared.ldap.client.api.LdapConnection;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResponse;
+import org.apache.directory.shared.ldap.client.api.messages.SearchResultEntry;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +44,6 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * A utility class to inject entries into the syncrepl provider server.
- *
- * TODO add a feature to purge entries
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -48,11 +53,15 @@ public class EntryInjector extends JPanel implements ActionListener
     private JButton btnAdd;
     private JButton btnPause;
     private JButton btnKeepAdding;
-
+    private JButton btnDelete;
+    private JButton btnRandDelete;
+    private JTextField txtDn;
     private RunnerThread runner = new RunnerThread();
 
     private LdapConnection connection;
 
+    private SyncreplConfiguration config;
+    
     private static final Logger LOG = LoggerFactory.getLogger( EntryInjector.class );
 
 
@@ -88,6 +97,37 @@ public class EntryInjector extends JPanel implements ActionListener
     }
 
 
+    public void deleteEntry( String dn )
+    {
+        try
+        {
+            if( dn != null && dn.trim().length() > 0 )
+            {
+                connection.delete( dn );
+            }
+            else if( dn == null )
+            {
+                Cursor<SearchResponse> cursor = connection.search( config.getBaseDn(), config.getFilter(), SearchScope.getSearchScope( config.getSearchScope() ), config.getAttributes().split( "," ) );
+                cursor.beforeFirst();
+                if( cursor.next() && cursor.next() ) // to skip the baseDN
+                {
+                    SearchResponse res = cursor.get();
+                    if( res instanceof SearchResultEntry )
+                    {
+                        connection.delete( ( ( SearchResultEntry ) res ).getEntry().getDn()  );
+                    }
+                }
+                
+                cursor.close();
+            }
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    
     public void close()
     {
         try
@@ -116,6 +156,25 @@ public class EntryInjector extends JPanel implements ActionListener
         btnKeepAdding = new JButton( "Keep Adding" );
         btnKeepAdding.addActionListener( this );
         add( btnKeepAdding );
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setBorder( new TitledBorder( "Delete Entry" ) );
+        
+        innerPanel.add( new JLabel( "DN:" ) );
+        
+        txtDn = new JTextField( 20 );
+        txtDn.addActionListener( this );
+        innerPanel.add( txtDn );
+
+        btnDelete = new JButton( "Delete" );
+        btnDelete.addActionListener( this );
+        innerPanel.add( btnDelete );
+        
+        btnRandDelete = new JButton( "Delete Random" );
+        btnRandDelete.addActionListener( this );
+        innerPanel.add( btnRandDelete );
+         
+        add( innerPanel );
     }
 
 
@@ -145,6 +204,14 @@ public class EntryInjector extends JPanel implements ActionListener
             }
             btnPause.setEnabled( true );
             btnKeepAdding.setEnabled( false );
+        }
+        else if ( src == btnRandDelete )
+        {
+            deleteEntry( null );
+        }
+        else if ( src == btnDelete )
+        {
+            deleteEntry( txtDn.getText() );
         }
     }
 
@@ -213,9 +280,18 @@ public class EntryInjector extends JPanel implements ActionListener
     }
 
 
+    public void setConfig( SyncreplConfiguration config )
+    {
+        this.config = config;
+    }
+
+
     public void enable( boolean enable )
     {
         btnAdd.setEnabled( enable );
         btnKeepAdding.setEnabled( enable );
+        btnDelete.setEnabled( enable );
+        btnRandDelete.setEnabled( enable );
+        txtDn.setEnabled( enable );
     }
 }
