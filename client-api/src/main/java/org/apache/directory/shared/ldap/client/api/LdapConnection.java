@@ -317,11 +317,6 @@ public class LdapConnection  extends IoHandlerAdapter
         {
             for( ControlCodec ctrlCodec : ctrlCodecList )
             {
-                if( ctrlCodec == null )
-                {
-                    continue;
-                }
-                
                 Control control = new BasicControl( ctrlCodec.getControlType(), ctrlCodec.getCriticality(), ctrlCodec.getEncodedValue() );
                 try
                 {
@@ -1538,7 +1533,7 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.ADD_RESPONSE :
                 // Store the response into the responseQueue
                 AddResponseCodec addRespCodec = response.getAddResponse();
-                addRespCodec.addControl( response.getCurrentControl() );
+                addRespCodec.addControls( response.getControls() );
                 addRespCodec.setMessageId( response.getMessageId() );
                 
                 futureMap.remove( addRespCodec.getMessageId() );
@@ -1558,7 +1553,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 BindResponseCodec bindResponseCodec = response.getBindResponse();
                 bindResponseCodec.setMessageId( response.getMessageId() );
-                bindResponseCodec.addControl( response.getCurrentControl() );
+                bindResponseCodec.addControls( response.getControls() );
                 BindResponse bindResponse = convert( bindResponseCodec );
 
                 futureMap.remove( bindResponseCodec.getMessageId() );
@@ -1581,7 +1576,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 CompareResponseCodec compResCodec = response.getCompareResponse();
                 compResCodec.setMessageId( response.getMessageId() );
-                compResCodec.addControl( response.getCurrentControl() );
+                compResCodec.addControls( response.getControls() );
                 CompareResponse compRes = convert( compResCodec );
                 
                 futureMap.remove( compRes.getMessageId() );
@@ -1602,7 +1597,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 // Store the response into the responseQueue
                 DelResponseCodec delRespCodec = response.getDelResponse();
                 delRespCodec.setMessageId( response.getMessageId() );
-                delRespCodec.addControl( response.getCurrentControl() );
+                delRespCodec.addControls( response.getControls() );
                 DeleteResponse delResp = convert( delRespCodec );
                 
                 futureMap.remove( delResp.getMessageId() );
@@ -1620,7 +1615,7 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.EXTENDED_RESPONSE :
                 ExtendedResponseCodec extResCodec = response.getExtendedResponse();
                 extResCodec.setMessageId( response.getMessageId() );
-                extResCodec.addControl( response.getCurrentControl() );
+                extResCodec.addControls( response.getControls() );
                 
                 ExtendedResponse extResponse = convert( extResCodec );
                 ExtendedListener extListener = ( ExtendedListener ) listenerMap.remove( extResCodec.getMessageId() );
@@ -1641,7 +1636,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 IntermediateResponseCodec intermediateResponseCodec = 
                     response.getIntermediateResponse();
                 intermediateResponseCodec.setMessageId( response.getMessageId() );
-                intermediateResponseCodec.addControl( response.getCurrentControl() );
+                intermediateResponseCodec.addControls( response.getControls() );
                 
                 IntermediateResponse intrmResp = convert( intermediateResponseCodec );                
                 IntermediateResponseListener intrmListener = ( IntermediateResponseListener ) listenerMap.get( intermediateResponseCodec.getMessageId() ); 
@@ -1660,7 +1655,7 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.MODIFY_RESPONSE :
                 ModifyResponseCodec modRespCodec = response.getModifyResponse();
                 modRespCodec.setMessageId( response.getMessageId() );
-                modRespCodec.addControl( response.getCurrentControl() );
+                modRespCodec.addControls( response.getControls() );
                 ModifyResponse modResp = convert( modRespCodec );
 
                 futureMap.remove( modResp.getMessageId() );
@@ -1679,7 +1674,7 @@ public class LdapConnection  extends IoHandlerAdapter
             case LdapConstants.MODIFYDN_RESPONSE :
                 
                 ModifyDNResponseCodec modDnCodec = response.getModifyDNResponse();
-                modDnCodec.addControl( response.getCurrentControl() );
+                modDnCodec.addControls( response.getControls() );
                 modDnCodec.setMessageId( response.getMessageId() );
                 ModifyDnResponse modDnResp = convert( modDnCodec );
                 
@@ -1701,7 +1696,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 SearchResultDoneCodec searchResultDoneCodec = 
                     response.getSearchResultDone();
                 searchResultDoneCodec.setMessageId( response.getMessageId() );
-                searchResultDoneCodec.addControl( response.getCurrentControl() );
+                searchResultDoneCodec.addControls( response.getControls() );
                 SearchResultDone srchDone = convert( searchResultDoneCodec );
                 
                 futureMap.remove( searchResultDoneCodec.getMessageId() );
@@ -1723,7 +1718,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 SearchResultEntryCodec searchResultEntryCodec = 
                     response.getSearchResultEntry();
                 searchResultEntryCodec.setMessageId( response.getMessageId() );
-                searchResultEntryCodec.addControl( response.getCurrentControl() );
+                searchResultEntryCodec.addControls( response.getControls() );
                 
                 SearchResultEntry srchEntry = convert( searchResultEntryCodec );
                 searchListener = ( SearchListener ) listenerMap.get( searchResultEntryCodec.getMessageId() );
@@ -1744,7 +1739,7 @@ public class LdapConnection  extends IoHandlerAdapter
                 SearchResultReferenceCodec searchResultReferenceCodec = 
                     response.getSearchResultReference();
                 searchResultReferenceCodec.setMessageId( response.getMessageId() );
-                searchResultReferenceCodec.addControl( response.getCurrentControl() );
+                searchResultReferenceCodec.addControls( response.getControls() );
 
                 SearchResultReference srchRef = convert( searchResultReferenceCodec );
                 searchListener = ( SearchListener ) listenerMap.get( searchResultReferenceCodec.getMessageId() );
