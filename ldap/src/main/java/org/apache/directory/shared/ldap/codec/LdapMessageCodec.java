@@ -165,6 +165,25 @@ public class LdapMessageCodec extends AbstractAsn1Object
 
 
     /**
+     * Set or add a list of controls to the Controls array. If the existing
+     * control array is not null then the given controls will be added
+     * 
+     * @param controls The list of Controls to set or add
+     */
+    public void addControls( List<ControlCodec> controls )
+    {
+        if( this.controls == null )
+        {
+            this.controls = controls;
+        }
+        else if( controls != null )
+        {
+            this.controls.addAll( controls );
+        }
+    }
+    
+    
+    /**
      * Init the controls array
      */
     public void initControls()
