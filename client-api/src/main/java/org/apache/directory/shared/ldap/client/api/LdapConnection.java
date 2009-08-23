@@ -57,6 +57,7 @@ import org.apache.directory.shared.ldap.client.api.listeners.ModifyListener;
 import org.apache.directory.shared.ldap.client.api.listeners.OperationResponseListener;
 import org.apache.directory.shared.ldap.client.api.listeners.SearchListener;
 import org.apache.directory.shared.ldap.client.api.messages.AbandonRequest;
+import org.apache.directory.shared.ldap.client.api.messages.AbstractMessage;
 import org.apache.directory.shared.ldap.client.api.messages.AddRequest;
 import org.apache.directory.shared.ldap.client.api.messages.AddResponse;
 import org.apache.directory.shared.ldap.client.api.messages.BindRequest;
@@ -297,6 +298,45 @@ public class LdapConnection  extends IoHandlerAdapter
     
     
     /**
+     * converts the ControlCodec(s) present in LdapMessageCodec to BasicControl(s) 
+     * and adds them to the corresponding client side message.
+     *
+     * @param codec the codec in which the <i>ControlCodec</i>s are present 
+     * @param message the message to which the <i>Control</i>s needs to be added
+     */
+    private void copyControlsFromCodecToMessage( LdapMessageCodec codec, AbstractMessage message )
+    {
+        if( codec == null || message == null )
+        {
+            return;
+        }
+        
+        List<ControlCodec> ctrlCodecList = codec.getControls();
+
+        if( ctrlCodecList != null )
+        {
+            for( ControlCodec ctrlCodec : ctrlCodecList )
+            {
+                if( ctrlCodec == null )
+                {
+                    continue;
+                }
+                
+                Control control = new BasicControl( ctrlCodec.getControlType(), ctrlCodec.getCriticality(), ctrlCodec.getEncodedValue() );
+                try
+                {
+                    message.add( control );
+                }
+                catch( Exception e )
+                {
+                    LOG.error( "Failed to add the control associated with SearchResultEntryCodec", e );
+                }
+            }
+        }
+    }
+    
+    
+    /**
      * Get the smallest timeout from the client timeout and the connection
      * timeout.
      */
@@ -327,7 +367,8 @@ public class LdapConnection  extends IoHandlerAdapter
         bindResponse.setMessageId( bindResponseCodec.getMessageId() );
         bindResponse.setServerSaslCreds( bindResponseCodec.getServerSaslCreds() );
         bindResponse.setLdapResult( convert( bindResponseCodec.getLdapResult() ) );
-
+        copyControlsFromCodecToMessage( bindResponseCodec, bindResponse );
+        
         return bindResponse;
     }
 
@@ -342,6 +383,7 @@ public class LdapConnection  extends IoHandlerAdapter
         intermediateResponse.setMessageId( intermediateResponseCodec.getMessageId() );
         intermediateResponse.setResponseName( intermediateResponseCodec.getResponseName() );
         intermediateResponse.setResponseValue( intermediateResponseCodec.getResponseValue() );
+        copyControlsFromCodecToMessage( intermediateResponseCodec, intermediateResponse );
 
         return intermediateResponse;
     }
@@ -384,7 +426,8 @@ public class LdapConnection  extends IoHandlerAdapter
         
         searchResultEntry.setMessageId( searchEntryResultCodec.getMessageId() );
         searchResultEntry.setEntry( searchEntryResultCodec.getEntry() );
-        
+        copyControlsFromCodecToMessage( searchEntryResultCodec, searchResultEntry );
+
         return searchResultEntry;
     }
 
@@ -398,6 +441,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         searchResultDone.setMessageId( searchResultDoneCodec.getMessageId() );
         searchResultDone.setLdapResult( convert( searchResultDoneCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( searchResultDoneCodec, searchResultDone );
         
         return searchResultDone;
     }
@@ -424,7 +468,8 @@ public class LdapConnection  extends IoHandlerAdapter
         }
         
         searchResultReference.setReferral( referral );
-
+        copyControlsFromCodecToMessage( searchEntryReferenceCodec, searchResultReference );
+        
         return searchResultReference;
     }
 
@@ -771,6 +816,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         addResponse.setMessageId( addRespCodec.getMessageId() );
         addResponse.setLdapResult( convert( addRespCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( addRespCodec, addResponse );
         
         return addResponse;
     }
@@ -1824,7 +1870,8 @@ public class LdapConnection  extends IoHandlerAdapter
         
         modResponse.setMessageId( modRespCodec.getMessageId() );
         modResponse.setLdapResult( convert( modRespCodec.getLdapResult() ) );
-
+        copyControlsFromCodecToMessage( modRespCodec, modResponse );
+        
         return modResponse;
     }
 
@@ -2008,6 +2055,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         modDnResponse.setMessageId( modDnRespCodec.getMessageId() );
         modDnResponse.setLdapResult( convert( modDnRespCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( modDnRespCodec, modDnResponse );
         
         return modDnResponse;
     }
@@ -2521,6 +2569,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         compareResponse.setMessageId( compareRespCodec.getMessageId() );
         compareResponse.setLdapResult( convert( compareRespCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( compareRespCodec, compareResponse );
         
         return compareResponse;
     }
@@ -2535,6 +2584,7 @@ public class LdapConnection  extends IoHandlerAdapter
         
         response.setMessageId( delRespCodec.getMessageId() );
         response.setLdapResult( convert( delRespCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( delRespCodec, response );
         
         return response;
     }
@@ -2695,6 +2745,7 @@ public class LdapConnection  extends IoHandlerAdapter
         extResponse.setValue( extRespCodec.getResponse() );
         extResponse.setMessageId( extRespCodec.getMessageId() );
         extResponse.setLdapResult( convert( extRespCodec.getLdapResult() ) );
+        copyControlsFromCodecToMessage( extRespCodec, extResponse );
         
         return extResponse;
     }
