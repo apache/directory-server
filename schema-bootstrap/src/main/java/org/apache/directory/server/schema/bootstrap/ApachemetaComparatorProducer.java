@@ -29,6 +29,7 @@ import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.comparators.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -79,19 +80,19 @@ public class ApachemetaComparatorProducer extends AbstractBootstrapProducer
         Comparator comparator = null;
         
         comparator = new NameOrNumericIdComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.0", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.NAME_OR_NUMERIC_ID_MATCH_OID, comparator );
 
         comparator = new ObjectClassTypeComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.1", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_CLASS_TYPE_MATCH_OID, comparator );
         
         comparator = new StringComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.2", comparator );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_OID_MATCH_OID, comparator );
         
-        comparator = new DeepTrimToLowerNormalizingComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.3", comparator );
+        comparator = new DeepTrimToLowerNormalizingComparator( SchemaConstants.SUP_DIT_STRUCTURE_RULE_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.SUP_DIT_STRUCTURE_RULE_MATCH_OID, comparator );
         
-        comparator = new DeepTrimToLowerNormalizingComparator();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.4", comparator );
+        comparator = new DeepTrimToLowerNormalizingComparator( SchemaConstants.RULE_ID_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.RULE_ID_MATCH_OID, comparator );
     }
 
 

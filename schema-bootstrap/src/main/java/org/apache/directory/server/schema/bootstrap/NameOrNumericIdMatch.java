@@ -26,6 +26,8 @@ import javax.naming.NamingException;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -40,10 +42,10 @@ public class NameOrNumericIdMatch implements MatchingRule
 {
     private static final long serialVersionUID = 1L;
     
-    private final static String[] NAMES = new String[] { "nameOrNumericIdMatch" }; 
-    private final static String OID = "1.3.6.1.4.1.18060.0.4.0.1.0";
+    private final static String[] NAMES = new String[] { SchemaConstants.NAME_OR_NUMERIC_ID_MATCH }; 
+    private final static String OID = SchemaConstants.NAME_OR_NUMERIC_ID_MATCH_OID;
     private transient Normalizer normalizer;
-    private transient Comparator comparator;
+    private transient LdapComparator<?> comparator;
     private transient LdapSyntax syntax;
     private final String schema;
     
@@ -75,7 +77,7 @@ public class NameOrNumericIdMatch implements MatchingRule
     /* (non-Javadoc)
      * @see org.apache.directory.shared.ldap.schema.MatchingRule#getComparator()
      */
-    public Comparator getComparator() throws NamingException
+    public LdapComparator<?> getComparator() throws NamingException
     {
         return comparator;
     }

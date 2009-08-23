@@ -59,26 +59,26 @@ public class ApachemetaNormalizerProducer extends AbstractBootstrapProducer
         Normalizer normalizer = null;
         
         normalizer = new NameOrNumericIdNormalizer( registries.getOidRegistry() );
-        cb.schemaObjectProduced( this, SchemaConstants.NAME"1.3.6.1.4.1.18060.0.4.0.1.0", normalizer );
+        cb.schemaObjectProduced( this, SchemaConstants.NAME_OR_NUMERIC_ID_MATCH_OID, normalizer );
 
-        normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.1", normalizer );
+        normalizer = new NoOpNormalizer( SchemaConstants.OBJECT_CLASS_TYPE_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.OBJECT_CLASS_TYPE_MATCH_OID, normalizer );
         
-        normalizer = new NoOpNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.2", normalizer );
+        normalizer = new NoOpNormalizer( SchemaConstants.NUMERIC_OID_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_OID_MATCH_OID, normalizer );
         
-        normalizer = new DeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.3", normalizer );
+        normalizer = new DeepTrimToLowerNormalizer( SchemaConstants.SUP_DIT_STRUCTURE_RULE_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.SUP_DIT_STRUCTURE_RULE_MATCH_OID, normalizer );
         
-        normalizer = new DeepTrimToLowerNormalizer();
-        cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.0.1.4", normalizer );
+        normalizer = new DeepTrimToLowerNormalizer( SchemaConstants.RULE_ID_MATCH_OID );
+        cb.schemaObjectProduced( this, SchemaConstants.RULE_ID_MATCH_OID, normalizer );
         
         // For entryUuid
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.ENTRY_UUID_AT_OID );
         cb.schemaObjectProduced( this, SchemaConstants.ENTRY_UUID_AT_OID, normalizer );
         
         // For entryCSN
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.ENTRY_CSN_AT_OID );
         cb.schemaObjectProduced( this, SchemaConstants.ENTRY_CSN_AT_OID, normalizer );
     }
 }
