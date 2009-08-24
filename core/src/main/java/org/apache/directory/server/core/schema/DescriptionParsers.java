@@ -482,11 +482,12 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            MatchingRuleUseDescription desc = null;
+            MatchingRuleUse matchingRuleUse = null;
             
             try
             {
-                desc = matchingRuleUseParser.parseMatchingRuleUseDescription( value.getString() );
+                matchingRuleUse = matchingRuleUseParser.parseMatchingRuleUseDescription( value.getString() );
+                matchingRuleUse.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -497,11 +498,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            MatchingRuleUseImpl mru = new MatchingRuleUseImpl( desc.getNumericOid(), globalRegistries );
-            mru.setApplicableAttributesOids( desc.getApplicableAttributes().toArray( EMPTY ) );
-            setSchemaObjectProperties( desc, mru );
-            
-            matchingRuleUses[pos++] = mru;
+            matchingRuleUses[pos++] = matchingRuleUse;
         }
 
         return matchingRuleUses;
@@ -534,6 +531,7 @@ public class DescriptionParsers
             try
             {
                 ldapSyntax = syntaxParser.parseLdapSyntaxDescription( value.getString() );
+                ldapSyntax.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -581,11 +579,12 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            MatchingRuleDescription desc = null;
+            MatchingRule matchingRule = null;
 
             try
             {
-                desc = matchingRuleParser.parseMatchingRuleDescription( value.getString() );
+                matchingRule = matchingRuleParser.parseMatchingRuleDescription( value.getString() );
+                matchingRule.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -596,17 +595,14 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            if ( ! dao.hasSyntax( desc.getSyntax() )  )
+            if ( ! dao.hasSyntax( matchingRule.getSyntax() )  )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot create a matchingRule that depends on non-existant syntax: " + desc.getSyntax(),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            MatchingRuleImpl mr = new MatchingRuleImpl( desc.getNumericOid(), desc.getSyntax(), globalRegistries );
-            setSchemaObjectProperties( desc, mr );
-            
-            matchingRules[pos++] = mr;
+            matchingRules[pos++] = matchingRule;
         }
         
         return matchingRules;
@@ -634,11 +630,12 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            DITStructureRuleDescription desc = null;
+            DITStructureRule ditStructureRule = null;
      
             try
             {
-                desc = ditStructureRuleParser.parseDITStructureRuleDescription( value.getString() );
+                ditStructureRule = ditStructureRuleParser.parseDITStructureRuleDescription( value.getString() );
+                ditStructureRule.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -649,13 +646,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            DitStructureRuleImpl dsr = new DitStructureRuleImpl( desc.getNumericOid(), 
-                desc.getRuleId(), globalRegistries );
-            dsr.setSuperClassRuleIds( desc.getSuperRules().toArray( EMPTY_INT_ARRAY ) );
-            
-            setSchemaObjectProperties( desc, dsr );
-
-            ditStructureRules[pos++] = dsr;
+            ditStructureRules[pos++] = ditStructureRule;
         }
         
         return ditStructureRules;
@@ -683,11 +674,12 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            DITContentRuleDescription desc = null;
+            DITContentRule ditContentRule = null;
      
             try
             {
-                desc = ditContentRuleParser.parseDITContentRuleDescription( value.getString() );
+                ditContentRule = ditContentRuleParser.parseDITContentRuleDescription( value.getString() );
+                ditContentRule.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -698,15 +690,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            DitContentRuleImpl dcr = new DitContentRuleImpl( desc.getNumericOid(), globalRegistries );
-            dcr.setAuxObjectClassOids( desc.getAuxiliaryObjectClasses().toArray( EMPTY ) );
-            dcr.setMayNameOids( desc.getMayAttributeTypes().toArray( EMPTY ) );
-            dcr.setMustNameOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
-            dcr.setNotNameOids( desc.getNotAttributeTypes().toArray( EMPTY ) );
-            
-            setSchemaObjectProperties( desc, dcr );
-
-            ditContentRules[pos++] = dcr;
+            ditContentRules[pos++] = ditContentRule;
         }
         
         return ditContentRules;
@@ -734,11 +718,12 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            NameForm nf = null;
+            NameForm nameForm = null;
             
             try
             {
-                nf = nameFormParser.parseNameFormDescription( value.getString() );
+                nameForm = nameFormParser.parseNameFormDescription( value.getString() );
+                nameForm.setSpecification( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -749,7 +734,7 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            nameForms[pos++] = nf;
+            nameForms[pos++] = nameForm;
         }
         
         return nameForms;
