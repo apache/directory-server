@@ -33,13 +33,13 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
@@ -714,25 +714,27 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "ldapSyntaxes" );
-        LdapSyntaxDescription syntaxDescription = null; 
+        LdapSyntax ldapSyntax = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
-                syntaxDescription = ldapSyntaxDescriptionSchemaParser.parseLdapSyntaxDescription( desc );
+                ldapSyntax = ldapSyntaxDescriptionSchemaParser.parseLdapSyntaxDescription( desc );
                 break;
             }
         }
      
         if ( isPresent )
         {
-            assertNotNull( syntaxDescription );
-            assertEquals( oid, syntaxDescription.getOid() );
+            assertNotNull( ldapSyntax );
+            assertEquals( oid, ldapSyntax.getOid() );
         }
         else
         {
-            assertNull( syntaxDescription );
+            assertNull( ldapSyntax );
         }
 
         // -------------------------------------------------------------------
@@ -898,7 +900,7 @@ public class SubschemaSubentryIT
         if ( isPresent )
         {
             assertNotNull( matchingRuleDescription );
-            assertEquals( oid, matchingRuleDescription.getNumericOid() );
+            assertEquals( oid, matchingRuleDescription.getOid() );
         }
         else
         {
@@ -937,11 +939,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getMatchingRuleRegistry().hasMatchingRule( oid ) );
+            assertTrue( service.getRegistries().getMatchingRuleRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getMatchingRuleRegistry().hasMatchingRule( oid ) );
+            assertFalse( service.getRegistries().getMatchingRuleRegistry().contains( oid ) );
         }
     }
     

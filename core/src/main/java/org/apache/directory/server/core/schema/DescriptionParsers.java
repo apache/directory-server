@@ -26,7 +26,6 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -51,13 +50,11 @@ import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.NameFormDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
@@ -65,6 +62,7 @@ import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -511,10 +509,10 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of ldapSyntaxDescriptions held within an attribute into 
+     * Parses a set of ldapSyntaxes held within an attribute into 
      * schema entities.
      * 
-     * @param attr the attribute containing ldapSyntaxDescriptions
+     * @param attr the attribute containing ldapSyntaxes
      * @return the set of Syntax objects for the descriptions 
      * @throws NamingException if there are problems parsing the descriptions
      */
@@ -531,22 +529,22 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            LdapSyntaxDescription desc = null;
+            LdapSyntax ldapSyntax = null;
             
             try
             {
-                desc = syntaxParser.parseLdapSyntaxDescription( value.getString() );
+                ldapSyntax = syntaxParser.parseLdapSyntaxDescription( value.getString() );
             }
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( 
-                    "The following does not conform to the ldapSyntaxDescription syntax: " + value.getString(), 
+                    "The following does not conform to the ldapSyntax description syntax: " + value.getString(), 
                     ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 iave.setRootCause( e );
                 throw iave;
             }
             
-            if ( ! dao.hasSyntaxChecker( desc.getOid() ) )
+            if ( ! dao.hasSyntaxChecker( ldapSyntax.getOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of a syntax without the prior creation of a " +
@@ -554,9 +552,7 @@ public class DescriptionParsers
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
-            LdapSyntax ldapSyntax = new LdapSyntax( desc.getOid() );
-            setSchemaObjectProperties( desc, ldapSyntax );
-            ldapSyntax.setHumanReadable( isHumanReadable( desc ) );
+            ldapSyntax.setHumanReadable( isHumanReadable( ldapSyntax ) );
             syntaxes[pos++] = ldapSyntax;
         }
         
@@ -738,11 +734,11 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            NameFormDescription desc = null;
+            NameForm nf = null;
             
             try
             {
-                desc = nameFormParser.parseNameFormDescription( value.getString() );
+                nf = nameFormParser.parseNameFormDescription( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -752,13 +748,6 @@ public class DescriptionParsers
                 iave.setRootCause( e );
                 throw iave;
             }
-            
-            NameFormImpl nf = new NameFormImpl( desc.getNumericOid(), globalRegistries );
-            nf.setMayUseOids( desc.getMayAttributeTypes().toArray( EMPTY ) );
-            nf.setMustUseOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
-            nf.setObjectClassOid( desc.getStructuralObjectClass() );
-            
-            setSchemaObjectProperties( desc, nf );
             
             nameForms[pos++] = nf;
         }
@@ -779,11 +768,8 @@ public class DescriptionParsers
         obj.setDescription( desc.getDescription() );
         obj.setSchemaName( getSchema( desc ) );
 
-        if ( ! ( desc instanceof LdapSyntaxDescription ) )
-        {
-            obj.setNames( desc.getNames() );
-            obj.setObsolete( desc.isObsolete() );
-        }
+        obj.setNames( desc.getNames() );
+        obj.setObsolete( desc.isObsolete() );
     }
     
     
@@ -791,12 +777,12 @@ public class DescriptionParsers
      * Checks to see if the syntax description is human readable by checking 
      * for the presence of the X-IS-HUMAN_READABLE schema extension.
      * 
-     * @param desc the ldapSyntaxDescription 
+     * @param desc the ldapSyntax 
      * @return true if the syntax is human readable, false otherwise
      */
-    private boolean isHumanReadable( LdapSyntaxDescription desc )
+    private boolean isHumanReadable( LdapSyntax ldapSyntax )
     {
-        List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
+        List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
         
         if ( values == null || values.size() == 0 )
         {
