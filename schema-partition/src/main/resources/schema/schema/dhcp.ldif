@@ -1,0 +1,11 @@
+dn: cn=dhcp,ou=schema
+entryuuid:: 77+9GkcjNgxPEu+/vRHvv73vv73vv71877+977+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022726Z
+m-disabled: TRUE
+cn: dhcp
+objectclass: metaSchema
+objectclass: top
+entrycsn: 20090818052726.300000Z#000000#000#000000
+m-dependencies: system
+m-dependencies: core

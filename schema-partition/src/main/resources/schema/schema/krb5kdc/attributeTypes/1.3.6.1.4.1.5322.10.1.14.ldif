@@ -1,0 +1,17 @@
+dn: m-oid=1.3.6.1.4.1.5322.10.1.14,ou=attributeTypes,cn=krb5kdc,ou=schema
+m-equality: booleanMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: krb5AccountLockedOut
+m-oid: 1.3.6.1.4.1.5322.10.1.14
+m-singlevalue: TRUE
+entryuuid:: Z2vZke+/ve+/vUXvv73vv71+Su+/vW5eLFo=
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052732.403000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7

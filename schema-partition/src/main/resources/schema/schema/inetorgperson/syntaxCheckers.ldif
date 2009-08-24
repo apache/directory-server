@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=inetorgperson,ou=schema
+entryuuid:: 77+977+9cO+/vQLvv71L77+9cVvDk0Dvv73vv70=
+ou: syntaxcheckers
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.620000Z#000000#000#000000

@@ -1,0 +1,10 @@
+dn: m-oid=2.5.13.23,ou=normalizers,cn=system,ou=schema
+entryuuid:: Q++/vRgJ77+977+9SO+/ve+/vQPvv70sf8y377+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022727Z
+objectclass: metaNormalizer
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052727.714000Z#000000#000#000000
+m-oid: 2.5.13.23
+m-fqcn: org.apache.directory.server.schema.NameAndOptionalUIDNormalizer

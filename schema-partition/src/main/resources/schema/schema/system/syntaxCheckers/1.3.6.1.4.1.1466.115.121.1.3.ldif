@@ -1,0 +1,11 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.3,ou=syntaxCheckers,cn=system,ou=schema
+entryuuid:: 77+9We+/ve+/vTzvv71BPe+/vSbvv70kYWvvv73vv70=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022726Z
+objectclass: metaSyntaxChecker
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052726.927000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.1466.115.121.1.3
+m-fqcn: org.apache.directory.shared.ldap.schema.syntaxes.AttributeTypeDescriptio
+ nSyntaxChecker

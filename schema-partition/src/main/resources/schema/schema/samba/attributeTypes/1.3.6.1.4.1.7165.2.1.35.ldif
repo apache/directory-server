@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.7165.2.1.35,ou=attributeTypes,cn=samba,ou=schema
+m-equality: caseIgnoreMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022728Z
+creatorsname: uid=admin,ou=system
+m-name: sambaProfilePath
+m-oid: 1.3.6.1.4.1.7165.2.1.35
+m-singlevalue: TRUE
+m-description: Roaming profile path
+entryuuid:: We+/ve+/vRYw77+9T8Sf77+9YQIgcihs
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052728.842000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15

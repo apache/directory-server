@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.12,ou=attributeTypes,cn=apachemeta,ou=schema
+m-equality: nameOrNumericIdMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: m-ordering
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.12
+m-singlevalue: TRUE
+m-description: Ordering matching rule
+entryuuid:: 77+977+977+977+977+9V0zvv73vv73Xnu+/ve+/vVJdfg==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052732.343000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.38

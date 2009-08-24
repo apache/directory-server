@@ -1,0 +1,21 @@
+dn: m-oid=2.5.4.3,ou=attributeTypes,cn=system,ou=schema
+m-supattributetype: name
+m-equality: caseIgnoreMatch
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022730Z
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-name: cn
+m-name: commonName
+m-oid: 2.5.4.3
+m-singlevalue: FALSE
+m-description: RFC2256: common name(s) for which the entity is known by
+entryuuid:: z5Pvv73vv71R77+9TD/vv71577+977+977+9
+m-collective: FALSE
+m-obsolete: FALSE
+m-substr: caseIgnoreSubstringsMatch
+m-nousermodification: FALSE
+entrycsn: 20090818052730.421000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15

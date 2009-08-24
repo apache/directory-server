@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=krb5kdc,ou=schema
+entryuuid:: LV3vv70e77+977+9Ru+/vQZEI0rvv71577+9
+ou: syntaxes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.197000Z#000000#000#000000

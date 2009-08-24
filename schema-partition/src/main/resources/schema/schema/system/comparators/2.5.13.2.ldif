@@ -1,0 +1,11 @@
+dn: m-oid=2.5.13.2,ou=comparators,cn=system,ou=schema
+entryuuid:: 77+977+977+977+9De+/vUYF77+9Ke+/vXFi77+977+977+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022728Z
+objectclass: metaComparator
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052728.285000Z#000000#000#000000
+m-oid: 2.5.13.2
+m-fqcn: org.apache.directory.server.schema.bootstrap.SystemComparatorProducer$De
+ epTrimToLowerCachingNormalizingComparator

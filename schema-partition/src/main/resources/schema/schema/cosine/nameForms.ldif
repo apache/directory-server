@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=cosine,ou=schema
+entryuuid:: Wu+/ve+/ve+/vV7vv71M77+977+977+977+977+91Z7vv71p
+ou: nameforms
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.567000Z#000000#000#000000

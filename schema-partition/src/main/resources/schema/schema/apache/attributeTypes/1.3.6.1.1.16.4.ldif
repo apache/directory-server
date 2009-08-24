@@ -1,0 +1,19 @@
+dn: m-oid=1.3.6.1.1.16.4,ou=attributeTypes,cn=apache,ou=schema
+m-equality: uuidMatch
+m-usage: DIRECTORY_OPERATION
+creatorsname: uid=admin,ou=system
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+m-name: entryUUID
+m-oid: 1.3.6.1.1.16.4
+m-ordering: uuidOrderingMatch
+m-singlevalue: TRUE
+m-description: UUID of the entry
+entryuuid:: 77+9QUfvv71YH0nvv70O77+9XVDvv70bVw==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: TRUE
+entrycsn: 20090818052731.567000Z#000000#000#000000
+m-syntax: 1.3.6.1.1.16.1

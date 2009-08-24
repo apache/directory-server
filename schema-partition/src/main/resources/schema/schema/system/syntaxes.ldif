@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=system,ou=schema
+entryuuid:: MnMS77+9eO+/vU/wtaqjR2Tvv70=
+ou: syntaxes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.004000Z#000000#000#000000

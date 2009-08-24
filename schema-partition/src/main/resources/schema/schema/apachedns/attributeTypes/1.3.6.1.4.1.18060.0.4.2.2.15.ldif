@@ -1,0 +1,19 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.2.2.15,ou=attributeTypes,cn=apachedns,ou=schema
+m-equality: integerMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: apacheDnsServiceWeight
+m-oid: 1.3.6.1.4.1.18060.0.4.2.2.15
+m-singlevalue: TRUE
+m-description: The unsigned 16 bit weight specifying a relative weight for entri
+ es with the same priority
+entryuuid:: 77+977+9Ninvv73vv71MdO+/vULvv71jzKxl77+9
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052732.425000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.27

@@ -1,0 +1,15 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.5.3,ou=objectClasses,cn=apache,ou=schema
+entryuuid:: b33vv73Lve+/vUoi77+9Ze+/vXDvv70=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: ABSTRACT
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: storedProcUnit
+entrycsn: 20090818052732.931000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.18060.0.4.1.5.3
+m-must: storedProcLangId
+m-must: storedProcUnitName
+m-supobjectclass: top

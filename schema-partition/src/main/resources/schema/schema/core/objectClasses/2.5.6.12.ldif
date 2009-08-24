@@ -1,0 +1,22 @@
+dn: m-oid=2.5.6.12,ou=objectClasses,cn=core,ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: applicationEntity
+m-oid: 2.5.6.12
+m-must: presentationAddress
+m-must: cn
+m-description: RFC2256: an application entity
+m-supobjectclass: top
+m-may: supportedApplicationContext
+m-may: seeAlso
+m-may: ou
+m-may: o
+m-may: l
+m-may: description
+entryuuid:: 77+977+9SO+/vXU9TBHvv71rGETvv73vv73vv70=
+m-obsolete: FALSE
+m-typeobjectclass: STRUCTURAL
+entrycsn: 20090818052732.744000Z#000000#000#000000

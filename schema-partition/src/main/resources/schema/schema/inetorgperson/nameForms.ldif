@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=inetorgperson,ou=schema
+entryuuid:: 77+977+9fe+/ve+/ve+/vUNC77+977+9du+/ve+/vTwf77+9
+ou: nameforms
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.661000Z#000000#000#000000

@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.20,ou=attributeTypes,cn=apache,ou=schema
+m-equality: caseExactIA5Match
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+creatorsname: uid=admin,ou=system
+m-name: unixFilePath
+m-oid: 1.3.6.1.4.1.18060.0.4.1.2.20
+m-singlevalue: TRUE
+m-description: A UNIX file path where case does make a difference
+entryuuid:: Ru+/ve+/vXbvv73vv71E2K7vv73vv73vv70e77+9d++/vQ==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052731.237000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26

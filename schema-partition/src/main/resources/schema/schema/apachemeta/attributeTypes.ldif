@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=apachemeta,ou=schema
+entryuuid:: 77+9c++/vTPvv71LR++/vc++DnXvv713FQ==
+ou: attributetypes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.439000Z#000000#000#000000

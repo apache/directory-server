@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=inetorgperson,ou=schema
+entryuuid:: YO+/vSzvv73vv73vv71CGu+/vXTvv70h77+977+9bVQ=
+ou: attributetypes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.640000Z#000000#000#000000

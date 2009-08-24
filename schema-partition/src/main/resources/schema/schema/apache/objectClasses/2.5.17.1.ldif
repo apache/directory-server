@@ -1,0 +1,13 @@
+dn: m-oid=2.5.17.1,ou=objectClasses,cn=apache,ou=schema
+entryuuid:: w5Pvv70bR++/vUTvv73vv73vv73vv70577+9Qk/vv70=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: AUXILIARY
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: accessControlSubentry
+entrycsn: 20090818052732.918000Z#000000#000#000000
+m-oid: 2.5.17.1
+m-must: prescriptiveACI

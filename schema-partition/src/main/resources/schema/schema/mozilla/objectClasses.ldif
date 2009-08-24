@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=mozilla,ou=schema
+entryuuid:: 07Tvv71PIe+/vUjvv73vv70jT++/vQRGUw==
+ou: objectclasses
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.429000Z#000000#000#000000

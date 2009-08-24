@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=autofs,ou=schema
+entryuuid:: 77+977+9HO+/vQoDQjbvv71VD++/vWXvv70f77+9
+ou: syntaxes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.473000Z#000000#000#000000

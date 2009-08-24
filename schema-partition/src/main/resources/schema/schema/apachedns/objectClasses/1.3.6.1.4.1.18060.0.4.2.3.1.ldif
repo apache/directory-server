@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.1,ou=objectClasses,cn=apachedns,ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: apacheDnsAbstractRecord
+m-oid: 1.3.6.1.4.1.18060.0.4.2.3.1
+m-must: cn
+m-description: An abstract DNS record objectClass used to build other specific s
+ tructural objectclasses for different record types
+m-supobjectclass: top
+m-may: apacheDnsTtl
+m-may: description
+entryuuid:: 77+9wr7vv71tWEQb77+977+9eBDcn1Hvv70=
+m-obsolete: FALSE
+m-typeobjectclass: ABSTRACT
+entrycsn: 20090818052732.480000Z#000000#000#000000

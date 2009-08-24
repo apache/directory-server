@@ -1,0 +1,11 @@
+dn: m-oid=2.5.13.27,ou=normalizers,cn=system,ou=schema
+entryuuid:: We+/ve+/vXJK77+9T1bvv71SFu+/ve+/vVp277+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022727Z
+objectclass: metaNormalizer
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052727.845000Z#000000#000#000000
+m-oid: 2.5.13.27
+m-fqcn: org.apache.directory.server.schema.bootstrap.SystemNormalizerProducer$Ca
+ chingDeepTrimNormalizer

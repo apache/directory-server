@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=apache,ou=schema
+entryuuid:: 77+9L28877+9S0px77+9ae+/vTJNdiAr
+ou: syntaxcheckers
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.824000Z#000000#000#000000

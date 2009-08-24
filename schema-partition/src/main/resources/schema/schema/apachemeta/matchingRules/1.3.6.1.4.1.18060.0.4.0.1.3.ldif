@@ -1,0 +1,13 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.1.3,ou=matchingRules,cn=apachemeta,ou=schema
+entryuuid:: Nu+/ve+/vWXvv716TTbvv71r77+977+9He+/vQE=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022728Z
+m-obsolete: FALSE
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: supDITStructureRuleMatch
+entrycsn: 20090818052728.464000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.18060.0.4.0.1.3
+m-description: A matching rule matching dit structure rule attributes
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.17

@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.29,ou=attributeTypes,cn=apachemeta,ou=schema
+m-equality: numericOidMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022729Z
+creatorsname: uid=admin,ou=system
+m-name: m-applies
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.29
+m-singlevalue: FALSE
+m-description: List of attribute types the matching rule applies to
+entryuuid:: VMavdO+/ve+/vUsA77+977+9T++/vWzvv70D77+9
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052729.587000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.38

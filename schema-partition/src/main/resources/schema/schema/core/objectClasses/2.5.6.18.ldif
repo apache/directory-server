@@ -1,0 +1,15 @@
+dn: m-oid=2.5.6.18,ou=objectClasses,cn=core,ou=schema
+m-may: supportedAlgorithms
+entryuuid:: ae+/vSIuaO+/vULvv73vv71oBcOHTu+/vQ==
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: AUXILIARY
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: userSecurityInformation
+entrycsn: 20090818052732.843000Z#000000#000#000000
+m-oid: 2.5.6.18
+m-supobjectclass: top
+m-description: RFC2256: a user security information

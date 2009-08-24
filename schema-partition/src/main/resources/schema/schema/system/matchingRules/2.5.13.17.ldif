@@ -1,0 +1,12 @@
+dn: m-oid=2.5.13.17,ou=matchingRules,cn=system,ou=schema
+entryuuid:: Izzvv73vv71XY07vv73vv71+77+9X++/vX/vv70=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022728Z
+m-obsolete: FALSE
+objectclass: metaMatchingRule
+objectclass: metaTop
+objectclass: top
+m-name: octetStringMatch
+entrycsn: 20090818052728.389000Z#000000#000#000000
+m-oid: 2.5.13.17
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.40

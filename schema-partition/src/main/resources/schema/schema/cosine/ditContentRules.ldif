@@ -1,0 +1,6 @@
+dn: ou=ditContentRules,cn=cosine,ou=schema
+entryuuid:: ae+/vUXvv73vv70DTgXvv70077+9be+/vSjvv70i
+ou: ditcontentrules
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.578000Z#000000#000#000000

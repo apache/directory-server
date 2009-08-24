@@ -1,0 +1,12 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.55,ou=syntaxes,cn=system,ou=schema
+entryuuid:: 77+9GO+/vQTvv73vv71A77+977+9Ye+/ve+/vWl5S++/vQ==
+x-humanreadable: TRUE
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022727Z
+m-obsolete: FALSE
+objectclass: metaSyntax
+objectclass: metaTop
+objectclass: top
+m-name: Modify Rights
+entrycsn: 20090818052727.148000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.1466.115.121.1.55

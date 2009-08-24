@@ -1,0 +1,16 @@
+dn: m-oid=1.3.6.1.1.1.2.12,ou=objectClasses,cn=nis,ou=schema
+m-may: bootFile
+m-may: bootParameter
+entryuuid:: Ve+/vRPvv71Y77+9R1fvv73vv73vv70477+9Ru+/vXE=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: AUXILIARY
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: bootableDevice
+entrycsn: 20090818052732.627000Z#000000#000#000000
+m-oid: 1.3.6.1.1.1.2.12
+m-supobjectclass: top
+m-description: A device with boot parameters

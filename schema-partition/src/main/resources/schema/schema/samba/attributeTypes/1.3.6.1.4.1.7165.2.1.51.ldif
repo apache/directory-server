@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.7165.2.1.51,ou=attributeTypes,cn=samba,ou=schema
+m-equality: caseIgnoreIA5Match
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022729Z
+creatorsname: uid=admin,ou=system
+m-name: sambaSIDList
+m-oid: 1.3.6.1.4.1.7165.2.1.51
+m-singlevalue: FALSE
+m-description: Security ID List
+entryuuid:: 77+9fzzvv70G77+9T++/vUTvv70qPO+/ve+/vSI=
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052729.147000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26

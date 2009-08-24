@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=krb5kdc,ou=schema
+entryuuid:: 77+9Vu+/vShs77+9Qkvvv71PYy7vv73vv71+77+9
+ou: objectclasses
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.251000Z#000000#000#000000

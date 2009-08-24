@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=corba,ou=schema
+entryuuid:: 77+977+9Tzbvv71bRVLvv70c77+9ZFHvv70g77+9
+ou: matchingruleuse
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.982000Z#000000#000#000000
