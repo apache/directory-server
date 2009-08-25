@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
@@ -886,25 +887,26 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "matchingRules" );
-        MatchingRuleDescription matchingRuleDescription = null; 
+        MatchingRule matchingRule = null; 
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( oid ) != -1 )
             {
-                matchingRuleDescription = matchingRuleDescriptionSchemaParser.parseMatchingRuleDescription( desc );
+                matchingRule = matchingRuleDescriptionSchemaParser.parseMatchingRuleDescription( desc );
                 break;
             }
         }
      
         if ( isPresent )
         {
-            assertNotNull( matchingRuleDescription );
-            assertEquals( oid, matchingRuleDescription.getOid() );
+            assertNotNull( matchingRule );
+            assertEquals( oid, matchingRule.getOid() );
         }
         else
         {
-            assertNull( matchingRuleDescription );
+            assertNull( matchingRule );
         }
 
         // -------------------------------------------------------------------
