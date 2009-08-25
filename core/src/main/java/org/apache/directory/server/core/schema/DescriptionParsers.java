@@ -48,12 +48,9 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
@@ -77,7 +74,6 @@ public class DescriptionParsers
 {
     private static final String OTHER_SCHEMA = "other";
     private static final String[] EMPTY = new String[0];
-    private static final Integer[] EMPTY_INT_ARRAY = new Integer[0];
 
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
@@ -595,10 +591,11 @@ public class DescriptionParsers
                 throw iave;
             }
             
-            if ( ! dao.hasSyntax( matchingRule.getSyntax() )  )
+            if ( ! dao.hasSyntax( matchingRule.getSyntaxOid() )  )
             {
                 throw new LdapOperationNotSupportedException(
-                    "Cannot create a matchingRule that depends on non-existant syntax: " + desc.getSyntax(),
+                    "Cannot create a matchingRule that depends on non-existant syntax: " + 
+                    matchingRule.getSyntaxOid(),
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
