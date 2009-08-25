@@ -338,6 +338,7 @@
     <module>bootstrap-plugin</module>
     <module>schema-extras</module>
     <module>schema-bootstrap</module>
+    <module>schema-data</module>
     <module>utils</module>
     <module>schema-registries</module>
     <module>jdbm-store</module>
