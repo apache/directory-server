@@ -29,7 +29,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 
 

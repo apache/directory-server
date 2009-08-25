@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
@@ -30,6 +29,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**

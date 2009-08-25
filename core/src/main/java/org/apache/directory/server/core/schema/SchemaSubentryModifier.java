@@ -36,7 +36,6 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -53,6 +52,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 
 

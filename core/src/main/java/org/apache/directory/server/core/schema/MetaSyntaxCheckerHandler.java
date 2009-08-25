@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -41,6 +40,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.util.Base64;
 
@@ -309,7 +309,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a syntaxChecker should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

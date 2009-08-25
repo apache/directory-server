@@ -62,8 +62,6 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -106,6 +104,8 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -463,7 +463,7 @@ public class SchemaInterceptor extends BaseInterceptor
             try
             {
                 // Check that the attribute is declared
-                if ( registries.getOidRegistry().hasOid( attribute ) )
+                if ( registries.getAttributeTypeRegistry().contains( attribute ) )
                 {
                     String oid = registries.getOidRegistry().getOid( attribute );
 

@@ -34,7 +34,6 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -53,6 +52,7 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -573,8 +573,10 @@ public class SchemaEntityFactory
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         String syntaxOid = entry.get( MetaSchemaConstants.M_SYNTAX_AT ).getString();
-        MatchingRuleImpl mr = new MatchingRuleImpl( oid, syntaxOid, targetRegistries );
-        mr.setSchema( schema );
+        MatchingRule mr = new MatchingRule( oid );
+        mr.setSyntaxOid( syntaxOid );
+        mr.setSchemaName( schema );
+        mr.setRegistries(  targetRegistries );
         setSchemaObjectProperties( mr, entry );
         return mr;
     }

@@ -25,7 +25,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -38,6 +37,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 
 import javax.naming.NamingException;
@@ -69,7 +69,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         this.globalRegistries = globalRegistries;
         this.disabledAT = globalRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.loader = loader;
-        this.OU_OID = globalRegistries.getOidRegistry().getOid( SchemaConstants.OU_AT );
+        this.OU_OID = globalRegistries.getAttributeTypeRegistry().getOid( SchemaConstants.OU_AT );
         this.factory = new SchemaEntityFactory( globalRegistries );
         this.cnAT = globalRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         this.dependenciesAT = globalRegistries.getAttributeTypeRegistry()
@@ -357,7 +357,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         renameSchema( globalRegistries.getMatchingRuleUseRegistry(), schemaName, newSchemaName );
         renameSchema( globalRegistries.getNameFormRegistry(), schemaName, newSchemaName );
         renameSchema( globalRegistries.getObjectClassRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getSyntaxRegistry(), schemaName, newSchemaName );
+        renameSchema( globalRegistries.getLdapSyntaxRegistry(), schemaName, newSchemaName );
     }
     
 
@@ -586,9 +586,9 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         while ( list.hasNext() )
         {
             SchemaObject obj = list.next();
-            if ( obj.getSchema().equalsIgnoreCase( originalSchemaName ) )
+            if ( obj.getSchemaName().equalsIgnoreCase( originalSchemaName ) )
             {
-                obj.setSchema( newSchemaName );
+                obj.setSchemaName( newSchemaName );
             }
         }
     }

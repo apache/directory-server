@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 //import javax.naming.NamingException;
 import java.util.HashSet;
@@ -162,7 +162,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        String[] names = obj.getNamesRef();
+        String[] names = obj.getNames();
         
         if ( names != null )
         {

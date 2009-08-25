@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -42,6 +41,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -114,7 +114,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
             normalizerRegistry.unregister( oid );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), 
                 targetEntry );
-            normalizerRegistry.register( normalizerDescription, normalizer );
+            normalizerRegistry.register( normalizer );
             
             return SCHEMA_MODIFIED;
         }

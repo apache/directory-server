@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -36,6 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -57,7 +57,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         super( targetRegistries, loader );
 
         this.dao = dao;
-        this.syntaxRegistry = targetRegistries.getSyntaxRegistry();
+        this.syntaxRegistry = targetRegistries.getLdapSyntaxRegistry();
     }
 
     
@@ -117,7 +117,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
     public void delete( LdapSyntax syntax, boolean cascade ) throws Exception
     {
-        Schema schema = loader.getSchema( syntax.getSchema() );
+        Schema schema = loader.getSchema( syntax.getSchemaName() );
         if ( ! schema.isDisabled() )
         {
             syntaxRegistry.unregister( syntax.getOid() );
@@ -256,7 +256,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a syntax should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
@@ -281,7 +281,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
      */
     public void add( LdapSyntax syntax ) throws Exception
     {
-        Schema schema = loader.getSchema( syntax.getSchema() );
+        Schema schema = loader.getSchema( syntax.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
