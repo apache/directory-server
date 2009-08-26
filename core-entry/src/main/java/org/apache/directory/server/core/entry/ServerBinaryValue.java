@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
@@ -84,24 +85,17 @@ public class ServerBinaryValue extends ClientBinaryValue
      */
     protected String checkAttributeType( AttributeType attributeType )
     {
-        try
+        if ( attributeType == null )
         {
-            if ( attributeType == null )
-            {
-                return "The AttributeType parameter should not be null";
-            }
-            
-            if ( attributeType.getSyntax() == null )
-            {
-                return "There is no Syntax associated with this attributeType";
-            }
+            return "The AttributeType parameter should not be null";
+        }
+        
+        if ( attributeType.getSyntax() == null )
+        {
+            return "There is no Syntax associated with this attributeType";
+        }
 
-            return null;
-        }
-        catch ( NamingException ne )
-        {
-            return "This AttributeType is incorrect";
-        }
+        return null;
     }
 
     
@@ -122,21 +116,14 @@ public class ServerBinaryValue extends ClientBinaryValue
             throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
-        try
+        if ( attributeType.getSyntax() == null )
         {
-            if ( attributeType.getSyntax() == null )
-            {
-                throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
-            }
-
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                LOG.warn( "Treating a value of a human readible attribute {} as binary: ", attributeType.getName() );
-            }
+            throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
         }
-        catch( NamingException e )
+
+        if ( attributeType.getSyntax().isHumanReadable() )
         {
-            LOG.error( "Failed to resolve syntax for attributeType {}", attributeType, e );
+            LOG.warn( "Treating a value of a human readible attribute {} as binary: ", attributeType.getName() );
         }
 
         this.attributeType = attributeType;
@@ -215,7 +202,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
     
     /**
-     * Gets the normalized (cannonical) representation for the wrapped string.
+     * Gets the normalized (canonical) representation for the wrapped string.
      * If the wrapped String is null, null is returned, otherwise the normalized
      * form is returned.  If no the normalizedValue is null, then this method
      * will attempt to generate it from the wrapped value: repeated calls to
@@ -390,11 +377,11 @@ public class ServerBinaryValue extends ClientBinaryValue
 
             try
             {
-                Comparator<? super Value<byte[]>> comparator = getComparator();
+                Comparator<? super byte[]> comparator = getLdapComparator();
                 
-                if ( comparator != null )
+                if ( comparator == null )
                 {
-                    return getComparator().compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
+                    return comparator.compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
                 }
                 else
                 {
@@ -512,7 +499,7 @@ public class ServerBinaryValue extends ClientBinaryValue
         {
             try
             {
-                Comparator<byte[]> comparator = getComparator();
+                LdapComparator<? super byte[]> comparator = getLdapComparator();
 
                 // Compare normalized values
                 if ( comparator == null )
@@ -589,7 +576,7 @@ public class ServerBinaryValue extends ClientBinaryValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
-    private Comparator getComparator() throws NamingException
+    private LdapComparator<? super Object> getLdapComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -598,7 +585,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             return null;
         }
 
-        return mr.getComparator();
+        return mr.getLdapComparator();
     }
     
     

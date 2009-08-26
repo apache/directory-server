@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
@@ -123,6 +124,12 @@ public class TestServerEntryUtils
         }
     }
 
+    public static MatchingRule matchingRuleFactory( String oid )
+    {
+        MatchingRule matchingRule = new MatchingRule( oid );
+        
+        return matchingRule;
+    }
     /**
      * A local MatchingRule class for tests
      */
@@ -130,7 +137,7 @@ public class TestServerEntryUtils
     {
         private static final long serialVersionUID = 0L;
         LdapSyntax syntax;
-        Comparator comparator;
+        LdapComparator<? super Object> ldapComparator;
         Normalizer normalizer;
 
         protected MR( String oid )
@@ -143,9 +150,9 @@ public class TestServerEntryUtils
             return syntax;
         }
 
-        public Comparator getComparator() throws NamingException
+        public LdapComparator<? super Object> getLdapComparator() throws NamingException
         {
-            return comparator;
+            return ldapComparator;
         }
 
 
@@ -161,9 +168,9 @@ public class TestServerEntryUtils
         }
 
 
-        public void setComparator( Comparator<?> comparator )
+        public void setComparator( Comparator<? super Object> comparator )
         {
-            this.comparator = comparator;
+            this.ldapComparator = comparator;
         }
 
 
@@ -177,6 +184,14 @@ public class TestServerEntryUtils
     /**
      * A local Syntax class used for the tests
      */
+    public static LdapSyntax syntaxFactory( String oid, boolean humanReadable )
+    {
+        LdapSyntax ldapSyntax = new LdapSyntax( oid );
+        
+        ldapSyntax.setHumanReadable( humanReadable );
+        
+        return ldapSyntax;
+    }
     static class S extends LdapSyntax
     {
         private static final long serialVersionUID = 0L;
@@ -226,7 +241,7 @@ public class TestServerEntryUtils
 
         final MR mr = new MR( "1.1.2.1" );
         mr.syntax = s;
-        mr.comparator = new Comparator<String>()
+        mr.ldapComparator = new LdapComparator<String>()
         {
             public int compare( String o1, String o2 )
             {
@@ -276,7 +291,7 @@ public class TestServerEntryUtils
             }
         };
         
-        AT at = new AT( "1.1.3.1" );
+        AttributeType at = new AttributeType( "1.1.3.1" );
         at.setEquality( mr );
         at.setSyntax( s );
         return at;
@@ -333,15 +348,7 @@ public class TestServerEntryUtils
 
         final MR mr = new MR( "1.2.2" );
         mr.syntax = s;
-        mr.comparator = new Comparator<byte[]>()
-        {
-            public int compare( byte[] o1, byte[] o2 )
-            {
-                return ( ( o1 == null ) ? 
-                    ( o2 == null ? 0 : -1 ) :
-                    ( o2 == null ? 1 : ByteArrayComparator.INSTANCE.compare( o1, o2 ) ) );
-            }
-        };
+        mr.setComparator( new ByteArrayComparator() );
         
         mr.normalizer = new Normalizer( "1.1.1" )
         {

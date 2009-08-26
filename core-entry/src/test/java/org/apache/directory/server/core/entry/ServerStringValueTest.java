@@ -654,7 +654,7 @@ public class ServerStringValueTest
 
                 try
                 {
-                    return mr.getComparator().compare( n1, n2 );
+                    return mr.getLdapComparator().compare( n1, n2 );
                 }
                 catch ( NamingException ne )
                 {

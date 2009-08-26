@@ -23,7 +23,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Comparator;
 
 import javax.naming.NamingException;
 
@@ -31,6 +30,7 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
@@ -77,24 +77,17 @@ public class ServerStringValue extends ClientStringValue
      */
     protected String checkAttributeType( AttributeType attributeType )
     {
-        try
+        if ( attributeType == null )
         {
-            if ( attributeType == null )
-            {
-                return "The AttributeType parameter should not be null";
-            }
-            
-            if ( attributeType.getSyntax() == null )
-            {
-                return "There is no Syntax associated with this attributeType";
-            }
+            return "The AttributeType parameter should not be null";
+        }
+        
+        if ( attributeType.getSyntax() == null )
+        {
+            return "There is no Syntax associated with this attributeType";
+        }
 
-            return null;
-        }
-        catch ( NamingException ne )
-        {
-            return "This AttributeType is incorrect";
-        }
+        return null;
     }
 
     
@@ -115,22 +108,15 @@ public class ServerStringValue extends ClientStringValue
             throw new IllegalArgumentException( "The AttributeType parameter should not be null" );
         }
 
-        try
+        if ( attributeType.getSyntax() == null )
         {
-            if ( attributeType.getSyntax() == null )
-            {
-                throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
-            }
-
-            if ( ! attributeType.getSyntax().isHumanReadable() )
-            {
-                LOG.warn( "Treating a value of a binary attribute {} as a String: " +
-                        "\nthis could cause data corruption!", attributeType.getName() );
-            }
+            throw new IllegalArgumentException( "There is no Syntax associated with this attributeType" );
         }
-        catch( NamingException e )
+
+        if ( ! attributeType.getSyntax().isHumanReadable() )
         {
-            LOG.error( "Failed to resolve syntax for attributeType {}", attributeType, e );
+            LOG.warn( "Treating a value of a binary attribute {} as a String: " +
+                    "\nthis could cause data corruption!", attributeType.getName() );
         }
 
         this.attributeType = attributeType;
@@ -336,7 +322,7 @@ public class ServerStringValue extends ClientStringValue
             try
             {
                 //noinspection unchecked
-                return getComparator().compare( getNormalizedValue(), stringValue.getNormalizedValue() );
+                return getLdapComparator().compare( getNormalizedValue(), stringValue.getNormalizedValue() );
             }
             catch ( NamingException e )
             {
@@ -436,7 +422,7 @@ public class ServerStringValue extends ClientStringValue
         {
             try
             {
-                Comparator<String> comparator = getComparator();
+                LdapComparator<? super Object> comparator = getLdapComparator();
 
                 // Compare normalized values
                 if ( comparator == null )
@@ -549,7 +535,7 @@ public class ServerStringValue extends ClientStringValue
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
-    private Comparator getComparator() throws NamingException
+    private LdapComparator<? super Object> getLdapComparator() throws NamingException
     {
         MatchingRule mr = getMatchingRule();
 
@@ -558,7 +544,7 @@ public class ServerStringValue extends ClientStringValue
             return null;
         }
 
-        return mr.getComparator();
+        return mr.getLdapComparator();
     }
     
     

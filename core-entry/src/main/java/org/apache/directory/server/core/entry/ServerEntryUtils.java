@@ -35,7 +35,6 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -45,6 +44,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -463,7 +463,7 @@ public class ServerEntryUtils
                 // TODO - after removing JNDI we need to make the server handle 
                 // this in the codec
                 
-                if ( ! atRegistry.hasAttributeType( id ) 
+                if ( ! atRegistry.contains( id ) 
                      && modification.getAttribute().size() == 0 
                      && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
                 {
@@ -510,7 +510,7 @@ public class ServerEntryUtils
                 // TODO - after removing JNDI we need to make the server handle 
                 // this in the codec
                 
-                if ( ! atRegistry.hasAttributeType( id ) 
+                if ( ! atRegistry.contains( id ) 
                      && modification.getAttribute().size() == 0 
                      && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
                 {
