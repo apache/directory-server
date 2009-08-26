@@ -252,9 +252,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ObjectClass parent : parents )
         {
-            AttributeType[] mustParent = parent.getMustList();
+            List<AttributeType> mustParent = parent.getMustAttributeTypes();
 
-            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
                 for ( AttributeType attributeType : mustParent )
                 {
@@ -295,9 +295,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( ObjectClass parent : parents )
         {
-            AttributeType[] mustParent = parent.getMustList();
+            List<AttributeType> mustParent = parent.getMustAttributeTypes();
 
-            if ( ( mustParent != null ) && ( mustParent.length != 0 ) )
+            if ( ( mustParent != null ) && ( mustParent.size() != 0 ) )
             {
                 for ( AttributeType attributeType : mustParent )
                 {
@@ -330,10 +330,10 @@ public class SchemaInterceptor extends BaseInterceptor
     private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
         throws Exception
     {
-        ObjectClass[] parents = objectClass.getSuperClasses();
+        List<ObjectClass> parents = objectClass.getSuperiors();
 
         // Loop on all the objectClass superiors
-        if ( ( parents != null ) && ( parents.length != 0 ) )
+        if ( ( parents != null ) && ( parents.size() != 0 ) )
         {
             for ( ObjectClass parent : parents )
             {
@@ -462,10 +462,10 @@ public class SchemaInterceptor extends BaseInterceptor
                 // Check that the attribute is declared
                 if ( registries.getAttributeTypeRegistry().contains( attribute ) )
                 {
-                    String oid = registries.getOidRegistry().getOid( attribute );
+                    String oid = atRegistry.getOid( attribute );
 
                     // The attribute must be an AttributeType
-                    if ( atRegistry.hasAttributeType( oid ) )
+                    if ( atRegistry.contains( oid ) )
                     {
                         if ( !filteredAttrs.containsKey( oid ) )
                         {
@@ -728,7 +728,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 String objectClassOid = null;
 
-                if ( registries.getObjectClassRegistry().hasObjectClass( objectClass ) )
+                if ( registries.getObjectClassRegistry().contains( objectClass ) )
                 {
                     objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getOid();
                 }
@@ -737,7 +737,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
-                String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
+                String nodeOid = atRegistry.getOid( node.getAttribute() );
 
                 // see if node attribute is objectClass
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
@@ -798,7 +798,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private void getSuperiors( ObjectClass oc, Set<String> ocSeen, List<ObjectClass> result ) throws Exception
     {
-        for ( ObjectClass parent : oc.getSuperClasses() )
+        for ( ObjectClass parent : oc.getSuperiors() )
         {
             // Skip 'top'
             if ( SchemaConstants.TOP_OC.equals( parent.getName() ) )
@@ -837,13 +837,13 @@ public class SchemaInterceptor extends BaseInterceptor
             return false;
         }
 
-        String attrOid = oidRegistry.getOid( attrId );
+        String attrOid = registries.getAttributeTypeRegistry().getOid( attrId );
 
         for ( Value<?> objectClass : objectClasses )
         {
             ObjectClass ocSpec = registry.lookup( objectClass.getString() );
 
-            for ( AttributeType must : ocSpec.getMustList() )
+            for ( AttributeType must : ocSpec.getMustAttributeTypes() )
             {
                 if ( must.getOid().equals( attrOid ) )
                 {
@@ -1018,10 +1018,10 @@ public class SchemaInterceptor extends BaseInterceptor
             String ocName = value.getString();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
-            AttributeType[] types = oc.getMustList();
+            List<AttributeType> types = oc.getMustAttributeTypes();
 
             // For each objectClass, loop on all MUST attributeTypes, if any
-            if ( ( types != null ) && ( types.length > 0 ) )
+            if ( ( types != null ) && ( types.size() > 0 ) )
             {
                 for ( AttributeType type : types )
                 {
@@ -1039,7 +1039,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( registries.getOidRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
+        allowed.add( registries.getAttributeTypeRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
@@ -1047,10 +1047,10 @@ public class SchemaInterceptor extends BaseInterceptor
             String ocName = objectClass.getString();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
-            AttributeType[] types = oc.getMayList();
+            List<AttributeType> types = oc.getMayAttributeTypes();
 
             // For each objectClass, loop on all MAY attributeTypes, if any
-            if ( ( types != null ) && ( types.length > 0 ) )
+            if ( ( types != null ) && ( types.size() > 0 ) )
             {
                 for ( AttributeType type : types )
                 {
@@ -1326,7 +1326,7 @@ public class SchemaInterceptor extends BaseInterceptor
             ServerAttribute change = ( ServerAttribute ) mod.getAttribute();
 
             // TODO/ handle http://issues.apache.org/jira/browse/DIRSERVER-1198
-            if ( ( change.getAttributeType() == null ) && !atRegistry.hasAttributeType( change.getUpId() )
+            if ( ( change.getAttributeType() == null ) && !atRegistry.contains( change.getUpId() )
                 && !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
             {
                 throw new LdapInvalidAttributeIdentifierException();
@@ -1921,7 +1921,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( AttributeType attributeType : entry.getAttributeTypes() )
         {
-            if ( !atRegistry.hasAttributeType( attributeType.getName() ) )
+            if ( !atRegistry.contains( attributeType.getName() ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( attributeType.getName()
                     + " not found in attribute registry!" );
@@ -2251,9 +2251,9 @@ public class SchemaInterceptor extends BaseInterceptor
         
         for ( ObjectClass oc : structuralObjectClasses )
         {
-            if ( oc.getSuperClasses() != null )
+            if ( oc.getSuperiors() != null )
             {
-                for ( ObjectClass superClass : oc.getSuperClasses() )
+                for ( ObjectClass superClass : oc.getSuperiors() )
                 {
                     if ( superClass.isStructural() )
                     {
