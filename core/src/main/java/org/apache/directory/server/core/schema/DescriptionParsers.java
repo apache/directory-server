@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;

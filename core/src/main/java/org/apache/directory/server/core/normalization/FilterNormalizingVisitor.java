@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -41,6 +40,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

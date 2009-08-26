@@ -43,8 +43,6 @@ import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -52,6 +50,8 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**

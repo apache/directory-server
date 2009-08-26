@@ -62,8 +62,6 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -79,6 +77,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

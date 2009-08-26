@@ -61,7 +61,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaOperationControl;
 import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -75,6 +74,7 @@ import org.apache.directory.shared.ldap.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.Control;

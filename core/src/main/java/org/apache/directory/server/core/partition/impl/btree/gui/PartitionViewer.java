@@ -24,7 +24,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

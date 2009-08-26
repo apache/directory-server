@@ -37,7 +37,6 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.xdbm.*;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -46,6 +45,7 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.directory.SearchControls;
 import java.util.Collections;

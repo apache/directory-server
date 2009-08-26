@@ -42,7 +42,6 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -54,6 +53,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 import org.junit.BeforeClass;

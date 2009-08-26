@@ -41,11 +41,11 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.NamingException;
 

@@ -25,7 +25,6 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -41,6 +40,7 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
@@ -56,17 +56,19 @@ public class LeafEvaluator implements Evaluator
 {
     /** equality matching type constant */
     private static final int EQUALITY_MATCH = 0;
+    
     /** ordering matching type constant */
     private static final int ORDERING_MATCH = 1;
+    
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-    /** Oid Registry used to translate attributeIds to OIDs */
-    private OidRegistry oidRegistry;
     /** AttributeType registry needed for normalizing and comparing values */
     private AttributeTypeRegistry attributeTypeRegistry;
+    
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
+    
     /** ScopeNode evaluator we depend on */
     private ScopeEvaluator scopeEvaluator;
 
@@ -80,10 +82,9 @@ public class LeafEvaluator implements Evaluator
      *
      * @param substringEvaluator
      */
-    public LeafEvaluator( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
+    public LeafEvaluator( AttributeTypeRegistry attributeTypeRegistry,
         SubstringEvaluator substringEvaluator )
     {
-        this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;
         this.scopeEvaluator = new ScopeEvaluator();
         this.substringEvaluator = substringEvaluator;
@@ -162,7 +163,7 @@ public class LeafEvaluator implements Evaluator
         String attrId = node.getAttribute();
 
         // get the attribute associated with the node
-        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
+        AttributeType type = attributeTypeRegistry.lookup( attrId );
         EntryAttribute attr = entry.get( type );
 
         // If we do not have the attribute just return false
@@ -319,10 +320,10 @@ public class LeafEvaluator implements Evaluator
      * @return the comparator for equality matching
      * @throws javax.naming.NamingException if there is a failure
      */
-    private Comparator<?> getComparator( String attrId ) throws NamingException
+    private LdapComparator<? super Object> getComparator( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
-        return mrule.getComparator();
+        return mrule.getLdapComparator();
     }
 
 
@@ -350,8 +351,7 @@ public class LeafEvaluator implements Evaluator
     private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = null;
-        String oid = oidRegistry.getOid( attrId );
-        AttributeType type = attributeTypeRegistry.lookup( oid );
+        AttributeType type = attributeTypeRegistry.lookup( attrId );
 
         switch ( matchType )
         {
