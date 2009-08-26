@@ -22,14 +22,15 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 
@@ -51,7 +52,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     private final Registries registries;
     private final AttributeType type;
     private final Normalizer normalizer;
-    private final Comparator comparator;
+    private final LdapComparator<? super Object> ldapComparator;
     private final Index<Object,ServerEntry> idx;
 
 
@@ -93,7 +94,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
         }
 
         normalizer = mr.getNormalizer();
-        comparator = mr.getComparator();
+        ldapComparator = mr.getLdapComparator();
     }
 
 
@@ -115,9 +116,9 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
     }
 
 
-    public Comparator getComparator()
+    public LdapComparator<? super Object> getLdapComparator()
     {
-        return comparator;
+        return ldapComparator;
     }
 
 
@@ -248,7 +249,7 @@ public class LessEqEvaluator implements Evaluator<LessEqNode, ServerEntry>
             value.normalize( normalizer );
 
             //noinspection unchecked
-            if ( comparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) <= 0 )
+            if ( ldapComparator.compare( value.getNormalizedValue(), node.getValue().getNormalizedValue() ) <= 0 )
             {
                 if ( indexEntry != null )
                 {

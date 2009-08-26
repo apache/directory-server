@@ -27,6 +27,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
@@ -34,7 +35,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
@@ -101,7 +101,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
             else
             {
                 normalizer = mr.getNormalizer();
-                comparator = mr.getComparator();
+                comparator = mr.getLdapComparator();
             }
         }
     }

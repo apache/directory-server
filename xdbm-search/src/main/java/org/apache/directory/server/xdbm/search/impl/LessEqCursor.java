@@ -109,7 +109,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * before() method of the userIdxCursor.
              */
             //noinspection unchecked
-            int compareValue = lessEqEvaluator.getComparator().compare( value,
+            int compareValue = lessEqEvaluator.getLdapComparator().compare( value,
                  lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
