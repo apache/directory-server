@@ -163,7 +163,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         public BootstrapMatchingRule(String oid, Registries registries)
         {
             super( oid );
-            this.syntaxRegistry = registries.getSyntaxRegistry();
+            this.syntaxRegistry = registries.getLdapSyntaxRegistry();
             this.normalizerRegistry = registries.getNormalizerRegistry();
             this.comparatorRegistry = registries.getComparatorRegistry();
         }
