@@ -107,7 +107,7 @@ public class MetaMatchingRuleHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getMatchingRuleRegistry().hasMatchingRule( OID ) );
+        assertTrue( getMatchingRuleRegistry().contains( OID ) );
         assertEquals( getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
     }
     
@@ -122,7 +122,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "matchingRule should be removed from the registry after being deleted", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         try
         {
@@ -147,7 +147,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old matchingRule OID should be removed from the registry after being renamed", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         try
         {
@@ -158,7 +158,7 @@ public class MetaMatchingRuleHandlerIT
         {
         }
 
-        assertTrue( getMatchingRuleRegistry().hasMatchingRule( NEW_OID ) );
+        assertTrue( getMatchingRuleRegistry().contains( NEW_OID ) );
     }
 
 
@@ -176,7 +176,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "matchingRule OID should still be present", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         assertEquals( "matchingRule schema should be set to apache not apachemeta", 
             getMatchingRuleRegistry().getSchemaName( OID ), "apache" );
@@ -197,10 +197,10 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old matchingRule OID should NOT be present", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         assertTrue( "new matchingRule OID should be present", 
-            getMatchingRuleRegistry().hasMatchingRule( NEW_OID ) );
+            getMatchingRuleRegistry().contains( NEW_OID ) );
         
         assertEquals( "matchingRule with new oid should have schema set to apache NOT apachemeta", 
             getMatchingRuleRegistry().getSchemaName( NEW_OID ), "apache" );
@@ -227,7 +227,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "matchingRule OID should still be present", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         assertEquals( "matchingRule schema should be set to apachemeta", 
             getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
@@ -256,7 +256,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "matchingRule OID should still be present", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         assertEquals( "matchingRule schema should be set to apachemeta", 
             getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
@@ -407,7 +407,7 @@ public class MetaMatchingRuleHandlerIT
         }
 
         assertTrue( "matchingRule should still be in the registry after move failure", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
     }
 
 
@@ -433,7 +433,7 @@ public class MetaMatchingRuleHandlerIT
         }
 
         assertTrue( "matchingRule should still be in the registry after move failure", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
     }
     
     
@@ -454,7 +454,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new matchingRule to disabled schema should not register it into the registries", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
     }
 
 
@@ -473,7 +473,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "matchingRule OID should no longer be present", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
     }
 
 
@@ -487,7 +487,7 @@ public class MetaMatchingRuleHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "matchingRule OID should NOT be present when added to disabled nis schema", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
 
         LdapDN newdn = getMatchingRuleContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -495,7 +495,7 @@ public class MetaMatchingRuleHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "matchingRule OID should be present when moved to enabled schema", 
-            getMatchingRuleRegistry().hasMatchingRule( OID ) );
+            getMatchingRuleRegistry().contains( OID ) );
         
         assertEquals( "matchingRule should be in apachemeta schema after move", 
             getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );

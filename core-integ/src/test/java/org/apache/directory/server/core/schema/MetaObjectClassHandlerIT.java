@@ -119,7 +119,7 @@ public class MetaObjectClassHandlerIT
     {
         addObjectClass();
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
     
@@ -134,7 +134,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "objectClass should be removed from the registry after being deleted", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -160,7 +160,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -172,7 +172,7 @@ public class MetaObjectClassHandlerIT
         {
         }
 
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
     }
 
 
@@ -190,7 +190,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "objectClass OID should still be present", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
         
         assertEquals( "objectClass schema should be set to apache not apachemeta", 
             getObjectClassRegistry().getSchemaName( OID ), "apache" );
@@ -211,10 +211,10 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old objectClass OID should NOT be present", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
         
         assertTrue( "new objectClass OID should be present", 
-            getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+            getObjectClassRegistry().contains( NEW_OID ) );
         
         assertEquals( "objectClass with new oid should have schema set to apache NOT apachemeta", 
             getObjectClassRegistry().getSchemaName( NEW_OID ), "apache" );
@@ -241,7 +241,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "objectClass OID should still be present", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
         
         assertEquals( "objectClass schema should be set to apachemeta", 
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -270,7 +270,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "objectClass OID should still be present", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
         
         assertEquals( "objectClass schema should be set to apachemeta", 
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -303,7 +303,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + DEPENDEE_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( DEPENDEE_OID ) );
+        assertTrue( getObjectClassRegistry().contains( DEPENDEE_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
     }
 
@@ -327,7 +327,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "objectClass should still be in the registry after delete failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
     
     
@@ -354,7 +354,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
 
@@ -381,7 +381,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "ObjectClass should still be in the registry after move failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
     
@@ -407,7 +407,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "objectClass should still be in the registry after rename failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
 
@@ -436,7 +436,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
 
@@ -462,7 +462,7 @@ public class MetaObjectClassHandlerIT
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
     
@@ -491,7 +491,7 @@ public class MetaObjectClassHandlerIT
         addObjectClassToDisabledSchema();
         
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
 
@@ -510,7 +510,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "objectClass OID should no longer be present", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
     }
 
 
@@ -524,7 +524,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "objectClass OID should NOT be present when added to disabled nis schema", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
 
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + OID );
@@ -532,7 +532,7 @@ public class MetaObjectClassHandlerIT
         getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "objectClass OID should be present when moved to enabled schema", 
-            getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().contains( OID ) );
         
         assertEquals( "objectClass should be in apachemeta schema after move", 
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
@@ -565,7 +565,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
 
@@ -672,7 +672,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 
@@ -706,7 +706,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 
@@ -774,7 +774,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 
@@ -807,7 +807,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 
@@ -840,7 +840,7 @@ public class MetaObjectClassHandlerIT
         dn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
     }
 }

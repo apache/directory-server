@@ -393,7 +393,7 @@ public class MetaSyntaxHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + MR_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( getMatchingRuleRegistry().hasMatchingRule( MR_OID ) );
+        assertTrue( getMatchingRuleRegistry().contains( MR_OID ) );
         assertEquals( getMatchingRuleRegistry().getSchemaName( MR_OID ), "apachemeta" );
     }
 

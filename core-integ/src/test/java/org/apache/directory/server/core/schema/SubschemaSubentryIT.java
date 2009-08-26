@@ -42,7 +42,6 @@ import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionS
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescription;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
@@ -1098,7 +1097,7 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null; 
+        AttributeType attributeType = null; 
         
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1106,19 +1105,19 @@ public class SubschemaSubentryIT
             
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
      
         if ( isPresent )
         {
-            assertNotNull( attributeTypeDescription );
-            assertEquals( oid, attributeTypeDescription.getNumericOid() );
+            assertNotNull( attributeType );
+            assertEquals( oid, attributeType.getOid() );
         }
         else
         {
-            assertNull( attributeTypeDescription );
+            assertNull( attributeType );
         }
 
         // -------------------------------------------------------------------
@@ -1154,11 +1153,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertFalse( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
         }
     }
     
@@ -1405,7 +1404,7 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null;
+        AttributeType attributeType = null;
         
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
@@ -1413,12 +1412,12 @@ public class SubschemaSubentryIT
             
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
         
-        assertNull( attributeTypeDescription );
+        assertNull( attributeType );
 
         attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
@@ -1428,10 +1427,10 @@ public class SubschemaSubentryIT
         
         AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSuperior().getName() );
+        assertEquals( "name", at.getSup().getName() );
         assertEquals( "bogus description", at.getDescription() );
         assertEquals( "bogus", at.getName() );
-        assertEquals( "bogusName", at.getNamesRef()[1] );
+        assertEquals( "bogusName", at.getNames().get( 1 ) );
         assertEquals( true, at.isCanUserModify() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
@@ -1459,27 +1458,28 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null; 
+        AttributeType attributeType = null; 
         
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
         
-        assertNotNull( attributeTypeDescription );
-        assertEquals( true, attributeTypeDescription.isSingleValued() );
-        assertEquals( false, attributeTypeDescription.isCollective() );
-        assertEquals( false, attributeTypeDescription.isObsolete() );
-        assertEquals( true, attributeTypeDescription.isUserModifiable() );
-        assertEquals( "bogus description", attributeTypeDescription.getDescription() );
-        assertEquals( "bogus", attributeTypeDescription.getNames().get( 0 ) );
-        assertEquals( "bogusName", attributeTypeDescription.getNames().get( 1 ) );
-        assertEquals( "name", attributeTypeDescription.getSuperType() );
+        assertNotNull( attributeType );
+        assertEquals( true, attributeType.isSingleValue() );
+        assertEquals( false, attributeType.isCollective() );
+        assertEquals( false, attributeType.isObsolete() );
+        assertEquals( true, attributeType.isCanUserModify() );
+        assertEquals( "bogus description", attributeType.getDescription() );
+        assertEquals( "bogus", attributeType.getNames().get( 0 ) );
+        assertEquals( "bogusName", attributeType.getNames().get( 1 ) );
+        assertEquals( "name", attributeType.getSup().getName() );
         
         attrs = getSchemaContext( service ).getAttributes(
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
@@ -1490,10 +1490,10 @@ public class SubschemaSubentryIT
 
         AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSuperior().getName() );
+        assertEquals( "name", at.getSup().getName() );
         assertEquals( "bogus description", at.getDescription() );
-        assertEquals( "bogus", at.getNamesRef()[0] );
-        assertEquals( "bogusName", at.getNamesRef()[1] );
+        assertEquals( "bogus", at.getNames().get( 0 ) );
+        assertEquals( "bogusName", at.getNames().get( 1 ) );
         assertEquals( true, at.isCanUserModify() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
@@ -1569,11 +1569,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getObjectClassRegistry().hasObjectClass( oid ) );
+            assertTrue( service.getRegistries().getObjectClassRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getObjectClassRegistry().hasObjectClass( oid ) );
+            assertFalse( service.getRegistries().getObjectClassRegistry().contains( oid ) );
         }
     }
     

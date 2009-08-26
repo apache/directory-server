@@ -25,7 +25,7 @@ import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 
 import static org.junit.Assert.assertEquals;
@@ -200,13 +200,15 @@ public class SchemaPersistenceIT
 
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
-        AttributeTypeDescription attributeTypeDescription = null;
+        AttributeType attributeType = null;
+        
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
                     .parseAttributeTypeDescription( desc );
                 break;
             }
@@ -214,12 +216,12 @@ public class SchemaPersistenceIT
 
         if ( isPresent )
         {
-            assertNotNull( attributeTypeDescription );
-            assertEquals( oid, attributeTypeDescription.getNumericOid() );
+            assertNotNull( attributeType );
+            assertEquals( oid, attributeType.getOid() );
         }
         else
         {
-            assertNull( attributeTypeDescription );
+            assertNull( attributeType );
         }
 
         // -------------------------------------------------------------------
@@ -254,11 +256,11 @@ public class SchemaPersistenceIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertFalse( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
         }
     }
 }

@@ -356,7 +356,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertFalse( atr.contains( TEST_ATTR_OID ) );
         
         // now enable the test schema
         IntegrationUtils.enableSchema( service, "nis" );
@@ -366,7 +366,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertTrue( atr.contains( TEST_ATTR_OID ) );
     }
 
 
@@ -386,7 +386,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertFalse( atr.contains( TEST_ATTR_OID ) );
         
         // now enable the test schema
         IntegrationUtils.enableSchema( service, "nis" );
@@ -399,7 +399,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertTrue( atr.contains( TEST_ATTR_OID ) );
     }
 
     
@@ -419,7 +419,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertFalse( atr.contains( TEST_ATTR_OID ) );
         
         // now disable the test schema
         IntegrationUtils.disableSchema( service, "nis" );
@@ -435,7 +435,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertFalse( atr.contains( TEST_ATTR_OID ) );
     }
 
     
@@ -458,7 +458,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertTrue( atr.contains( TEST_ATTR_OID ) );
         
         // now disable the test schema 
         IntegrationUtils.disableSchema( service, "samba" );
@@ -469,7 +469,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
-        assertFalse( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertFalse( atr.contains( TEST_ATTR_OID ) );
     }
 
     
@@ -506,7 +506,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertTrue( atr.contains( TEST_ATTR_OID ) );
         
         // now try to disable the test schema which should fail 
         // since it's dependent, the dummy schema, is enabled
@@ -530,7 +530,7 @@ public class MetaSchemaHandlerIT
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
-        assertTrue( atr.hasAttributeType( TEST_ATTR_OID ) );
+        assertTrue( atr.contains( TEST_ATTR_OID ) );
     }
     
     
@@ -621,12 +621,12 @@ public class MetaSchemaHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
 
         IntegrationUtils.enableSchema( service, "samba" );
-        assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertTrue( getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
         assertEquals( "samba", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
         
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
-        assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertTrue( getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
         assertEquals( "foo", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
 
         //noinspection EmptyCatchBlock
