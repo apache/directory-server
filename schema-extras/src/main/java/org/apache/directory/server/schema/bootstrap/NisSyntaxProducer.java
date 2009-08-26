@@ -53,11 +53,11 @@ public class NisSyntaxProducer extends AbstractBootstrapProducer
      */
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
-        BootstrapSyntax syntax;
+        BootstrapldapSyntax syntax;
         SyntaxCheckerRegistry syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
 
         // 1.3.6.1.1.1.0.0 - RFC2307 NIS Netgroup Triple
-        syntax = new BootstrapSyntax( "1.3.6.1.1.1.0.0", syntaxCheckerRegistry );
+        syntax = new BootstrapldapSyntax( "1.3.6.1.1.1.0.0", syntaxCheckerRegistry );
         syntax.setDescription( "RFC2307 NIS Netgroup Triple" );
         syntax.setNames( new String[]
             { "NIS Netgroup Triple" } );
@@ -65,7 +65,7 @@ public class NisSyntaxProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         // 1.3.6.1.1.1.0.1 - RFC2307 Boot Parameter Syntax
-        syntax = new BootstrapSyntax( "1.3.6.1.1.1.0.1", syntaxCheckerRegistry );
+        syntax = new BootstrapldapSyntax( "1.3.6.1.1.1.0.1", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "NIS Boot Parameter" } );
         syntax.setHumanReadable( true );

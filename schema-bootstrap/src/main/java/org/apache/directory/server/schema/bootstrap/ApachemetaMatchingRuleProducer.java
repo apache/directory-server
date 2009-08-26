@@ -78,13 +78,13 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         matchingRule = new ObjectClassTypeMatch();
         cb.schemaObjectProduced( this, matchingRule.getOid(), matchingRule );
         
-        matchingRule = new NumericOidMatch( registries.getSyntaxRegistry() );
+        matchingRule = new NumericOidMatch( registries.getLdapSyntaxRegistry() );
         cb.schemaObjectProduced( this, matchingRule.getOid(), matchingRule );
         
-        matchingRule = new SupDITStructureRuleMatch( registries.getSyntaxRegistry() );
+        matchingRule = new SupDITStructureRuleMatch( registries.getLdapSyntaxRegistry() );
         cb.schemaObjectProduced( this, matchingRule.getOid(), matchingRule );
         
-        matchingRule = new RuleIdMatch( registries.getSyntaxRegistry() );
+        matchingRule = new RuleIdMatch( registries.getLdapSyntaxRegistry() );
         cb.schemaObjectProduced( this, matchingRule.getOid(), matchingRule );
     }
     

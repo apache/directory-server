@@ -642,8 +642,10 @@ public class SchemaEntityFactory
     public AttributeType getAttributeType( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
-        AttributeTypeImpl at = new AttributeTypeImpl( oid, targetRegistries );
-        at.setSchema( schema );
+        AttributeType at = new AttributeType( oid );
+        
+        at.applyRegistries( targetRegistries );
+        at.setSchemaName( schema );
         setSchemaObjectProperties( at, entry );
         
         if ( entry.get( MetaSchemaConstants.M_SYNTAX_AT ) != null )

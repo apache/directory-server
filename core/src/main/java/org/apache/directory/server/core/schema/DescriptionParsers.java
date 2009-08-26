@@ -335,7 +335,7 @@ public class DescriptionParsers
             }
             
 
-            AttributeTypeImpl at = new AttributeTypeImpl( desc.getNumericOid(), globalRegistries );
+            AttributeType at = new AttributeType( desc.getNumericOid() );
             at.setCanUserModify( desc.isUserModifiable() );
             at.setCollective( desc.isCollective() );
             at.setEqualityOid( desc.getEqualityMatchingRule() );
@@ -345,6 +345,8 @@ public class DescriptionParsers
             at.setSuperiorOid( desc.getSuperType() );
             at.setSyntaxOid( desc.getSyntax() );
             at.setUsage( desc.getUsage() );
+            
+            at.applyRegistries( globalRegistries );
             
             setSchemaObjectProperties( desc, at );
 

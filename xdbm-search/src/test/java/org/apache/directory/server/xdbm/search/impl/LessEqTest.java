@@ -734,7 +734,7 @@ public class LessEqTest
     {
         AttributeType at = new OrderingOnlyMatchingRuleAttributeType();
         registries.getAttributeTypeRegistry().register( at );
-        registries.getSyntaxRegistry().register( at.getSyntax() );
+        registries.getLdapSyntaxRegistry().register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );

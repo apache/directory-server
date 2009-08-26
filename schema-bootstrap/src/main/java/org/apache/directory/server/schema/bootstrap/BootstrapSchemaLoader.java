@@ -274,7 +274,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                     ( ( BootstrapldapSyntax ) syntax ).setSchema( schema.getSchemaName() );
                 }
 
-                LdapSyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();
+                LdapSyntaxRegistry syntaxRegistry = registries.getLdapSyntaxRegistry();
                 syntaxRegistry.register( syntax );
                 break;
                 

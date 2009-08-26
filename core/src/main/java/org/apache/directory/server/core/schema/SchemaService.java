@@ -262,7 +262,7 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        Iterator<LdapSyntax> list = registries.getSyntaxRegistry().iterator();
+        Iterator<LdapSyntax> list = registries.getLdapSyntaxRegistry().iterator();
 
         while ( list.hasNext() )
         {

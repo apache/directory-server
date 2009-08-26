@@ -290,7 +290,7 @@ public class MetaMatchingRuleHandlerIT
 //        }
 //
 //        assertTrue( "syntax should still be in the registry after delete failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
+//            getLdapSyntaxRegistry().hasSyntax( OID ) );
 //    }
 //    
 //    
@@ -316,7 +316,7 @@ public class MetaMatchingRuleHandlerIT
 //        }
 //
 //        assertTrue( "syntax should still be in the registry after move failure", 
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
+//            registries.getLdapSyntaxRegistry().hasSyntax( OID ) );
 //    }
 //
 //

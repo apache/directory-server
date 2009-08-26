@@ -665,7 +665,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             LdapSyntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
-            targetRegistries.getSyntaxRegistry().register( syntax );
+            targetRegistries.getLdapSyntaxRegistry().register( syntax );
         }
     }
 
