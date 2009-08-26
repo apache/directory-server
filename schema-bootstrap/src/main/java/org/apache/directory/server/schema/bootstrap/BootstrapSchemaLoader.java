@@ -39,7 +39,7 @@ import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapAttributeType;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapMatchingRule;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
-import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapSyntax;
+import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapldapSyntax;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -269,9 +269,9 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
             case SYNTAX_PRODUCER :
                 LdapSyntax syntax = ( LdapSyntax ) schemaObject;
                 
-                if ( schemaObject instanceof BootstrapSyntax )
+                if ( schemaObject instanceof BootstrapldapSyntax )
                 {
-                    ( ( BootstrapSyntax ) syntax ).setSchema( schema.getSchemaName() );
+                    ( ( BootstrapldapSyntax ) syntax ).setSchema( schema.getSchemaName() );
                 }
 
                 LdapSyntaxRegistry syntaxRegistry = registries.getSyntaxRegistry();

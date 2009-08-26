@@ -36,7 +36,7 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchema;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassLiteral;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.parsers.OpenLdapSchemaParser;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -260,8 +260,8 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         }
 
         int size = parser.getObjectClassTypes().size();
-        ObjectClassLiteral[] objectClasses = new ObjectClassLiteral[size];
-        objectClasses = ( ObjectClassLiteral[] ) parser.getObjectClassTypes().toArray( objectClasses );
+        ObjectClass[] objectClasses = new ObjectClass[size];
+        objectClasses = ( ObjectClass[] ) parser.getObjectClassTypes().toArray( objectClasses );
 
         VelocityContext context = new VelocityContext();
         context.put( "package", schema.getPackageName() );

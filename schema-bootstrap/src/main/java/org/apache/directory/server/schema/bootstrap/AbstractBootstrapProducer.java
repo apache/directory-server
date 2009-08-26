@@ -80,9 +80,9 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     }
 
 
-    protected static BootstrapSyntax newSyntax( String oid, Registries registries )
+    protected static BootstrapldapSyntax newSyntax( String oid, Registries registries )
     {
-        return new BootstrapSyntax( oid, registries.getSyntaxCheckerRegistry() );
+        return new BootstrapldapSyntax( oid, registries.getSyntaxCheckerRegistry() );
     }
 
 
@@ -102,13 +102,13 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A mutable Syntax for the bootstrap phase that uses the
      * syntaxCheckerRegistry to dynamically resolve syntax checkers.
      */
-    public static class BootstrapSyntax extends LdapSyntax
+    public static class BootstrapldapSyntax extends LdapSyntax
     {
         private static final long serialVersionUID = 1L;
         final SyntaxCheckerRegistry registry;
 
 
-        public BootstrapSyntax(String oid, SyntaxCheckerRegistry registry)
+        public BootstrapldapSyntax(String oid, SyntaxCheckerRegistry registry)
         {
             super( oid );
             this.registry = registry;
@@ -151,7 +151,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
     }
 
-    public static class BootstrapMatchingRule extends AbstractMatchingRule
+    public static class BootstrapMatchingRule extends MatchingRule
     {
         private static final long serialVersionUID = 1L;
         final LdapSyntaxRegistry syntaxRegistry;
@@ -223,7 +223,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A concrete mutable attributeType implementation for bootstrapping which
      * uses registries for dynamically resolving dependent objects.
      */
-    public static class BootstrapAttributeType extends AbstractAttributeType
+    public static class BootstrapAttributeType extends AttributeType
     {
         private static final long serialVersionUID = 4050205236738471984L;
 
@@ -261,7 +261,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         {
             super( oid );
 
-            syntaxRegistry = registries.getSyntaxRegistry();
+            syntaxRegistry = registries.getLdapSyntaxRegistry();
             matchingRuleRegistry = registries.getMatchingRuleRegistry();
             attributeTypeRegistry = registries.getAttributeTypeRegistry();
         }
@@ -459,7 +459,7 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
      * A concrete mutable objectClass implementation for bootstrapping which
      * uses registries for dynamically resolving dependent objects.
      */
-    public static class BootstrapObjectClass extends AbstractSchemaObject implements ObjectClass
+    public static class BootstrapObjectClass extends ObjectClass
     {
         private static final long serialVersionUID = 1L;
         private final ObjectClassRegistry objectClassRegistry;
