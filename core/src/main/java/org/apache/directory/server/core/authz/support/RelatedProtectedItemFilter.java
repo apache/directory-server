@@ -58,8 +58,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 {
     private final RefinementEvaluator refinementEvaluator;
     private final Evaluator entryEvaluator;
-    private final OidRegistry oidRegistry;
-    private final AttributeTypeRegistry attrRegistry;
+    private final AttributeTypeRegistry atRegistry;
 
 
     public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator, 
@@ -67,8 +66,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     {
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
-        this.oidRegistry = oidRegistry;
-        this.attrRegistry = attrRegistry;
+        this.atRegistry = attrRegistry;
     }
 
 
@@ -115,7 +113,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         
         if ( attrId != null )
         {
-            oid = oidRegistry.getOid( attrId );
+            oid = atRegistry.getOid( attrId );
         }
         
         for ( ProtectedItem item : tuple.getProtectedItems() )
@@ -153,9 +151,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 ProtectedItem.AllAttributeValues aav = ( ProtectedItem.AllAttributeValues ) item;
+
                 for ( Iterator<String> j = aav.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( oidRegistry.getOid( j.next() ) ) )
+                    if ( oid.equals( atRegistry.getOid( j.next() ) ) )
                     {
                         return true;
                     }
@@ -169,9 +168,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 ProtectedItem.AttributeType at = ( ProtectedItem.AttributeType ) item;
+                
                 for ( Iterator<String> j = at.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( oidRegistry.getOid( j.next() ) ) )
+                    if ( oid.equals( atRegistry.getOid( j.next() ) ) )
                     {
                         return true;
                     }
@@ -188,8 +188,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
                 {
                     Attribute attr = j.next();
-                    String attrOid = oidRegistry.getOid( attr.getID() );
-                    AttributeType attrType = attrRegistry.lookup( attrOid );
+                    String attrOid = atRegistry.getOid( attr.getID() );
+                    AttributeType attrType = atRegistry.lookup( attrOid );
                     
                     if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
                     {
@@ -220,7 +220,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<MaxValueCountItem> j = mvc.iterator(); j.hasNext(); )
                 {
                     MaxValueCountItem mvcItem = j.next();
-                    if ( oid.equals( oidRegistry.getOid( mvcItem.getAttributeType() ) ) )
+                    
+                    if ( oid.equals( atRegistry.getOid( mvcItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -246,7 +247,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<RestrictedByItem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByItem rbItem = j.next();
-                    if ( oid.equals( oidRegistry.getOid( rbItem.getAttributeType() ) ) )
+                    if ( oid.equals( atRegistry.getOid( rbItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -263,7 +264,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<String> j = sv.iterator(); j.hasNext(); )
                 {
                     String svItem = j.next();
-                    if ( oid.equals( oidRegistry.getOid( svItem ) ) )
+                    
+                    if ( oid.equals( atRegistry.getOid( svItem ) ) )
                     {
                         EntryAttribute attr = entry.get( oid );
                         

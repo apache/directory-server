@@ -77,6 +77,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
@@ -172,6 +173,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** attribute type registry */
     private AttributeTypeRegistry atRegistry;
     
+    /** ObjectClass registry */
+    private ObjectClassRegistry ocRegistry;
+    
     /** whether or not this interceptor is activated */
     private boolean enabled;
     
@@ -211,12 +215,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         groupCache = new GroupCache( adminSession );
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
+        ocRegistry = registries.getObjectClassRegistry();
         OidRegistry oidRegistry = registries.getOidRegistry();
         
         // look up some constant information
-        String objectClassOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
-        subentryOid = oidRegistry.getOid( SchemaConstants.SUBENTRY_OC );
-        String acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
+        String objectClassOid = atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
+        subentryOid = ocRegistry.getOid( SchemaConstants.SUBENTRY_OC );
+        String acSubentryOid = atRegistry.getOid( AC_SUBENTRY_ATTR );
         objectClassType = atRegistry.lookup( objectClassOid );
         acSubentryType = atRegistry.lookup( acSubentryOid );
         entryAciType = atRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
