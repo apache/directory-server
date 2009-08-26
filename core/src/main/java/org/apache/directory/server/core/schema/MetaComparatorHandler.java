@@ -167,7 +167,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 
     public void delete( String oid, boolean cascade ) throws NamingException
     {
-        if ( matchingRuleRegistry.hasMatchingRule( oid ) )
+        if ( matchingRuleRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oid 
                 + " cannot be deleted until all " 
@@ -186,7 +186,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     {
         String oldOid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oldOid ) )
+        if ( matchingRuleRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -215,7 +215,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oldOid ) )
+        if ( matchingRuleRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -251,7 +251,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oid ) )
+        if ( matchingRuleRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oid 
                 + " cannot be moved to another schema until all " 

@@ -60,6 +60,11 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     private final ProducerTypeEnum type;
 
 
+    public static LdapSyntax ldapSyntaxFactory( String oid )
+    {
+        return new LdapSyntax( oid );
+    }
+    
     /**
      * Creates a producer of a specific type.
      *
@@ -80,9 +85,9 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
     }
 
 
-    protected static BootstrapldapSyntax newSyntax( String oid, Registries registries )
+    protected static LdapSyntax newSyntax( String oid, Registries registries )
     {
-        return new BootstrapldapSyntax( oid, registries.getSyntaxCheckerRegistry() );
+        return ldapSyntaxFactory( oid );
     }
 
 

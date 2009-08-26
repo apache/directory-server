@@ -42,31 +42,18 @@ import org.apache.directory.shared.ldap.schema.registries.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DefaultRegistries implements Registries
+public class DefaultRegistries extends Registries
 {
-    /** The AttributeType registry */
-    private AttributeTypeRegistry attributeTypeRegistry;
-    
-    /** The ObjectClass registry */
-    private DefaultObjectClassRegistry objectClassRegistry;
-
-    private DefaultComparatorRegistry comparatorRegistry;
-    private DefaultDitContentRuleRegistry ditContentRuleRegistry;
-    private DefaultDitStructureRuleRegistry ditStructureRuleRegistry;
-    private DefaultMatchingRuleRegistry matchingRuleRegistry;
-    private DefaultMatchingRuleUseRegistry matchingRuleUseRegistry;
-    private DefaultNameFormRegistry nameFormRegistry;
-    private DefaultNormalizerRegistry normalizerRegistry;
     private OidRegistry oidRegistry;
-    private DefaultSyntaxCheckerRegistry syntaxCheckerRegistry;
-    private DefaultLdapSyntaxRegistry syntaxRegistry;
     private Map<String,Schema> loadedByName = new HashMap<String, Schema>();
     private final SchemaLoader schemaLoader;
     private final String name;
 
 
-    public DefaultRegistries( String name, SchemaLoader schemaLoader, OidRegistry registry )
+    public DefaultRegistries( String name, SchemaLoader schemaLoader, OidRegistry oidRegistry )
     {
+        super( oidRegistry );
+        
         this.name = name;
         this.schemaLoader = schemaLoader;
         
@@ -76,19 +63,6 @@ public class DefaultRegistries implements Registries
                 loadedByName.put( schema.getSchemaName(), schema );
             }
         });
-        
-        oidRegistry = registry;
-        normalizerRegistry = new DefaultNormalizerRegistry();
-        comparatorRegistry = new DefaultComparatorRegistry();
-        syntaxCheckerRegistry = new DefaultSyntaxCheckerRegistry();
-        syntaxRegistry = new DefaultLdapSyntaxRegistry( oidRegistry );
-        matchingRuleRegistry = new DefaultMatchingRuleRegistry( oidRegistry );
-        attributeTypeRegistry = new DefaultAttributeTypeRegistry( oidRegistry );
-        objectClassRegistry = new DefaultObjectClassRegistry( oidRegistry );
-        ditContentRuleRegistry = new DefaultDitContentRuleRegistry( oidRegistry );
-        ditStructureRuleRegistry = new DefaultDitStructureRuleRegistry( oidRegistry );
-        matchingRuleUseRegistry = new DefaultMatchingRuleUseRegistry();
-        nameFormRegistry = new DefaultNameFormRegistry( oidRegistry );
     }
 
 
@@ -161,12 +135,6 @@ public class DefaultRegistries implements Registries
     public SyntaxCheckerRegistry getSyntaxCheckerRegistry()
     {
         return syntaxCheckerRegistry;
-    }
-
-
-    public LdapSyntaxRegistry getSyntaxRegistry()
-    {
-        return syntaxRegistry;
     }
 
 
@@ -320,7 +288,7 @@ public class DefaultRegistries implements Registries
 
         try
         {
-            isSuccess &= resolve( at.getSuperior(), errors );
+            isSuccess &= resolve( at.getSup(), errors );
         }
         catch ( Exception e )
         {
@@ -423,22 +391,18 @@ public class DefaultRegistries implements Registries
             return true;
         }
 
-        ObjectClass[] superiors = new org.apache.directory.shared.ldap.schema.ObjectClass[0];
+        List<ObjectClass> superiors = oc.getSuperiors();
 
-        try
+        if ( ( superiors == null ) || ( superiors.size() == 0 ) )
         {
-            superiors = oc.getSuperClasses();
-        }
-        catch ( Exception e )
-        {
-            superiors = new ObjectClass[0];
             isSuccess = false;
-            errors.add( e );
         }
-
-        for ( int ii = 0; ii < superiors.length; ii++ )
+        else
         {
-            isSuccess &= resolve( superiors[ii], errors );
+            for ( ObjectClass superior : superiors )
+            {
+                isSuccess &= resolve( superior, errors );
+            }
         }
 
         AttributeType[] mayList = new org.apache.directory.shared.ldap.schema.AttributeType[0];

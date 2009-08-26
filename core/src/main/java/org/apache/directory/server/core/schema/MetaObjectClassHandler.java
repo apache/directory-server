@@ -114,7 +114,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
     public void delete( ObjectClass oc, boolean cascade ) throws Exception
     {
-        Schema schema = loader.getSchema( oc.getSchema() );
+        Schema schema = loader.getSchema( oc.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
@@ -243,7 +243,8 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a objectClass should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
@@ -260,7 +261,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
     public void add( ObjectClass oc ) throws Exception
     {
-        Schema schema = loader.getSchema( oc.getSchema() );
+        Schema schema = loader.getSchema( oc.getSchemaName() );
         if ( ! schema.isDisabled() )
         {
             objectClassRegistry.register( oc );

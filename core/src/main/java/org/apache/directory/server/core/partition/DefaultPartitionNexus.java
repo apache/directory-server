@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,11 +99,9 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,10 +147,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     /** The attributeType registry */
     private AttributeTypeRegistry atRegistry;
     
-    /** The OID registry */
-    private OidRegistry oidRegistry;
-
-
     /**
      * Creates the root nexus singleton of the entire system.  The root DSE has
      * several attributes that are injected into it besides those that may
@@ -294,7 +287,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         this.directoryService = directoryService;
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
         
         initializeSystemPartition();
         
@@ -370,14 +362,13 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 Set<Index<?,ServerEntry>> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
                 Set<String> indexOids = new HashSet<String>();
-                OidRegistry registry = registries.getOidRegistry();
 
                 for ( Index<?,ServerEntry> index : indices )
                 {
-                    indexOids.add( registry.getOid( index.getAttributeId() ) );
+                    indexOids.add( atRegistry.getOid( index.getAttributeId() ) );
                 }
 
-                if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
+                if ( ! indexOids.contains( atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
                 {
                     LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
                             "in the system partition configuration.  This will lead to poor " +
@@ -549,7 +540,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
         
         // complain if we do not recognize the attribute being compared
-        if ( !registry.hasAttributeType( compareContext.getOid() ) )
+        if ( !registry.contains( compareContext.getOid() ) )
         {
             throw new LdapInvalidAttributeIdentifierException( compareContext.getOid() + " not found within the attributeType registry" );
         }
@@ -927,7 +918,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         try
                         {
-                            realIds.add( oidRegistry.getOid( idTrimmed ) );
+                            realIds.add( atRegistry.getOid( idTrimmed ) );
                         }
                         catch ( Exception e )
                         {

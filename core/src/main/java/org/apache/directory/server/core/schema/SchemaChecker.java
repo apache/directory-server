@@ -32,8 +32,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import org.slf4j.Logger;
@@ -381,7 +381,8 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, ServerAttribute attribute, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, 
+        ServerAttribute attribute, AttributeTypeRegistry atRegistry )
         throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -390,7 +391,7 @@ public class SchemaChecker
         }
 
         Set<String> rdnAttributes = getRdnAttributes( name );
-        String id = oidRegistry.getOid( attribute.getUpId() );
+        String id = atRegistry.getOid( attribute.getUpId() );
 
         if ( !rdnAttributes.contains( id ) )
         {
@@ -415,7 +416,7 @@ public class SchemaChecker
         // from here on the modify operation replaces specific values
         // of the Rdn attribute so we must check to make sure all the old
         // rdn attribute values are present in the replacement set
-        String rdnValue = getRdnValue( id, name, oidRegistry );
+        String rdnValue = getRdnValue( id, name, atRegistry );
         for ( int ii = 0; ii < attribute.size(); ii++ )
         {
             // if the old rdn value is not in the rdn attribute then
@@ -456,7 +457,8 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( 
-        LdapDN name, ModificationOperation mod, ServerEntry entry, OidRegistry oidRegistry )
+        LdapDN name, ModificationOperation mod, ServerEntry entry, 
+        AttributeTypeRegistry atRegistry )
         throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -493,7 +495,7 @@ public class SchemaChecker
                 // from here on the modify operation replaces specific values
                 // of the Rdn attribute so we must check to make sure all the old
                 // rdn attribute values are present in the replacement set
-                String rdnValue = getRdnValue( id, name, oidRegistry );
+                String rdnValue = getRdnValue( id, name, atRegistry );
 
                 // if the old rdn value is not in the rdn attribute then
                 // we must complain with a schema violation
@@ -534,7 +536,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerAttribute attribute, 
-        OidRegistry oidRegistry ) throws NamingException
+        AttributeTypeRegistry atRegistry ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
@@ -544,7 +546,7 @@ public class SchemaChecker
         Set<String> rdnAttributes = getRdnAttributes( name );
         String id = attribute.getId();
 
-        if ( !rdnAttributes.contains( oidRegistry.getOid( id ) ) )
+        if ( !rdnAttributes.contains( atRegistry.getOid( id ) ) )
         {
             return;
         }
@@ -568,7 +570,7 @@ public class SchemaChecker
         // from here on the modify operation only deletes specific values
         // of the Rdn attribute so we must check if one of those values
         // are used by the Rdn attribute value pair for the name of the entry
-        String rdnValue = getRdnValue( id, name, oidRegistry );
+        String rdnValue = getRdnValue( id, name, atRegistry );
         
         for ( Value<?> value:attribute )
         {
@@ -608,7 +610,8 @@ public class SchemaChecker
      * @param oidRegistry
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
-    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerEntry entry, OidRegistry oidRegistry )
+    public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, 
+        ServerEntry entry, AttributeTypeRegistry atRegistry )
         throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
@@ -642,7 +645,7 @@ public class SchemaChecker
                 // from here on the modify operation only deletes specific values
                 // of the Rdn attribute so we must check if one of those values
                 // are used by the Rdn attribute value pair for the name of the entry
-                String rdnValue = getRdnValue( id, name, oidRegistry );
+                String rdnValue = getRdnValue( id, name, atRegistry );
                 EntryAttribute rdnAttr = entry.get( id );
                 
                 for ( Value<?> value:rdnAttr )
@@ -675,10 +678,10 @@ public class SchemaChecker
      * attribute is not an rdn attribute
      * @throws NamingException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, LdapDN name, OidRegistry oidRegistry ) throws NamingException
+    private static String getRdnValue( String id, LdapDN name, AttributeTypeRegistry atRegistry ) throws NamingException
     {
         // Transform the rdnAttrId to it's OID counterPart
-        String idOid = oidRegistry.getOid( id );
+        String idOid = atRegistry.getOid( id );
 
         if ( idOid == null )
         {
@@ -693,7 +696,7 @@ public class SchemaChecker
             String rdnAttrId = NamespaceTools.getRdnAttribute( comps[ii] );
             
             // Transform the rdnAttrId to it's OID counterPart
-            String rdnAttrOid = oidRegistry.getOid( rdnAttrId );
+            String rdnAttrOid = atRegistry.getOid( rdnAttrId );
 
             if ( rdnAttrOid == null )
             {

@@ -198,7 +198,7 @@ public class JdbmPartition extends BTreePartition
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
-            String oid = registries.getOidRegistry().getOid( index.getAttributeId() );
+            String oid = registries.getAttributeTypeRegistry().getOid( index.getAttributeId() );
             
             if ( SYS_INDEX_OIDS.contains( oid ) )
             {

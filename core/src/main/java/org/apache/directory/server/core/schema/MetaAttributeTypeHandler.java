@@ -48,7 +48,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 {
     private final SchemaPartitionDao dao;
-    private final AttributeTypeRegistry attributeTypeRegistry;
+    private final AttributeTypeRegistry atRegistry;
 
     
 
@@ -58,7 +58,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         super( targetRegistries, loader );
         
         this.dao = dao;
-        this.attributeTypeRegistry = targetRegistries.getAttributeTypeRegistry();
+        this.atRegistry = targetRegistries.getAttributeTypeRegistry();
     }
 
 
@@ -71,8 +71,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( oid );
-            attributeTypeRegistry.register( at );
+            atRegistry.unregister( oid );
+            atRegistry.register( at );
             
             return SCHEMA_MODIFIED;
         }
@@ -83,10 +83,10 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     
     public void add( AttributeType at ) throws Exception
     {
-        Schema schema = dao.getSchema( at.getSchema() );
+        Schema schema = dao.getSchema( at.getSchemaName() );
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.register( at );
+            atRegistry.register( at );
         }
         else
         {
@@ -129,10 +129,10 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
     public void delete( AttributeType at, boolean cascade ) throws Exception
     {
-        Schema schema = loader.getSchema( at.getSchema() );
+        Schema schema = loader.getSchema( at.getSchemaName() );
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( at.getOid() );
+            atRegistry.unregister( at.getOid() );
         }
         unregisterOids( at.getOid() );
     }
@@ -161,8 +161,8 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( oldAt.getOid() );
-            attributeTypeRegistry.register( at );
+            atRegistry.unregister( oldAt.getOid() );
+            atRegistry.register( at );
         }
         else
         {
@@ -199,13 +199,13 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
         if ( ! oldSchema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( oldAt.getOid() );
+            atRegistry.unregister( oldAt.getOid() );
         }
         unregisterOids( oldAt.getOid() );
 
         if ( ! newSchema.isDisabled() )
         {
-            attributeTypeRegistry.register( at );
+            atRegistry.register( at );
         }
         else
         {
@@ -236,12 +236,12 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         
         if ( ! oldSchema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( oldAt.getOid() );
+            atRegistry.unregister( oldAt.getOid() );
         }
         
         if ( ! newSchema.isDisabled() )
         {
-            attributeTypeRegistry.register( at );
+            atRegistry.register( at );
         }
     }
     
@@ -256,7 +256,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a attributeType should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

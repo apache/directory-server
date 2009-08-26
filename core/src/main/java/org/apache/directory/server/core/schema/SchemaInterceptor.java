@@ -1439,13 +1439,13 @@ public class SchemaInterceptor extends BaseInterceptor
                     }
 
                     SchemaChecker
-                        .preventRdnChangeOnModifyRemove( name, modOp, change, this.registries.getOidRegistry() );
+                        .preventRdnChangeOnModifyRemove( name, modOp, change, atRegistry );
                     SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, change,
                         objectClass );
                     break;
 
                 case REPLACE_ATTRIBUTE:
-                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, registries.getOidRegistry() );
+                    SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, change, atRegistry );
                     SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, change );
 
                     attr = tmpEntry.get( change.getUpId() );

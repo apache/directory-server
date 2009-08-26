@@ -328,7 +328,7 @@ public class DefaultDirectoryService implements DirectoryService
         // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         OidRegistry oidRegistry = new OidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+        registries = new Registries( "bootstrap", loader, oidRegistry );
 
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();
@@ -1589,7 +1589,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, registries.getOidRegistry() );
+        Registries globalRegistries = new Registries( "global", schemaLoader, registries.getOidRegistry() );
         schemaLoader.loadEnabled( globalRegistries );
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );

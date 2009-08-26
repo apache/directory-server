@@ -287,7 +287,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
-        String rdnAttributeOid = globalRegistries.getOidRegistry().getOid( rdnAttribute );
+        String rdnAttributeOid = globalRegistries.getAttributeTypeRegistry().getOid( rdnAttribute );
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
             throw new LdapOperationNotSupportedException( 

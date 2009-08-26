@@ -260,15 +260,11 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 break;
                 
             case SYNTAX_PRODUCER :
-                LdapSyntax syntax = ( LdapSyntax ) schemaObject;
+                LdapSyntax ldapSyntax = ( LdapSyntax ) schemaObject;
                 
-                if ( schemaObject instanceof BootstrapldapSyntax )
-                {
-                    ( ( BootstrapldapSyntax ) syntax ).setSchema( schema.getSchemaName() );
-                }
-
+                ldapSyntax.setSchemaName( schema.getSchemaName() );
                 LdapSyntaxRegistry syntaxRegistry = registries.getLdapSyntaxRegistry();
-                syntaxRegistry.register( syntax );
+                syntaxRegistry.register( ldapSyntax );
                 break;
                 
             case MATCHING_RULE_PRODUCER :

@@ -300,7 +300,7 @@ public class DumpCommand extends ToolCommand
         {
             Attribute attr = attrs.next();
             
-            if ( !registry.hasAttributeType( attr.getID() ) )
+            if ( !registry.contains( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )
                 {

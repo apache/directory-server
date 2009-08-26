@@ -168,7 +168,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 
     public void delete( String oid, boolean cascade ) throws NamingException
     {
-        if ( matchingRuleRegistry.hasMatchingRule( oid ) )
+        if ( matchingRuleRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid 
                 + " cannot be deleted until all " 
@@ -187,7 +187,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
     {
         String oldOid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oldOid ) )
+        if ( matchingRuleRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -218,7 +218,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oldOid ) )
+        if ( matchingRuleRegistry.contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -254,7 +254,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
         checkNewParent( newParentName );
         String oid = getOid( entry );
 
-        if ( matchingRuleRegistry.hasMatchingRule( oid ) )
+        if ( matchingRuleRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid 
                 + " cannot be moved to another schema until all " 
@@ -312,7 +312,8 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a normalizer should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
