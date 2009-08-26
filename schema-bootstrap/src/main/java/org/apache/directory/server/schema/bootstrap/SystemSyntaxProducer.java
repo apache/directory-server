@@ -24,8 +24,8 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
 /**
@@ -119,8 +119,8 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
     // ------------------------------------------------------------------------
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
-        BootstrapldapSyntax syntax;
-        SyntaxCheckerRegistry syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
+        LdapSyntax ldapSyntax;
+        //SyntaxCheckerRegistry syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
 
         /*
          * From RFC 2252 Section 4.3.2. on Syntax Object Identifiers
@@ -140,66 +140,67 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 8 Certificate List                N  1.3.6.1.4.1.1466.115.121.1.9
          * 9 Certificate Pair                N  1.3.6.1.4.1.1466.115.121.1.10
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.ACI_ITEM_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "ACI Item" } );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ACI_ITEM_SYNTAX );
+        ldapSyntax.addName( "ACI Item" );
+        //ldapSyntax.setSyntaxChecker( syntaxChecker )
+        
         // This is in direct conflict with RFC 2252 but for us ACI Item is human readable
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.ACCESS_POINT_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Access Point" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ACCESS_POINT_SYNTAX );
+        // ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Access Point" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Attribute Type Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX );
+        // ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Attribute Type Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.AUDIO_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Audio" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.AUDIO_SYNTAX );
+        // ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Audio" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.BINARY_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Binary" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.BINARY_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Binary" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.BIT_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Bit String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.BIT_STRING_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Bit String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.BOOLEAN_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Boolean" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.BOOLEAN_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Boolean" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.CERTIFICATE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Certificate" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.CERTIFICATE_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Certificate" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.CERTIFICATE_LIST_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Certificate List" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.CERTIFICATE_LIST_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Certificate List" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.CERTIFICATE_PAIR_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Certificate Pair" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.CERTIFICATE_PAIR_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Certificate Pair" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -215,65 +216,55 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 18 DSA Quality Syntax              Y  1.3.6.1.4.1.1466.115.121.1.19
          * 19 DSE Type                        Y  1.3.6.1.4.1.1466.115.121.1.20
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.COUNTRY_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Country String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.COUNTRY_STRING_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Country String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DN_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DN" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DN_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DN" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DATA_QUALITY_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Data Quality Syntax" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DATA_QUALITY_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Data Quality Syntax" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DELIVERY_METHOD_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Delivery Method" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DELIVERY_METHOD_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Delivery Method" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DIRECTORY_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Directory String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DIRECTORY_STRING_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Directory String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DIT_CONTENT_RULE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DIT Content Rule Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DIT_CONTENT_RULE_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DIT Content Rule Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DIT_STRUCTURE_RULE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DIT Structure Rule Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DIT_STRUCTURE_RULE_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DIT Structure Rule Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DL_SUBMIT_PERMISSION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DL Submit Permission" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DL_SUBMIT_PERMISSION_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DL Submit Permission" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DSA_QUALITY_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DSA Quality Syntax" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DSA_QUALITY_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DSA Quality Syntax" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.DSE_TYPE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "DSE Type" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.DSE_TYPE_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "DSE Type" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -289,65 +280,55 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
          * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.ENHANCED_GUIDE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Enhanced Guide" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ENHANCED_GUIDE_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Enhanced Guide" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.FACSIMILE_TELEPHONE_NUMBER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Facsimile Telephone Number" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.FACSIMILE_TELEPHONE_NUMBER_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Facsimile Telephone Number" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.FAX_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Fax" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.FAX_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Fax" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.GENERALIZED_TIME_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Generalized Time" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.GENERALIZED_TIME_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Generalized Time" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.GUIDE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Guide" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.GUIDE_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Guide" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.IA5_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "IA5 String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.IA5_STRING_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "IA5 String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.INTEGER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "INTEGER" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.INTEGER_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "INTEGER" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.JPEG_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "JPEG" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.JPEG_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "JPEG" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Master And Shadow Access Points" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MASTER_AND_SHADOW_ACCESS_POINTS_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Master And Shadow Access Points" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.MATCHING_RULE_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Matching Rule Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MATCHING_RULE_DESCRIPTION_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Matching Rule Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -363,59 +344,58 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
          * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.MATCHING_RULE_USE_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Matching Rule Use Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MATCHING_RULE_USE_DESCRIPTION_SYNTAX ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Matching Rule Use Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.MAIL_PREFERENCE_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Mail Preference" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MAIL_PREFERENCE_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Mail Preference" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.MHS_OR_ADDRESS_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "MHS OR Address" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MHS_OR_ADDRESS_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "MHS OR Address" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.NAME_AND_OPTIONAL_UID_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Name And Optional UID" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.NAME_AND_OPTIONAL_UID_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Name And Optional UID" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.NAME_FORM_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Name Form Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.NAME_FORM_DESCRIPTION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Name Form Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.NUMERIC_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Numeric String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.NUMERIC_STRING_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Numeric String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.OBJECT_CLASS_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Object Class Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.OBJECT_CLASS_DESCRIPTION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Object Class Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.OID_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "OID" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.OID_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "OID" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.OTHER_MAILBOX_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Other Mailbox" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.OTHER_MAILBOX_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Other Mailbox" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * This is where we deviate.  An octet string may or may not be human readable.  Essentially
@@ -425,11 +405,11 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * If we set this to true then userPasswords which implement this syntax are not treated as
          * binary attributes.  If that happens we can have data corruption due to UTF-8 handling.
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.OCTET_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Octet String" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.OCTET_STRING_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Octet String" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -445,65 +425,65 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 48 Supported Algorithm             N  1.3.6.1.4.1.1466.115.121.1.49
          * 49 Telephone Number                Y  1.3.6.1.4.1.1466.115.121.1.50
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.POSTAL_ADDRESS_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Postal Address" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.POSTAL_ADDRESS_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Postal Address" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.PROTOCOL_INFORMATION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Protocol Information" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.PROTOCOL_INFORMATION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Protocol Information" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.PRESENTATION_ADDRESS_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Presentation Address" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.PRESENTATION_ADDRESS_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Presentation Address" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.PRINTABLE_STRING_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Printable String" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.PRINTABLE_STRING_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Printable String" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUBTREE_SPECIFICATION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Subtree Specification" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUBTREE_SPECIFICATION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Subtree Specification" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUPPLIER_INFORMATION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Supplier Information" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUPPLIER_INFORMATION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Supplier Information" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUPPLIER_OR_CONSUMER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Supplier Or Consumer" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUPPLIER_OR_CONSUMER_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Supplier Or Consumer" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUPPLIER_AND_CONSUMER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Supplier And Consumer" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUPPLIER_AND_CONSUMER_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Supplier And Consumer" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUPPORTED_ALGORITHM_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Supported Algorithm" } );
-        syntax.setHumanReadable( false );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUPPORTED_ALGORITHM_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Supported Algorithm" );
+        ldapSyntax.setHumanReadable( false );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.TELEPHONE_NUMBER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Telephone Number" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.TELEPHONE_NUMBER_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Telephone Number" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
         /*
          * Value being represented        H-R OBJECT IDENTIFIER
@@ -517,58 +497,58 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
          * 56 LDAP BootstrapSchema Description         Y  1.3.6.1.4.1.1466.115.121.1.57
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
-        syntax = new BootstrapldapSyntax( SchemaConstants.TELETEX_TERMINAL_IDENTIFIER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Teletex Terminal Identifier" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.TELETEX_TERMINAL_IDENTIFIER_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Teletex Terminal Identifier" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.TELEX_NUMBER_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Telex Number" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.TELEX_NUMBER_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Telex Number" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.UTC_TIME_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "UTC Time" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.UTC_TIME_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "UTC Time" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.LDAP_SYNTAX_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "LDAP Syntax Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.LDAP_SYNTAX_DESCRIPTION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "LDAP Syntax Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.MODIFY_RIGHTS_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Modify Rights" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.MODIFY_RIGHTS_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Modify Rights" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.LDAP_SCHEMA_DEFINITION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "LDAP BootstrapSchema Definition" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.LDAP_SCHEMA_DEFINITION_SYNTAX ); 
+        //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "LDAP BootstrapSchema Definition" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.LDAP_SCHEMA_DESCRIPTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "LDAP BootstrapSchema Description" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.LDAP_SCHEMA_DESCRIPTION_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "LDAP BootstrapSchema Description" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        syntax = new BootstrapldapSyntax( SchemaConstants.SUBSTRING_ASSERTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Substring Assertion" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.SUBSTRING_ASSERTION_SYNTAX );
+        //, syntaxCheckerRegistry );
+        ldapSyntax.addName( "Substring Assertion" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
         
-        syntax = new BootstrapldapSyntax( SchemaConstants.ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX, syntaxCheckerRegistry );
-        syntax.setNames( new String[]
-            { "Trigger Specification" } );
-        syntax.setHumanReadable( true );
-        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ATTRIBUTE_CERTIFICATE_ASSERTION_SYNTAX );
+        // ); //,syntaxCheckerRegistry );
+        ldapSyntax.addName( "Trigger Specification" );
+        ldapSyntax.setHumanReadable( true );
+        cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
     }
 }
