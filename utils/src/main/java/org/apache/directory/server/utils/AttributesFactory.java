@@ -20,7 +20,7 @@
 package org.apache.directory.server.utils; 
 
 
-import java.util.Comparator; 
+import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
@@ -167,7 +168,7 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( String oid, Comparator comparator, Schema schema, Registries registries )
+    public ServerEntry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, Registries registries )
     {
         ServerEntry entry = new DefaultServerEntry( registries );
 
@@ -276,7 +277,7 @@ public class AttributesFactory
 
         injectCommon( attributeType, entry, registries );
         
-        AttributeType superior = attributeType.getSuperior();
+        AttributeType superior = attributeType.getSup();
         
         if ( superior != null )
         {
@@ -362,10 +363,10 @@ public class AttributesFactory
         injectCommon( objectClass, entry, registries );
 
         // handle the superior objectClasses 
-        if ( objectClass.getSuperClasses() != null && objectClass.getSuperClasses().length != 0 )
+        if ( objectClass.getSuperiors() != null && objectClass.getSuperiors().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
-            ObjectClass[] superClasses = objectClass.getSuperClasses();
+            List<ObjectClass> superClasses = objectClass.getSuperiors();
             
             for ( ObjectClass superClass:superClasses )
             {
@@ -376,10 +377,10 @@ public class AttributesFactory
         }
 
         // add the must list
-        if ( objectClass.getMustList() != null && objectClass.getMustList().length != 0 )
+        if ( objectClass.getMustAttributeTypes() != null && objectClass.getMustAttributeTypes().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MUST_AT ) );
-            AttributeType[] mustList = objectClass.getMustList();
+            List<AttributeType> mustList = objectClass.getMustAttributeTypes();
 
             for ( AttributeType attributeType:mustList )
             {
@@ -390,10 +391,10 @@ public class AttributesFactory
         }
         
         // add the may list
-        if ( objectClass.getMayList() != null && objectClass.getMayList().length != 0 )
+        if ( objectClass.getMayAttributeTypes() != null && objectClass.getMayAttributeTypes().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MAY_AT ) );
-            AttributeType[] mayList = objectClass.getMayList();
+            List<AttributeType> mayList = objectClass.getMayAttributeTypes();
 
             for ( AttributeType attributeType:mayList )
             {
@@ -421,7 +422,7 @@ public class AttributesFactory
     
     private final void injectCommon( SchemaObject object, ServerEntry entry, Registries registries ) throws NamingException
     {
-        injectNames( object.getNamesRef(), entry, registries );
+        injectNames( object.getNames(), entry, registries );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
         entry.put( MetaSchemaConstants.M_OID_AT, object.getOid() );
         
@@ -432,9 +433,9 @@ public class AttributesFactory
     }
     
     
-    private final void injectNames( String[] names, ServerEntry entry, Registries registries ) throws NamingException
+    private final void injectNames( List<String> names, ServerEntry entry, Registries registries ) throws NamingException
     {
-        if ( names == null || names.length == 0 )
+        if ( ( names == null ) || ( names.size() == 0 ) )
         {
             return;
         }
