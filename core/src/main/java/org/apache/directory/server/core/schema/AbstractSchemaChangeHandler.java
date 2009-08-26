@@ -22,7 +22,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;

@@ -22,7 +22,6 @@ package org.apache.directory.server.schema.bootstrap;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +39,7 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.Bo
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapMatchingRule;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapldapSyntax;
-import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
+import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
@@ -52,13 +51,7 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
-import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +129,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
     {
         BootstrapSchema[] schemas = new BootstrapSchema[bootstrapSchemas.size()];
         schemas = bootstrapSchemas.toArray( schemas );
-        HashMap<String,Schema> loaded = new HashMap<String,Schema>();
+        HashMap<String, Schema> loaded = new HashMap<String,Schema>();
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
 
         for ( BootstrapSchema schema:schemas )

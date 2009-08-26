@@ -27,26 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.registries.DITContentRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.DITStructureRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
-import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistry;
-import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
-import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
-import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.*;
 
 
 /**

@@ -21,14 +21,13 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;

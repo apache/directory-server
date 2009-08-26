@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.schema.bootstrap;
 
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+
 
 /**
  * A configuration of related Schema objects bundled together and identified as

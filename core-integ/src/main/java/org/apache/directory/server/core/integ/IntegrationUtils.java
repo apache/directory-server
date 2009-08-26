@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
