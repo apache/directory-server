@@ -41,8 +41,6 @@ import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
@@ -54,7 +52,6 @@ import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptio
 import org.apache.directory.shared.ldap.schema.parsers.NameFormDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
@@ -72,7 +69,6 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 public class DescriptionParsers
 {
     private static final String OTHER_SCHEMA = "other";
-    private static final String[] EMPTY = new String[0];
 
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
@@ -241,11 +237,11 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            AttributeTypeDescription desc = null;
+            AttributeType attributeType = null;
             
             try
             {
-                desc = attributeTypeParser.parseAttributeTypeDescription( value.getString() );
+                attributeType = attributeTypeParser.parseAttributeTypeDescription( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -257,62 +253,64 @@ public class DescriptionParsers
             }
 
             // if the supertype is provided make sure it exists in some schema
-            if ( desc.getSuperType() != null && ! dao.hasAttributeType( desc.getSuperType() ) )
+            if ( attributeType.getSupOid() != null && ! dao.hasAttributeType( attributeType.getSupOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid super type: " 
-                        + desc.getSuperType(), 
+                        + attributeType.getSupOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
-            if ( desc.getSyntax() != null && ! dao.hasSyntax( desc.getSyntax() ) )
+            if ( attributeType.getSyntax() != null && ! dao.hasSyntax( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an invalid syntax: " + desc.getSyntax(), 
+                    "Cannot permit the addition of an attributeType with an invalid syntax: " + 
+                    attributeType.getSyntaxOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
             // if the matchingRule is provided make sure it exists in some schema
-            if ( desc.getEqualityMatchingRule() != null && ! dao.hasMatchingRule( desc.getEqualityMatchingRule() ) )
+            if ( attributeType.getEqualityOid() != null && ! dao.hasMatchingRule( attributeType.getEqualityOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid EQUALITY matchingRule: " 
-                        + desc.getEqualityMatchingRule(), 
+                        + attributeType.getEqualityOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( desc.getOrderingMatchingRule() != null && ! dao.hasMatchingRule( desc.getOrderingMatchingRule() ) )
+            if ( attributeType.getOrderingOid() != null && ! dao.hasMatchingRule( attributeType.getOrderingOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid ORDERING matchingRule: " 
-                        + desc.getOrderingMatchingRule(), 
+                        + attributeType.getOrderingOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( desc.getSubstringsMatchingRule() != null && ! dao.hasMatchingRule( desc.getSubstringsMatchingRule() ) )
+            if ( attributeType.getSubstrOid() != null && ! dao.hasMatchingRule( attributeType.getSubstrOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid SUBSTRINGS matchingRule: " 
-                        + desc.getSubstringsMatchingRule(), 
+                        + attributeType.getSubstrOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the equality matching rule is null and no super type is specified then there is
             // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
             // without a matchingRule for search or for building indices not to mention lookups.
-            if ( desc.getEqualityMatchingRule() == null && desc.getSuperType() == null )
+            if ( attributeType.getEqualityOid() == null && attributeType.getSupOid() == null )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule " +
                     "\nand no super type from which to derive an EQUALITY matchingRule.", 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
-            else if ( desc.getEqualityMatchingRule() == null )
+            else if ( attributeType.getEqualityOid() == null )
             {
-                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( desc.getSuperType() );
+                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSupOid() );
+
                 if ( superType.getEquality() == null )
                 {
                     throw new LdapOperationNotSupportedException(
@@ -326,7 +324,7 @@ public class DescriptionParsers
             // must be provided from some ancestor in the attributeType hierarchy; without either
             // of these the description definitely cannot resolve a syntax and cannot be allowed.
             // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
-            if ( desc.getSyntax() == null && desc.getSuperType() == null )
+            if ( attributeType.getSyntax() == null && attributeType.getSupOid() == null )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an no syntax " +
@@ -335,20 +333,10 @@ public class DescriptionParsers
             }
             
 
-            AttributeType at = new AttributeType( desc.getNumericOid() );
-            at.setCanUserModify( desc.isUserModifiable() );
-            at.setCollective( desc.isCollective() );
-            at.setEqualityOid( desc.getEqualityMatchingRule() );
-            at.setOrderingOid( desc.getOrderingMatchingRule() );
-            at.setSingleValue( desc.isSingleValued() );
-            at.setSubstrOid( desc.getSubstringsMatchingRule() );
-            at.setSuperiorOid( desc.getSuperType() );
-            at.setSyntaxOid( desc.getSyntax() );
-            at.setUsage( desc.getUsage() );
-            
+            AttributeType at = new AttributeType( attributeType.getOid() );
             at.applyRegistries( globalRegistries );
             
-            setSchemaObjectProperties( desc, at );
+            setSchemaObjectProperties( attributeType, at );
 
             attributeTypes[pos++] = at;
         }
@@ -378,11 +366,11 @@ public class DescriptionParsers
         
         for ( Value<?> value:attr )
         {
-            ObjectClassDescription desc = null;
+            ObjectClass objectClass = null;
             
             try
             {
-                desc = objectClassParser.parseObjectClassDescription( value.getString() );
+                objectClass = objectClassParser.parseObjectClassDescription( value.getString() );
             }
             catch ( ParseException e )
             {
@@ -394,9 +382,9 @@ public class DescriptionParsers
             }
             
             // if the super objectClasses are provided make sure it exists in some schema
-            if ( desc.getSuperiorObjectClasses() != null && desc.getSuperiorObjectClasses().size() > 0 )
+            if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() > 0 )
             {
-                for ( String superior : desc.getSuperiorObjectClasses() )
+                for ( String superior : objectClass.getSuperiorOids() )
                 {
                     if ( superior.equals( SchemaConstants.TOP_OC_OID ) || 
                         superior.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
@@ -415,9 +403,9 @@ public class DescriptionParsers
             }
             
             // if the may list is provided make sure attributes exists in some schema
-            if ( desc.getMayAttributeTypes() != null && desc.getMayAttributeTypes().size() > 0 )
+            if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() > 0 )
             {
-                for ( String mayAttr : desc.getMayAttributeTypes() )
+                for ( String mayAttr : objectClass.getMayAttributeTypeOids() )
                 {
                     if ( ! dao.hasAttributeType( mayAttr ) )
                     {
@@ -430,9 +418,9 @@ public class DescriptionParsers
             }
             
             // if the must list is provided make sure attributes exists in some schema
-            if ( desc.getMustAttributeTypes() != null && desc.getMustAttributeTypes().size() > 0 )
+            if ( objectClass.getMustAttributeTypeOids() != null && objectClass.getMustAttributeTypeOids().size() > 0 )
             {
-                for ( String mustAttr : desc.getMustAttributeTypes() )
+                for ( String mustAttr : objectClass.getMustAttributeTypeOids() )
                 {
                     if ( ! dao.hasAttributeType( mustAttr ) )
                     {
@@ -444,12 +432,8 @@ public class DescriptionParsers
                 }
             }
             
-            ObjectClassImpl oc = new ObjectClassImpl( desc.getNumericOid(), globalRegistries );
-            oc.setMayListOids( desc.getMayAttributeTypes().toArray( EMPTY) );
-            oc.setMustListOids( desc.getMustAttributeTypes().toArray( EMPTY ) );
-            oc.setSuperClassOids( desc.getSuperiorObjectClasses().toArray( EMPTY ) );
-            oc.setType( desc.getKind() );
-            setSchemaObjectProperties( desc, oc );
+            ObjectClass oc = new ObjectClass( objectClass.getOid() );
+            oc.applyRegistries( globalRegistries );
             
             objectClasses[pos++] = oc;
         }

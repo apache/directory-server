@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +69,8 @@ public class SchemaEntityFactory
     /** Used for looking up the setSyntaxOid(String) method */
     private final static Class<?>[] setOidParameterTypes = new Class[] { String.class };
     
-    private static final String[] EMPTY = new String[0];
+    private static final List<String> EMPTY_LIST = new ArrayList<String>();
+    private static final String[] EMPTY_ARRAY = new String[] {};
     
     /** Used for dependency injection of Registries via setter into schema objects */
     private final Registries bootstrapRegistries;
@@ -93,7 +93,7 @@ public class SchemaEntityFactory
     {
         String name;
         String owner;
-        String[] dependencies = EMPTY;
+        String[] dependencies = EMPTY_ARRAY;
         boolean isDisabled = false;
         
         if ( entry == null )
@@ -133,7 +133,7 @@ public class SchemaEntityFactory
                 depsSet.add( value.getString() );
             }
 
-            dependencies = depsSet.toArray( EMPTY );
+            dependencies = depsSet.toArray( EMPTY_ARRAY );
         }
         
         return new AbstractSchema( name, owner, dependencies, isDisabled ){};
@@ -576,26 +576,24 @@ public class SchemaEntityFactory
         MatchingRule mr = new MatchingRule( oid );
         mr.setSyntaxOid( syntaxOid );
         mr.setSchemaName( schema );
-        mr.setRegistries(  targetRegistries );
+        mr.applyRegistries( targetRegistries );
         setSchemaObjectProperties( mr, entry );
         return mr;
     }
     
     
-    private String[] getStrings( EntryAttribute attr ) throws NamingException
+    private List<String> getStrings( EntryAttribute attr ) throws NamingException
     {
         if ( attr == null )
         {
-            return EMPTY;
+            return EMPTY_LIST;
         }
         
-        String[] strings = new String[attr.size()];
-        
-        int pos = 0;
+        List<String> strings = new ArrayList<String>( attr.size() );
         
         for ( Value<?> value:attr )
         {
-            strings[pos++] = value.getString();
+            strings.add( value.getString() );
         }
         
         return strings;
@@ -605,22 +603,23 @@ public class SchemaEntityFactory
     public ObjectClass getObjectClass( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
-        ObjectClassImpl oc = new ObjectClassImpl( oid, targetRegistries );
-        oc.setSchema( schema );
+        ObjectClass oc = new ObjectClass( oid );
+        oc.applyRegistries( targetRegistries );
+        oc.setSchemaName( schema );
         
         if ( entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) != null )
         {
-            oc.setSuperClassOids( getStrings( entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) ) );
+            oc.setSuperiorOids( getStrings( entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_MAY_AT ) != null )
         {
-            oc.setMayListOids( getStrings( entry.get( MetaSchemaConstants.M_MAY_AT ) ) );
+            oc.setMayAttributeTypeOids( getStrings( entry.get( MetaSchemaConstants.M_MAY_AT ) ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_MUST_AT ) != null )
         {
-            oc.setMustListOids( getStrings( entry.get( MetaSchemaConstants.M_MUST_AT ) ) );
+            oc.setMustAttributeTypeOids( getStrings( entry.get( MetaSchemaConstants.M_MUST_AT ) ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT ) != null )
