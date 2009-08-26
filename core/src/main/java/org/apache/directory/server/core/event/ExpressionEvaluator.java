@@ -71,7 +71,7 @@ public class ExpressionEvaluator implements Evaluator
     public ExpressionEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
     {
         SubstringEvaluator substringEvaluator = null;
-        substringEvaluator = new SubstringEvaluator( oidRegistry, attributeTypeRegistry );
+        substringEvaluator = new SubstringEvaluator( attributeTypeRegistry );
         leafEvaluator = new LeafEvaluator( attributeTypeRegistry, substringEvaluator );
     }
 

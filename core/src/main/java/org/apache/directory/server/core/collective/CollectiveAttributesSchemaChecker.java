@@ -113,7 +113,7 @@ public class CollectiveAttributesSchemaChecker
 
             if ( attrType == null )
             {
-                if ( !attrTypeRegistry.hasAttributeType( attr.getUpId() ) )
+                if ( !attrTypeRegistry.contains( attr.getUpId() ) )
                 {
                     throw new LdapInvalidAttributeIdentifierException();
                 }
