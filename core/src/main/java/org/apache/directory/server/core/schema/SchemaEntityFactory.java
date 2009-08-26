@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.DefaultSchema;
 import org.apache.directory.shared.ldap.util.Base64;
 
 
@@ -136,7 +137,7 @@ public class SchemaEntityFactory
             dependencies = depsSet.toArray( EMPTY_ARRAY );
         }
         
-        return new AbstractSchema( name, owner, dependencies, isDisabled ){};
+        return new DefaultSchema( name, owner, dependencies, isDisabled ){};
     }
     
     
