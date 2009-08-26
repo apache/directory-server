@@ -23,10 +23,10 @@ package org.apache.directory.server.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -49,7 +49,7 @@ public class ApacheNormalizerProducer extends AbstractBootstrapProducer
     // ------------------------------------------------------------------------
 
     /**
-     * @see org.apache.directory.server.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.server.schema.registries.Registries, org.apache.directory.server.schema.bootstrap.ProducerCallback)
+     * @see org.apache.directory.server.schema.bootstrap.BootstrapProducer#produce(org.apache.directory.shared.ldap.schema.registries.Registries, org.apache.directory.server.schema.bootstrap.ProducerCallback)
      */
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {

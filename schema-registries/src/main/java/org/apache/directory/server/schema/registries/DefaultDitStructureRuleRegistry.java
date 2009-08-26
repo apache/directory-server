@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.registries.DITStructureRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

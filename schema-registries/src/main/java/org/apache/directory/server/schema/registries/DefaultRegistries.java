@@ -43,6 +43,8 @@ import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistr
 import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
@@ -266,7 +268,7 @@ public class DefaultRegistries implements Registries
 
         try
         {
-            if ( mr.getComparator() == null )
+            if ( mr.getLdapComparator() == null )
             {
                 String schema = matchingRuleRegistry.getSchemaName( mr.getOid() );
                 errors.add( new NullPointerException( "matchingRule " + mr.getName() + " in schema " + schema

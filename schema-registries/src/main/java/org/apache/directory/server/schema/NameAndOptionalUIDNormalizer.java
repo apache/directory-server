@@ -20,13 +20,13 @@
 package org.apache.directory.server.schema;
 
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingException;
@@ -38,7 +38,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameAndOptionalUIDNormalizer implements Normalizer
+public class NameAndOptionalUIDNormalizer extends Normalizer
 {
     // The serial UID
     private static final long serialVersionUID = 1L;

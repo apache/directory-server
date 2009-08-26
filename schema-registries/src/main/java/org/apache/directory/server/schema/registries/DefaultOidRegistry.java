@@ -33,6 +33,7 @@ import javax.naming.directory.NoSuchAttributeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.directory.shared.asn1.primitives.OID;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

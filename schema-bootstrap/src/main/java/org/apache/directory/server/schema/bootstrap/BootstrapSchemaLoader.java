@@ -42,7 +42,6 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.Bo
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapSyntax;
 import org.apache.directory.server.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -58,6 +57,7 @@ import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 import org.slf4j.Logger;

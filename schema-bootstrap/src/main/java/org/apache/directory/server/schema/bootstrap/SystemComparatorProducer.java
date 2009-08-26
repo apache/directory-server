@@ -28,7 +28,6 @@ import org.apache.directory.server.schema.DnComparator;
 import org.apache.directory.server.schema.NameAndOptionalUIDComparator;
 import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
@@ -40,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.comparators.TelephoneNumberCompar
 import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**

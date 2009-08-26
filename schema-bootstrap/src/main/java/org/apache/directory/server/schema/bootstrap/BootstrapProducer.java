@@ -23,7 +23,7 @@ package org.apache.directory.server.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**

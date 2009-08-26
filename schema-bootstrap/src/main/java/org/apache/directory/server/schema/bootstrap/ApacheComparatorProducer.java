@@ -27,12 +27,12 @@ import javax.naming.NamingException;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.comparators.CsnComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.CsnSidComparator;
 import org.apache.directory.shared.ldap.schema.comparators.UUIDComparator;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.LongComparator;
 
 

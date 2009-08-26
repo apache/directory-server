@@ -28,7 +28,6 @@ import jdbm.helper.StringComparator;
 
 import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
@@ -40,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormal
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ObjectIdentifierNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -292,7 +292,7 @@ public class ApachemetaMatchingRuleProducer extends AbstractBootstrapProducer
         public static final LdapComparator<?> COMPARATOR = new ApachemetaComparatorProducer.ObjectClassTypeComparator(); 
         public static final Normalizer NORMALIZER = new NoOpNormalizer();
         public static final LdapSyntax SYNTAX = new ApachemetaSyntaxProducer.ObjectClassTypeSyntax();
-        public static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.1";
+        public static final String OID = SchemaConstants.OBJECT_CLASS_TYPE_MATCH_OID;
         
         private static final String[] NAMES = new String[] { "objectClassTypeMatch" };
         

@@ -25,8 +25,8 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 

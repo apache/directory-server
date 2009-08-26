@@ -22,9 +22,9 @@ package org.apache.directory.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.CsnSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.JavaByteSyntaxChecker;

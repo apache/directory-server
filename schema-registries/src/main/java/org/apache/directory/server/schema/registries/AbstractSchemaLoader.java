@@ -27,6 +27,7 @@ import java.util.Stack;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

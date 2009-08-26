@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
 import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AbstractSchemaObject;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 

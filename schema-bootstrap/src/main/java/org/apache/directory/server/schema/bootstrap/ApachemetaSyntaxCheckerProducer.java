@@ -22,8 +22,8 @@ package org.apache.directory.server.schema.bootstrap;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.NumberSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.ObjectClassTypeSyntaxChecker;

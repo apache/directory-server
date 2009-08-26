@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**

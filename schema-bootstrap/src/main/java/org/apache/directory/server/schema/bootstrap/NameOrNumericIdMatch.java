@@ -23,14 +23,14 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 /**
  * Document me!

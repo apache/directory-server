@@ -28,10 +28,10 @@ import javax.naming.NamingException;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
-import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.comparators.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
