@@ -25,10 +25,15 @@ import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.apache.directory.server.schema.bootstrap.*;
-import org.apache.directory.server.schema.registries.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -64,7 +69,7 @@ public class JdbmMasterTableTest
     {
         // setup the standard registries
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

@@ -32,7 +32,7 @@ import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.*;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

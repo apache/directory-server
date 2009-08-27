@@ -40,6 +40,14 @@ import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.Bo
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapObjectClass;
 import org.apache.directory.server.schema.bootstrap.AbstractBootstrapProducer.BootstrapldapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
@@ -51,7 +59,6 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,7 +235,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 normalizerRegistry = registries.getNormalizerRegistry();
                 
                 NormalizerDescription normalizerDescription = new NormalizerDescription();
-                normalizerDescription.setNumericOid( id );
+                normalizerDescription.changeOid( id );
                 normalizerDescription.setFqcn( normalizer.getClass().getName() );
                 normalizerDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
                 

@@ -25,11 +25,20 @@ import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.schema.bootstrap.*;
-import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -89,7 +98,7 @@ public class JdbmStoreTest
     {
         // setup the standard registries
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

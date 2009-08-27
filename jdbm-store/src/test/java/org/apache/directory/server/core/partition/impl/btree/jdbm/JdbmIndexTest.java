@@ -30,9 +30,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.schema.bootstrap.*;
-import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -66,7 +70,7 @@ public class JdbmIndexTest
     public void setup() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

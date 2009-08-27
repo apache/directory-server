@@ -27,13 +27,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITContentRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DITStructureRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleUseRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NameFormRegistry;
+import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoaderListener;
+import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.registries.*;
 
 
 /**
@@ -174,7 +188,7 @@ public class DefaultRegistries extends Registries
             resolve( mr, errors );
         }
 
-        list = syntaxRegistry.iterator();
+        list = ldapSyntaxRegistry.iterator();
         while ( list.hasNext() )
         {
             LdapSyntax syntax = ( LdapSyntax ) list.next();
@@ -484,7 +498,7 @@ public class DefaultRegistries extends Registries
         disableSchema( objectClassRegistry, schemaName );
         disableSchema( attributeTypeRegistry, schemaName );
         disableSchema( matchingRuleRegistry, schemaName );
-        disableSchema( syntaxRegistry, schemaName );
+        disableSchema( ldapSyntaxRegistry, schemaName );
 
         normalizerRegistry.unregisterSchemaElements( schemaName );
         comparatorRegistry.unregisterSchemaElements( schemaName );
@@ -493,7 +507,7 @@ public class DefaultRegistries extends Registries
     }
 
 
-    private void disableSchema( SchemaObjectRegistry registry, String schemaName ) throws Exception
+    private void disableSchema( SchemaObjectRegistry<?> registry, String schemaName ) throws Exception
     {
         Iterator<? extends SchemaObject> objects = registry.iterator();
         List<String> unregistered = new ArrayList<String>();
