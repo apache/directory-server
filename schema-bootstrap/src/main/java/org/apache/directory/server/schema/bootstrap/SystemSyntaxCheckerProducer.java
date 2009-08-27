@@ -132,7 +132,7 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          */
         cb.schemaObjectProduced( this, SchemaConstants.ACI_ITEM_SYNTAX, new ACIItemSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.ACCESS_POINT_SYNTAX, new AccessPointSyntaxChecker() );
-        cb.schemaObjectProduced( this, SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX, new AttributeTypeDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, SchemaConstants.ATTRIBUTE_TYPE_DESCRIPTION_SYNTAX, new AttributeTypeDescriptionSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.AUDIO_SYNTAX, new AudioSyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.BINARY_SYNTAX, new BinarySyntaxChecker() );
         cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_SYNTAX, new BitStringSyntaxChecker() );

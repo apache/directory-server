@@ -154,7 +154,7 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         ldapSyntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, ldapSyntax.getOid(), ldapSyntax );
 
-        ldapSyntax = new LdapSyntax( SchemaConstants.ATTRIBUT_TYPE_DESCRIPTION_SYNTAX );
+        ldapSyntax = new LdapSyntax( SchemaConstants.ATTRIBUTE_TYPE_DESCRIPTION_SYNTAX );
         // ); //,syntaxCheckerRegistry );
         ldapSyntax.addName( "Attribute Type Description" );
         ldapSyntax.setHumanReadable( true );
