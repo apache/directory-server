@@ -50,7 +50,6 @@ import org.apache.directory.server.schema.bootstrap.CosineSchema;
 import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -112,7 +111,7 @@ public class DefaultServerAttributeTest
     public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
+        oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         
         // load essential bootstrap schemas 

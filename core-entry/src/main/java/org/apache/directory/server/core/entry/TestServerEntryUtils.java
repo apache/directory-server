@@ -19,16 +19,11 @@
  */
 package org.apache.directory.server.core.entry;
 
-import java.util.Comparator;
-
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
-import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
-import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -50,77 +45,13 @@ public class TestServerEntryUtils
     /**
      * A local Syntax class for tests
      */
-    static class AT extends AbstractAttributeType
+    static class AT extends AttributeType
     {
         private static final long serialVersionUID = 0L;
-        AttributeType superior;
-        LdapSyntax syntax;
-        MatchingRule equality;
-        MatchingRule ordering;
-        MatchingRule substr;
 
         protected AT( String oid )
         {
             super( oid );
-        }
-
-        public AttributeType getSuperior() throws NamingException
-        {
-            return superior;
-        }
-
-
-        public LdapSyntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-
-        public MatchingRule getEquality() throws NamingException
-        {
-            return equality;
-        }
-
-
-        public MatchingRule getOrdering() throws NamingException
-        {
-            return ordering;
-        }
-
-
-        public MatchingRule getSubstr() throws NamingException
-        {
-            return substr;
-        }
-
-
-        public void setSuperior( AttributeType superior )
-        {
-            this.superior = superior;
-        }
-
-
-        public void setSyntax( LdapSyntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setEquality( MatchingRule equality )
-        {
-            this.equality = equality;
-        }
-
-
-        public void setOrdering( MatchingRule ordering )
-        {
-            this.ordering = ordering;
-        }
-
-
-        public void setSubstr( MatchingRule substr )
-        {
-            this.substr = substr;
         }
     }
 
@@ -133,50 +64,13 @@ public class TestServerEntryUtils
     /**
      * A local MatchingRule class for tests
      */
-    static class MR extends AbstractMatchingRule
+    static class MR extends MatchingRule
     {
         private static final long serialVersionUID = 0L;
-        LdapSyntax syntax;
-        LdapComparator<? super Object> ldapComparator;
-        Normalizer normalizer;
 
         protected MR( String oid )
         {
             super( oid );
-        }
-
-        public LdapSyntax getSyntax() throws NamingException
-        {
-            return syntax;
-        }
-
-        public LdapComparator<? super Object> getLdapComparator() throws NamingException
-        {
-            return ldapComparator;
-        }
-
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return normalizer;
-        }
-
-
-        public void setSyntax( LdapSyntax syntax )
-        {
-            this.syntax = syntax;
-        }
-
-
-        public void setComparator( Comparator<? super Object> comparator )
-        {
-            this.ldapComparator = comparator;
-        }
-
-
-        public void setNormalizer( Normalizer normalizer )
-        {
-            this.normalizer = normalizer;
         }
     }
 
@@ -195,30 +89,22 @@ public class TestServerEntryUtils
     static class S extends LdapSyntax
     {
         private static final long serialVersionUID = 0L;
-        SyntaxChecker checker;
 
         public S( String oid, boolean humanReadible )
         {
             super( oid, "", humanReadible );
         }
-
-        public void setSyntaxChecker( SyntaxChecker checker )
-        {
-            this.checker = checker;
-        }
-
-        public SyntaxChecker getSyntaxChecker() throws NamingException
-        {
-            return checker;
-        }
     }
 
     /* no protection*/ static AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
-        S s = new S( "1.1.1.1", true );
+        AttributeType attributeType = new AttributeType( "1.1.3.1" );
+        LdapSyntax syntax = new LdapSyntax( "1.1.1.1", "", true );
 
-        s.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
+        syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
         {
+            private static final long serialVersionUID = 0L;
+
             public boolean isValidSyntax( Object value )
             {
                 if ( !( value instanceof String ) )
@@ -238,11 +124,15 @@ public class TestServerEntryUtils
                 return true;
             }
         } );
+        
+        MatchingRule matchingRule = new MatchingRule( "1.1.2.1" );
+        matchingRule.setSyntax( syntax );
 
-        final MR mr = new MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.ldapComparator = new LdapComparator<String>()
+
+        matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
+            private static final long serialVersionUID = 0L;
+
             public int compare( String o1, String o2 )
             {
                 return ( o1 == null ? 
@@ -267,12 +157,11 @@ public class TestServerEntryUtils
                 
                 throw new IllegalArgumentException( "Not a valid value" );
             }
-        };
+        } );
         
-        mr.normalizer = new Normalizer( "1.1.1" )
+        Normalizer normalizer = new Normalizer( "1.1.1" )
         {
-            // The serial UID
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 0L;
 
             public Value<?> normalize( Value<?> value ) throws NamingException
             {
@@ -291,66 +180,76 @@ public class TestServerEntryUtils
             }
         };
         
-        AttributeType at = new AttributeType( "1.1.3.1" );
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
+        matchingRule.setNormalizer( normalizer );
+        
+        attributeType.setEquality( matchingRule );
+        attributeType.setSyntax( syntax );
+        
+        return attributeType;
     }
 
 
     /* no protection*/ static AttributeType getIA5StringAttributeType()
     {
-        AT at = new AT( "1.1" );
+        AttributeType attributeType = new AttributeType( "1.1" );
+        LdapSyntax syntax = new LdapSyntax( "1.1.1", "", true );
 
-        S s = new S( "1.1.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker( "1.1.2" )
+        syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2" )
         {
+            private static final long serialVersionUID = 0L;
+
             public boolean isValidSyntax( Object value )
             {
                 return ((String)value == null) || (((String)value).length() < 7) ;
             }
         } );
+        
+        MatchingRule matchingRule = new MatchingRule( "1.1.2" );
+        matchingRule.setSyntax( syntax );
 
-        final MR mr = new MR( "1.1.2" );
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
+
+        matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
+            private static final long serialVersionUID = 0L;
+
             public int compare( String o1, String o2 )
             {
                 return ( ( o1 == null ) ? 
                     ( o2 == null ? 0 : -1 ) :
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
-        };
+        } );
         
-        mr.normalizer = new DeepTrimToLowerNormalizer( mr.getOid());
+        matchingRule.setNormalizer( new DeepTrimToLowerNormalizer( matchingRule.getOid() ) );
         
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
+        attributeType.setEquality( matchingRule );
+        attributeType.setSyntax( syntax );
+        
+        return attributeType;
     }
 
 
     /* No protection */ static AttributeType getBytesAttributeType()
     {
-        AT at = new AT( "1.2" );
+        AttributeType attributeType = new AttributeType( "1.2" );
+        LdapSyntax syntax = new LdapSyntax( "1.2.1", "", true );
 
-        S s = new S( "1.2.1", true );
-
-        s.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
+        syntax.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
         {
+            private static final long serialVersionUID = 0L;
+
             public boolean isValidSyntax( Object value )
             {
                 return ( value == null ) || ( ((byte[])value).length < 5 );
             }
         } );
 
-        final MR mr = new MR( "1.2.2" );
-        mr.syntax = s;
-        mr.setComparator( new ByteArrayComparator() );
+        MatchingRule matchingRule = new MatchingRule( "1.2.2" );
+        matchingRule.setSyntax( syntax );
+
+        matchingRule.setLdapComparator( new ByteArrayComparator() );
         
-        mr.normalizer = new Normalizer( "1.1.1" )
+        matchingRule.setNormalizer( new Normalizer( "1.1.1" )
         {
             // The serial UID
             private static final long serialVersionUID = 1L;
@@ -381,10 +280,11 @@ public class TestServerEntryUtils
             {
                 throw new IllegalStateException( "expected byte[] to normalize" );
             }
-        };
+        } );
         
-        at.setEquality( mr );
-        at.setSyntax( s );
-        return at;
+        attributeType.setEquality( matchingRule );
+        attributeType.setSyntax( syntax );
+
+        return attributeType;
     }
 }

@@ -32,11 +32,12 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
@@ -50,8 +51,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import jdbm.helper.StringComparator;
 
 
 /**
@@ -83,9 +82,9 @@ public class ServerStringValueTest
         s = new TestServerEntryUtils.S( "1.1.1.1", false );
         s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
-        mr.syntax = s;
-        mr.comparator = new StringComparator();
-        mr.normalizer = new DeepTrimToLowerNormalizer( "1.1.2.1" );
+        mr.setSyntax( s );
+        mr.setLdapComparator( new StringComparator() );
+        mr.setNormalizer( new DeepTrimToLowerNormalizer( "1.1.2.1" ) );
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
@@ -444,6 +443,8 @@ public class ServerStringValueTest
     @Test public void testConstrainedString()
     {
         s.setSyntaxChecker( new SyntaxChecker( "1.1.1.1" ) {
+            private static final long serialVersionUID = 0L;
+
             public boolean isValidSyntax( Object value )
             {
                 if ( value instanceof String )
@@ -455,9 +456,11 @@ public class ServerStringValueTest
             }
         });
 
-        mr.syntax = s;
-        mr.comparator = new Comparator<String>()
+        mr.setSyntax( s );
+        mr.setLdapComparator( new LdapComparator<String>( mr.getOid() )
         {
+            private static final long serialVersionUID = 0L;
+
             public int compare( String o1, String o2 )
             {
                 if ( o1 == null )
@@ -493,8 +496,9 @@ public class ServerStringValueTest
                 if ( val.equals( "HIGH" ) ) { return 2; }
                 throw new IllegalArgumentException( "Not a valid value" );
             }
-        };
-        mr.normalizer = new NoOpNormalizer( mr.getOid() );
+        } );
+        
+        mr.setNormalizer( new NoOpNormalizer( mr.getOid() ) );
         at.setEquality( mr );
         at.setSyntax( s );
 
