@@ -35,9 +35,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSche
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescription;
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
@@ -1514,25 +1513,26 @@ public class SubschemaSubentryIT
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "objectClasses" );
-        ObjectClassDescription objectClassDescription = null; 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        ObjectClass objectClass = null; 
+        for ( int i = 0; i < attrTypes.size(); i++ )
         {
-            String desc = ( String ) attrTypes.get( ii );
+            String desc = ( String ) attrTypes.get( i );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
-                objectClassDescription = objectClassDescriptionSchemaParser.parseObjectClassDescription( desc );
+                objectClass = objectClassDescriptionSchemaParser.parseObjectClassDescription( desc );
                 break;
             }
         }
      
         if ( isPresent )
         {
-            assertNotNull( objectClassDescription );
-            assertEquals( oid, objectClassDescription.getNumericOid() );
+            assertNotNull( objectClass );
+            assertEquals( oid, objectClass.getOid() );
         }
         else
         {
-            assertNull( objectClassDescription );
+            assertNull( objectClass );
         }
 
         // -------------------------------------------------------------------

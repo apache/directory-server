@@ -70,7 +70,7 @@ public class ServerEntrySerializerTest
     public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
+        oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         
         // load essential bootstrap schemas 

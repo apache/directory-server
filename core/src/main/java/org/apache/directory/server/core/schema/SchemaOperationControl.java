@@ -68,7 +68,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.parsers.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -219,7 +219,6 @@ public class SchemaOperationControl
         this.subentryModifier = new SchemaSubentryModifier( registries, dao );
         this.parsers = new DescriptionParsers( registries, dao );
         
-        OidRegistry oidRegistry = registries.getOidRegistry();
         AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
 
         String comparatorsOid = atRegistry.getOid( SchemaConstants.COMPARATORS_AT );
@@ -648,11 +647,11 @@ public class SchemaOperationControl
     }
 
     
-    public String getSchema( AbstractSchemaDescription desc ) 
+    public String getSchema( SchemaObject schemaObject ) 
     {
-        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
+        if ( schemaObject.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
         {
-            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            return schemaObject.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
         return MetaSchemaConstants.SCHEMA_OTHER;
