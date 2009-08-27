@@ -17,15 +17,12 @@
  *  under the License. 
  *  
  */
-
-
 package org.apache.directory.server.schema.loader.ldif;
 
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 
@@ -38,7 +35,7 @@ import org.apache.directory.shared.ldap.entry.Value;
  */
 public class AttributeClassLoader extends ClassLoader
 {
-    public ServerAttribute attribute;
+    public EntryAttribute attribute;
     
 
     public AttributeClassLoader()
@@ -49,12 +46,12 @@ public class AttributeClassLoader extends ClassLoader
     
     public void setAttribute( EntryAttribute attribute ) throws NamingException
     {
-        if ( ((ServerAttribute)attribute).getAttributeType().getSyntax().isHumanReadable() )
+        if ( attribute.isHR() )
         {
             throw new InvalidAttributeValueException( "The attribute must be binary" );
         }
         
-        this.attribute = (ServerAttribute)attribute;
+        this.attribute = attribute;
     }
 
     
