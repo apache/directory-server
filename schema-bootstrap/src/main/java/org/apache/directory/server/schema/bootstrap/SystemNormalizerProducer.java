@@ -167,7 +167,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * ( 2.5.13.1 NAME 'distinguishedNameMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
          */
-        normalizer = new CachingDnNormalizer();
+        normalizer = new CachingDnNormalizer( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         ( ( CachingDnNormalizer ) normalizer ).setRegistries( registries );
         cb.schemaObjectProduced( this, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID, normalizer );
 
@@ -175,77 +175,77 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * ( 2.5.13.2 NAME 'caseIgnoreMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.3 NAME 'caseIgnoreOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.4 NAME 'caseIgnoreSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_SUBSTRING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.5 NAME 'caseExactMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.CASE_EXACT_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_MATCH_MR_OID, normalizer );
         
         /*
          * ( 2.5.13.6 NAME 'caseExactOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.7 NAME 'caseExactSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_SUBSTRING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.8 NAME 'numericStringMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.NUMERIC_STRING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.9 NAME 'numericStringOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.36 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.10 NAME 'numericStringSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.NUMERIC_STRING_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.11 NAME 'caseIgnoreListMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.41 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.12 NAME 'caseIgnoreListSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_LIST_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
@@ -259,63 +259,63 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * ( 2.5.13.14 NAME 'integerMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.INTEGER_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.15 NAME 'integerOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.16 NAME 'bitStringMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.6 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.BIT_STRING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.BIT_STRING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.17 NAME 'octetStringMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.OCTET_STRING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.18 NAME 'octetStringOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.19 NAME 'octetStringSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.OCTET_STRING_SUBSTRINGS_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.OCTET_STRING_SUBSTRINGS_MATCH_MR_OID, normalizer );
         
         /*
          * ( 2.5.13.20 NAME 'telephoneNumberMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.50 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.21 NAME 'telephoneNumberSubstringsMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.TELEPHONE_NUMBER_SUBSTRINGS_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.22 NAME 'presentationAddressMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.43 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.PRESENTATION_ADDRESS_MATCH_MATCH_MR_OID, normalizer );
 
         /*
@@ -331,7 +331,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * 
          * This MatchingRule has been removed from RFC 4517
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.PROTOCOL_INFORMATION_MATCH_MATCH_MR_OID, normalizer );
 
         // 2.5.13.25 is not defined ...
@@ -342,63 +342,63 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * ( 2.5.13.27 NAME 'generalizedTimeMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.GENERALIZED_TIME_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.28 NAME 'generalizedTimeOrderingMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.GENERALIZED_TIME_ORDERING_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.GENERALIZED_TIME_ORDERING_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.29 NAME 'integerFirstComponentMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.INTEGER_FIRST_COMPONENT_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.INTEGER_FIRST_COMPONENT_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.30 NAME 'objectIdentifierFirstComponentMatch'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.OBJECT_IDENTIFIER_FIRST_COMPONENT_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.31 NAME 'directoryStringFirstComponentMatch'
          *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.DIRECTORY_STRING_FIRST_COMPONENT_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.32 NAME 'wordMatch'
          *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.WORD_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.WORD_MATCH_MR_OID, normalizer );
 
         /*
          * ( 2.5.13.33 NAME 'keywordMatch'
          *   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
          */
-        normalizer = new NoOpNormalizer();
+        normalizer = new NoOpNormalizer( SchemaConstants.KEYWORD_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.KEYWORD_MATCH_MR_OID, normalizer );
 
         /*
          * ( 1.3.6.1.4.1.1466.109.114.1 NAME 'caseExactIA5Match'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new CachingDeepTrimNormalizer( SchemaConstants.CASE_EXACT_IA5_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_EXACT_IA5_MATCH_MR_OID, normalizer );
 
         /*
          * ( 1.3.6.1.4.1.1466.109.114.2 NAME 'caseIgnoreIA5Match'
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
          */
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_IA5_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_IA5_MATCH_MR_OID, normalizer );
 
         /*
@@ -406,7 +406,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          * SYNTAX 1.3.6.1.4.1.1466.115.121.1.58 )
          */
 
-        normalizer = new CachingDeepTrimToLowerNormalizer();
+        normalizer = new CachingDeepTrimToLowerNormalizer( SchemaConstants.CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID );
         cb.schemaObjectProduced( this, SchemaConstants.CASE_IGNORE_IA5_SUBSTRINGS_MATCH_MR_OID, normalizer );
     }
 }

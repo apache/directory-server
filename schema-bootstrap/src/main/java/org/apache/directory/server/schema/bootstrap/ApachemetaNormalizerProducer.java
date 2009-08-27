@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.NameOrNumericIdNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 
@@ -58,7 +59,7 @@ public class ApachemetaNormalizerProducer extends AbstractBootstrapProducer
     {
         Normalizer normalizer = null;
         
-        normalizer = new NameOrNumericIdNormalizer( registries.getOidRegistry() );
+        normalizer = new NameOrNumericIdNormalizer( registries );
         cb.schemaObjectProduced( this, SchemaConstants.NAME_OR_NUMERIC_ID_MATCH_OID, normalizer );
 
         normalizer = new NoOpNormalizer( SchemaConstants.OBJECT_CLASS_TYPE_MATCH_OID );
