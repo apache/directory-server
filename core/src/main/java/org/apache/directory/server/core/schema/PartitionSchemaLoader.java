@@ -304,12 +304,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    public Schema getSchema( String schemaName, Properties schemaProperties ) throws Exception
-    {
-        return getSchema( schemaName );
-    }
-
-
     public final void loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries ) throws Exception
     {
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();

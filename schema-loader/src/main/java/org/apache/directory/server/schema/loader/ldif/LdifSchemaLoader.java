@@ -120,6 +120,11 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
             LdifEntry entry = reader.next();
             Schema schema = ldifToSchema( entry );
             schemaMap.put( schema.getSchemaName(), schema );
+            
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Schema Initialized ... \n{}", schema );
+            }
         }
     }
 
@@ -153,13 +158,7 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
 
     public Schema getSchema( String schemaName ) throws Exception
     {
-        return null;
-    }
-
-
-    public Schema getSchema( String schemaName, Properties schemaProperties ) throws Exception
-    {
-        return null;
+        return this.schemaMap.get( schemaName );
     }
 
 
