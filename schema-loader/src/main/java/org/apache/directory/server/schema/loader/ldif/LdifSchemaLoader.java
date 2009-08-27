@@ -89,6 +89,11 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
                     "path '" + baseDirectory.getAbsolutePath() + "' but no such file found." );
         }
 
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Using '{}' as the base schema load directory.", baseDirectory );
+        }
+        
         initializeSchemas();
     }
 
@@ -101,6 +106,11 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
      */
     private void initializeSchemas() throws Exception
     {
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Initializing schema" );
+        }
+        
         File schemaDirectory = new File( baseDirectory, "schema" );
         String[] ldifFiles = schemaDirectory.list( ldifFilter );
 
