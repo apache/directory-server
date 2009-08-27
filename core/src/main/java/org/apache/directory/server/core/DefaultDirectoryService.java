@@ -76,6 +76,7 @@ import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
+import org.apache.directory.server.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -320,45 +321,8 @@ public class DefaultDirectoryService implements DirectoryService
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
-        
-        // --------------------------------------------------------------------
-        // Load the bootstrap schemas to start up the schema partition
-        // --------------------------------------------------------------------
-
-        // setup temporary loader and temp registry 
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new OidRegistry();
-        registries = new Registries( "bootstrap", loader, oidRegistry );
-
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        
-        try
-        {
-            loader.loadWithDependencies( bootstrapSchemas, registries );
-        }
-        catch ( Exception e )
-        {
-            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
-        }
-
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
-        
-        if ( !errors.isEmpty() )
-        {
-            NamingException e = new NamingException();
-            e.setRootCause( errors.get( 0 ) );
-            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
-        }
-        
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-        
         csnFactory = new CsnFactory( replicaId );
+        registries = new Registries( new OidRegistry() );
     }
 
 
@@ -1502,9 +1466,38 @@ public class DefaultDirectoryService implements DirectoryService
         }
         
         // --------------------------------------------------------------------
+        // Load schemas into the schema registry from LDIF schema repository
+        // --------------------------------------------------------------------
+
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaDirectory );
+        
+        try
+        {
+            loader.loadAllEnabled( registries );
+        }
+        catch ( Exception e )
+        {
+            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
+        }
+
+        // run referential integrity tests
+        List<Throwable> errors = registries.checkRefInteg();
+        
+        if ( !errors.isEmpty() )
+        {
+            NamingException e = new NamingException();
+            e.setRootCause( errors.get( 0 ) );
+            throw new IllegalStateException( ILLEGAL_STATE_MSG, e );
+        }
+        
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        
+        // --------------------------------------------------------------------
         // Initialize schema partition
         // --------------------------------------------------------------------
 
+        
+        
         JdbmPartition schemaPartition = new JdbmPartition();
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );

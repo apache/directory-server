@@ -116,13 +116,6 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
     /** directory containing the schema LDIF file for ou=schema */
     private final File baseDirectory;
     
-    /** 
-     * A map of all available schema names to schema objects. This map is 
-     * populated when this class is created with all the schemas present in
-     * the LDIF based schema repository.
-     */
-    private final Map<String,Schema> schemaMap = new HashMap<String,Schema>();
-    
     /** a filter for listing all the LDIF files within a directory */
     private final FilenameFilter ldifFilter = new FilenameFilter()
     {
