@@ -20,8 +20,17 @@
 package org.apache.directory.server.schema.loader.ldif;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DITContentRule;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
@@ -58,14 +67,38 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
     /** Speedup for DEBUG mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** name of directory containing LdapComparators */
+    /** name of directory containing ldapComparators */
     private static final String COMPARATORS_DIRNAME = "comparators";
     
-    /** name of directory containing SyntaxCheckers */
+    /** name of directory containing syntaxCheckers */
     private static final String SYNTAX_CHECKERS_DIRNAME = "syntaxCheckers";
 
-    /** name of the directory containing Normalizers */
+    /** name of the directory containing normalizers */
     private static final String NORMALIZERS_DIRNAME = "normalizers";
+
+    /** name of the directory containing syntaxes */
+    private static final String SYNTAXES_DIRNAME = "syntaxes";
+    
+    /** name of the directory containing attributeTypes */
+    private static final String ATTRIBUTE_TYPES_DIRNAME = "attributeTypes";
+    
+    /** name of the directory containing matchingRules */
+    private final static String MATCHING_RULES_DIRNAME = "matchingRules";
+
+    /** name of the directory containing objectClasses */
+    private static final String OBJECT_CLASSES_DIRNAME = "objectClasses";
+    
+    /** name of the directory containing ditStructureRules */
+    private static final String DIT_STRUCTURE_RULES_DIRNAME = "ditStructureRules";
+    
+    /** name of the directory containing ditContentRules */
+    private static final String DIT_CONTENT_RULES_DIRNAME = "ditContentRules";
+    
+    /** name of the directory containing nameForms */
+    private static final String NAME_FORMS_DIRNAME = "nameForms";
+    
+    /** name of the directory containing matchingRuleUses */
+    private static final String MATCHING_RULE_USES_DIRNAME = "matchingRuleUse";
 
     private final SchemaEntityFactory factory = new SchemaEntityFactory();
     private final File baseDirectory;
@@ -194,8 +227,16 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
         loadSyntaxCheckers( schema, registries );
         loadComparators( schema, registries );
         loadNormalizers( schema, registries );
+        loadSyntaxes( schema, registries );
+        loadMatchingRules( schema, registries );
+        loadAttributeTypes( schema, registries );
+        loadObjectClasses( schema, registries );
+        loadDitStructureRules( schema, registries );
+        loadDitContentRules( schema, registries );
+        loadNameForms( schema, registries );
+        loadMatchingRuleUses( schema, registries );
     }
-    
+
     
     private File getSchemaDirectory( Schema schema )
     {
@@ -248,6 +289,162 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
             Normalizer normalizer =
                 factory.getNormalizer( entry.getEntry(), targetRegistries );
             targetRegistries.getNormalizerRegistry().register( normalizer );
+        }
+    }
+    
+    
+    private void loadMatchingRules( Schema schema, Registries registries ) throws Exception
+    {
+        File matchingRulesDirectory = new File( getSchemaDirectory( schema ), 
+            MATCHING_RULES_DIRNAME );
+        File[] matchingRuleFiles = matchingRulesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : matchingRuleFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            MatchingRule matchingRule = factory.getMatchingRule( 
+                entry.getEntry(), registries, schema.getSchemaName() );
+            registries.getMatchingRuleRegistry().register( matchingRule );
+        }
+    }
+    
+    
+    private void loadSyntaxes( Schema schema, Registries registries ) throws Exception
+    {
+        File syntaxesDirectory = new File( getSchemaDirectory( schema ), 
+            SYNTAXES_DIRNAME );
+        File[] syntaxFiles = syntaxesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : syntaxFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            LdapSyntax syntax = factory.getSyntax( 
+                entry.getEntry(), registries, schema.getSchemaName() );
+            registries.getLdapSyntaxRegistry().register( syntax );
+        }
+    }
+
+    
+    private void loadAttributeTypes( Schema schema, Registries registries ) throws Exception
+    {
+        File attributeTypeDirectory = new File ( getSchemaDirectory( schema ), 
+            ATTRIBUTE_TYPES_DIRNAME );
+        File[] attributeTypeFiles = attributeTypeDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : attributeTypeFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            AttributeType attributeType = factory.getAttributeType( 
+                entry.getEntry(), registries, schema.getSchemaName() );
+            registries.getAttributeTypeRegistry().register( attributeType );
+        }
+    }
+
+
+    private void loadMatchingRuleUses( Schema schema, Registries registries ) throws Exception
+    {
+        File matchingRuleUsesDirectory = new File( getSchemaDirectory( schema ),
+            MATCHING_RULE_USES_DIRNAME );
+        File[] matchingRuleUseFiles = matchingRuleUsesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : matchingRuleUseFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            MatchingRuleUse matchingRuleUse = null;
+            
+            // TODO add factory method to generate the matchingRuleUse
+            if ( true )
+            {
+                throw new NotImplementedException( "Need to implement factory " +
+                		"method for creating a matchingRuleUse" );
+            }
+            
+            registries.getMatchingRuleUseRegistry().register( matchingRuleUse );
+        }
+    }
+
+
+    private void loadNameForms( Schema schema, Registries registries ) throws Exception
+    {
+        File nameFormsDirectory = new File( getSchemaDirectory( schema ),
+            NAME_FORMS_DIRNAME );
+        File[] nameFormFiles = nameFormsDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : nameFormFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            NameForm nameForm = null;
+
+            // TODO add factory method to generate the nameForm
+            if ( true )
+            {
+                throw new NotImplementedException( "Need to implement factory " +
+                        "method for creating a nameForm" );
+            }
+            
+            registries.getNameFormRegistry().register( nameForm );
+        }
+    }
+
+
+    private void loadDitContentRules( Schema schema, Registries registries ) throws Exception
+    {
+        File ditContentRulesDirectory = new File( getSchemaDirectory( schema ),
+            DIT_CONTENT_RULES_DIRNAME );
+        File[] ditContentRuleFiles = ditContentRulesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : ditContentRuleFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            DITContentRule ditContentRule = null;
+            
+            // TODO add factory method to generate the ditContentRule
+            if ( true )
+            {
+                throw new NotImplementedException( "Need to implement factory " +
+                        "method for creating a ditContentRule" );
+            }
+            
+            registries.getDitContentRuleRegistry().register( ditContentRule );
+        }
+    }
+
+
+    private void loadDitStructureRules( Schema schema, Registries registries ) throws Exception
+    {
+        File ditStructureRulesDirectory = new File( getSchemaDirectory( schema ),
+            DIT_STRUCTURE_RULES_DIRNAME );
+        File[] ditStructureRuleFiles = ditStructureRulesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : ditStructureRuleFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            DITStructureRule ditStructureRule = null;
+            
+            // TODO add factory method to generate the ditContentRule
+            if ( true )
+            {
+                throw new NotImplementedException( "Need to implement factory " +
+                        "method for creating a ditStructureRule" );
+            }
+            
+            registries.getDitStructureRuleRegistry().register( ditStructureRule );
+        }
+    }
+
+
+    private void loadObjectClasses( Schema schema, Registries registries ) throws Exception
+    {
+        File objectClassesDirectory = new File( getSchemaDirectory( schema ),
+            OBJECT_CLASSES_DIRNAME );
+        File[] objectClassFiles = objectClassesDirectory.listFiles( ldifFilter );
+        for ( File ldifFile : objectClassFiles )
+        {
+            LdifReader reader = new LdifReader( ldifFile );
+            LdifEntry entry = reader.next();
+            ObjectClass objectClass = factory.getObjectClass( 
+                entry.getEntry(), registries, schema.getSchemaName() );
+            registries.getObjectClassRegistry().register( objectClass );
         }
     }
 }
