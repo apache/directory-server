@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -336,7 +337,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             dao.enableSchema( schema.getSchemaName() );
         }
         
-        if ( targetRegistries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
+        if ( targetRegistries.isSchemaLoaded( schema.getSchemaName() ) )
         {
             LOG.debug( "schema {} already seems to be loaded", schema.getSchemaName() );
             return;
@@ -357,7 +358,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         // order does matter here so some special trickery is needed
         // we cannot load a DSR before the DSRs it depends on are loaded?
-        // TODO need ot confirm this ( or we must make the class for this and use deferred 
+        // TODO need to confirm this ( or we must make the class for this and use deferred 
         // resolution until everything is available?
         
         loadDitStructureRules( schema, targetRegistries );

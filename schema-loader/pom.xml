@@ -34,4 +34,12 @@
     Initial schema loader used during server bootstrapping to populate 
     registries.
   </description>
+  
+  <dependencies>
+    <dependency>
+      <artifactId>apacheds-core-constants</artifactId>
+      <groupId>${pom.groupId}</groupId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
 </project>

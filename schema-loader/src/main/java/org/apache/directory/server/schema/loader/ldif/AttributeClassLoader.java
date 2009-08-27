@@ -19,7 +19,7 @@
  */
 
 
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.schema.loader.ldif;
 
 
 import javax.naming.NamingException;

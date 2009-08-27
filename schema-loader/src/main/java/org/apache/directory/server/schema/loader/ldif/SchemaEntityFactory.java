@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.schema;
+package org.apache.directory.server.schema.loader.ldif;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,13 +29,12 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -73,24 +72,17 @@ public class SchemaEntityFactory
     private static final List<String> EMPTY_LIST = new ArrayList<String>();
     private static final String[] EMPTY_ARRAY = new String[] {};
     
-    /** Used for dependency injection of Registries via setter into schema objects */
-    private final Registries bootstrapRegistries;
     /** A special ClassLoader that loads a class from the bytecode attribute */
     private final AttributeClassLoader classLoader;
-    private final AttributeType oidAT;
-    private final AttributeType byteCodeAT;
     
     
-    public SchemaEntityFactory( Registries bootstrapRegistries ) throws NamingException
+    public SchemaEntityFactory() throws NamingException
     {
-        this.bootstrapRegistries = bootstrapRegistries;
         this.classLoader = new AttributeClassLoader();
-        this.oidAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
-        this.byteCodeAT = bootstrapRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
     }
 
     
-    public Schema getSchema( ServerEntry entry ) throws NamingException
+    public Schema getSchema( Entry entry ) throws NamingException
     {
         String name;
         String owner;
@@ -201,7 +193,7 @@ public class SchemaEntityFactory
      * @return the loaded SyntaxChecker
      * @throws NamingException if anything fails during loading
      */
-    public SyntaxChecker getSyntaxChecker( ServerEntry entry, Registries targetRegistries ) throws NamingException
+    public SyntaxChecker getSyntaxChecker( Entry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -215,22 +207,21 @@ public class SchemaEntityFactory
         }
 
         String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
-        String syntaxOid = entry.get( oidAT ).get().getString();
-        return getSyntaxChecker( syntaxOid, className, entry.get( byteCodeAT ), 
-            targetRegistries );
+        String syntaxOid = entry.get( MetaSchemaConstants.M_OID_AT ).get().getString();
+        return getSyntaxChecker( syntaxOid, className, entry.get( 
+            MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
     
     public SyntaxChecker getSyntaxChecker( SyntaxCheckerDescription syntaxCheckerDescription, 
         Registries targetRegistries ) throws NamingException
     {
-        ServerAttribute attr = null;
+        EntryAttribute attr = null;
         
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
             byte[] bytecode = Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() );
-            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
-            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
+            attr = new DefaultClientAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
         }
         
         return getSyntaxChecker( syntaxCheckerDescription.getOid(), 
@@ -302,13 +293,12 @@ public class SchemaEntityFactory
     public LdapComparator<?> getLdapComparator( LdapComparatorDescription comparatorDescription, Registries targetRegistries ) 
         throws NamingException
     {
-        ServerAttribute attr = null;
+        EntryAttribute attr = null;
         
         if ( comparatorDescription.getBytecode() != null )
         { 
             byte[] bytecode = Base64.decode( comparatorDescription.getBytecode().toCharArray() );
-            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
-            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
+            attr = new DefaultClientAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
         }
         
         return getLdapComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
@@ -322,7 +312,7 @@ public class SchemaEntityFactory
      * @return the loaded Comparator
      * @throws NamingException if anything fails during loading
      */
-    public LdapComparator<?> getLdapComparator( ServerEntry entry, Registries targetRegistries ) throws NamingException
+    public LdapComparator<?> getLdapComparator( Entry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -395,13 +385,12 @@ public class SchemaEntityFactory
     public Normalizer getNormalizer( NormalizerDescription normalizerDescription, Registries targetRegistries )
         throws NamingException
     {
-        ServerAttribute attr = null;
+        EntryAttribute attr = null;
         
         if ( normalizerDescription.getBytecode() != null )
         {
             byte[] bytecode = Base64.decode( normalizerDescription.getBytecode().toCharArray() );
-            AttributeType byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
-            attr = new DefaultServerAttribute( byteCodeAT, bytecode );
+            attr = new DefaultClientAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
         }
         
         return getNormalizer( normalizerDescription.getFqcn(), attr, targetRegistries );
@@ -415,7 +404,7 @@ public class SchemaEntityFactory
      * @return the loaded Normalizer
      * @throws NamingException if anything fails during loading
      */
-    public Normalizer getNormalizer( ServerEntry entry, Registries targetRegistries ) throws NamingException
+    public Normalizer getNormalizer( Entry entry, Registries targetRegistries ) throws NamingException
     {
         if ( entry == null )
         {
@@ -453,7 +442,7 @@ public class SchemaEntityFactory
                 return;
             }
             
-            Object[] args = new Object[] { this.bootstrapRegistries };
+            Object[] args = new Object[] { targetRegistries };
             method.invoke( obj, args );
         }
         catch ( SecurityException e )
@@ -549,7 +538,7 @@ public class SchemaEntityFactory
     }
 
 
-    public LdapSyntax getSyntax( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
+    public LdapSyntax getSyntax( Entry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         LdapSyntax syntax = new LdapSyntax( oid );
@@ -570,7 +559,7 @@ public class SchemaEntityFactory
     }
 
     
-    public MatchingRule getMatchingRule( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
+    public MatchingRule getMatchingRule( Entry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         String syntaxOid = entry.get( MetaSchemaConstants.M_SYNTAX_AT ).getString();
@@ -601,7 +590,7 @@ public class SchemaEntityFactory
     }
     
     
-    public ObjectClass getObjectClass( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
+    public ObjectClass getObjectClass( Entry entry, Registries targetRegistries, String schema ) throws Exception
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         ObjectClass oc = new ObjectClass( oid );
@@ -639,7 +628,7 @@ public class SchemaEntityFactory
     }
     
     
-    public AttributeType getAttributeType( ServerEntry entry, Registries targetRegistries, String schema ) throws NamingException
+    public AttributeType getAttributeType( Entry entry, Registries targetRegistries, String schema ) throws NamingException
     {
         String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
         AttributeType at = new AttributeType( oid );
@@ -700,7 +689,7 @@ public class SchemaEntityFactory
     }
     
 
-    private void setSchemaObjectProperties( SchemaObject so, ServerEntry entry ) throws NamingException
+    private void setSchemaObjectProperties( SchemaObject so, Entry entry ) throws NamingException
     {
         if ( entry.get( MetaSchemaConstants.M_OBSOLETE_AT ) != null )
         {
