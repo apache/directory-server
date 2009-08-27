@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.io.File;
 import java.io.IOException;
 
@@ -201,18 +200,9 @@ public class JdbmIndex<K,O> implements Index<K,O>
     {
         SerializableComparator<K> comp;
 
-        try
-        {
-            MatchingRule mr = attribute.getEquality();
-            
-            comp = new SerializableComparator<K>( mr.getOid() );
-        }
-        catch ( NamingException e )
-        {
-            IOException ioe = new IOException( "Failed to find an equality matching rule for attribute type" );
-            ioe.initCause( e );
-            throw ioe;
-        }
+        MatchingRule mr = attribute.getEquality();
+        
+        comp = new SerializableComparator<K>( mr.getOid() );
 
         /*
          * The forward key/value map stores attribute values to master table 
