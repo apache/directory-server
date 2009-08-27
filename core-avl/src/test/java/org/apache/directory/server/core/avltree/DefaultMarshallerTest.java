@@ -22,7 +22,9 @@ package org.apache.directory.server.core.avltree;
 
 import org.junit.Test;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.Serializable;
 

@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.comparators.NameOrNumericIdComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NameOrNumericIdNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -39,122 +40,40 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NameOrNumericIdMatch implements MatchingRule
+public class NameOrNumericIdMatch extends MatchingRule
 {
-    private static final long serialVersionUID = 1L;
+    public static final long serialVersionUID = 1L;
     
-    private final static String[] NAMES = new String[] { SchemaConstants.NAME_OR_NUMERIC_ID_MATCH }; 
     private final static String OID = SchemaConstants.NAME_OR_NUMERIC_ID_MATCH_OID;
-    private transient Normalizer normalizer;
-    private transient LdapComparator<?> comparator;
-    private transient LdapSyntax syntax;
-    private final String schema;
+    private final static String DESCRIPTION = "A name or numeric id matchingRule";
     
     
-    public NameOrNumericIdMatch( String schema )
+    public NameOrNumericIdMatch( String schemaName )
     {
-        this.syntax = new ApachemetaSyntaxProducer.NameOrNumericIdSyntax();
-        this.schema = schema;
+        super( OID );
+        addName( SchemaConstants.NAME_OR_NUMERIC_ID_MATCH )
+        setLdapSyntax( new ApachemetaSyntaxProducer.NameOrNumericIdSyntax() );
+        this.schemaName = schemaName;
+        this.description = DESCRIPTION;
     }
 
     
-    public NameOrNumericIdMatch( OidRegistry registry, String schema )
+    public NameOrNumericIdMatch( Registries registries, String schemaName )
     {
-        this.normalizer = new NameOrNumericIdNormalizer( registry );
-        this.comparator = new NameOrNumericIdComparator( registry );
-        this.syntax = new ApachemetaSyntaxProducer.NameOrNumericIdSyntax();
-        this.schema = schema;
+        super( OID );
+        addName( SchemaConstants.NAME_OR_NUMERIC_ID_MATCH );
+        setNormalizer( new NameOrNumericIdNormalizer() );
+        setLdapComparator( new NameOrNumericIdComparator( registries ) );
+        setLdapSyntax( new ApachemetaSyntaxProducer.NameOrNumericIdSyntax() );
+        this.schemaName = schemaName;
+        this.description = DESCRIPTION;
     }
     
 
     public void setRegistries( Registries registries )
     {
-        this.normalizer = new NameOrNumericIdNormalizer( registries.getOidRegistry() );
-        this.comparator = new NameOrNumericIdComparator( registries.getOidRegistry() );
-        this.syntax = new ApachemetaSyntaxProducer.NameOrNumericIdSyntax();
-    }
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.MatchingRule#getComparator()
-     */
-    public LdapComparator<?> getComparator() throws NamingException
-    {
-        return comparator;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.MatchingRule#getNormalizer()
-     */
-    public Normalizer getNormalizer() throws NamingException
-    {
-        return normalizer;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.MatchingRule#getSyntax()
-     */
-    public LdapSyntax getSyntax() throws NamingException
-    {
-        return syntax;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getDescription()
-     */
-    public String getDescription()
-    {
-        return "A name or numeric id matchingRule";
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getName()
-     */
-    public String getName()
-    {
-        return NAMES[0];
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getNamesRef()
-     */
-    public String[] getNamesRef()
-    {
-        return NAMES;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#getOid()
-     */
-    public String getOid()
-    {
-        return OID;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.shared.ldap.schema.SchemaObject#isObsolete()
-     */
-    public boolean isObsolete()
-    {
-        return false;
-    }
-
-
-    public String getSchema()
-    {
-        return schema;
-    }
-
-
-    public void setSchema( String schemaName )
-    {
-        throw new NotImplementedException();
+        setNormalizer( new NameOrNumericIdNormalizer( registries) );
+        setLdapComparator( new NameOrNumericIdComparator( registries ) );
+        setLdapSyntax( new ApachemetaSyntaxProducer.NameOrNumericIdSyntax() );
     }
 }

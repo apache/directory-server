@@ -21,7 +21,8 @@
 package org.apache.directory.server.core.security;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
@@ -70,7 +71,7 @@ public class TlsKeyGeneratorTest
     public static void setup() throws Exception
     {
         loader = new BootstrapSchemaLoader();
-        oidRegistry = new DefaultOidRegistry();
+        oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         
         // load essential bootstrap schemas 
