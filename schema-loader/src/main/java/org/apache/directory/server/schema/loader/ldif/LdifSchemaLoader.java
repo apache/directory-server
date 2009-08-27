@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileFilter;
 import java.io.FilenameFilter;
 
 
@@ -54,7 +53,7 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private final File baseDirectory;
-    private final Set<Schema> schemas = new HashSet<Schema>();
+    private final Map<String,Schema> schemaMap = new HashMap<String,Schema>();
     private final FilenameFilter ldifFilter = new FilenameFilter()
     {
         @Override
@@ -110,7 +109,8 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
         {
             LdifReader reader = new LdifReader( new File( schemaDirectory, ldifFiles[ii] ) );
             LdifEntry entry = reader.next();
-            schemas.add( ldifToSchema( entry ) );
+            Schema schema = ldifToSchema( entry );
+            schemaMap.put( schema.getSchemaName(), schema );
         }
     }
 
