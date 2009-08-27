@@ -34,7 +34,6 @@ import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -597,7 +596,7 @@ public class SchemaCheckerTest extends TestCase
 //    }
 
 
-    class MockOidRegistry implements OidRegistry
+    class MockOidRegistry extends OidRegistry
     {
         public String getOid( String name ) throws NamingException
         {

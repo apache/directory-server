@@ -33,7 +33,6 @@ import org.apache.directory.server.schema.bootstrap.CollectiveSchema;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -588,7 +587,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getComparator() );
+        assertNotNull( evaluator.getLdapComparator() );
 
         indexEntry.setId( 1L );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -634,7 +633,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getComparator() );
+        assertNotNull( evaluator.getLdapComparator() );
 
         LdapDN dn = new LdapDN( "cn=jane doe,o=good times co." );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -663,7 +662,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getComparator() );
+        assertNotNull( evaluator.getLdapComparator() );
 
         indexEntry.setId( 1L );
         assertFalse( evaluator.evaluate( indexEntry ) );
@@ -681,7 +680,7 @@ public class LessEqTest
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
-        assertNotNull( evaluator.getComparator() );
+        assertNotNull( evaluator.getLdapComparator() );
 
         indexEntry.setId( 1L );
         assertTrue( evaluator.evaluate( indexEntry ) );

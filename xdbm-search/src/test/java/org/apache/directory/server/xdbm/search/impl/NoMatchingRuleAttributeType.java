@@ -36,7 +36,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class NoMatchingRuleAttributeType implements AttributeType
+public class NoMatchingRuleAttributeType extends AttributeType
 {
     private static final long serialVersionUID = 1L;
 

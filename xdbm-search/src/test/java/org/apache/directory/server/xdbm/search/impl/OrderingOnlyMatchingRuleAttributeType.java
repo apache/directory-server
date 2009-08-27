@@ -37,7 +37,7 @@ import jdbm.helper.StringComparator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $$Rev$$
  */
-public class OrderingOnlyMatchingRuleAttributeType implements AttributeType
+public class OrderingOnlyMatchingRuleAttributeType extends AttributeType
 {
     private static final long serialVersionUID = 1L;
 
