@@ -67,7 +67,7 @@ public class SubtreeEvaluatorTest extends TestCase
     private void init() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         registries = bsRegistries;
         Set<Schema> schemas = new HashSet<Schema>();

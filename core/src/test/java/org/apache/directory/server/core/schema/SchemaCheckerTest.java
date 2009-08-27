@@ -73,7 +73,7 @@ public class SchemaCheckerTest extends TestCase
     protected void setUp() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+        registries = new DefaultRegistries( "bootstrap", loader, new OidRegistry() );
 
         Set<Schema> schemas = new HashSet<Schema>();
         schemas.add( new SystemSchema() );

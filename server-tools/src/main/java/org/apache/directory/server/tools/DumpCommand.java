@@ -83,7 +83,7 @@ import org.apache.directory.shared.ldap.util.Base64;
 public class DumpCommand extends ToolCommand
 {
     private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(),
-        new DefaultOidRegistry() );
+        new OidRegistry() );
     private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
 
@@ -102,7 +102,7 @@ public class DumpCommand extends ToolCommand
 
         // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         final Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
 
         // load essential bootstrap schemas 

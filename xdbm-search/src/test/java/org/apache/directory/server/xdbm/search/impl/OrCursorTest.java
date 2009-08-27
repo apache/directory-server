@@ -93,7 +93,7 @@ public class OrCursorTest
     {
         // setup the standard registries
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new DefaultOidRegistry();
+        OidRegistry oidRegistry = new OidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

@@ -35,6 +35,7 @@ import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class ExtraSchemaLoadTest
     @Before
     public void setUp() throws Exception
     {
-        registries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(), new DefaultOidRegistry() );
+        registries = new DefaultRegistries( "bootstrap", new BootstrapSchemaLoader(), new OidRegistry() );
     }
 
 

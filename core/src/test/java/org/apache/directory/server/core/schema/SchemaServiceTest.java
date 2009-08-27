@@ -34,6 +34,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +53,7 @@ public class SchemaServiceTest
     public void setUp() throws Exception
     {
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+        registries = new DefaultRegistries( "bootstrap", loader, new OidRegistry() );
         loader.load( new SystemSchema(), registries, false );
         loader.load( new ApacheSchema(), registries, false );
         loader.load( new CoreSchema(), registries, false );

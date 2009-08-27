@@ -79,7 +79,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class DefaultOidRegistry implements OidRegistry
 {
     /** static class logger */
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultOidRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( OidRegistry.class );
 
     /** Speedup for DEBUG mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();

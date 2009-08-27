@@ -63,6 +63,7 @@ import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
@@ -822,7 +823,7 @@ public class BootstrapPlugin extends AbstractMojo
         getLog().info( "" );
 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader( cl );
-        registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+        registries = new DefaultRegistries( "bootstrap", loader, new OidRegistry() );
 
         try
         {
