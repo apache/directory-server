@@ -56,7 +56,6 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
     private final Map<String,Schema> schemaMap = new HashMap<String,Schema>();
     private final FilenameFilter ldifFilter = new FilenameFilter()
     {
-        @Override
         public boolean accept( File file, String name )
         {
             return name.endsWith( "ldif" );
@@ -142,33 +141,28 @@ public class LdifSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    @Override
     public Schema getSchema( String schemaName ) throws Exception
     {
         return null;
     }
 
 
-    @Override
     public Schema getSchema( String schemaName, Properties schemaProperties ) throws Exception
     {
         return null;
     }
 
 
-    @Override
     public void loadWithDependencies( Collection<Schema> schemas, Registries registries ) throws Exception
     {
     }
 
 
-    @Override
     public void loadWithDependencies( Schema schemas, Registries registries ) throws Exception
     {
     }
 
 
-    @Override
     public void load( Schema schema, Registries registries, boolean isDepLoad ) throws Exception
     {
     }
