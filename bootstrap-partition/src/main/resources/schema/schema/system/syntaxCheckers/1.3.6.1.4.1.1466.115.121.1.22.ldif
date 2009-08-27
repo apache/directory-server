@@ -1,0 +1,11 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.22,ou=syntaxCheckers,cn=system,ou=schema
+entryuuid:: Bu+/ve+/vVo9Kkzvv70tDQjvv71r77+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022726Z
+objectclass: metaSyntaxChecker
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052726.661000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.1466.115.121.1.22
+m-fqcn: org.apache.directory.shared.ldap.schema.syntaxes.FacsimileTelephoneNumbe
+ rSyntaxChecker

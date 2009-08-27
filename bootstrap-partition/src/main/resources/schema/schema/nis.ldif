@@ -1,0 +1,12 @@
+dn: cn=nis,ou=schema
+entryuuid:: 77+977+9QO+/vRwmSAfvv73vv71ZKO+/vQ==
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022726Z
+m-disabled: TRUE
+cn: nis
+objectclass: metaSchema
+objectclass: top
+entrycsn: 20090818052726.062000Z#000000#000#000000
+m-dependencies: system
+m-dependencies: core
+m-dependencies: cosine

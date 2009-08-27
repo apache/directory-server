@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=collective,ou=schema
+entryuuid:: Qe+/vRjvv73vv73vv71HZ++/ve+/vQPvv73vv70pVO+/vQ==
+ou: attributetypes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.767000Z#000000#000#000000

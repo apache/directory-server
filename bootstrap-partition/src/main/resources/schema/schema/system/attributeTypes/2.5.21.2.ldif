@@ -1,0 +1,18 @@
+dn: m-oid=2.5.21.2,ou=attributeTypes,cn=system,ou=schema
+m-equality: objectIdentifierFirstComponentMatch
+m-usage: DIRECTORY_OPERATION
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+creatorsname: uid=admin,ou=system
+m-name: dITContentRules
+m-oid: 2.5.21.2
+m-singlevalue: FALSE
+m-description: RFC2252: DIT content rules
+entryuuid:: 77+9c3Tvv73vv73vv71D77+9wqgwDgNL77+9
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052731.542000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.16

@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.34,ou=attributeTypes,cn=apachemeta,ou=schema
+m-equality: booleanMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+creatorsname: uid=admin,ou=system
+m-name: x-humanReadable
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.34
+m-singlevalue: TRUE
+m-description: whether or not a syntax is human readable
+entryuuid:: 77+9SzoDKO+/vUMn77+977+9ck/vv70J77+9
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052731.470000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7

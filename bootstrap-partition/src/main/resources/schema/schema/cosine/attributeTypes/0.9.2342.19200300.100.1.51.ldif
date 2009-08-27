@@ -1,0 +1,17 @@
+dn: m-oid=0.9.2342.19200300.100.1.51,ou=attributeTypes,cn=cosine,ou=schema
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022732Z
+creatorsname: uid=admin,ou=system
+m-name: subtreeMinimumQuality
+m-oid: 0.9.2342.19200300.100.1.51
+m-singlevalue: TRUE
+m-description: RFC1274: Subtree Mininum Quality
+entryuuid:: 77+977+9AO+/ve+/vRBM77+977+9Se+/ve+/ve+/ve+/vRTvv70=
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052732.326000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.13

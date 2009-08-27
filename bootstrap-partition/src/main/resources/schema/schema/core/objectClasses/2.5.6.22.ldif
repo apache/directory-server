@@ -1,0 +1,18 @@
+dn: m-oid=2.5.6.22,ou=objectClasses,cn=core,ou=schema
+m-may: authorityRevocationList
+m-may: certificateRevocationList
+m-may: cACertificate
+m-may: crossCertificatePair
+entryuuid:: 77+9Tu+/ve+/vS/vv71PMO+/vU7vv70k77+977+9IHs=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: AUXILIARY
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: pkiCA
+entrycsn: 20090818052732.529000Z#000000#000#000000
+m-oid: 2.5.6.22
+m-supobjectclass: top
+m-description: RFC2587: PKI certificate authority

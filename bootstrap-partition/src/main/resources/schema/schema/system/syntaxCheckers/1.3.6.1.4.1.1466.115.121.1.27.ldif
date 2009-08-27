@@ -1,0 +1,10 @@
+dn: m-oid=1.3.6.1.4.1.1466.115.121.1.27,ou=syntaxCheckers,cn=system,ou=schema
+entryuuid:: AO+/vS9Q77+977+9Qm/vv71G77+9Ee+/vRvvv711
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022726Z
+objectclass: metaSyntaxChecker
+objectclass: metaTop
+objectclass: top
+entrycsn: 20090818052726.825000Z#000000#000#000000
+m-oid: 1.3.6.1.4.1.1466.115.121.1.27
+m-fqcn: org.apache.directory.shared.ldap.schema.syntaxes.IntegerSyntaxChecker

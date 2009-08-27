@@ -1,0 +1,6 @@
+dn: ou=attributeTypes,cn=nis,ou=schema
+entryuuid:: 77+977+977+977+9Uu+/vUYq77+977+977+9O++/vdyMSA==
+ou: attributetypes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.126000Z#000000#000#000000

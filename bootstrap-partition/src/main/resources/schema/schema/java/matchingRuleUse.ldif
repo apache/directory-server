@@ -1,0 +1,6 @@
+dn: ou=matchingRuleUse,cn=java,ou=schema
+entryuuid:: 77+977+9XB8177+9TO+/ve+/vda2ANSN77+977+9
+ou: matchingruleuse
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.421000Z#000000#000#000000

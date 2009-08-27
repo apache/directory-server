@@ -1,0 +1,6 @@
+dn: ou=matchingRules,cn=autofs,ou=schema
+entryuuid:: 77+977+9Nu+/vR/vv71NSe+/veyTle+/vQ==
+ou: matchingrules
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.477000Z#000000#000#000000

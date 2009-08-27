@@ -1,0 +1,6 @@
+dn: ou=ditStructureRules,cn=apachemeta,ou=schema
+entryuuid:: 77+9be+/vcuy77+9QC3vv73vv70dLFTvv71uWQ==
+ou: ditstructurerules
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.449000Z#000000#000#000000

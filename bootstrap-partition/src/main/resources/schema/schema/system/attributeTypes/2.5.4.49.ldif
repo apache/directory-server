@@ -1,0 +1,18 @@
+dn: m-oid=2.5.4.49,ou=attributeTypes,cn=system,ou=schema
+m-equality: distinguishedNameMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022729Z
+creatorsname: uid=admin,ou=system
+m-name: distinguishedName
+m-oid: 2.5.4.49
+m-singlevalue: FALSE
+m-description: RFC2256: common supertype of DN attributes
+entryuuid:: 77+9DUw2Tu+/vUVQ77+9aFnvv73vv71c77+9IQ==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052729.814000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.12

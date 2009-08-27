@@ -1,0 +1,10 @@
+dn: cn=cosine,ou=schema
+entryuuid:: 77+9EEnPve+/vU/vv73vv71CxYjvv70w77+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022725Z
+cn: cosine
+objectclass: metaSchema
+objectclass: top
+entrycsn: 20090818052725.513000Z#000000#000#000000
+m-dependencies: system
+m-dependencies: core

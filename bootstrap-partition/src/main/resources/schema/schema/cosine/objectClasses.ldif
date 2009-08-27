@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=cosine,ou=schema
+entryuuid:: Le+/ve+/ve+/vSVBRO+/ve+/vRlD77+977+9BD4=
+ou: objectclasses
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.558000Z#000000#000#000000

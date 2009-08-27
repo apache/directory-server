@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.250.1.57,ou=attributeTypes,cn=system,ou=schema
+m-equality: caseExactMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022729Z
+creatorsname: uid=admin,ou=system
+m-name: labeledURI
+m-oid: 1.3.6.1.4.1.250.1.57
+m-singlevalue: FALSE
+m-description: RFC2079: Uniform Resource Identifier with optional label
+entryuuid:: YCvvv70R77+977+9RRLvv70O77+977+9LFHvv73vv70=
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052729.760000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15

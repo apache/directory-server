@@ -1,0 +1,10 @@
+dn: cn=collective,ou=schema
+entryuuid:: 77+9H2dT77+9a0TVsu+/ve+/vQEN77+9
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022725Z
+cn: collective
+objectclass: metaSchema
+objectclass: top
+entrycsn: 20090818052725.698000Z#000000#000#000000
+m-dependencies: system
+m-dependencies: core

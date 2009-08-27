@@ -1,0 +1,6 @@
+dn: ou=nameForms,cn=apachemeta,ou=schema
+entryuuid:: 77+977+9Ze+/vVnvv71O1rDUsu+/vRJqSO+/vQ==
+ou: nameforms
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.447000Z#000000#000#000000

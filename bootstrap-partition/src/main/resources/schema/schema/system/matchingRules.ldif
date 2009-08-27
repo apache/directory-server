@@ -1,0 +1,6 @@
+dn: ou=matchingRules,cn=system,ou=schema
+entryuuid:: Tj7vv70XVe+/vUc477+977+9IGvvv73vv71o77+9
+ou: matchingrules
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.009000Z#000000#000#000000

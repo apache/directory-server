@@ -1,0 +1,19 @@
+dn: m-oid=2.5.4.51,ou=attributeTypes,cn=core,ou=schema
+m-equality: caseIgnoreMatch
+m-usage: USER_APPLICATIONS
+creatorsname: uid=admin,ou=system
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022729Z
+m-name: houseIdentifier
+m-oid: 2.5.4.51
+m-singlevalue: FALSE
+m-description: RFC2256: house identifier
+entryuuid:: 77+977+9d1zvv70TTu+/ve+/ve+/ve+/vUFNVMey
+m-collective: FALSE
+m-obsolete: FALSE
+m-substr: caseIgnoreSubstringsMatch
+m-nousermodification: FALSE
+entrycsn: 20090818052729.890000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15

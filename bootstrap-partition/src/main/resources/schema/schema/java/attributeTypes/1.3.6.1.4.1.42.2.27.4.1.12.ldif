@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.42.2.27.4.1.12,ou=attributeTypes,cn=java,ou=schema
+m-equality: caseExactIA5Match
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+creatorsname: uid=admin,ou=system
+m-name: javaDoc
+m-oid: 1.3.6.1.4.1.42.2.27.4.1.12
+m-singlevalue: FALSE
+m-description: The Java documentation for the class
+entryuuid:: Ce+/vSLvv73vv71OT++/ve+/ve+/ve+/vW7vv73vv70c
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052731.428000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.26

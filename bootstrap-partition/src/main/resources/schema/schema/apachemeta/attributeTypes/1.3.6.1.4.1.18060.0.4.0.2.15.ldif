@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.0.2.15,ou=attributeTypes,cn=apachemeta,ou=schema
+m-equality: booleanMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022730Z
+creatorsname: uid=admin,ou=system
+m-name: m-singleValue
+m-oid: 1.3.6.1.4.1.18060.0.4.0.2.15
+m-singlevalue: TRUE
+m-description: The attribute is single valued
+entryuuid:: 77+977+9Adee77+9QFjvv73vv70277+9Gu+/ve+/vWg=
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052730.445000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7

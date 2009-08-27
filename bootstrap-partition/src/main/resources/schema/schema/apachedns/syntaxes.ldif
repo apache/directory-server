@@ -1,0 +1,6 @@
+dn: ou=syntaxes,cn=apachedns,ou=schema
+entryuuid:: TxwzPO+/vRlGGu+/vUDvv73vv73Kg++/vQo=
+ou: syntaxes
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052725.362000Z#000000#000#000000

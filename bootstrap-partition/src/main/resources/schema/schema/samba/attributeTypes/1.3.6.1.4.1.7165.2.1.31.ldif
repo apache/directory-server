@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.7165.2.1.31,ou=attributeTypes,cn=samba,ou=schema
+m-equality: integerMatch
+m-usage: USER_APPLICATIONS
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022730Z
+creatorsname: uid=admin,ou=system
+m-name: sambaLogoffTime
+m-oid: 1.3.6.1.4.1.7165.2.1.31
+m-singlevalue: TRUE
+m-description: Timestamp of last logoff
+entryuuid:: y4sXD++/ve+/vUY277+9QGYz77+977+9c++/vQ==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: FALSE
+entrycsn: 20090818052730.227000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.27

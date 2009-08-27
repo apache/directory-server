@@ -1,0 +1,6 @@
+dn: ou=syntaxCheckers,cn=krb5kdc,ou=schema
+entryuuid:: 77+977+9Ve+/vSXvv71MJO+/ve+/vUIxdu+/ve+/ve+/vQ==
+ou: syntaxcheckers
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.185000Z#000000#000#000000

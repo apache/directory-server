@@ -1,0 +1,18 @@
+dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.48,ou=attributeTypes,cn=apache,ou=schema
+m-equality: exactDnAsStringMatch
+m-usage: DSA_OPERATION
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+createtimestamp: 20090818022731Z
+creatorsname: uid=admin,ou=system
+m-name: committer
+m-oid: 1.3.6.1.4.1.18060.0.4.1.2.48
+m-singlevalue: TRUE
+m-description: the principal committing the change
+entryuuid:: 77+977+9D++/vRMASn/vv73vv73vv71tb++/vQ==
+m-collective: FALSE
+m-obsolete: FALSE
+m-nousermodification: TRUE
+entrycsn: 20090818052731.537000Z#000000#000#000000
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.12

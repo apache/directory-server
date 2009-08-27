@@ -1,0 +1,6 @@
+dn: ou=objectClasses,cn=java,ou=schema
+entryuuid:: 77+9K1nvv71K77+9R3Lvv70paiVL77+9GlI=
+ou: objectclasses
+objectclass: organizationalUnit
+objectclass: top
+entrycsn: 20090818052726.409000Z#000000#000#000000

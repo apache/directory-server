@@ -1,0 +1,15 @@
+dn: m-oid=2.16.840.1.113730.3.2.6,ou=objectClasses,cn=system,ou=schema
+entryuuid:: 77+977+9Kxnvv73vv71NT++/vSYIRu+/vVPvv73vv70=
+creatorsname: uid=admin,ou=system
+createtimestamp: 20090818022732Z
+m-typeobjectclass: STRUCTURAL
+m-obsolete: FALSE
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-name: referral
+entrycsn: 20090818052732.551000Z#000000#000#000000
+m-oid: 2.16.840.1.113730.3.2.6
+m-must: ref
+m-supobjectclass: top
+m-description: namedref: named subordinate referral
