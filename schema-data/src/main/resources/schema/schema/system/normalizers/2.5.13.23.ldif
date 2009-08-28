@@ -7,4 +7,4 @@ objectclass: metaTop
 objectclass: top
 entrycsn: 20090818052727.714000Z#000000#000#000000
 m-oid: 2.5.13.23
-m-fqcn: org.apache.directory.server.schema.NameAndOptionalUIDNormalizer
+m-fqcn: org.apache.directory.shared.ldap.schema.normalizers.NameAndOptionalUIDNormalizer

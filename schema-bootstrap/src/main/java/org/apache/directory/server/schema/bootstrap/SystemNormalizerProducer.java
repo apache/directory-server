@@ -26,13 +26,13 @@ import java.lang.reflect.Method;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.DnNormalizer;
-import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.BooleanNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.CachingNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.shared.ldap.schema.normalizers.NameAndOptionalUIDNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ObjectIdentifierNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
