@@ -344,7 +344,6 @@
     <module>core-jndi</module>
     <module>core-constants</module>
     <module>core-shared</module>
-    <module>core-plugin</module>
     <module>core-unit</module>
     <module>core-integ</module>
     <module>core-entry</module>
