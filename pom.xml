@@ -333,8 +333,6 @@
   <modules>
     <module>all</module>
     <module>jdbm</module>
-    <module>schema-data</module>
-    <module>schema-loader</module>
     <module>utils</module>
     <module>jdbm-store</module>
     <module>xdbm-base</module>
