@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=system,ou=schema
-entryuuid:: ZnDvv73vv73vv71DB++/ve+/vXNGMEvvv73vv70=
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.031000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=matchingRules,cn=java,ou=schema
-entryuuid:: zqBEAu+/ve+/vUM+77+9HxDvv71a77+9
-ou: matchingrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.404000Z#000000#000#000000

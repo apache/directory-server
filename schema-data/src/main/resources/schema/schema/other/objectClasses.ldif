@@ -1,6 +1,0 @@
-dn: ou=objectClasses,cn=other,ou=schema
-entryuuid:: Yu+/vWt677+9Yknvv73vv70677+977+977+9aAl/
-ou: objectclasses
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.540000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=comparators,cn=samba,ou=schema
-entryuuid:: 77+9Wi3vv716DEVL77+90IHLp++/ve+/vQ==
-ou: comparators
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.461000Z#000000#000#000000

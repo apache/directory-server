@@ -1,6 +1,0 @@
-dn: ou=comparators,cn=cosine,ou=schema
-entryuuid:: 77+977+9Pu+/ve+/vU/vv73vv73vv71Y77+9fe+/ve+/ve+/vQ==
-ou: comparators
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.518000Z#000000#000#000000

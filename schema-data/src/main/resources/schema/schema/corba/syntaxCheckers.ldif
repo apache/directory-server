@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=corba,ou=schema
-entryuuid:: ZO+/vWvvv71h77+9S96r77+9AwUVHVLvv70=
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.928000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=attributeTypes,cn=autofs,ou=schema
-entryuuid:: 77+9RO+/vTVYOkHvv73vv73vv7071qhR77+977+9
-ou: attributetypes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.482000Z#000000#000#000000

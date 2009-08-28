@@ -1,6 +1,0 @@
-dn: ou=matchingRuleUse,cn=other,ou=schema
-entryuuid:: AHQr77+9Pj9I6pay77+9x7tL77+9ZA==
-ou: matchingruleuse
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.554000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=objectClasses,cn=samba,ou=schema
-entryuuid:: Yu+/vVTvv73vv70cRyPvv73fh++/ve+/vULvv70=
-ou: objectclasses
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.477000Z#000000#000#000000

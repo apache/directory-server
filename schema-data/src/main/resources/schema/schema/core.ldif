@@ -1,9 +1,0 @@
-dn: cn=core,ou=schema
-entryuuid:: 77+9cQUKOERMBu+/ve+/vSwQAe+/vQ==
-creatorsname: uid=admin,ou=system
-createtimestamp: 20090818022726Z
-cn: core
-objectclass: metaSchema
-objectclass: top
-entrycsn: 20090818052726.353000Z#000000#000#000000
-m-dependencies: system

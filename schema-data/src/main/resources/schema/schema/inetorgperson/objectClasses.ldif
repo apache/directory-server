@@ -1,6 +1,0 @@
-dn: ou=objectClasses,cn=inetorgperson,ou=schema
-entryuuid:: XW9LPV82RsuD77+9Se+/ve+/ve+/vVkr
-ou: objectclasses
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.654000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=syntaxes,cn=cosine,ou=schema
-entryuuid:: Wu+/ve+/vQHvv71PSyTvv71Y77+9IWog77+9JA==
-ou: syntaxes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.536000Z#000000#000#000000

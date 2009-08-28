@@ -1,6 +1,0 @@
-dn: ou=ditContentRules,cn=java,ou=schema
-entryuuid:: 77+977+9ChsnXU/vv73vv711yKY7ae+/vWM=
-ou: ditcontentrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.417000Z#000000#000#000000

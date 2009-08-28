@@ -1,6 +1,0 @@
-dn: ou=syntaxes,cn=apache,ou=schema
-entryuuid:: 77+9Vu+/vX8NDksM77+977+977+9WO+/ve+/vQPvv70=
-ou: syntaxes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.839000Z#000000#000#000000

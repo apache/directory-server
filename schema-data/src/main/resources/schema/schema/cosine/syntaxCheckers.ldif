@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=cosine,ou=schema
-entryuuid:: MkhF77+9FHhF77+977+9ee+/ve+/ve+/ve+/vQ==
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.531000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=normalizers,cn=apachedns,ou=schema
-entryuuid:: 77+9Ye+/ve+/ve+/vSRPeu+/ve+/vS7vv71vbO+/vUs=
-ou: normalizers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.355000Z#000000#000#000000

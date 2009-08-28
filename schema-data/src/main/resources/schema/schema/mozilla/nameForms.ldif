@@ -1,6 +1,0 @@
-dn: ou=nameForms,cn=mozilla,ou=schema
-entryuuid:: 77+93Kfvv70i77+9TXXvv73vv70IPHVo77+977+9
-ou: nameforms
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.434000Z#000000#000#000000

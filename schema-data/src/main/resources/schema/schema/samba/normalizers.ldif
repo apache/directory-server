@@ -1,6 +1,0 @@
-dn: ou=normalizers,cn=samba,ou=schema
-entryuuid:: yoHvv70n77+9RBDvv73vv73vv71Yce+/ve+/vVQ=
-ou: normalizers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.463000Z#000000#000#000000

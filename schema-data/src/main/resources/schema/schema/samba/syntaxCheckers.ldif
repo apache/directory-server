@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=samba,ou=schema
-entryuuid:: T2/vv73vv71ER++/ve+/ve+/ve+/vQRs1azvv70=
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.467000Z#000000#000#000000

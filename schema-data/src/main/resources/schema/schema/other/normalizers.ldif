@@ -1,6 +1,0 @@
-dn: ou=normalizers,cn=other,ou=schema
-entryuuid:: aH7vv73vv711O0Xvv73vv71/1rJiQ21j
-ou: normalizers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.518000Z#000000#000#000000

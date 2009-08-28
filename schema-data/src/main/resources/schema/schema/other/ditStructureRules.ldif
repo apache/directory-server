@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=other,ou=schema
-entryuuid:: 77+977+9cS5j77+9QCzvv73vv71O77+977+977+977+9
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.548000Z#000000#000#000000

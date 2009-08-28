@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=corba,ou=schema
-entryuuid:: 77+9bwZPQ1Xvv71oZO+/vQ7vv70SfQ==
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.967000Z#000000#000#000000

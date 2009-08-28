@@ -1,6 +1,0 @@
-dn: ou=matchingRuleUse,cn=apache,ou=schema
-entryuuid:: 77+9KdGjdF5J77+977+9e++/vUkaDwTvv70=
-ou: matchingruleuse
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.898000Z#000000#000#000000

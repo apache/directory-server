@@ -1,6 +1,0 @@
-dn: ou=ditContentRules,cn=dhcp,ou=schema
-entryuuid:: 77+92o7Pgu+/vUF977+9Ru+/ve+/vU3vv70/YQ==
-ou: ditcontentrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.347000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=matchingRules,cn=corba,ou=schema
-entryuuid:: 77+9Ju+/ve+/vUpd77+9ACXvv70F77+9
-ou: matchingrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.945000Z#000000#000#000000

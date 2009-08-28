@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=java,ou=schema
-entryuuid:: 77+9Zl0dczlA77+977+977+9Xk4ZAO+/ve+/vQ==
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.399000Z#000000#000#000000

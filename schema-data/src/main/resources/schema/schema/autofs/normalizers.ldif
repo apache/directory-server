@@ -1,6 +1,0 @@
-dn: ou=normalizers,cn=autofs,ou=schema
-entryuuid:: JGVGKSoPR++/ve+/vRjvv71D77+977+9N24=
-ou: normalizers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.463000Z#000000#000#000000
