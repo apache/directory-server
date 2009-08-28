@@ -7,5 +7,5 @@ objectclass: metaTop
 objectclass: top
 entrycsn: 20090818052727.668000Z#000000#000#000000
 m-oid: 2.5.13.28
-m-fqcn: org.apache.directory.server.schema.bootstrap.SystemNormalizerProducer$Ca
- chingDeepTrimNormalizer
+m-fqcn: org.apache.directory.shared.ldap.schema.normalizers.CachingDeepTrimNorma
+ lizer

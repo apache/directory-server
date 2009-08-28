@@ -7,5 +7,5 @@ objectclass: metaTop
 objectclass: top
 entrycsn: 20090818052728.349000Z#000000#000#000000
 m-oid: 2.5.13.5
-m-fqcn: org.apache.directory.server.schema.bootstrap.SystemComparatorProducer$De
- epTrimCachingNormalizingComparator
+m-fqcn: org.apache.directory.shared.ldap.schema.comparators.DeepTrimCachingNorma
+ lizingComparator
