@@ -44,7 +44,10 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
+import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -718,7 +721,11 @@ public class LessEqTest
     @Test ( expected = IllegalStateException.class )
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        AttributeType at = new NoMatchingRuleAttributeType();
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        at.addName( "bogus" );
+        at.setSchemaName( "other" );
+        at.setSyntax( new BogusSyntax() );
+        
         registries.getAttributeTypeRegistry().register( at );
 
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
@@ -731,7 +738,17 @@ public class LessEqTest
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
-        AttributeType at = new OrderingOnlyMatchingRuleAttributeType();
+        MatchingRule mr = new MatchingRule( "1.1" );
+        mr.setSyntax( new BogusSyntax() );
+        mr.setLdapComparator( new StringComparator() );
+        mr.setNormalizer( new NoOpNormalizer( "1.1" ) );
+        
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        at.addName( "bogus" );
+        at.setSchemaName( "other" );
+        at.setSyntax( new BogusSyntax() );
+        at.setOrdering( mr );
+
         registries.getAttributeTypeRegistry().register( at );
         registries.getLdapSyntaxRegistry().register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
@@ -741,7 +758,7 @@ public class LessEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
+        registries.getSyntaxCheckerRegistry().register( at.getSyntax().getSyntaxChecker() );
 
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new LessEqEvaluator( node, store, registries );

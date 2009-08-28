@@ -154,7 +154,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
              * If the element's value is smaller, then we delegate to the
              * before() method of the userIdxCursor.
              */
-            int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int compareValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
                  lessEqEvaluator.getExpression().getValue().get() );
 
             if ( compareValue > 0 )
@@ -186,7 +186,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         checkNotClosed( "afterValue()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getComparator().compare( value,
+            int comparedValue = lessEqEvaluator.getLdapComparator().compare( value,
                  lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -223,7 +223,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         checkNotClosed( "after()" );
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int comparedValue = lessEqEvaluator.getLdapComparator().compare( element.getValue(),
                  lessEqEvaluator.getExpression().getValue().get() );
 
             /*
@@ -353,7 +353,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V, ServerEntry>
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?,ServerEntry> candidate = userIdxCursor.get();
-                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
+                if ( lessEqEvaluator.getLdapComparator().compare( candidate.getValue(),
                      lessEqEvaluator.getExpression().getValue().get() ) <= 0 )
                 {
                     return available = true;

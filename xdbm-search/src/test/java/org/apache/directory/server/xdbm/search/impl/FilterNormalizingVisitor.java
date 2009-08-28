@@ -175,7 +175,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getAttributeTypeRegistry().getOid( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )
@@ -215,7 +215,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         try
         {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getAttributeTypeRegistry().getOid( node.getAttribute() ) );
             node.setValue( normalized );
             return node;
         }
@@ -293,7 +293,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         try
         {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getAttributeTypeRegistry().getOid( node.getAttribute() ) );
 
             if ( normInitial != null )
             {
@@ -338,7 +338,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registries.getOidRegistry().getOid( node.getAttribute() ) );
+            node.setAttribute( registries.getAttributeTypeRegistry().getOid( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )

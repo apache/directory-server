@@ -25,9 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
-import org.apache.directory.server.schema.registries.*;
-import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CollectiveSchema;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -37,7 +42,11 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.schema.*;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
+import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -47,7 +56,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Test;import static org.junit.Assert.assertTrue;import static org.junit.Assert.assertFalse;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -58,7 +69,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 
 
 /**
@@ -671,7 +681,11 @@ public class GreaterEqTest
     @Test ( expected = IllegalStateException.class )
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        AttributeType at = new NoMatchingRuleAttributeType();
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        at.addName( "bogus" );
+        at.setSchemaName( "other" );
+        at.setSyntax( new BogusSyntax() );
+        
         registries.getAttributeTypeRegistry().register( at );
         registries.getLdapSyntaxRegistry().register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
@@ -681,7 +695,7 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
+        registries.getSyntaxCheckerRegistry().register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );
@@ -692,7 +706,17 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
-        AttributeType at = new OrderingOnlyMatchingRuleAttributeType();
+        MatchingRule mr = new MatchingRule( "1.1" );
+        mr.setSyntax( new BogusSyntax() );
+        mr.setLdapComparator( new StringComparator() );
+        mr.setNormalizer( new NoOpNormalizer( "1.1" ) );
+        
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        at.addName( "bogus" );
+        at.setSchemaName( "other" );
+        at.setSyntax( new BogusSyntax() );
+        at.setOrdering( mr );
+            
         registries.getAttributeTypeRegistry().register( at );
         registries.getLdapSyntaxRegistry().register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
@@ -702,7 +726,7 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        registries.getSyntaxCheckerRegistry().register( desc, at.getSyntax().getSyntaxChecker() );
+        registries.getSyntaxCheckerRegistry().register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, registries );

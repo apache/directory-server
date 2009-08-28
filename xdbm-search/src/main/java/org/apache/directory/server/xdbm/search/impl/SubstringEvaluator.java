@@ -80,7 +80,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
         this.node = node;
         this.registries = registries;
 
-        String oid = registries.getOidRegistry().getOid( node.getAttribute() );
+        String oid = registries.getAttributeTypeRegistry().getOid( node.getAttribute() );
         type = registries.getAttributeTypeRegistry().lookup( oid );
 
         MatchingRule rule = type.getSubstr();
@@ -96,7 +96,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
         }
         else
         {
-            normalizer = new NoOpNormalizer();
+            normalizer = new NoOpNormalizer( type.getSyntaxOid() );
         }
         
         // compile the regular expression to search for a matching attribute
