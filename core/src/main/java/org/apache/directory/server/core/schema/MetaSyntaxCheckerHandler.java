@@ -218,7 +218,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
             syntaxCheckerRegistry.unregister( oldOid );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), entry );
-            syntaxCheckerDescription.changeOid( newOid );
+            syntaxCheckerDescription.setOid( newOid );
             syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }
@@ -261,7 +261,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         {
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( newSchema.getSchemaName(), entry );
-            syntaxCheckerDescription.changeOid( newOid );
+            syntaxCheckerDescription.setOid( newOid );
             syntaxCheckerRegistry.register( syntaxCheckerDescription, syntaxChecker );
         }
     }

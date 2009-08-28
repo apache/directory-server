@@ -207,7 +207,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
             normalizerRegistry.unregister( oldOid );
             
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), entry );
-            normalizerDescription.changeOid( oid );
+            normalizerDescription.setOid( oid );
             normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }
@@ -243,7 +243,7 @@ public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
         if ( ! newSchema.isDisabled() )
         {
             NormalizerDescription normalizerDescription = getNormalizerDescription( newSchema.getSchemaName(), entry );
-            normalizerDescription.changeOid( oid );
+            normalizerDescription.setOid( oid );
             normalizerRegistry.register( normalizerDescription, normalizer );
         }
     }

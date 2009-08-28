@@ -235,7 +235,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
                 normalizerRegistry = registries.getNormalizerRegistry();
                 
                 NormalizerDescription normalizerDescription = new NormalizerDescription();
-                normalizerDescription.changeOid( id );
+                normalizerDescription.setOid( id );
                 normalizerDescription.setFqcn( normalizer.getClass().getName() );
                 normalizerDescription.addExtension( MetaSchemaConstants.X_SCHEMA, values );
                 

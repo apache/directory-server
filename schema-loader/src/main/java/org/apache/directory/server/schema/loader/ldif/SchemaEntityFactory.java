@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.schema.loader.ldif;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,8 +34,6 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -66,9 +63,6 @@ public class SchemaEntityFactory
     /** Used for looking up the setRegistries(Registries) method */
     private final static Class<?>[] parameterTypes = new Class[] { Registries.class };
     
-    /** Used for looking up the setSyntaxOid(String) method */
-    private final static Class<?>[] setOidParameterTypes = new Class[] { String.class };
-    
     private static final List<String> EMPTY_LIST = new ArrayList<String>();
     private static final String[] EMPTY_ARRAY = new String[] {};
     
@@ -76,13 +70,13 @@ public class SchemaEntityFactory
     private final AttributeClassLoader classLoader;
     
     
-    public SchemaEntityFactory() throws NamingException
+    public SchemaEntityFactory() throws Exception
     {
         this.classLoader = new AttributeClassLoader();
     }
 
     
-    public Schema getSchema( Entry entry ) throws NamingException
+    public Schema getSchema( Entry entry ) throws Exception
     {
         String name;
         String owner;
@@ -133,55 +127,27 @@ public class SchemaEntityFactory
     }
     
     
-    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, EntryAttribute bytecode, Registries targetRegistries )
-        throws NamingException
+    private SyntaxChecker getSyntaxChecker( String syntaxOid, String className, 
+        EntryAttribute bytecode, Registries targetRegistries ) throws Exception
     {
         Class<?> clazz = null;
         SyntaxChecker syntaxChecker = null;
         
-        try
+        if ( bytecode == null )
         {
-            if ( bytecode == null )
-            {
-                clazz = Class.forName( className );
-            }
-            else
-            {
-                classLoader.setAttribute( bytecode );
-                clazz = classLoader.loadClass( className );
-            }
+            clazz = Class.forName( className );
         }
-        catch ( ClassNotFoundException e )
+        else
         {
-            LdapNamingException ne = new LdapNamingException( 
-                "Normalizer class "+ className + " was not found", ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
+            classLoader.setAttribute( bytecode );
+            clazz = classLoader.loadClass( className );
         }
         
-        try
-        {
-            syntaxChecker = ( SyntaxChecker ) clazz.newInstance();
-        }
-        catch ( InstantiationException e )
-        {
-            LdapNamingException ne = new LdapNamingException( "Failed to instantiate SyntaxChecker class "+ className 
-                + ".\nCheck that a default constructor exists for the class.", ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            LdapNamingException ne = new LdapNamingException( "Failed to instantiate SyntaxChecker class "+ className 
-                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class.", 
-                ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
-        }
+        syntaxChecker = ( SyntaxChecker ) clazz.newInstance();
 
         // try now before returning to check if we can inject a Registries object
+        syntaxChecker.setOid( syntaxOid );
         injectRegistries( syntaxChecker, targetRegistries );
-        injectOid( syntaxOid, syntaxChecker );
         return syntaxChecker;
     }
     
@@ -193,7 +159,7 @@ public class SchemaEntityFactory
      * @return the loaded SyntaxChecker
      * @throws NamingException if anything fails during loading
      */
-    public SyntaxChecker getSyntaxChecker( Entry entry, Registries targetRegistries ) throws NamingException
+    public SyntaxChecker getSyntaxChecker( Entry entry, Registries targetRegistries ) throws Exception
     {
         if ( entry == null )
         {
@@ -214,7 +180,7 @@ public class SchemaEntityFactory
     
     
     public SyntaxChecker getSyntaxChecker( SyntaxCheckerDescription syntaxCheckerDescription, 
-        Registries targetRegistries ) throws NamingException
+        Registries targetRegistries ) throws Exception
     {
         EntryAttribute attr = null;
         
@@ -229,69 +195,32 @@ public class SchemaEntityFactory
     }
     
     
-    private LdapComparator<?> getLdapComparator( String className, EntryAttribute bytecode, Registries targetRegistries ) 
-        throws NamingException
+    private LdapComparator<?> getLdapComparator( String oid, String className, 
+        EntryAttribute bytecode, Registries targetRegistries ) throws Exception
     {
         LdapComparator<?> comparator = null;
         Class<?> clazz = null;
         
         if ( bytecode == null ) 
         {
-            try
-            {
-                clazz = Class.forName( className );
-            }
-            catch ( ClassNotFoundException e )
-            {
-                LdapNamingException ne = new LdapNamingException( "Comparator class "+ className + " was not found",
-                    ResultCodeEnum.OTHER );
-                ne.setRootCause( e );
-                throw ne;
-            }
+            clazz = Class.forName( className );
         }
         else
         {
             classLoader.setAttribute( bytecode );
-            
-            try
-            {
-                clazz = classLoader.loadClass( className );
-            }
-            catch ( ClassNotFoundException e )
-            {
-                LdapNamingException ne = new LdapNamingException( "Comparator class "+ className + " was not found",
-                    ResultCodeEnum.OTHER );
-                ne.setRootCause( e );
-                throw ne;
-            }
+            clazz = classLoader.loadClass( className );
         }
         
-        try
-        {
-            comparator = ( LdapComparator<?> ) clazz.newInstance();
-        }
-        catch ( InstantiationException e )
-        {
-            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
-                + ".\nCheck that a default constructor exists for the class." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            NamingException ne = new NamingException( "Failed to instantiate comparator class "+ className 
-                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        
+        comparator = ( LdapComparator<?> ) clazz.newInstance();
+        comparator.setOid( oid );
         injectRegistries( comparator, targetRegistries );
         return comparator;
     }
     
     
-    public LdapComparator<?> getLdapComparator( LdapComparatorDescription comparatorDescription, Registries targetRegistries ) 
-        throws NamingException
+    public LdapComparator<?> getLdapComparator( 
+        LdapComparatorDescription comparatorDescription, 
+        Registries targetRegistries ) throws Exception
     {
         EntryAttribute attr = null;
         
@@ -301,7 +230,8 @@ public class SchemaEntityFactory
             attr = new DefaultClientAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
         }
         
-        return getLdapComparator( comparatorDescription.getFqcn(), attr, targetRegistries );
+        return getLdapComparator( comparatorDescription.getOid(), 
+            comparatorDescription.getFqcn(), attr, targetRegistries );
     }
     
     
@@ -312,7 +242,8 @@ public class SchemaEntityFactory
      * @return the loaded Comparator
      * @throws NamingException if anything fails during loading
      */
-    public LdapComparator<?> getLdapComparator( Entry entry, Registries targetRegistries ) throws NamingException
+    public LdapComparator<?> getLdapComparator( Entry entry, 
+        Registries targetRegistries ) throws Exception
     {
         if ( entry == null )
         {
@@ -326,64 +257,36 @@ public class SchemaEntityFactory
         }
         
         String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
-        return getLdapComparator( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
+        return getLdapComparator( entry.get( MetaSchemaConstants.M_OID_AT ).toString(), 
+            className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
     }
     
     
-    private Normalizer getNormalizer( String className, EntryAttribute bytecode, Registries targetRegistries ) 
-        throws NamingException
+    private Normalizer getNormalizer( String oid, String className, 
+        EntryAttribute bytecode, Registries targetRegistries ) throws Exception
     {
         Class<?> clazz = null;
         Normalizer normalizer = null;
         
-        try
+        if ( bytecode == null )
         {
-            if ( bytecode == null )
-            {
-                clazz = Class.forName( className );
-            }
-            else
-            {
-                classLoader.setAttribute( bytecode );
-                clazz = classLoader.loadClass( className );
-            }
+            clazz = Class.forName( className );
         }
-        catch ( ClassNotFoundException e )
+        else
         {
-            LdapNamingException ne = new LdapNamingException( 
-                "Normalizer class "+ className + " was not found", ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        
-        try
-        {
-            normalizer = ( Normalizer ) clazz.newInstance();
-        }
-        catch ( InstantiationException e )
-        {
-            LdapNamingException ne = new LdapNamingException( "Failed to instantiate normalizer class "+ className 
-                + ".\nCheck that a default constructor exists for the class.", ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            LdapNamingException ne = new LdapNamingException( "Failed to instantiate normalizer class "+ className 
-                + ".\nCheck that a **PUBLIC** accessible default constructor exists for the class.", 
-                ResultCodeEnum.OTHER );
-            ne.setRootCause( e );
-            throw ne;
+            classLoader.setAttribute( bytecode );
+            clazz = classLoader.loadClass( className );
         }
 
-        // try now before returning to check if we can inject a Registries object
+        normalizer = ( Normalizer ) clazz.newInstance();
+        normalizer.setOid( oid );
         injectRegistries( normalizer, targetRegistries );
         return normalizer;
     }
 
     
-    public Normalizer getNormalizer( NormalizerDescription normalizerDescription, Registries targetRegistries )
-        throws NamingException
+    public Normalizer getNormalizer( NormalizerDescription normalizerDescription, 
+        Registries targetRegistries ) throws Exception
     {
         EntryAttribute attr = null;
         
@@ -393,7 +296,8 @@ public class SchemaEntityFactory
             attr = new DefaultClientAttribute( MetaSchemaConstants.M_BYTECODE_AT, bytecode );
         }
         
-        return getNormalizer( normalizerDescription.getFqcn(), attr, targetRegistries );
+        return getNormalizer( normalizerDescription.getOid(), 
+            normalizerDescription.getFqcn(), attr, targetRegistries );
     }
     
     
@@ -404,7 +308,8 @@ public class SchemaEntityFactory
      * @return the loaded Normalizer
      * @throws NamingException if anything fails during loading
      */
-    public Normalizer getNormalizer( Entry entry, Registries targetRegistries ) throws NamingException
+    public Normalizer getNormalizer( Entry entry, Registries targetRegistries ) 
+        throws Exception
     {
         if ( entry == null )
         {
@@ -417,8 +322,10 @@ public class SchemaEntityFactory
                 + MetaSchemaConstants.M_FQCN_AT + " attribute" );
         }
         
-        String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).get().getString();
-        return getNormalizer( className, entry.get( MetaSchemaConstants.M_BYTECODE_AT ), targetRegistries );
+        String className = entry.get( MetaSchemaConstants.M_FQCN_AT ).getString();
+        String oid = entry.get( MetaSchemaConstants.M_OID_AT ).getString();
+        EntryAttribute bytecode = entry.get( MetaSchemaConstants.M_BYTECODE_AT );
+        return getNormalizer( oid, className, bytecode, targetRegistries );
     }
     
     
@@ -429,112 +336,17 @@ public class SchemaEntityFactory
      * 
      * @param obj a schema object to have a Registries dependency injected.
      */
-    private void injectRegistries( Object obj, Registries targetRegistries ) throws NamingException
+    private void injectRegistries( Object obj, Registries targetRegistries ) throws Exception
     {
-        String className = obj.getClass().getName();
+        Method method = obj.getClass().getMethod( "setRegistries", parameterTypes );
         
-        try
+        if ( method == null )
         {
-            Method method = obj.getClass().getMethod( "setRegistries", parameterTypes );
-            
-            if ( method == null )
-            {
-                return;
-            }
-            
-            Object[] args = new Object[] { targetRegistries };
-            method.invoke( obj, args );
+            return;
         }
-        catch ( SecurityException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the Registries dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( NoSuchMethodException e )
-        {
-            // this is ok since not every object may have setRegistries()
-        }
-        catch ( IllegalArgumentException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the Registries dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the Registries dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( InvocationTargetException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the Registries dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-    }
-
-
-    /**
-     * Uses reflection to see if a setSyntaxOid( String ) method exists 
-     * on the object's class.  If so then the oid dependency is injected into the 
-     * new SyntaxChecker.
-     * 
-     * @param obj a schema object to have a oid dependency injected.
-     */
-    private void injectOid( String syntaxOid, SyntaxChecker checker ) throws NamingException
-    {
-        String className = checker.getClass().getName();
         
-        try
-        {
-            Method method = checker.getClass().getMethod( "setSyntaxOid", setOidParameterTypes );
-            
-            if ( method == null )
-            {
-                return;
-            }
-            
-            Object[] args = new Object[] { syntaxOid};
-            method.invoke( checker, args );
-        }
-        catch ( SecurityException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the oid dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( NoSuchMethodException e )
-        {
-            // this is ok since not every object may have setSyntaxOid()
-        }
-        catch ( IllegalArgumentException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the oid dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( IllegalAccessException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the oid dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        catch ( InvocationTargetException e )
-        {
-            NamingException ne = new NamingException( "SyntaxChecker class "+ className 
-                + " could not have the oid dependency injected." );
-            ne.setRootCause( e );
-            throw ne;
-        }
+        Object[] args = new Object[] { targetRegistries };
+        method.invoke( obj, args );
     }
 
 

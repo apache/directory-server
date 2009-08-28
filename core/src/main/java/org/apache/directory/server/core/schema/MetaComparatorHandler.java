@@ -204,7 +204,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
             LdapComparator<?> comparator = factory.getLdapComparator( entry, targetRegistries );
             comparatorRegistry.unregister( oldOid );
             LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
-            comparatorDescription.changeOid( oid );
+            comparatorDescription.setOid( oid );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
@@ -240,7 +240,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
         if ( ! newSchema.isDisabled() )
         {
         	LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( newSchema.getSchemaName(), entry );
-            comparatorDescription.changeOid( oid );
+            comparatorDescription.setOid( oid );
             comparatorRegistry.register( comparatorDescription, comparator );
         }
     }
