@@ -20,7 +20,7 @@
 package org.apache.directory.server.schema;
 
 
-import java.io.UnsupportedEncodingException;
+import java.io.UnsupportedEncodingException; 
 
 import javax.naming.NamingException;
 
@@ -31,7 +31,6 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +52,6 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
     /** the at registry used to dynamically resolve Normalizers */
     private final AttributeTypeRegistry attributeRegistry;
     
-    /** the oid registry used to dynamically resolve aliases to OIDs */
-    private final OidRegistry oidRegistry;
-
 
     /**
      * Creates a DN Name component Normalizer which uses the bootstrap
@@ -64,10 +60,9 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      *
      * @param registry the at registry used to dynamically resolve Normalizers
      */
-    public ConcreteNameComponentNormalizer( AttributeTypeRegistry registry, OidRegistry oidRegistry )
+    public ConcreteNameComponentNormalizer( AttributeTypeRegistry registry )
     {
         this.attributeRegistry = registry;
-        this.oidRegistry = oidRegistry;
     }
 
     
@@ -218,12 +213,12 @@ public class ConcreteNameComponentNormalizer implements NameComponentNormalizer
      */
     public boolean isDefined( String id )
     {
-        return attributeRegistry.hasAttributeType( id );
+        return attributeRegistry.contains( id );
     }
 
 
     public String normalizeName( String attributeName ) throws NamingException
     {
-        return oidRegistry.getOid( attributeName );
+        return attributeRegistry.getOid( attributeName );
     }
 }

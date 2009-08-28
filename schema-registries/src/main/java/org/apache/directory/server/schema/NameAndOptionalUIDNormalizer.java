@@ -20,7 +20,6 @@
 package org.apache.directory.server.schema;
 
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -40,6 +39,8 @@ import javax.naming.NamingException;
  */
 public class NameAndOptionalUIDNormalizer extends Normalizer
 {
+    private static final String OID = "2.5.13.23";
+
     // The serial UID
     private static final long serialVersionUID = 1L;
 
@@ -49,10 +50,12 @@ public class NameAndOptionalUIDNormalizer extends Normalizer
     
     public NameAndOptionalUIDNormalizer()
     {
+        super( OID );
     }
     
     public NameAndOptionalUIDNormalizer( AttributeTypeRegistry attrRegistry )
     {
+        super( OID );
         this.attrRegistry = attrRegistry;
     }
     
