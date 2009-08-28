@@ -24,7 +24,6 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.NameAndOptionalUIDComparator;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -32,6 +31,7 @@ import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ComparableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.DnComparator;
 import org.apache.directory.shared.ldap.schema.comparators.IntegerOrderingComparator;
+import org.apache.directory.shared.ldap.schema.comparators.NameAndOptionalUIDComparator;
 import org.apache.directory.shared.ldap.schema.comparators.NormalizingComparator;
 import org.apache.directory.shared.ldap.schema.comparators.ObjectIdentifierComparator;
 import org.apache.directory.shared.ldap.schema.comparators.TelephoneNumberComparator;
