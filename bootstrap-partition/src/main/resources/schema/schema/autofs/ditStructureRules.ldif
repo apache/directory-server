@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=autofs,ou=schema
-entryuuid:: 77+9TkTvv70NSu+/ve+/ve+/ve+/ve+/ve+/vUMl
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.498000Z#000000#000#000000

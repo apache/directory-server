@@ -1,6 +1,0 @@
-dn: ou=comparators,cn=core,ou=schema
-entryuuid:: LT0W77+9VklI77+9GNGTOC8477+9
-ou: comparators
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.356000Z#000000#000#000000

@@ -1,9 +1,0 @@
-dn: cn=apache,ou=schema
-entryuuid:: 77+9DCjvv73vv73vv71O77+977+977+9T++/vUXvv73TnQ==
-creatorsname: uid=admin,ou=system
-createtimestamp: 20090818022725Z
-cn: apache
-objectclass: metaSchema
-objectclass: top
-entrycsn: 20090818052725.807000Z#000000#000#000000
-m-dependencies: system

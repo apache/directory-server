@@ -1,6 +1,0 @@
-dn: ou=matchingRules,cn=apachedns,ou=schema
-entryuuid:: 77+9LTTvv73vv71eTe+/ve+/ve+/ve+/vRPvv73vv71pIA==
-ou: matchingrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.367000Z#000000#000#000000

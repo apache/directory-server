@@ -1,6 +1,0 @@
-dn: ou=syntaxes,cn=inetorgperson,ou=schema
-entryuuid:: 77+9Xz/vv70h77+9RMyL77+977+9JwDvv71JbA==
-ou: syntaxes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.625000Z#000000#000#000000

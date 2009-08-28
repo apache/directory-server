@@ -1,6 +1,0 @@
-dn: ou=objectClasses,cn=apache,ou=schema
-entryuuid:: cWnvv70OBQ5KPO+/vWnvv70l77+9Py7vv70=
-ou: objectclasses
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.858000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=apachedns,ou=schema
-entryuuid:: W++/ve+/vWBwSznvv73vv70CD++/vUPvv70=
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.386000Z#000000#000#000000

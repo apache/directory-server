@@ -59,13 +59,6 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-schema-bootstrap</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-extras</artifactId>
       <version>${pom.version}</version>
     </dependency>

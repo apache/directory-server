@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=apachemeta,ou=schema
-entryuuid:: 77+9fu+/vXkiJkF877+977+9LiASFmV/
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.431000Z#000000#000#000000

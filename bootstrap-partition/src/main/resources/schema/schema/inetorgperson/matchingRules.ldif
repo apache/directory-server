@@ -1,6 +1,0 @@
-dn: ou=matchingRules,cn=inetorgperson,ou=schema
-entryuuid:: Bu+/vX1c77+9KU/vv71+77+9Pu+/ve+/vQ==
-ou: matchingrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.635000Z#000000#000#000000

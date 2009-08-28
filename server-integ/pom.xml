@@ -81,13 +81,6 @@
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
     </dependency>  
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-bootstrap-partition</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

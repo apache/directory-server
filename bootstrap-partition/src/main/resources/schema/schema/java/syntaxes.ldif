@@ -1,6 +1,0 @@
-dn: ou=syntaxes,cn=java,ou=schema
-entryuuid:: KWTvv719H0dEbe+/vUwD77+9NUJv77+9
-ou: syntaxes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.401000Z#000000#000#000000

@@ -1,6 +1,0 @@
-dn: ou=ditStructureRules,cn=krb5kdc,ou=schema
-entryuuid:: 77+9cu+/vTPvv73vv71INu+/vVrvv73Zmu+/vQnvv70=
-ou: ditstructurerules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.265000Z#000000#000#000000

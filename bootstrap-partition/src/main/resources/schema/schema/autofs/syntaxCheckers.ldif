@@ -1,6 +1,0 @@
-dn: ou=syntaxCheckers,cn=autofs,ou=schema
-entryuuid:: w6oTFu+/ve+/vU/vv73vv70dbe+/vQPvv70=
-ou: syntaxcheckers
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.468000Z#000000#000#000000

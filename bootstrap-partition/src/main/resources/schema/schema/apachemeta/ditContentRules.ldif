@@ -1,6 +1,0 @@
-dn: ou=ditContentRules,cn=apachemeta,ou=schema
-entryuuid:: 77+9AO+/vVsiUUkL77+9du+/ve+/vVB777+977+9
-ou: ditcontentrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.452000Z#000000#000#000000

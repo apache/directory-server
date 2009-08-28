@@ -1,6 +1,0 @@
-dn: ou=attributeTypes,cn=core,ou=schema
-entryuuid:: PUXvv70jZe+/vUTvv70P77+9bu+/ve+/ve+/vQ==
-ou: attributetypes
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.369000Z#000000#000#000000

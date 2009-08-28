@@ -1,6 +1,0 @@
-dn: ou=comparators,cn=apachemeta,ou=schema
-entryuuid:: Znrvv73vv73vv73vv71Fb++/ve+/vRLvv71k77+9Mhs=
-ou: comparators
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.426000Z#000000#000#000000

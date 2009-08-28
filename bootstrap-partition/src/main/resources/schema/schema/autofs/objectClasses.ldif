@@ -1,6 +1,0 @@
-dn: ou=objectClasses,cn=autofs,ou=schema
-entryuuid:: 77+9LO+/ve+/ve+/ve+/vU9W77+977+9RO+/vSoJCO+/vQ==
-ou: objectclasses
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.488000Z#000000#000#000000

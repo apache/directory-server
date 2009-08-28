@@ -1,6 +1,0 @@
-dn: ou=matchingRuleUse,cn=krb5kdc,ou=schema
-entryuuid:: 77+977+9au+/vUDvv71O77+977+977+977+977+9dE1h77+9
-ou: matchingruleuse
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052726.290000Z#000000#000#000000

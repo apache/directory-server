@@ -1,6 +1,0 @@
-dn: ou=matchingRules,cn=cosine,ou=schema
-entryuuid:: bO+/vXHvv73vv71zRO+/ve+/ve+/vUfvv71u77+9Ku+/vQ==
-ou: matchingrules
-objectclass: organizationalUnit
-objectclass: top
-entrycsn: 20090818052725.547000Z#000000#000#000000

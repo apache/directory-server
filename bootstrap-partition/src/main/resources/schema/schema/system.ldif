@@ -1,8 +1,0 @@
-dn: cn=system,ou=schema
-entryuuid:: x7J577+977+977+9SQXvv70YAu+/ve+/vQ==
-creatorsname: uid=admin,ou=system
-createtimestamp: 20090818022725Z
-cn: system
-objectclass: metaSchema
-objectclass: top
-entrycsn: 20090818052725.987000Z#000000#000#000000

@@ -333,11 +333,6 @@
   <modules>
     <module>all</module>
     <module>jdbm</module>
-    <module>bootstrap-extract</module>
-    <module>bootstrap-partition</module>
-    <module>bootstrap-plugin</module>
-    <module>schema-extras</module>
-    <module>schema-bootstrap</module>
     <module>schema-data</module>
     <module>schema-loader</module>
     <module>utils</module>
