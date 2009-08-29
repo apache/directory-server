@@ -50,7 +50,7 @@ public class AvlTreeTest
     @Before
     public void createTree()
     {
-      tree = new AvlTree<Integer>( new Comparator<Integer>() 
+      tree = new AvlTreeImpl<Integer>( new Comparator<Integer>() 
           {
 
             public int compare( Integer i1, Integer i2 )
@@ -294,7 +294,7 @@ public class AvlTreeTest
         assertNotNull( tree.find( 11 ) );
         assertNull( tree.find( 0 ));
         
-        tree.setRoot( null );
+        ( ( AvlTreeImpl ) tree ).setRoot( null );
         assertNull( tree.find( 3 ));
     }
     

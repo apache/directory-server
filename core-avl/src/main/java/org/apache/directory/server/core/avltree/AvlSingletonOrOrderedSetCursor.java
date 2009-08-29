@@ -22,9 +22,9 @@ package org.apache.directory.server.core.avltree;
 
 import java.util.Comparator;
 
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 
 
 /**

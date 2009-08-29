@@ -79,7 +79,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
     public ArrayMarshaller( Comparator<E> comparator )
     {
         this.comparator = comparator;
-        this.keyMarshaller = DefaultMarshaller.INSTANCE;
+        this.keyMarshaller = ( Marshaller<E> ) DefaultMarshaller.INSTANCE;
     }
 
 
