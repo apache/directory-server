@@ -542,7 +542,7 @@ public class ServerBinaryValue extends ClientBinaryValue
 
         if ( mr == null )
         {
-            mr = attributeType.getSubstr();
+            mr = attributeType.getSubstring();
         }
 
         return mr;

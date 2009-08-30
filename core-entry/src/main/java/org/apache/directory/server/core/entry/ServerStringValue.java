@@ -467,7 +467,7 @@ public class ServerStringValue extends ClientStringValue
 
         if ( mr == null )
         {
-            mr = attributeType.getSubstr();
+            mr = attributeType.getSubstring();
         }
 
         return mr;

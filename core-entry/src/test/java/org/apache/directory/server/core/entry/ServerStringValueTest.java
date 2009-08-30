@@ -88,7 +88,7 @@ public class ServerStringValueTest
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
         at.setOrdering( mr );
-        at.setSubstr( mr );
+        at.setSubstring( mr );
         at.setSyntax( s );
     }
     

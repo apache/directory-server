@@ -734,7 +734,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
     {
         // First check if the attribute has more than one value
         // if the attribute is supposed to be SINGLE_VALUE
-        if ( attributeType.isSingleValue() && ( values.size() > 1 ) )
+        if ( attributeType.isSingleValued() && ( values.size() > 1 ) )
         {
             return false;
         }
