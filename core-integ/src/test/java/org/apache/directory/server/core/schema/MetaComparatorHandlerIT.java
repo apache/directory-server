@@ -22,18 +22,17 @@ package org.apache.directory.server.core.schema;
 
 import jdbm.helper.IntegerComparator;
 import jdbm.helper.StringComparator;
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
@@ -55,7 +54,6 @@ import javax.naming.directory.ModificationItem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Comparator;
 
 
 /**
@@ -554,62 +552,14 @@ public class MetaComparatorHandlerIT
     }
 
 
-    class DummyMR implements MatchingRule
+    class DummyMR extends MatchingRule
     {
+        public DummyMR()
+        {
+            super( OID );
+            addName( "dummy" );
+        }
+
         private static final long serialVersionUID = 1L;
-
-        public Comparator getComparator() throws NamingException
-        {
-            return null;
-        }
-
-        public Normalizer getNormalizer() throws NamingException
-        {
-            return null;
-        }
-
-        public LdapSyntax getSyntax() throws NamingException
-        {
-            return null;
-        }
-
-        public String getDescription()
-        {
-            return null;
-        }
-
-        public String getName()
-        {
-            return "dummy";
-        }
-
-        public String[] getNames()
-        {
-            return new String[] { "dummy" };
-        }
-
-        public String getOid()
-        {
-            return OID;
-        }
-
-        public boolean isObsolete()
-        {
-            return false;
-        }
-
-        public String getSchema()
-        {
-            return null;
-        }
-
-        public void setSchema( String schemaName )
-        {
-        }
-
-        public String[] getNamesRef()
-        {
-            return new String[] { "dummy" };
-        }
     }
 }

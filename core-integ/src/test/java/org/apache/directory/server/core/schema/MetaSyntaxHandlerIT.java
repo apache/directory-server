@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
