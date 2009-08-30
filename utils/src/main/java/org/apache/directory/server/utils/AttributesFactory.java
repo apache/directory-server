@@ -269,15 +269,15 @@ public class AttributesFactory
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
-        entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isCanUserModify() ) );
-        entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValue() ) );
+        entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isUserModifiable() ) );
+        entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValued() ) );
         entry.put( MetaSchemaConstants.M_USAGE_AT, attributeType.getUsage().toString() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         injectCommon( attributeType, entry, registries );
         
-        AttributeType superior = attributeType.getSup();
+        AttributeType superior = attributeType.getSuperior();
         
         if ( superior != null )
         {
@@ -304,13 +304,13 @@ public class AttributesFactory
             entry.put( MetaSchemaConstants.M_EQUALITY_AT, equality );
         }
 
-        if ( attributeType.getSubstr() != null )
+        if ( attributeType.getSubstring() != null )
         {
-            String substr = attributeType.getSubstr().getName();
+            String substr = attributeType.getSubstring().getName();
             
             if ( substr == null )
             {
-                substr = attributeType.getSubstr().getOid();
+                substr = attributeType.getSubstring().getOid();
             }
             
             entry.put( MetaSchemaConstants.M_SUBSTR_AT, substr );
