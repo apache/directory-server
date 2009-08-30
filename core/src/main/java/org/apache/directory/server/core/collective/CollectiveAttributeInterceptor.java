@@ -284,7 +284,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         
         while ( superType != null )
         {
-            superType = superType.getSup();
+            superType = superType.getSuperior();
             
             if ( superType != null )
             {

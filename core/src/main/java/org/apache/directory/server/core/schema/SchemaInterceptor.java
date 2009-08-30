@@ -1209,7 +1209,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 AttributeType attributeType = atRegistry.lookup( atav.getUpType() );
 
-                if ( !attributeType.isCanUserModify() )
+                if ( !attributeType.isUserModifiable() )
                 {
                     throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
                 }
@@ -1344,7 +1344,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 attributeType = atRegistry.lookup( change.getUpId() );
             }
 
-            if ( !attributeType.isCanUserModify() )
+            if ( !attributeType.isUserModifiable() )
             {
                 throw new NoPermissionException( "Cannot modify the attribute '" + change.getUpId() + "'" );
             }
@@ -1590,7 +1590,7 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = attribute.getAttributeType();
             
             // We don't allow modification of operational attributes
-            if ( !attributeType.isCanUserModify() )
+            if ( !attributeType.isUserModifiable() )
             {
                 String msg = "Cannot modify the attribute : " + attributeType;
                 LOG.error( msg );
@@ -2176,7 +2176,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private void assertNumberOfAttributeValuesValid( EntryAttribute attribute ) throws InvalidAttributeValueException,
         Exception
     {
-        if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValue() )
+        if ( attribute.size() > 1 && ( ( ServerAttribute ) attribute ).getAttributeType().isSingleValued() )
         {
             throw new LdapInvalidAttributeValueException( "More than one value has been provided "
                 + "for the single-valued attribute: " + attribute.getUpId(), ResultCodeEnum.CONSTRAINT_VIOLATION );

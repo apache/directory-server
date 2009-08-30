@@ -253,11 +253,11 @@ public class DescriptionParsers
             }
 
             // if the supertype is provided make sure it exists in some schema
-            if ( attributeType.getSupOid() != null && ! dao.hasAttributeType( attributeType.getSupOid() ) )
+            if ( attributeType.getSuperiorOid() != null && ! dao.hasAttributeType( attributeType.getSuperiorOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid super type: " 
-                        + attributeType.getSupOid(), 
+                        + attributeType.getSuperiorOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
@@ -289,18 +289,18 @@ public class DescriptionParsers
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getSubstrOid() != null && ! dao.hasMatchingRule( attributeType.getSubstrOid() ) )
+            if ( attributeType.getSubstringOid() != null && ! dao.hasMatchingRule( attributeType.getSubstringOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid SUBSTRINGS matchingRule: " 
-                        + attributeType.getSubstrOid(), 
+                        + attributeType.getSubstringOid(), 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
             // if the equality matching rule is null and no super type is specified then there is
             // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
             // without a matchingRule for search or for building indices not to mention lookups.
-            if ( attributeType.getEqualityOid() == null && attributeType.getSupOid() == null )
+            if ( attributeType.getEqualityOid() == null && attributeType.getSuperiorOid() == null )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule " +
@@ -309,7 +309,7 @@ public class DescriptionParsers
             }
             else if ( attributeType.getEqualityOid() == null )
             {
-                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSupOid() );
+                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSuperiorOid() );
 
                 if ( superType.getEquality() == null )
                 {
@@ -324,7 +324,7 @@ public class DescriptionParsers
             // must be provided from some ancestor in the attributeType hierarchy; without either
             // of these the description definitely cannot resolve a syntax and cannot be allowed.
             // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
-            if ( attributeType.getSyntax() == null && attributeType.getSupOid() == null )
+            if ( attributeType.getSyntax() == null && attributeType.getSuperiorOid() == null )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an no syntax " +

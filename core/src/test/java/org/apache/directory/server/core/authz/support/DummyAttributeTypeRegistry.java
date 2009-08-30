@@ -64,13 +64,13 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
         
         AttributeType attributeType = new AttributeType( id );
         attributeType.setEquality( equality );
-        attributeType.setSingleValue( false );
+        attributeType.setSingleValued( false );
         attributeType.setCollective( false );
         attributeType.setDescription( id );
 
         if ( returnOperational )
         {
-            attributeType.setCanUserModify( false );
+            attributeType.setUserModifiable( false );
         }
         else
         {
@@ -78,7 +78,7 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
             syntax.setHumanReadable( true );
 
             attributeType.setSyntax( syntax );
-            attributeType.setCanUserModify( true );
+            attributeType.setUserModifiable( true );
         }
         
         return attributeType;

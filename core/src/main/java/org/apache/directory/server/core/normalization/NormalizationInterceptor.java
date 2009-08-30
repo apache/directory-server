@@ -390,7 +390,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                     AttributeType at = attributeRegistry.lookup( upId );
 
                     // 2.1 if the attribute is single valued, replace the value
-                    if ( at.isSingleValue() )
+                    if ( at.isSingleValued() )
                     {
                         entry.removeAttributes( upId );
                         addUnescapedUpValue( entry, upId, upValue );

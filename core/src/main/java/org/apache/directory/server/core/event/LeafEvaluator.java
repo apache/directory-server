@@ -360,7 +360,7 @@ public class LeafEvaluator implements Evaluator
                 break;
 
             case ( SUBSTRING_MATCH ):
-                mrule = type.getSubstr();
+                mrule = type.getSubstring();
                 break;
 
             case ( ORDERING_MATCH ):

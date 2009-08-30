@@ -69,7 +69,7 @@ public class SubstringEvaluator implements Evaluator
         SubstringNode snode = (SubstringNode)node;
         String oid = atRegistry.getOid( snode.getAttribute() );
         AttributeType type = atRegistry.lookup( oid );
-        MatchingRule matchingRule = type.getSubstr();
+        MatchingRule matchingRule = type.getSubstring();
         
         if ( matchingRule == null )
         {
