@@ -32,18 +32,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.server.xdbm.Table;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 
 import java.io.File;
-import java.util.Iterator;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -76,7 +74,7 @@ public class JdbmTableNoDuplicatesTest
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new MockComparatorRegistry() );
+        SerializableComparator.setRegistry( new MockComparatorRegistry( new OidRegistry() ) );
         table = new JdbmTable<Integer,Integer>( "test", recman, new SerializableComparator<Integer>( "" ), null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
@@ -337,79 +335,6 @@ public class JdbmTableNoDuplicatesTest
         catch ( UnsupportedOperationException e )
         {
             assertNotNull( e );
-        }
-    }
-    
-    
-    private class MockComparatorRegistry implements ComparatorRegistry
-    {
-        private LdapComparator<?> comparator = new LdapComparator<Integer>( "1.1.1" )
-        {
-            public int compare( Integer i1, Integer i2 )
-            {
-                return i1.compareTo( i2 );
-            }
-        };
-        
-
-        public String getSchemaName( String oid ) throws NamingException
-        {
-            return null;
-        }
-
-
-        public void register( LdapComparatorDescription description, LdapComparator<?> comparator ) throws NamingException
-        {
-        }
-
-
-        public LdapComparator<?> lookup( String oid ) throws NamingException
-        {
-            return comparator;
-        }
-
-
-        public boolean contains( String oid )
-        {
-            return true;
-        }
-
-
-        public Iterator<LdapComparator<?>> iterator()
-        {
-            return null;
-        }
-
-
-        public Iterator<String> oidsIterator()
-        {
-            return null;
-        }
-
-        
-        public void register(LdapComparator<?> comparator ) throws NamingException
-        {
-        }
-
-
-        public Iterator<LdapComparatorDescription> ldapComparatorDescriptionIterator()
-        {
-            return null;
-        }
-
-
-        public void unregister( String oid ) throws NamingException
-        {
-        }
-
-
-        public void unregisterSchemaElements( String schemaName )
-        {
-        }
-
-
-        public void renameSchema( String originalSchemaName, String newSchemaName )
-        {
         }
     }
 }

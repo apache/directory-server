@@ -25,6 +25,7 @@ import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.junit.Before;
 import org.junit.After;
@@ -74,7 +75,9 @@ public class DupsCursorTest
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( new MockComparatorRegistry() );
+        SerializableComparator.setRegistry( 
+            new MockComparatorRegistry(
+                new OidRegistry() ) );
 
         table = new JdbmTable<Integer,Integer>( "test", SIZE, recman,
                 new SerializableComparator<Integer>( "" ),

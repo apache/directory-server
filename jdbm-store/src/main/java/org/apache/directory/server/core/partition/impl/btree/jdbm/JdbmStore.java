@@ -306,7 +306,7 @@ public class JdbmStore<E> implements Store<E>
             
             for ( Index<?,E> index : systemIndices.values() )
             {
-                String oid = atRegistry.getOid( index.getAttributeId() );
+                String oid = atRegistry.getOidByName( index.getAttributeId() );
                 tmp.put( oid, index );
                 ( ( JdbmIndex ) index ).init( atRegistry.lookup( oid ), workingDirectory );
             }
@@ -412,7 +412,7 @@ public class JdbmStore<E> implements Store<E>
             
             for ( Index<?,E> index : userIndices.values() )
             {
-                String oid = atRegistry.getOid( index.getAttributeId() );
+                String oid = atRegistry.getOidByName( index.getAttributeId() );
 
                 if ( systemIndices.containsKey( oid ) )
                 {
@@ -840,19 +840,27 @@ public class JdbmStore<E> implements Store<E>
 
     public boolean hasUserIndexOn( String id ) throws NamingException
     {
-        return userIndices.containsKey( atRegistry.getOid( id ) );
+        return userIndices.containsKey( atRegistry.getOidByName( id ) );
     }
 
 
     public boolean hasSystemIndexOn( String id ) throws NamingException
     {
-        return systemIndices.containsKey( atRegistry.getOid( id ) );
+        return systemIndices.containsKey( atRegistry.getOidByName( id ) );
     }
 
 
     public Index<?,E> getUserIndex( String id ) throws IndexNotFoundException
     {
-        id = atRegistry.getOid( id );
+        try
+        {
+            id = atRegistry.getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            LOG.error( "Failed to identify OID for: " + id, e );
+            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+        }
 
         if ( userIndices.containsKey( id ) )
         {
@@ -866,7 +874,15 @@ public class JdbmStore<E> implements Store<E>
 
     public Index<?,E> getSystemIndex( String id ) throws IndexNotFoundException
     {
-        id = atRegistry.getOid( id );
+        try
+        {
+            id = atRegistry.getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            LOG.error( "Failed to identify OID for: " + id, e );
+            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+        }
 
         if ( systemIndices.containsKey( id ) )
         {
@@ -1412,7 +1428,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = atRegistry.getOid( mods.getId() );
+        String modsOid = atRegistry.getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1475,7 +1491,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = atRegistry.getOid( mods.getId() );
+        String modsOid = atRegistry.getOidByName( mods.getId() );
         
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1569,7 +1585,7 @@ public class JdbmStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
         
-        String modsOid = atRegistry.getOid( mods.getId() );
+        String modsOid = atRegistry.getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1612,7 +1628,7 @@ public class JdbmStore<E> implements Store<E>
             }
         }
 
-        String aliasAttributeOid = atRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        String aliasAttributeOid = atRegistry.getOidByName( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
         if ( modsOid.equals( aliasAttributeOid ) )
         {

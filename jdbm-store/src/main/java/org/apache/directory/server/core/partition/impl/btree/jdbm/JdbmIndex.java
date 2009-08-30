@@ -222,7 +222,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        if ( attribute.isSingleValue() )
+        if ( attribute.isSingleValued() )
         {
             reverse = new JdbmTable<Long,K>(
                 attribute.getName() + REVERSE_BTREE,
