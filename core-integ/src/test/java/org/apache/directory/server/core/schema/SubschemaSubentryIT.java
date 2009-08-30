@@ -1428,14 +1428,14 @@ public class SubschemaSubentryIT
         
         AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSup().getName() );
+        assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
         assertEquals( "bogus", at.getName() );
         assertEquals( "bogusName", at.getNames().get( 1 ) );
-        assertEquals( true, at.isCanUserModify() );
+        assertEquals( true, at.isUserModifiable() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
-        assertEquals( true, at.isSingleValue() );
+        assertEquals( true, at.isSingleValued() );
     }
 
     
@@ -1473,14 +1473,14 @@ public class SubschemaSubentryIT
         }
         
         assertNotNull( attributeType );
-        assertEquals( true, attributeType.isSingleValue() );
+        assertEquals( true, attributeType.isSingleValued() );
         assertEquals( false, attributeType.isCollective() );
         assertEquals( false, attributeType.isObsolete() );
-        assertEquals( true, attributeType.isCanUserModify() );
+        assertEquals( true, attributeType.isUserModifiable() );
         assertEquals( "bogus description", attributeType.getDescription() );
         assertEquals( "bogus", attributeType.getNames().get( 0 ) );
         assertEquals( "bogusName", attributeType.getNames().get( 1 ) );
-        assertEquals( "name", attributeType.getSup().getName() );
+        assertEquals( "name", attributeType.getSuperior().getName() );
         
         attrs = getSchemaContext( service ).getAttributes(
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
@@ -1491,14 +1491,14 @@ public class SubschemaSubentryIT
 
         AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSup().getName() );
+        assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
         assertEquals( "bogus", at.getNames().get( 0 ) );
         assertEquals( "bogusName", at.getNames().get( 1 ) );
-        assertEquals( true, at.isCanUserModify() );
+        assertEquals( true, at.isUserModifiable() );
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
-        assertEquals( true, at.isSingleValue() );
+        assertEquals( true, at.isSingleValued() );
     }
 
 
