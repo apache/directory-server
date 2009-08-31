@@ -197,16 +197,19 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
          */
         EntryFilteringCursor cursor = dao.listAllNames();
         
+        // @TODO WARNING: this does not work figure out what we need to do  
+        // with this OID registry registration below that we commented out.
+        
         while ( cursor.next() )
         {
             ServerEntry entry = cursor.get();
             String oid = entry.get( mOidAT ).getString();
             EntryAttribute names = entry.get( mNameAT );
-            targetRegistries.getOidRegistry().register( oid, oid );
+            //targetRegistries.getOidRegistry().register( oid, oid );
             
             for ( Value<?> value:names )
             {
-                targetRegistries.getOidRegistry().register( value.getString(), oid );
+                //targetRegistries.getOidRegistry().register( value.getString(), oid );
             }
         }
         
@@ -320,7 +323,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         while ( list.hasNext() )
         {
             Schema schema = list.next();
-            loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries, null );
+            loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries );
             list = notLoaded.values().iterator();
         }
     }
@@ -875,6 +878,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
         notLoaded.put( schema.getSchemaName(), schema );                        
         Properties props = new Properties();
-        loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries, props );
+        loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries );
     }
 }

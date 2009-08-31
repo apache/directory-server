@@ -1441,7 +1441,6 @@ public class DefaultDirectoryService implements DirectoryService
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
         
         // --------------------------------------------------------------------
         // Load schemas into the schema registry from LDIF schema repository
