@@ -104,6 +104,18 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

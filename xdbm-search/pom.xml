@@ -62,6 +62,20 @@
       <artifactId>apacheds-schema-extras</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-loader</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <packaging>jar</packaging>

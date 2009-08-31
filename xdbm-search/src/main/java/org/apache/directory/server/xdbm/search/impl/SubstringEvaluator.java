@@ -80,7 +80,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
         this.node = node;
         this.registries = registries;
 
-        String oid = registries.getAttributeTypeRegistry().getOid( node.getAttribute() );
+        String oid = registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
         type = registries.getAttributeTypeRegistry().lookup( oid );
 
         MatchingRule rule = type.getSubstring();
