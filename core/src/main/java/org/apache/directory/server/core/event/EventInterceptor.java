@@ -84,7 +84,7 @@ public class EventInterceptor extends BaseInterceptor
         this.ds = ds;
         OidRegistry oidRegistry = ds.getRegistries().getOidRegistry();
         AttributeTypeRegistry attributeRegistry = ds.getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
         filterNormalizer = new FilterNormalizingVisitor( ncn, ds.getRegistries() );
         evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, 

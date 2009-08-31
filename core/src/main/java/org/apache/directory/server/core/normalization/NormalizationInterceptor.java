@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** The association between attributeTypes and their normalizers */
     private Map<String, OidNormalizer> attrNormalizers; 
     
-    /** The globa attributeType registry */
+    /** The attributeType registry */
     private AttributeTypeRegistry attributeRegistry;
 
     /**
@@ -98,9 +98,8 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         LOG.debug( "Initialiazing the NormalizationInterceptor" );
         
-        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
         normVisitor = new FilterNormalizingVisitor( ncn, directoryService.getRegistries() );
         attrNormalizers = attributeRegistry.getNormalizerMapping();
     }

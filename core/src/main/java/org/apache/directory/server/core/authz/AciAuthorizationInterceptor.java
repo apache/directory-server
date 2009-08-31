@@ -78,8 +78,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     private static final Logger LOG = LoggerFactory.getLogger( AciAuthorizationInterceptor.class );
 
     /**
-     * the multivalued op attr used to track the perscriptive access control
+     * the multivalued op attr used to track the prescriptive access control
      * subentries that apply to an entry.
      */
     private static final String AC_SUBENTRY_ATTR = "accessControlSubentries";
@@ -216,18 +216,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
         ocRegistry = registries.getObjectClassRegistry();
-        OidRegistry oidRegistry = registries.getOidRegistry();
         
         // look up some constant information
-        String objectClassOid = atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
-        subentryOid = ocRegistry.getOid( SchemaConstants.SUBENTRY_OC );
-        String acSubentryOid = atRegistry.getOid( AC_SUBENTRY_ATTR );
+        String objectClassOid = atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT );
+        subentryOid = ocRegistry.getOidByName( SchemaConstants.SUBENTRY_OC );
+        String acSubentryOid = atRegistry.getOidByName( AC_SUBENTRY_ATTR );
         objectClassType = atRegistry.lookup( objectClassOid );
         acSubentryType = atRegistry.lookup( acSubentryOid );
         entryAciType = atRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
         subentryAciType = atRegistry.lookup( SchemaConstants.SUBENTRY_ACI_AT_OID );
         
-        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( atRegistry, oidRegistry ), atRegistry.getNormalizerMapping() );
+        aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( atRegistry ), atRegistry.getNormalizerMapping() );
         engine = new ACDFEngine( registries.getOidRegistry(), atRegistry );
         chain = directoryService.getInterceptorChain();
         enabled = directoryService.isAccessControlEnabled();

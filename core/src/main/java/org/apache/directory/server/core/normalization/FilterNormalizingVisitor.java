@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * might make some partition implementations choke.  To avoid this problem we clean up branch
  * nodes that don't make sense.  For example all BranchNodes without children are just
  * removed.  An AND and OR BranchNode with a single child is replaced with it's child for
- * all but the topmost branchnode which we cannot replace.  So again the top most branch
+ * all but the topmost branch node which we cannot replace.  So again the top most branch
  * node must be inspected by code outside of this visitor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -174,9 +174,9 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return The visited node
      */
-    private ExprNode visitPresenceNode( PresenceNode node )
+    private ExprNode visitPresenceNode( PresenceNode node ) throws NamingException
     {
-        node.setAttribute( atRegistry.getOid( node.getAttribute() ) );
+        node.setAttribute( atRegistry.getOidByName( node.getAttribute() ) );
         return node;
     }
 
@@ -192,7 +192,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSimpleNode( SimpleNode node )
+    private ExprNode visitSimpleNode( SimpleNode node ) throws NamingException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -208,7 +208,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
-        node.setAttribute( atRegistry.getOid( node.getAttribute() ) );
+        node.setAttribute( atRegistry.getOidByName( node.getAttribute() ) );
         node.setValue( normalized );
         
         return node;
@@ -224,7 +224,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitSubstringNode( SubstringNode node )
+    private ExprNode visitSubstringNode( SubstringNode node ) throws NamingException
     {
         // still need this check here in case the top level is a leaf node
         // with an undefined attributeType for its attribute
@@ -279,7 +279,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
             }
         }
 
-        node.setAttribute( atRegistry.getOid( node.getAttribute() ) );
+        node.setAttribute( atRegistry.getOidByName( node.getAttribute() ) );
 
         if ( normInitial != null )
         {
@@ -314,9 +314,9 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    private ExprNode visitExtensibleNode( ExtensibleNode node )
+    private ExprNode visitExtensibleNode( ExtensibleNode node ) throws NamingException
     {
-        node.setAttribute( atRegistry.getOid( node.getAttribute() ) );
+        node.setAttribute( atRegistry.getOidByName( node.getAttribute() ) );
 
         return node;
     }
@@ -433,47 +433,54 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param node the node to visit
      * @return the visited node
      */
-    public Object visit( ExprNode node )
+    public Object visit( ExprNode node ) 
     {
-        // -------------------------------------------------------------------
-        // Handle PresenceNodes
-        // -------------------------------------------------------------------
-
-        if ( node instanceof PresenceNode )
-        {
-            return visitPresenceNode( ( PresenceNode ) node );
-        }
-
-        // -------------------------------------------------------------------
-        // Handle BranchNodes (AndNode, NotNode and OrNode)
-        // -------------------------------------------------------------------
-
-        else if ( node instanceof BranchNode )
-        {
-            return visitBranchNode( ( BranchNode ) node );
-        }
-
-        // -------------------------------------------------------------------
-        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
-        // and LesserEqNode) 
-        // -------------------------------------------------------------------
-
-        else if ( node instanceof SimpleNode )
-        {
-            return visitSimpleNode( ( SimpleNode ) node );
-        }
-        else if ( node instanceof ExtensibleNode )
-        {
-            return visitExtensibleNode( ( ExtensibleNode ) node );
-        }
-        else if ( node instanceof SubstringNode )
-        {
-            return visitSubstringNode( ( SubstringNode ) node );
-        }
-        else
-        {
-            return null;
-        }
+    	try
+    	{
+	        // -------------------------------------------------------------------
+	        // Handle PresenceNodes
+	        // -------------------------------------------------------------------
+	
+	        if ( node instanceof PresenceNode )
+	        {
+	            return visitPresenceNode( ( PresenceNode ) node );
+	        }
+	
+	        // -------------------------------------------------------------------
+	        // Handle BranchNodes (AndNode, NotNode and OrNode)
+	        // -------------------------------------------------------------------
+	
+	        else if ( node instanceof BranchNode )
+	        {
+	            return visitBranchNode( ( BranchNode ) node );
+	        }
+	
+	        // -------------------------------------------------------------------
+	        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
+	        // and LesserEqNode) 
+	        // -------------------------------------------------------------------
+	
+	        else if ( node instanceof SimpleNode )
+	        {
+	            return visitSimpleNode( ( SimpleNode ) node );
+	        }
+	        else if ( node instanceof ExtensibleNode )
+	        {
+	            return visitExtensibleNode( ( ExtensibleNode ) node );
+	        }
+	        else if ( node instanceof SubstringNode )
+	        {
+	            return visitSubstringNode( ( SubstringNode ) node );
+	        }
+	        else
+	        {
+	            return null;
+	        }
+    	}
+    	catch( NamingException e )
+    	{
+    		throw new RuntimeException( e );
+    	}
     }
 
 

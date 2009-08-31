@@ -67,7 +67,7 @@ public class SubstringEvaluator implements Evaluator
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
-        String oid = atRegistry.getOid( snode.getAttribute() );
+        String oid = atRegistry.getOidByName( snode.getAttribute() );
         AttributeType type = atRegistry.lookup( oid );
         MatchingRule matchingRule = type.getSubstring();
         

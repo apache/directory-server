@@ -113,7 +113,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         
         if ( attrId != null )
         {
-            oid = atRegistry.getOid( attrId );
+            oid = atRegistry.getOidByName( attrId );
         }
         
         for ( ProtectedItem item : tuple.getProtectedItems() )
@@ -154,7 +154,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 for ( Iterator<String> j = aav.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( atRegistry.getOid( j.next() ) ) )
+                    if ( oid.equals( atRegistry.getOidByName( j.next() ) ) )
                     {
                         return true;
                     }
@@ -171,7 +171,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 
                 for ( Iterator<String> j = at.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( atRegistry.getOid( j.next() ) ) )
+                    if ( oid.equals( atRegistry.getOidByName( j.next() ) ) )
                     {
                         return true;
                     }
@@ -188,7 +188,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
                 {
                     Attribute attr = j.next();
-                    String attrOid = atRegistry.getOid( attr.getID() );
+                    String attrOid = atRegistry.getOidByName( attr.getID() );
                     AttributeType attrType = atRegistry.lookup( attrOid );
                     
                     if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
@@ -221,7 +221,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     MaxValueCountItem mvcItem = j.next();
                     
-                    if ( oid.equals( atRegistry.getOid( mvcItem.getAttributeType() ) ) )
+                    if ( oid.equals( atRegistry.getOidByName( mvcItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -247,7 +247,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<RestrictedByItem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByItem rbItem = j.next();
-                    if ( oid.equals( atRegistry.getOid( rbItem.getAttributeType() ) ) )
+                    if ( oid.equals( atRegistry.getOidByName( rbItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -265,7 +265,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     String svItem = j.next();
                     
-                    if ( oid.equals( atRegistry.getOid( svItem ) ) )
+                    if ( oid.equals( atRegistry.getOidByName( svItem ) ) )
                     {
                         EntryAttribute attr = entry.get( oid );
                         

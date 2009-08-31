@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +82,7 @@ public class TupleCache
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
-    /** A starage for the PrescriptiveACI attributeType */
+    /** A storage for the PrescriptiveACI attributeType */
     private AttributeType prescriptiveAciAT;
 
     /**
@@ -104,8 +104,7 @@ public class TupleCache
         this.nexus = session.getDirectoryService().getPartitionNexus();
         AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
             .getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = session.getDirectoryService().getRegistries().getOidRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         initialize( session );
