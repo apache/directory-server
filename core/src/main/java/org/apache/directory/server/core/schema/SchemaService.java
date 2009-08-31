@@ -34,15 +34,15 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.NamingException;
@@ -65,9 +65,6 @@ public class SchemaService
     /** cached version of the schema subentry with all attributes in it */
     private ServerEntry schemaSubentry;
     private final Object lock = new Object();
-    
-    /** The directory service instance */
-    private DirectoryService directoryService;
 
     /** a handle on the registries */
     private Registries registries;
@@ -94,7 +91,6 @@ public class SchemaService
      */
     public SchemaService( DirectoryService directoryService, JdbmPartition schemaPartition, SchemaOperationControl schemaControl ) throws NamingException
     {
-        this.directoryService = directoryService;
         this.registries = directoryService.getRegistries();
         this.schemaPartition = schemaPartition;
         this.schemaControl = schemaControl;
@@ -141,13 +137,11 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.COMPARATORS_AT ) );
 
-        Iterator<LdapComparatorDescription> list = 
-            registries.getComparatorRegistry().ldapComparatorDescriptionIterator();
+        Iterator<LdapComparator<?>> list = registries.getComparatorRegistry().iterator();
         
         while ( list.hasNext() )
         {
-        	LdapComparatorDescription description = list.next();
-            attr.add( SchemaUtils.render( description ) );
+            attr.add( SchemaUtils.render( list.next() ) );
         }
 
         return attr;
@@ -159,12 +153,11 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.NORMALIZERS_AT ) );
 
-        Iterator<NormalizerDescription> list = registries.getNormalizerRegistry().normalizerDescriptionIterator();
+        Iterator<Normalizer> list = registries.getNormalizerRegistry().iterator();
 
         while ( list.hasNext() )
         {
-            NormalizerDescription normalizer = list.next();
-            attr.add( SchemaUtils.render( normalizer ) );
+            attr.add( SchemaUtils.render( list.next() ) );
         }
         
         return attr;
@@ -176,13 +169,11 @@ public class SchemaService
         ServerAttribute attr = new DefaultServerAttribute( 
             registries.getAttributeTypeRegistry().lookup( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
-        Iterator<SyntaxCheckerDescription> list =
-            registries.getSyntaxCheckerRegistry().syntaxCheckerDescriptionIterator();
+        Iterator<SyntaxChecker> list = registries.getSyntaxCheckerRegistry().iterator();
 
         while ( list.hasNext() )
         {
-            SyntaxCheckerDescription syntaxCheckerDescription = list.next();
-            attr.add( SchemaUtils.render( syntaxCheckerDescription ) );
+            attr.add( SchemaUtils.render( list.next() ) );
         }
         
         return attr;

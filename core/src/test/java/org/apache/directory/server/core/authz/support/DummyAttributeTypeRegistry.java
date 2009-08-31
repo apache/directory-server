@@ -129,8 +129,9 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
     }
 
 
-    public void unregister( String numericOid ) throws NamingException
+    public AttributeType unregister( String numericOid ) throws NamingException
     {
+    	return null;
     }
 
 

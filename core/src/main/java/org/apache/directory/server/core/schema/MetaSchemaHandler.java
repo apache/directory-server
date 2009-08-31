@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -224,7 +225,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
          * added to the schema partition.  However if the metaSchema object 
          * addition fails then we're left with this schema object looking like
          * it is enabled in the registries object's schema hash.  The effects
-         * of this are unpredicatable.
+         * of this are unpredictable.
          * 
          * This whole problem is due to the inability of these handlers to 
          * react to a failed operation.  To fix this we would need some way
@@ -241,7 +242,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         if ( isEnabled )
         {
             Schema schema = factory.getSchema( entry );
-            globalRegistries.addToLoadedSet( schema );
+            globalRegistries.schemaLoaded( schema );
         }
     }
 
@@ -271,7 +272,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         
         // no need to check if schema is enabled or disabled here
         // if not in the loaded set there will be no negative effect
-        globalRegistries.removeFromLoadedSet( schemaName );
+        globalRegistries.schemaUnloaded( loader.getSchema( schemaName ) );
     }
 
 
@@ -493,7 +494,15 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         }
         schema.disable();
         
-        globalRegistries.unload( schemaName );
+        // @TODO elecharny
+        
+        if ( "blah".equals( "blah" ) )
+        {
+        	throw new NotImplementedException( "We have to disable the schema on partition" +
+        			" and we have to implement the unload method below." );
+        }
+        
+        // globalRegistries.unload( schemaName );
         
         return SCHEMA_MODIFIED;
     }
