@@ -22,16 +22,17 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.IOException;
 
 import org.apache.commons.lang.RandomStringUtils;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class StringSerializerTest extends TestCase
+public class StringSerializerTest
 {
+    @Test
     public void testRandom() throws IOException
     {
         StringSerializer serializer = new StringSerializer();
@@ -62,6 +63,7 @@ public class StringSerializerTest extends TestCase
     }
 
     
+    @Test
     public void testConversion()
     {
         for ( char ch = 0; ch < 16383; ch++ )

@@ -23,8 +23,9 @@ package org.apache.directory.server.core.authn;
 
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -32,18 +33,20 @@ import junit.framework.TestCase;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SimpleAuthenticatorOneWayEncryptedTest extends TestCase
+public class SimpleAuthenticatorOneWayEncryptedTest
 {
     private SimpleAuthenticator auth = null;
 
 
+    @Before
     protected void setUp() throws Exception
     {
-        super.setUp();
+
         this.auth = new SimpleAuthenticator();
     }
 
 
+    @Test
     public void testGetAlgorithmForHashedPassword()
     {
         String digestetValue = "{SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=";
@@ -60,6 +63,7 @@ public class SimpleAuthenticatorOneWayEncryptedTest extends TestCase
     }
 
 
+    @Test
     public void testCreateDigestedPassword() throws IllegalArgumentException
     {
         String pwd = "Secret1!";

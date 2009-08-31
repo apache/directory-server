@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -45,6 +43,10 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -64,7 +66,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class InterceptorChainTest extends TestCase
+public class InterceptorChainTest
 {
     private static final int INTERCEPTOR_COUNT = 5;
     private InterceptorChain chain;
@@ -98,6 +100,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testNoBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -123,6 +126,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testSingleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -149,6 +153,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testAdjacentDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -178,6 +183,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testFrontAndBackDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -206,6 +212,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testDoubleBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );
@@ -234,6 +241,7 @@ public class InterceptorChainTest extends TestCase
     }
 
 
+    @Test
     public void testCompleteBypass() throws Exception
     {
         LdapDN dn = new LdapDN( "ou=system" );

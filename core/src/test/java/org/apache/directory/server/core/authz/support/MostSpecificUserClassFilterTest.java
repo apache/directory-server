@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.apache.directory.server.core.authz.support.MostSpecificUserClassFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
+import org.junit.Test;
 
 
 /**
@@ -47,7 +48,7 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MostSpecificUserClassFilterTest extends TestCase
+public class MostSpecificUserClassFilterTest
 {
     private static final Set<LdapDN> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<LdapDN>() );
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
@@ -105,21 +106,23 @@ public class MostSpecificUserClassFilterTest extends TestCase
     }
 
 
+    @Test
     public void testZeroOrOneTuple() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        Assert.assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        assertEquals( 0, filter.filter( null, EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
-        Assert.assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
+        assertEquals( 1, filter.filter( null, tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, null, null, null, null, null ).size() );
     }
 
 
+    @Test
     public void testNameAndThisEntry() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
@@ -128,12 +131,13 @@ public class MostSpecificUserClassFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 2, tuples.size() );
-        Assert.assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_A.get( 1 ), tuples.get( 1 ) );
+        assertEquals( 2, tuples.size() );
+        assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_A.get( 1 ), tuples.get( 1 ) );
     }
 
 
+    @Test
     public void testThisEntry() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
@@ -142,11 +146,12 @@ public class MostSpecificUserClassFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 1, tuples.size() );
-        Assert.assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
+        assertEquals( 1, tuples.size() );
+        assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
     }
 
 
+    @Test
     public void testUserGroup() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
@@ -155,11 +160,12 @@ public class MostSpecificUserClassFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 1, tuples.size() );
-        Assert.assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
+        assertEquals( 1, tuples.size() );
+        assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
     }
 
 
+    @Test
     public void testSubtree() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
@@ -168,11 +174,12 @@ public class MostSpecificUserClassFilterTest extends TestCase
         tuples = ( List<ACITuple> ) filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 1, tuples.size() );
-        Assert.assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
+        assertEquals( 1, tuples.size() );
+        assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
     }
 
 
+    @Test
     public void testOthers() throws Exception
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
@@ -181,8 +188,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
         tuples = (List<ACITuple>)filter.filter( null, tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null, null );
 
-        Assert.assertEquals( 2, tuples.size() );
-        Assert.assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );
-        Assert.assertSame( TUPLES_E.get( 1 ), tuples.get( 1 ) );
+        assertEquals( 2, tuples.size() );
+        assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );
+        assertSame( TUPLES_E.get( 1 ), tuples.get( 1 ) );
     }
 }

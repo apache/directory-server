@@ -23,8 +23,6 @@ package org.apache.directory.server.core.subtree;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
@@ -47,6 +45,9 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 
 
 /**
@@ -55,7 +56,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubtreeEvaluatorTest extends TestCase
+public class SubtreeEvaluatorTest
 {
     private Registries registries;
     private SubtreeEvaluator evaluator;

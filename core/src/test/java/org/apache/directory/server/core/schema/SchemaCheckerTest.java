@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import junit.framework.TestCase;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -63,7 +61,7 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SchemaCheckerTest extends TestCase
+public class SchemaCheckerTest
 {
     static Registries registries;
 

@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
 import org.apache.directory.server.schema.bootstrap.CoreSchema;
@@ -36,6 +34,9 @@ import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -44,22 +45,22 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BootstrapSchemaLoaderTest extends TestCase
+public class BootstrapSchemaLoaderTest
 {
     BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
     DefaultRegistries registries;
 
 
+    @Before
     protected void setUp() throws Exception
     {
-        super.setUp();
         registries = new DefaultRegistries( "bootstrap", loader, new OidRegistry() );
     }
 
 
+    @After
     protected void tearDown() throws Exception
     {
-        super.tearDown();
         registries = null;
     }
 
@@ -88,6 +89,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
+    @Test
     public void testSystemSchemaLoad() throws Exception
     {
         SystemSchema systemSchema = new SystemSchema();
@@ -105,6 +107,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
+    @Test
     public void testApacheSchemaLoad() throws Exception
     {
         testSystemSchemaLoad();
@@ -123,6 +126,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
+    @Test
     public void testEveDepsSchemaLoad() throws Exception
     {
         Set<Schema> schemas = new HashSet<Schema>();
@@ -142,6 +146,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
+    @Test
     public void testCoreSchemaLoad() throws Exception
     {
         testSystemSchemaLoad();
@@ -160,6 +165,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
     }
 
 
+    @Test
     public void testCoreDepsSchemaLoad() throws Exception
     {
         Set<Schema> schemas = new HashSet<Schema>();
@@ -185,6 +191,7 @@ public class BootstrapSchemaLoaderTest extends TestCase
      *
      * @throws NamingException if there are problems.
      */
+    @Test
     public void testReferentialIntegrity() throws Exception
     {
         if ( System.getProperties().containsKey( "ignore.ref.integ.test" ) )
