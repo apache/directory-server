@@ -28,7 +28,12 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
 
 
 /**
@@ -67,14 +72,19 @@ public class CursorBuilder
 
             case APPROXIMATE:
                 return new ApproximateCursor( db, ( ApproximateEvaluator ) evaluatorBuilder.build( node ) );
+            
             case EQUALITY:
                 return new EqualityCursor( db, ( EqualityEvaluator ) evaluatorBuilder.build( node ) );
+            
             case GREATEREQ:
                 return new GreaterEqCursor( db, ( GreaterEqEvaluator ) evaluatorBuilder.build( node ) );
+            
             case LESSEQ:
                 return new LessEqCursor( db, ( LessEqEvaluator ) evaluatorBuilder.build( node ) );
+            
             case PRESENCE:
                 return new PresenceCursor( db, ( PresenceEvaluator ) evaluatorBuilder.build( node ) );
+            
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
@@ -84,6 +94,7 @@ public class CursorBuilder
                 {
                     return new SubtreeScopeCursor( db, ( SubtreeScopeEvaluator ) evaluatorBuilder.build( node ) );
                 }
+                
             case SUBSTRING:
                 return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ) );
 
@@ -91,8 +102,10 @@ public class CursorBuilder
 
             case AND:
                 return buildAndCursor( ( AndNode ) node );
+                
             case NOT:
                 return new NotCursor( db, evaluatorBuilder.build( ( ( NotNode ) node).getFirstChild() ) );
+            
             case OR:
                 return buildOrCursor( ( OrNode ) node );
 

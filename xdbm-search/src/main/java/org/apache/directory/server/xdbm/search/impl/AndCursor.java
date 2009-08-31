@@ -20,6 +20,11 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -27,8 +32,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-
-import java.util.*;
 
 
 /**
@@ -192,6 +195,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V, ServerEntry>
         List<Evaluator<? extends ExprNode,ServerEntry>> optimized =
             new ArrayList<Evaluator<? extends ExprNode,ServerEntry>>( unoptimized.size() );
         optimized.addAll( unoptimized );
+        
         Collections.sort( optimized, new Comparator<Evaluator<?,ServerEntry>>()
         {
             public int compare( Evaluator<?, ServerEntry> e1, Evaluator<?, ServerEntry> e2 )

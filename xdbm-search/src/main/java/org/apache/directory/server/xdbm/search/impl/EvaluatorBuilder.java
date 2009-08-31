@@ -23,7 +23,18 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 
@@ -66,14 +77,19 @@ public class EvaluatorBuilder
 
             case APPROXIMATE:
                 return new ApproximateEvaluator( ( ApproximateNode ) node, db, registries );
+                
             case EQUALITY:
                 return new EqualityEvaluator( ( EqualityNode ) node, db, registries );
+                
             case GREATEREQ:
                 return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, registries );
+                
             case LESSEQ:
                 return new LessEqEvaluator( ( LessEqNode ) node, db, registries );
+                
             case PRESENCE:
                 return new PresenceEvaluator( ( PresenceNode ) node, db, registries );
+                
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
@@ -83,6 +99,7 @@ public class EvaluatorBuilder
                 {
                     return new SubtreeScopeEvaluator<ServerEntry>( db, ( ScopeNode ) node );
                 }
+                
             case SUBSTRING:
                 return new SubstringEvaluator( ( SubstringNode ) node, db, registries );
 
@@ -90,8 +107,10 @@ public class EvaluatorBuilder
 
             case AND:
                 return buildAndEvaluator( ( AndNode ) node );
+                
             case NOT:
                 return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node).getFirstChild() ) );
+                
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
 
