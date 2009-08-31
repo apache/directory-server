@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,15 +43,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.CosineSchema;
-import org.apache.directory.server.schema.bootstrap.InetorgpersonSchema;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
@@ -58,9 +50,10 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,9 +67,8 @@ import org.junit.Test;
  */
 public class DefaultServerAttributeTest
 {
-    private static BootstrapSchemaLoader loader;
+    private static LdifSchemaLoader loader;
     private static Registries registries;
-    private static OidRegistry oidRegistry;
     
     private static AttributeType atCN;
     private static AttributeType atSN;
@@ -104,25 +96,20 @@ public class DefaultServerAttributeTest
     private static final ClientBinaryValue BIN_VALUE3 = new ClientBinaryValue( BYTES3 );
     private static final ClientBinaryValue BIN_VALUE4 = new ClientBinaryValue( BYTES4 );
 
+        
     /**
      * Initialize the registries once for the whole test suite
      */
     @BeforeClass
     public static void setup() throws Exception
     {
-        loader = new BootstrapSchemaLoader();
-        oidRegistry = new OidRegistry();
-        registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        bootstrapSchemas.add( new InetorgpersonSchema() );
-        bootstrapSchemas.add( new CosineSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+    	File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy();
+    	loader = new LdifSchemaLoader( schemaRepository );
+        registries = new Registries();
+        loader.loadAllEnabled( registries );
         
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         atC = registries.getAttributeTypeRegistry().lookup( "c" );

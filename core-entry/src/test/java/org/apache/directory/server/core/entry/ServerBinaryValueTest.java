@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import static org.junit.Assert.assertEquals;
