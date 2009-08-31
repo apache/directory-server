@@ -365,10 +365,10 @@ public class DefaultPartitionNexus extends PartitionNexus
 
                 for ( Index<?,ServerEntry> index : indices )
                 {
-                    indexOids.add( atRegistry.getOid( index.getAttributeId() ) );
+                    indexOids.add( atRegistry.getOidByName( index.getAttributeId() ) );
                 }
 
-                if ( ! indexOids.contains( atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
+                if ( ! indexOids.contains( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) ) )
                 {
                     LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
                             "in the system partition configuration.  This will lead to poor " +
@@ -918,7 +918,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         try
                         {
-                            realIds.add( atRegistry.getOid( idTrimmed ) );
+                            realIds.add( atRegistry.getOidByName( idTrimmed ) );
                         }
                         catch ( Exception e )
                         {

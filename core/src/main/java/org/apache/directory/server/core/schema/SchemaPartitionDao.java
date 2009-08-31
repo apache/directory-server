@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -37,8 +36,8 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -60,10 +59,10 @@ import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.syntaxChecker.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +99,6 @@ public class SchemaPartitionDao
 
     private final Partition partition;
     private final SchemaEntityFactory factory;
-    private final OidRegistry oidRegistry;
     private final AttributeTypeRegistry atRegistry;
 
     private final String M_NAME_OID;
@@ -133,26 +131,25 @@ public class SchemaPartitionDao
     public SchemaPartitionDao( Partition partition, Registries registries ) throws Exception
     {
         this.partition = partition;
-        this.factory = new SchemaEntityFactory( registries );
-        this.oidRegistry = registries.getOidRegistry();
+        this.factory = new SchemaEntityFactory();
         this.atRegistry = registries.getAttributeTypeRegistry();
 
-        this.M_NAME_OID = atRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
-        this.CN_OID = atRegistry.getOid( SchemaConstants.CN_AT );
+        this.M_NAME_OID = atRegistry.getOidByName( MetaSchemaConstants.M_NAME_AT );
+        this.CN_OID = atRegistry.getOidByName( SchemaConstants.CN_AT );
         this.disabledAttributeType = atRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
-        this.M_OID_OID = atRegistry.getOid( MetaSchemaConstants.M_OID_AT );
-        this.OBJECTCLASS_OID = atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
-        this.M_SYNTAX_OID = atRegistry.getOid( MetaSchemaConstants.M_SYNTAX_AT );
-        this.M_ORDERING_OID = atRegistry.getOid( MetaSchemaConstants.M_ORDERING_AT );
-        this.M_EQUALITY_OID = atRegistry.getOid( MetaSchemaConstants.M_EQUALITY_AT );
-        this.M_SUBSTRING_OID = atRegistry.getOid( MetaSchemaConstants.M_SUBSTR_AT );
-        this.M_SUP_ATTRIBUTE_TYPE_OID = atRegistry.getOid( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
-        this.M_MUST_OID = atRegistry.getOid( MetaSchemaConstants.M_MUST_AT );
-        this.M_MAY_OID = atRegistry.getOid( MetaSchemaConstants.M_MAY_AT );
-        this.M_AUX_OID = atRegistry.getOid( MetaSchemaConstants.M_AUX_AT );
-        this.M_OC_OID = atRegistry.getOid( MetaSchemaConstants.M_OC_AT );
-        this.M_SUP_OBJECT_CLASS_OID = atRegistry.getOid( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
-        this.M_DEPENDENCIES_OID = atRegistry.getOid( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        this.M_OID_OID = atRegistry.getOidByName( MetaSchemaConstants.M_OID_AT );
+        this.OBJECTCLASS_OID = atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT );
+        this.M_SYNTAX_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SYNTAX_AT );
+        this.M_ORDERING_OID = atRegistry.getOidByName( MetaSchemaConstants.M_ORDERING_AT );
+        this.M_EQUALITY_OID = atRegistry.getOidByName( MetaSchemaConstants.M_EQUALITY_AT );
+        this.M_SUBSTRING_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUBSTR_AT );
+        this.M_SUP_ATTRIBUTE_TYPE_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        this.M_MUST_OID = atRegistry.getOidByName( MetaSchemaConstants.M_MUST_AT );
+        this.M_MAY_OID = atRegistry.getOidByName( MetaSchemaConstants.M_MAY_AT );
+        this.M_AUX_OID = atRegistry.getOidByName( MetaSchemaConstants.M_AUX_AT );
+        this.M_OC_OID = atRegistry.getOidByName( MetaSchemaConstants.M_OC_AT );
+        this.M_SUP_OBJECT_CLASS_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        this.M_DEPENDENCIES_OID = atRegistry.getOidByName( MetaSchemaConstants.M_DEPENDENCIES_AT );
         
         for ( String attrId : SCHEMA_ATTRIBUTES )
         {
@@ -197,7 +194,7 @@ public class SchemaPartitionDao
     {
         LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         base.normalize( atRegistry.getNormalizerMapping() );
-        ExprNode filter = new EqualityNode<String>( atRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ),
+        ExprNode filter = new EqualityNode<String>( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ),
             new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( null );

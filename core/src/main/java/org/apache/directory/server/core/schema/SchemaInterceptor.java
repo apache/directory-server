@@ -35,7 +35,6 @@ import javax.naming.NoPermissionException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -66,6 +65,8 @@ import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.cursor.SingletonCursor;
@@ -106,7 +107,6 @@ import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.syntaxChecker.AcceptAllSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -465,7 +465,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 // Check that the attribute is declared
                 if ( registries.getAttributeTypeRegistry().contains( attribute ) )
                 {
-                    String oid = atRegistry.getOid( attribute );
+                    String oid = atRegistry.getOidByName( attribute );
 
                     // The attribute must be an AttributeType
                     if ( atRegistry.contains( oid ) )
@@ -740,7 +740,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
-                String nodeOid = atRegistry.getOid( node.getAttribute() );
+                String nodeOid = atRegistry.getOidByName( node.getAttribute() );
 
                 // see if node attribute is objectClass
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
@@ -840,7 +840,7 @@ public class SchemaInterceptor extends BaseInterceptor
             return false;
         }
 
-        String attrOid = registries.getAttributeTypeRegistry().getOid( attrId );
+        String attrOid = registries.getAttributeTypeRegistry().getOidByName( attrId );
 
         for ( Value<?> objectClass : objectClasses )
         {
@@ -859,28 +859,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * A helper method which tells if a schema is disabled
-     */
-    private  boolean isDisabled( String schemaName )
-    {
-        Schema schema = registries.getLoadedSchemas().get( schemaName );
-        
-        return ( schema == null ) || ( schema.isDisabled() );
-    }
-    
-    
-    /**
-     * A helper method which tells if a schema is enabled
-     */
-    private boolean isEnabled( String schemaName )
-    {
-        Schema schema = registries.getLoadedSchemas().get( schemaName );
-        
-        return ( schema != null ) && ( !schema.isDisabled() );
-    }
-    
-    
     /**
      * Checks to see if removing a set of attributes from an entry completely removes
      * that attribute's values.  If change has zero size then all attributes are
@@ -1042,7 +1020,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( registries.getAttributeTypeRegistry().getOid( SchemaConstants.OBJECT_CLASS_AT ) );
+        allowed.add( registries.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
@@ -2066,7 +2044,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 
                 next.add( addContext );
 
-                if ( isEnabled( schema ) )
+                if ( registries.isSchemaLoaded( schema ) )
                 {
                     // Update the OC superiors for each added ObjectClass
                     computeSuperiors();
@@ -2082,7 +2060,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 // Update the structures now that the schema element has been added
                 String schemaName = MetaSchemaUtils.getSchemaName( name );
                 
-                if ( isEnabled( schemaName ) )
+                if ( registries.isSchemaLoaded( schemaName ) )
                 {
                     String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
                     ObjectClass addedOC = registries.getObjectClassRegistry().lookup( ocName );

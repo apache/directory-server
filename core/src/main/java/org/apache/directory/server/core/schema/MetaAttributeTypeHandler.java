@@ -24,9 +24,9 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -256,7 +256,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getAttributeTypeRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! targetRegistries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a attributeType should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

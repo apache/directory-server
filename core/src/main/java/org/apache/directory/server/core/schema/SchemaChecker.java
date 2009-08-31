@@ -391,7 +391,7 @@ public class SchemaChecker
         }
 
         Set<String> rdnAttributes = getRdnAttributes( name );
-        String id = atRegistry.getOid( attribute.getUpId() );
+        String id = atRegistry.getOidByName( attribute.getUpId() );
 
         if ( !rdnAttributes.contains( id ) )
         {
@@ -546,7 +546,7 @@ public class SchemaChecker
         Set<String> rdnAttributes = getRdnAttributes( name );
         String id = attribute.getId();
 
-        if ( !rdnAttributes.contains( atRegistry.getOid( id ) ) )
+        if ( !rdnAttributes.contains( atRegistry.getOidByName( id ) ) )
         {
             return;
         }
@@ -681,7 +681,7 @@ public class SchemaChecker
     private static String getRdnValue( String id, LdapDN name, AttributeTypeRegistry atRegistry ) throws NamingException
     {
         // Transform the rdnAttrId to it's OID counterPart
-        String idOid = atRegistry.getOid( id );
+        String idOid = atRegistry.getOidByName( id );
 
         if ( idOid == null )
         {
@@ -696,7 +696,7 @@ public class SchemaChecker
             String rdnAttrId = NamespaceTools.getRdnAttribute( comps[ii] );
             
             // Transform the rdnAttrId to it's OID counterPart
-            String rdnAttrOid = atRegistry.getOid( rdnAttrId );
+            String rdnAttrOid = atRegistry.getOidByName( rdnAttrId );
 
             if ( rdnAttrOid == null )
             {

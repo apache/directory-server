@@ -34,7 +34,6 @@ import java.util.Stack;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -42,11 +41,11 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
@@ -62,6 +61,7 @@ import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
     
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +103,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     public PartitionSchemaLoader( Partition partition, Registries registries ) throws Exception
     {
-        this.factory = new SchemaEntityFactory( registries );
+        this.factory = new SchemaEntityFactory();
         this.partition = partition;
         atRegistry = registries.getAttributeTypeRegistry();
         
@@ -692,7 +692,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
-            targetRegistries.getSyntaxCheckerRegistry().register( syntaxCheckerDescription, sc );
+            // @TODO elecharny what should I do with the description
+            
+            targetRegistries.getSyntaxCheckerRegistry().register( sc );
         }
     }
 
@@ -725,7 +727,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ServerEntry attrs = lookupPartition( resultDN );
             Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
-            targetRegistries.getNormalizerRegistry().register( normalizerDescription, normalizer );
+            // @TODO elecharny what should I do with the description
+            
+            targetRegistries.getNormalizerRegistry().register( normalizer );
         }
     }
 
@@ -804,7 +808,9 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ClonedServerEntry attrs = lookupPartition( resultDN );
             LdapComparator<?> comparator = factory.getLdapComparator( attrs, targetRegistries );
             LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), attrs );
-            targetRegistries.getComparatorRegistry().register( comparatorDescription, comparator );
+            // @TODO elecharny what should I do with description
+            
+            targetRegistries.getComparatorRegistry().register( comparator );
         }
     }
 

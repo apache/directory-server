@@ -20,28 +20,25 @@
 package org.apache.directory.server.core.subtree;
 
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,18 +63,25 @@ public class SubtreeEvaluatorTest
 
     private void init() throws Exception
     {
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        OidRegistry oidRegistry = new OidRegistry();
-        DefaultRegistries bsRegistries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        registries = bsRegistries;
-        Set<Schema> schemas = new HashSet<Schema>();
-        schemas.add( new SystemSchema() );
-        schemas.add( new ApacheSchema() );
-        schemas.add( new CoreSchema() );
-        loader.loadWithDependencies( schemas, bsRegistries );
+    	String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy();
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        registries = new Registries();
+        loader.loadAllEnabled( registries );
+    	
         attributeRegistry = registries.getAttributeTypeRegistry();
         
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
         visitor = new FilterNormalizingVisitor( ncn, registries );
     }
 

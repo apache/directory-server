@@ -20,10 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -33,6 +32,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 
 //import javax.naming.NamingException;
 import java.util.HashSet;
@@ -59,7 +59,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
         this.targetRegistries = targetRegistries;
         this.loader = loader;
         this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
-        this.factory = new SchemaEntityFactory( targetRegistries );
+        this.factory = new SchemaEntityFactory();
     }
     
     
@@ -163,16 +163,6 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        List<String> names = obj.getNames();
-        
-        if ( names != null )
-        {
-            for ( String name:names )
-            {
-                targetRegistries.getOidRegistry().register( name, obj.getOid() );
-            }
-        }
-        
-        targetRegistries.getOidRegistry().register( obj.getOid(), obj.getOid() );
+        targetRegistries.getOidRegistry().register( obj );
     }
 }

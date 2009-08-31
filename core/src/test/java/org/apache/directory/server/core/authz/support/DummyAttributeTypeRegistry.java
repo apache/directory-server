@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -51,6 +52,7 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
 
     public DummyAttributeTypeRegistry(boolean returnOperational)
     {
+    	super( new OidRegistry() );
         this.returnOperational = returnOperational;
     }
 

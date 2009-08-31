@@ -34,7 +34,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -112,7 +111,7 @@ public class MetaSchemaHandlerIT
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -135,7 +134,7 @@ public class MetaSchemaHandlerIT
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -166,7 +165,7 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -195,7 +194,7 @@ public class MetaSchemaHandlerIT
         dummySchema.put( "cn", "dummy" );
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         assertNotNull( schemaRoot.lookup( "cn=dummy" ) );
     }
     
@@ -225,7 +224,7 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -256,11 +255,11 @@ public class MetaSchemaHandlerIT
 
         // add the dummy schema enabled 
         testAddEnabledSchemaNoDeps();
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         
         // delete it now
         schemaRoot.destroySubcontext( "cn=dummy" );
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
     }
     
     
@@ -276,7 +275,7 @@ public class MetaSchemaHandlerIT
 
         // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         
         // make the nis schema depend on the dummy schema
         ModificationItem[] mods = new ModificationItem[1];
@@ -295,7 +294,7 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
 
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
     }
     
     
@@ -325,7 +324,7 @@ public class MetaSchemaHandlerIT
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
 
         //noinspection EmptyCatchBlock
         try
@@ -500,7 +499,7 @@ public class MetaSchemaHandlerIT
         
         // check that the nis schema is loaded and the dummy schema is loaded
         assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         
         AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
@@ -526,7 +525,7 @@ public class MetaSchemaHandlerIT
         
         // now test that both schema are still loaded 
         assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
-        assertNotNull( IntegrationUtils.getLoadedSchemas( service ).get( "dummy" ) );
+        assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry

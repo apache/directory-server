@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -50,6 +49,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -74,7 +74,6 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
@@ -221,37 +220,37 @@ public class SchemaOperationControl
         
         AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
 
-        String comparatorsOid = atRegistry.getOid( SchemaConstants.COMPARATORS_AT );
+        String comparatorsOid = atRegistry.getOidByName( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, COMPARATOR_INDEX );
 
-        String normalizersOid = atRegistry.getOid( SchemaConstants.NORMALIZERS_AT );
+        String normalizersOid = atRegistry.getOidByName( SchemaConstants.NORMALIZERS_AT );
         opAttr2handlerIndex.put( normalizersOid, NORMALIZER_INDEX );
 
-        String syntaxCheckersOid = atRegistry.getOid( SchemaConstants.SYNTAX_CHECKERS_AT );
+        String syntaxCheckersOid = atRegistry.getOidByName( SchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, SYNTAX_CHECKER_INDEX );
 
-        String ldapSyntaxesOid = atRegistry.getOid( SchemaConstants.LDAP_SYNTAXES_AT );
+        String ldapSyntaxesOid = atRegistry.getOidByName( SchemaConstants.LDAP_SYNTAXES_AT );
         opAttr2handlerIndex.put( ldapSyntaxesOid, SYNTAX_INDEX );
 
-        String matchingRulesOid = atRegistry.getOid( SchemaConstants.MATCHING_RULES_AT );
+        String matchingRulesOid = atRegistry.getOidByName( SchemaConstants.MATCHING_RULES_AT );
         opAttr2handlerIndex.put( matchingRulesOid, MATCHING_RULE_INDEX );
 
-        String attributeTypesOid = atRegistry.getOid( SchemaConstants.ATTRIBUTE_TYPES_AT );
+        String attributeTypesOid = atRegistry.getOidByName( SchemaConstants.ATTRIBUTE_TYPES_AT );
         opAttr2handlerIndex.put( attributeTypesOid, ATTRIBUTE_TYPE_INDEX );
 
-        String objectClassesOid = atRegistry.getOid( SchemaConstants.OBJECT_CLASSES_AT );
+        String objectClassesOid = atRegistry.getOidByName( SchemaConstants.OBJECT_CLASSES_AT );
         opAttr2handlerIndex.put( objectClassesOid, OBJECT_CLASS_INDEX );
 
-        String matchingRuleUseOid = atRegistry.getOid( SchemaConstants.MATCHING_RULE_USE_AT );
+        String matchingRuleUseOid = atRegistry.getOidByName( SchemaConstants.MATCHING_RULE_USE_AT );
         opAttr2handlerIndex.put( matchingRuleUseOid, MATCHING_RULE_USE_INDEX );
 
-        String ditStructureRulesOid = atRegistry.getOid( SchemaConstants.DIT_STRUCTURE_RULES_AT );
+        String ditStructureRulesOid = atRegistry.getOidByName( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         opAttr2handlerIndex.put( ditStructureRulesOid, DIT_STRUCTURE_RULE_INDEX );
 
-        String ditContentRulesOid = atRegistry.getOid( SchemaConstants.DIT_CONTENT_RULES_AT );
+        String ditContentRulesOid = atRegistry.getOidByName( SchemaConstants.DIT_CONTENT_RULES_AT );
         opAttr2handlerIndex.put( ditContentRulesOid, DIT_CONTENT_RULE_INDEX );
 
-        String nameFormsOid = atRegistry.getOid( SchemaConstants.NAME_FORMS_AT );
+        String nameFormsOid = atRegistry.getOidByName( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, NAME_FORM_INDEX );
         
         initHandlerMaps();
@@ -296,7 +295,7 @@ public class SchemaOperationControl
         for ( Value<?> value:oc )
         {
 
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -345,7 +344,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -394,7 +393,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -423,7 +422,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -459,7 +458,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -487,7 +486,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -515,7 +514,7 @@ public class SchemaOperationControl
         
         for ( Value<?> value:oc )
         {
-            String oid = registries.getObjectClassRegistry().getOid( value.getString() );
+            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
             
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
@@ -557,7 +556,7 @@ public class SchemaOperationControl
     {
         for ( Modification mod : opContext.getModItems() )
         {
-            String opAttrOid = registries.getAttributeTypeRegistry().getOid( mod.getAttribute().getId() );
+            String opAttrOid = registries.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
             
             ServerAttribute serverAttribute = (ServerAttribute)mod.getAttribute();
 

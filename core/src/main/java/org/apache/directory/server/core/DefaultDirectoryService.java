@@ -55,7 +55,6 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
@@ -68,9 +67,6 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
-import org.apache.directory.server.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -81,23 +77,22 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -316,7 +311,7 @@ public class DefaultDirectoryService implements DirectoryService
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
-        registries = new Registries( new OidRegistry() );
+        registries = new Registries();
     }
 
 
@@ -1438,32 +1433,19 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // --------------------------------------------------------------------
-        // If not present extract schema partition from jar
+        // If not present extract schema repository from jar
         // --------------------------------------------------------------------
 
-        File schemaDirectory = new File( workingDirectory, "schema" );
-        SchemaPartitionExtractor extractor;
-        
-        if ( ! schemaDirectory.exists() )
-        {
-            try
-            {
-                extractor = new SchemaPartitionExtractor( workingDirectory );
-                extractor.extract();
-            }
-            catch ( IOException e )
-            {
-                NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
-                ne.setRootCause( e );
-                throw ne;
-            }
-        }
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new SchemaLdifExtractor( workingDirectory );
+        extractor.extractOrCopy();
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        registries = new Registries();
+        loader.loadAllEnabled( registries );
         
         // --------------------------------------------------------------------
         // Load schemas into the schema registry from LDIF schema repository
         // --------------------------------------------------------------------
-
-        LdifSchemaLoader loader = new LdifSchemaLoader( schemaDirectory );
         
         try
         {
@@ -1490,35 +1472,17 @@ public class DefaultDirectoryService implements DirectoryService
         // Initialize schema partition
         // --------------------------------------------------------------------
 
+        // @TODO implement the LDIF schema partition here and set it up
         
+        JdbmPartition schemaPartition = null;
         
-        JdbmPartition schemaPartition = new JdbmPartition();
-        schemaPartition.setId( "schema" );
-        schemaPartition.setCacheSize( 1000 );
-
-        DbFileListing listing;
-        
-        try 
+        // this is really dumb but ...
+        // just bail but do so so we don't dead code complaint for now
+        if ( "blah".equals( "blah" ) )
         {
-            listing = new DbFileListing();
+        	throw new NotImplementedException();
         }
-        catch( IOException e )
-        {
-            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
-                ResultCodeEnum.OTHER );
-        }
-
-        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
         
-        for ( String attributeId : listing.getIndexedAttributes() )
-        {
-            indexedAttributes.add( new JdbmIndex<Object,ServerEntry>( attributeId ) );
-        }
-
-        schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-        schemaPartition.init( this );
-
         // --------------------------------------------------------------------
         // Enable schemas of all indices of partition configurations 
         // --------------------------------------------------------------------
@@ -1576,7 +1540,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         
         PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new Registries( registries.getOidRegistry() );
+        Registries globalRegistries = new Registries();
         schemaLoader.loadEnabled( globalRegistries );
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );

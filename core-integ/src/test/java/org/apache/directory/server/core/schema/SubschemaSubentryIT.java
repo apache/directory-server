@@ -268,7 +268,7 @@ public class SubschemaSubentryIT
         {
             attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
             assertNotNull( attrs );
-            SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+            SchemaEntityFactory factory = new SchemaEntityFactory();
             
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
 
@@ -1423,7 +1423,7 @@ public class SubschemaSubentryIT
 
         attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
-        SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+        SchemaEntityFactory factory = new SchemaEntityFactory();
         
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
         
@@ -1486,7 +1486,7 @@ public class SubschemaSubentryIT
         attrs = getSchemaContext( service ).getAttributes(
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
-        SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+        SchemaEntityFactory factory = new SchemaEntityFactory();
         
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
 

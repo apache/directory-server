@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.normalization;
 
+
 import java.text.ParseException;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -30,7 +31,6 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -57,9 +57,8 @@ public class NormalizationVisitorTest
     {
         service = new DefaultDirectoryService();
 
-        OidRegistry oidRegistry = service.getRegistries().getOidRegistry();
         AttributeTypeRegistry attributeRegistry = service.getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
         normVisitor = new FilterNormalizingVisitor( ncn, service.getRegistries() );
     }
 

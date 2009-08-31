@@ -192,6 +192,7 @@ public class TestServerEntryUtils
     /* no protection*/ static AttributeType getIA5StringAttributeType()
     {
         AttributeType attributeType = new AttributeType( "1.1" );
+        attributeType.addName( "1.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1", "", true );
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2" )

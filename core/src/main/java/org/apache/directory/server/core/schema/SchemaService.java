@@ -512,7 +512,7 @@ public class SchemaService
                 }
                 else
                 {
-                    setOids.add( registries.getAttributeTypeRegistry().getOid( id ) );
+                    setOids.add( registries.getAttributeTypeRegistry().getOidByName( id ) );
                 }
             }
 

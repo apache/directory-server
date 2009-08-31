@@ -20,12 +20,11 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.schema.loader.ldif.SchemaEntityFactory;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -40,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 
 import javax.naming.NamingException;
 import java.util.Iterator;
@@ -65,13 +65,13 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     private final AttributeType dependenciesAT;
 
 
-    public MetaSchemaHandler( Registries globalRegistries, PartitionSchemaLoader loader ) throws NamingException
+    public MetaSchemaHandler( Registries globalRegistries, PartitionSchemaLoader loader ) throws Exception
     {
         this.globalRegistries = globalRegistries;
         this.disabledAT = globalRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.loader = loader;
-        this.OU_OID = globalRegistries.getAttributeTypeRegistry().getOid( SchemaConstants.OU_AT );
-        this.factory = new SchemaEntityFactory( globalRegistries );
+        this.OU_OID = globalRegistries.getAttributeTypeRegistry().getOidByName( SchemaConstants.OU_AT );
+        this.factory = new SchemaEntityFactory();
         this.cnAT = globalRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         this.dependenciesAT = globalRegistries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
@@ -288,7 +288,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
-        String rdnAttributeOid = globalRegistries.getAttributeTypeRegistry().getOid( rdnAttribute );
+        String rdnAttributeOid = globalRegistries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -505,7 +505,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      */
     private boolean enableSchema( String schemaName ) throws Exception
     {
-        if ( globalRegistries.getLoadedSchemas().containsKey( schemaName ) )
+        if ( globalRegistries.isSchemaLoaded( schemaName ) )
         {
             // TODO log warning: schemaName + " was already loaded"
             return SCHEMA_UNCHANGED;

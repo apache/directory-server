@@ -20,23 +20,16 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
-import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -47,8 +40,6 @@ import static org.junit.Assert.assertFalse;
 
 import javax.naming.NamingException;
 import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,18 +77,19 @@ public class PartitionSchemaLoaderTest
         // Load the bootstrap schemas to start up the schema partition
         // --------------------------------------------------------------------
 
-        // setup temporary loader and temp registry 
-        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
-        registries = new DefaultRegistries( "bootstrap", loader, new OidRegistry() );
-        directoryService.setRegistries( registries );
-        
-        // load essential bootstrap schemas 
-        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
-        bootstrapSchemas.add( new ApachemetaSchema() );
-        bootstrapSchemas.add( new ApacheSchema() );
-        bootstrapSchemas.add( new CoreSchema() );
-        bootstrapSchemas.add( new SystemSchema() );
-        loader.loadWithDependencies( bootstrapSchemas, registries );
+        if ( workingDirectory == null )
+        {
+            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = new File( path.substring( 0, targetPos + 6 ) );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new SchemaLdifExtractor( workingDirectory );
+        extractor.extractOrCopy();
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        registries = new Registries();
+        loader.loadAllEnabled( registries );
         
         // run referential integrity tests
         List<Throwable> errors = registries.checkRefInteg();
@@ -112,39 +104,10 @@ public class PartitionSchemaLoaderTest
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         // --------------------------------------------------------------------
-        // If not present extract schema partition from jar
+        // TODO add code here to start up the LDIF schema partition
         // --------------------------------------------------------------------
 
-        SchemaPartitionExtractor extractor = null; 
-        try
-        {
-            extractor = new SchemaPartitionExtractor( directoryService.getWorkingDirectory() );
-            extractor.extract();
-        }
-        catch ( IOException e )
-        {
-            NamingException ne = new NamingException( "Failed to extract pre-loaded schema partition." );
-            ne.setRootCause( e );
-            throw ne;
-        }
-        
-        // --------------------------------------------------------------------
-        // Initialize schema partition
-        // --------------------------------------------------------------------
-
-        schemaPartition = new JdbmPartition();
-        schemaPartition.setId( "schema" );
-        schemaPartition.setCacheSize( 1000 );
-
-        Set<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-        for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
-        {
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( attributeId ) );
-        }
-
-        schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( "ou=schema" );
-        schemaPartition.init( directoryService );
+        throw new NotImplementedException();
     }
     
     

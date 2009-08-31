@@ -19,10 +19,9 @@
 package org.apache.directory.server.core.integ;
 
 
-import java.io.File;
+import java.io.File; 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -50,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -291,10 +289,6 @@ public class IntegrationUtils
     // -----------------------------------------------------------------------
     // Enable/Disable Schema Tests
     // -----------------------------------------------------------------------
-    public static Map<String, Schema> getLoadedSchemas( DirectoryService service )
-    {
-        return service.getRegistries().getLoadedSchemas();
-    }
 
 
     public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
@@ -326,9 +320,7 @@ public class IntegrationUtils
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
-        Schema schema = getLoadedSchemas(service ).get( schemaName );
-        
-        return ( schema == null ) || ( schema.isDisabled() );
+    	return ! service.getRegistries().isSchemaLoaded( schemaName );
     }
     
     
@@ -337,8 +329,6 @@ public class IntegrationUtils
      */
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
-        Schema schema = getLoadedSchemas( service ).get( schemaName );
-        
-        return ( schema != null ) && ( !schema.isDisabled() );
+    	return service.getRegistries().isSchemaLoaded( schemaName );
     }
 }
