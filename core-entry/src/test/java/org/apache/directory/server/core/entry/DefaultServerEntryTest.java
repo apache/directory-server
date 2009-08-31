@@ -97,7 +97,15 @@ public class DefaultServerEntryTest
     public static void setup() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
-    	File schemaRepository = new File( workingDirectory, "schema" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
