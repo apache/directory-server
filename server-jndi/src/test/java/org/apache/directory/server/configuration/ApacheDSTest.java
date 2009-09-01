@@ -20,10 +20,9 @@
 package org.apache.directory.server.configuration;
 
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -32,11 +31,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ApacheDSTest extends TestCase
+public class ApacheDSTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDSTest.class );
 
    
+    @Test
     public void testBogus()
     {
         System.out.println( "TODO: Fix this the real test case and delete me!" );

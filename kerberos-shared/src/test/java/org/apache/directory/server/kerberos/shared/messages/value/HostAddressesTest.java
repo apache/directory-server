@@ -24,9 +24,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the HostAddresses encoding and decoding
@@ -34,8 +33,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class HostAddressesTest extends TestCase
+public class HostAddressesTest
 {
+    @Test
     public void testEncodingHostAddressesIPOneAddresses() throws Exception
     {
         HostAddress[] ha = new HostAddress[]
@@ -63,6 +63,7 @@ public class HostAddressesTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingHostAddressesIP3Addresses() throws Exception
     {
         HostAddress[] ha = new HostAddress[]
@@ -104,6 +105,7 @@ public class HostAddressesTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingHostAddressIPNullAddress() throws Exception
     {
         HostAddresses has = new HostAddresses( null );

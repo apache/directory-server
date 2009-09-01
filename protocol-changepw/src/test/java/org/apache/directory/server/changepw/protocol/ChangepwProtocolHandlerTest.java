@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.io.ChangePasswordDataEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
@@ -60,7 +59,8 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.DummySession;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the ChangePasswordProtocolHandler.
@@ -68,7 +68,7 @@ import org.apache.mina.core.session.DummySession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangepwProtocolHandlerTest extends TestCase
+public class ChangepwProtocolHandlerTest
 {
     /**
      * The Change Password SUCCESS result code.
@@ -100,6 +100,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
     /**
      * Tests the protocol version number, which must be '1'.
      */
+    @Test
     public void testProtocolVersionNumber()
     {
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 2, null, null );
@@ -116,6 +117,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      * Tests when a service ticket is missing that the request is rejected with
      * the correct error message.
      */
+    @Test
     public void testMissingTicket()
     {
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 1, null, null );
@@ -134,6 +136,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testInitialFlagRequired() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -210,6 +213,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      */
 
 
+    @Test
     public void testSetPassword() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );

@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.dns.messages;
 
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -29,11 +29,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RecordClassTest extends TestCase
+public class RecordClassTest
 {
     /**
      * Tests conversion of ordinals to RecordClass enums.
      */
+    @Test
     public void testRecordClassConversion()
     {
         assertEquals( RecordClass.IN, RecordClass.convert( ( short ) 1 ) );

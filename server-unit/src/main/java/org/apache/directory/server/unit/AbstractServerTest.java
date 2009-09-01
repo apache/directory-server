@@ -36,7 +36,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -64,6 +63,8 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbstractServerTest extends TestCase
+public abstract class AbstractServerTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AbstractServerTest.class );
     private static final List<LdifEntry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<LdifEntry>( 0 ) );
@@ -238,13 +239,10 @@ public abstract class AbstractServerTest extends TestCase
     /**
      * Get's the initial context factory for the provider's ou=system context
      * root.
-     *
-     * @see junit.framework.TestCase#setUp()
      */
+    @Before
     protected void setUp() throws Exception
     {
-        super.setUp();
-        
         if ( start == 0 )
         {
             t0 = System.currentTimeMillis();
@@ -378,13 +376,12 @@ public abstract class AbstractServerTest extends TestCase
 
     /**
      * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
      */
+    @After
     protected void tearDown() throws Exception
     {
-        super.tearDown();
         ldapServer.stop();
+        
         try
         {
             directoryService.shutdown();

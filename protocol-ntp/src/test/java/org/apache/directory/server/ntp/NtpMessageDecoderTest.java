@@ -22,10 +22,9 @@ package org.apache.directory.server.ntp;
 
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpMessageDecoderTest extends TestCase
+public class NtpMessageDecoderTest
 {
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( NtpMessageDecoderTest.class );
@@ -63,6 +62,7 @@ public class NtpMessageDecoderTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testParseClient() throws Exception
     {
         ByteBuffer buffer = ByteBuffer.wrap( clientRequest );
@@ -77,6 +77,7 @@ public class NtpMessageDecoderTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testParseServer() throws Exception
     {
         ByteBuffer buffer = ByteBuffer.wrap( serverResponse );

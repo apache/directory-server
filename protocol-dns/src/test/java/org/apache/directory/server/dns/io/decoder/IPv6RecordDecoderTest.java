@@ -24,11 +24,12 @@ package org.apache.directory.server.dns.io.decoder;
 import java.net.InetAddress;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
+import org.junit.Before;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for the AAAA resource record decoder.
@@ -36,7 +37,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 501160 $, $Date: 2007-01-29 12:41:33 -0700 (Mon, 29 Jan 2007) $
  */
-public class IPv6RecordDecoderTest extends TestCase
+public class IPv6RecordDecoderTest
 {
     InetAddress address;
     IoBuffer inputBuffer;
@@ -44,6 +45,7 @@ public class IPv6RecordDecoderTest extends TestCase
     IPv6RecordDecoder decoder;
 
 
+    @Before
     public void setUp() throws Exception
     {
         address = InetAddress.getByName( "0:0:0:0:0:0:0:1" );
@@ -55,10 +57,10 @@ public class IPv6RecordDecoderTest extends TestCase
     }
 
 
+    @Test
     public void testDecode() throws Exception
     {
-        Map attributes = decoder.decode( inputBuffer, ( short ) address.getAddress().length );
+        Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) address.getAddress().length );
         assertEquals( address, attributes.get( DnsAttribute.IP_ADDRESS ) );
     }
-
 }

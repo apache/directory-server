@@ -25,9 +25,9 @@ import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the EncryptedData encoding and decoding
@@ -35,8 +35,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class EncryptedDataTest extends TestCase
+public class EncryptedDataTest
 {
+    @Test
     public void testEncodingEncryptedData() throws Exception
     {
         EncryptedData ed = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, 1, new byte[]
@@ -61,6 +62,7 @@ public class EncryptedDataTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingEncryptedDataNullCipher() throws Exception
     {
         EncryptedData ed = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, 1, null );
@@ -84,6 +86,7 @@ public class EncryptedDataTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingEncryptedDataNoKvno() throws Exception
     {
         EncryptedData ed = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, new byte[]
@@ -106,6 +109,7 @@ public class EncryptedDataTest extends TestCase
     }
 
 
+    @Test
     public void testEncodingEncryptedDataNoKvnoNullCipher() throws Exception
     {
         EncryptedData ed = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, null );

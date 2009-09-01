@@ -233,8 +233,6 @@ public abstract class AbstractServerTest
     /**
      * Get's the initial context factory for the provider's ou=system context
      * root.
-     *
-     * @see junit.framework.TestCase#setUp()
      */
     @BeforeClass
     public static void setUp() throws Exception
@@ -372,8 +370,6 @@ public abstract class AbstractServerTest
 
     /**
      * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
      */
     @AfterClass
     public static void tearDown() throws Exception

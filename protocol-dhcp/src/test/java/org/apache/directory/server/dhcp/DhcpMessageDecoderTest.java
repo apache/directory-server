@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.dhcp.io.DhcpMessageDecoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
+import org.junit.Test;
 
 
 /**
@@ -42,6 +43,7 @@ public class DhcpMessageDecoderTest extends AbstractDhcpTestCase
     }
 
 
+    @Test
     public void testParseDiscover() throws Exception
     {
         requestByteBuffer = getByteBufferFromFile( "DHCPDISCOVER.pdu" );
@@ -53,6 +55,7 @@ public class DhcpMessageDecoderTest extends AbstractDhcpTestCase
     }
 
 
+    @Test
     public void testParseOffer() throws Exception
     {
         requestByteBuffer = getByteBufferFromFile( "DHCPOFFER.pdu" );
