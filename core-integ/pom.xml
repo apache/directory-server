@@ -54,7 +54,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
+      <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>  

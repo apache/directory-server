@@ -67,9 +67,6 @@ import org.apache.directory.server.core.interceptor.context.RemoveContextPartiti
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -357,6 +354,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                         + override.getId() + "'." );
             }
             
+            /*
             // add all attribute oids of index configs to a hashset
             if ( override instanceof JdbmPartition )
             {
@@ -380,20 +378,22 @@ public class DefaultPartitionNexus extends PartitionNexus
 
                 ( ( JdbmPartition ) override ).setIndexedAttributes( indices );
             }
+            */
 
             system = override;
         }
         else
         {
+        	/*
             system = new JdbmPartition();
             system.setId( "system" );
             system.setCacheSize( 500 );
             system.setSuffix( ServerDNConstants.SYSTEM_DN );
-    
             // Add objectClass attribute for the system partition
             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
             indexedAttrs.add( new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
+    		*/
         }
 
         system.init( directoryService );

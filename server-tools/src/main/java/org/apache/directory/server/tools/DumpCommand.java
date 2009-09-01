@@ -22,7 +22,6 @@ package org.apache.directory.server.tools;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,26 +39,18 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
@@ -95,14 +86,6 @@ public class DumpCommand extends ToolCommand
 
         // setup temporary loader and temp registry 
     	String workingDirectory = System.getProperty( "workingDirectory" );
-
-        if ( workingDirectory == null )
-        {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
@@ -141,42 +124,16 @@ public class DumpCommand extends ToolCommand
                 + "the installation layout could not be found:\n\t" + schemaDirectory );
         }
 
-        JdbmPartition schemaPartition = new JdbmPartition();
-        schemaPartition.setId( "schema" );
-        schemaPartition.setCacheSize( 1000 );
-
-        DbFileListing listing;
-        
-        try
-        {
-            listing = new DbFileListing();
-        }
-        catch ( IOException e )
-        {
-            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(),
-                ResultCodeEnum.OTHER );
-        }
-
-        Set<Index<?,ServerEntry>> indexedAttributes = new HashSet<Index<?,ServerEntry>>();
-
-        for ( String attributeId : listing.getIndexedAttributes() )
-        {
-            indexedAttributes.add( new JdbmIndex( attributeId ) );
-        }
-
-        schemaPartition.setIndexedAttributes( indexedAttributes );
-        schemaPartition.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
-
         DirectoryService directoryService = new DefaultDirectoryService();
-        schemaPartition.init( directoryService );
+        //schemaPartition.init( directoryService );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries
         // --------------------------------------------------------------------
-        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
+//        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
         Registries globalRegistries = new Registries();
-        schemaLoader.loadEnabled( globalRegistries );
-        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
+//        schemaLoader.loadEnabled( globalRegistries );
+//        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
         return globalRegistries;
     }
 
