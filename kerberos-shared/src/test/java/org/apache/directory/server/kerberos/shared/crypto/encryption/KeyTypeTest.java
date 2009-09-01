@@ -26,7 +26,6 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -37,8 +36,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for the encryption types used by Kerberos "5.2" per RFC 4120,
@@ -58,16 +59,17 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeyTypeTest extends TestCase
+public class KeyTypeTest
 {
     /**
      * Tests that the cipher types used by Kerberos exist, namely
      * DES, DESede, RC4, and AES.
      */
+    @Test
     public void testKeyTypes()
     {
         String[] names = getCryptoImpls( "Cipher" );
-        List ciphers = Arrays.asList( names );
+        List<String> ciphers = Arrays.asList( names );
 
         assertTrue( ciphers.contains( "DES" ) );
         assertTrue( ciphers.contains( "DESede" ) );
@@ -82,10 +84,11 @@ public class KeyTypeTest extends TestCase
      * Tests that the message digest types used by Kerberos exist, namely
      * SHA1 and MD5.
      */
+    @Test
     public void testMessageDigestTypes()
     {
         String[] names = getCryptoImpls( "MessageDigest" );
-        List ciphers = Arrays.asList( names );
+        List<String> ciphers = Arrays.asList( names );
 
         assertTrue( ciphers.contains( "MD5" ) );
         assertTrue( ciphers.contains( "SHA1" ) );
@@ -96,10 +99,11 @@ public class KeyTypeTest extends TestCase
      * Tests that the MAC types used by Kerberos exist, namely
      * HmacMD5 and HmacSHA1.
      */
+    @Test
     public void testMacTypes()
     {
         String[] names = getCryptoImpls( "Mac" );
-        List ciphers = Arrays.asList( names );
+        List<String> ciphers = Arrays.asList( names );
 
         assertTrue( ciphers.contains( "HmacMD5" ) );
         assertTrue( ciphers.contains( "HmacSHA1" ) );
@@ -111,6 +115,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void generateDes() throws Exception
     {
         byte[] desKeyData =
@@ -129,6 +134,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testDesCipher() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DES" );
@@ -145,6 +151,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testTripleDesCipher() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DESede" );
@@ -161,6 +168,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testArcFourCipher() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "ARCFOUR" );
@@ -178,6 +186,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testAes128Cipher() throws Exception
     {
         KeyGenerator keyGenerator = KeyGenerator.getInstance( "AES" );
@@ -204,6 +213,7 @@ public class KeyTypeTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testAes256Cipher() throws Exception
     {
         KeyGenerator keyGenerator = KeyGenerator.getInstance( "AES" );
@@ -233,6 +243,7 @@ public class KeyTypeTest extends TestCase
      * 
      * @throws Exception
      */
+    @Test
     public void testGenerateHmacMd5() throws Exception
     {
         KeyGenerator kg = KeyGenerator.getInstance( "HmacMD5" );
@@ -251,6 +262,7 @@ public class KeyTypeTest extends TestCase
      * 
      * @throws Exception
      */
+    @Test
     public void testGenerateHmacSha1() throws Exception
     {
         KeyGenerator kg = KeyGenerator.getInstance( "HmacSHA1" );
@@ -275,13 +287,15 @@ public class KeyTypeTest extends TestCase
         Set<String> result = new HashSet<String>();
 
         Provider[] providers = Security.getProviders();
-        for ( int i = 0; i < providers.length; i++ )
+        
+        for ( Provider provider : providers )
         {
             // Get services provided by each provider
-            Set keys = providers[i].keySet();
-            for ( Iterator it = keys.iterator(); it.hasNext(); )
+            Set<Object> keys = provider.keySet();
+            
+            for ( Object keyObject : keys )
             {
-                String key = ( String ) it.next();
+                String key = ( String ) keyObject;
                 key = key.split( " " )[0];
 
                 if ( key.startsWith( serviceType + "." ) )

@@ -29,8 +29,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the use of AES for Kerberos, using test vectors from RFC 3962,
@@ -39,7 +41,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AesEncryptionTest extends TestCase
+public class AesEncryptionTest
 {
     private byte[] keyBytes =
         { ( byte ) 0x63, ( byte ) 0x68, ( byte ) 0x69, ( byte ) 0x63, ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x6e,
@@ -60,6 +62,7 @@ public class AesEncryptionTest extends TestCase
      * Tests the first test vector from RFC 3962,
      * "Advanced Encryption Standard (AES) Encryption for Kerberos 5."
      */
+    @Test
     public void testFirstAesVector()
     {
         if ( !VendorHelper.isCtsSupported() )
@@ -88,6 +91,7 @@ public class AesEncryptionTest extends TestCase
      * Tests the last test vector from RFC 3962,
      * "Advanced Encryption Standard (AES) Encryption for Kerberos 5."
      */
+    @Test
     public void testLastAesVector()
     {
         if ( !VendorHelper.isCtsSupported() )

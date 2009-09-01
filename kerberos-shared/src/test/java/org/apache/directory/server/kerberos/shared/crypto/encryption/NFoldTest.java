@@ -22,7 +22,9 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -32,11 +34,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NFoldTest extends TestCase
+public class NFoldTest
 {
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold1()
     {
         int n = 64;
@@ -58,6 +61,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold2()
     {
         int n = 56;
@@ -78,6 +82,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold3()
     {
         int n = 64;
@@ -99,6 +104,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold4()
     {
         int n = 168;
@@ -122,6 +128,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold5()
     {
         int n = 192;
@@ -146,6 +153,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold6()
     {
         int n = 168;
@@ -169,6 +177,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFold7()
     {
         int n = 168;
@@ -192,6 +201,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFoldKerberos64()
     {
         int n = 64;
@@ -213,6 +223,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFoldKerberos128()
     {
         int n = 128;
@@ -235,6 +246,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFoldKerberos168()
     {
         int n = 168;
@@ -258,6 +270,7 @@ public class NFoldTest extends TestCase
     /**
      * Tests an n-fold test vector from RFC 3961.
      */
+    @Test
     public void testNFoldKerberos256()
     {
         int n = 256;
@@ -284,6 +297,7 @@ public class NFoldTest extends TestCase
      * that for purposes of n-folding, we do not actually complement the
      * result of the addition.
      */
+    @Test
     public void testSum()
     {
         byte[] n1 =

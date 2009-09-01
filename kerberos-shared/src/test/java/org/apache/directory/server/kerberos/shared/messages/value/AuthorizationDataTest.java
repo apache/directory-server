@@ -24,9 +24,9 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.directory.server.kerberos.shared.messages.value.types.AuthorizationType;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the AuthorizationData encoding and decoding
@@ -34,8 +34,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class AuthorizationDataTest extends TestCase
+public class AuthorizationDataTest
 {
+    @Test
     public void testAuthorizationDataOneAD() throws Exception
     {
         AuthorizationData ad = new AuthorizationData();
@@ -60,6 +61,7 @@ public class AuthorizationDataTest extends TestCase
     }
 
 
+    @Test
     public void testAuthorizationDataThreeAD() throws Exception
     {
         AuthorizationData ad = new AuthorizationData();

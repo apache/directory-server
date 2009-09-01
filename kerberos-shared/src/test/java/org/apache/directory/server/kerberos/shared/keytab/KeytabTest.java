@@ -32,13 +32,15 @@ import java.util.TimeZone;
 
 import javax.crypto.spec.DESKeySpec;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.mina.core.buffer.IoBuffer;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -49,7 +51,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeytabTest extends TestCase
+public class KeytabTest
 {
     private static final byte[] keytab1 = new byte[]
         { ( byte ) 0x05, ( byte ) 0x02, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x3C, ( byte ) 0x00,
@@ -90,6 +92,7 @@ public class KeytabTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testReadKeytab1() throws Exception
     {
         Keytab keytab = Keytab.read( keytab1 );
@@ -116,6 +119,7 @@ public class KeytabTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testReadKeytab2() throws Exception
     {
         Keytab keytab = Keytab.read( keytab2 );
@@ -142,6 +146,7 @@ public class KeytabTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testWriteKeytab() throws Exception
     {
         List<KeytabEntry> entries = new ArrayList<KeytabEntry>();

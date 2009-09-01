@@ -28,10 +28,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.DESKeySpec;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for random-to-key functions for DES-, DES3-, AES-, and RC4-based
@@ -40,13 +41,14 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RandomKeyFactoryTest extends TestCase
+public class RandomKeyFactoryTest
 {
     /**
      * Tests that random DES keys can be generated.
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateDesKey() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DES" );
@@ -61,6 +63,7 @@ public class RandomKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateTripleDesKey() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DESede" );
@@ -74,6 +77,7 @@ public class RandomKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateAes128Key() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
@@ -88,6 +92,7 @@ public class RandomKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateAes256Key() throws Exception
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
@@ -102,6 +107,7 @@ public class RandomKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateArcFourKey() throws Exception
     {
         if ( !VendorHelper.isArcFourHmacSupported() )
@@ -120,6 +126,7 @@ public class RandomKeyFactoryTest extends TestCase
      *
      * @throws Exception
      */
+    @Test
     public void testGenerateRc4Key() throws Exception
     {
         if ( !VendorHelper.isArcFourHmacSupported() )
@@ -138,6 +145,7 @@ public class RandomKeyFactoryTest extends TestCase
      * 
      * @throws Exception
      */
+    @Test
     public void testRandomKeyFactory() throws Exception
     {
         Map<EncryptionType, EncryptionKey> map = RandomKeyFactory.getRandomKeys();
@@ -188,6 +196,7 @@ public class RandomKeyFactoryTest extends TestCase
      * 
      * @throws Exception
      */
+    @Test
     public void testRandomKeyFactoryOnlyDes() throws Exception
     {
         Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();

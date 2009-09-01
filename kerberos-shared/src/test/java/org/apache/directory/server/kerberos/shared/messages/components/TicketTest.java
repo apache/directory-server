@@ -28,8 +28,10 @@ import org.apache.directory.server.kerberos.shared.io.encoder.TicketEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test the Ticket encoding and decoding
@@ -37,8 +39,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 542147 $, $Date: 2007-05-28 10:14:21 +0200 (Mon, 28 May 2007) $
  */
-public class TicketTest extends TestCase
+public class TicketTest
 {
+    @Test
     public void testTicket() throws Exception
     {
         TicketFactory ticketFactory = new TicketFactory();

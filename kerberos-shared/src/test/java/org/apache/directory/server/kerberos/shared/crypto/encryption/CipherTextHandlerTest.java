@@ -28,13 +28,14 @@ import java.util.TimeZone;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import junit.framework.TestCase;
-
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -43,7 +44,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CipherTextHandlerTest extends TestCase
+public class CipherTextHandlerTest
 {
     private byte[] desEncryptedTimeStamp =
         { ( byte ) 0x97, ( byte ) 0x21, ( byte ) 0x58, ( byte ) 0x5f, ( byte ) 0x81, ( byte ) 0x46, ( byte ) 0x17,
@@ -111,6 +112,7 @@ public class CipherTextHandlerTest extends TestCase
      * of the supported encryption types.  The length of the Kerberos Cipher Text
      * is relevant to the structure of the underlying plaintext.
      */
+    @Test
     public void testTestVectorLengths()
     {
         assertEquals( "DES length", 56, desEncryptedTimeStamp.length );
@@ -126,6 +128,7 @@ public class CipherTextHandlerTest extends TestCase
      * an integrity check, an attempt is made to decode the bytes as an EncryptedTimestamp.  The
      * result is timestamp data.
      */
+    @Test
     public void testDesGoodPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
@@ -152,6 +155,7 @@ public class CipherTextHandlerTest extends TestCase
      * Tests the unsealing of Kerberos CipherText with a bad password.  After decryption, the
      * checksum is tested and should fail on comparison, resulting in an integrity check error.
      */
+    @Test
     public void testDesBadPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
@@ -178,6 +182,7 @@ public class CipherTextHandlerTest extends TestCase
      * an integrity check, an attempt is made to decode the bytes as an EncryptedTimestamp.  The
      * result is timestamp data.
      */
+    @Test
     public void testTripleDesGoodPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
@@ -208,6 +213,7 @@ public class CipherTextHandlerTest extends TestCase
      * 
      * @throws ParseException 
      */
+    @Test
     public void testTripleDesGoodPasswordEncrypt() throws ParseException
     {
         CipherTextHandler lockBox = new CipherTextHandler();
@@ -252,6 +258,7 @@ public class CipherTextHandlerTest extends TestCase
      * an integrity check, an attempt is made to decode the bytes as an EncryptedTimestamp.  The
      * result is timestamp data.
      */
+    @Test
     public void testAes128GoodPasswordDecrypt()
     {
         if ( !VendorHelper.isCtsSupported() )
@@ -286,6 +293,7 @@ public class CipherTextHandlerTest extends TestCase
      * 
      * @throws ParseException 
      */
+    @Test
     public void testAes128GoodPasswordEncrypt() throws ParseException
     {
         if ( !VendorHelper.isCtsSupported() )
@@ -334,6 +342,7 @@ public class CipherTextHandlerTest extends TestCase
      * an integrity check, an attempt is made to decode the bytes as an EncryptedTimestamp.  The
      * result is timestamp data.
      */
+    @Test
     public void testAes256GoodPasswordDecrypt()
     {
         if ( !VendorHelper.isCtsSupported() )
@@ -380,6 +389,7 @@ public class CipherTextHandlerTest extends TestCase
      * 
      * @throws ParseException 
      */
+    @Test
     public void testAes256GoodPasswordEncrypt() throws ParseException
     {
         if ( !VendorHelper.isCtsSupported() )
