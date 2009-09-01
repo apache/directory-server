@@ -1180,7 +1180,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         try
         {
-            return get( atRegistry.lookup( alias ) );
+            return get( atRegistry.lookup( StringTools.trim( StringTools.toLowerCase( alias ) ) ) );
         }
         catch ( NamingException ne )
         {

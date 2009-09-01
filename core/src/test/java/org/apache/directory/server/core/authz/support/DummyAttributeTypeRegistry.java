@@ -105,7 +105,7 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
     }
 
 
-    public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
+    public Map<String,OidNormalizer> getNormalizerMapping()
     {
         return null;
     }
