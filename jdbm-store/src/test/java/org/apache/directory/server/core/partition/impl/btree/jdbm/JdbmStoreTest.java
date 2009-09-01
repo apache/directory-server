@@ -38,7 +38,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -94,7 +93,7 @@ public class JdbmStoreTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            String path = JdbmStoreTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

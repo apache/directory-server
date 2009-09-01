@@ -69,6 +69,7 @@ public class KeyCursorTest
     public void createCursor() throws Exception
     {
         File tmpDir = null;
+        
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );

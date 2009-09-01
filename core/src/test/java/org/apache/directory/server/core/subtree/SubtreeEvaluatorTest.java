@@ -24,7 +24,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
@@ -67,7 +66,7 @@ public class SubtreeEvaluatorTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            String path = SubtreeEvaluatorTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

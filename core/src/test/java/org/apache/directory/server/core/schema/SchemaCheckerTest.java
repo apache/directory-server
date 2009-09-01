@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -72,7 +71,7 @@ public class SchemaCheckerTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            String path = SchemaCheckerTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -616,12 +615,12 @@ public class SchemaCheckerTest
             return oid;
         }
 
-        public List getNameSet( String oid ) throws NamingException
+        public List<String> getNameSet( String oid ) throws NamingException
         {
             return Collections.singletonList( oid );
         }
 
-        public Iterator list()
+        public Iterator<String> list()
         {
             return Collections.EMPTY_LIST.iterator();
         }

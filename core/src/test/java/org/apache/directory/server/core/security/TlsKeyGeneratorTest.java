@@ -27,7 +27,6 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -63,7 +62,7 @@ public class TlsKeyGeneratorTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            String path = TlsKeyGeneratorTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
