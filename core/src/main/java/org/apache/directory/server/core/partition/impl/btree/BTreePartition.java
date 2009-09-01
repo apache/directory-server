@@ -93,6 +93,7 @@ public abstract class BTreePartition implements Partition
     
     /** The rootDSE context */
     protected ServerEntry contextEntry;
+	private Set<Index<?,ServerEntry>> indexedAttributes;
 
 
     // ------------------------------------------------------------------------
@@ -105,12 +106,25 @@ public abstract class BTreePartition implements Partition
      */
     protected BTreePartition()
     {
+        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
     }
 
     
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
+
+    
+    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
+    {
+        this.indexedAttributes = indexedAttributes;
+    }
+
+
+    public Set<Index<?,ServerEntry>> getIndexedAttributes()
+    {
+        return indexedAttributes;
+    }
 
 
     /**

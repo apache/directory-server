@@ -27,7 +27,7 @@ import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -70,7 +70,7 @@ public class SchemaService
     private Registries registries;
 
     /** a handle on the schema partition */
-    private JdbmPartition schemaPartition;
+    private Partition schemaPartition;
 
     /** schema operation control */
     private SchemaOperationControl schemaControl;
@@ -89,7 +89,7 @@ public class SchemaService
      * @param schemaControl The schema control instance
      * @throws NamingException If somethi,ng went wrong during initialization
      */
-    public SchemaService( DirectoryService directoryService, JdbmPartition schemaPartition, SchemaOperationControl schemaControl ) throws NamingException
+    public SchemaService( DirectoryService directoryService, Partition schemaPartition, SchemaOperationControl schemaControl ) throws NamingException
     {
         this.registries = directoryService.getRegistries();
         this.schemaPartition = schemaPartition;

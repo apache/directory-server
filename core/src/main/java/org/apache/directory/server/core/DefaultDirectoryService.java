@@ -50,12 +50,13 @@ import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
@@ -132,7 +133,7 @@ public class DefaultDirectoryService implements DirectoryService
     private Registries registries;
     
     /** the root nexus */
-    private DefaultPartitionNexus partitionNexus;
+    private PartitionNexus partitionNexus;
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
@@ -976,6 +977,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Shutdown the partition
         // --------------------------------------------------------------------
+
         partitionNexus.sync();
         partitionNexus.destroy();
         
@@ -1473,7 +1475,7 @@ public class DefaultDirectoryService implements DirectoryService
 
         // @TODO implement the LDIF schema partition here and set it up
         
-        JdbmPartition schemaPartition = null;
+        Partition schemaPartition = null;
         
         // this is really dumb but ...
         // just bail but do so so we don't dead code complaint for now
@@ -1503,7 +1505,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( partition instanceof BTreePartition )
             {
-                JdbmPartition btpconf = ( JdbmPartition ) partition;
+                BTreePartition btpconf = ( BTreePartition ) partition;
                 for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
                 {
                     String schemaName = null;
@@ -1553,6 +1555,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
 
+        // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaPartition ) );

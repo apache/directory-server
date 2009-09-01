@@ -182,7 +182,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             SyncInfoValueControl.CONTROL_OID,
             SyncRequestValueControl.CONTROL_OID,
             SyncStateValueControl.CONTROL_OID 
-            );
+        );
 
         // Add the objectClasses
         rootDSE.put( SchemaConstants.OBJECT_CLASS_AT,

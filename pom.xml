@@ -332,9 +332,10 @@
 
   <modules>
     <module>all</module>
-    <module>jdbm</module>
     <module>utils</module>
+    <module>jdbm</module>
     <module>jdbm-store</module>
+    <module>jdbm-partition</module>
     <module>xdbm-base</module>
     <module>xdbm-search</module>
     <module>xdbm-tools</module>

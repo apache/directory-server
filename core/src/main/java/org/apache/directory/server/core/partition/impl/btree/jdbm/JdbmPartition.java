@@ -68,21 +68,14 @@ public class JdbmPartition extends BTreePartition
 {
     private JdbmStore<ServerEntry> store;
     private boolean optimizerEnabled = true;
-    private Set<Index<?,ServerEntry>> indexedAttributes;
-
     
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
-
-
+    
     /**
      * Creates a store based on JDBM B+Trees.
      */
     public JdbmPartition()
     {
         store = new JdbmStore<ServerEntry>();
-        indexedAttributes = new HashSet<Index<?,ServerEntry>>();
     }
 
 
@@ -94,18 +87,6 @@ public class JdbmPartition extends BTreePartition
     public String getSuffix()
     {
         return super.suffix;
-    }
-
-
-    public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
-    {
-        this.indexedAttributes = indexedAttributes;
-    }
-
-
-    public Set<Index<?,ServerEntry>> getIndexedAttributes()
-    {
-        return indexedAttributes;
     }
 
 
@@ -182,7 +163,7 @@ public class JdbmPartition extends BTreePartition
 
         Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
         
-        for ( Index<?,ServerEntry> obj : indexedAttributes )
+        for ( Index<?,ServerEntry> obj : getIndexedAttributes() )
         {
             Index<?,ServerEntry> index;
 
