@@ -53,8 +53,11 @@ public class ServerDNConstants
     /** The DN for the gloval schema subentry normalized */
     public static final String CN_SCHEMA_DN_NORMALIZED = "2.5.4.3=schema";
    
-    /** the DN for the global schema subentry */
+    /** the DN for the schema in dit area */
     public static final String OU_SCHEMA_DN = "ou=schema";
+
+    /** the normalized DN for the schema in DIT area */
+    public static final String OU_SCHEMA_DN_NORMALIZED = "2.5.4.11=schema";
     
     /** The DN for the schema modification's timestamp */
     public static final String SCHEMA_TIMESTAMP_ENTRY_DN = "cn=schemaModifications,ou=schema";
