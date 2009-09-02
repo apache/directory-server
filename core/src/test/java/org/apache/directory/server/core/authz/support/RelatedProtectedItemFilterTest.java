@@ -78,8 +78,8 @@ public class RelatedProtectedItemFilterTest
     private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
-    private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_A = new DummyAttributeTypeRegistry( false );
-    private static final AttributeTypeRegistry ATTR_TYPE_REGISTRY_B = new DummyAttributeTypeRegistry( true );
+    private static AttributeTypeRegistry atRegistryA;
+    private static AttributeTypeRegistry atRegistryB;
     private static OidRegistry OID_REGISTRY;
 
     private static RelatedProtectedItemFilter filterA;
@@ -102,12 +102,15 @@ public class RelatedProtectedItemFilterTest
 
         GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
+        
+        atRegistryA = service.getRegistries().getAttributeTypeRegistry();
+        atRegistryB = service.getRegistries().getAttributeTypeRegistry();
 
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_A ), OID_REGISTRY, ATTR_TYPE_REGISTRY_A );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, atRegistryA ), OID_REGISTRY, atRegistryA );
 
         filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, ATTR_TYPE_REGISTRY_B ), OID_REGISTRY, ATTR_TYPE_REGISTRY_B );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, atRegistryB ), OID_REGISTRY, atRegistryB );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
