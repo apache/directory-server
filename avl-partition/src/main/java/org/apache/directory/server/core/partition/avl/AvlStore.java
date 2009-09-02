@@ -59,7 +59,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
@@ -81,7 +80,6 @@ public class AvlStore<E> implements Store<E>
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
 
-    private OidRegistry oidRegistry;
     private AttributeTypeRegistry attributeTypeRegistry;
 
     /** Two static declaration to avoid lookup all over the code */
@@ -742,7 +740,6 @@ public class AvlStore<E> implements Store<E>
     public void initRegistries( Registries registries )
     {
         this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        this.oidRegistry = registries.getOidRegistry();
     }
 
 
