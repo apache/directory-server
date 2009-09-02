@@ -39,7 +39,7 @@ public class SimpleAuthenticatorOneWayEncryptedTest
 
 
     @Before
-    protected void setUp() throws Exception
+    public void setUp() throws Exception
     {
 
         this.auth = new SimpleAuthenticator();
