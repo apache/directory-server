@@ -143,8 +143,9 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
 
-        loader.loadWithDependencies( loader.getSchema( MetaSchemaConstants.SCHEMA_NAME ), registries );
-        loader.loadWithDependencies( loader.getSchema( CoreSchemaConstants.SCHEMA_NAME ), registries );
+//        loader.loadWithDependencies( loader.getSchema( MetaSchemaConstants.SCHEMA_NAME ), registries );
+//        loader.loadWithDependencies( loader.getSchema( CoreSchemaConstants.SCHEMA_NAME ), registries );
+        loader.loadAllEnabled( registries );  // @TODO remove this once we get the LDIF partition in place
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
 
