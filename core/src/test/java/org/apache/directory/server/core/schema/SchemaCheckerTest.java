@@ -65,7 +65,7 @@ public class SchemaCheckerTest
 
 
     @BeforeClass
-    protected void setUp() throws Exception
+    public static void setUp() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
