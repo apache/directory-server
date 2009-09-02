@@ -31,6 +31,7 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.schema.SchemaChecker;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -480,8 +481,9 @@ public class SchemaCheckerTest
     @Test
     public void testPreventRdnChangeOnModifyRemoveAttribute() throws Exception
     {
+        Map<String, OidNormalizer> oidNormalizers = registries.getAttributeTypeRegistry().getNormalizerMapping();
         ModificationOperation mod = ModificationOperation.REMOVE_ATTRIBUTE;
-        LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" );
+        LdapDN name = new LdapDN( "ou=user,dc=example,dc=com" ).normalize( oidNormalizers );
         AttributeType cnAt = registries.getAttributeTypeRegistry().lookup( "cn" );
         AttributeType ouAt = registries.getAttributeTypeRegistry().lookup( "ou" );
         AttributeType snAt = registries.getAttributeTypeRegistry().lookup( "sn" );
@@ -504,6 +506,7 @@ public class SchemaCheckerTest
 
         // test success using more than one attribute for the Rdn but not modifying rdn attribute
         name = new LdapDN( "ou=users+cn=system users,dc=example,dc=com" );
+        name.normalize( oidNormalizers );
         SchemaChecker.preventRdnChangeOnModifyRemove( name, mod, 
             new DefaultServerAttribute( "sn", snAt, "does not matter" ), registries.getAttributeTypeRegistry() );
 
