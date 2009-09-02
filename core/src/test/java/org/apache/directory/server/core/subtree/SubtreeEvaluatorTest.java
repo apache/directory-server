@@ -32,13 +32,14 @@ import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponent
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -54,13 +55,13 @@ import static org.junit.Assert.assertFalse;
  */
 public class SubtreeEvaluatorTest
 {
-    private Registries registries;
+    private static Registries registries;
     private SubtreeEvaluator evaluator;
     FilterNormalizingVisitor visitor;
-    AttributeTypeRegistry attributeRegistry;
+    static AttributeTypeRegistry attributeRegistry;
+    static ConcreteNameComponentNormalizer ncn;
 
-
-    private void init() throws Exception
+    private static void init() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
@@ -80,22 +81,36 @@ public class SubtreeEvaluatorTest
     	
         attributeRegistry = registries.getAttributeTypeRegistry();
         
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
-        visitor = new FilterNormalizingVisitor( ncn, registries );
+        ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
     }
 
-    @BeforeClass
-    protected void setUp() throws Exception
+    
+    @Before
+    public void initTest()
     {
-        init();
+        visitor = new FilterNormalizingVisitor( ncn, registries );
         evaluator = new SubtreeEvaluator( registries.getOidRegistry(), registries.getAttributeTypeRegistry() );
     }
 
 
-    @AfterClass
-    protected void tearDown() throws Exception
+    @After
+    public void destroyTest()
     {
+        visitor = null;
         evaluator = null;
+    }
+
+    
+    @BeforeClass
+    public static void setUp() throws Exception
+    {
+        init();
+    }
+
+
+    @AfterClass
+    public static void tearDown() throws Exception
+    {
         registries = null;
     }
 
