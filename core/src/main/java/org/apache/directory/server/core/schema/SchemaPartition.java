@@ -20,13 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.HashSet;
+import java.util.HashSet; 
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -47,9 +46,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -205,6 +202,13 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
 
             SchemaPartitionDao dao = new SchemaPartitionDao( wrapped, registries );
             schemaManager = new SchemaOperationControl( registries, partitionLoader, dao );
+            
+            if ( wrapped instanceof NullPartition )
+            {
+                LOG.warn( "BYPASSING CRITICAL SCHEMA PROCESSING CODE DURING HEAVY DEV.  " +
+                		"PLEASE REMOVE THIS CONDITION BY USING A VALID SCHEMA PARTITION!!!" );
+                return;
+            }
             
             // --------------------------------------------------------------------
             // Make sure all schema with attributes that are indexed are enabled
