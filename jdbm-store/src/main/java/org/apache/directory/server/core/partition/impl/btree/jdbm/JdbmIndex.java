@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+import javax.naming.NamingException;
+
 
 /** 
  * A Jdbm based index implementation.
@@ -195,12 +197,18 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * 
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
+     * @throws NamingException 
      */
     private void initTables() throws IOException
     {
         SerializableComparator<K> comp;
 
         MatchingRule mr = attribute.getEquality();
+        
+        if ( mr == null )
+        {
+            throw new IOException( "No Equality MatchingRule available for attribute " + attribute.getName() );
+        }
         
         comp = new SerializableComparator<K>( mr.getOid() );
 
