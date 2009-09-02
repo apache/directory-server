@@ -143,7 +143,6 @@ public class DesStringToKeyTest
      * @return The final DES key.
      * @throws InvalidKeyException
      */
-    @Test
     private byte[] getDesKey( byte[] paddedByteArray, byte[] intermediateKey ) throws InvalidKeyException
     {
         if ( DESKeySpec.isWeak( intermediateKey, 0 ) )
