@@ -105,15 +105,6 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Inject the registries into the directory service
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param registries The new registries
-     */
-    void setRegistries( Registries registries );
-
-
-    /**
      * @return The referral manager
      */
     ReferralManager getReferralManager();

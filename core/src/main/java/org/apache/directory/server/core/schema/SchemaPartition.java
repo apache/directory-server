@@ -17,15 +17,18 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.partition;
+package org.apache.directory.server.core.schema;
 
 
-import java.net.URL;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -38,9 +41,21 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.partition.AbstractPartition;
+import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +121,11 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     /** the registries managed by this SchemaPartition */
     private Registries registries = new Registries();
     
+    /** the schema loader used: gets swapped out right after init */
+    private SchemaLoader loader = new JarLdifSchemaLoader();
+
+    private SchemaOperationControl schemaManager;
+    
     
     /**
      * Creates a new instance of SchemaPartition.
@@ -119,17 +139,37 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        
-        // @TODO - load apachemeta into registries
-        
-        URL url = SchemaLdifExtractor.getUniqueResource( "schema.ldif", "the base schema.ldif file" );
-        LOG.debug( "Found schema.ldif file in jar: {}", url );
+
+        loader.loadWithDependencies( loader.getSchema( MetaSchemaConstants.SCHEMA_NAME ), registries );
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
 
+    
+    public SchemaOperationControl getSchemaControl()
+    {
+        return schemaManager;
+    }
+    
     
     public Registries getRegistries()
     {
         return registries;
+    }
+    
+    
+    public void setWrappedPartition( Partition wrapped )
+    {
+        if ( this.isInitialized() )
+        {
+            throw new IllegalStateException( "Not allowed to set the wrappedPartition after initialization." );
+        }
+        this.wrapped = wrapped;
+    }
+    
+    
+    public Partition getWrappedPartition()
+    {
+        return this.wrapped;
     }
     
     
@@ -148,13 +188,68 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     @Override
     protected void doInit()
     {
-        getDirectoryService().setRegistries( registries );
         wrapped.setId( ID );
         wrapped.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
         
         try
         {
             wrapped.init( getDirectoryService() );
+            PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, registries );
+            partitionLoader.loadAllEnabled( registries );
+            loader = partitionLoader;
+
+            SchemaPartitionDao dao = new SchemaPartitionDao( wrapped, registries );
+            schemaManager = new SchemaOperationControl( registries, partitionLoader, dao );
+            
+            // --------------------------------------------------------------------
+            // Make sure all schema with attributes that are indexed are enabled
+            // --------------------------------------------------------------------
+
+            /*
+             * We need to make sure that every attribute indexed by a partition is
+             * loaded into the registries on the next step.  So here we must enable
+             * the schemas of those attributes so they are loaded into the global
+             * registries.
+             */
+            Map<String,Schema> schemaMap = dao.getSchemas();
+            Set<Partition> partitions = new HashSet<Partition>();
+            partitions.add( getDirectoryService().getSystemPartition() );
+            partitions.addAll( getDirectoryService().getPartitions() );
+
+            for ( Partition partition : partitions )
+            {
+                if ( partition instanceof BTreePartition )
+                {
+                    BTreePartition btpconf = ( BTreePartition ) partition;
+                    for ( Index<?,ServerEntry> index : btpconf.getIndexedAttributes() )
+                    {
+                        String schemaName = null;
+                        
+                        try
+                        {
+                            // Try to retrieve the AT in the registries
+                            AttributeType at = registries.getAttributeTypeRegistry().lookup( index.getAttributeId() );
+                            schemaName = dao.findSchema( at.getOid() );
+                        }
+                        catch ( Exception e )
+                        {
+                            // It does not exists: just use the attribute ID
+                            schemaName = dao.findSchema( index.getAttributeId() );
+                        }
+                        
+                        if ( schemaName == null )
+                        {
+                            throw new NamingException( "Index on unidentified attribute: " + index.toString() );
+                        }
+
+                        Schema schema = schemaMap.get( schemaName );
+                        if ( schema.isDisabled() )
+                        {
+                            dao.enableSchema( schemaName );
+                        }
+                    }
+                }
+            }
         }
         catch ( Exception e )
         {
@@ -189,6 +284,7 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
+        schemaManager.add( opContext );
         wrapped.add( opContext );
     }
 
@@ -207,6 +303,8 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
+        ClonedServerEntry entry = directoryService.getPartitionNexus().lookup( opContext.newLookupContext( opContext.getDn() ) );
+        schemaManager.delete( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         wrapped.delete( opContext );
     }
 
@@ -279,6 +377,13 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
+        LOG.debug( "Modification attempt on schema partition {}: \n{}", opContext.getDn(), opContext );
+
+        ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( 
+            opContext.getModItems(), opContext.getEntry() );
+
+        schemaManager.modify( opContext, opContext.getEntry(), targetEntry, opContext
+            .hasRequestControl( CascadeControl.CONTROL_OID ) );
         wrapped.modify( opContext );
     }
 
@@ -288,6 +393,9 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void move( MoveOperationContext opContext ) throws Exception
     {
+        LdapDN oriChildName = opContext.getDn();
+        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        schemaManager.replace( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         wrapped.move( opContext );
     }
 
@@ -297,6 +405,9 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws Exception
     {
+        LdapDN oriChildName = opContext.getDn();
+        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
+        schemaManager.move( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         wrapped.moveAndRename( opContext );
     }
 
@@ -306,6 +417,7 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public void rename( RenameOperationContext opContext ) throws Exception
     {
+        schemaManager.modifyRn( opContext, opContext.getEntry(), opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         wrapped.rename( opContext );
     }
 

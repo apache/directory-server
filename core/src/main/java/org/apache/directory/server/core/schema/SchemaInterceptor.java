@@ -49,12 +49,9 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
@@ -213,7 +210,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
-        schemaManager = directoryService.getSchemaService().getSchemaControl();
+        schemaManager = schemaService.getSchemaPartition().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
@@ -1106,36 +1103,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws Exception
-    {
-        LdapDN oriChildName = opContext.getDn();
-
-        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-
-        if ( oriChildName.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.move( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.moveAndRename( opContext );
-    }
-
-
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws Exception
-    {
-        LdapDN oriChildName = opContext.getDn();
-
-        ClonedServerEntry entry = opContext.lookup( oriChildName, ByPassConstants.LOOKUP_BYPASS );
-
-        if ( oriChildName.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.replace( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.move( opContext );
-    }
-
-
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
         LdapDN name = opContext.getDn();
@@ -1191,11 +1158,6 @@ public class SchemaInterceptor extends BaseInterceptor
                     throw new NoPermissionException( "Cannot modify the attribute '" + atav.getUpType() + "'" );
                 }
             }
-        }
-
-        if ( name.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.modifyRn( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
 
         next.rename( opContext );
@@ -1509,14 +1471,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
         }
 
-        if ( schemaModification )
-        {
-            LOG.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
-
-            schemaManager.modify( opContext, entry, targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-        else if ( subSchemaModification )
+        if ( subSchemaModification )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
 
@@ -2033,8 +1988,6 @@ public class SchemaInterceptor extends BaseInterceptor
         // Special checks for the MetaSchema branch
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( addContext );
-            
             if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
                 // This is a schema addition
@@ -2118,20 +2071,6 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
             }
         }
-    }
-
-
-    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws Exception
-    {
-        LdapDN name = opContext.getDn();
-
-        if ( name.startsWith( schemaBaseDN ) )
-        {
-            ClonedServerEntry entry = nexus.lookup( opContext.newLookupContext( name ) );
-            schemaManager.delete( opContext, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
-        }
-
-        next.delete( opContext );
     }
 
 
