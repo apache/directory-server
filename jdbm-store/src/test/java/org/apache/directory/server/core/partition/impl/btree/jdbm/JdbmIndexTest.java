@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -54,13 +55,13 @@ import java.io.IOException;
  */
 public class JdbmIndexTest
 {
-    AttributeTypeRegistry registry;
-    File dbFileDir;
+    private static AttributeTypeRegistry registry;
+    private static File dbFileDir;
     Index<String,ServerEntry> idx;
 
 
-    @Before
-    public void setup() throws Exception
+    @BeforeClass
+    public static void init() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
@@ -80,7 +81,13 @@ public class JdbmIndexTest
 
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
-        this.registry = registries.getAttributeTypeRegistry();
+        registry = registries.getAttributeTypeRegistry();
+    }
+    
+    
+    @Before
+    public void setup() throws IOException
+    {
 
         File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
         tmpIndexFile.deleteOnExit();
@@ -94,7 +101,6 @@ public class JdbmIndexTest
     @After
     public void teardown() throws Exception
     {
-        registry = null;
         destroyIndex();
         
         if ( ( dbFileDir != null ) && dbFileDir.exists() )
@@ -160,6 +166,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
+        
         try
         {
             idx.setAttributeId( "foo" );

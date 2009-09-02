@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -84,12 +85,13 @@ public class JdbmStoreTest
 
     File wkdir;
     JdbmStore<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    private static Registries registries = null;
+    private static AttributeTypeRegistry attributeRegistry;
     private static LdifSchemaLoader loader;
 
 
-    public JdbmStoreTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
