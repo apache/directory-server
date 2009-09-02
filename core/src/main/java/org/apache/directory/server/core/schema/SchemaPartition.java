@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.AbstractPartition;
 import org.apache.directory.server.core.partition.ByPassConstants;
+import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
@@ -110,7 +111,7 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     private static final String ID = "schema";
     
     /** the wrapped Partition */
-    private Partition wrapped;
+    private Partition wrapped = new NullPartition();
     
     /** the user provided suffix DN for this Partition */
     private LdapDN upSuffixDn = new LdapDN();

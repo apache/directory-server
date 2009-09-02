@@ -80,7 +80,7 @@ public class ApacheDS
      * @param directoryService 
      * @param ldapServer
      */
-    public ApacheDS( LdapServer ldapServer )
+    public ApacheDS( LdapServer ldapServer ) throws Exception
     {
         LOG.info( "Starting the Apache Directory Server" );
 

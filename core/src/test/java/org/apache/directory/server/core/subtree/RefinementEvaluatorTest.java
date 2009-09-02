@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.subtree;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -74,7 +72,7 @@ public class RefinementEvaluatorTest
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass public static void init() throws NamingException
+    @BeforeClass public static void init() throws Exception
     {
         service = new DefaultDirectoryService();
         registries = service.getRegistries();

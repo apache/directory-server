@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
@@ -77,7 +75,7 @@ public class RestrictedByFilterTest
     private static DirectoryService service;
 
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
         service = new DefaultDirectoryService();
 

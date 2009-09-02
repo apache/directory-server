@@ -47,7 +47,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -79,7 +78,7 @@ public class MixedCaseITest
 
     public static class MyFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance() throws NamingException
+        public DirectoryService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );

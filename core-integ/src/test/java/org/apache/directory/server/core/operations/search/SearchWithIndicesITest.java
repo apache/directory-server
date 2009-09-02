@@ -117,7 +117,7 @@ public class SearchWithIndicesITest
     
     public static class MyFactory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance() 
+        public DirectoryService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );

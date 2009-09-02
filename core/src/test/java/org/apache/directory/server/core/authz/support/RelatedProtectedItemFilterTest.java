@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -60,6 +59,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+
 
 /**
  * Tests {@link RelatedUserClassFilter}.
@@ -95,7 +95,7 @@ public class RelatedProtectedItemFilterTest
     private static AttributeType SN_AT;
 
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
         service = new DefaultDirectoryService();
         OID_REGISTRY = service.getRegistries().getOidRegistry();

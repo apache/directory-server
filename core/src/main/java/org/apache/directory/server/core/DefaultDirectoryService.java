@@ -290,13 +290,14 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Creates a new instance of the directory service.
      */
-    public DefaultDirectoryService() 
+    public DefaultDirectoryService() throws Exception
     {
         setDefaultInterceptorConfigurations();
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
+        schemaService = new SchemaService();
     }
 
 

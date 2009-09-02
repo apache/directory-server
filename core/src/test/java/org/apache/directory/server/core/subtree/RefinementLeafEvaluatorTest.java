@@ -67,7 +67,7 @@ public class RefinementLeafEvaluatorTest
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass public static void init() throws NamingException
+    @BeforeClass public static void init() throws Exception
     {
         service = new DefaultDirectoryService();
         registries = service.getRegistries();

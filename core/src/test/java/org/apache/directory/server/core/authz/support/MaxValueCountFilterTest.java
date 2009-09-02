@@ -79,7 +79,7 @@ public class MaxValueCountFilterTest
     private static DirectoryService service;
 
     
-    @BeforeClass public static void init() throws NamingException
+    @BeforeClass public static void init() throws Exception
     {
         service = new DefaultDirectoryService();
     }

@@ -118,7 +118,7 @@ public class MaxImmSubFilterTest
     private static DirectoryService service;
 
     
-    @BeforeClass public static void setup() throws NamingException
+    @BeforeClass public static void setup() throws Exception
     {
         service = new DefaultDirectoryService();
 

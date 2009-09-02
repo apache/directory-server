@@ -72,6 +72,12 @@ public class SchemaService
      */
     private LdapDN schemaModificationAttributesDN;
 
+    
+    public SchemaService() throws Exception
+    {
+        schemaPartition = new SchemaPartition();
+    }
+    
 
     /**
      * Tells if the given DN is the schemaSubentry DN

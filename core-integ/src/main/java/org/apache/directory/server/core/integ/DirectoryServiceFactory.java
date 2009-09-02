@@ -38,9 +38,9 @@ public interface DirectoryServiceFactory
      * The default factory returns stock instances of a directory
      * service with smart defaults
      */
-    DirectoryServiceFactory DEFAULT = new DirectoryServiceFactory()
+    DirectoryServiceFactory DEFAULT = new DirectoryServiceFactory() 
     {
-        public DirectoryService newInstance()
+        public DirectoryService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
             service.getChangeLog().setEnabled( true );
