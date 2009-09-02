@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -52,6 +53,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
+@Ignore ( "Ignore this test until we get the LDIF partition in place." )
 public class PartitionSchemaLoaderTest
 {
     private static Registries registries;
