@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -85,6 +86,7 @@ public class JdbmStoreTest
     JdbmStore<ServerEntry> store;
     Registries registries = null;
     AttributeTypeRegistry attributeRegistry;
+    private static LdifSchemaLoader loader;
 
 
     public JdbmStoreTest() throws Exception
@@ -101,11 +103,12 @@ public class JdbmStoreTest
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
-        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        Registries registries = new Registries();
+        loader = new LdifSchemaLoader( schemaRepository );
+        registries = new Registries();
         loader.loadAllEnabled( registries );
 
         attributeRegistry = registries.getAttributeTypeRegistry();
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
 
 
