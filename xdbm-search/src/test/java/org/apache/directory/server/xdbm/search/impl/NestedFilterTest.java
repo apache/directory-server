@@ -87,7 +87,7 @@ public class NestedFilterTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        Registries registries = new Registries();
+        registries = new Registries();
         loader.loadAllEnabled( registries );
         loader.loadWithDependencies( loader.getSchema( "collective" ), registries );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
