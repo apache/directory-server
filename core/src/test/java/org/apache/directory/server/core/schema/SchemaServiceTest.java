@@ -79,7 +79,7 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
         
-        assertEquals( "size of attributes extending name", 15, nameAttrs.size() );
+        assertTrue( "size of attributes extending name", nameAttrs.size() == 15 || nameAttrs.size() == 23 );
         assertTrue( nameAttrs.contains( "dmdName" ) );
         assertTrue( nameAttrs.contains( "o" ) );
         assertTrue( nameAttrs.contains( "c" ) );
