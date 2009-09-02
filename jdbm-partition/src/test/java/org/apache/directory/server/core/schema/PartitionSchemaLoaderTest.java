@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerAttributeTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -79,7 +78,7 @@ public class PartitionSchemaLoaderTest
 
         if ( workingDirectory == null )
         {
-            String path = DefaultServerAttributeTest.class.getResource( "" ).getPath();
+            String path = PartitionSchemaLoaderTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = new File( path.substring( 0, targetPos + 6 ) );
         }
