@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -46,6 +47,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
@@ -142,6 +144,7 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
         // -----------------------------------------------------------------------
 
         loader.loadWithDependencies( loader.getSchema( MetaSchemaConstants.SCHEMA_NAME ), registries );
+        loader.loadWithDependencies( loader.getSchema( CoreSchemaConstants.SCHEMA_NAME ), registries );
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
     }
 
