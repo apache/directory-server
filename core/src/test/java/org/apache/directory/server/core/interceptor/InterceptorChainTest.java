@@ -43,6 +43,8 @@ import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -78,7 +80,8 @@ public class InterceptorChainTest
     }
     
     
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         chain = new InterceptorChain();
 
@@ -93,7 +96,8 @@ public class InterceptorChainTest
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         chain = null;
         interceptors.clear();
