@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,12 +68,13 @@ public class NotCursorTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
-    public NotCursorTest() throws Exception
+    @BeforeClass
+    static public void setup() throws Exception
     {
         // setup the standard registries
     	String workingDirectory = System.getProperty( "workingDirectory" );

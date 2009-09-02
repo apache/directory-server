@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -74,12 +75,13 @@ public class OrCursorTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
-    public OrCursorTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -70,15 +71,16 @@ public class AndCursorTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
-
-    public AndCursorTest() throws Exception
+    
+    @BeforeClass
+    public static void setup() throws Exception
     {
         // setup the standard registries
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
@@ -97,6 +99,10 @@ public class AndCursorTest
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         attributeRegistry = registries.getAttributeTypeRegistry();
+    }
+
+    public AndCursorTest() throws Exception
+    {
     }
 
 

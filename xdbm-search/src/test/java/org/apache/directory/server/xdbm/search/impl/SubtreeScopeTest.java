@@ -45,6 +45,7 @@ import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -69,11 +70,12 @@ public class SubtreeScopeTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
 
 
-    public SubtreeScopeTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 

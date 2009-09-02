@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -63,15 +64,15 @@ public class NestedFilterTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     Optimizer optimizer;
-    FilterNormalizingVisitor visitor;
+    static FilterNormalizingVisitor visitor;
 
-    
-    public NestedFilterTest() throws Exception
+    @BeforeClass
+    static public void setup() throws Exception
     {
         // setup the standard registries
     	String workingDirectory = System.getProperty( "workingDirectory" );

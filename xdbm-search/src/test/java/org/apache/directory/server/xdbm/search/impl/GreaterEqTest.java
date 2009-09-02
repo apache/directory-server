@@ -49,6 +49,7 @@ import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -75,11 +76,12 @@ public class GreaterEqTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
 
 
-    public GreaterEqTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
         // setup the standard registries
     	String workingDirectory = System.getProperty( "workingDirectory" );
@@ -680,7 +682,7 @@ public class GreaterEqTest
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax() );
+        at.setSyntax( new BogusSyntax( 1 ) );
         
         registries.getAttributeTypeRegistry().register( at );
         registries.getLdapSyntaxRegistry().register( at.getSyntax() );
@@ -703,14 +705,14 @@ public class GreaterEqTest
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
         MatchingRule mr = new MatchingRule( "1.1" );
-        mr.setSyntax( new BogusSyntax() );
+        mr.setSyntax( new BogusSyntax( 1 ) );
         mr.setLdapComparator( new StringComparator() );
         mr.setNormalizer( new NoOpNormalizer( "1.1" ) );
         
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax() );
+        at.setSyntax( new BogusSyntax( 2 ) );
         at.setOrdering( mr );
             
         registries.getAttributeTypeRegistry().register( at );

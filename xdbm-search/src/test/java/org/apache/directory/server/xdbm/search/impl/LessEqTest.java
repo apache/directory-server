@@ -49,6 +49,7 @@ import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;import static org.junit.Assert.assertTrue;import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -73,18 +74,19 @@ public class LessEqTest
 
     File wkdir;
     Store<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    static Registries registries = null;
+    static AttributeTypeRegistry attributeRegistry;
 
 
-    public LessEqTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
         // setup the standard registries
-    	String workingDirectory = System.getProperty( "workingDirectory" );
+        String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
-            String path = LessEqTest.class.getResource( "" ).getPath();
+            String path = AndCursorTest.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -101,7 +103,7 @@ public class LessEqTest
         attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
-
+    
     @Before
     public void createStore() throws Exception
     {
@@ -720,7 +722,7 @@ public class LessEqTest
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax() );
+        at.setSyntax( new BogusSyntax( 1 ) );
         
         registries.getAttributeTypeRegistry().register( at );
 
@@ -735,14 +737,14 @@ public class LessEqTest
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
         MatchingRule mr = new MatchingRule( "1.1" );
-        mr.setSyntax( new BogusSyntax() );
+        mr.setSyntax( new BogusSyntax( 2 ) );
         mr.setLdapComparator( new StringComparator() );
         mr.setNormalizer( new NoOpNormalizer( "1.1" ) );
         
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax() );
+        at.setSyntax( new BogusSyntax(3) );
         at.setOrdering( mr );
 
         registries.getAttributeTypeRegistry().register( at );
