@@ -20,14 +20,16 @@
 package org.apache.directory.server.core.partition.avl;
 
 
+import static org.apache.directory.server.core.partition.avl.TableData.injectDupsData;
+import static org.apache.directory.server.core.partition.avl.TableData.injectNoDupsData;
+
 import java.util.Comparator;
 
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.xdbm.Tuple;
-import org.junit.Before;
-
 import junit.framework.TestCase;
-import static org.apache.directory.server.core.partition.avl.TableData.*;
+
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.junit.Before;
 
 
 /**

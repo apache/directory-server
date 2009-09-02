@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.5-SNAPSHOT</version>
+    <version>1.5.6-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-avl-partition</artifactId>
   <name>ApacheDS Avl Partition</name>
@@ -37,19 +37,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-bootstrap</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-entry</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-api</artifactId>
       <version>${pom.version}</version>
     </dependency>
 
@@ -79,6 +67,12 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xdbm-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
@@ -88,6 +82,17 @@
       <artifactId>apacheds-xdbm-search</artifactId>
       <version>${pom.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-constants</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+    </dependency>    
   </dependencies>
 
   <build>

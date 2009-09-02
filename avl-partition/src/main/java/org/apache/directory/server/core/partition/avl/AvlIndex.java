@@ -20,15 +20,20 @@
 package org.apache.directory.server.core.partition.avl;
 
 
-import org.apache.directory.server.core.cursor.Cursor;
+import java.io.File;
+
+import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
+import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.IndexCursorAdaptor;
-import org.apache.directory.server.xdbm.NoNormalizerOnIndexException;
 import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 
 
 /**
@@ -46,10 +51,16 @@ public class AvlIndex<K,O> implements Index<K, O>
     private String attributeId;
     
     
-    public AvlIndex() throws Exception
+    public AvlIndex()
     {
     }
+
     
+    public AvlIndex( String attributeId )
+    {
+        setAttributeId( attributeId );
+    }
+
     
     void initialize( AttributeType attributeType ) throws Exception
     {
@@ -64,14 +75,47 @@ public class AvlIndex<K,O> implements Index<K, O>
         
         if ( mr == null )
         {
-            mr = attributeType.getSubstr();
+            mr = attributeType.getSubstring();
         }
 
         normalizer = mr.getNormalizer();
         
         if ( normalizer == null )
         {
-            throw new NoNormalizerOnIndexException();
+            throw new Exception( "No Normalizer present for attribute type " + attributeType );
+        }
+
+        LdapComparator comp = mr.getLdapComparator();
+
+        /*
+         * The forward key/value map stores attribute values to master table 
+         * primary keys.  A value for an attribute can occur several times in
+         * different entries so the forward map can have more than one value.
+         */
+        forward = new AvlTable<K, Long>(
+            attributeType.getName(), 
+            comp, LongComparator.INSTANCE, true);
+
+        /*
+         * Now the reverse map stores the primary key into the master table as
+         * the key and the values of attributes as the value.  If an attribute
+         * is single valued according to its specification based on a schema 
+         * then duplicate keys should not be allowed within the reverse table.
+         */
+        if ( attributeType.isSingleValued() )
+        {
+            reverse = new AvlTable<Long,K>(
+                attributeType.getName(),
+                LongComparator.INSTANCE,
+                comp,
+                false );
+        }
+        else
+        {
+            reverse = new AvlTable<Long,K>(
+                attributeType.getName(),
+                LongComparator.INSTANCE, comp,
+                true);
         }
     }
 
@@ -253,7 +297,19 @@ public class AvlIndex<K,O> implements Index<K, O>
     @SuppressWarnings("unchecked")
     public K getNormalized( K attrVal ) throws Exception
     {
-        return ( K ) normalizer.normalize( attrVal );
+        if( attrVal instanceof Long )
+        {
+            return attrVal;
+        }
+
+        if( attrVal instanceof String )
+        {
+            return ( K ) normalizer.normalize( ( String ) attrVal );
+        }
+        else
+        {
+            return ( K ) normalizer.normalize( new ClientBinaryValue( ( byte[] ) attrVal ) );
+        }
     }
 
 
@@ -382,6 +438,39 @@ public class AvlIndex<K,O> implements Index<K, O>
     public void setAttributeId( String attributeId )
     {
         this.attributeId = attributeId;
+    }
+
+    
+    /**
+     * throws UnsupportedOperationException cause it is a in-memory index
+     */
+    public void setWkDirPath( File wkDirPath )
+    {
+        throw new UnsupportedOperationException( "in memory index cannot store the data on disk" );
+    }
+
+    
+    /**
+     * this method always returns null for AvlIndex cause this is a in-memory index.
+     */
+    public File getWkDirPath()
+    {
+        return null;
+    }
+
+    
+    /**
+     * throws UnsupportedOperationException cause it is a in-memory index
+     */
+    public void setCacheSize( int cacheSize )
+    {
+        throw new UnsupportedOperationException( "in memory index doesn't support explicit caching" );
+    }
+
+    
+    public int getCacheSize()
+    {
+        return 0;
     }
 
 

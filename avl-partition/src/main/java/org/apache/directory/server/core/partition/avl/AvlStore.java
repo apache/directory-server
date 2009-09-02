@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.avl;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,23 +29,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.LongComparator;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
@@ -57,6 +58,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +83,7 @@ public class AvlStore<E> implements Store<E>
 
     private OidRegistry oidRegistry;
     private AttributeTypeRegistry attributeTypeRegistry;
-    
+
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
@@ -88,33 +92,40 @@ public class AvlStore<E> implements Store<E>
     private AvlMasterTable<ServerEntry> master;
 
     /** the normalized distinguished name index */
-    private AvlIndex<String,E> ndnIdx;
+    private AvlIndex<String, E> ndnIdx;
     /** the user provided distinguished name index */
-    private AvlIndex<String,E> updnIdx;
+    private AvlIndex<String, E> updnIdx;
     /** the attribute existence index */
-    private AvlIndex<String,E> existenceIdx;
+    private AvlIndex<String, E> existenceIdx;
     /** a system index on aliasedObjectName attribute */
-    private AvlIndex<String,E> aliasIdx;
+    private AvlIndex<String, E> aliasIdx;
     /** a system index on the entries of descendants of root DN*/
-    private AvlIndex<Long,E> subLevelIdx;
+    private AvlIndex<Long, E> subLevelIdx;
     /** the parent child relationship index */
-    private AvlIndex<Long,E> oneLevelIdx;
+    private AvlIndex<Long, E> oneLevelIdx;
     /** the one level scope alias index */
-    private AvlIndex<Long,E> oneAliasIdx;
+    private AvlIndex<Long, E> oneAliasIdx;
     /** the subtree scope alias index */
-    private AvlIndex<Long,E> subAliasIdx;
-    
+    private AvlIndex<Long, E> subAliasIdx;
+
+    /** a system index on objectClass attribute*/
+    private AvlIndex<String, E> objectClassIdx;
+
+    /** a system index on entryCSN attribute */
+    private AvlIndex<String, E> entryCsnIdx;
+
+    /** a system index on entryUUID attribute */
+    private AvlIndex<byte[], E> entryUuidIdx;
+
     /** a map of attributeType numeric ID to user userIndices */
-    private Map<String, AvlIndex<?,E>> userIndices 
-        = new HashMap<String, AvlIndex<?,E>>();
-    
+    private Map<String, AvlIndex<?, E>> userIndices = new HashMap<String, AvlIndex<?, E>>();
+
     /** a map of attributeType numeric ID to system userIndices */
-    private Map<String, AvlIndex<?,E>> systemIndices 
-        = new HashMap<String, AvlIndex<?,E>>();
-    
+    private Map<String, AvlIndex<?, E>> systemIndices = new HashMap<String, AvlIndex<?, E>>();
+
     /** true if initialized */
     private boolean initialized;
-    
+
     /** 
      * TODO we need to check out why we have so many suffix 
      * dn and string accessor/mutators on both Store and Partition
@@ -131,16 +142,18 @@ public class AvlStore<E> implements Store<E>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void add( LdapDN normName, ServerEntry entry ) throws Exception
+    public void add( ServerEntry entry ) throws Exception
     {
         if ( entry instanceof ClonedServerEntry )
         {
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
-        
+
+        LdapDN normName = entry.getDn();
+
         Long id;
         Long parentId;
-        
+
         id = master.getNextId();
 
         //
@@ -193,17 +206,17 @@ public class AvlStore<E> implements Store<E>
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
         oneLevelIdx.add( parentId, id );
-        
+
         Long tempId = parentId;
-        while( tempId != null && tempId != 0 && tempId != 1 )
+        while ( tempId != null && tempId != 0 && tempId != 1 )
         {
             subLevelIdx.add( tempId, id );
             tempId = getParentId( tempId );
         }
-        
+
         // making entry an ancestor/descendent of itself in sublevel index
         subLevelIdx.add( id, id );
-        
+
         // Now work on the user defined userIndices
         for ( EntryAttribute attribute : entry )
         {
@@ -211,7 +224,7 @@ public class AvlStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index<Object,E> idx = ( Index<Object,E> ) getUserIndex( attributeOid );
+                Index<Object, E> idx = ( Index<Object, E> ) getUserIndex( attributeOid );
 
                 // here lookup by attributeId is OK since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
@@ -229,7 +242,7 @@ public class AvlStore<E> implements Store<E>
         master.put( id, entry );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -237,15 +250,15 @@ public class AvlStore<E> implements Store<E>
     {
         if ( index instanceof AvlIndex )
         {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<?,E> ) index );
+            userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) index );
         }
         else
         {
-            userIndices.put( index.getAttributeId(), ( AvlIndex<?,E> ) convert( index ) );
+            userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) convert( index ) );
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -275,11 +288,11 @@ public class AvlStore<E> implements Store<E>
         updnIdx.drop( id );
         oneLevelIdx.drop( id );
 
-        if( id != 1 )
+        if ( id != 1 )
         {
             subLevelIdx.drop( id );
         }
-        
+
         // Remove parent's reference to entry only if entry is not the upSuffix
         if ( !parentId.equals( 0L ) )
         {
@@ -292,7 +305,7 @@ public class AvlStore<E> implements Store<E>
 
             if ( hasUserIndexOn( attributeOid ) )
             {
-                Index<?,E> index = getUserIndex( attributeOid );
+                Index<?, E> index = getUserIndex( attributeOid );
 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
@@ -316,7 +329,7 @@ public class AvlStore<E> implements Store<E>
     {
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -325,7 +338,7 @@ public class AvlStore<E> implements Store<E>
         return aliasIdx;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -334,7 +347,7 @@ public class AvlStore<E> implements Store<E>
         return oneLevelIdx.count( id );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -352,7 +365,7 @@ public class AvlStore<E> implements Store<E>
         return ndnIdx.forwardLookup( dn );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -389,7 +402,7 @@ public class AvlStore<E> implements Store<E>
         return ndnIdx;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -407,7 +420,7 @@ public class AvlStore<E> implements Store<E>
         return oneLevelIdx;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -417,7 +430,7 @@ public class AvlStore<E> implements Store<E>
         return oneLevelIdx.reverseLookup( childId );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -426,7 +439,7 @@ public class AvlStore<E> implements Store<E>
         return oneLevelIdx.reverseLookup( childId );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -435,7 +448,7 @@ public class AvlStore<E> implements Store<E>
         return existenceIdx;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -462,20 +475,46 @@ public class AvlStore<E> implements Store<E>
         return subLevelIdx;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public LdapDN getNormSuffixDn()
+    public LdapDN getSuffix()
     {
-        return suffixDn;
+        try
+        {
+            return new LdapDN( suffixDn.getNormName() );
+        }
+        catch ( InvalidNameException e )
+        {
+            // shouldn't happen
+            LOG.error( "", e );
+        }
+
+        return null;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public String getUpSuffixString()
+    public LdapDN getUpSuffix()
+    {
+        try
+        {
+            return new LdapDN( suffixDn.getUpName() );
+        }
+        catch ( InvalidNameException e )
+        {
+            // shouldn't happen
+            LOG.error( "", e );
+        }
+
+        return null;
+    }
+
+
+    public String getSuffixDn()
     {
         return suffixDn.getUpName();
     }
@@ -487,16 +526,6 @@ public class AvlStore<E> implements Store<E>
     public Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException
     {
         return systemIndices.get( id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public LdapDN getUpSuffixDn() throws Exception
-    {
-        // TODO fix this
-        return new LdapDN( suffixDn.getUpName() );
     }
 
 
@@ -521,9 +550,9 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public Set<? extends Index<?, E>> getUserIndices()
+    public Set<Index<?, E>> getUserIndices()
     {
-        return new HashSet<Index<?,E>>( userIndices.values() );
+        return new HashSet<Index<?, E>>( userIndices.values() );
     }
 
 
@@ -544,109 +573,131 @@ public class AvlStore<E> implements Store<E>
         return userIndices.containsKey( id );
     }
 
-    
+
     /**
      * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
      */
-    public void initialize( Registries registries ) throws Exception
+    public void init( Registries registries ) throws Exception
     {
         initRegistries( registries );
-        
+
         OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-
 
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<ServerEntry>( name, new LongComparator(), null, false );
 
+        suffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         // -------------------------------------------------------------------
         // Initializes the user and system indices
         // -------------------------------------------------------------------
 
         setupSystemIndices();
         setupUserIndices();
-        
+
         // We are done !
         initialized = true;
-    }    
+    }
 
 
     private void setupSystemIndices() throws Exception
     {
         // let's check and make sure the supplied indices are OK
-        
+
         if ( ndnIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_OID );
-            ndnIdx = new AvlIndex<String,E>();
-            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+            ndnIdx = new AvlIndex<String, E>();
+            ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             ndnIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_OID, ndnIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_N_DN_AT_OID, ndnIdx );
         }
 
         if ( updnIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_OID );
-            updnIdx = new AvlIndex<String,E>();
-            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
+            updnIdx = new AvlIndex<String, E>();
+            updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             updnIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_OID, updnIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_UP_DN_AT_OID, updnIdx );
         }
 
         if ( existenceIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
-            existenceIdx = new AvlIndex<String,E>();
-            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTANCE_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+            existenceIdx = new AvlIndex<String, E>();
+            existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             existenceIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTANCE_OID, existenceIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID, existenceIdx );
         }
 
         if ( oneLevelIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
-            oneLevelIdx = new AvlIndex<Long,E>();
-            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            oneLevelIdx = new AvlIndex<Long, E>();
+            oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_OID, oneLevelIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, oneLevelIdx );
         }
 
         if ( oneAliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
-            oneAliasIdx = new AvlIndex<Long,E>();
-            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            oneAliasIdx = new AvlIndex<Long, E>();
+            oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_OID, oneAliasIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, oneAliasIdx );
         }
 
         if ( subAliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
-            subAliasIdx = new AvlIndex<Long,E>();
-            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            subAliasIdx = new AvlIndex<Long, E>();
+            subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             subAliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_OID, subAliasIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, subAliasIdx );
         }
 
         if ( aliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_OID );
-            aliasIdx = new AvlIndex<String,E>();
-            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_OID );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = new AvlIndex<String, E>();
+            aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             aliasIdx.initialize( attributeType );
-            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_OID, aliasIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, aliasIdx );
         }
-        
+
         if ( subLevelIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( SUBLEVEL );
+            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx = new AvlIndex<Long, E>();
-            subLevelIdx.setAttributeId( SUBLEVEL ); 
+            subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx.initialize( attributeType );
-            systemIndices.put( SUBLEVEL, subLevelIdx );
+            systemIndices.put( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, subLevelIdx );
         }
+
+        if ( entryCsnIdx == null )
+        {
+            entryCsnIdx = new AvlIndex<String, E>();
+            entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
+            systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
+        }
+
+        if ( entryUuidIdx == null )
+        {
+            entryUuidIdx = new AvlIndex<byte[], E>();
+            entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
+            systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
+        }
+
+        if ( objectClassIdx == null )
+        {
+            objectClassIdx = new AvlIndex<String, E>();
+            objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
+            systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
+        }
+
     }
 
 
@@ -654,16 +705,16 @@ public class AvlStore<E> implements Store<E>
     {
         if ( userIndices != null && userIndices.size() > 0 )
         {
-            Map<String, AvlIndex<?,E>> tmp = new HashMap<String, AvlIndex<?,E>>();
-            
-            for ( AvlIndex<?,E> index : userIndices.values() )
+            Map<String, AvlIndex<?, E>> tmp = new HashMap<String, AvlIndex<?, E>>();
+
+            for ( AvlIndex<?, E> index : userIndices.values() )
             {
-                String oid = oidRegistry.getOid( index.getAttributeId() );
+                String oid = attributeTypeRegistry.getOidByName( index.getAttributeId() );
                 AttributeType attributeType = attributeTypeRegistry.lookup( oid );
-                
+
                 // Check that the attributeType has an EQUALITY matchingRule
                 MatchingRule mr = attributeType.getEquality();
-                
+
                 if ( mr != null )
                 {
                     index.initialize( attributeTypeRegistry.lookup( oid ) );
@@ -675,16 +726,16 @@ public class AvlStore<E> implements Store<E>
                         attributeType.getName() );
                 }
             }
-            
+
             userIndices = tmp;
         }
         else
         {
-            userIndices = new HashMap<String, AvlIndex<?,E>>();
+            userIndices = new HashMap<String, AvlIndex<?, E>>();
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -709,12 +760,12 @@ public class AvlStore<E> implements Store<E>
      */
     public IndexCursor<Long, E> list( Long id ) throws Exception
     {
-        IndexCursor<Long,E> cursor = oneLevelIdx.forwardCursor( id );
+        IndexCursor<Long, E> cursor = oneLevelIdx.forwardCursor( id );
         cursor.beforeValue( id, null );
         return cursor;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -723,7 +774,7 @@ public class AvlStore<E> implements Store<E>
         return master.get( id );
     }
 
-    
+
     /**
      * Recursively modifies the distinguished name of an entry and the names of
      * its descendants calling itself in the recursion.
@@ -745,7 +796,7 @@ public class AvlStore<E> implements Store<E>
             updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
         }
         ndnIdx.add( updn.toNormName(), id );
-        
+
         // update user provided DN index
         updnIdx.drop( id );
         updnIdx.add( updn.getUpName(), id );
@@ -770,11 +821,11 @@ public class AvlStore<E> implements Store<E>
             }
         }
 
-        Cursor<IndexEntry<Long,E>> children = list( id );
+        Cursor<IndexEntry<Long, E>> children = list( id );
         while ( children.next() )
         {
             // Get the child and its id
-            IndexEntry<Long,E> rec = children.get();
+            IndexEntry<Long, E> rec = children.get();
             Long childId = rec.getId();
 
             /* 
@@ -797,7 +848,7 @@ public class AvlStore<E> implements Store<E>
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
         }
-        
+
         children.close();
     }
 
@@ -819,12 +870,12 @@ public class AvlStore<E> implements Store<E>
         {
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
-        
-        String modsOid = oidRegistry.getOid( mods.getId() );
+
+        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?,E> index = getUserIndex( modsOid );
+            Index<?, E> index = getUserIndex( modsOid );
 
             for ( Value<?> value : mods )
             {
@@ -846,7 +897,7 @@ public class AvlStore<E> implements Store<E>
             entry.add( type, value );
         }
 
-        if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
+        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
             String ndnStr = ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapDN( ndnStr ), mods.getString() );
@@ -874,13 +925,13 @@ public class AvlStore<E> implements Store<E>
         {
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
-        
-        String modsOid = oidRegistry.getOid( mods.getId() );
+
+        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?,E> index = getUserIndex( modsOid );
-            
+            Index<?, E> index = getUserIndex( modsOid );
+
             for ( Value<?> value : mods )
             {
                 ( ( AvlIndex ) index ).drop( value.get(), id );
@@ -931,7 +982,7 @@ public class AvlStore<E> implements Store<E>
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
+        if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
             dropAliasIndices( id );
         }
@@ -957,22 +1008,22 @@ public class AvlStore<E> implements Store<E>
         {
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
-        
-        String modsOid = oidRegistry.getOid( mods.getId() );
+
+        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
         if ( hasUserIndexOn( modsOid ) )
         {
-            Index<?,E> index = getUserIndex( modsOid );
+            Index<?, E> index = getUserIndex( modsOid );
 
             // if the id exists in the index drop all existing attribute value index entries and add new ones
-            if( index.reverse( id ) )
+            if ( index.reverse( id ) )
             {
-                ( ( AvlIndex<?,E> ) index ).drop( id );
+                ( ( AvlIndex<?, E> ) index ).drop( id );
             }
-            
+
             for ( Value<?> value : mods )
             {
-                ( ( AvlIndex<Object,E> ) index ).add( value.get(), id );
+                ( ( AvlIndex<Object, E> ) index ).add( value.get(), id );
             }
 
             /* 
@@ -985,7 +1036,7 @@ public class AvlStore<E> implements Store<E>
             }
         }
 
-        String aliasAttributeOid = oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        String aliasAttributeOid = SchemaConstants.ALIASED_OBJECT_NAME_AT_OID;
 
         if ( modsOid.equals( aliasAttributeOid ) )
         {
@@ -1017,7 +1068,7 @@ public class AvlStore<E> implements Store<E>
         {
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
-        
+
         Long id = getEntryId( dn.toString() );
         ServerEntry entry = ( ServerEntry ) master.get( id );
 
@@ -1144,7 +1195,7 @@ public class AvlStore<E> implements Store<E>
         oneLevelIdx.add( newParentId, childId );
 
         updateSubLevelIndex( childId, oldParentId, newParentId );
-        
+
         /*
          * Build the new user provided DN (updn) for the child using the child's
          * user provided RDN & the new parent's UPDN.  Basically add the child's
@@ -1157,7 +1208,7 @@ public class AvlStore<E> implements Store<E>
 
         // Call the modifyDn operation with the new updn
         modifyDn( childId, newUpdn, true );
-        
+
         return newUpdn;
     }
 
@@ -1197,24 +1248,24 @@ public class AvlStore<E> implements Store<E>
         for ( AttributeTypeAndValue newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            String newNormValue = ( String ) newAtav.getNormValue();
+            String newNormValue = newAtav.getNormValue().getString();
             AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
-            
-            Object unEscapedRdn = Rdn.unescapeValue( (String)newAtav.getUpValue() );
-            
+
+            Object unEscapedRdn = Rdn.unescapeValue( newAtav.getUpValue().getString() );
+
             Value<?> value = null;
-            
+
             if ( unEscapedRdn instanceof String )
             {
-                value = new ServerStringValue( newRdnAttrType, (String)unEscapedRdn );
+                value = new ServerStringValue( newRdnAttrType, ( String ) unEscapedRdn );
             }
             else
             {
-                value = new ServerBinaryValue( newRdnAttrType, (byte[])unEscapedRdn );
+                value = new ServerBinaryValue( newRdnAttrType, ( byte[] ) unEscapedRdn );
             }
-            
+
             value.normalize();
-            
+
             entry.add( newRdnAttrType, value );
 
             if ( hasUserIndexOn( newNormType ) )
@@ -1267,7 +1318,7 @@ public class AvlStore<E> implements Store<E>
                 if ( mustRemove )
                 {
                     String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = ( String ) oldAtav.getNormValue();
+                    String oldNormValue = oldAtav.getNormValue().getString();
                     AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 
@@ -1330,7 +1381,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1339,7 +1390,7 @@ public class AvlStore<E> implements Store<E>
         this.name = name;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1371,7 +1422,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1387,7 +1438,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1403,7 +1454,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1412,7 +1463,7 @@ public class AvlStore<E> implements Store<E>
         master.setProperty( propertyName, propertyValue );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1428,7 +1479,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1440,21 +1491,27 @@ public class AvlStore<E> implements Store<E>
         }
         else
         {
-            this.subLevelIdx = ( AvlIndex<Long, E> ) convert( index ); 
+            this.subLevelIdx = ( AvlIndex<Long, E> ) convert( index );
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void setUpSuffixString( String suffixDn ) throws Exception
+    public void setSuffixDn( String suffixDn )
     {
-        // TODO fix this
-        this.suffixDn = new LdapDN( suffixDn );
+        try
+        {
+            this.suffixDn = new LdapDN( suffixDn );
+        }
+        catch ( InvalidNameException e )
+        {
+            throw new IllegalArgumentException( e );
+        }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1470,40 +1527,40 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void setUserIndices( Set<? extends Index<?, E>> userIndices ) throws Exception
+    public void setUserIndices( Set<Index<?, E>> userIndices )
     {
         protect( "setUserIndices" );
-        
+
         for ( Index<?, E> index : userIndices )
         {
             if ( index instanceof AvlIndex )
             {
-                this.userIndices.put( index.getAttribute().getOid(), ( AvlIndex<?,E> ) index );
+                this.userIndices.put( index.getAttribute().getOid(), ( AvlIndex<?, E> ) index );
                 continue;
             }
 
-            LOG.warn( "Supplied index {} is not a AvlIndex.  " +
-                "Will create new AvlIndex using copied configuration parameters.", index );
-            
-            AvlIndex<?,E> avlIndex = ( AvlIndex<?, E> ) convert( index );
+            LOG.warn( "Supplied index {} is not a AvlIndex.  "
+                + "Will create new AvlIndex using copied configuration parameters.", index );
+
+            AvlIndex<?, E> avlIndex = ( AvlIndex<?, E> ) convert( index );
 
             this.userIndices.put( index.getAttributeId(), avlIndex );
         }
     }
 
-    
-    private <K> Index<K,E> convert( Index<K,E> index ) throws Exception
+
+    private <K> AvlIndex<K, E> convert( Index<K, E> index )
     {
-        AvlIndex<K, E> avlIndex = new AvlIndex<K, E>(); 
+        AvlIndex<K, E> avlIndex = new AvlIndex<K, E>();
         avlIndex.setAttributeId( index.getAttributeId() );
         return avlIndex;
     }
-    
-    
+
+
     private void protect( String method )
     {
         if ( initialized )
@@ -1512,7 +1569,7 @@ public class AvlStore<E> implements Store<E>
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1521,7 +1578,7 @@ public class AvlStore<E> implements Store<E>
         return systemIndices.keySet().iterator();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -1586,9 +1643,8 @@ public class AvlStore<E> implements Store<E>
         if ( !normalizedAliasTargetDn.startsWith( suffixDn ) )
         {
             // Complain specifically about aliases to outside naming contexts
-            throw new Exception( "[36] aliasDereferencingProblem -"
-                + " the alias points to an entry outside of the " + suffixDn.getUpName()
-                + " namingContext to an object whose existance cannot be" + " determined." );
+            throw new Exception( "[36] aliasDereferencingProblem -" + " the alias points to an entry outside of the "
+                + suffixDn.getUpName() + " namingContext to an object whose existance cannot be" + " determined." );
         }
 
         // L O O K U P   T A R G E T   I D
@@ -1603,8 +1659,7 @@ public class AvlStore<E> implements Store<E>
         if ( null == targetId )
         {
             // Complain about target not existing
-            throw new Exception( "[33] aliasProblem - "
-                + "the alias when dereferenced would not name a known object "
+            throw new Exception( "[33] aliasProblem - " + "the alias when dereferenced would not name a known object "
                 + "the aliasedObjectName must be set to a valid existing " + "entry." );
         }
 
@@ -1642,7 +1697,7 @@ public class AvlStore<E> implements Store<E>
         // check if alias parent and aliased entry are the same
         LdapDN normalizedAliasTargetParentDn = ( LdapDN ) normalizedAliasTargetDn.clone();
         normalizedAliasTargetParentDn.remove( normalizedAliasTargetDn.size() - 1 );
-        if ( ! aliasDn.startsWith( normalizedAliasTargetParentDn ) )
+        if ( !aliasDn.startsWith( normalizedAliasTargetParentDn ) )
         {
             oneAliasIdx.add( ancestorId, targetId );
         }
@@ -1729,53 +1784,53 @@ public class AvlStore<E> implements Store<E>
         List<Long> parentIds = new ArrayList<Long>();
 
         // find all the parents of the oldParentId
-        while( tempId != 0 && tempId != 1 && tempId != null )
+        while ( tempId != 0 && tempId != 1 && tempId != null )
         {
-          parentIds.add( tempId );
-          tempId = getParentId( tempId );
+            parentIds.add( tempId );
+            tempId = getParentId( tempId );
         }
 
         // find all the children of the childId
-        Cursor<IndexEntry<Long,E>> cursor = subLevelIdx.forwardCursor( childId );
-        
+        Cursor<IndexEntry<Long, E>> cursor = subLevelIdx.forwardCursor( childId );
+
         List<Long> childIds = new ArrayList<Long>();
         childIds.add( childId );
-        
-        while( cursor.next() )
+
+        while ( cursor.next() )
         {
             childIds.add( cursor.get().getId() );
         }
-        
+
         // detach the childId and all its children from oldParentId and all it parents excluding the root
-        for( Long pid : parentIds )
+        for ( Long pid : parentIds )
         {
-            for( Long cid: childIds )
+            for ( Long cid : childIds )
             {
                 subLevelIdx.drop( pid, cid );
             }
         }
-        
+
         parentIds.clear();
         tempId = newParentId;
 
         // find all the parents of the newParentId
-        while( tempId != 0 && tempId != 1 && tempId != null )
+        while ( tempId != 0 && tempId != 1 && tempId != null )
         {
-          parentIds.add( tempId );
-          tempId = getParentId( tempId );
+            parentIds.add( tempId );
+            tempId = getParentId( tempId );
         }
-        
+
         // attach the childId and all its children to newParentId and all it parents excluding the root
-        for( Long id : parentIds )
+        for ( Long id : parentIds )
         {
-            for( Long cid: childIds )
+            for ( Long cid : childIds )
             {
                 subLevelIdx.add( id, cid );
             }
         }
     }
-    
-    
+
+
     /**
      * For all aliases including and under the moved base, this method removes
      * one and subtree alias index tuples for old ancestors above the moved base
@@ -1786,15 +1841,15 @@ public class AvlStore<E> implements Store<E>
      */
     private void dropMovedAliasIndices( final LdapDN movedBase ) throws Exception
     {
-//        // Find all the aliases from movedBase down
-//        IndexAssertion<Object,E> isBaseDescendant = new IndexAssertion<Object,E>()
-//        {
-//            public boolean assertCandidate( IndexEntry<Object,E> rec ) throws Exception
-//            {
-//                String dn = getEntryDn( rec.getId() );
-//                return dn.endsWith( movedBase.toString() );
-//            }
-//        };
+        //        // Find all the aliases from movedBase down
+        //        IndexAssertion<Object,E> isBaseDescendant = new IndexAssertion<Object,E>()
+        //        {
+        //            public boolean assertCandidate( IndexEntry<Object,E> rec ) throws Exception
+        //            {
+        //                String dn = getEntryDn( rec.getId() );
+        //                return dn.endsWith( movedBase.toString() );
+        //            }
+        //        };
 
         Long movedBaseId = getEntryId( movedBase.toString() );
 
@@ -1803,16 +1858,16 @@ public class AvlStore<E> implements Store<E>
             dropAliasIndices( movedBaseId, movedBase );
         }
 
-//        throw new NotImplementedException( "Fix the code below this line" );
+        //        throw new NotImplementedException( "Fix the code below this line" );
 
-//        NamingEnumeration<ForwardIndexEntry> aliases =
-//                new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ), isBaseDescendant );
-//
-//        while ( aliases.hasMore() )
-//        {
-//            ForwardIndexEntry entry = aliases.next();
-//            dropAliasIndices( (Long)entry.getId(), movedBase );
-//        }
+        //        NamingEnumeration<ForwardIndexEntry> aliases =
+        //                new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ), isBaseDescendant );
+        //
+        //        while ( aliases.hasMore() )
+        //        {
+        //            ForwardIndexEntry entry = aliases.next();
+        //            dropAliasIndices( (Long)entry.getId(), movedBase );
+        //        }
     }
 
 
@@ -1863,6 +1918,91 @@ public class AvlStore<E> implements Store<E>
 
             subAliasIdx.drop( ancestorId, targetId );
         }
+    }
+
+
+    /**
+     * always returns 0 (zero), cause this is a inmemory store
+     */
+    public int getCacheSize()
+    {
+        return 0;
+    }
+
+
+    public Index<String, E> getEntryCsnIndex()
+    {
+        return entryCsnIdx;
+    }
+
+
+    public Index<byte[], E> getEntryUuidIndex()
+    {
+        return entryUuidIdx;
+    }
+
+
+    public Index<String, E> getObjectClassIndex()
+    {
+        return objectClassIdx;
+    }
+
+
+    public void setEntryCsnIndex( Index<String, E> arg0 ) throws Exception
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    public void setSyncOnWrite( boolean arg0 )
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    public void setWorkingDirectory( File arg0 )
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    public File getWorkingDirectory()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public boolean isSyncOnWrite()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    public void setCacheSize( int arg0 )
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    public void setObjectClassIndex( Index<String, E> index ) throws NamingException
+    {
+        protect( "objectClassIndex" );
+        objectClassIdx = convert( index );
+        systemIndices.put( index.getAttributeId(), objectClassIdx );
+    }
+
+
+    public void setEntryUuidIndex( Index<byte[], E> index ) throws NamingException
+    {
+        protect( "entryUuidIndex" );
+        entryUuidIdx = convert( index );
+        systemIndices.put( index.getAttributeId(), entryUuidIdx );
     }
 
 

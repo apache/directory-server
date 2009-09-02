@@ -20,16 +20,15 @@
 package org.apache.directory.server.core.partition.avl;
 
 
+import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
-import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
-import org.apache.directory.server.core.cursor.Cursor;
-import org.apache.directory.server.core.cursor.InvalidCursorPositionException;
-import org.apache.directory.server.core.cursor.SingletonCursor;
 import org.apache.directory.server.xdbm.AbstractTupleCursor;
 import org.apache.directory.server.xdbm.Tuple;
-
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.cursor.SingletonCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
