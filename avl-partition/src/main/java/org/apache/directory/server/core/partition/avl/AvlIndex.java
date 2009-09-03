@@ -309,7 +309,7 @@ public class AvlIndex<K,O> implements Index<K, O>
         }
         else
         {
-            return ( K ) normalizer.normalize( new ClientBinaryValue( ( byte[] ) attrVal ) );
+            return ( K ) normalizer.normalize( new ClientBinaryValue( ( byte[] ) attrVal ) ).get();
         }
     }
 

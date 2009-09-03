@@ -39,6 +39,7 @@ import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.core.partition.impl.btree.gui.IndexDialog;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -189,6 +190,11 @@ public class AvlStore<E> implements Store<E>
 
         // Start adding the system userIndices
         // Why bother doing a lookup if this is not an alias.
+        // First, the ObjectClass index
+        for ( Value<?> value : objectClass )
+        {
+            objectClassIdx.add( value.getString(), id );
+        }
 
         if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
@@ -204,6 +210,28 @@ public class AvlStore<E> implements Store<E>
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
         oneLevelIdx.add( parentId, id );
+
+        // Update the EntryCsn index
+        EntryAttribute entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT );
+
+        if ( entryCsn == null )
+        {
+            String msg = "Entry " + normName.getUpName() + " contains no entryCsn attribute: " + entry;
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        }
+        
+        entryCsnIdx.add( entryCsn.getString(), id );
+        
+        // Update the EntryUuid index
+        EntryAttribute entryUuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
+
+        if ( entryUuid == null )
+        {
+            String msg = "Entry " + normName.getUpName() + " contains no entryUuid attribute: " + entry;
+            throw new LdapSchemaViolationException( msg, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+        }
+        
+        entryUuidIdx.add( entryUuid.getBytes(), id );
 
         Long tempId = parentId;
         while ( tempId != null && tempId != 0 && tempId != 1 )
@@ -282,9 +310,16 @@ public class AvlStore<E> implements Store<E>
             dropAliasIndices( id );
         }
 
+        for ( Value<?> value : objectClass )
+        {
+            objectClassIdx.drop( value.getString(), id );
+        }
+
         ndnIdx.drop( id );
         updnIdx.drop( id );
         oneLevelIdx.drop( id );
+        entryCsnIdx.drop( id );
+        entryUuidIdx.drop( id );
 
         if ( id != 1 )
         {
@@ -725,22 +760,28 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryCsnIdx == null )
         {
+            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT_OID ); 
             entryCsnIdx = new AvlIndex<String, E>();
             entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
+            entryCsnIdx.initialize( attributeType );
             systemIndices.put( SchemaConstants.ENTRY_CSN_AT_OID, entryCsnIdx );
         }
 
         if ( entryUuidIdx == null )
         {
+            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = new AvlIndex<byte[], E>();
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
+            entryUuidIdx.initialize( attributeType );
             systemIndices.put( SchemaConstants.ENTRY_UUID_AT_OID, entryUuidIdx );
         }
 
         if ( objectClassIdx == null )
         {
+            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
             objectClassIdx = new AvlIndex<String, E>();
             objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
+            objectClassIdx.initialize( attributeType );
             systemIndices.put( SchemaConstants.OBJECT_CLASS_AT_OID, objectClassIdx );
         }
 
@@ -918,7 +959,15 @@ public class AvlStore<E> implements Store<E>
 
         String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
-        if ( hasUserIndexOn( modsOid ) )
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.drop( value.getString(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?, E> index = getUserIndex( modsOid );
 
@@ -973,7 +1022,15 @@ public class AvlStore<E> implements Store<E>
 
         String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
-        if ( hasUserIndexOn( modsOid ) )
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.drop( value.getString(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?, E> index = getUserIndex( modsOid );
 
@@ -1056,7 +1113,22 @@ public class AvlStore<E> implements Store<E>
 
         String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
 
-        if ( hasUserIndexOn( modsOid ) )
+        // Special case for the ObjectClass index
+        if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        {
+            // if the id exists in the index drop all existing attribute 
+            // value index entries and add new ones
+            if( objectClassIdx.reverse( id ) )
+            {
+                objectClassIdx.drop( id );
+            }
+            
+            for ( Value<?> value : mods )
+            {
+                objectClassIdx.add( value.getString(), id );
+            }
+        }
+        else if ( hasUserIndexOn( modsOid ) )
         {
             Index<?, E> index = getUserIndex( modsOid );
 
