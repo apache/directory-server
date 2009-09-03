@@ -217,9 +217,7 @@ public class AvlStoreTest
         try { store.setAliasIndex( new AvlIndex<String,ServerEntry>( "alias" ) ); fail(); }
         catch( IllegalStateException e ) {}
 
-        assertEquals( 10, store.getCacheSize() );
-        try { store.setCacheSize( 24 ); }
-        catch( IllegalStateException e ) {}
+        assertEquals( 0, store.getCacheSize() );
 
         assertNotNull( store.getPresenceIndex() );
         try { store.setPresenceIndex( new AvlIndex<String,ServerEntry>( "existence" ) ); fail(); }
@@ -265,7 +263,7 @@ public class AvlStoreTest
         }
         
         assertFalse( systemIndices.hasNext() );
-        assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
+        assertNotNull( store.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         try { store.getSystemIndex( "bogus" ); fail(); }
         catch ( IndexNotFoundException e ) {}
         try { store.getSystemIndex( "dc" ); fail(); }
@@ -276,23 +274,21 @@ public class AvlStoreTest
 
         assertEquals( 2, store.getUserIndices().size() );
         assertFalse( store.hasUserIndexOn( "dc" ) );
-        assertTrue( store.hasUserIndexOn( SchemaConstants.OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT ) );
+        assertTrue( store.hasUserIndexOn( SchemaConstants.OU_AT_OID ) );
+        assertTrue( store.hasSystemIndexOn( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         Iterator<String> userIndices = store.userIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );        
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );        
-        assertNotNull( store.getUserIndex( SchemaConstants.OU_AT ) );
+        assertNotNull( store.getUserIndex( SchemaConstants.OU_AT_OID ) );
         try { store.getUserIndex( "bogus" ); fail(); }
         catch ( IndexNotFoundException e ) {}
         try { store.getUserIndex( "dc" ); fail(); }
         catch ( IndexNotFoundException e ) {}
 
-        assertNotNull( store.getWorkingDirectory() );
-        try { store.setWorkingDirectory( new File( "." ) ); fail(); }
-        catch( IllegalStateException e ) {}
+        assertNull( store.getWorkingDirectory() );
 
         assertTrue( store.isInitialized() );
         assertFalse( store.isSyncOnWrite() );

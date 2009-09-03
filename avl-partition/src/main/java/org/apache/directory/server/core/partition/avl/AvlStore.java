@@ -538,7 +538,24 @@ public class AvlStore<E> implements Store<E>
      */
     public Index<?, E> getSystemIndex( String id ) throws IndexNotFoundException
     {
-        return systemIndices.get( id );
+        try
+        {
+            id = attributeTypeRegistry.getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            LOG.error( "Failed to identify OID for: " + id, e );
+            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+        }
+
+        if ( systemIndices.containsKey( id ) )
+        {
+            return systemIndices.get( id );
+        }
+
+        throw new IndexNotFoundException( "A system index on attribute " + id + " ("
+            + name + ") does not exist!" );
+
     }
 
 
@@ -556,7 +573,23 @@ public class AvlStore<E> implements Store<E>
      */
     public Index<?, E> getUserIndex( String id ) throws IndexNotFoundException
     {
-        return userIndices.get( id );
+        try
+        {
+            id = attributeTypeRegistry.getOidByName( id );
+        }
+        catch ( NamingException e )
+        {
+            LOG.error( "Failed to identify OID for: " + id, e );
+            throw new IndexNotFoundException( "Failed to identify OID for: " + id, id, e );
+        }
+
+        if ( userIndices.containsKey( id ) )
+        {
+            return userIndices.get( id );
+        }
+
+        throw new IndexNotFoundException( "A user index on attribute " + id + " ("
+            + name + ") does not exist!" );
     }
 
 
@@ -1393,6 +1426,7 @@ public class AvlStore<E> implements Store<E>
             this.aliasIdx = ( AvlIndex<String, E> ) convert( index );
         }
         
+        // FIXME is this attribute ID or its OID
         systemIndices.put( index.getAttributeId(), aliasIdx );
     }
 
@@ -1402,6 +1436,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setName( String name )
     {
+        protect( "name" );
         this.name = name;
     }
 
@@ -1534,6 +1569,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setSuffixDn( String suffixDn )
     {
+        protect( "suffixDn" );
         try
         {
             this.suffixDn = new LdapDN( suffixDn );
