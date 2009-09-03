@@ -102,7 +102,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class SchemaPartition extends AbstractPartition implements Partition
+public final class SchemaPartition extends AbstractPartition
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( SchemaPartition.class );
