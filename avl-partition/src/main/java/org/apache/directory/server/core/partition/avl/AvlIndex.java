@@ -24,6 +24,7 @@ import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.core.partition.impl.btree.gui.IndexDialog;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;
@@ -121,7 +122,7 @@ public class AvlIndex<K,O> implements Index<K, O>
     
     public void add( K attrVal, Long id ) throws Exception
     {
-        forward.put( attrVal, id );
+        forward.put( getNormalized( attrVal ), id );
         reverse.put( id, getNormalized( attrVal ) );
     }
 
@@ -150,7 +151,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public int count( K attrVal ) throws Exception
     {
-        return forward.count( attrVal );
+        return forward.count( getNormalized( attrVal ) );
     }
 
 
@@ -160,13 +161,13 @@ public class AvlIndex<K,O> implements Index<K, O>
     public void drop( Long id ) throws Exception
     {
         Cursor<Tuple<Long,K>> cursor = reverse.cursor( id );
-        
+
         while ( cursor.next() )
         {
             Tuple<Long,K> tuple = cursor.get();
             forward.remove( tuple.getValue(), id );
         }
-        
+
         reverse.remove( id );
     }
 
@@ -176,8 +177,8 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public void drop( K attrVal, Long id ) throws Exception
     {
-        forward.remove( attrVal, id );
-        reverse.remove( id, attrVal );
+        forward.remove( getNormalized( attrVal ), id );
+        reverse.remove( id, getNormalized( attrVal ) );
     }
 
 
@@ -186,7 +187,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forward( K attrVal ) throws Exception
     {
-        return forward.has( attrVal );
+        return forward.has( getNormalized( attrVal ) );
     }
 
 
@@ -195,7 +196,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forward( K attrVal, Long id ) throws Exception
     {
-        return forward.has( attrVal, id );
+        return forward.has( getNormalized( attrVal ), id );
     }
 
 
@@ -224,7 +225,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forwardGreaterOrEq( K attrVal ) throws Exception
     {
-        return forward.hasGreaterOrEqual( attrVal );
+        return forward.hasGreaterOrEqual( getNormalized( attrVal ) );
     }
 
 
@@ -233,7 +234,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasGreaterOrEqual( attrVal, id );
+        return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
     }
 
 
@@ -242,7 +243,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forwardLessOrEq( K attrVal ) throws Exception
     {
-        return forward.hasLessOrEqual( attrVal );
+        return forward.hasLessOrEqual( getNormalized( attrVal ) );
     }
 
 
@@ -251,7 +252,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasLessOrEqual( attrVal, id );
+        return forward.hasLessOrEqual( getNormalized( attrVal ), id );
     }
 
 
@@ -260,7 +261,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public Long forwardLookup( K attrVal ) throws Exception
     {
-        return forward.get( attrVal );
+        return forward.get( getNormalized( attrVal ) );
     }
 
 
@@ -318,7 +319,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public int greaterThanCount( K attrVal ) throws Exception
     {
-        return forward.greaterThanCount( attrVal );
+        return forward.greaterThanCount( getNormalized( attrVal ) );
     }
 
 
@@ -336,7 +337,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public int lessThanCount( K attrVal ) throws Exception
     {
-        return forward.lessThanCount( attrVal );
+        return forward.lessThanCount( getNormalized( attrVal ) );
     }
 
 
@@ -354,7 +355,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean reverse( Long id, K attrVal ) throws Exception
     {
-        return reverse.has( id, attrVal );
+        return reverse.has( id, getNormalized( attrVal ) );
     }
 
 
@@ -392,7 +393,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id, attrVal );
+        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
     }
 
 
@@ -410,7 +411,7 @@ public class AvlIndex<K,O> implements Index<K, O>
      */
     public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasLessOrEqual( id, attrVal );
+        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
     }
 
 
