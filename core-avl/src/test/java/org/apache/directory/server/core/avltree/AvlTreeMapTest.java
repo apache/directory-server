@@ -80,7 +80,7 @@ public class AvlTreeMapTest
 
         if ( LOG.isDebugEnabled() )
         {
-            tree.printTree();
+            
         }
     }
 
@@ -157,13 +157,13 @@ public class AvlTreeMapTest
 
         if ( LOG.isDebugEnabled() )
         {
-            tree.printTree();
+            
         }
 
         tree.remove( 24, 3 ); // this causes a single left rotation on node with key 12
         if ( LOG.isDebugEnabled() )
         {
-            tree.printTree();
+            
         }
         assertTrue( tree.getRoot().getLeft().key == 26 );
     }
@@ -180,7 +180,7 @@ public class AvlTreeMapTest
 
         if( LOG.isDebugEnabled() )
         {
-            tree.printTree();
+            
         }
         
         assertTrue( 1 == tree.insert( 3, 1 ) );// should be ignored
@@ -240,7 +240,7 @@ public class AvlTreeMapTest
         
         if( LOG.isDebugEnabled() ) 
         {
-            tree.printTree();
+            
         }
     }
 
@@ -267,8 +267,8 @@ public class AvlTreeMapTest
         assertEquals( 2, tree.getSize() );
         
         tree.remove( 3, 3 );
-        assertEquals("1", getInorderForm());
-        assertEquals( 1, tree.getSize() );
+        assertEquals("1,3", getInorderForm());
+        assertEquals( 2, tree.getSize() );
         
         // add some more
         tree.insert( 3, 3 );
@@ -279,8 +279,11 @@ public class AvlTreeMapTest
         assertEquals("1,3", getInorderForm());
         assertEquals( 2, tree.getSize() );
         
+        tree.remove( 3, 2 );
+        tree.remove( 3, 1 );
         tree.remove( 3, 4 ); // is the last value in the dupsTree should remove the whole
         // node with key 3
+        
         assertEquals( 1, tree.getSize() );
     }
     

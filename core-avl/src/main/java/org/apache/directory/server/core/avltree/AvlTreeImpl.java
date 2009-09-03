@@ -385,15 +385,17 @@ public class AvlTreeImpl<K> implements AvlTree<K>
             return 1;
         }
       
-        LinkedAvlNode<K> x = first.next;
-      
+        int size = 0;
+        
+        LinkedAvlNode<K> x = first;
+        
         while( x != null )
         {
-            x.setIndex( x.previous.getIndex() + 1 );  
+            size++;
             x = x.next;
         }
-      
-        return last.getIndex() + 1;
+        
+        return size;
     }
     
     

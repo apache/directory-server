@@ -336,6 +336,13 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
                 {
                     return removedVal;//no need to balance
                 }
+                 /* 
+                  * if the value is not found then we should return
+                  */
+                else if ( removedVal == null ) 
+                {
+                    return removedVal;//no need to balance
+                }
             }
             else
             {
@@ -541,15 +548,16 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
             return 1;
         }
       
-        LinkedAvlMapNode<K,V> x = first.next;
+        int size = 0;
+        LinkedAvlMapNode<K,V> x = first;
       
         while( x != null )
         {
-            x.setIndex( x.previous.getIndex() + 1 );  
+            size++;
             x = x.next;
         }
       
-        return last.getIndex() + 1;
+        return size;
     }
     
     
