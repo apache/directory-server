@@ -122,6 +122,7 @@ public class AvlIndex<K,O> implements Index<K, O>
     public void add( K attrVal, Long id ) throws Exception
     {
         forward.put( attrVal, id );
+        reverse.put( id, getNormalized( attrVal ) );
     }
 
 

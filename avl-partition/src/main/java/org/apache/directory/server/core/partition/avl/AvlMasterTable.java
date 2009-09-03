@@ -37,7 +37,7 @@ import org.apache.directory.server.xdbm.MasterTable;
 public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<E>
 {
     private Properties props = new Properties();
-    private AtomicLong counter = new AtomicLong( 1 );
+    private AtomicLong counter = new AtomicLong( 0 );
     
     
     public AvlMasterTable( String name, Comparator<Long> keyComparator, Comparator<E> valComparator, 
