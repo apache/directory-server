@@ -1084,11 +1084,11 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, PartitionNexus.getAdminName() ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( adminSession, adminDn ) ) )
         {
             firstStart = true;
 
-            ServerEntry serverEntry = new DefaultServerEntry( getRegistries(), PartitionNexus.getAdminName() );
+            ServerEntry serverEntry = new DefaultServerEntry( getRegistries(), adminDn );
             
             serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, 
                                 SchemaConstants.TOP_OC,

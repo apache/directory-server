@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.naming.ConfigurationException;
-import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
@@ -96,9 +95,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -238,21 +234,20 @@ public class PartitionNexus implements Partition
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
         
+        // Initialize and normalize the localy used DNs
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn.normalize( atRegistry.getNormalizerMapping() );
+            
         initializeSystemPartition( directoryService );
         
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
     
-        //noinspection unchecked
-        Iterator<? extends Partition> partitions = ( Iterator<? extends Partition> ) directoryService.getPartitions().iterator();
-        
         try
         {
-            while ( partitions.hasNext() )
+            for ( Partition partition : directoryService.getPartitions() )
             {
-                Partition partition = partitions.next();
-                LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                //adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
     
@@ -870,107 +865,6 @@ public class PartitionNexus implements Partition
     {
         Partition partition = getPartition( unbindContext.getDn() );
         partition.unbind( unbindContext );
-    }
-
-
-    
-    
-    
-    
-    /**
-     * Gets the DN for the admin user.
-     * 
-     * @return the admin user DN
-     */
-    public static final LdapDN getAdminName()
-    {
-        LdapDN adminDn = null;
-
-        try
-        {
-            adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        }
-        catch ( Exception e )
-        {
-            throw new InternalError();
-        }
-        
-        try
-        {
-            Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
-            
-            // UID normalizer
-            OidNormalizer uidOidNormalizer = new OidNormalizer( "uid",
-                new NoOpNormalizer( SchemaConstants.UID_AT_OID ) );
-            
-            oidsMap.put( SchemaConstants.UID_AT, uidOidNormalizer );
-            oidsMap.put( SchemaConstants.USER_ID_AT, uidOidNormalizer );
-            oidsMap.put( SchemaConstants.UID_AT_OID, uidOidNormalizer );
-            
-            // OU normalizer
-            OidNormalizer ouOidNormalizer = new OidNormalizer( "ou",
-                new DeepTrimToLowerNormalizer( SchemaConstants.OU_AT_OID ) );
-            
-            oidsMap.put( SchemaConstants.OU_AT, ouOidNormalizer );
-            oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, ouOidNormalizer );
-            oidsMap.put( SchemaConstants.OU_AT_OID,ouOidNormalizer );
-
-            adminDn.normalize( oidsMap );
-        }
-        catch ( InvalidNameException ine )
-        {
-            // Nothing we can do ...
-        }
-        catch ( Exception ne )
-        {
-            // Nothing we can do ...
-        }
-
-        return adminDn;
-    }
-
-
-    /**
-     * Gets the DN for the base entry under which all groups reside.
-     * A new Name instance is created and returned every time.
-     * @return the groups base DN
-     */
-    public static final LdapDN getGroupsBaseName()
-    {
-        LdapDN groupsBaseDn = null;
-
-        try
-        {
-            groupsBaseDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
-        }
-        catch ( Exception e )
-        {
-            throw new InternalError();
-        }
-
-        return groupsBaseDn;
-    }
-
-
-    /**
-     * Gets the DN for the base entry under which all non-admin users reside.
-     * A new Name instance is created and returned every time.
-     * @return the users base DN
-     */
-    public static final LdapDN getUsersBaseName()
-    {
-        LdapDN usersBaseDn = null;
-
-        try
-        {
-            usersBaseDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
-        }
-        catch ( Exception e )
-        {
-            throw new InternalError();
-        }
-
-        return usersBaseDn;
     }
 
 

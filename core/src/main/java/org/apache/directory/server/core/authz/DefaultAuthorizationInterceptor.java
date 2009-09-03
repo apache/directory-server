@@ -126,10 +126,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // disable this static module if basic access control mechanisms are enabled
         enabled = ! directoryService.isAccessControlEnabled();
         
-        USER_BASE_DN = PartitionNexus.getUsersBaseName();
+        USER_BASE_DN = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         USER_BASE_DN.normalize( normalizerMapping );
         
-        GROUP_BASE_DN = PartitionNexus.getGroupsBaseName();
+        GROUP_BASE_DN = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         GROUP_BASE_DN.normalize( normalizerMapping );
      
         ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
