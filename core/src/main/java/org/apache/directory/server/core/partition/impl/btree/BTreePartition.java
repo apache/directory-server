@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 
+import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,8 +89,7 @@ public abstract class BTreePartition implements Partition
 
     protected String id;
     protected int cacheSize = -1;
-    protected LdapDN suffixDn;
-    protected String suffix;
+    protected LdapDN suffix;
     
     /** The rootDSE context */
     protected ServerEntry contextEntry;
@@ -486,9 +486,9 @@ public abstract class BTreePartition implements Partition
     /**
      * {@inheritDoc}
      */
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws InvalidNameException
     {
-        this.suffix = suffix;
+        this.suffix = new LdapDN( suffix );
     }
 
 

@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -52,9 +54,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class NullPartition extends AbstractPartition
 {
     private String id;
-    private String suffix;
-    private LdapDN upSuffixDn;
-    private LdapDN normSuffixDn;
+    private LdapDN suffix;
     
 
     /**
@@ -111,27 +111,9 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#getSuffix()
      */
-    public String getSuffix()
+    public LdapDN getSuffix()
     {
         return suffix;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getSuffixDn()
-     */
-    public LdapDN getSuffixDn() throws Exception
-    {
-        return normSuffixDn;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getUpSuffixDn()
-     */
-    public LdapDN getUpSuffixDn() throws Exception
-    {
-        return upSuffixDn;
     }
 
 
@@ -336,12 +318,12 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#setSuffix(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws InvalidNameException
     {
-        this.suffix = suffix;
+        this.suffix = new LdapDN( suffix );
     }
 
 

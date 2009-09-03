@@ -39,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.UnbindOperationConte
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
+import javax.naming.InvalidNameException;
 
 
 /**
@@ -86,19 +87,20 @@ public interface Partition
 
 
     /**
-     * Gets the non-normalized suffix for this Partition as a string.
+     * Gets the non-normalized suffix for this Partition.
      *
-     * @return the suffix string for this Partition.
+     * @return the suffix for this Partition.
      */
-    String getSuffix();
+    LdapDN getSuffix();
 
 
     /**
      * Sets the non-normalized suffix for this Partition as a string.
      *
      * @param suffix the suffix string for this Partition.
+     * @throws InvalidNameException If the suffix is not a valid DN
      */
-    void setSuffix( String suffix );
+    void setSuffix( String suffix )  throws InvalidNameException;
 
 
     /**
@@ -151,28 +153,6 @@ public interface Partition
      * @throws Exception if buffers cannot be flushed to disk
      */
     void sync() throws Exception;
-
-
-    /**
-     * Gets the distinguished/absolute name of the suffix for all entries
-     * stored within this ContextPartition.
-     *
-     * @return Name representing the distinguished/absolute name of this
-     * ContextPartitions root context.
-     * @throws Exception if access or suffix parsing fails
-     */
-    LdapDN getSuffixDn() throws Exception;
-
-
-    /**
-     * Gets the distinguished/absolute name of the suffix for all entries
-     * stored within this ContextPartition.
-     *
-     * @return Name representing the distinguished/absolute name of this
-     * ContextPartitions root context.
-     * @throws Exception if access or suffix parsing fails
-     */
-    LdapDN getUpSuffixDn() throws Exception;
 
 
     /**

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -112,12 +113,6 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     /** the wrapped Partition */
     private Partition wrapped = new NullPartition();
     
-    /** the user provided suffix DN for this Partition */
-    private LdapDN upSuffixDn = new LdapDN();
-    
-    /** the normalized suffix DN for this Partition */
-    private LdapDN normSuffixDn = new LdapDN();
-    
     /** the registries managed by this SchemaPartition */
     private Registries registries = new Registries();
     
@@ -132,9 +127,6 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
      */
     public SchemaPartition() throws Exception
     {
-        upSuffixDn.add( ServerDNConstants.OU_SCHEMA_DN );
-        normSuffixDn.add( ServerDNConstants.OU_SCHEMA_DN_NORMALIZED );
-        
         // -----------------------------------------------------------------------
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
@@ -188,7 +180,7 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     
     
     @Override
-    protected void doInit()
+    protected void doInit() throws InvalidNameException
     {
         wrapped.setId( ID );
         wrapped.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
@@ -336,30 +328,12 @@ public final class SchemaPartition extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getSuffix()
+    /**
+     * {@inheritDoc}
      */
-    public final String getSuffix()
+    public final LdapDN getSuffix()
     {
-        return ServerDNConstants.CN_SCHEMA_DN;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getSuffixDn()
-     */
-    public LdapDN getSuffixDn() throws Exception
-    {
-        return normSuffixDn;
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getUpSuffixDn()
-     */
-    public LdapDN getUpSuffixDn() throws Exception
-    {
-        return upSuffixDn;
+        return wrapped.getSuffix();
     }
 
 

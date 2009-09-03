@@ -67,7 +67,7 @@ public class PartitionTreeTest
         assertTrue( ((DnBranchNode<Partition>)child).contains( "dc=example" ) );
 
         child = ((DnBranchNode<Partition>)child).getChild( "dc=example" );
-        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffix() );
+        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffix().getUpName() );
     }
 
 
@@ -98,7 +98,7 @@ public class PartitionTreeTest
         
         DnNode<Partition> child = ((DnBranchNode<Partition>)partitionLookupTree).getChild( "ou=system" );
         assertTrue( child instanceof DnLeafNode );
-        assertEquals( "ou=system", ((DnLeafNode<Partition>)child).getElement().getSuffix() );
+        assertEquals( "ou=system", ((DnLeafNode<Partition>)child).getElement().getSuffix().getUpName() );
 
         child = ((DnBranchNode<Partition>)partitionLookupTree).getChild( "dc=com" );
         assertTrue( child instanceof DnBranchNode );
@@ -106,7 +106,7 @@ public class PartitionTreeTest
         
         child = ((DnBranchNode<Partition>)child).getChild( "dc=example" );
         assertTrue( child instanceof DnLeafNode );
-        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffix() );
+        assertEquals( "dc=example, dc=com", ((DnLeafNode<Partition>)child).getElement().getSuffix().getUpName() );
     }
 
 
@@ -175,10 +175,10 @@ public class PartitionTreeTest
         
         DnNode<Partition> child1 = ((DnBranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child1 instanceof DnLeafNode );
-        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child1).getElement().getSuffix() );
+        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child1).getElement().getSuffix().getUpName() );
 
         DnNode<Partition> child2 = ((DnBranchNode<Partition>)child).getChild( "dc=example1" );
         assertTrue( child2 instanceof DnLeafNode );
-        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child2).getElement().getSuffix() );
+        assertEquals( "dc=example1, dc=com", ((DnLeafNode<Partition>)child2).getElement().getSuffix().getUpName() );
     }
 }

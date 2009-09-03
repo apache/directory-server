@@ -25,6 +25,7 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 
 
@@ -82,7 +83,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * Override this method to put your initialization code.
      */
-    protected void doInit()
+    protected void doInit() throws InvalidNameException
     {
     }
 

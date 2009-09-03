@@ -168,7 +168,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffixDn().toString() );
+        setTitle( "Partition: " + this.partition.getSuffix().getUpName() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -376,7 +376,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffixDn().toString();
+            String parentDn = partition.getSuffix().getUpName();
 
             if ( null != path )
             {
@@ -421,7 +421,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffixDn().toString();
+            return partition.getSuffix().getUpName();
         }
 
         Object last = path.getLastPathComponent();
@@ -440,7 +440,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffixDn().toString();
+            base = partition.getSuffix().getUpName();
         }
 
         return base;
@@ -572,7 +572,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffixDn().toString() );
+            dialog.setBase( partition.getSuffix().getUpName() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -886,8 +886,8 @@ public class PartitionFrame extends JFrame
         // boolean doFiltered = false;
         nodes = new HashMap<Long, EntryNode>();
 
-        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn().toNormName() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn().toString() );
+        ServerEntry suffix = partition.lookup( partition.getEntryId( partition.getSuffix().toNormName() ) );
+        Long id = partition.getEntryId( partition.getSuffix().getUpName() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

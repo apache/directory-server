@@ -279,7 +279,7 @@ public class PartitionNexus implements Partition
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffixDn(), e );
+                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffix(), e );
                     }
                     finally
                     {
@@ -346,7 +346,7 @@ public class PartitionNexus implements Partition
             system.add( addOperationContext );
         }
         
-        String key = system.getSuffixDn().toString();
+        String key = system.getSuffix().getUpName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -356,19 +356,19 @@ public class PartitionNexus implements Partition
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.add( system.getSuffixDn(), system );
+            partitionLookupTree.add( system.getSuffix(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
                     registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
-                    system.getUpSuffixDn().getUpName() );
+                    system.getSuffix().getUpName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( system.getUpSuffixDn().getUpName() );
+                namingContexts.add( system.getSuffix().getUpName() );
             }
         }
 
@@ -435,9 +435,9 @@ public class PartitionNexus implements Partition
      * Always returns the empty String "".
      * @return the empty String ""
      */
-    public String getSuffix()
+    public LdapDN getSuffix()
     {
-        return "";
+        return LdapDN.EMPTY_LDAPDN;
     }
 
     
@@ -451,24 +451,6 @@ public class PartitionNexus implements Partition
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public LdapDN getSuffixDn()
-    {
-        return LdapDN.EMPTY_LDAPDN;
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    public LdapDN getUpSuffixDn()
-    {
-        return LdapDN.EMPTY_LDAPDN;
-    }
-
-    
     /**
      * {@inheritDoc}
      */
@@ -1028,7 +1010,7 @@ public class PartitionNexus implements Partition
         Partition partition = opContext.getPartition();
 
         // Turn on default indices
-        String key = partition.getSuffix();
+        String key = partition.getSuffix().getNormName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -1042,7 +1024,7 @@ public class PartitionNexus implements Partition
         
         synchronized ( partitionLookupTree )
         {
-            LdapDN partitionSuffix = partition.getSuffixDn();
+            LdapDN partitionSuffix = partition.getSuffix();
             
             if ( partitionSuffix == null )
             {
@@ -1050,26 +1032,19 @@ public class PartitionNexus implements Partition
             }
             
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.add( partition.getSuffixDn(), partition );
+            partitionLookupTree.add( partition.getSuffix(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
-            LdapDN partitionUpSuffix = partition.getUpSuffixDn();
-            
-            if ( partitionUpSuffix == null )
-            {
-                throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
-            }
-            
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
-                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionUpSuffix.getUpName() );
+                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getUpName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( partitionUpSuffix.getUpName() );
+                namingContexts.add( partitionSuffix.getUpName() );
             }
         }
     }
@@ -1096,7 +1071,7 @@ public class PartitionNexus implements Partition
             throw new NameNotFoundException( msg );
         }
         
-        String partitionSuffix = partition.getUpSuffixDn().getUpName();
+        String partitionSuffix = partition.getSuffix().getUpName();
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
@@ -1204,7 +1179,7 @@ public class PartitionNexus implements Partition
     public LdapDN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffixDn();
+        return backend.getSuffix();
     }
 
 
@@ -1286,9 +1261,9 @@ public class PartitionNexus implements Partition
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getSuffixDn().getUpName() );
+            namingContexts.remove( partition.getSuffix().getUpName() );
         }
         
-        partitions.remove( partition.getSuffixDn().toString() );
+        partitions.remove( partition.getSuffix().getUpName() );
     }
 }

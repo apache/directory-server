@@ -84,9 +84,9 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    public String getSuffix()
+    public LdapDN getSuffix()
     {
-        return super.suffix;
+        return suffix;
     }
 
 
@@ -158,7 +158,10 @@ public class JdbmPartition extends BTreePartition
         // initialize the store
         store.setCacheSize( cacheSize );
         store.setName( id );
-        store.setSuffixDn( suffix );
+        
+        // Normalize the suffix
+        suffix.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        store.setSuffixDn( suffix.getNormName() );
         store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
 
         Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
