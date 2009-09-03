@@ -471,7 +471,7 @@ public class AvlStoreTest
     @Test
     public void testConvertIndex() throws Exception
     {
-        Index nonJdbmIndex = new Index()
+        Index nonAvlIndex = new Index()
         {
 
             public void add( Object attrVal, Long id ) throws Exception { }
@@ -655,9 +655,9 @@ public class AvlStoreTest
             
         };
         
-        Method convertIndex = store.getClass().getDeclaredMethod( "convertIndex", Index.class );
+        Method convertIndex = store.getClass().getDeclaredMethod( "convert", Index.class );
         convertIndex.setAccessible( true );
-        Object obj = convertIndex.invoke( store, nonJdbmIndex );
+        Object obj = convertIndex.invoke( store, nonAvlIndex );
         
         assertNotNull( obj );
         assertEquals( AvlIndex.class, obj.getClass() );
