@@ -187,8 +187,8 @@ public class AvlStoreTest
         store.setUpdnIndex( new AvlIndex<String,Attributes>( "updn" ) );
         assertNotNull( store.getUpdnIndex() );
 
-        assertNull( store.getUpSuffix() );
-        assertNull( store.getSuffix() );
+        assertNotNull( store.getUpSuffix() );
+        assertNotNull( store.getSuffix() );
 
         assertEquals( 0, store.getUserIndices().size() );
         Set<Index<?,Attributes>> set = new HashSet<Index<?,Attributes>>();
@@ -198,10 +198,10 @@ public class AvlStoreTest
 
         assertNull( store.getWorkingDirectory() );
         store.setWorkingDirectory( new File( "." ) );
-        assertEquals( new File( "." ), store.getWorkingDirectory() );
+        assertNull( store.getWorkingDirectory() );
 
         assertFalse( store.isInitialized() );
-        assertTrue( store.isSyncOnWrite() );
+        assertFalse( store.isSyncOnWrite() );
         store.setSyncOnWrite( false );
         assertFalse( store.isSyncOnWrite() );
 

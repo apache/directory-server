@@ -514,4 +514,18 @@ public class AvlPartition extends BTreePartition
         initRegistries( registries );
     }
 
+
+    /*
+     * TODO requires review 
+     * 
+     * This getter deviates from the norm. all the partitions
+     * so far written never return a reference to store but I think that in this 
+     * case the presence of this method gives significant ease and advantage to perform
+     * add/delete etc. operations without creating a operation context.
+     */
+    public AvlStore<ServerEntry> getStore()
+    {
+        return store;
+    }
+    
 }

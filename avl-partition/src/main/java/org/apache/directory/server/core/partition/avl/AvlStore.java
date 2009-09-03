@@ -479,6 +479,11 @@ public class AvlStore<E> implements Store<E>
      */
     public LdapDN getSuffix()
     {
+        if( suffixDn == null )
+        {
+            return null;
+        }
+        
         try
         {
             return new LdapDN( suffixDn.getNormName() );
@@ -498,6 +503,11 @@ public class AvlStore<E> implements Store<E>
      */
     public LdapDN getUpSuffix()
     {
+        if( suffixDn == null )
+        {
+            return null;
+        }
+        
         try
         {
             return new LdapDN( suffixDn.getUpName() );
@@ -514,6 +524,11 @@ public class AvlStore<E> implements Store<E>
 
     public String getSuffixDn()
     {
+        if( suffixDn == null )
+        {
+            return null;
+        }
+        
         return suffixDn.getUpName();
     }
 
@@ -1368,6 +1383,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setAliasIndex( Index<String, E> index ) throws Exception
     {
+        protect( "aliasIndex" );
         if ( index instanceof AvlIndex )
         {
             this.aliasIdx = ( AvlIndex<String, E> ) index;
@@ -1376,6 +1392,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.aliasIdx = ( AvlIndex<String, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), aliasIdx );
     }
 
 
@@ -1393,6 +1411,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setNdnIndex( Index<String, E> index ) throws Exception
     {
+        protect( "ndnIndex" );
         if ( index instanceof AvlIndex )
         {
             this.ndnIdx = ( AvlIndex<String, E> ) index;
@@ -1401,6 +1420,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.ndnIdx = ( AvlIndex<String, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), ndnIdx );
     }
 
 
@@ -1409,6 +1430,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setOneAliasIndex( Index<Long, E> index ) throws Exception
     {
+        protect( "oneAliasIndex" );
         if ( index instanceof AvlIndex )
         {
             this.oneAliasIdx = ( AvlIndex<Long, E> ) index;
@@ -1417,6 +1439,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.oneAliasIdx = ( AvlIndex<Long, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), oneAliasIdx );
     }
 
 
@@ -1425,6 +1449,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setOneLevelIndex( Index<Long, E> index ) throws Exception
     {
+        protect( "oneLevelIndex" );
         if ( index instanceof AvlIndex )
         {
             this.oneLevelIdx = ( AvlIndex<Long, E> ) index;
@@ -1433,6 +1458,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.oneLevelIdx = ( AvlIndex<Long, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), oneLevelIdx );
     }
 
 
@@ -1441,6 +1468,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setPresenceIndex( Index<String, E> index ) throws Exception
     {
+        protect( "presenceIndex" );
         if ( index instanceof AvlIndex )
         {
             this.existenceIdx = ( AvlIndex<String, E> ) index;
@@ -1449,6 +1477,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.existenceIdx = ( AvlIndex<String, E> ) convert( index );
         }
+
+        systemIndices.put( index.getAttributeId(), existenceIdx );
     }
 
 
@@ -1466,6 +1496,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setSubAliasIndex( Index<Long, E> index ) throws Exception
     {
+        protect( "subAliasIndex" );
         if ( index instanceof AvlIndex )
         {
             this.subAliasIdx = ( AvlIndex<Long, E> ) index;
@@ -1474,6 +1505,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.subAliasIdx = ( AvlIndex<Long, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), subAliasIdx );
     }
 
 
@@ -1482,6 +1515,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setSubLevelIndex( Index<Long, E> index ) throws Exception
     {
+        protect( "subLevelIndex" );
         if ( index instanceof AvlIndex )
         {
             this.subLevelIdx = ( AvlIndex<Long, E> ) index;
@@ -1490,6 +1524,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.subLevelIdx = ( AvlIndex<Long, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), subLevelIdx );
     }
 
 
@@ -1514,6 +1550,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void setUpdnIndex( Index<String, E> index ) throws Exception
     {
+        protect( "updnIndex" );
         if ( index instanceof AvlIndex )
         {
             this.updnIdx = ( AvlIndex<String, E> ) index;
@@ -1522,6 +1559,8 @@ public class AvlStore<E> implements Store<E>
         {
             this.updnIdx = ( AvlIndex<String, E> ) convert( index );
         }
+        
+        systemIndices.put( index.getAttributeId(), updnIdx );
     }
 
 
@@ -1536,7 +1575,7 @@ public class AvlStore<E> implements Store<E>
         {
             if ( index instanceof AvlIndex )
             {
-                this.userIndices.put( index.getAttribute().getOid(), ( AvlIndex<?, E> ) index );
+                this.userIndices.put( index.getAttributeId(), ( AvlIndex<?, E> ) index );
                 continue;
             }
 
@@ -1945,52 +1984,66 @@ public class AvlStore<E> implements Store<E>
     }
 
 
-    public void setEntryCsnIndex( Index<String, E> arg0 ) throws Exception
+    public void setEntryCsnIndex( Index<String, E> index ) throws Exception
     {
-        // TODO Auto-generated method stub
-
+        protect( "entryCsnIndex" );
+        
+        if( index instanceof AvlIndex )
+        {
+            this.entryCsnIdx = ( AvlIndex<String, E> ) index;
+        }
+        else
+        {
+            this.entryCsnIdx = ( AvlIndex<String, E> ) convert( index );
+        }
+        
+        systemIndices.put( index.getAttributeId(), entryCsnIdx );
     }
 
 
-    public void setSyncOnWrite( boolean arg0 )
+    public void setSyncOnWrite( boolean sync )
     {
-        // TODO Auto-generated method stub
-
+        // do nothing
     }
 
 
-    public void setWorkingDirectory( File arg0 )
+    public void setWorkingDirectory( File wkDir )
     {
-        // TODO Auto-generated method stub
-
+        //do nothing
     }
 
 
     public File getWorkingDirectory()
     {
-        // TODO Auto-generated method stub
+        // returns null always
         return null;
     }
 
 
     public boolean isSyncOnWrite()
     {
-        // TODO Auto-generated method stub
         return false;
     }
 
 
-    public void setCacheSize( int arg0 )
+    public void setCacheSize( int size )
     {
-        // TODO Auto-generated method stub
-
+        // do nothing
     }
 
 
     public void setObjectClassIndex( Index<String, E> index ) throws NamingException
     {
         protect( "objectClassIndex" );
-        objectClassIdx = convert( index );
+        if( index instanceof AvlIndex )
+        {
+            this.objectClassIdx = ( AvlIndex<String, E> ) index;
+        }
+        else
+        {
+            objectClassIdx = convert( index );
+        }
+        
         systemIndices.put( index.getAttributeId(), objectClassIdx );
     }
 
@@ -1998,7 +2051,15 @@ public class AvlStore<E> implements Store<E>
     public void setEntryUuidIndex( Index<byte[], E> index ) throws NamingException
     {
         protect( "entryUuidIndex" );
-        entryUuidIdx = convert( index );
+        if( index instanceof AvlIndex )
+        {
+            this.entryUuidIdx = ( AvlIndex<byte[], E> ) index;
+        }
+        else
+        {
+            entryUuidIdx = convert( index );
+        }
+
         systemIndices.put( index.getAttributeId(), entryUuidIdx );
     }
 

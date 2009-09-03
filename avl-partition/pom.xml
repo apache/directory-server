@@ -93,6 +93,16 @@
       <artifactId>shared-ldap-constants</artifactId>
       <version>${org.apache.directory.shared.version}</version>
     </dependency>    
+
+   <!-- this dependency exists only for using the DitToLdifWriter class.
+        should be dropped once the ldif partition moves into its own module -->
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-client-api</artifactId>
+      <version>${org.apache.directory.shared.version}</version>
+      <scope>test</scope>
+    </dependency>    
+
   </dependencies>
 
   <build>
