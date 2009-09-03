@@ -35,7 +35,6 @@ import java.util.UUID;
 import javax.naming.ConfigurationException;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -155,8 +154,6 @@ public class PartitionNexus implements Partition
 
     /** the closed state of this partition */
     private boolean initialized;
-
-    
     
    
     /**
@@ -869,18 +866,6 @@ public class PartitionNexus implements Partition
 
 
     /**
-     * Gets the LdapContext associated with the calling thread.
-     * 
-     * @return The LdapContext associated with the thread of execution or null
-     * if no context is associated with the calling thread.
-     */
-    public LdapContext getLdapContext()
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /**
      * Get's the RootDSE entry for the DSA.
      *
      * @return the attributes of the RootDSE
@@ -889,8 +874,6 @@ public class PartitionNexus implements Partition
     {
         return new ClonedServerEntry( rootDSE );
     }
-
-
 
 
     /**
@@ -1002,8 +985,6 @@ public class PartitionNexus implements Partition
     }
 
 
-
-
     /**
      * Get's the partition corresponding to a distinguished name.  This 
      * name need not be the name of the partition suffix.  When used in 
@@ -1027,8 +1008,6 @@ public class PartitionNexus implements Partition
             return parent;
         }
     }
-
-
 
 
     /**
