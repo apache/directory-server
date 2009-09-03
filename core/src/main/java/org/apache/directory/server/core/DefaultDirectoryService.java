@@ -51,7 +51,6 @@ import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 
-import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 
@@ -1422,7 +1421,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
+        partitionNexus = new PartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 
