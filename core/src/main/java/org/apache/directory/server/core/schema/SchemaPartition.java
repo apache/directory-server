@@ -188,7 +188,7 @@ public final class SchemaPartition extends AbstractPartition
         
         try
         {
-            wrapped.init( getDirectoryService() );
+            wrapped.initialize( );
             PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, registries );
             partitionLoader.loadAllEnabled( registries );
             loader = partitionLoader;
@@ -312,15 +312,6 @@ public final class SchemaPartition extends AbstractPartition
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getCacheSize()
-     */
-    public int getCacheSize()
-    {
-        return wrapped.getCacheSize();
-    }
-
-
-    /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#getId()
      */
     public final String getId()
@@ -421,15 +412,6 @@ public final class SchemaPartition extends AbstractPartition
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         return wrapped.search( opContext );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#setCacheSize(int)
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        wrapped.setCacheSize( cacheSize );
     }
 
 

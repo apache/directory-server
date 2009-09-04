@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -46,7 +45,6 @@ import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -77,17 +75,7 @@ public class AvlPartition extends BTreePartition
     }
 
 
-    public void init( DirectoryService dirService ) throws Exception
-    {
-        initRegistries( dirService.getRegistries() );
-    }
-
-
-    /**
-     * @{inhertDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public void initRegistries( Registries registries ) throws Exception
+    public void initialize( ) throws Exception
     {
         setRegistries( registries );
 
@@ -496,15 +484,6 @@ public class AvlPartition extends BTreePartition
     public void unbind( UnbindOperationContext opContext ) throws Exception
     {
         throw new UnsupportedOperationException( "unbind is not supported at the partition level" );
-    }
-
-
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public void setRegistries( Registries registries ) throws Exception
-    {
-        initRegistries( registries );
     }
 
 

@@ -219,7 +219,7 @@ public class PartitionNexus implements Partition
     /**
      * {@inheritDoc}
      */
-    public void init( DirectoryService directoryService ) throws Exception
+    public void initialize( ) throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( initialized )
@@ -305,7 +305,7 @@ public class PartitionNexus implements Partition
             system = override;
         }
 
-        system.init( directoryService );
+        system.initialize( );
         
         
         // Add root context entry for system partition
@@ -424,6 +424,24 @@ public class PartitionNexus implements Partition
 
     
     /**
+     * {@inheritDoc}
+     */
+    public Registries getRegistries()
+    {
+        return this.registries;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void setRegistries( Registries registries )
+    {
+        this.registries = registries;
+    }
+    
+    
+    /**
      * Always returns the empty String "".
      * @return the empty String ""
      */
@@ -455,26 +473,6 @@ public class PartitionNexus implements Partition
     public boolean isInitialized()
     {
         return initialized;
-    }
-
-
-    /**
-     * Not supported!
-     *
-     * @throws UnsupportedOperationException always
-     */
-    public int getCacheSize()
-    {
-        throw new UnsupportedOperationException( "There is no cache size associated with the nexus" );
-    }
-
-    
-    /**
-     * Not support!
-     */
-    public void setCacheSize( int cacheSize )
-    {
-        throw new UnsupportedOperationException( "You cannot set the cache size of the nexus" );
     }
 
 
@@ -902,7 +900,7 @@ public class PartitionNexus implements Partition
 
         if ( ! partition.isInitialized() )
         {
-            partition.init( directoryService );
+            partition.initialize( );
         }
         
         synchronized ( partitionLookupTree )

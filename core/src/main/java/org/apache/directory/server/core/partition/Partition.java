@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -37,18 +36,15 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
-import javax.naming.Context;
 import javax.naming.InvalidNameException;
 
 
 /**
- * An interfaces that bridges between underlying JNDI entries and JNDI
- * {@link Context} API.  DIT (Directory Information Tree) consists one or
- * above {@link Partition}s whose parent is {@link PartitionNexus},
- * and all of them are mapped to different
- * base suffix.  Each partition contains entries whose name ends with that
- * base suffix.
+ * Interface for entry stores containing a part of the DIB (Directory 
+ * Information Base).  Partitions are associated with a specific suffix, and
+ * all entries contained in the them have the same DN suffix in common.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -58,6 +54,8 @@ public interface Partition
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
+
+    
     /**
      * Gets the unique identifier for this partition.
      *
@@ -75,44 +73,34 @@ public interface Partition
 
 
     /**
-     * Gets the suffix for this Partition.
-     *
-     * @return the suffix for this Partition.
-     */
-    LdapDN getSuffixDn();
-
-
-    /**
      * Gets the user provided suffix for this Partition as a String.
      */
-    String getSuffix()  throws InvalidNameException;
+    String getSuffix();
 
 
     /**
      * Sets the user provided suffix for this Partition as a String.
      *
      * @param suffix the suffix String for this Partition.
-     * @throws InvalidNameException If the suffix is not a valid DN
+     * @throws InvalidNameException if the suffix does not conform to LDAP DN syntax
      */
     void setSuffix( String suffix )  throws InvalidNameException;
-
-
+    
+    
     /**
-     * Used to specify the entry cache size for a Partition.  Various Partition
-     * implementations may interpret this value in different ways: i.e. total cache
-     * size limit verses the number of entries to cache.
+     * Gets the schema registries assigned to this Partition.
      *
-     * @param cacheSize the size of the cache
+     * @return the schema Registries
      */
-    void setCacheSize( int cacheSize );
-
-
+    Registries getRegistries();
+    
+    
     /**
-     * Gets the entry cache size for this partition.
+     * Sets the schema registries assigned to this Partition.
      *
-     * @return the size of the cache
+     * @param registries the registries to assign to this Partition.
      */
-    int getCacheSize();
+    void setRegistries( Registries registries );
 
 
     // -----------------------------------------------------------------------
@@ -123,14 +111,25 @@ public interface Partition
     /**
      * Initializes this partition.
      *
-     * @param core the directory core for the server.
      * @throws Exception if initialization fails in any way
      */
-    void init( DirectoryService core ) throws Exception;
+    void initialize() throws Exception;
 
 
     /**
-     * Deinitialized this partition.
+     * Gets the normalized suffix as an LdapDN for this Partition after it has 
+     * been initialized.  Attempts to get this LdapDN before initialization 
+     * throw an IllegalStateException.
+     *
+     * @return the suffix for this Partition.
+     * @throws IllegalStateException if the Partition has not been initialized
+     */
+    LdapDN getSuffixDn();
+
+
+    /**
+     * Instructs this Partition to synchronize with it's persistent store, and
+     * destroy all held resources, in preparation for a shutdown event.
      */
     void destroy() throws Exception;
 
@@ -172,7 +171,7 @@ public interface Partition
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param opContext The contetx containin the modification operation 
+     * @param opContext The context containing the modification operation 
      * to perform on the entry which is one of constants specified by the 
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
@@ -245,7 +244,7 @@ public interface Partition
      * Modifies an entry by changing its relative name. Optionally attributes
      * associated with the old relative name can be removed from the entry.
      * This makes sense only in certain namespaces like LDAP and will be ignored
-     * if it is irrelavent.
+     * if it is irrelevant.
      *
      * @param opContext the modify DN context
      * @throws Exception if there are any problems

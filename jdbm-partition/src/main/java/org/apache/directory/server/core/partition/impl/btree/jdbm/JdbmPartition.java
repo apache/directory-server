@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -45,11 +44,9 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.NamingException;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -119,26 +116,10 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    /**
-     * @org.apache.xbean.Property hidden="true"
-     */
-    public void setRegistries( Registries registries ) throws Exception
-    {
-        initRegistries( registries );
-    }
-
-
-    protected void initRegistries( Registries registries ) throws Exception
-    {
-        this.registries = registries;
-        store.initRegistries( registries );
-    }
-
-
     @SuppressWarnings("unchecked")
-    public final void init( DirectoryService directoryService ) throws Exception
+    public final void initialize( ) throws Exception
     {
-        initRegistries( directoryService.getRegistries() );
+        store.init( registries );
 
         EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
@@ -162,7 +143,7 @@ public class JdbmPartition extends BTreePartition
         // Normalize the suffix
         suffix.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         store.setSuffixDn( suffix.getNormName() );
-        store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
+        store.setWorkingDirectory( getPartitionDir() );
 
         Set<Index<?,ServerEntry>> userIndices = new HashSet<Index<?,ServerEntry>>();
         

@@ -124,7 +124,7 @@ public class DumpCommand extends ToolCommand
         // --------------------------------------------------------------------
 
         // If not present then we need to abort 
-        File schemaDirectory = new File( getLayout().getPartitionsDirectory(), "schema" );
+        File schemaDirectory = new File( getInstanceLayout().getPartitionsDir(), "schema" );
 
         if ( !schemaDirectory.exists() )
         {
@@ -180,7 +180,7 @@ public class DumpCommand extends ToolCommand
 
         for ( String partition:partitions )
         {
-            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partition );
+            File partitionDirectory = new File( getInstanceLayout().getPartitionsDir(), partition );
             out.println( "\n\n" );
             dump( partitionDirectory, out );
         }

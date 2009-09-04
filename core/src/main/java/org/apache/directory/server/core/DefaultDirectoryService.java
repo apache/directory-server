@@ -1414,7 +1414,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // triggers partition to load schema fully from schema partition
-        schemaService.getSchemaPartition().init( this );
+        schemaService.getSchemaPartition().initialize( );
 
         adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
@@ -1422,7 +1422,7 @@ public class DefaultDirectoryService implements DirectoryService
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new PartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
-        partitionNexus.init( this );
+        partitionNexus.initialize( );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 
         // --------------------------------------------------------------------

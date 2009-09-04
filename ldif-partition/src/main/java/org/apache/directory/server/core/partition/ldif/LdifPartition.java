@@ -17,8 +17,8 @@
  *   under the License.
  *
  */
-
 package org.apache.directory.server.core.partition.ldif;
+
 
 import java.io.File;
 import java.io.FileFilter;
@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * TODO LdifPartition.
@@ -88,9 +89,9 @@ public class LdifPartition extends BTreePartition
 
 
 
-    public void init( DirectoryService directoryService ) throws Exception
+    public void initialize( ) throws Exception
     {
-        wrappedPartition.init( directoryService );
+        wrappedPartition.initialize( );
 
         this.directoryService = directoryService;
         this.registries = directoryService.getRegistries();
@@ -549,8 +550,9 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void setRegistries( Registries registries ) throws Exception
+    public void setRegistries( Registries registries )
     {
+        super.setRegistries( registries );
         wrappedPartition.setRegistries( registries );
     }
 
@@ -602,14 +604,6 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public int getCacheSize()
-    {
-        // TODO Auto-generated method stub
-        return super.getCacheSize();
-    }
-
-
-    @Override
     public String getId()
     {
         // TODO Auto-generated method stub
@@ -643,5 +637,4 @@ public class LdifPartition extends BTreePartition
     {
         this.ldifScanInterval = ldifScanInterval;
     }
-    
 }

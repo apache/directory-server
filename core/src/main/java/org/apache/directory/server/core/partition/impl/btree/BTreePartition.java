@@ -49,6 +49,8 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
+
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,6 +92,7 @@ public abstract class BTreePartition implements Partition
     protected String id;
     protected int cacheSize = -1;
     protected LdapDN suffix;
+    private File partitionDir;
     
     /** The rootDSE context */
     protected ServerEntry contextEntry;
@@ -114,6 +117,46 @@ public abstract class BTreePartition implements Partition
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRegistries( Registries registries )
+    {
+        this.registries = registries;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Registries getRegistries()
+    {
+        return registries;
+    }
+    
+    
+    /**
+     * Gets the directory in which this Partition stores files.
+     *
+     * @return the directory in which this Partition stores files.
+     */
+    public File getPartitionDir()
+    {
+        return partitionDir;
+    }
+    
+    
+    /**
+     * Sets the directory in which this Partition stores files.
+     *
+     * @param partitionDir the directory in which this Partition stores files.
+     */
+    public void setPartitionDir( File partitionDir )
+    {
+        this.partitionDir = partitionDir;
+    }
+    
     
     public void setIndexedAttributes( Set<Index<?,ServerEntry>> indexedAttributes )
     {
@@ -178,19 +221,6 @@ public abstract class BTreePartition implements Partition
     // -----------------------------------------------------------------------
 
 
-    /**
-     * Allows for schema entity registries to be swapped out during runtime.  This is 
-     * primarily here to facilitate the swap out of a temporary bootstrap registry.  
-     * Registry changes require swapping out the search engine used by a partition 
-     * since the registries are used by elements in the search engine.
-     * 
-     * @org.apache.xbean.Property hidden="true"
-     * @param registries the schema entity registries
-     * @throws Exception 
-     */
-    public abstract void setRegistries( Registries registries ) throws Exception;
-
-    
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------

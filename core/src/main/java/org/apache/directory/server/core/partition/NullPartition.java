@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -87,15 +88,6 @@ public class NullPartition extends AbstractPartition
      */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#getCacheSize()
-     */
-    public int getCacheSize()
-    {
-        return 0;
     }
 
 
@@ -302,14 +294,6 @@ public class NullPartition extends AbstractPartition
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#setCacheSize(int)
-     */
-    public void setCacheSize( int cacheSize )
-    {
-    }
-
-
-    /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#setId(java.lang.String)
      */
     public void setId( String id )
@@ -335,8 +319,22 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    public String getSuffix() throws InvalidNameException
+    public String getSuffix()
     {
         return suffix.getUpName();
+    }
+
+
+    public Registries getRegistries()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public void setRegistries( Registries registries )
+    {
+        // TODO Auto-generated method stub
+        
     }
 }
