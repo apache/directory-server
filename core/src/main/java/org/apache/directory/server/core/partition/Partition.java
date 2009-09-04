@@ -75,7 +75,7 @@ public interface Partition
 
 
     /**
-     * Gets the non-normalized suffix for this Partition.
+     * Gets the suffix for this Partition.
      *
      * @return the suffix for this Partition.
      */
