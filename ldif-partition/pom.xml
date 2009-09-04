@@ -100,7 +100,6 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-client-api</artifactId>
       <version>${org.apache.directory.shared.version}</version>
-      <scope>test</scope>
     </dependency>    
 
   </dependencies>
