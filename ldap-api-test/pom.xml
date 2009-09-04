@@ -82,13 +82,6 @@
     </dependency>  
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
-      <version>${pom.version}</version>
-      <scope>test</scope>
-    </dependency>  
-
-    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-client-api</artifactId>
       <version>${org.apache.directory.shared.version}</version>

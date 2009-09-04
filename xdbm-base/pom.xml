@@ -35,21 +35,17 @@
   </description>
 
   <dependencies>
-      <dependency>
-        <groupId>${pom.groupId}</groupId>
-        <artifactId>apacheds-schema-registries</artifactId>
-        <version>${pom.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <version>${org.apache.directory.shared.version}</version>
-        <artifactId>shared-cursor</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>${pom.groupId}</groupId>
-        <artifactId>apacheds-core-entry</artifactId>
-        <version>${pom.version}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <version>${org.apache.directory.shared.version}</version>
+      <artifactId>shared-cursor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>apacheds-core-entry</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
