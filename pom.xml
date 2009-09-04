@@ -348,6 +348,7 @@
     <module>core-entry</module>
     <module>core-avl</module>
     <module>avl-partition</module>
+    <module>ldif-partition</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
