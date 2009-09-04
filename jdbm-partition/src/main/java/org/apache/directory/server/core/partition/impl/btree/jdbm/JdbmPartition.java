@@ -84,7 +84,7 @@ public class JdbmPartition extends BTreePartition
     // ------------------------------------------------------------------------
 
 
-    public LdapDN getSuffix()
+    public LdapDN getSuffixDn()
     {
         return suffix;
     }
@@ -490,15 +490,10 @@ public class JdbmPartition extends BTreePartition
         return store.getChildCount( id );
     }
 
-
-    public final LdapDN getSuffixDn()
+    
+    public final String getSuffix()
     {
-        return store.getSuffix();
-    }
-
-    public final LdapDN getUpSuffixDn()
-    {
-        return store.getUpSuffix();
+        return store.getSuffixDn();
     }
 
 

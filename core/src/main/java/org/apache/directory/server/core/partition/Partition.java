@@ -79,13 +79,19 @@ public interface Partition
      *
      * @return the suffix for this Partition.
      */
-    LdapDN getSuffix();
+    LdapDN getSuffixDn();
 
 
     /**
-     * Sets the non-normalized suffix for this Partition as a string.
+     * Gets the user provided suffix for this Partition as a String.
+     */
+    String getSuffix()  throws InvalidNameException;
+
+
+    /**
+     * Sets the user provided suffix for this Partition as a String.
      *
-     * @param suffix the suffix string for this Partition.
+     * @param suffix the suffix String for this Partition.
      * @throws InvalidNameException If the suffix is not a valid DN
      */
     void setSuffix( String suffix )  throws InvalidNameException;

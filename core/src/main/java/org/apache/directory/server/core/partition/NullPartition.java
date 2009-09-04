@@ -111,7 +111,7 @@ public class NullPartition extends AbstractPartition
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.partition.Partition#getSuffix()
      */
-    public LdapDN getSuffix()
+    public LdapDN getSuffixDn()
     {
         return suffix;
     }
@@ -332,5 +332,11 @@ public class NullPartition extends AbstractPartition
      */
     public void unbind( UnbindOperationContext opContext ) throws Exception
     {
+    }
+
+
+    public String getSuffix() throws InvalidNameException
+    {
+        return suffix.getUpName();
     }
 }

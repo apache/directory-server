@@ -475,9 +475,15 @@ public class AvlPartition extends BTreePartition
     }
 
 
-    public LdapDN getSuffix()
+    public LdapDN getSuffixDn()
     {
         return suffix;
+    }
+    
+    
+    public String getSuffix()
+    {
+        return suffix.getUpName();
     }
 
 

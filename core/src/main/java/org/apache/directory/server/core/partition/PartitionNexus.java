@@ -271,7 +271,7 @@ public class PartitionNexus implements Partition
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffix(), e );
+                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffixDn(), e );
                     }
                     finally
                     {
@@ -338,7 +338,7 @@ public class PartitionNexus implements Partition
             system.add( addOperationContext );
         }
         
-        String key = system.getSuffix().getUpName();
+        String key = system.getSuffixDn().getUpName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -348,19 +348,19 @@ public class PartitionNexus implements Partition
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.add( system.getSuffix(), system );
+            partitionLookupTree.add( system.getSuffixDn(), system );
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
             
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
                     registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
-                    system.getSuffix().getUpName() );
+                    system.getSuffixDn().getUpName() );
                 rootDSE.put( namingContexts );
             }
             else
             {
-                namingContexts.add( system.getSuffix().getUpName() );
+                namingContexts.add( system.getSuffixDn().getUpName() );
             }
         }
 
@@ -427,11 +427,17 @@ public class PartitionNexus implements Partition
      * Always returns the empty String "".
      * @return the empty String ""
      */
-    public LdapDN getSuffix()
+    public LdapDN getSuffixDn()
     {
         return LdapDN.EMPTY_LDAPDN;
     }
 
+    
+    public String getSuffix()
+    {
+        return StringTools.EMPTY;
+    }
+    
     
     /**
      * Unsupported operation on the Nexus.
@@ -887,7 +893,7 @@ public class PartitionNexus implements Partition
         Partition partition = opContext.getPartition();
 
         // Turn on default indices
-        String key = partition.getSuffix().getNormName();
+        String key = partition.getSuffixDn().getNormName();
         
         if ( partitions.containsKey( key ) )
         {
@@ -901,7 +907,7 @@ public class PartitionNexus implements Partition
         
         synchronized ( partitionLookupTree )
         {
-            LdapDN partitionSuffix = partition.getSuffix();
+            LdapDN partitionSuffix = partition.getSuffixDn();
             
             if ( partitionSuffix == null )
             {
@@ -909,7 +915,7 @@ public class PartitionNexus implements Partition
             }
             
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.add( partition.getSuffix(), partition );
+            partitionLookupTree.add( partition.getSuffixDn(), partition );
 
             EntryAttribute namingContexts = rootDSE.get( SchemaConstants.NAMING_CONTEXTS_AT );
 
@@ -948,7 +954,7 @@ public class PartitionNexus implements Partition
             throw new NameNotFoundException( msg );
         }
         
-        String partitionSuffix = partition.getSuffix().getUpName();
+        String partitionSuffix = partition.getSuffixDn().getUpName();
 
         // Retrieve the namingContexts from the RootDSE : the partition
         // suffix must be present in those namingContexts
@@ -1052,7 +1058,7 @@ public class PartitionNexus implements Partition
     public LdapDN getSuffix( GetSuffixOperationContext getSuffixContext ) throws Exception
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffix();
+        return backend.getSuffixDn();
     }
 
 
@@ -1134,9 +1140,9 @@ public class PartitionNexus implements Partition
         
         if ( namingContexts != null )
         {
-            namingContexts.remove( partition.getSuffix().getUpName() );
+            namingContexts.remove( partition.getSuffixDn().getUpName() );
         }
         
-        partitions.remove( partition.getSuffix().getUpName() );
+        partitions.remove( partition.getSuffixDn().getUpName() );
     }
 }

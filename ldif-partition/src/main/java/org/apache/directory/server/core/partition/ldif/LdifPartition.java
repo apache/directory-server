@@ -211,7 +211,7 @@ public class LdifPartition extends BTreePartition
      */
     public void loadConfig() throws Exception
     {
-        File dir = new File( configParentDirectory, wrappedPartition.getSuffix().getUpName() );
+        File dir = new File( configParentDirectory, wrappedPartition.getSuffixDn().getUpName() );
 
         //        if( ! dir.exists() )
         //        {
@@ -582,10 +582,16 @@ public class LdifPartition extends BTreePartition
         wrappedPartition.bind( bindContext );
     }
 
-
-    public LdapDN getSuffix()
+    
+    public String getSuffix()
     {
         return wrappedPartition.getSuffix();
+    }
+    
+
+    public LdapDN getSuffixDn()
+    {
+        return wrappedPartition.getSuffixDn();
     }
 
 

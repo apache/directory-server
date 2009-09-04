@@ -157,6 +157,7 @@ public final class SchemaPartition extends AbstractPartition
         {
             throw new IllegalStateException( "Not allowed to set the wrappedPartition after initialization." );
         }
+        
         this.wrapped = wrapped;
     }
     
@@ -328,12 +329,21 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /**
-     * {@inheritDoc}
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.Partition#getSuffixDN()
      */
-    public final LdapDN getSuffix()
+    public final LdapDN getSuffixDn()
     {
-        return wrapped.getSuffix();
+        return wrapped.getSuffixDn();
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.partition.Partition#getSuffix()
+     */
+    public String getSuffix()
+    {
+        return ID;
     }
 
 
