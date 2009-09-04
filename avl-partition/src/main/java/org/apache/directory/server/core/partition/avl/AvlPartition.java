@@ -59,7 +59,6 @@ public class AvlPartition extends BTreePartition
 {
     private boolean optimizerEnabled = true;
     private Set<AvlIndex<?, ServerEntry>> indexedAttributes;
-    private String suffix;
 
     private AvlStore<ServerEntry> store;
 
@@ -109,7 +108,7 @@ public class AvlPartition extends BTreePartition
 
         // initialize the store
         store.setName( getId() );
-        store.setSuffixDn( suffix );
+        store.setSuffixDn( suffix.getUpName() );
 
         Set<Index<?, ServerEntry>> userIndices = new HashSet<Index<?, ServerEntry>>();
 
@@ -476,21 +475,9 @@ public class AvlPartition extends BTreePartition
     }
 
 
-    public String getSuffix()
+    public LdapDN getSuffix()
     {
-        return super.suffix;
-    }
-
-
-    public LdapDN getSuffixDn() throws Exception
-    {
-        return store.getSuffix();
-    }
-
-
-    public LdapDN getUpSuffixDn() throws Exception
-    {
-        return store.getUpSuffix();
+        return suffix;
     }
 
 

@@ -26,6 +26,8 @@ import java.io.FileWriter;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -209,7 +211,7 @@ public class LdifPartition extends BTreePartition
      */
     public void loadConfig() throws Exception
     {
-        File dir = new File( configParentDirectory, wrappedPartition.getSuffixDn().getUpName() );
+        File dir = new File( configParentDirectory, wrappedPartition.getSuffix().getUpName() );
 
         //        if( ! dir.exists() )
         //        {
@@ -581,21 +583,9 @@ public class LdifPartition extends BTreePartition
     }
 
 
-    public String getSuffix()
+    public LdapDN getSuffix()
     {
         return wrappedPartition.getSuffix();
-    }
-
-
-    public LdapDN getSuffixDn() throws Exception
-    {
-        return wrappedPartition.getSuffixDn();
-    }
-
-
-    public LdapDN getUpSuffixDn() throws Exception
-    {
-        return wrappedPartition.getUpSuffixDn();
     }
 
 
@@ -630,7 +620,7 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void setSuffix( String suffix )
+    public void setSuffix( String suffix ) throws InvalidNameException
     {
         super.setSuffix( suffix );
         wrappedPartition.setSuffix( suffix );
