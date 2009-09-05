@@ -53,6 +53,8 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     /** flag to allow storing duplicate keys */
     private boolean allowDuplicates;
 
+    /** size of the map */
+    private int size;
 
     /**
      * Creates a new instance of AVLTreeMap without support for duplicate keys.
@@ -105,6 +107,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
           root = new LinkedAvlMapNode<K,V>( key, value );
           first = root;
           last = root;
+          size++;
           return null;
         }
         
@@ -160,6 +163,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
         treePath.add( 0, node );
         balance(treePath);
         
+        size++;
         return null;
     }
     
@@ -291,6 +295,7 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
             balanceNodesAfterRemove( treePath, temp );
         }
         
+        size--;
        return temp.value;
     }
     
@@ -366,12 +371,14 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
             {
                 root = null;
             }
-            
+       
+            size--;
             return value;
         }
 
        balanceNodesAfterRemove( treePath, temp );
-        
+
+       size--;
        return value;
     }
 
@@ -538,25 +545,6 @@ public class AvlTreeMapImpl<K,V> implements AvlTreeMap<K, V>
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
     {
-        if ( root == null )
-        {
-            return 0;
-        }
-        
-        if( root.isLeaf() )
-        {
-            return 1;
-        }
-      
-        int size = 0;
-        LinkedAvlMapNode<K,V> x = first;
-      
-        while( x != null )
-        {
-            size++;
-            x = x.next;
-        }
-      
         return size;
     }
     

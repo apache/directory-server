@@ -45,6 +45,8 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     /** node representing the end of the doubly linked list formed with the tree nodes */
     private LinkedAvlNode<K> last;
 
+    /** size of the tree */
+    private int size;
 
     /**
      * Creates a new instance of AVLTree.
@@ -80,6 +82,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
           root = new LinkedAvlNode<K>( key );
           first = root;
           last = root;
+          size++;
           return null;
         }
         
@@ -127,6 +130,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
         treePath.add( 0, node );
         balance(treePath);
         
+        size++;
         return null;
     }
     
@@ -224,6 +228,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
             if( temp == root )
             {
               root = null;
+              size--;
               return key;
             }
             
@@ -297,6 +302,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
        treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
        balance( treePath );
        
+       size--;
        return key;
     }
     
@@ -375,26 +381,6 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     //NOTE: This method is internally used by AVLTreeMarshaller
     public int getSize()
     {
-        if ( root == null )
-        {
-            return 0;
-        }
-        
-        if( root.isLeaf() )
-        {
-            return 1;
-        }
-      
-        int size = 0;
-        
-        LinkedAvlNode<K> x = first;
-        
-        while( x != null )
-        {
-            size++;
-            x = x.next;
-        }
-        
         return size;
     }
     
