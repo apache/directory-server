@@ -227,7 +227,14 @@ public interface Partition
      */
     ClonedServerEntry lookup( LookupOperationContext lookupContext ) throws Exception;
     
-    
+   
+    /**
+     * Looks up an entry by id.
+     *
+     * @param id the id of the entry to look up
+     * @return the entry with the id
+     * @throws Exception if there are any problems
+     */
     ClonedServerEntry lookup( Long id ) throws Exception;
     
 
@@ -287,6 +294,7 @@ public interface Partition
      */
     void bind( BindOperationContext opContext ) throws Exception;
 
+    
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
      * need not support this operation.  This operation is here to enable those

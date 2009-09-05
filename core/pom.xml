@@ -50,6 +50,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-schema</artifactId>
       <version>${org.apache.directory.shared.version}</version>
