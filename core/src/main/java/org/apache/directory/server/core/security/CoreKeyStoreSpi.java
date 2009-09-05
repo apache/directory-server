@@ -40,7 +40,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;

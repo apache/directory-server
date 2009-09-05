@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.directory.daemon.InstallLayout;
 import org.apache.directory.daemon.InstanceLayout;
 
 

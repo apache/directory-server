@@ -29,8 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService.LogChange;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.changelog.LogChange;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;

@@ -22,7 +22,7 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.event.DirectoryListener;

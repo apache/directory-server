@@ -63,7 +63,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.core.integ.Level;

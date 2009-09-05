@@ -23,9 +23,9 @@ package org.apache.directory.server.core.interceptor;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.EventService;
@@ -34,9 +34,9 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaOperationControl;
+import org.apache.directory.server.core.schema.SchemaChangeManager;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.csn.Csn;
@@ -293,7 +293,7 @@ public class InterceptorChainTest
         }
 
 
-        public PartitionNexus getPartitionNexus()
+        public DefaultPartitionNexus getPartitionNexus()
         {
             return null;
         }
@@ -349,13 +349,13 @@ public class InterceptorChainTest
         }
 
 
-        public SchemaOperationControl getSchemaManager()
+        public SchemaChangeManager getSchemaManager()
         {
             return null;
         }
 
 
-        public void setSchemaManager( SchemaOperationControl schemaManager )
+        public void setSchemaManager( SchemaChangeManager schemaManager )
         {
         }
 

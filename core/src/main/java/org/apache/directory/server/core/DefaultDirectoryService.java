@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLog;
@@ -52,11 +51,13 @@ import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
 
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.schema.DefaultSchemaService;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
@@ -115,7 +116,7 @@ public class DefaultDirectoryService implements DirectoryService
     private SchemaService schemaService;
     
     /** the root nexus */
-    private PartitionNexus partitionNexus;
+    private DefaultPartitionNexus partitionNexus;
 
     /** whether or not server is started for the first time */
     private boolean firstStart;
@@ -166,13 +167,6 @@ public class DefaultDirectoryService implements DirectoryService
             "changes are made by the admin user.\n Furthermore the used controls are not at " +
             "all taken into account";
 
-    
-    /** A structure telling the changeLog what to do with the incoming change */
-    public enum LogChange
-    {
-        TRUE,  // The change must me stored 
-        FALSE  // The change must not be stred
-    };
     
     /** The delay to wait between each sync on disk */
     private long syncPeriodMillis;
@@ -296,7 +290,7 @@ public class DefaultDirectoryService implements DirectoryService
         journal = new DefaultJournal();
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
-        schemaService = new SchemaService();
+        schemaService = new DefaultSchemaService();
     }
 
 
@@ -1035,7 +1029,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public PartitionNexus getPartitionNexus()
+    public DefaultPartitionNexus getPartitionNexus()
     {
         return partitionNexus;
     }
@@ -1421,7 +1415,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
-        partitionNexus = new PartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
+        partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
         partitionNexus.initialize( );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 

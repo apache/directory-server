@@ -23,13 +23,14 @@ package org.apache.directory.server.core.authn;
 import javax.naming.Context;
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Authenticates users who access {@link PartitionNexus}.
+ * Authenticates users who access {@link DefaultPartitionNexus}.
  * <p>
  * {@link Authenticator}s are registered to and configured by
  * {@link AuthenticationInterceptor} interceptor.

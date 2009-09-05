@@ -43,7 +43,7 @@ import org.apache.directory.server.core.interceptor.context.MoveOperationContext
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.shared.ldap.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -65,7 +65,7 @@ import java.util.Map;
 /**
  * A name normalization service.  This service makes sure all relative and distinguished
  * names are normalized before calls are made against the respective interface methods
- * on {@link PartitionNexus}.
+ * on {@link DefaultPartitionNexus}.
  * 
  * The Filters are also normalized.
  * 

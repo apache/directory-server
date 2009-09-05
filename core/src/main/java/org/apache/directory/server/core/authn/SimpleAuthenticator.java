@@ -34,6 +34,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;

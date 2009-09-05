@@ -30,7 +30,7 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -48,6 +48,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -63,7 +64,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An {@link Interceptor} that controls access to {@link PartitionNexus}.
+ * An {@link Interceptor} that controls access to {@link DefaultPartitionNexus}.
  * If a user tries to perform any operations that requires
  * permission he or she doesn't have, {@link NoPermissionException} will be
  * thrown and therefore the current invocation chain will terminate.

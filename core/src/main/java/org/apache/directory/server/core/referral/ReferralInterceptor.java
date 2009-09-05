@@ -67,9 +67,6 @@ public class ReferralInterceptor extends BaseInterceptor
 {
     private static final Logger LOG = LoggerFactory.getLogger( ReferralInterceptor.class );
 
-    /** The directoryService */
-    private DirectoryService directoryService;
-    
     private PartitionNexus nexus;
 
     /** The attributeType registry */
@@ -210,7 +207,6 @@ public class ReferralInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         registries = directoryService.getRegistries();
         atRegistry = registries.getAttributeTypeRegistry();
-        this.directoryService = directoryService;
 
         // Initialize the referralManager
         referralManager = new ReferralManagerImpl( directoryService );

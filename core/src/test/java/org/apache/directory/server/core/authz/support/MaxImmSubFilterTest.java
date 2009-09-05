@@ -24,10 +24,10 @@ import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.ReferralHandlingMode;
 import org.apache.directory.server.core.ReferralManager;
-import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -57,9 +57,9 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaOperationControl;
+import org.apache.directory.server.core.schema.SchemaChangeManager;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -497,7 +497,7 @@ public class MaxImmSubFilterTest
         }
 
 
-        public PartitionNexus getPartitionNexus()
+        public DefaultPartitionNexus getPartitionNexus()
         {
             return null;
         }
@@ -553,13 +553,13 @@ public class MaxImmSubFilterTest
         }
 
 
-        public SchemaOperationControl getSchemaManager()
+        public SchemaChangeManager getSchemaManager()
         {
             return null;
         }
 
 
-        public void setSchemaManager( SchemaOperationControl schemaManager )
+        public void setSchemaManager( SchemaChangeManager schemaManager )
         {
         }
 
