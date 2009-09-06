@@ -195,6 +195,9 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         
         tree.setFirst( nodes[0] );
         
+        // Update the size
+        tree.setSize( size );
+        
         if( nodes.length >= 1 )
         {
             tree.setLast( nodes[ nodes.length - 1 ] );

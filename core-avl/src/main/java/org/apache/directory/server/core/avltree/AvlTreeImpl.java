@@ -384,6 +384,18 @@ public class AvlTreeImpl<K> implements AvlTree<K>
         return size;
     }
     
+    /**
+     * Set the size of the tree.
+     * 
+     * Note : this method is used by the deserialization method
+     *
+     * @param size the size of the tree
+     */
+    /* no protection */ void setSize( int size )
+    {
+        this.size = size;
+    }
+    
     
     /**
      * Set the root of the tree.
@@ -408,6 +420,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     /* no protection */  void setFirst( LinkedAvlNode<K> first )
     {
         this.first = first;
+        size++;
     }
 
     
