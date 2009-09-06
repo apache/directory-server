@@ -341,6 +341,7 @@
     <module>xdbm-tools</module>
     <module>core</module>
     <module>core-api</module>
+    <module>core-mock</module>
     <module>core-jndi</module>
     <module>core-constants</module>
     <module>core-shared</module>
