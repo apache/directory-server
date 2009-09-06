@@ -25,10 +25,11 @@ import java.io.FileFilter;
 import java.io.FileWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -43,32 +44,68 @@ import org.apache.directory.server.core.partition.avl.AvlPartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.csn.CsnFactory;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * TODO LdifPartition.
- * 
+ * A LDIF based partition. Data are stored on disk as LDIF, following this organisation :
+ * <li> each entry is associated with a file, postfixed with LDIF
+ * <li> each entry having at least one child will have a directory created using its name.
+ * The root is the partition's suffix.
+ * <br>
+ * So for instance, we may have on disk :
+ * <pre>
+ * /ou=example,ou=system.ldif
+ * /ou=example,ou=system/
+ *   |
+ *   +--> cn=test.ldif
+ *        cn=test/
+ *           |
+ *           +--> cn=another test.ldif
+ *                ...
+ * </pre>
+ * <br><br>            
+ * In this exemple, the partition's suffix is <b>ou=example,ou=system</b>. 
+ * <br>   
+ *  
  * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class LdifPartition extends BTreePartition
 {
+    /** A logger for this class */
+    private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
+    
+    /** The LDIF file parser */
     private LdifReader ldifParser = new LdifReader();
 
-    private File configParentDirectory;
+    /** The directory into which the partition is stored */
+    private String workingDirectory;
 
-    private DirectoryService directoryService;
+    /** The directory into which the entries are stored */
+    private File suffixDirectory;
+
+    /** The context entry */
+    private ServerEntry contextEntry;
 
     private int ldifScanInterval;
 
+    /** A filter used to pick all the directories */
     private FileFilter dirFilter = new FileFilter()
     {
         public boolean accept( File dir )
@@ -77,35 +114,125 @@ public class LdifPartition extends BTreePartition
         }
     };
 
+    /** A filter used to pick all the ldif entries */
+    private FileFilter entryFilter = new FileFilter()
+    {
+        public boolean accept( File dir )
+        {
+            if ( dir.getName().endsWith( CONF_FILE_EXTN ) )
+            {
+                return dir.isFile();
+            }
+            else
+            {
+                return false;
+            }
+        }
+    };
+
+    /** The extension used for LDIF entry files */
     private static final String CONF_FILE_EXTN = ".ldif";
 
-    private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
+    /** We use an AVL partition to manage searches on this partition */
+    private AvlPartition wrappedPartition;
 
-    private AvlPartition wrappedPartition = new AvlPartition();
-
+    /**
+     * Creates a new instance of LdifPartition.
+     */
     public LdifPartition()
     {
+        wrappedPartition = new AvlPartition();
     }
 
 
-
-    public void initialize( ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void initialize() throws Exception
     {
-        wrappedPartition.initialize( );
+        wrappedPartition.initialize();
 
-        this.directoryService = directoryService;
-        this.registries = directoryService.getRegistries();
         this.searchEngine = wrappedPartition.getSearchEngine();
 
         LOG.debug( "id is : {}", wrappedPartition.getId() );
-        this.configParentDirectory = new File( directoryService.getWorkingDirectory().getPath() + File.separator
-            + wrappedPartition.getId() );
-        //        configParentDirectory.mkdir();
-        // load the config 
-        loadConfig();
+
+        // Initialize the suffixDirectory : it's a composition
+        // of the workingDirectory followed by the suffix
+        if ( ( suffix == null ) || ( suffix.isEmpty() ) )
+        {
+            String msg = "Cannot initialize a partition without a valid suffix";
+            LOG.error( msg );
+            throw new InvalidNameException( msg );
+        }
+        
+        if ( !suffix.isNormalized() )
+        {
+            suffix.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        
+        String suffixDirName = getFileName( suffix );
+        suffixDirectory = new File( workingDirectory, suffixDirName);
+        
+        // Create the context entry now, if it does not exists, or load the
+        // existing entries
+        if ( suffixDirectory.exists() )
+        {
+            loadEntries( new File( workingDirectory ) );
+        }
+        else
+        {
+            // The partition directory does not exist, we have to create it
+            try
+            {
+                suffixDirectory.mkdirs();
+            }
+            catch ( SecurityException se )
+            {
+                String msg = "The " + suffixDirectory.getAbsolutePath() + " can't be created : " + se.getMessage(); 
+                LOG.error( msg );
+                throw se;
+            }
+            
+            // And create the context entry too
+            File contextEntryFile = new File( suffixDirectory + CONF_FILE_EXTN );
+
+            LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
+            
+            if ( contextEntry == null )
+            {
+                throw new NamingException( "The expected context entry does not exist" );
+            }
+            
+            if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+            {
+                CsnFactory defaultCSNFactory = new CsnFactory( 0 );
+
+                contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
+            }
+            
+
+            if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+            {
+                byte[] uuid = SchemaUtils.uuidToBytes( UUID.randomUUID() );
+                contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+            }
+            
+            FileWriter fw = new FileWriter( contextEntryFile );
+            fw.write( LdifUtils.convertEntryToLdif( contextEntry ) );
+            fw.close();
+            
+            // And add this entry to the underlying partition
+            wrappedPartition.getStore().add( contextEntry );
+        }
     }
 
 
+    //-------------------------------------------------------------------------
+    // Operations
+    //-------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void add( AddOperationContext addContext ) throws Exception
     {
@@ -114,6 +241,18 @@ public class LdifPartition extends BTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public void bind( BindOperationContext bindContext ) throws Exception
+    {
+        wrappedPartition.bind( bindContext );
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void delete( Long id ) throws Exception
     {
@@ -130,25 +269,10 @@ public class LdifPartition extends BTreePartition
 
     }
 
-
-    private void entryMoved( LdapDN entryDn, Long entryId ) throws Exception
-    {
-        File file = getFile( entryDn ).getParentFile();
-        boolean deleted = deleteFile( file );
-        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
-
-        add( lookup( entryId ) );
-
-        IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryId );
-        while ( cursor.next() )
-        {
-            add( cursor.get().getObject() );
-        }
-
-        cursor.close();
-    }
-
-
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void modify( ModifyOperationContext modifyContext ) throws Exception
     {
@@ -158,6 +282,9 @@ public class LdifPartition extends BTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void move( MoveOperationContext moveContext ) throws Exception
     {
@@ -170,6 +297,9 @@ public class LdifPartition extends BTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws Exception
     {
@@ -182,6 +312,9 @@ public class LdifPartition extends BTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void rename( RenameOperationContext renameContext ) throws Exception
     {
@@ -191,6 +324,25 @@ public class LdifPartition extends BTreePartition
         wrappedPartition.rename( renameContext );
 
         entryMoved( oldDn, id );
+    }
+
+
+    private void entryMoved( LdapDN entryDn, Long entryId ) throws Exception
+    {
+        File file = getFile( entryDn ).getParentFile();
+        boolean deleted = deleteFile( file );
+        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
+
+        add( lookup( entryId ) );
+
+        IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryId );
+        
+        while ( cursor.next() )
+        {
+            add( cursor.get().getObject() );
+        }
+
+        cursor.close();
     }
 
 
@@ -210,81 +362,237 @@ public class LdifPartition extends BTreePartition
      * 
      * @throws Exception
      */
-    public void loadConfig() throws Exception
+    private void loadEntries( File entryDir ) throws Exception
     {
-        File dir = new File( configParentDirectory, wrappedPartition.getSuffixDn().getUpName() );
-
-        //        if( ! dir.exists() )
-        //        {
-        //            throw new Exception( "The specified configuration dir " + getSuffix().toLowerCase() + " doesn't exist under " + configParentDirectory.getAbsolutePath() );
-        //        }
-
-        loadEntry( dir );
-    }
-
-
-    /*
-     * recursively load the configuration entries
-     */
-    private void loadEntry( File entryDir ) throws Exception
-    {
-        LOG.error( "processing dir {}", entryDir.getName() );
-
-        File ldifFile = new File( entryDir, entryDir.getName() + CONF_FILE_EXTN );
-
-        if ( ldifFile.exists() )
+        LOG.debug( "Processing dir {}", entryDir.getName() );
+        
+        // First, load the entries
+        File[] entries = entryDir.listFiles( entryFilter );
+        
+        if ( ( entries != null ) && ( entries.length != 0 ) )
         {
-            LOG.debug( "parsing ldif file {}", ldifFile.getName() );
-            List<LdifEntry> entries = ldifParser.parseLdifFile( ldifFile.getAbsolutePath() );
-            if ( entries != null && !entries.isEmpty() )
+            for ( File entry : entries )
             {
-                // this ldif will have only one entry
-                LdifEntry ldifEntry = entries.get( 0 );
-                LOG.debug( "adding entry {}", ldifEntry );
+                LOG.debug( "parsing ldif file {}", entry.getName() );
+                List<LdifEntry> ldifEntries = ldifParser.parseLdifFile( entry.getAbsolutePath() );
+                
+                if ( ( ldifEntries != null ) && !ldifEntries.isEmpty() )
+                {
+                    // this ldif will have only one entry
+                    LdifEntry ldifEntry = ldifEntries.get( 0 );
+                    LOG.debug( "Adding entry {}", ldifEntry );
 
-                ServerEntry serverEntry = new DefaultServerEntry( registries, ldifEntry.getEntry() );
+                    ServerEntry serverEntry = new DefaultServerEntry( registries, ldifEntry.getEntry() );
 
-                // call add on the wrapped partition not on the self
-                wrappedPartition.getStore().add( serverEntry );
+                    // call add on the wrapped partition not on the self
+                    wrappedPartition.getStore().add( serverEntry );
+                }
             }
         }
         else
         {
-            // TODO do we need to bomb out if the expected LDIF file doesn't exist
-            LOG.warn( "ldif file doesn't exist {}", ldifFile.getAbsolutePath() );
+            // If we don't have ldif files, we won't have sub directories
+            return;
         }
-
+        
+        // Second, recurse on the sub directories
         File[] dirs = entryDir.listFiles( dirFilter );
-        if ( dirs != null )
+        
+        if ( ( dirs != null ) && ( dirs.length != 0 ) )
         {
             for ( File f : dirs )
             {
-                loadEntry( f );
+                loadEntries( f );
             }
         }
     }
 
 
-    private File getFile( LdapDN entryDn )
+    /**
+     * Create the file name from the entry DN.
+     */
+    private File getFile( LdapDN entryDn ) throws NamingException
     {
-        int size = entryDn.size();
-
         StringBuilder filePath = new StringBuilder();
-        filePath.append( configParentDirectory.getAbsolutePath() ).append( File.separator );
+        filePath.append( suffixDirectory ).append( File.separator );
+        
+        LdapDN baseDn = (LdapDN)entryDn.getSuffix( suffix.size() );
 
-        for ( int i = 0; i < size; i++ )
+        for ( int i = 0; i < baseDn.size() - 1; i++ )
         {
-            filePath.append( entryDn.getRdn( i ).getUpName().toLowerCase() ).append( File.separator );
+            String rdnFileName = getFileName( baseDn.getRdn( i ) );
+            
+            filePath.append( rdnFileName ).append( File.separator );
         }
+        
+        String rdnFileName = getFileName( entryDn.getRdn() ) + CONF_FILE_EXTN;
+        String parentDir = filePath.toString();
+        
+        File dir = new File( parentDir );
+        
+        if ( !dir.exists() )
+        {
+            // We have to create the entry if it does not have a parent
+            dir.mkdir();
+        }
+        
+        File ldifFile = new File( parentDir + rdnFileName );
+        
+        if ( ldifFile.exists() )
+        {
+            // The entry already exists
+            throw new NamingException( "The entry already exsists" );
+        }
+        
+        return ldifFile;
+    }
+    
+    
+    /**
+     * Compute the real name based on the RDN, assuming that depending on the underlying 
+     * OS, some characters are not allowed.
+     * 
+     * We don't allow filename which length is > 255 chars.
+     */
+    private String getFileName( Rdn rdn ) throws NamingException
+    {
+        // First, get the AT name, or OID
+        String normAT = rdn.getAtav().getNormType();
+        AttributeType at = registries.getAttributeTypeRegistry().lookup( normAT );
+        
+        String atName = at.getName();
 
-        File dir = new File( filePath.toString() );
-        dir.mkdirs();
+        // Now, get the normalized value
+        String normValue = rdn.getAtav().getNormValue().getString();
+        
+        String fileName = atName + "=" + normValue;
+        
+        return getOSFileName( fileName );
+    }
+    
+    
+    /**
+     * Compute the real name based on the DN, assuming that depending on the underlying 
+     * OS, some characters are not allowed.
+     * 
+     * We don't allow filename which length is > 255 chars.
+     */
+    private String getFileName( LdapDN dn ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        
+        for ( Rdn rdn : dn.getRdns() )
+        {
+            // First, get the AT name, or OID
+            String normAT = rdn.getAtav().getNormType();
+            AttributeType at = registries.getAttributeTypeRegistry().lookup( normAT );
+            
+            String atName = at.getName();
 
-        return new File( dir, entryDn.getRdn().getUpName().toLowerCase() + CONF_FILE_EXTN );
+            // Now, get the normalized value
+            String normValue = rdn.getAtav().getNormValue().getString();
+            
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( "," );
+            }
+            
+            sb.append( atName ).append( "=" ).append( normValue );
+        }
+        
+        return getOSFileName( sb.toString() );
+    }
+    
+    
+    /**
+     * Get a OS compatible file name
+     */
+    private String getOSFileName( String fileName )
+    {
+        if ( SystemUtils.IS_OS_WINDOWS )
+        {
+            // On Windows, we escape '/', '<', '>', '\', '|', '"', ':', '+', ' ', '[', ']', 
+            // '*', [0x00-0x1F], '?'
+            StringBuilder sb = new StringBuilder();
+            
+            for ( char c : fileName.toCharArray() )
+            {
+                switch ( c )
+                {
+                    case 0x00 : case 0x01 : case 0x02 : case 0x03 : 
+                    case 0x04 : case 0x05 : case 0x06 : case 0x07 : 
+                    case 0x08 : case 0x09 : case 0x0A : case 0x0B :
+                    case 0x0C : case 0x0D : case 0x0E : case 0x0F :
+                    case 0x10 : case 0x11 : case 0x12 : case 0x13 : 
+                    case 0x14 : case 0x15 : case 0x16 : case 0x17 : 
+                    case 0x18 : case 0x19 : case 0x1A : case 0x1B :
+                    case 0x1C : case 0x1D : case 0x1E : case 0x1F :
+                        sb.append( "\\" ).append( StringTools.dumpHex( (byte)(c >> 4) ) ).
+                            append( StringTools.dumpHex( (byte)(c & 0x04 ) ) );
+                        break;
+                        
+                    case '/' :
+                    case '\\' :
+                    case '<' :
+                    case '>' :
+                    case '|' :
+                    case '"' :
+                    case ':' :
+                    case '+' :
+                    case ' ' :
+                    case '[' :
+                    case ']' :
+                    case '*' :
+                    case '?' :
+                        sb.append( '\\' ).append( c );
+                        break;
+                        
+                    default :
+                        sb.append( c );
+                        break;
+                }
+            }
+
+            return sb.toString().toLowerCase();
+        }
+        else 
+        {
+            // On linux, just escape '/' and null
+            StringBuilder sb = new StringBuilder();
+            
+            for ( char c : fileName.toCharArray() )
+            {
+                switch ( c )
+                {
+                    case '/' :
+                        sb.append( "\\/" );
+                        break;
+                        
+                    case '\0' :
+                        sb.append(  "\\00" );
+                        break;
+                        
+                    default :
+                        sb.append( c );
+                        break;
+                }
+            }
+
+            return sb.toString().toLowerCase();
+        }
     }
 
 
-    private void add( ServerEntry entry ) throws Exception
+    /**
+     * Write the new entry on disk. It does not exist, as this ha sbeen checked
+     * by the ExceptionInterceptor.
+     */
+    private void add( Entry entry ) throws Exception
     {
         FileWriter fw = new FileWriter( getFile( entry.getDn() ) );
         fw.write( LdifUtils.convertEntryToLdif( entry ) );
@@ -579,12 +887,6 @@ public class LdifPartition extends BTreePartition
     }
 
 
-    public void bind( BindOperationContext bindContext ) throws Exception
-    {
-        wrappedPartition.bind( bindContext );
-    }
-
-    
     public String getSuffix()
     {
         return wrappedPartition.getSuffix();
@@ -636,5 +938,43 @@ public class LdifPartition extends BTreePartition
     public void setLdifScanInterval( int ldifScanInterval )
     {
         this.ldifScanInterval = ldifScanInterval;
+    }
+
+
+    /**
+     * @return the workingDirectory
+     */
+    public String getWorkingDirectory()
+    {
+        return workingDirectory;
+    }
+
+
+    /**
+     * @param workingDirectory the workingDirectory to set
+     */
+    public void setWorkingDirectory( String workingDirectory )
+    {
+        this.workingDirectory = workingDirectory;
+    }
+
+
+    /**
+     * @return the contextEntry
+     */
+    public Entry getContextEntry()
+    {
+        return contextEntry;
+    }
+
+
+    /**
+     * @param contextEntry the contextEntry to set
+     */
+    public void setContextEntry( String contextEntry ) throws NamingException
+    {
+        List<LdifEntry> entries = ldifParser.parseLdif( contextEntry );
+        
+        this.contextEntry = new DefaultServerEntry( registries, entries.get( 0 ).getEntry() );
     }
 }
