@@ -119,10 +119,6 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-
-//        loader.loadWithDependencies( loader.getSchema( MetaSchemaConstants.SCHEMA_NAME ), registries );
-//        loader.loadWithDependencies( loader.getSchema( CoreSchemaConstants.SCHEMA_NAME ), registries );
-        
         SchemaLoader loader = new JarLdifSchemaLoader();
         loader.loadAllEnabled( registries );  // @TODO remove this once we get the LDIF partition in place
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
