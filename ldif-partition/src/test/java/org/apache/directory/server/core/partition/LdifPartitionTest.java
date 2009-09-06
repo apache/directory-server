@@ -34,7 +34,6 @@ import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.partition.avl.AvlStoreTest;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -63,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LdifPartitionTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AvlStoreTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifPartitionTest.class.getSimpleName() );
 
     private static File wkdir;
     private static LdifPartition partition;
