@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,13 +83,14 @@ public class AvlStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlStoreTest.class.getSimpleName() );
 
-    File wkdir;
-    AvlStore<ServerEntry> store;
-    Registries registries = null;
-    AttributeTypeRegistry attributeRegistry;
+    private static File wkdir;
+    private static AvlStore<ServerEntry> store;
+    private static Registries registries = null;
+    private static AttributeTypeRegistry attributeRegistry;
 
 
-    public AvlStoreTest() throws Exception
+    @BeforeClass
+    public static void setup() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
