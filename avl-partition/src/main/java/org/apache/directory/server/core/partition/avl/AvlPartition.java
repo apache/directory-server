@@ -402,6 +402,12 @@ public class AvlPartition extends BTreePartition
     }
 
 
+    public final void addContextEntry( ServerEntry contextEntry ) throws Exception
+    {
+        store.add( contextEntry );
+    }
+
+
     public final ClonedServerEntry lookup( Long id ) throws Exception
     {
         return new ClonedServerEntry( store.lookup( id ) );

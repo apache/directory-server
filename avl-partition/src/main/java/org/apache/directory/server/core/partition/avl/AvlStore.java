@@ -39,7 +39,6 @@ import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.core.partition.impl.btree.gui.IndexDialog;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -171,7 +170,7 @@ public class AvlStore<E> implements Store<E>
         {
             parentDn = ( LdapDN ) normName.clone();
             parentDn.remove( parentDn.size() - 1 );
-            parentId = getEntryId( parentDn.toString() );
+            parentId = getEntryId( parentDn.getNormName() );
         }
 
         // don't keep going if we cannot find the parent Id
