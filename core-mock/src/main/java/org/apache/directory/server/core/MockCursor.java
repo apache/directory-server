@@ -30,12 +30,13 @@ import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.cursor.CursorIterator;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
-class MockCursor implements Cursor<ServerEntry>
+public class MockCursor implements Cursor<ServerEntry>
 {
     final int count;
     int ii;
-    DirectoryService directoryService;
+    Registries registries;
 
 
     public MockCursor(int count)
@@ -106,7 +107,7 @@ class MockCursor implements Cursor<ServerEntry>
 
     public ServerEntry get() throws Exception
     {
-        return new DefaultServerEntry( directoryService.getRegistries() );
+        return new DefaultServerEntry( registries );
     }
 
 
@@ -170,14 +171,8 @@ class MockCursor implements Cursor<ServerEntry>
     }
 
 
-    public DirectoryService getDirectoryService()
+    public void setRegistries( Registries registries )
     {
-        return directoryService;
-    }
-
-
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
+        this.registries = registries;
     }
 }

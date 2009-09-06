@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 
-class MockDirectoryService implements DirectoryService
+public class MockDirectoryService implements DirectoryService
 {
     int count;
     

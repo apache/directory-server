@@ -43,7 +43,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-class MockOperationManager implements OperationManager
+public class MockOperationManager implements OperationManager
 {
     int count;
     
@@ -125,7 +125,9 @@ class MockOperationManager implements OperationManager
 
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), opContext );
+        MockCursor cursor = new MockCursor( count );
+        cursor.setRegistries( opContext.getSession().getDirectoryService().getRegistries() );
+        return new BaseEntryFilteringCursor( cursor, opContext );
     }
 
 
