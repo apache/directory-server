@@ -102,6 +102,10 @@ public class LdifPartition extends BTreePartition
 
     /** The context entry */
     private ServerEntry contextEntry;
+    
+    /** Flags used for the getFile() method */
+    private static final boolean CREATE = Boolean.TRUE;
+    private static final boolean DELETE = Boolean.FALSE;
 
     private int ldifScanInterval;
 
@@ -262,9 +266,22 @@ public class LdifPartition extends BTreePartition
 
         if ( entry != null )
         {
-            File file = getFile( entry.getDn() ).getParentFile();
-            boolean deleted = deleteFile( file );
-            LOG.warn( "deleted file {} {}", file.getAbsoluteFile(), deleted );
+            File ldifFile = getFile( entry.getDn(), DELETE );
+            
+            boolean deleted = deleteFile( ldifFile );
+
+            LOG.debug( "deleted file {} {}", ldifFile.getAbsoluteFile(), deleted );
+
+            // Delete the parent if there is no more children
+            File parentFile = ldifFile.getParentFile();
+            
+            if ( parentFile.listFiles().length == 0 )
+            {
+                deleteFile( parentFile );
+
+                LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
+            }
+            
         }
 
     }
@@ -329,7 +346,7 @@ public class LdifPartition extends BTreePartition
 
     private void entryMoved( LdapDN entryDn, Long entryId ) throws Exception
     {
-        File file = getFile( entryDn ).getParentFile();
+        File file = getFile( entryDn, DELETE ).getParentFile();
         boolean deleted = deleteFile( file );
         LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
 
@@ -411,7 +428,7 @@ public class LdifPartition extends BTreePartition
     /**
      * Create the file name from the entry DN.
      */
-    private File getFile( LdapDN entryDn ) throws NamingException
+    private File getFile( LdapDN entryDn, boolean create ) throws NamingException
     {
         StringBuilder filePath = new StringBuilder();
         filePath.append( suffixDirectory ).append( File.separator );
@@ -430,7 +447,7 @@ public class LdifPartition extends BTreePartition
         
         File dir = new File( parentDir );
         
-        if ( !dir.exists() )
+        if ( !dir.exists() && create )
         {
             // We have to create the entry if it does not have a parent
             dir.mkdir();
@@ -438,7 +455,7 @@ public class LdifPartition extends BTreePartition
         
         File ldifFile = new File( parentDir + rdnFileName );
         
-        if ( ldifFile.exists() )
+        if ( ldifFile.exists() && create )
         {
             // The entry already exists
             throw new NamingException( "The entry already exsists" );
@@ -594,7 +611,7 @@ public class LdifPartition extends BTreePartition
      */
     private void add( Entry entry ) throws Exception
     {
-        FileWriter fw = new FileWriter( getFile( entry.getDn() ) );
+        FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
         fw.write( LdifUtils.convertEntryToLdif( entry ) );
         fw.close();
     }
