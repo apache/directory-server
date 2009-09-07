@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.ArrayList; 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,8 +30,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.authz.support.MaxValueCountFilter;
-import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -44,8 +44,6 @@ import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**

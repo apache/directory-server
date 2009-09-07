@@ -115,9 +115,6 @@ public final class SchemaPartition extends AbstractPartition
     /** the wrapped Partition */
     private Partition wrapped = new NullPartition();
     
-    /** the registries managed by this SchemaPartition */
-    private Registries registries = new Registries();
-    
     /** schema loader: swapped out after {@link SchemaPartition#initialize()} */
     private SchemaLoader loader;
     

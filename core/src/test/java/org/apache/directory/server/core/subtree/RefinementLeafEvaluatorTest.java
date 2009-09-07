@@ -20,11 +20,14 @@
 package org.apache.directory.server.core.subtree;
 
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.GreaterEqNode;
@@ -36,9 +39,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 /**
@@ -68,6 +68,7 @@ public class RefinementLeafEvaluatorTest
         registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
         loader.loadAllEnabled( registries );
+        
         OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
     }
     

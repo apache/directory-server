@@ -24,7 +24,6 @@ import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
-import org.apache.directory.server.core.partition.impl.btree.gui.IndexDialog;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Tuple;

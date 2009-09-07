@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.partition;
 
 
+import javax.naming.InvalidNameException;
+import javax.naming.NameNotFoundException;
+
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
 
 
 /**
@@ -42,11 +42,13 @@ public abstract class AbstractPartition implements Partition
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
 
+    /** the registries managed by this Partition */
     protected Registries registries;
     
 
     protected AbstractPartition()
     {
+        registries = new Registries();
     }
 
 

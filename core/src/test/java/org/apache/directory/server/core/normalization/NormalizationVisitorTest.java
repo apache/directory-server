@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.normalization;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.text.ParseException;
 
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -31,11 +35,8 @@ import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponent
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -52,8 +53,8 @@ public class NormalizationVisitorTest
     /** A reference to the registries */
     private static Registries registries;
     
-    @Before
-    public void init() throws Exception
+    @BeforeClass
+    public static void init() throws Exception
     {
         registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();

@@ -19,12 +19,12 @@
 package org.apache.directory.server.core.entry;
 
 
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +43,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
@@ -54,7 +55,6 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -112,7 +112,10 @@ public class DefaultServerAttributeTest
             workingDirectory = path.substring( 0, targetPos + 6 );
     	}
     	
-    	File schemaRepository = new File( workingDirectory, "schema" );
+        // Cleanup the target directory
+        File schemaRepository = new File( workingDirectory, "schema" );
+        FileUtils.deleteDirectory( schemaRepository );
+    	
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
     	loader = new LdifSchemaLoader( schemaRepository );

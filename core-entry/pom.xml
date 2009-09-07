@@ -50,6 +50,12 @@
     </dependency>    
     
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+      
+    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <version>${org.apache.directory.shared.version}</version>
       <artifactId>shared-ldap-schema</artifactId>
