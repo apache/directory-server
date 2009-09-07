@@ -33,6 +33,8 @@ import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -80,7 +82,10 @@ public class MixedCaseITest
     {
         public DirectoryService newInstance() throws Exception
         {
-            DirectoryService service = new DefaultDirectoryService();
+            DefaultDirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            schemaPartition.setWrappedPartition( new LdifPartition() );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.getChangeLog().setEnabled( true );
 
             JdbmPartition partition = new JdbmPartition();

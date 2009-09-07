@@ -29,6 +29,8 @@ import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 
@@ -82,7 +84,10 @@ public final class PartitionIT
     {
         public DirectoryService newInstance() throws Exception 
         {
-            DirectoryService service = new DefaultDirectoryService();
+            DefaultDirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            schemaPartition.setWrappedPartition( new LdifPartition() );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.getChangeLog().setEnabled( true );
             
             Partition foo = new JdbmPartition();

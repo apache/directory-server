@@ -33,6 +33,8 @@ import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -119,7 +121,10 @@ public class SearchWithIndicesITest
     {
         public DirectoryService newInstance() throws Exception
         {
-            DirectoryService service = new DefaultDirectoryService();
+            DefaultDirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            schemaPartition.setWrappedPartition( new LdifPartition() );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.getChangeLog().setEnabled( true );
 
             // -------------------------------------------------------------------

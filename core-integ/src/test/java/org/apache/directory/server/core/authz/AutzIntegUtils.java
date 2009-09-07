@@ -25,6 +25,9 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -58,6 +61,9 @@ public class AutzIntegUtils
         public DirectoryService newInstance() throws Exception
         {
             DefaultDirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            schemaPartition.setWrappedPartition( new LdifPartition() );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.setAccessControlEnabled( true );
             service.getChangeLog().setEnabled( true );
             AutzIntegUtils.service = service;
@@ -71,6 +77,9 @@ public class AutzIntegUtils
         public DirectoryService newInstance() throws Exception
         {
             DefaultDirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            schemaPartition.setWrappedPartition( new LdifPartition() );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.setAccessControlEnabled( false );
             service.getChangeLog().setEnabled( true );
             AutzIntegUtils.service = service;
