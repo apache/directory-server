@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.naming.directory.Attribute;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RelatedProtectedItemFilter;
 import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
@@ -53,6 +51,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 
 
 import org.junit.BeforeClass;
@@ -78,33 +78,30 @@ public class RelatedProtectedItemFilterTest
     private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
+    private static Registries registries = new Registries();
     private static AttributeTypeRegistry atRegistryA;
     private static AttributeTypeRegistry atRegistryB;
     private static OidRegistry OID_REGISTRY;
 
     private static RelatedProtectedItemFilter filterA;
     private static RelatedProtectedItemFilter filterB;
-
-    /** A reference to the directory service */
-    private static DirectoryService service;
     
     /** The CN attribute Type */
     private static AttributeType CN_AT;
 
-    /** The SN attribute Type */
-    private static AttributeType SN_AT;
-
     
     @BeforeClass public static void setup() throws Exception
     {
-        service = new DefaultDirectoryService();
-        OID_REGISTRY = service.getRegistries().getOidRegistry();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
+        
+        OID_REGISTRY = registries.getOidRegistry();
 
         GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
         
-        atRegistryA = service.getRegistries().getAttributeTypeRegistry();
-        atRegistryB = service.getRegistries().getAttributeTypeRegistry();
+        atRegistryA = registries.getAttributeTypeRegistry();
+        atRegistryB = registries.getAttributeTypeRegistry();
 
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, atRegistryA ), OID_REGISTRY, atRegistryA );
@@ -114,8 +111,7 @@ public class RelatedProtectedItemFilterTest
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
-        CN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "cn" );
-        SN_AT = service.getRegistries().getAttributeTypeRegistry().lookup( "sn" );
+        CN_AT = registries.getAttributeTypeRegistry().lookup( "cn" );
     }
 
     
@@ -333,7 +329,7 @@ public class RelatedProtectedItemFilterTest
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        ServerEntry entry = new DefaultServerEntry( service.getRegistries(), USER_NAME );
+        ServerEntry entry = new DefaultServerEntry( registries, USER_NAME );
         entry.put( "cn", USER_NAME.toNormName() );
 
         // Test wrong scope

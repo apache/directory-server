@@ -21,6 +21,8 @@ package org.apache.directory.server.core.integ;
 
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
 
 
 /**
@@ -43,6 +45,10 @@ public interface DirectoryServiceFactory
         public DirectoryService newInstance() throws Exception
         {
             DirectoryService service = new DefaultDirectoryService();
+            SchemaPartition schemaPartition = new SchemaPartition();
+            LdifPartition wrapped = new LdifPartition();
+            schemaPartition.setWrappedPartition( wrapped );
+            service.getSchemaService().setSchemaPartition( schemaPartition );
             service.getChangeLog().setEnabled( true );
 
             // change the working directory to something that is unique

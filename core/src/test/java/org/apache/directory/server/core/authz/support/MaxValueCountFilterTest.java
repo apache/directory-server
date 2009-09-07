@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,9 +28,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.MaxValueCountFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -42,6 +39,8 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,20 +74,22 @@ public class MaxValueCountFilterTest
     }
 
 
-    /** A reference to the directory service */
-    private static DirectoryService service;
+    /** A reference to the registries */
+    private static Registries registries;
 
     
     @BeforeClass public static void init() throws Exception
     {
-        service = new DefaultDirectoryService();
+        registries = new Registries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
     }
     
     @Before public void setup() throws NamingException
     {
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
-        ENTRY = new DefaultServerEntry( service.getRegistries(), entryName );
-        FULL_ENTRY = new DefaultServerEntry( service.getRegistries(), entryName );
+        ENTRY = new DefaultServerEntry( registries, entryName );
+        FULL_ENTRY = new DefaultServerEntry( registries, entryName );
         
         ENTRY.put( "cn", "1" );
         FULL_ENTRY.put( "cn", "1", "2", "3" );

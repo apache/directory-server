@@ -22,8 +22,6 @@ package org.apache.directory.server.core.subtree;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
@@ -33,6 +31,7 @@ import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,9 +51,6 @@ public class RefinementLeafEvaluatorTest
 {
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS;
-
-    /** A reference to the directory service */
-    private static DirectoryService service;
     
     /** the registries */
     private static Registries registries;
@@ -69,8 +65,9 @@ public class RefinementLeafEvaluatorTest
      */
     @BeforeClass public static void init() throws Exception
     {
-        service = new DefaultDirectoryService();
-        registries = service.getRegistries();
+        registries = new Registries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
         OBJECT_CLASS = registries.getAttributeTypeRegistry().lookup( "objectClass" );
     }
     

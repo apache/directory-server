@@ -22,8 +22,6 @@ package org.apache.directory.server.core.normalization;
 
 import java.text.ParseException;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -31,6 +29,8 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -49,17 +49,19 @@ public class NormalizationVisitorTest
     /** a filter node value normalizer and undefined node remover */
     private static FilterNormalizingVisitor normVisitor;
     
-    /** A reference to the directory service */
-    private static DirectoryService service;
+    /** A reference to the registries */
+    private static Registries registries;
     
     @Before
     public void init() throws Exception
     {
-        service = new DefaultDirectoryService();
+        registries = new Registries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
 
-        AttributeTypeRegistry attributeRegistry = service.getRegistries().getAttributeTypeRegistry();
+        AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
-        normVisitor = new FilterNormalizingVisitor( ncn, service.getRegistries() );
+        normVisitor = new FilterNormalizingVisitor( ncn, registries );
     }
 
     @Test

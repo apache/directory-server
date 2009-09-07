@@ -19,9 +19,6 @@
  */
 package org.apache.directory.server.core.subtree;
 
-
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
@@ -34,6 +31,7 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,10 +61,7 @@ public class RefinementEvaluatorTest
 
     /** The CN AttributeType */
     private static AttributeType CN;
-
-    /** A reference to the directory service */
-    private static DirectoryService service;
-
+    
     
     /**
      * Initializes the global registries.
@@ -74,8 +69,9 @@ public class RefinementEvaluatorTest
      */
     @BeforeClass public static void init() throws Exception
     {
-        service = new DefaultDirectoryService();
-        registries = service.getRegistries();
+        registries = new Registries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
     }
 
 

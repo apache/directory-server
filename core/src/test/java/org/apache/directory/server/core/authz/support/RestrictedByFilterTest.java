@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RestrictedByFilter;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -40,6 +38,8 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,17 +71,19 @@ public class RestrictedByFilterTest
     }
 
 
-    /** A reference to the directory service */
-    private static DirectoryService service;
+    /** A reference to the registries */
+    private static Registries registries;
 
     
     @BeforeClass public static void setup() throws Exception
     {
-        service = new DefaultDirectoryService();
+        registries = new Registries();
+        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+        loader.loadAllEnabled( registries );
 
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( service.getRegistries(), entryName );
+        ENTRY = new DefaultServerEntry( registries, entryName );
 
         ENTRY.put( "cn", "1", "2" );
     }
