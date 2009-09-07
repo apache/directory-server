@@ -210,7 +210,6 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
-        schemaManager = schemaService.getSchemaPartition().getSchemaChangeManager();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();

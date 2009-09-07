@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition;
 
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
@@ -40,8 +39,6 @@ import javax.naming.NameNotFoundException;
  */
 public abstract class AbstractPartition implements Partition
 {
-    /** {@link DirectoryService} specified at {@link #initialize()}. */
-    protected DirectoryService directoryService;
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
 
@@ -85,7 +82,6 @@ public abstract class AbstractPartition implements Partition
             return;
         }
 
-        this.directoryService = directoryService;
         try
         {
             doInit();
@@ -103,8 +99,9 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Override this method to put your initialization code.
+     * @throws Exception 
      */
-    protected void doInit() throws InvalidNameException
+    protected void doInit() throws InvalidNameException, Exception
     {
     }
 
@@ -123,7 +120,6 @@ public abstract class AbstractPartition implements Partition
         finally
         {
             initialized = false;
-            directoryService = null;
         }
     }
 
@@ -142,17 +138,6 @@ public abstract class AbstractPartition implements Partition
     public final boolean isInitialized()
     {
         return initialized;
-    }
-
-
-    /**
-     * Returns {@link DirectoryService} that is provided from
-     * {@link #initialize()}.
-     * @return return the directory service core
-     */
-    public final DirectoryService getDirectoryService()
-    {
-        return directoryService;
     }
 
 

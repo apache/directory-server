@@ -107,7 +107,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         this.partition = partition;
         atRegistry = registries.getAttributeTypeRegistry();
         
-        dao = new SchemaPartitionDao( this.partition, registries );
+        dao = new SchemaPartitionDaoImpl( this.partition, registries );
         mOidAT = atRegistry.lookup( MetaSchemaConstants.M_OID_AT );
         mNameAT = atRegistry.lookup( MetaSchemaConstants.M_NAME_AT );
         cnAT = atRegistry.lookup( SchemaConstants.CN_AT );

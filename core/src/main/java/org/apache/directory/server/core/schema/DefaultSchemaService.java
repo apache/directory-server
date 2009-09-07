@@ -79,16 +79,6 @@ public class DefaultSchemaService implements SchemaService
     }
     
     
-    public void initialize() throws Exception
-    {
-        PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( schemaPartition, schemaPartition.getRegistries() );
-        partitionLoader.loadAllEnabled( schemaPartition.getRegistries() );
-
-        SchemaPartitionDao dao = new SchemaPartitionDao( schemaPartition, schemaPartition.getRegistries() );
-        SchemaChangeManager schemaManager = new DefaultSchemaChangeManager( schemaPartition.getRegistries(), partitionLoader, dao );
-        schemaPartition.setSchemaChangeManager( schemaManager );
-    }
-    
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaService#isSchemaSubentry(java.lang.String)

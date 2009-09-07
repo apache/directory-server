@@ -20,16 +20,11 @@
 package org.apache.directory.server.core.builder;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DefaultDirectoryService; 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.avl.AvlPartition;
-import org.apache.directory.server.core.schema.DefaultSchemaChangeManager;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.server.core.schema.SchemaChangeManager;
 import org.apache.directory.server.core.schema.SchemaPartition;
-import org.apache.directory.server.core.schema.SchemaPartitionDao;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -41,20 +36,13 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 public class DirectoryServiceBuilder
 {
     private DirectoryService directoryService = null;
-    private RegistryFactory registryFactory = null;
-    private BootstrapRegistryLoader bootstrapRegistryLoader = null;
     private Partition wrappedPartition = null;
     private SchemaPartition schemaPartition = null;
-    private SchemaChangeManager schemaChangeManger = null;
-    private PartitionSchemaLoader partitionSchemaLoader = null;
-    private SchemaPartitionDao schemaPartitionDao = null;
     
     
     public DirectoryServiceBuilder() throws Exception
     {
         directoryService = new DefaultDirectoryService();
-        registryFactory = new DefaultRegistryFactory();
-        bootstrapRegistryLoader = new JarLdifBootstrapRegistryLoader();
         wrappedPartition = new AvlPartition();
         schemaPartition = new SchemaPartition();
     }
@@ -62,19 +50,8 @@ public class DirectoryServiceBuilder
     
     public void build() throws Exception
     {
-        Registries registries = registryFactory.getRegistries();
-        bootstrapRegistryLoader.loadBootstrapSchema( registries );
-    
-        schemaPartitionDao = new SchemaPartitionDao( wrappedPartition, registries );
-        partitionSchemaLoader = new PartitionSchemaLoader( wrappedPartition, registries );
-        schemaChangeManger = new DefaultSchemaChangeManager( registries, partitionSchemaLoader, schemaPartitionDao );
-        
         schemaPartition.setWrappedPartition( wrappedPartition );
-        schemaPartition.setRegistries( registries );
-        schemaPartition.setSchemaChangeManager( schemaChangeManger );
         schemaPartition.initialize();
-        
-        partitionSchemaLoader.loadAllEnabled( registries );
     }
     
     

@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,19 +34,15 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.server.core.schema.SchemaPartitionDao;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
@@ -71,9 +66,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultRegistrySynchronizer implements RegistrySynchronizer
+public class RegistrySynchronizerAdaptor
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultRegistrySynchronizer.class );
+    private static final Logger LOG = LoggerFactory.getLogger( RegistrySynchronizerAdaptor.class );
 
     // indices of handlers and object ids into arrays
     private static final int COMPARATOR_INDEX = 0;
@@ -90,17 +85,17 @@ public class DefaultRegistrySynchronizer implements RegistrySynchronizer
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
     private static final String[] META_OBJECT_CLASSES = new String[] {
-        "metaComparator",
-        "metaNormalizer",
-        "metaSyntaxChecker",
-        "metaSyntax",
-        "metaMatchingRule",
-        "metaAttributeType",
-        "metaObjectClass",
-        "metaMatchingRuleUse",
-        "metaDITStructureRule",
-        "metaDITContentRule",
-        "metaNameForm"
+        MetaSchemaConstants.META_COMPARATOR_OC,
+        MetaSchemaConstants.META_NORMALIZER_OC,
+        MetaSchemaConstants.META_SYNTAX_CHECKER_OC,
+        MetaSchemaConstants.META_SYNTAX_OC,
+        MetaSchemaConstants.META_MATCHING_RULE_OC,
+        MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC,
+        MetaSchemaConstants.META_OBJECT_CLASS_OC,
+        MetaSchemaConstants.META_MATCHING_RULE_USE_OC,
+        MetaSchemaConstants.META_DIT_STRUCTURE_RULE_OC,
+        MetaSchemaConstants.META_DIT_CONTENT_RULE_OC,
+        MetaSchemaConstants.META_NAME_FORM_OC
     };
 
     private final Registries registries;
@@ -125,11 +120,10 @@ public class DefaultRegistrySynchronizer implements RegistrySynchronizer
     }
 
 
-    public DefaultRegistrySynchronizer( Registries registries, PartitionSchemaLoader loader, SchemaPartitionDao dao )
-        throws Exception
+    public RegistrySynchronizerAdaptor( Registries registries, PartitionSchemaLoader loader ) throws Exception
     {
         this.registries = registries;
-        this.schemaSynchronizer = new SchemaSynchronizer( registries );
+        this.schemaSynchronizer = new SchemaSynchronizer( registries, loader );
         this.objectClassAT = this.registries.getAttributeTypeRegistry()
             .lookup( SchemaConstants.OBJECT_CLASS_AT );
         
@@ -417,53 +411,5 @@ public class DefaultRegistrySynchronizer implements RegistrySynchronizer
         }
         
         return MetaSchemaConstants.SCHEMA_OTHER;
-    }
-
-
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    public void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws Exception
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    public boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry,
-        ServerEntry targetEntry, boolean cascaded ) throws Exception
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-
-    public boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry,
-        boolean cascaded ) throws Exception
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,
-        boolean cascaded ) throws Exception
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascaded )
-        throws Exception
-    {
-        // TODO Auto-generated method stub
     }
 }
