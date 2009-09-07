@@ -36,7 +36,6 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaChangeManager;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.csn.Csn;
@@ -346,17 +345,6 @@ public class InterceptorChainTest
         public void setSchemaService( SchemaService schemaService )
         {
 
-        }
-
-
-        public SchemaChangeManager getSchemaManager()
-        {
-            return null;
-        }
-
-
-        public void setSchemaManager( SchemaChangeManager schemaManager )
-        {
         }
 
 

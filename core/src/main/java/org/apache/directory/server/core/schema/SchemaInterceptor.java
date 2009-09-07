@@ -165,7 +165,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private LdapDN schemaModificationAttributesDN;
 
-    private SchemaChangeManager schemaManager;
+    private SchemaSubentryManager schemaManager;
 
     private SchemaService schemaService;
 
@@ -1701,9 +1701,6 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( dn.startsWith( schemaBaseDN ) )
         {
             LOG.debug( "Modification attempt on schema partition {}: \n{}", dn, opContext );
-
-            schemaManager.modify( opContext, opContext.getEntry(), targetEntry, opContext
-                .hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         else if ( dn.equals( subschemaSubentryDn ) )
         {
@@ -2009,7 +2006,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 next.add( addContext );
 
                 // Update the structures now that the schema element has been added
-                String schemaName = MetaSchemaUtils.getSchemaName( name );
+                String schemaName = getSchemaName( name );
                 
                 if ( registries.isSchemaLoaded( schemaName ) )
                 {
@@ -2033,6 +2030,18 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             next.add( addContext );
         }
+    }
+    
+    
+    private String getSchemaName( LdapDN dn ) throws NamingException
+    {
+        if ( dn.size() < 2 )
+        {
+            throw new NamingException( "At least two name components are expected for the dn" );
+        }
+        
+        Rdn rdn = dn.getRdn( 1 );
+        return ( String ) rdn.getValue();
     }
 
 
