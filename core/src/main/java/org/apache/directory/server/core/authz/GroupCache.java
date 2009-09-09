@@ -20,14 +20,14 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.directory.SearchControls;
-import javax.naming.NamingException;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -138,7 +138,7 @@ public class GroupCache
 
         for ( String suffix:suffixes )
         {
-            LdapDN baseDn = new LdapDN( suffix );
+            LdapDN baseDn = new LdapDN( suffix ).normalize( normalizerMap );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             

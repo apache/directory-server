@@ -232,10 +232,13 @@ public final class SchemaPartition extends AbstractPartition
 
         wrapped.setId( ID );
         wrapped.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
+        wrapped.getSuffixDn().normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        wrapped.setRegistries( registries );
         
         try
         {
             wrapped.initialize();
+            
             PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, registries );
             synchronizer = new RegistrySynchronizerAdaptor( registries, partitionLoader );
             loader = partitionLoader;

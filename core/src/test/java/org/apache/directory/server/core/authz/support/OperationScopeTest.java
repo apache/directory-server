@@ -20,11 +20,9 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import org.apache.directory.server.core.authz.support.OperationScope;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+
+import org.junit.Test;
 
 
 /**

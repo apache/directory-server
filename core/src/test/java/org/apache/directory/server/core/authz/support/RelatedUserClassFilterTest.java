@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.authz.support;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,11 +30,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import org.apache.directory.server.core.authz.support.OperationScope;
-import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;

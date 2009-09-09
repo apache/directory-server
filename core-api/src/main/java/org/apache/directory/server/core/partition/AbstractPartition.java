@@ -89,6 +89,10 @@ public abstract class AbstractPartition implements Partition
             doInit();
             initialized = true;
         }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
         finally
         {
             if ( !initialized )

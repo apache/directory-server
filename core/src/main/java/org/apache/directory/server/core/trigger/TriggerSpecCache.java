@@ -20,6 +20,17 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -37,6 +48,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -46,18 +58,8 @@ import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
-import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.directory.SearchControls;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**

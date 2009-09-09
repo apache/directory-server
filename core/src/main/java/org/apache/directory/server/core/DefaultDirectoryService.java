@@ -20,6 +20,20 @@
 package org.apache.directory.server.core;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -49,15 +63,13 @@ import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.journal.JournalInterceptor;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.DefaultSchemaService;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
@@ -86,20 +98,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 
 /**
@@ -1409,6 +1407,8 @@ public class DefaultDirectoryService implements DirectoryService
 
         // triggers partition to load schema fully from schema partition
         schemaService.getSchemaPartition().initialize( );
+        partitions.add( schemaService.getSchemaPartition() );
+        systemPartition.getSuffixDn().normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
 
         adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
@@ -1416,8 +1416,9 @@ public class DefaultDirectoryService implements DirectoryService
         
         // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new DefaultPartitionNexus( new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN ) );
+        partitionNexus.setDirectoryService( this );
         partitionNexus.initialize( );
-        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
+        //partitionNexus.addContextPartition( new AddContextPartitionOperationContext( adminSession, schemaService.getSchemaPartition() ) );
 
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core;
 
 
-import java.util.Set; 
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.NamingException;
@@ -30,13 +30,13 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.tree.DnBranchNode;
 
 
 /**
@@ -155,6 +155,7 @@ public class ReferralManagerImpl implements ReferralManager
         {
             // We will store each entry's DN into the Referral tree
             LdapDN suffixDn = new LdapDN( suffix );
+            suffixDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
             EntryFilteringCursor cursor = nexus.search( new SearchOperationContext( adminSession, suffixDn, AliasDerefMode.DEREF_ALWAYS,
                 referralFilter, searchControl ) );
             

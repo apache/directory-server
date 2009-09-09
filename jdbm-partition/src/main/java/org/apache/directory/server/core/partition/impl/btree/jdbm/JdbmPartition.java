@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -44,13 +51,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.NamingException;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -119,7 +119,8 @@ public class JdbmPartition extends BTreePartition
     @SuppressWarnings("unchecked")
     public final void initialize( ) throws Exception
     {
-        store.init( registries );
+        store.setWorkingDirectory( getPartitionDir() );
+        //store.init( registries );
 
         EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );

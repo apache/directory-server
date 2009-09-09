@@ -19,10 +19,22 @@
 package org.apache.directory.server.core.integ;
 
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -44,17 +56,68 @@ public interface DirectoryServiceFactory
     {
         public DirectoryService newInstance() throws Exception
         {
+            String workingDirectory = System.getProperty( "workingDirectory" );
+
+            if ( workingDirectory == null )
+            {
+                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
+                int targetPos = path.indexOf( "target" );
+                workingDirectory = path.substring( 0, targetPos + 6 );
+            }
+
             DirectoryService service = new DefaultDirectoryService();
-            SchemaPartition schemaPartition = new SchemaPartition();
-            LdifPartition wrapped = new LdifPartition();
-            schemaPartition.setWrappedPartition( wrapped );
-            service.getSchemaService().setSchemaPartition( schemaPartition );
+            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+            Registries registries = service.getRegistries();
+            
+            // Init the LdifPartition
+            LdifPartition ldifPartition = new LdifPartition();
+            
+            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+            
+            // Init the AvlPartition
+            //AvlPartition avlPartition = new AvlPartition();
+            //avlPartition.setId( "schema" );
+            //avlPartition.setSuffix( "ou=schema" );
+            //avlPartition.setRegistries( registries );
+            
+            // Inject the AvlPartition into the LdifPartition
+            //ldifPartition.setWrappedPartition( avlPartition );
+            
+            // Extract the schema on disk (a brand new one) and load the registries
+            //File schemaRepository = new File( workingDirectory, "schema" );
+            //SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+            //extractor.extractOrCopy();
+            //LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+            //loader.loadAllEnabled( registries );
+
+            // Initialize the LdifPartition now that the registries are loaded
+            //ldifPartition.initialize();
+            
+            schemaPartition.setWrappedPartition( ldifPartition );
+            schemaPartition.setRegistries( registries );
+            
             service.getChangeLog().setEnabled( true );
 
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-
+            
+            // Inject the System Partition
+            Partition systemPartition = new JdbmPartition();
+            systemPartition.setId( "system" );
+            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+            systemPartition.setRegistries( registries );
+            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory ) );
+    
+            // Add objectClass attribute for the system partition
+            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+            indexedAttrs.add( 
+                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
+            
+            service.setSystemPartition( systemPartition );
+            
             return service;
         }
     };

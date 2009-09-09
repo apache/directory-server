@@ -232,6 +232,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
+
     
         try
         {
@@ -296,6 +297,9 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             
 
             system = override;
+        }
+        else
+        {
         }
 
         system.initialize( );
@@ -838,6 +842,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             throw new LdapNameNotFoundException();
         }
     
+        base.normalize( atRegistry.getNormalizerMapping() );
         Partition backend = getPartition( base );
         return backend.search( opContext );
     }
@@ -1086,5 +1091,23 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         }
         
         partitions.remove( partition.getSuffixDn().getUpName() );
+    }
+
+
+    /**
+     * @return the directoryService
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+
+    /**
+     * @param directoryService the directoryService to set
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
     }
 }

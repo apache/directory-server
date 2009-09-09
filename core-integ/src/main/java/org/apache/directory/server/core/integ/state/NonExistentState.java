@@ -19,13 +19,14 @@
 package org.apache.directory.server.core.integ.state;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
+
 import java.io.IOException;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
@@ -83,6 +84,7 @@ public class NonExistentState extends AbstractState
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new NamingException( e.getMessage() );
         }
     }
@@ -128,7 +130,7 @@ public class NonExistentState extends AbstractState
      * PRISTINE and ROLLBACK modes we do the same but cleanup() before a
      * restart.
      *
-     * @see TestServiceState#test(TestClass, TestMethod, RunNotifier, InheritableSettings) 
+     * @see TestServiceState#test(TestClass, RunNotifier, InheritableSettings) 
      */
     public void test( TestClass testClass, Statement statement, RunNotifier notifier, InheritableSettings settings )
     {

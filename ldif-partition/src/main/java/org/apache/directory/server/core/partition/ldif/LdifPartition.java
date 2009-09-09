@@ -40,6 +40,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.avl.AvlPartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
@@ -137,9 +138,13 @@ public class LdifPartition extends BTreePartition
     /** The extension used for LDIF entry files */
     private static final String CONF_FILE_EXTN = ".ldif";
 
-    /** We use an AVL partition to manage searches on this partition */
+    /** We use a partition to manage searches on this partition */
     private AvlPartition wrappedPartition;
 
+    /** A default CSN factory */
+    private static CsnFactory defaultCSNFactory;
+    
+    
     /**
      * Creates a new instance of LdifPartition.
      */
@@ -154,7 +159,15 @@ public class LdifPartition extends BTreePartition
      */
     public void initialize() throws Exception
     {
+        // Initialize the AvlPartition
+        wrappedPartition.setId( id );
+        wrappedPartition.setSuffix( suffix.getUpName() );
+        wrappedPartition.setRegistries( registries );
         wrappedPartition.initialize();
+        
+        // Create the CsnFactory with a invalid ReplicaId
+        // @TODO : inject a correct ReplicaId
+        defaultCSNFactory = new CsnFactory( 0 );
 
         this.searchEngine = wrappedPartition.getSearchEngine();
 
@@ -209,8 +222,6 @@ public class LdifPartition extends BTreePartition
             
             if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
             {
-                CsnFactory defaultCSNFactory = new CsnFactory( 0 );
-
                 contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
             }
             
@@ -400,6 +411,16 @@ public class LdifPartition extends BTreePartition
                     LOG.debug( "Adding entry {}", ldifEntry );
 
                     ServerEntry serverEntry = new DefaultServerEntry( registries, ldifEntry.getEntry() );
+                    
+                    if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
+                    {
+                        serverEntry.put( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
+                    }
+                    
+                    if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
+                    {
+                        serverEntry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
+                    }
 
                     // call add on the wrapped partition not on the self
                     wrappedPartition.getStore().add( serverEntry );
@@ -814,7 +835,7 @@ public class LdifPartition extends BTreePartition
     @Override
     public boolean isInitialized()
     {
-        return wrappedPartition.isInitialized();
+        return wrappedPartition != null && wrappedPartition.isInitialized();
     }
 
 
@@ -878,7 +899,6 @@ public class LdifPartition extends BTreePartition
     public void setRegistries( Registries registries )
     {
         super.setRegistries( registries );
-        wrappedPartition.setRegistries( registries );
     }
 
 
@@ -912,7 +932,7 @@ public class LdifPartition extends BTreePartition
 
     public LdapDN getSuffixDn()
     {
-        return wrappedPartition.getSuffixDn();
+        return suffix;
     }
 
 
@@ -993,5 +1013,23 @@ public class LdifPartition extends BTreePartition
         List<LdifEntry> entries = ldifParser.parseLdif( contextEntry );
         
         this.contextEntry = new DefaultServerEntry( registries, entries.get( 0 ).getEntry() );
+    }
+
+
+    /**
+     * @return the wrappedPartition
+     */
+    public Partition getWrappedPartition()
+    {
+        return wrappedPartition;
+    }
+
+
+    /**
+     * @param wrappedPartition the wrappedPartition to set
+     */
+    public void setWrappedPartition( AvlPartition wrappedPartition )
+    {
+        this.wrappedPartition = wrappedPartition;
     }
 }
