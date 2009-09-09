@@ -56,7 +56,7 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
       <version>${pom.version}</version>
-      <scope>test</scope>
+      <!--scope>test</scope-->
     </dependency>  
 
     <dependency>
