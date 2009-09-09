@@ -264,7 +264,6 @@ public class InterceptorChain
 
             if ( t instanceof Exception )
             {
-                t.printStackTrace();
                 throw ( Exception ) t;
             }
             else
