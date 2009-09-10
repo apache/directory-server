@@ -36,6 +36,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 
 
 /**
@@ -63,10 +64,11 @@ public interface DirectoryServiceFactory
             {
                 String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
                 int targetPos = path.indexOf( "target" );
-                workingDirectory = path.substring( 0, targetPos + 6 );
+                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
             }
 
             DirectoryService service = new DefaultDirectoryService();
+            service.setWorkingDirectory( new File( workingDirectory ) );
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
             Registries registries = service.getRegistries();
             
@@ -78,11 +80,14 @@ public interface DirectoryServiceFactory
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            extractor.extractOrCopy();
             
             schemaPartition.setWrappedPartition( ldifPartition );
             schemaPartition.setRegistries( registries );
             
+            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+            loader.loadAllEnabled( registries );
+            extractor.extractOrCopy();
+
             service.getChangeLog().setEnabled( true );
 
             // change the working directory to something that is unique
@@ -95,7 +100,7 @@ public interface DirectoryServiceFactory
             ((JdbmPartition)systemPartition).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setRegistries( registries );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory ) );
+            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
     
             // Add objectClass attribute for the system partition
             Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();

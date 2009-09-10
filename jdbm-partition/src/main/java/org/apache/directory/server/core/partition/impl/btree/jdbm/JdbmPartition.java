@@ -120,7 +120,6 @@ public class JdbmPartition extends BTreePartition
     public final void initialize( ) throws Exception
     {
         store.setWorkingDirectory( getPartitionDir() );
-        //store.init( registries );
 
         EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );

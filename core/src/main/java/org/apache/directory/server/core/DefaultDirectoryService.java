@@ -1410,7 +1410,7 @@ public class DefaultDirectoryService implements DirectoryService
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffixDn().normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
 
-        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ).normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         adminDn.normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         adminSession = new DefaultCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), this );
         

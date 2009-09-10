@@ -180,6 +180,7 @@ public class NonExistentState extends AbstractState
                     return;
                 }
 
+                /*
                 try
                 {
                     cleanup();
@@ -190,6 +191,7 @@ public class NonExistentState extends AbstractState
                     testAborted( notifier, settings.getDescription(), ioe );
                     return;
                 }
+                */
 
                 try
                 {

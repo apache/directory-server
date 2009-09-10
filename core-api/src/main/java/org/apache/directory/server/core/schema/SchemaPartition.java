@@ -58,7 +58,6 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,9 +224,6 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        
-        loader = new JarLdifSchemaLoader();
-        loader.loadAllEnabled( registries );  
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         wrapped.setId( ID );
@@ -255,6 +251,8 @@ public final class SchemaPartition extends AbstractPartition
             LOG.error( "Failed to initialize wrapped partition.", e );
             throw new RuntimeException( e );
         }
+
+        loader.loadAllEnabled( registries );  
     }
     
     
@@ -442,5 +440,14 @@ public final class SchemaPartition extends AbstractPartition
         name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
         opContext.modify( name, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+    }
+
+
+    /**
+     * @param loader the loader to set
+     */
+    public void setLoader( SchemaLoader loader )
+    {
+        this.loader = loader;
     }
 }

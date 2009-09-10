@@ -201,7 +201,7 @@ public class LdifPartition extends BTreePartition
             // The partition directory does not exist, we have to create it
             try
             {
-                suffixDirectory.mkdirs();
+                suffixDirectory.mkdir();
             }
             catch ( SecurityException se )
             {
@@ -217,7 +217,15 @@ public class LdifPartition extends BTreePartition
             
             if ( contextEntry == null )
             {
-                throw new NamingException( "The expected context entry does not exist" );
+                if ( contextEntryFile.exists() )
+                {
+                    LdifReader reader = new LdifReader( contextEntryFile );
+                    contextEntry = new DefaultServerEntry( registries, reader.next().getEntry() ); 
+                }
+                else
+                {
+                    throw new NamingException( "The expected context entry does not exist" );
+                }
             }
             
             if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
