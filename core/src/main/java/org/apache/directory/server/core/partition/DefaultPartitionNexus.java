@@ -238,7 +238,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         {
             for ( Partition partition : directoryService.getPartitions() )
             {
-                //adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                partition.setRegistries( registries );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
     

@@ -332,13 +332,16 @@ public class DefaultDirectoryService implements DirectoryService
         Set<Partition> cloned = new HashSet<Partition>();
         cloned.addAll( partitions );
         Set<String> names = new HashSet<String>();
+        
         for ( Partition partition : cloned )
         {
             String id = partition.getId();
+            
             if ( names.contains( id ) )
             {
                 LOG.warn( "Encountered duplicate partition {} identifier.", id );
             }
+            
             names.add( id );
         }
 
