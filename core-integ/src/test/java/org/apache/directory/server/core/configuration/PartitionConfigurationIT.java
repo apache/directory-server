@@ -20,26 +20,27 @@
 package org.apache.directory.server.core.configuration;
 
 
+import java.util.Hashtable;
+import java.util.UUID;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+
 import junit.framework.Assert;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-import java.util.Hashtable;
-import java.util.UUID;
 
 
 /**
@@ -57,9 +58,10 @@ public class PartitionConfigurationIT
     @Test
     public void testAddAndRemove() throws Exception
     {
-        Partition partition = new JdbmPartition();
+        JdbmPartition partition = new JdbmPartition();
         partition.setId( "removable" );
         partition.setSuffix( "ou=removable" );
+        partition.setPartitionDir( service.getWorkingDirectory() );
         
         // Test AddContextPartition
         service.addPartition( partition );

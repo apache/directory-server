@@ -576,9 +576,10 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition parition ) throws Exception
+    public void addPartition( Partition partition ) throws Exception
     {
-        partitions.add( parition );
+        partition.setRegistries( getRegistries() );
+        partitions.add( partition );
 
         if ( ! started )
         {
@@ -586,7 +587,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         AddContextPartitionOperationContext addPartitionCtx = 
-            new AddContextPartitionOperationContext( adminSession, parition );
+            new AddContextPartitionOperationContext( adminSession, partition );
         partitionNexus.addContextPartition( addPartitionCtx );
     }
 
