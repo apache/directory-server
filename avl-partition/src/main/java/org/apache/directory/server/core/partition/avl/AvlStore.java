@@ -359,6 +359,7 @@ public class AvlStore<E> implements Store<E>
      */
     public void destroy() throws Exception
     {
+        initialized = false;
     }
 
 
