@@ -20,26 +20,14 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.Level;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -52,8 +40,29 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authz.AutzIntegUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -121,25 +130,64 @@ public class SearchWithIndicesITest
     {
         public DirectoryService newInstance() throws Exception
         {
-            DefaultDirectoryService service = new DefaultDirectoryService();
-            SchemaPartition schemaPartition = new SchemaPartition();
-            schemaPartition.setWrappedPartition( new LdifPartition() );
-            service.getSchemaService().setSchemaPartition( schemaPartition );
+            String workingDirectory = System.getProperty( "workingDirectory" );
+
+            if ( workingDirectory == null )
+            {
+                String path = DirectoryServiceFactory.class.getResource( "" ).getPath();
+                int targetPos = path.indexOf( "target" );
+                workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
+            }
+
+            DirectoryService service = new DefaultDirectoryService();
+            service.setWorkingDirectory( new File( workingDirectory ) );
+            SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+            Registries registries = service.getRegistries();
+            
+            // Init the LdifPartition
+            LdifPartition ldifPartition = new LdifPartition();
+            
+            ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
+            
+            // Extract the schema on disk (a brand new one) and load the registries
+            File schemaRepository = new File( workingDirectory, "schema" );
+            SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+            
+            schemaPartition.setWrappedPartition( ldifPartition );
+            schemaPartition.setRegistries( registries );
+            
+            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+            loader.loadAllEnabled( registries );
+            extractor.extractOrCopy();
+
             service.getChangeLog().setEnabled( true );
+
+            // change the working directory to something that is unique
+            // on the system and somewhere either under target directory
+            // or somewhere in a temp area of the machine.
+            
+            // Inject the System Partition
+            Partition systemPartition = new JdbmPartition();
+            systemPartition.setId( "system" );
+            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
+            systemPartition.setRegistries( registries );
+            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
+    
+            // Add objectClass attribute for the system partition
+            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
+            indexedAttrs.add( 
+                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
 
             // -------------------------------------------------------------------
             // Alter the partition configuration to index gidNumber
             // -------------------------------------------------------------------
-
-            JdbmPartition partition = new JdbmPartition();
-            partition.setId( "system" );
-            partition.setSuffix( "ou=system" );
-
-            Set<Index<?, ServerEntry>> indices = new HashSet<Index<?, ServerEntry>>();
-            indices.addAll( partition.getIndexedAttributes() );
-            indices.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
-            partition.setIndexedAttributes( indices );
-            service.setSystemPartition( partition );
+            indexedAttrs.add( new JdbmIndex<String,ServerEntry>( "gidNumber" ) );
+            
+            service.setSystemPartition( systemPartition );
+            service.setAccessControlEnabled( false );
+            AutzIntegUtils.service = service;
 
             return service;
         }
