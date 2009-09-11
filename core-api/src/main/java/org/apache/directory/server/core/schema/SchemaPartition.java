@@ -35,6 +35,7 @@ import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -314,6 +315,15 @@ public final class SchemaPartition extends AbstractPartition
     public EntryFilteringCursor list( ListOperationContext opContext ) throws Exception
     {
         return wrapped.list( opContext );
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasEntry( EntryOperationContext entryContext ) throws Exception
+    {
+        return wrapped.hasEntry( entryContext );
     }
 
 
