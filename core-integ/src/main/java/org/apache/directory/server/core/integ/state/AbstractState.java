@@ -227,14 +227,21 @@ public abstract class AbstractState implements TestServiceState
                     
                     for ( LdifEntry entry : ldifReader )
                     {
-                        service.getAdminSession().add( 
-                            new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
-                        LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
+                        try
+                        {
+                            service.getAdminSession().add( 
+                                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                            LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
+                        }
+                        catch ( Exception e )
+                        {
+                            LOG.error( "Cannot inject the following entry : {}. Error : {}.", entry, e.getMessage() );
+                        }
                     }
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( "Cannot inject the following entry : {}. Error : {}.", ldif, e.getMessage() );
+                    LOG.error( "Cannot inject the ldif entries. Error : {}.", e.getMessage() );
                 }
             }
         }
