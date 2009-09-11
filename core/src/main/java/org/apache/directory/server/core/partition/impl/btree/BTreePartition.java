@@ -20,11 +20,20 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.naming.InvalidNameException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
@@ -46,15 +55,6 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
-import javax.naming.InvalidNameException;
-import javax.naming.directory.SearchControls;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -242,6 +242,9 @@ public abstract class BTreePartition implements Partition
     // ------------------------------------------------------------------------
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         LdapDN dn = opContext.getDn();

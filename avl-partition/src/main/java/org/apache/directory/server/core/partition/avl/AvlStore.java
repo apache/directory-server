@@ -1220,7 +1220,13 @@ public class AvlStore<E> implements Store<E>
     public void modify( LdapDN dn, List<Modification> mods ) throws Exception
     {
         Long id = getEntryId( dn.toString() );
-        ServerEntry entry = ( ServerEntry ) master.get( id );
+        modify( id, mods );
+    }
+
+
+    public void modify( long entryId, List<Modification> mods ) throws Exception
+    {
+        ServerEntry entry = ( ServerEntry ) master.get( entryId );
 
         for ( Modification mod : mods )
         {
@@ -1229,15 +1235,15 @@ public class AvlStore<E> implements Store<E>
             switch ( mod.getOperation() )
             {
                 case ADD_ATTRIBUTE:
-                    add( id, entry, attrMods );
+                    add( entryId, entry, attrMods );
                     break;
 
                 case REMOVE_ATTRIBUTE:
-                    remove( id, entry, attrMods );
+                    remove( entryId, entry, attrMods );
                     break;
 
                 case REPLACE_ATTRIBUTE:
-                    replace( id, entry, attrMods );
+                    replace( entryId, entry, attrMods );
                     break;
 
                 default:
@@ -1245,7 +1251,7 @@ public class AvlStore<E> implements Store<E>
             }
         }
 
-        master.put( id, entry );
+        master.put( entryId, entry );
     }
 
 

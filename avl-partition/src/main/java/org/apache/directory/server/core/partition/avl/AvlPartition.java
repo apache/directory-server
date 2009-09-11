@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.avl;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -44,6 +45,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -443,10 +445,22 @@ public class AvlPartition extends BTreePartition
         return store.getProperty( propertyName );
     }
 
-
+    
+    /**
+     * {@inheritDoc}
+     */
     public final void modify( ModifyOperationContext modifyContext ) throws Exception
     {
         store.modify( modifyContext.getDn(), modifyContext.getModItems() );
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final void modify( long entryId, List<Modification> modifications ) throws Exception
+    {
+        store.modify( entryId, modifications );
     }
 
 
