@@ -21,11 +21,11 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -41,10 +41,6 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -52,17 +48,21 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
-    
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,17 +131,17 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     {
         
         // Initialize AttributeType Dns
-        LdapDN dn = new LdapDN( "ou=attributeTypes,cn=" + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( "ou=attributetypes,cn=" + schemaName + ",ou=schema" );
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
-        dn = new LdapDN( "ou=objectClasses,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( "ou=objectclasses,cn=" + schemaName + ",ou=schema" );
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
-        dn = new LdapDN( "ou=matchingRules,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( "ou=matchingrules,cn=" + schemaName + ",ou=schema" );
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
@@ -156,7 +156,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
-        dn = new LdapDN( "ou=syntaxCheckers,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( "ou=syntaxcheckers,cn=" + schemaName + ",ou=schema" );
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
@@ -320,6 +320,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
 
         Iterator<Schema> list = notLoaded.values().iterator();
+        
         while ( list.hasNext() )
         {
             Schema schema = list.next();
@@ -408,7 +409,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=objectClasses,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( "ou=objectclasses,cn=" + schema.getSchemaName() + ",ou=schema" );
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticObjectClassesDNs.put( schema.getSchemaName(), dn );
         }
@@ -509,7 +510,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=attributeTypes,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( "ou=attributetypes,cn=" + schema.getSchemaName() + ",ou=schema" );
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
         }
@@ -530,6 +531,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
             AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
+            
             try
             {
                 targetRegistries.getAttributeTypeRegistry().register( at );
@@ -541,6 +543,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
 
         LOG.debug( "Deferred queue size = {}", deferred.size() );
+        
         if ( LOG.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
@@ -557,6 +560,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
         
         int lastCount = deferred.size();
+        
         while ( ! deferred.isEmpty() )
         {
             LOG.debug( "Deferred queue size = {}", deferred.size() );
@@ -607,7 +611,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=matchingRules,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( "ou=matchingrules,cn=" + schema.getSchemaName() + ",ou=schema" );
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
         }
@@ -672,7 +676,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=syntaxCheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( "ou=syntaxcheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
         }
@@ -682,7 +686,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading syntaxCsheckers", schema.getSchemaName() );
         
         EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
