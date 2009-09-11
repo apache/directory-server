@@ -273,6 +273,8 @@ public class LdifPartition extends BTreePartition
     }
 
     
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -312,9 +314,20 @@ public class LdifPartition extends BTreePartition
     @Override
     public void modify( ModifyOperationContext modifyContext ) throws Exception
     {
-        wrappedPartition.modify( modifyContext );
+        Long id = getEntryId( modifyContext.getDn().getNormName() );
+
+        wrappedPartition.modify( id, modifyContext.getModItems() );
+        
         // just overwrite the existing file
-        add( modifyContext.getEntry() );
+        LdapDN dn = modifyContext.getDn();
+        
+        // Get the modified entry
+        Entry modifiedEntry = wrappedPartition.lookup( id );
+        
+        // And write it back on disk
+        FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
+        fw.write( LdifUtils.convertEntryToLdif( modifiedEntry ) );
+        fw.close();
     }
 
 
@@ -487,7 +500,7 @@ public class LdifPartition extends BTreePartition
         if ( ldifFile.exists() && create )
         {
             // The entry already exists
-            throw new NamingException( "The entry already exsists" );
+            throw new NamingException( "The entry already exists" );
         }
         
         return ldifFile;
