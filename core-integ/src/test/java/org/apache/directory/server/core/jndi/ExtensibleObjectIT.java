@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.junit.Test;import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertEquals;import static org.junit.Assert.assertTrue;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -32,6 +31,13 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -41,6 +47,7 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class ExtensibleObjectIT
 {
     public static DirectoryService service;
