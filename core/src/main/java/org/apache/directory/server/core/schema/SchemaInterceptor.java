@@ -1209,19 +1209,19 @@ public class SchemaInterceptor extends BaseInterceptor
                 throw new NoPermissionException( msg );
             }
             
-            // Check the syntax here
-            if ( !attribute.isValid() )
-            {
-                // The value syntax is incorrect : this is an error
-                String msg = "The new Attribute or one of its value is incorrect : " + attributeType;
-                LOG.error( msg );
-                throw new LdapInvalidAttributeValueException( msg, 
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-            }
-
             switch ( mod.getOperation() )
             {
                 case ADD_ATTRIBUTE :
+                    // Check the syntax here
+                    if ( !attribute.isValid() )
+                    {
+                        // The value syntax is incorrect : this is an error
+                        String msg = "The new Attribute or one of its value is incorrect : " + attributeType;
+                        LOG.error( msg );
+                        throw new LdapInvalidAttributeValueException( msg, 
+                            ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+                    }
+
                     EntryAttribute currentAttribute = tempEntry.get( attributeType );
                     
                     // First check if the added Attribute is already present in the entry

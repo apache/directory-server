@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.entry;
 
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -739,6 +740,12 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
             return false;
         }
 
+        // Check that we can have no value for this attributeType
+        if ( values.size() == 0 )
+        {
+            return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( null );
+        }
+
         for ( Value<?> value : values )
         {
             if ( ! value.isValid() )
@@ -746,7 +753,7 @@ public final class DefaultServerAttribute extends DefaultClientAttribute impleme
                 return false;
             }
         }
-
+        
         return true;
     }
 

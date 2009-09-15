@@ -571,7 +571,7 @@ public class DefaultServerAttributeTest
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
         // No value, this should be valid
-        assertTrue( attr.isValid() );
+        assertFalse( attr.isValid() );
         
         attr.add( "test", "test2", "A123\\;" );
         assertTrue( attr.isValid() );
@@ -2094,7 +2094,7 @@ public class DefaultServerAttributeTest
         assertEquals( "cn", dsaSer.getUpId() );
         assertEquals( 0, dsaSer.size() );
         assertTrue( dsaSer.isHR() );
-        assertTrue( dsaSer.isValid() );
+        assertFalse( dsaSer.isValid() );
     }
     
     
