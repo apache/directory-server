@@ -59,8 +59,8 @@ public class ServerDNConstants
     /** the normalized DN for the schema in DIT area */
     public static final String OU_SCHEMA_DN_NORMALIZED = "2.5.4.11=schema";
     
-    /** The DN for the schema modification's timestamp */
-    public static final String SCHEMA_TIMESTAMP_ENTRY_DN = "cn=schemaModifications,ou=schema";
+    /** The DN for the schema modifications */
+    public static final String SCHEMA_MODIFICATIONS_DN = "cn=schemaModifications,ou=schema";
     
     /** the base dn under which all users reside */
     public static final String USERS_SYSTEM_DN = "ou=users,ou=system";

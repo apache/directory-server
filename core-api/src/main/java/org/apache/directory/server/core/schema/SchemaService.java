@@ -17,19 +17,27 @@ public interface SchemaService
      * @return <code>true</code> if the given DN is the Schema subentry DN
      * @throws NamingException If the given DN is not valid
      */
-    public abstract boolean isSchemaSubentry( String dnString ) throws NamingException;
+    abstract boolean isSchemaSubentry( String dnString ) throws NamingException;
 
 
     /**
      * @return the registries loaded from schemaPartition
      */
-    public abstract Registries getRegistries();
+    abstract Registries getRegistries();
 
 
-    public abstract SchemaPartition getSchemaPartition();
+    abstract SchemaPartition getSchemaPartition();
 
 
-    public abstract void setSchemaPartition( SchemaPartition schemaPartition );
+    abstract void setSchemaPartition( SchemaPartition schemaPartition );
+    
+    
+    /**
+     * Initializes the SchemaService
+     *
+     * @throws Exception If the initializaion fails
+     */
+    void initialize() throws Exception;
 
 
     /**
@@ -38,7 +46,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public abstract ServerEntry getSubschemaEntryImmutable() throws Exception;
+    abstract ServerEntry getSubschemaEntryImmutable() throws Exception;
 
 
     /**
@@ -47,7 +55,7 @@ public interface SchemaService
      * @return the schemaSubentry
      * @throws NamingException if there is a failure to access schema timestamps
      */
-    public abstract ServerEntry getSubschemaEntryCloned() throws Exception;
+    abstract ServerEntry getSubschemaEntryCloned() throws Exception;
 
 
     /**
@@ -58,6 +66,5 @@ public interface SchemaService
      * @return the subschema entry with the ids provided
      * @throws NamingException if there are failures during schema info access
      */
-    public abstract ServerEntry getSubschemaEntry( String[] ids ) throws Exception;
-
+    abstract ServerEntry getSubschemaEntry( String[] ids ) throws Exception;
 }

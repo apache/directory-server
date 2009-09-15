@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -304,6 +304,11 @@ public class RegistrySynchronizerAdaptor
             return;
         }
 
+        if ( oc.contains(  ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC ) )
+        {
+            return;
+        }
+        
         LOG.error( String.format( "Unwilling to perform modify on %s:\n\nEntry:\n%s\n\nModifications:\n%s", 
             opContext.getDn(), entry, opContext.getModItems() ) );
         throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );

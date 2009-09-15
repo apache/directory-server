@@ -90,6 +90,7 @@ public class SearchWithIndicesITest
         LdapContext schemaRoot = getSchemaContext( service );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
+        
         if ( nisAttrs.get( "m-disabled" ) != null )
         {
             isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );

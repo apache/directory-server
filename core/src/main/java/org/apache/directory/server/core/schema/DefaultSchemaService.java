@@ -19,6 +19,12 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -33,21 +39,15 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
-import javax.naming.NamingException;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -67,10 +67,11 @@ public class DefaultSchemaService implements SchemaService
     /** a handle on the schema partition */
     private SchemaPartition schemaPartition;
 
-    /**
-     * the normalized name for the schema modification attributes
-     */
+    /** the normalized name for the schema modification attributes */
     private LdapDN schemaModificationAttributesDN;
+    
+    /** A lock to avid concurrent generation of the SubschemaSubentry */
+    private Object schemaSubentrLock = new Object();
 
     
     public DefaultSchemaService() throws Exception
@@ -120,16 +121,6 @@ public class DefaultSchemaService implements SchemaService
     public void setSchemaPartition( SchemaPartition schemaPartition )
     {
         this.schemaPartition = schemaPartition;
-        try
-        {
-            schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
-            schemaModificationAttributesDN.normalize( 
-                getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        }
-        catch ( NamingException e )
-        {
-            throw new RuntimeException( e );
-        }
     }
 
 
@@ -320,11 +311,14 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
+    /**
+     * Creates the SSSE by extracting all the SchemaObjects from the registries.
+     */
     private void generateSchemaSubentry( ServerEntry mods ) throws NamingException
     {
         ServerEntry attrs = new DefaultServerEntry( getRegistries(), mods.getDn() );
 
-        // add the objectClass attribute
+        // add the objectClass attribute : 'top', 'subschema', 'subentry' and 'apacheSubschema' 
         attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC,
             SchemaConstants.SUBSCHEMA_OC,
@@ -354,24 +348,18 @@ public class DefaultSchemaService implements SchemaService
         // -------------------------------------------------------------------
 
         // Add the createTimestamp
-        AttributeType createTimestampAT = getRegistries().
-            getAttributeTypeRegistry().lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
-        EntryAttribute createTimestamp = mods.get( createTimestampAT );
+        EntryAttribute createTimestamp = mods.get( SchemaConstants.CREATE_TIMESTAMP_AT );
         attrs.put( SchemaConstants.CREATE_TIMESTAMP_AT, createTimestamp.get() );
 
         // Add the creatorsName
         attrs.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
 
         // Add the modifyTimestamp
-        AttributeType schemaModifyTimestampAT = getRegistries().
-            getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
-        EntryAttribute schemaModifyTimestamp = mods.get( schemaModifyTimestampAT );
+        EntryAttribute schemaModifyTimestamp = mods.get( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
         attrs.put( SchemaConstants.MODIFY_TIMESTAMP_AT, schemaModifyTimestamp.get() );
 
         // Add the modifiersName
-        AttributeType schemaModifiersNameAT = getRegistries().
-            getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-        EntryAttribute schemaModifiersName = mods.get( schemaModifiersNameAT );
+        EntryAttribute schemaModifiersName = mods.get( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
         attrs.put( SchemaConstants.MODIFIERS_NAME_AT, schemaModifiersName.get() );
 
         // don't swap out if a request for the subentry is in progress or we
@@ -394,18 +382,41 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntryImmutable()
+    /**
+     * {@inheritDoc}
      */
     public ServerEntry getSubschemaEntryImmutable() throws Exception
     {
-        if ( schemaSubentry == null )
+        synchronized ( schemaSubentrLock )
         {
-            generateSchemaSubentry( schemaPartition.lookup(
-                    new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
+            if ( schemaSubentry == null )
+            {
+                generateSchemaSubentry( schemaPartition.lookup(
+                        new LookupOperationContext( null, schemaModificationAttributesDN ) ) );
+            }
+    
+            return ( ServerEntry ) schemaSubentry.clone();
         }
-
-        return ( ServerEntry ) schemaSubentry.clone();
+    }
+    
+    
+    /**
+     * Initializes the SchemaService
+     *
+     * @throws Exception If the initializaion fails
+     */
+    public void initialize() throws Exception
+    {
+        try
+        {
+            schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+            schemaModificationAttributesDN.normalize( 
+                getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        }
+        catch ( NamingException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
 
@@ -424,8 +435,8 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#getSubschemaEntry(java.lang.String[])
+    /**
+     * {@inheritDoc}
      */
     public ServerEntry getSubschemaEntry( String[] ids ) throws Exception
     {
@@ -445,7 +456,9 @@ public class DefaultSchemaService implements SchemaService
             // ---------------------------------------------------------------
 
             ServerEntry mods = 
-                schemaPartition.lookup( new LookupOperationContext( null, schemaModificationAttributesDN ) );
+                schemaPartition.lookup( 
+                    new LookupOperationContext( null, schemaModificationAttributesDN ) );
+            
 // @todo enable this optimization at some point but for now it
 // is causing some problems so I will just turn it off
 //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
@@ -561,6 +574,7 @@ public class DefaultSchemaService implements SchemaService
             }
 
             int minSetSize = 0;
+            
             if ( setOids.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
             {
                 minSetSize++;

@@ -206,6 +206,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws Exception
     {
+        // We must check that the user hasn't injected either the modifiersName
+        // or the modifyTimestamp operational attributes : they are not supposed to be
+        // added at this point.
+        // If so, remove them, and if there are no more attributes, simply return.
+        // otherwise, inject those values into the list of modifications
         nextInterceptor.modify( opContext );
         
         if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
@@ -216,27 +221,24 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // -------------------------------------------------------------------
         // Add the operational attributes for the modifier first
         // -------------------------------------------------------------------
-        
+        // TODO : Why can't we add those elements on teh original modifications ???
+        // Or into the context ?
         List<Modification> modItemList = new ArrayList<Modification>(2);
         
         AttributeType modifiersNameAt = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
         ServerAttribute attribute = new DefaultServerAttribute( 
-            SchemaConstants.MODIFIERS_NAME_AT,
             modifiersNameAt, 
             getPrincipal().getName());
 
         Modification modifiers = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        //modifiers.setServerModified();
         modItemList.add( modifiers );
         
         AttributeType modifyTimeStampAt = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute = new DefaultServerAttribute( 
-            SchemaConstants.MODIFY_TIMESTAMP_AT,
             modifyTimeStampAt,
             DateUtils.getGeneralizedTime() );
         
         Modification timestamp = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
-        //timestamp.setServerModified();
         modItemList.add( timestamp );
 
         // -------------------------------------------------------------------
@@ -245,6 +247,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
             opContext.getDn(), modItemList );
+        newModify.setEntry( opContext.getEntry() );
         service.getPartitionNexus().modify( newModify );
     }
 

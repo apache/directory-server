@@ -26,7 +26,6 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
@@ -34,8 +33,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.InternalModifyRequest;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -54,10 +53,6 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     /** The modification items */
     private List<Modification> modItems;
     
-    /** Cloned entry that is modified */
-    private ClonedServerEntry entry;
-
-
     /**
      * Creates a new instance of ModifyOperationContext.
      */
@@ -140,18 +135,6 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public String getName()
     {
         return MessageTypeEnum.MODIFY_REQUEST.name();
-    }
-
-    
-    public void setEntry( ClonedServerEntry entry )
-    {
-        this.entry = entry;
-    }
-    
-    
-    public ClonedServerEntry getEntry()
-    {
-        return entry;
     }
 
     

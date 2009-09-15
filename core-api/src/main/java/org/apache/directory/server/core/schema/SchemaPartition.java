@@ -121,6 +121,9 @@ public final class SchemaPartition extends AbstractPartition
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
     
+    /** A static DN for the ou=schemaModifications entry */
+    private static LdapDN schemaModificationDN;
+    
     
     /**
      * Sets the wrapped {@link Partition} which must be supplied or 
@@ -254,6 +257,9 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         loader.loadAllEnabled( registries );  
+        
+        schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
     
     
@@ -336,18 +342,31 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void modify( ModifyOperationContext opContext ) throws Exception
     {
+        ServerEntry entry = opContext.getEntry();
+        
+        if ( entry == null )
+        {
+            LookupOperationContext lookupCtx = new LookupOperationContext( opContext.getSession(), opContext.getDn() );
+            entry = wrapped.lookup( lookupCtx );
+        }
+        
         ServerEntry targetEntry = ( ServerEntry ) SchemaUtils.getTargetEntry( 
-            opContext.getModItems(), opContext.getEntry() );
+            opContext.getModItems(), entry );
         
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
+        
         synchronizer.modify( opContext, opContext.getEntry(), targetEntry, cascade );
         wrapped.modify( opContext );
-        updateSchemaModificationAttributes( opContext );
+        
+        if ( !opContext.getDn().equals( schemaModificationDN ) )
+        {
+            updateSchemaModificationAttributes( opContext );
+        }
     }
 
 
@@ -446,7 +465,7 @@ public final class SchemaPartition extends AbstractPartition
                 registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
                 modifiersName ) ) );
         
-        LdapDN name = new LdapDN( ServerDNConstants.SCHEMA_TIMESTAMP_ENTRY_DN );
+        LdapDN name = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
         opContext.modify( name, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );

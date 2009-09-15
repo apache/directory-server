@@ -1410,7 +1410,8 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // triggers partition to load schema fully from schema partition
-        schemaService.getSchemaPartition().initialize( );
+        schemaService.initialize();
+        schemaService.getSchemaPartition().initialize();
         partitions.add( schemaService.getSchemaPartition() );
         systemPartition.getSuffixDn().normalize( getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
 

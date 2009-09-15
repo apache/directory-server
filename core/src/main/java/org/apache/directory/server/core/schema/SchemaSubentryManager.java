@@ -25,8 +25,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.entry.ServerEntry;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
 import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -38,23 +41,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
 
 
 /**
@@ -386,7 +385,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.add( opContext, comparatorDescription );
                 }
+                
                 break;
+                
             case( NORMALIZER_INDEX ):
                 NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
                 
@@ -394,7 +395,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.add( opContext, normalizerDescription );
                 }
+                
                 break;
+                
             case( SYNTAX_CHECKER_INDEX ):
                 SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
                 
@@ -402,7 +405,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.add( opContext, syntaxCheckerDescription );
                 }
+                
                 break;
+                
             case( SYNTAX_INDEX ):
                 LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
                 
@@ -410,7 +415,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, syntax );
                 }
+                
                 break;
+                
             case( MATCHING_RULE_INDEX ):
                 MatchingRule[] mrs = parsers.parseMatchingRules( mods );
                 
@@ -418,7 +425,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, mr );
                 }
+                
                 break;
+                
             case( ATTRIBUTE_TYPE_INDEX ):
                 AttributeType[] ats = parsers.parseAttributeTypes( mods );
                 
@@ -426,7 +435,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, at );
                 }
+                
                 break;
+                
             case( OBJECT_CLASS_INDEX ):
                 ObjectClass[] ocs = parsers.parseObjectClasses( mods );
 
@@ -434,7 +445,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, oc );
                 }
+                
                 break;
+                
             case( MATCHING_RULE_USE_INDEX ):
                 MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
                 
@@ -442,7 +455,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, mru );
                 }
+                
                 break;
+                
             case( DIT_STRUCTURE_RULE_INDEX ):
                 DITStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
                 
@@ -450,7 +465,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, dsr );
                 }
+                
                 break;
+                
             case( DIT_CONTENT_RULE_INDEX ):
                 DITContentRule[] dcrs = parsers.parseDitContentRules( mods );
                 
@@ -458,7 +475,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, dcr );
                 }
+                
                 break;
+                
             case( NAME_FORM_INDEX ):
                 NameForm[] nfs = parsers.parseNameForms( mods );
                 
@@ -466,7 +485,9 @@ public class SchemaSubentryManager
                 {
                     subentryModifier.addSchemaObject( opContext, nf );
                 }
+                
                 break;
+                
             default:
                 throw new IllegalStateException( "Unknown index into handler array: " + index );
         }
