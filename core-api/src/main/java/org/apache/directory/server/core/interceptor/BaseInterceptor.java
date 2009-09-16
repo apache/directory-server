@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import java.util.Set;
+
+import javax.naming.Context;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
@@ -46,9 +50,6 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
-import javax.naming.Context;
-import java.util.Set;
 
 
 /**
@@ -185,16 +186,17 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
-    {
-        next.rename( opContext );
-    }
-
-
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws Exception
     {
         next.moveAndRename( opContext );
+    }
+
+
+    public void rename( NextInterceptor next, RenameOperationContext opContext )
+        throws Exception
+    {
+        next.rename( opContext );
     }
 
 
