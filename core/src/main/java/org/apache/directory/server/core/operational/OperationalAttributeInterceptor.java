@@ -257,19 +257,20 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         nextInterceptor.rename( opContext );
 
-        // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
-        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
-        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-
         LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
         newDn.remove( opContext.getDn().size() - 1 );
         newDn.add( opContext.getNewRdn() );
         newDn.normalize( atRegistry.getNormalizerMapping() );
         
+        // add operational attributes after call in case the operation fails
+        ServerEntry serverEntry = new DefaultServerEntry( registries, newDn );
+        serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
+        serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), newDn, items );
+        newModify.setEntry( opContext.getEntry() );
         
         service.getPartitionNexus().modify( newModify );
     }

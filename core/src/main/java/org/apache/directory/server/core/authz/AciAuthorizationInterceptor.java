@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.directory.SearchControls;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +27,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -79,7 +79,6 @@ import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponent
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -805,7 +804,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         LdapDN name = renameContext.getDn();
 
-        ClonedServerEntry entry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ClonedServerEntry entry = renameContext.getEntry();
         
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
