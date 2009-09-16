@@ -20,21 +20,11 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -43,6 +33,19 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -53,6 +56,7 @@ import javax.naming.directory.ModificationItem;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class MetaObjectClassHandlerIT
 {
     private static final String NAME = "testObjectClass";
@@ -149,7 +153,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
-    public void testRenameAttributeType() throws Exception
+    public void testRenameObjectClassType() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -693,7 +697,6 @@ public class MetaObjectClassHandlerIT
         attrs.put( "m-name", "abstractOCtest");
         attrs.put( "m-description", "An abstract oC inheriting from top" );
         attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-supObjectClass", "javaNamingReference" );
         attrs.put( "m-must", "cn" );
         attrs.put( "m-may", "ou" );
         

@@ -20,25 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.IntegrationUtils;
-
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -49,6 +36,21 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * A test case which tests the correct operation of the schema 
@@ -58,6 +60,7 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class MetaSchemaHandlerIT
 {
     /** a test attribute in the test schema: uidNumber in nis schema */

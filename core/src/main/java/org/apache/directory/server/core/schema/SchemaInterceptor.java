@@ -55,7 +55,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchingOperationContext;
-import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -100,6 +99,7 @@ import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1108,7 +1108,7 @@ public class SchemaInterceptor extends BaseInterceptor
         LdapDN name = opContext.getDn();
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ServerEntry entry = (ServerEntry)opContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
@@ -1674,15 +1674,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // Special checks for the MetaSchema branch
         if ( name.startsWith( schemaBaseDN ) )
         {
+            // get the schema name
+            String schemaName = getSchemaName( name );
+
             if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
             {
-                // This is a schema addition
-                // We have to check if the schema is enabled or disabled
-                String schema = entry.get( SchemaConstants.CN_AT ).getString();
-                
                 next.add( addContext );
 
-                if ( registries.isSchemaLoaded( schema ) )
+                if ( registries.isSchemaLoaded( schemaName ) )
                 {
                     // Update the OC superiors for each added ObjectClass
                     computeSuperiors();
@@ -1696,9 +1695,9 @@ public class SchemaInterceptor extends BaseInterceptor
                 next.add( addContext );
 
                 // Update the structures now that the schema element has been added
-                String schemaName = getSchemaName( name );
+                Schema schema = registries.getLoadedSchema( schemaName );
                 
-                if ( registries.isSchemaLoaded( schemaName ) )
+                if ( ( schema != null ) && schema.isEnabled() )
                 {
                     String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
                     ObjectClass addedOC = registries.getObjectClassRegistry().lookup( ocName );
@@ -1707,6 +1706,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
             else if ( entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
+                
                 // This is an AttributeType addition
                 next.add( addContext );
             }

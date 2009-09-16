@@ -283,8 +283,8 @@ public final class SchemaPartition extends AbstractPartition
     // -----------------------------------------------------------------------
 
     
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
@@ -377,7 +377,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
         ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        synchronizer.replace( opContext, entry, cascade );
+        synchronizer.move( opContext, entry, cascade );
         wrapped.move( opContext );
         updateSchemaModificationAttributes( opContext );
     }
@@ -390,7 +390,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
         ClonedServerEntry entry = opContext.lookup( opContext.getDn(), ByPassConstants.LOOKUP_BYPASS );
-        synchronizer.move( opContext, entry, cascade );
+        synchronizer.moveAndRename( opContext, entry, cascade );
         wrapped.moveAndRename( opContext );
         updateSchemaModificationAttributes( opContext );
     }
@@ -402,7 +402,7 @@ public final class SchemaPartition extends AbstractPartition
     public void rename( RenameOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        synchronizer.modifyRn( opContext, opContext.getEntry(), cascade );
+        synchronizer.rename( opContext, opContext.getEntry(), cascade );
         wrapped.rename( opContext );
         updateSchemaModificationAttributes( opContext );
     }

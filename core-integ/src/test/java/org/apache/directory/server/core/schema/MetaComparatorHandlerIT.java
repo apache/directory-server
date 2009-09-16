@@ -20,29 +20,14 @@
 package org.apache.directory.server.core.schema;
 
 
-import jdbm.helper.IntegerComparator;
-import jdbm.helper.StringComparator;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -52,8 +37,25 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import jdbm.helper.IntegerComparator;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
+import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -64,6 +66,7 @@ import java.io.InputStream;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class MetaComparatorHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";

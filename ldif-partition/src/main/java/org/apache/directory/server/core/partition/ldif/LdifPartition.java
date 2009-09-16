@@ -45,6 +45,7 @@ import org.apache.directory.server.core.partition.avl.AvlPartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -378,20 +379,32 @@ public class LdifPartition extends BTreePartition
 
     private void entryMoved( LdapDN entryDn, Long entryId ) throws Exception
     {
-        File file = getFile( entryDn, DELETE ).getParentFile();
-        boolean deleted = deleteFile( file );
-        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
-
+        // First, add the new entry
         add( lookup( entryId ) );
 
+        // Then, if there are some children, move then to the new place
         IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryId );
+        
+        cursor.beforeFirst();
         
         while ( cursor.next() )
         {
-            add( cursor.get().getObject() );
+            IndexEntry<Long, ServerEntry> entry = cursor.get();
+            
+            if ( entry.getObject() == null )
+            {
+                break;
+            }
+            
+            add( entry.getObject() );
         }
 
         cursor.close();
+        
+        // And delete the old entry
+        File file = getFile( entryDn, DELETE );
+        boolean deleted = deleteFile( file );
+        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
     }
 
 

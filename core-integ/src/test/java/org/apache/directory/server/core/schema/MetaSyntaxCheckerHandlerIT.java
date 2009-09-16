@@ -20,10 +20,28 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -35,24 +53,8 @@ import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 
 /**
@@ -63,6 +65,7 @@ import java.io.InputStream;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class MetaSyntaxCheckerHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.100000";

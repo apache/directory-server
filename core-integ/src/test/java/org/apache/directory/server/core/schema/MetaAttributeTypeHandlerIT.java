@@ -20,25 +20,11 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -49,6 +35,22 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.Level;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * A test case which tests the addition of various schema elements
@@ -58,6 +60,7 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
+@CleanupLevel( Level.CLASS )
 public class MetaAttributeTypeHandlerIT
 {
     private static final String DESCRIPTION0 = "A test attributeType";
@@ -96,6 +99,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
+    @Ignore
     public void testAddAttributeType() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
@@ -120,6 +124,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
+    @Ignore
     public void testDeleteAttributeType() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -171,6 +176,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeType() throws Exception
     {
         testAddAttributeType();
@@ -192,6 +198,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeTypeAndChangeRdn() throws Exception
     {
         testAddAttributeType();
@@ -216,6 +223,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
+    @Ignore
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
         testAddAttributeType();
@@ -247,6 +255,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
+    @Ignore
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
         testAddAttributeType();
@@ -305,6 +314,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -328,6 +338,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
+    @Ignore
     public void testMoveAttributeTypeWhenInUse() throws Exception
     {
         testAddAttributeType();
@@ -355,6 +366,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
     {
         testAddAttributeType();
@@ -382,6 +394,7 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
+    @Ignore
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -413,6 +426,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeTypeToTop() throws Exception
     {
         testAddAttributeType();
@@ -439,6 +453,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeTypeToComparatorContainer() throws Exception
     {
         testAddAttributeType();
@@ -465,6 +480,7 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
+    @Ignore
     public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
@@ -489,6 +505,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeTypeToDisabledSchema() throws Exception
     {
         testAddAttributeType();
@@ -508,6 +525,7 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleToEnabledSchema() throws Exception
     {
         testAddAttributeTypeToDisabledSchema();
