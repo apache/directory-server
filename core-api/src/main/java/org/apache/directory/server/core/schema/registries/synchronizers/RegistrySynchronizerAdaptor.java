@@ -318,7 +318,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifyRn(org.apache.directory.server.core.interceptor.context.RenameOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
      */
-    public void modifyRn( RenameOperationContext opContext, ServerEntry entry, boolean doCascadeModify ) 
+    public void rename( RenameOperationContext opContext, ServerEntry entry, boolean doCascadeModify ) 
         throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
@@ -348,7 +348,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#replace(org.apache.directory.server.core.interceptor.context.MoveOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
      */
-    public void replace( MoveOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
+    public void move( MoveOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -359,14 +359,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.replace( opContext.getDn(), opContext.getParent(), entry, cascade );
+                synchronizer.move( opContext.getDn(), opContext.getParent(), entry, cascade );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.replace( opContext.getDn(), opContext.getParent(), entry, cascade );
+            schemaSynchronizer.move( opContext.getDn(), opContext.getParent(), entry, cascade );
             return;
         }
         
@@ -377,7 +377,7 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
      */
-    public void move( MoveAndRenameOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
+    public void moveAndRename( MoveAndRenameOperationContext opContext, ServerEntry entry, boolean cascade ) throws Exception
     {
         EntryAttribute oc = entry.get( objectClassAT );
         
@@ -388,7 +388,7 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.move( opContext.getDn(), opContext.getParent(), opContext.getNewRdn(), 
+                synchronizer.moveAndRename( opContext.getDn(), opContext.getParent(), opContext.getNewRdn(), 
                     opContext.getDelOldDn(), entry, cascade );
                 return;
             }
@@ -396,7 +396,7 @@ public class RegistrySynchronizerAdaptor
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.move( opContext.getDn(), opContext.getParent(), opContext.getNewRdn(), 
+            schemaSynchronizer.moveAndRename( opContext.getDn(), opContext.getParent(), opContext.getNewRdn(), 
                 opContext.getDelOldDn(), entry, cascade );
             return;
         }

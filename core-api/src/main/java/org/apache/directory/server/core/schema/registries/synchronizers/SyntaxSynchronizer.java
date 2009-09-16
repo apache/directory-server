@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -81,7 +82,9 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         LdapSyntax syntax = factory.getSyntax( entry, registries, schemaName );
 
-        if ( isSchemaLoaded( name ) )
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             syntaxRegistry.register( syntax );
         }
@@ -96,7 +99,11 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
-        if ( isSchemaLoaded( name ) && syntaxRegistry.contains( oid ) )
+        
+        String schemaName = getSchemaName( name );
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             syntaxRegistry.unregister( oid );
         }
@@ -143,7 +150,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -188,7 +195,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );

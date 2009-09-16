@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -83,7 +84,9 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
         
-        if ( registries.isSchemaLoaded( schemaName ) )
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             matchingRuleRegistry.register( mr );
         }
@@ -98,10 +101,14 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     {
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
-        if ( registries.isSchemaLoaded( schemaName ) )
+        
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             matchingRuleRegistry.unregister( mr.getOid() );
         }
+        
         unregisterOids( mr.getOid() );
     }
 
@@ -131,7 +138,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -162,7 +169,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );

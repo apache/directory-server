@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -79,7 +80,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
 
-        if ( isSchemaLoaded( name ) )
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             objectClassRegistry.register( oc );
         }
@@ -95,7 +98,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
 
-        if ( isSchemaLoaded( name ) )
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             objectClassRegistry.unregister( oc.getOid() );
         }
@@ -127,7 +132,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, schemaName );
 
-        if ( isSchemaLoaded( name ) )
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             objectClassRegistry.unregister( oldOc.getOid() );
             objectClassRegistry.register( oc );
@@ -141,7 +148,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, ServerEntry entry, 
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, ServerEntry entry, 
         boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -166,13 +173,18 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, newSchemaName );
 
-        if ( isSchemaLoaded( oriChildName ) )
+        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
+        
+        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
         {
             objectClassRegistry.unregister( oldOc.getOid() );
         }
+        
         unregisterOids( oldOc.getOid() );
         
-        if ( isSchemaLoaded( newParentName ) )
+        Schema newSchema = registries.getLoadedSchema( newSchemaName );
+        
+        if ( ( newSchema != null ) && newSchema.isEnabled() )
         {
             objectClassRegistry.register( oc );
         }
@@ -183,7 +195,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );

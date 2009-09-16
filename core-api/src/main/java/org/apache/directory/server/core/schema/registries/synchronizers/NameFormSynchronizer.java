@@ -81,7 +81,7 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
      * org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, 
      * Rdn, boolean, javax.naming.directory.Attributes)
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn,
         boolean deleteOldRn, ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
@@ -93,7 +93,7 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
      * org.apache.directory.shared.ldap.name.LdapDN, 
      * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
      */
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub

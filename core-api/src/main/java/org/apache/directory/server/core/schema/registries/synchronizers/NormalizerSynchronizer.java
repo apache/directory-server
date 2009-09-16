@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -82,7 +83,12 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         
         Normalizer normalizer = factory.getNormalizer( entry, registries );
         
-        if ( isSchemaLoaded( name ) )
+        String schemaName = getSchemaName( name );
+        normalizer.setSchemaName( schemaName );
+        
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             normalizerRegistry.register( normalizer );
         }
@@ -136,7 +142,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -166,7 +172,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );

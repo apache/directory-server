@@ -20,12 +20,18 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -40,14 +46,9 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
-
-import javax.naming.NamingException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -178,7 +179,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry, boolean cascaded ) throws NamingException
     {
 
     }
@@ -369,7 +370,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
@@ -381,7 +382,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void replace( LdapDN oriChildName, LdapDN newParentName, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, 
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",

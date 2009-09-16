@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 
 
@@ -80,6 +81,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         String oid = getOid( entry );
+        
         if ( registries.getSyntaxCheckerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema syntaxChecker is not unique.", 
@@ -88,7 +90,12 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries );
 
-        if ( isSchemaLoaded( name ) )
+        String schemaName = getSchemaName( name );
+        syntaxChecker.setSchemaName( schemaName );
+
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             syntaxCheckerRegistry.register( syntaxChecker );
         }
@@ -98,6 +105,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
+        
         if ( ldapSyntaxRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
@@ -106,7 +114,11 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        if ( isSchemaLoaded( name ) && syntaxCheckerRegistry.contains( oid ) )
+        String schemaName = getSchemaName( name );
+
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             syntaxCheckerRegistry.unregister( oid );
         }
@@ -143,7 +155,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -181,7 +193,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );

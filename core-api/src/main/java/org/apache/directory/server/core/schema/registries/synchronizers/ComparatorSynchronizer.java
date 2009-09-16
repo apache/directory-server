@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -82,7 +83,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUniqueForComparator( entry );
         LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
         
-        if ( isSchemaLoaded( name ) )
+        String schemaName = getSchemaName( name );
+        comparator.setSchemaName( schemaName );
+        
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             comparatorRegistry.register( comparator );
         }
@@ -92,6 +98,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
+        
         if ( matchingRuleRegistry.contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The comparator with OID " + oid 
@@ -122,7 +129,11 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
         
-        if ( isSchemaLoaded( name ) )
+        String schemaName = getSchemaName( name );
+        
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( ( schema != null ) && schema.isEnabled() )
         {
             LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
             comparatorRegistry.unregister( oldOid );
@@ -131,7 +142,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
         checkNewParent( newParentName );
@@ -150,19 +161,27 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
 
-        if ( isSchemaLoaded( oriChildName ) )
+        String oldSchemaName = getSchemaName( oriChildName );
+        
+        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
+        
+        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
         {
             comparatorRegistry.unregister( oldOid );
         }
 
-        if ( isSchemaLoaded( newParentName ) )
+        String newSchemaName = getSchemaName( newParentName );
+        
+        Schema newSchema = registries.getLoadedSchema( newSchemaName );
+        
+        if ( ( newSchema != null ) && newSchema.isEnabled() )
         {
             comparatorRegistry.register( comparator );
         }
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
+    public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
         checkNewParent( newParentName );
@@ -178,12 +197,20 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
         
-        if ( isSchemaLoaded( oriChildName ) )
+        String oldSchemaName = getSchemaName( oriChildName );
+        
+        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
+        
+        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
         {
             comparatorRegistry.unregister( oid );
         }
         
-        if ( isSchemaLoaded( newParentName ) )
+        String newSchemaName = getSchemaName( newParentName );
+        
+        Schema newSchema = registries.getLoadedSchema( newSchemaName );
+        
+        if ( ( newSchema != null ) && newSchema.isEnabled() )
         {
             comparatorRegistry.register( comparator );
         }

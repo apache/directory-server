@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -66,14 +66,14 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
+    public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName,
+    public void move( LdapDN oriChildName, LdapDN newParentName,
         ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
