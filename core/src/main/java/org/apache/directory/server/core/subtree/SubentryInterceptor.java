@@ -20,7 +20,14 @@
 package org.apache.directory.server.core.subtree;
 
 
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Name;
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -36,6 +43,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.filtering.EntryFilter;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -77,14 +85,6 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Name;
-import javax.naming.directory.SearchControls;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -750,7 +750,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN name = opContext.getDn();
 
-        ServerEntry entry = opContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ServerEntry entry = (ServerEntry)opContext.getEntry().getClonedEntry();
 
         EntryAttribute objectClasses = entry.get( objectClassType );
 

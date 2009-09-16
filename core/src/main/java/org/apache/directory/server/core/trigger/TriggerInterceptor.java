@@ -21,6 +21,12 @@
 package org.apache.directory.server.core.trigger;
 
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -53,16 +59,10 @@ import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -367,7 +367,7 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.        
-        ClonedServerEntry renamedEntry = renameContext.lookup( name, ByPassConstants.LOOKUP_BYPASS );
+        ClonedServerEntry renamedEntry = renameContext.getEntry();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
         LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
