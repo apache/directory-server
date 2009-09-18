@@ -20,6 +20,12 @@
 
 package org.apache.directory.server.core.partition;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +44,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -56,12 +63,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -387,5 +388,97 @@ public class LdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
+    }
+    
+    
+    @Test
+    public void testLdifMoveEntry() throws Exception
+    {
+        CoreSession session = injectEntries();
+
+        ClonedServerEntry childEntry1 = partition.lookup( partition.getEntryId( new LdapDN( "dc=child1,ou=test,ou=system" ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() ).getNormName() ) );
+        ClonedServerEntry childEntry2 = partition.lookup( partition.getEntryId( new LdapDN( "dc=child2,ou=test,ou=system" ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() ).getNormName() ) );
+        
+        MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
+        partition.move( moveOpCtx );
+
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+    }
+
+    
+    private CoreSession injectEntries() throws Exception
+    {
+        LdapDN adminDn = new LdapDN( "uid=admin,ou=system" ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        CoreSession session = new MockCoreSession( new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), new MockDirectoryService( 1 ) );
+        AddOperationContext addCtx = new AddOperationContext( session );
+        
+        ClonedServerEntry rootEntry = createEntry( "ou=test,ou=system" );
+        rootEntry.put( "ObjectClass", "top", "domain" );
+        rootEntry.put( "ou", "test" );
+        addCtx.setEntry( rootEntry );
+        
+        partition.add( addCtx );
+
+        ClonedServerEntry childEntry1 = createEntry( "dc=child1,ou=test,ou=system" );
+        childEntry1.put( "ObjectClass", "top", "domain" );
+        childEntry1.put( "dc", "child1" );
+        addCtx.setEntry( childEntry1 );
+
+        partition.add( addCtx );
+
+        ClonedServerEntry childEntry2 = createEntry( "dc=child2,ou=test,ou=system" );
+        childEntry2.put( "ObjectClass", "top", "domain" );
+        childEntry2.put( "dc", "child2" );
+        addCtx.setEntry( childEntry2 );
+
+        partition.add( addCtx );
+        
+        
+        ClonedServerEntry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
+        grandChild11.put( "ObjectClass", "top", "domain" );
+        grandChild11.put( "dc", "grandChild11" );
+        addCtx.setEntry( grandChild11 );
+
+        partition.add( addCtx );
+
+        ClonedServerEntry grandChild12 = createEntry( "dc=grandChild12,dc=child1,ou=test,ou=system" );
+        grandChild12.put( "ObjectClass", "top", "domain" );
+        grandChild12.put( "dc", "grandChild12" );
+        addCtx.setEntry( grandChild12 );
+
+        partition.add( addCtx );
+
+        ClonedServerEntry greatGrandChild111 = createEntry( "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
+        greatGrandChild111.put( "ObjectClass", "top", "domain" );
+        greatGrandChild111.put( "dc", "greatGrandChild111" );
+        addCtx.setEntry( greatGrandChild111 );
+
+        partition.add( addCtx );
+        
+        assertTrue( new File( wkdir, "ou=test,ou=system" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+        
+        return session;
     }
 }

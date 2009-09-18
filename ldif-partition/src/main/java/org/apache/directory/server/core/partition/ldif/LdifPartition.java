@@ -377,7 +377,16 @@ public class LdifPartition extends BTreePartition
     }
 
 
-    private void entryMoved( LdapDN entryDn, Long entryId ) throws Exception
+    /**
+     * rewrites the moved entry and its associated children
+     * Note that instead of moving and updating the existing files on disk
+     * this method gets the moved entry and its children and writes the LDIF files
+     *
+     * @param oldEntryDn the moved entry's old DN
+     * @param entryId the moved entry's master table ID
+     * @throws Exception
+     */
+    private void entryMoved( LdapDN oldEntryDn, Long entryId ) throws Exception
     {
         // First, add the new entry
         add( lookup( entryId ) );
@@ -385,26 +394,29 @@ public class LdifPartition extends BTreePartition
         // Then, if there are some children, move then to the new place
         IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryId );
         
-        cursor.beforeFirst();
-        
         while ( cursor.next() )
         {
             IndexEntry<Long, ServerEntry> entry = cursor.get();
-            
-            if ( entry.getObject() == null )
+
+            // except the parent entry add the rest of entries
+            if( entry.getId() != entryId )
             {
-                break;
+                add( wrappedPartition.lookup( entry.getId() ) );
             }
-            
-            add( entry.getObject() );
         }
 
         cursor.close();
         
-        // And delete the old entry
-        File file = getFile( entryDn, DELETE );
+        // And delete the old entry's LDIF file
+        File file = getFile( oldEntryDn, DELETE );
         boolean deleted = deleteFile( file );
         LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
+        
+        // and the associated directory
+        String dirName = file.getAbsolutePath();
+        dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
+        deleted = deleteFile( new File(  dirName ) );
+        LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
     }
 
 
