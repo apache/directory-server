@@ -343,7 +343,7 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.move( moveContext );
 
-        entryMoved( oldDn, id );
+        entryMoved( oldDn, id, true );
     }
 
 
@@ -358,7 +358,7 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.moveAndRename( moveAndRenameContext );
 
-        entryMoved( oldDn, id );
+        entryMoved( oldDn, id, moveAndRenameContext.getDelOldDn() );
     }
 
 
@@ -373,7 +373,7 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.rename( renameContext );
 
-        entryMoved( oldDn, id );
+        entryMoved( oldDn, id, renameContext.getDelOldDn() );
     }
 
 
@@ -384,9 +384,10 @@ public class LdifPartition extends BTreePartition
      *
      * @param oldEntryDn the moved entry's old DN
      * @param entryId the moved entry's master table ID
+     * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( LdapDN oldEntryDn, Long entryId ) throws Exception
+    private void entryMoved( LdapDN oldEntryDn, Long entryId, boolean deleteOldEntry ) throws Exception
     {
         // First, add the new entry
         add( lookup( entryId ) );
@@ -407,16 +408,19 @@ public class LdifPartition extends BTreePartition
 
         cursor.close();
         
-        // And delete the old entry's LDIF file
-        File file = getFile( oldEntryDn, DELETE );
-        boolean deleted = deleteFile( file );
-        LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
-        
-        // and the associated directory
-        String dirName = file.getAbsolutePath();
-        dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
-        deleted = deleteFile( new File(  dirName ) );
-        LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
+        if( deleteOldEntry )
+        {
+            // And delete the old entry's LDIF file
+            File file = getFile( oldEntryDn, DELETE );
+            boolean deleted = deleteFile( file );
+            LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
+            
+            // and the associated directory
+            String dirName = file.getAbsolutePath();
+            dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
+            deleted = deleteFile( new File(  dirName ) );
+            LOG.warn( "move operation: deleted dir {} {}", dirName, deleted );
+        }
     }
 
 

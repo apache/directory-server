@@ -44,7 +44,9 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
@@ -55,6 +57,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -414,6 +417,116 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild12.ldif" ).exists() );
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
         assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=child1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+    }
+
+    
+    @Test
+    public void testLdifRenameAndDeleteOldDN() throws Exception
+    {
+        CoreSession session = injectEntries();
+
+        LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
+        childDn1.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
+        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
+        partition.rename( renameOpCtx );
+        
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+    }
+
+    
+    @Test
+    public void testLdifRenameAndRetainOldDN() throws Exception
+    {
+        CoreSession session = injectEntries();
+
+        LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
+        childDn1.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
+        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
+        partition.rename( renameOpCtx );
+        
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=renamedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+    }
+
+    
+    @Test
+    public void testLdifMoveAndRenameWithDeletingOldDN() throws Exception
+    {
+        CoreSession session = injectEntries();
+
+        LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
+        childDn1.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        LdapDN childDn2 = new LdapDN( "dc=child2,ou=test,ou=system" );
+        childDn2.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, true );
+        partition.moveAndRename( moveAndRenameOpCtx );
+        
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
+    }
+
+    
+    @Test
+    public void testLdifMoveAndRenameRetainingOldDN() throws Exception
+    {
+        CoreSession session = injectEntries();
+
+        LdapDN childDn1 = new LdapDN( "dc=child1,ou=test,ou=system" );
+        childDn1.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        LdapDN childDn2 = new LdapDN( "dc=child2,ou=test,ou=system" );
+        childDn2.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1, childDn2, newRdn, false );
+        partition.moveAndRename( moveAndRenameOpCtx );
+        
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child1.ldif" ).exists() );
+
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild12.ldif" ).exists() );
+        assertFalse( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111" ).exists() );
+        assertTrue( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
     }
 
     
