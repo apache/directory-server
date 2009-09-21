@@ -39,7 +39,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -47,7 +46,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -99,23 +97,22 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    @Ignore
     public void testAddAttributeType() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaAttributeType" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
-        attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
-        attrs.put( MetaSchemaConstants.M_USAGE_AT, "directoryOperation" );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-equality", "caseIgnoreMatch" );
+        attrs.put( "m-singleValue", "FALSE" );
+        attrs.put( "m-usage", "directoryOperation" );
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( OID ) );
@@ -124,11 +121,10 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    @Ignore
     public void testDeleteAttributeType() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         testAddAttributeType();
         
         getSchemaContext( service ).destroySubcontext( dn );
@@ -152,11 +148,11 @@ public class MetaAttributeTypeHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         testAddAttributeType();
         
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid=" + NEW_OID );
         schemaRoot.rename( dn, newdn );
 
         assertFalse( "old attributeType OID should be removed from the registry after being renamed", 
@@ -176,16 +172,15 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeType() throws Exception
     {
         testAddAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -198,16 +193,15 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeTypeAndChangeRdn() throws Exception
     {
         testAddAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -223,7 +217,6 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    @Ignore
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
         testAddAttributeType();
@@ -233,12 +226,12 @@ public class MetaAttributeTypeHandlerIT
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         
         ModificationItem[] mods = new ModificationItem[2];
-        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        attr = new BasicAttribute( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        attr = new BasicAttribute( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX );
         mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -255,7 +248,6 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    @Ignore
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
         testAddAttributeType();
@@ -265,11 +257,11 @@ public class MetaAttributeTypeHandlerIT
         assertEquals( at.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         
         Attributes mods = new BasicAttributes( true );
-        mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
-        mods.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        mods.put( "m-description", DESCRIPTION1 );
+        mods.put( "m-syntax", SchemaConstants.DIRECTORY_STRING_SYNTAX );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "attributeType OID should still be present", 
@@ -292,20 +284,20 @@ public class MetaAttributeTypeHandlerIT
     private void addDependeeAttributeType() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaAttributeType" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, DEPENDEE_OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
-        attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
-        attrs.put( MetaSchemaConstants.M_USAGE_AT, "directoryOperation" );
-        attrs.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, OID );
+        attrs.put( "m-oid", DEPENDEE_OID );
+        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-equality", "caseIgnoreMatch" );
+        attrs.put( "m-singleValue", "FALSE" );
+        attrs.put( "m-usage", "directoryOperation" );
+        attrs.put( "m-supAttributeType", OID );
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
+        dn.add( "m-oid=" + DEPENDEE_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
@@ -314,11 +306,10 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         testAddAttributeType();
         addDependeeAttributeType();
         
@@ -338,17 +329,16 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    @Ignore
     public void testMoveAttributeTypeWhenInUse() throws Exception
     {
         testAddAttributeType();
         addDependeeAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid=" + OID );
         
         try
         {
@@ -366,17 +356,16 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
     {
         testAddAttributeType();
         addDependeeAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid=" + NEW_OID );
         
         try
         {
@@ -394,16 +383,15 @@ public class MetaAttributeTypeHandlerIT
 
     
     @Test
-    @Ignore
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         testAddAttributeType();
         addDependeeAttributeType();
         
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid=" + NEW_OID );
         
         try
         {
@@ -426,16 +414,15 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeTypeToTop() throws Exception
     {
         testAddAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN top = new LdapDN();
-        top.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        top.add( "m-oid=" + OID );
         
         try
         {
@@ -453,16 +440,15 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeTypeToComparatorContainer() throws Exception
     {
         testAddAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid=" + OID );
         
         try
         {
@@ -480,23 +466,22 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    @Ignore
     public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaAttributeType" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
-        attrs.put( MetaSchemaConstants.M_EQUALITY_AT, "caseIgnoreMatch" );
-        attrs.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, "FALSE" );
-        attrs.put( MetaSchemaConstants.M_USAGE_AT, "directoryOperation" );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
+        attrs.put( "m-description", DESCRIPTION0 );
+        attrs.put( "m-equality", "caseIgnoreMatch" );
+        attrs.put( "m-singleValue", "FALSE" );
+        attrs.put( "m-usage", "directoryOperation" );
         
         LdapDN dn = getAttributeTypeContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
@@ -505,17 +490,16 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveAttributeTypeToDisabledSchema() throws Exception
     {
         testAddAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         // nis is inactive by default
         LdapDN newdn = getAttributeTypeContainer( "nis" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -525,20 +509,19 @@ public class MetaAttributeTypeHandlerIT
 
 
     @Test
-    @Ignore
     public void testMoveMatchingRuleToEnabledSchema() throws Exception
     {
         testAddAttributeTypeToDisabledSchema();
         
         // nis is inactive by default
         LdapDN dn = getAttributeTypeContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid=" + OID );
 
         assertFalse( "attributeType OID should NOT be present when added to disabled nis schema", 
             getAttributeTypeRegistry().contains( OID ) );
 
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
