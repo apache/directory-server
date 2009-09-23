@@ -178,7 +178,7 @@
               maxSizeLimit="1000">
     <transports>
       <tcpTransport port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
-      <tcpTransport port="10686" enableSSL="true"/>
+      <tcpTransport port="10636" enableSSL="true"/>
     </transports>
 
     <directoryService>#directoryService</directoryService>

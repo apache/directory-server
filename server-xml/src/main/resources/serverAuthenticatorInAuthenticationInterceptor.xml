@@ -190,7 +190,7 @@
               maxSizeLimit="1000">
     <transports>
       <tcpTransport id="tcp-ldap" port="10389" nbThreads="8" backLog="50" enableSSL="false"/>
-      <tcpTransport id="tcp-ldaps" port="10686" enableSSL="true"/>
+      <tcpTransport id="tcp-ldaps" port="10636" enableSSL="true"/>
     </transports>
 
     <directoryService>#directoryService</directoryService>
