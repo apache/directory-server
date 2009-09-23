@@ -111,7 +111,10 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -132,9 +135,9 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        LdapSyntax syntax = factory.getSyntax( targetEntry, registries, getSchemaName( name ) );
+        LdapSyntax syntax = factory.getSyntax( targetEntry, registries, getSchemaName( entry.getDn() ) );
         
-        if ( isSchemaLoaded( name ) )
+        if ( isSchemaLoaded( entry.getDn() ) )
         {
             syntaxRegistry.unregister( oldOid );
             syntaxRegistry.register( syntax );

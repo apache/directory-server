@@ -315,13 +315,14 @@ public class RegistrySynchronizerAdaptor
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifyRn(org.apache.directory.server.core.interceptor.context.RenameOperationContext, org.apache.directory.server.core.entry.ServerEntry, boolean)
+    /**
+     * {@inheritDoc}
      */
-    public void rename( RenameOperationContext opContext, ServerEntry entry, boolean doCascadeModify ) 
+    public void rename( RenameOperationContext opContext, boolean doCascadeModify ) 
         throws Exception
     {
-        EntryAttribute oc = entry.get( objectClassAT );
+        ServerEntry originalEntry = opContext.getEntry().getOriginalEntry();
+        EntryAttribute oc = originalEntry.get( objectClassAT );
         
         for ( Value<?> value:oc )
         {
@@ -330,14 +331,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.rename( opContext.getDn(), entry, opContext.getNewRdn(), doCascadeModify );
+                synchronizer.rename( originalEntry, opContext.getNewRdn(), doCascadeModify );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.rename( opContext.getDn(), entry, opContext.getNewRdn(), doCascadeModify );
+            schemaSynchronizer.rename( originalEntry, opContext.getNewRdn(), doCascadeModify );
             return;
         }
         

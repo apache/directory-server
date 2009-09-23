@@ -80,7 +80,10 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

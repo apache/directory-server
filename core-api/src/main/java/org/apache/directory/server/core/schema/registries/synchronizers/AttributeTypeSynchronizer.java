@@ -120,9 +120,12 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         AttributeType oldAt = factory.getAttributeType( entry, registries, schemaName );
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();

@@ -113,9 +113,12 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         MatchingRule oldMr = factory.getMatchingRule( entry, registries, schemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();

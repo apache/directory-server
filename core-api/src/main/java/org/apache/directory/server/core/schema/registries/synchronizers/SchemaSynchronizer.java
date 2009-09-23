@@ -289,10 +289,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = globalRegistries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
+
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -319,7 +320,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
          */
         
         // step [1]
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         Set<String> dependents = loader.listDependentSchemaNames( schemaName );
         if ( ! dependents.isEmpty() )
         {

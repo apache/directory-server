@@ -118,7 +118,10 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
     
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -133,7 +136,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForNormalizer( oid );
         
-        if ( isSchemaLoaded( name ) )
+        if ( isSchemaLoaded( entry.getDn() ) )
         {
             Normalizer normalizer = factory.getNormalizer( entry, registries );
             normalizerRegistry.unregister( oldOid );

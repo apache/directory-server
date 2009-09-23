@@ -95,10 +95,10 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#rename(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, java.lang.String)
+    /**
+     * {@inheritDoc}
      */
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

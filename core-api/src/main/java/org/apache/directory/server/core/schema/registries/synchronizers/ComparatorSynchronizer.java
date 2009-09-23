@@ -114,7 +114,10 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
     
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -129,7 +132,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         
         Schema schema = registries.getLoadedSchema( schemaName );
         

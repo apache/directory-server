@@ -125,7 +125,10 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
 
@@ -139,6 +142,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
+        
         if ( registries.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
@@ -146,7 +150,8 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        if ( isSchemaLoaded( name ) )
+        
+        if ( isSchemaLoaded( entry.getDn() ) )
         {
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, registries );
             syntaxCheckerRegistry.unregister( oldOid );

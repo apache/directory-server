@@ -49,7 +49,16 @@ public interface RegistrySynchronizer
     
     void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws Exception;
     
-    void rename( LdapDN name, ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
+    
+    /**
+     * Rename a schemaObject. It is not supposed to have any child
+     *
+     * @param entry The entry to be renamed
+     * @param newRdn The new entry name
+     * @param cascaded unused
+     * @throws Exception If the rename failed
+     */
+    void rename( ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
     
     boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
         throws Exception;
