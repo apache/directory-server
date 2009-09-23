@@ -396,14 +396,20 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.Partition#rename(org.apache.directory.server.core.interceptor.context.RenameOperationContext)
+    /**
+     * {@inheritDoc}
      */
     public void rename( RenameOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        synchronizer.rename( opContext, opContext.getEntry(), cascade );
+        
+        // First update the registries
+        synchronizer.rename( opContext, cascade );
+        
+        // Update the schema partition
         wrapped.rename( opContext );
+        
+        // Update the SSSE operational attributes
         updateSchemaModificationAttributes( opContext );
     }
 

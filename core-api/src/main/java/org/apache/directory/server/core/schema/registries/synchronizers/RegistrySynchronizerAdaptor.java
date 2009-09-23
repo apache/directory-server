@@ -316,7 +316,11 @@ public class RegistrySynchronizerAdaptor
 
 
     /**
-     * {@inheritDoc}
+     * Rename a Schema Object.
+     *
+     * @param opContext The contect contaoning the rename informations
+     * @param doCascadeModify unused
+     * @throws Exception If the rename failed
      */
     public void rename( RenameOperationContext opContext, boolean doCascadeModify ) 
         throws Exception
