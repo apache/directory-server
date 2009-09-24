@@ -128,10 +128,18 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType oldAt = factory.getAttributeType( entry, registries, schemaName );
 
+        // Inject the new OID
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
+
+        // Inject the new DN
+        LdapDN newDn = new LdapDN( targetEntry.getDn() );
+        newDn.remove( newDn.size() - 1 );
+        newDn.add( newRdn );
+        targetEntry.setDn( newDn );
+        
         AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
 
         Schema schema = registries.getLoadedSchema( schemaName );

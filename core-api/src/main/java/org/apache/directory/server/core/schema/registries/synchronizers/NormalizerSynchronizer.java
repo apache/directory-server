@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -59,12 +60,12 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     
     protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
-        String oid = getOid( entry );
+        String oldOid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, registries );
         
         if ( isSchemaLoaded( name ) )
         {
-            normalizerRegistry.unregister( oid );
+            normalizerRegistry.unregister( oldOid );
             normalizerRegistry.register( normalizer );
             
             return SCHEMA_MODIFIED;
@@ -133,12 +134,22 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = ( String ) newRdn.getValue();
-        checkOidIsUniqueForNormalizer( oid );
+        String newOid = ( String ) newRdn.getValue();
+        checkOidIsUniqueForNormalizer( newOid );
         
         if ( isSchemaLoaded( entry.getDn() ) )
         {
-            Normalizer normalizer = factory.getNormalizer( entry, registries );
+            // Inject the new OID
+            ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+            targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
+            
+            // Inject the new DN
+            LdapDN newDn = new LdapDN( targetEntry.getDn() );
+            newDn.remove( newDn.size() - 1 );
+            newDn.add( newRdn );
+            targetEntry.setDn( newDn );
+
+            Normalizer normalizer = factory.getNormalizer( targetEntry, registries );
             normalizerRegistry.unregister( oldOid );
             normalizerRegistry.register( normalizer );
         }

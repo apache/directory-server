@@ -140,10 +140,19 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
+            // Inject the new OID in the entry
             ServerEntry targetEntry = ( ServerEntry ) entry.clone();
             String newOid = ( String ) newRdn.getValue();
             checkOidIsUnique( newOid );
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
+            
+            // Inject the new DN
+            LdapDN newDn = new LdapDN( targetEntry.getDn() );
+            newDn.remove( newDn.size() - 1 );
+            newDn.add( newRdn );
+            targetEntry.setDn( newDn );
+            
+            // Register the new comparator, and unregister the old one
             LdapComparator<?> comparator = factory.getLdapComparator( targetEntry, registries );
             comparatorRegistry.unregister( oldOid );
             comparatorRegistry.register( comparator );
