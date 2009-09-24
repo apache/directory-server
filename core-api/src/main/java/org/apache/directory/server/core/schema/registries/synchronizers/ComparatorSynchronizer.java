@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -60,10 +61,11 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     
     protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         LdapComparator<?> comparator = factory.getLdapComparator( targetEntry, registries );
         
-        if ( isSchemaLoaded( name ) )
+        if ( ( schemaName != null ) && isSchemaLoaded( name ) )
         {
             comparatorRegistry.unregister( oid );
             comparatorRegistry.register( comparator );
@@ -138,7 +140,11 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
-            LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
+            ServerEntry targetEntry = ( ServerEntry ) entry.clone();
+            String newOid = ( String ) newRdn.getValue();
+            checkOidIsUnique( newOid );
+            targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
+            LdapComparator<?> comparator = factory.getLdapComparator( targetEntry, registries );
             comparatorRegistry.unregister( oldOid );
             comparatorRegistry.register( comparator );
         }
