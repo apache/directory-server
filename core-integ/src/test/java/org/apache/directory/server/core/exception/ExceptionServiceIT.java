@@ -20,22 +20,12 @@
 package org.apache.directory.server.core.exception;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -48,6 +38,17 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
+import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -296,7 +297,7 @@ public class ExceptionServiceIT
         }
         catch ( LdapNameNotFoundException e )
         {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
+            assertEquals( "ou=blah,ou=system", e.getResolvedName().toString() );
             assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, e.getResultCode() );
         }
     }

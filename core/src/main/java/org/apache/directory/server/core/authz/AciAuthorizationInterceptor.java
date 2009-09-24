@@ -802,16 +802,17 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws Exception
     {
-        LdapDN name = renameContext.getDn();
-
-        ClonedServerEntry entry = renameContext.getEntry();
+        LdapDN oldName = renameContext.getDn();
+        ServerEntry originalEntry = null;
+        
+        if ( renameContext.getEntry() != null )
+        {
+            originalEntry = renameContext.getEntry().getOriginalEntry();
+        }
         
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
         LdapDN principalDn = principal.getJndiName();
-        LdapDN newName = ( LdapDN ) name.clone();
-        newName.remove( name.size() - 1 );
-
-        newName.add( renameContext.getNewRdn() );
+        LdapDN newName = renameContext.getNewDn();
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -820,33 +821,33 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        protectCriticalEntries( name );
+        protectCriticalEntries( oldName );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.rename( renameContext );
-            tupleCache.subentryRenamed( name, newName );
+            tupleCache.subentryRenamed( oldName, newName );
             
             // TODO : this method returns a boolean : what should we do with the result ?
-            groupCache.groupRenamed( name, newName );
+            groupCache.groupRenamed( oldName, newName );
 
             return;
         }
 
         Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( renameContext, tuples, name, entry.getOriginalEntry() );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( renameContext, tuples, name, entry );
+        addPerscriptiveAciTuples( renameContext, tuples, oldName, originalEntry );
+        addEntryAciTuples( tuples, originalEntry );
+        addSubentryAciTuples( renameContext, tuples, oldName, originalEntry );
 
         engine.checkPermission( registries, renameContext, userGroups, principalDn, 
-            principal.getAuthenticationLevel(), name, null, null,
-            RENAME_PERMS, tuples, entry, null );
+            principal.getAuthenticationLevel(), oldName, null, null,
+            RENAME_PERMS, tuples, originalEntry, null );
 
         next.rename( renameContext );
-        tupleCache.subentryRenamed( name, newName );
-        groupCache.groupRenamed( name, newName );
+        tupleCache.subentryRenamed( oldName, newName );
+        groupCache.groupRenamed( oldName, newName );
     }
 
 

@@ -20,11 +20,13 @@
 package org.apache.directory.server.core.normalization;
 
 
+import java.util.Map;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -55,11 +57,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 
 /**
@@ -151,12 +150,12 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN rdn = new LdapDN();
-        rdn.add( opContext.getNewRdn() );
-        rdn.normalize( attrNormalizers );
-        opContext.setNewRdn( rdn.getRdn() );
-
+        // Normalize the new RDN and the DN
+        opContext.getNewRdn().normalize( attrNormalizers );
         opContext.getDn().normalize( attrNormalizers );
+        opContext.getNewDn().normalize( attrNormalizers );
+
+        // Push to the next interceptor
         nextInterceptor.rename( opContext );
     }
 

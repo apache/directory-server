@@ -471,10 +471,7 @@ public final class SchemaPartition extends AbstractPartition
                 registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
                 modifiersName ) ) );
         
-        LdapDN name = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        name.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        
-        opContext.modify( name, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        opContext.modify( schemaModificationDN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 
 

@@ -21,6 +21,10 @@ package org.apache.directory.server.core.referral;
 
 
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
 import org.apache.directory.server.core.ReferralManagerImpl;
@@ -47,10 +51,6 @@ import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -359,13 +359,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN oldName = opContext.getDn();
-
-        LdapDN newName = ( LdapDN ) oldName.clone();
-        newName.remove( oldName.size() - 1 );
-
-        newName.add( opContext.getNewRdn() );
-
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( opContext.getEntry() );
 
@@ -374,14 +367,14 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral ) 
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), newName );
+            LookupOperationContext lookupContext = new LookupOperationContext( opContext.getSession(), opContext.getNewDn() );
             
             ServerEntry newEntry = nexus.lookup( lookupContext );
             
             referralManager.lockWrite();
             
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( opContext.getEntry() );
+            referralManager.removeReferral( opContext.getEntry().getOriginalEntry() );
             
             referralManager.unlock();
         }

@@ -210,7 +210,7 @@ public class EventInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        ClonedServerEntry oriEntry = opContext.getEntry();
+        ServerEntry oriEntry = opContext.getEntry().getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( opContext.getDn(), oriEntry );
         next.rename( opContext );
 

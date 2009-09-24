@@ -756,6 +756,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( objectClasses.contains( SchemaConstants.SUBENTRY_OC ) )
         {
+            // @Todo To be reviewed !!!
             Subentry subentry = subentryCache.getSubentry( name.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             LdapDN apName = ( LdapDN ) name.clone();
@@ -807,10 +808,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
-            LdapDN newName = ( LdapDN ) name.clone();
-            newName.remove( newName.size() - 1 );
-            newName.add( opContext.getNewRdn() );
-            newName.normalize( atRegistry.getNormalizerMapping() );
+            LdapDN newName = opContext.getNewDn();
+
             List<Modification> mods = getModsOnEntryRdnChange( name, newName, entry );
 
             if ( mods.size() > 0 )

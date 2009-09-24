@@ -22,8 +22,8 @@ package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -125,15 +125,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
      */
     public LdapDN getNewDn() throws Exception
     {
-        if ( newDn == null )
-        {
-            newDn = new LdapDN( getDn().getUpName() );
-            newDn.remove( newDn.size() - 1 );
-            newDn.add( newRdn.getUpName() );
-            newDn.normalize( session.getDirectoryService().getRegistries()
-                .getAttributeTypeRegistry().getNormalizerMapping() );
-        }
-        
         return newDn;
     }
 
@@ -154,6 +145,16 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     public void setNewRdn( Rdn newRdn )
     {
         this.newRdn = newRdn;
+    }
+
+
+    /**
+     * Set the new DN
+     * @param newDn The new DN
+     */
+    public void setNewDn( LdapDN newDn )
+    {
+        this.newDn = newDn;
     }
 
 

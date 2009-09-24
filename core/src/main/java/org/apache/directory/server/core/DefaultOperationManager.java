@@ -923,6 +923,16 @@ public class DefaultOperationManager implements OperationManager
             LdapDN dn = opContext.getDn();
             dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
 
+            // Inject the newDn into the operation context
+            // Inject the new DN into the context
+            if ( !dn.isEmpty() )
+            {
+                LdapDN newDn = (LdapDN)dn.clone();
+                newDn.remove( dn.size() - 1 );
+                newDn.add( opContext.getNewRdn() );
+                opContext.setNewDn( newDn );
+            }
+            
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
 

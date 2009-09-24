@@ -1105,21 +1105,21 @@ public class SchemaInterceptor extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws Exception
     {
-        LdapDN name = opContext.getDn();
+        LdapDN oldDn = opContext.getDn();
         Rdn newRdn = opContext.getNewRdn();
         boolean deleteOldRn = opContext.getDelOldDn();
-        ServerEntry entry = (ServerEntry)opContext.getEntry().getClonedEntry();
+        ServerEntry entry =  (ServerEntry)opContext.getEntry().getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
          *  mandatory attributes are available after deleting the old RDN.
-         *  The real modification is done in the JdbmStore class.
+         *  The real modification is done in the XdbmStore class.
          *  - TODO: this check is missing in the moveAndRename() method
          */
         if ( deleteOldRn )
         {
             ServerEntry tmpEntry = ( ServerEntry ) entry.clone();
-            Rdn oldRDN = name.getRdn();
+            Rdn oldRDN = oldDn.getRdn();
 
             // Delete the old RDN means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
@@ -1127,26 +1127,23 @@ public class SchemaInterceptor extends BaseInterceptor
             for ( AttributeTypeAndValue atav : oldRDN )
             {
                 AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue().getString();
-                tmpEntry.remove( type, value );
+                tmpEntry.remove( type, atav.getUpValue() );
             }
+            
             for ( AttributeTypeAndValue atav : newRdn )
             {
                 AttributeType type = atRegistry.lookup( atav.getUpType() );
-                String value = ( String ) atav.getNormValue().getString();
-                if ( !tmpEntry.contains( type, value ) )
+
+                if ( !tmpEntry.contains( type, atav.getNormValue() ) )
                 {
-                    tmpEntry.add( new DefaultServerAttribute( type, value ) );
+                    tmpEntry.add( new DefaultServerAttribute( type, atav.getUpValue() ) );
                 }
             }
 
             // Substitute the RDN and check if the new entry is correct
-            LdapDN newDn = ( LdapDN ) name.clone();
-            newDn.remove( name.size() - 1 );
-            newDn.add( newRdn );
+            tmpEntry.setDn( opContext.getNewDn() );
 
-            tmpEntry.setDn( newDn );
-            check( name, tmpEntry );
+            check( oldDn, tmpEntry );
 
             // Check that no operational attributes are removed
             for ( AttributeTypeAndValue atav : oldRDN )
@@ -1291,6 +1288,7 @@ public class SchemaInterceptor extends BaseInterceptor
                                 throw new LdapNoSuchAttributeException( msg );
                             }
                         }
+
                         
                         // If the current attribute is empty, we have to remove
                         // it from the entry

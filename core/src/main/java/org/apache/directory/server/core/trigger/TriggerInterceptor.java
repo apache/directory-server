@@ -367,8 +367,9 @@ public class TriggerInterceptor extends BaseInterceptor
         }
         
         // Gather supplementary data.        
-        ClonedServerEntry renamedEntry = renameContext.getEntry();
+        ServerEntry renamedEntry = (ServerEntry)renameContext.getEntry().getClonedEntry();
         
+        // @TODO : To be completely reviewed !!!
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
         LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );

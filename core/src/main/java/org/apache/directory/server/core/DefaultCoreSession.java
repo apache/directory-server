@@ -56,8 +56,8 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.SearchScope;
-import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.InternalAddRequest;
 import org.apache.directory.shared.ldap.message.InternalCompareRequest;
 import org.apache.directory.shared.ldap.message.InternalDeleteRequest;
 import org.apache.directory.shared.ldap.message.InternalModifyDnRequest;
@@ -669,6 +669,7 @@ public class DefaultCoreSession implements CoreSession
         opContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         operationManager.rename( opContext );
     }
 

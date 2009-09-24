@@ -244,7 +244,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // -------------------------------------------------------------------
         // Make the modify() call happen
         // -------------------------------------------------------------------
-
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
             opContext.getDn(), modItemList );
         newModify.setEntry( opContext.getEntry() );
@@ -257,10 +256,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         nextInterceptor.rename( opContext );
 
-        LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
-        newDn.remove( opContext.getDn().size() - 1 );
-        newDn.add( opContext.getNewRdn() );
-        newDn.normalize( atRegistry.getNormalizerMapping() );
+        LdapDN newDn = opContext.getNewDn();
         
         // add operational attributes after call in case the operation fails
         ServerEntry serverEntry = new DefaultServerEntry( registries, newDn );
@@ -270,7 +266,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         List<Modification> items = ModifyOperationContext.createModItems( serverEntry, ModificationOperation.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), newDn, items );
-        newModify.setEntry( opContext.getEntry() );
+        newModify.setEntry( opContext.getAlteredEntry() );
         
         service.getPartitionNexus().modify( newModify );
     }

@@ -343,7 +343,10 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.move( moveContext );
 
-        entryMoved( oldDn, id, true );
+        // Get the modified entry
+        ClonedServerEntry modifiedEntry = lookup( id );
+
+        entryMoved( oldDn, modifiedEntry, id, true );
     }
 
 
@@ -358,7 +361,11 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.moveAndRename( moveAndRenameContext );
 
-        entryMoved( oldDn, id, moveAndRenameContext.getDelOldDn() );
+        // Get the modified entry and store it in the context for post usage
+        ClonedServerEntry modifiedEntry = lookup( id );
+        moveAndRenameContext.setAlteredEntry( modifiedEntry );
+
+        entryMoved( oldDn, modifiedEntry, id, moveAndRenameContext.getDelOldDn() );
     }
 
 
@@ -371,9 +378,16 @@ public class LdifPartition extends BTreePartition
         LdapDN oldDn = renameContext.getDn();
         Long id = getEntryId( oldDn.getNormName() );
 
+        // Create the new entry 
         wrappedPartition.rename( renameContext );
+        
+        // Get the modified entry and store it in the context for post usage
+        ClonedServerEntry modifiedEntry = lookup( id );
+        renameContext.setAlteredEntry( modifiedEntry );
 
-        entryMoved( oldDn, id, renameContext.getDelOldDn() );
+        // Now move the potential children for the old entry
+        // and remove the old entry
+        entryMoved( oldDn, modifiedEntry, id, renameContext.getDelOldDn() );
     }
 
 
@@ -387,20 +401,20 @@ public class LdifPartition extends BTreePartition
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( LdapDN oldEntryDn, Long entryId, boolean deleteOldEntry ) throws Exception
+    private void entryMoved( LdapDN oldEntryDn, Entry modifiedEntry, Long entryIdOld, boolean deleteOldEntry ) throws Exception
     {
         // First, add the new entry
-        add( lookup( entryId ) );
+        add( modifiedEntry );
 
         // Then, if there are some children, move then to the new place
-        IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryId );
+        IndexCursor<Long, ServerEntry> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
         
         while ( cursor.next() )
         {
             IndexEntry<Long, ServerEntry> entry = cursor.get();
 
             // except the parent entry add the rest of entries
-            if( entry.getId() != entryId )
+            if( entry.getId() != entryIdOld )
             {
                 add( wrappedPartition.lookup( entry.getId() ) );
             }
@@ -415,7 +429,7 @@ public class LdifPartition extends BTreePartition
             boolean deleted = deleteFile( file );
             LOG.warn( "move operation: deleted file {} {}", file.getAbsoluteFile(), deleted );
             
-            // and the associated directory
+            // and the associated directory ( the file's name's minus ".ldif")
             String dirName = file.getAbsolutePath();
             dirName = dirName.substring( 0, dirName.indexOf( CONF_FILE_EXTN ) );
             deleted = deleteFile( new File(  dirName ) );
@@ -688,16 +702,24 @@ public class LdifPartition extends BTreePartition
     }
 
 
+    /** 
+     * Recursively delete an entry and all of its children. If the entry is a directory, 
+     * then get into it, call the same method on each of the contained files,
+     * and delete the directory.
+     */
     private boolean deleteFile( File file )
     {
         if ( file.isDirectory() )
         {
             File[] files = file.listFiles();
+            
+            // Process the contained files
             for ( File f : files )
             {
                 deleteFile( f );
             }
 
+            // then delete the directory itself
             return file.delete();
         }
         else

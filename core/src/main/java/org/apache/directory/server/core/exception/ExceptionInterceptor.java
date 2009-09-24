@@ -375,7 +375,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         LdapDN dn = opContext.getDn();
         
-        if ( dn.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( dn.equals( subschemSubentryDn ) )
         {
             throw new LdapOperationNotSupportedException( 
                 "Can not allow the renaming of the subschemaSubentry (" + 
@@ -383,15 +383,19 @@ public class ExceptionInterceptor extends BaseInterceptor
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        // check if entry to rename exists
-        String msg = "Attempt to rename non-existant entry: ";
-        assertHasEntry( nextInterceptor, opContext, msg, dn );
-
+        // Check to see if the renamed entry exists
+        if ( opContext.getEntry() == null )
+        {
+            // This is a nonsense : we can't rename an entry which does not exist
+            // on the server
+            LdapNameNotFoundException ldnfe;
+            ldnfe = new LdapNameNotFoundException( "target entry " + dn.getUpName() + " des not exist!" );
+            ldnfe.setResolvedName( new LdapDN( dn.getUpName() ) );
+            throw ldnfe;
+        }
+        
         // check to see if target entry exists
-        LdapDN newDn = ( LdapDN ) dn.clone();
-        newDn.remove( dn.size() - 1 );
-        newDn.add( opContext.getNewRdn() );
-        newDn.normalize( normalizerMap );
+        LdapDN newDn = opContext.getNewDn();
         
         if ( nextInterceptor.hasEntry( new EntryOperationContext( opContext.getSession(), newDn ) ) )
         {

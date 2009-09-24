@@ -287,13 +287,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         ServerEntry serverEntry = null;
         
-        if ( changeLog.isEnabled() && renameContext.isFirstOperation() )
+        if ( renameContext.getEntry() != null )
         {
-            // @todo make sure we're not putting in operational attributes that cannot be user modified
-            serverEntry = getAttributes( renameContext );
+            serverEntry = renameContext.getEntry().getOriginalEntry();
         }
-
+        
         next.rename( renameContext );
+        
+        // After this point, the entry has been modified. The cloned entry contains
+        // the modified entry, the originalEntry has changed
 
         if ( ! changeLog.isEnabled() || ! renameContext.isFirstOperation() )
         {
