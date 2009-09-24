@@ -163,6 +163,15 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
+            // Check that the entry has no descendant
+            if ( atRegistry.hasDescendants( oldAt.getOid() ) )
+            {
+                String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn + 
+                    " as the later has descendants' AttributeTypes";
+                
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
             atRegistry.unregister( oldAt.getOid() );
             atRegistry.register( at );
         }
