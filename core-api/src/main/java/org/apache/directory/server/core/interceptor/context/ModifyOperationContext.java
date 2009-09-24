@@ -26,6 +26,7 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
@@ -52,6 +53,9 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
+    
+    /** The entry after being renamed and altered for rdn attributes */ 
+    private ClonedServerEntry alteredEntry;
     
     /**
      * Creates a new instance of ModifyOperationContext.
@@ -135,6 +139,30 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     public String getName()
     {
         return MessageTypeEnum.MODIFY_REQUEST.name();
+    }
+
+    
+    /**
+     * Returns the entry after it has been renamed and potentially changed for 
+     * Rdn alterations.
+     *
+     * @return the new renamed entry
+     */
+    public ClonedServerEntry getAlteredEntry()
+    {
+        return alteredEntry;
+    }
+
+    
+    /**
+     * Set the modified entry once the operation has been proceced
+     * on the backend.
+     *
+     * @param alteredEntry The modified entry
+     */
+    public void setAlteredEntry( ClonedServerEntry alteredEntry ) 
+    {
+        this.alteredEntry = alteredEntry;
     }
 
     

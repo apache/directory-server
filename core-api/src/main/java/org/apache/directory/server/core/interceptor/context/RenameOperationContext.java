@@ -179,6 +179,12 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     }
 
     
+    /**
+     * Set the modified entry once the operation has been proceced
+     * on the backend.
+     *
+     * @param alteredEntry The modified entry
+     */
     public void setAlteredEntry( ClonedServerEntry alteredEntry ) 
     {
         this.alteredEntry = alteredEntry;

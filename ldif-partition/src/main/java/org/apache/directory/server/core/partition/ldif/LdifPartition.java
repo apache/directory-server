@@ -319,11 +319,12 @@ public class LdifPartition extends BTreePartition
 
         wrappedPartition.modify( id, modifyContext.getModItems() );
         
+        // Get the modified entry and store it in the context for post usage
+        ClonedServerEntry modifiedEntry = lookup( id );
+        modifyContext.setAlteredEntry( modifiedEntry );
+
         // just overwrite the existing file
         LdapDN dn = modifyContext.getDn();
-        
-        // Get the modified entry
-        Entry modifiedEntry = wrappedPartition.lookup( id );
         
         // And write it back on disk
         FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
