@@ -61,11 +61,14 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
     protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, registries );
         
-        if ( isSchemaLoaded( name ) )
+        if ( ( schemaName != null ) && isSchemaLoaded( name ) )
         {
+            syntaxChecker.setSchemaName( schemaName );
+
             syntaxCheckerRegistry.unregister( oid );
             syntaxCheckerRegistry.register( syntaxChecker );
             return SCHEMA_MODIFIED;
