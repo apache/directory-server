@@ -67,6 +67,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schemaName != null ) && isSchemaLoaded( name ) )
         {
+            comparator.setSchemaName( schemaName );
+
             comparatorRegistry.unregister( oid );
             comparatorRegistry.register( comparator );
             

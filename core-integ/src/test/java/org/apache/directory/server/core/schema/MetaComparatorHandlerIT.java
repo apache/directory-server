@@ -37,8 +37,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
-import jdbm.helper.IntegerComparator;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
@@ -50,6 +48,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
@@ -282,7 +281,7 @@ public class MetaComparatorHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
+        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, BooleanComparator.class.getName() );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -293,7 +292,7 @@ public class MetaComparatorHandlerIT
             getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
         Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz, IntegerComparator.class );
+        assertEquals( clazz, BooleanComparator.class );
     }
 
 
@@ -306,7 +305,7 @@ public class MetaComparatorHandlerIT
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
-        mods.put( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
+        mods.put( MetaSchemaConstants.M_FQCN_AT, BooleanComparator.class.getName() );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "comparator OID should still be present", 
@@ -316,7 +315,7 @@ public class MetaComparatorHandlerIT
             getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
         Class<?> clazz = getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz, IntegerComparator.class );
+        assertEquals( clazz, BooleanComparator.class );
     }
     
 
