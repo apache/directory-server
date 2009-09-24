@@ -47,7 +47,15 @@ public interface RegistrySynchronizer
     
     void add( LdapDN name, ServerEntry entry ) throws Exception;
     
-    void delete( LdapDN name, ServerEntry entry, boolean cascaded ) throws Exception;
+    
+    /**
+     * Delete the schema object and update the registries
+     *
+     * @param entry The entry associated with the SchemaObject to delete
+     * @param cascaded unused
+     * @throws Exception If the deletion failed
+     */
+    void delete( ServerEntry entry, boolean cascaded ) throws Exception;
     
     
     /**

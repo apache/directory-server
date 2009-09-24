@@ -93,9 +93,12 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
 
         Schema schema = registries.getLoadedSchema( schemaName );

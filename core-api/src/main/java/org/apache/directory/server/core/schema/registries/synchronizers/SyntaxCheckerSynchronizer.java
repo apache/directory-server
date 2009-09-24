@@ -102,7 +102,10 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         
@@ -114,7 +117,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
 
         Schema schema = registries.getLoadedSchema( schemaName );
         

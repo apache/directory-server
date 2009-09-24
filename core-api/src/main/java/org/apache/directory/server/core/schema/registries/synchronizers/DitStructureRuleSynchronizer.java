@@ -69,11 +69,10 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#delete(
-     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
+    /**
+     * {@inheritDoc}
      */
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    public void delete( ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

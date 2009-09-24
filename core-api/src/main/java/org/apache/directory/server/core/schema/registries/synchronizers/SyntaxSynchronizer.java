@@ -96,11 +96,14 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         Schema schema = registries.getLoadedSchema( schemaName );
         
         if ( ( schema != null ) && schema.isEnabled() )

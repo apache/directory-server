@@ -60,7 +60,10 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

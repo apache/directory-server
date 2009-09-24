@@ -96,7 +96,10 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         delete( getOid( entry ), cascade );
     }

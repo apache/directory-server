@@ -258,7 +258,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object 
      */
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         EntryAttribute cn = entry.get( cnAT );
         String schemaName = cn.getString();

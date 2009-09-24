@@ -198,8 +198,8 @@ public class RegistrySynchronizerAdaptor
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#delete(org.apache.directory.server.core.interceptor.context.DeleteOperationContext, org.apache.directory.server.core.entry.ClonedServerEntry, boolean)
+    /**
+     * {@inheritDoc}
      */
     public void delete( DeleteOperationContext opContext, ClonedServerEntry entry, boolean doCascadeDelete ) 
         throws Exception
@@ -213,14 +213,14 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.delete( opContext.getDn(), entry, doCascadeDelete );
+                synchronizer.delete( entry, doCascadeDelete );
                 return;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.delete( opContext.getDn(), entry, doCascadeDelete );
+            schemaSynchronizer.delete( entry, doCascadeDelete );
             return;
         }
         
@@ -235,12 +235,14 @@ public class RegistrySynchronizerAdaptor
             
             String ouValue = ( String ) opContext.getDn().getRdn().getValue();
             ouValue = ouValue.trim().toLowerCase();
+            
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
                 throw new LdapInvalidNameException( 
                     "Can only delete organizationalUnit entity containers with one of the following names: " 
                     + VALID_OU_VALUES, ResultCodeEnum.NAMING_VIOLATION );
             }
+            
             return;
         }
 

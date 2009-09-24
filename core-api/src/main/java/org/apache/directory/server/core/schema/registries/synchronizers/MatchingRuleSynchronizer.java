@@ -97,9 +97,12 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
         
         Schema schema = registries.getLoadedSchema( schemaName );

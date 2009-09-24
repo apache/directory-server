@@ -26,6 +26,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -103,15 +104,31 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void delete( LdapDN name, ServerEntry entry, boolean cascade ) throws Exception
+    /**
+     * Delete the attributeType, if it has no descendant.
+     * 
+     * @param entry the AttributeType entry to delete
+     * @param cascade unused
+     * @exception Exception if the deletion failed
+     */
+    public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( entry.getDn() );
         AttributeType at = factory.getAttributeType( entry, registries, schemaName );
         
         Schema schema = registries.getLoadedSchema( schemaName );
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
+            // Check that the entry has no descendant
+            if ( atRegistry.hasDescendants( at.getOid() ) )
+            {
+                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
+                    " dependant AttributeTypes";
+                
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
             // Don't inject the modified element if the schema is disabled
             atRegistry.unregister( at.getOid() );
         }
