@@ -246,7 +246,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // -------------------------------------------------------------------
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getSession(), 
             opContext.getDn(), modItemList );
-        newModify.setEntry( opContext.getEntry() );
+        newModify.setEntry( opContext.getAlteredEntry() );
         service.getPartitionNexus().modify( newModify );
     }
 

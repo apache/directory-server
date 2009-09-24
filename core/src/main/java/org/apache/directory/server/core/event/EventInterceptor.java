@@ -219,7 +219,7 @@ public class EventInterceptor extends BaseInterceptor
             return;
         }
 
-        opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
+        //opContext.setAlteredEntry( opContext.lookup( opContext.getNewDn(), ByPassConstants.LOOKUP_BYPASS ) );
         
         for ( final RegistrationEntry registration : selecting )
         {
