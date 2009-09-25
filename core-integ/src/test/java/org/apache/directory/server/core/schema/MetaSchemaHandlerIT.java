@@ -133,8 +133,8 @@ public class MetaSchemaHandlerIT
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
-        dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
+        dummySchema.put( "m-dependencies", "nis" );
+        dummySchema.get( "m-dependencies" ).add( "core" );
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
@@ -156,8 +156,8 @@ public class MetaSchemaHandlerIT
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", "dummy" );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
-        dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
+        dummySchema.put( "m-dependencies", "missing" );
+        dummySchema.get( "m-dependencies" ).add( "core" );
         
         try
         {
@@ -215,7 +215,7 @@ public class MetaSchemaHandlerIT
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
+        dummySchema.put( "m-dependencies", "nis" );
         
         try
         {
@@ -283,7 +283,7 @@ public class MetaSchemaHandlerIT
         // make the nis schema depend on the dummy schema
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE,
-                new BasicAttribute( MetaSchemaConstants.M_DEPENDENCIES_AT, "dummy" ) );
+                new BasicAttribute( "m-dependencies", "dummy" ) );
         schemaRoot.modifyAttributes( "cn=nis", mods );
         
         // attempt to delete it now & it should fail
@@ -315,7 +315,7 @@ public class MetaSchemaHandlerIT
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "missing" );
+        dummySchema.put( "m-dependencies", "missing" );
         
         try
         {
@@ -497,7 +497,7 @@ public class MetaSchemaHandlerIT
         Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, "nis" );
+        dummySchema.put( "m-dependencies", "nis" );
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
