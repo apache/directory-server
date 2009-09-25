@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import java.io.File; 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,9 +33,11 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
@@ -44,11 +46,9 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.directory.server.core.CoreSession;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
 
 
 /**
@@ -316,11 +316,21 @@ public class IntegrationUtils
     
     
     /**
-     * A helper method which tells if a schema is disabled
+     * A helper method which tells if a schema is disabled.
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
-    	return ! service.getRegistries().isSchemaLoaded( schemaName );
+        Schema schema = service.getRegistries().getLoadedSchema( schemaName );
+        
+        if ( schema != null )
+        {
+            return schema.isDisabled();
+        }
+        else
+        {
+            // If the schema is not loaded, it's disabled
+            return false;
+        }
     }
     
     
