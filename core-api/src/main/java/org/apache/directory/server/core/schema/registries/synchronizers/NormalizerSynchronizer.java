@@ -60,11 +60,14 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     
     protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        String schemaName = getSchemaName( name );
         String oldOid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, registries );
         
-        if ( isSchemaLoaded( name ) )
+        if ( ( schemaName != null ) && isSchemaLoaded( name ) )
         {
+            normalizer.setSchemaName( schemaName );
+
             normalizerRegistry.unregister( oldOid );
             normalizerRegistry.register( normalizer );
             
