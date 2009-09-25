@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -181,6 +182,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveAttributeType() throws Exception
     {
         addObjectClass();
@@ -202,6 +204,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveObjectClassAndChangeRdn() throws Exception
     {
         addObjectClass();
@@ -336,6 +339,7 @@ public class MetaObjectClassHandlerIT
     
     
     @Test
+    @Ignore
     public void testMoveObjectClassWhenInUse() throws Exception
     {
         addObjectClass();
@@ -363,6 +367,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveObjectClassAndChangeRdnWhenInUse() throws Exception
     {
         addObjectClass();
@@ -419,6 +424,7 @@ public class MetaObjectClassHandlerIT
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
     @Test
+    @Ignore
     public void testMoveObjectClassToTop() throws Exception
     {
         addObjectClass();
@@ -445,6 +451,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveObjectClassToComparatorContainer() throws Exception
     {
         addObjectClass();
@@ -500,6 +507,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveObjectClassToDisabledSchema() throws Exception
     {
         addObjectClass();
@@ -519,6 +527,7 @@ public class MetaObjectClassHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveObjectClassToEnabledSchema() throws Exception
     {
         addObjectClassToDisabledSchema();

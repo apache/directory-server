@@ -124,9 +124,10 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testDeleteAttributeType() throws Exception
     {
+        testAddAttributeType();
+
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        testAddAttributeType();
         
         getSchemaContext( service ).destroySubcontext( dn );
 
@@ -147,10 +148,11 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testRenameAttributeType() throws Exception
     {
+        testAddAttributeType();
+
         LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        testAddAttributeType();
         
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + NEW_OID );
@@ -311,9 +313,10 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
+        testAddAttributeType();
+
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        testAddAttributeType();
         addDependeeAttributeType();
         
         try
@@ -390,9 +393,10 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
+        testAddAttributeType();
+
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        testAddAttributeType();
         addDependeeAttributeType();
         
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );

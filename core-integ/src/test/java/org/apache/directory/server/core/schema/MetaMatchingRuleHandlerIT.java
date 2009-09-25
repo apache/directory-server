@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -166,6 +167,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRule() throws Exception
     {
         testAddMatchingRule();
@@ -187,6 +189,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleAndChangeRdn() throws Exception
     {
         testAddMatchingRule();
@@ -389,6 +392,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleToTop() throws Exception
     {
         testAddMatchingRule();
@@ -415,6 +419,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleToComparatorContainer() throws Exception
     {
         testAddMatchingRule();
@@ -462,6 +467,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleToDisabledSchema() throws Exception
     {
         testAddMatchingRule();
@@ -481,6 +487,7 @@ public class MetaMatchingRuleHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveMatchingRuleToEnabledSchema() throws Exception
     {
         testAddMatchingRuleToDisabledSchema();
