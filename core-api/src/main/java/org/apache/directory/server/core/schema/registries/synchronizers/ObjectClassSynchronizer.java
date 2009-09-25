@@ -26,6 +26,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -105,6 +106,15 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
+            // Check that the entry has no descendant
+            if ( objectClassRegistry.hasDescendants( oc.getOid() ) )
+            {
+                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
+                    " dependant ObjectClasses";
+                
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
             objectClassRegistry.unregister( oc.getOid() );
         }
         
@@ -135,6 +145,12 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
+        
+        // Inject the new DN
+        LdapDN newDn = new LdapDN( targetEntry.getDn() );
+        newDn.remove( newDn.size() - 1 );
+        newDn.add( newRdn );
+        
         checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, schemaName );
 
@@ -142,6 +158,15 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ( schema != null ) && schema.isEnabled() )
         {
+            // Check that the entry has no descendant
+            if ( objectClassRegistry.hasDescendants( oldOc.getOid() ) )
+            {
+                String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn + 
+                    " as the later has descendants' ObjectClasses";
+                
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
             objectClassRegistry.unregister( oldOc.getOid() );
             objectClassRegistry.register( oc );
         }
