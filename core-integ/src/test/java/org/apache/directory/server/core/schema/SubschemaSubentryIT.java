@@ -20,49 +20,25 @@
 package org.apache.directory.server.core.schema;
 
 
-import jdbm.helper.IntegerComparator;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerEntryUtils;
-import org.apache.directory.server.core.integ.CiRunner;
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.TimeZone;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -77,15 +53,39 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.TimeZone;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
+import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -361,7 +361,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         // 4th change
@@ -380,7 +380,7 @@ public class SubschemaSubentryIT
         // check add no schema info
         // -------------------------------------------------------------------
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.syntaxCheckers.DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
         // 6th change
@@ -485,9 +485,9 @@ public class SubschemaSubentryIT
         List<String> descriptions = new ArrayList<String>();
         
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
-            + IntegerComparator.class.getName() + " X-SCHEMA 'nis' )" );
+            + BooleanComparator.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
-            + IntegerComparator.class.getName() + " X-SCHEMA 'nis' )" );
+            + BooleanComparator.class.getName() + " X-SCHEMA 'nis' )" );
 
         // -------------------------------------------------------------------
         // add and check
