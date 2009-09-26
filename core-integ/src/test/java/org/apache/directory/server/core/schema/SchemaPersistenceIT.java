@@ -20,22 +20,17 @@
 package org.apache.directory.server.core.schema;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -48,8 +43,13 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -86,13 +86,26 @@ public class SchemaPersistenceIT
             // test successful add with everything
             // -------------------------------------------------------------------
 
-            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " + "OBSOLETE SUP 2.5.4.41 "
-                + "EQUALITY caseExactIA5Match " + "ORDERING octetStringOrderingMatch "
-                + "SUBSTR caseExactIA5SubstringsMatch COLLECTIVE " + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 "
-                + "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
-            descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) "
-                + "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 "
-                + "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
+            descriptions.add( 
+                "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
+                "  NAME 'type0' " + 
+                "  OBSOLETE SUP 2.5.4.41 " +
+                "  EQUALITY caseExactIA5Match " + 
+                "  ORDERING octetStringOrderingMatch " +
+                "  SUBSTR caseExactIA5SubstringsMatch " +
+                "  COLLECTIVE " + 
+                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                "  SINGLE-VALUE USAGE userApplications " +
+                "  X-SCHEMA 'nis' )" );
+            
+            descriptions.add( 
+                "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
+                "  NAME ( 'type1' 'altName' ) " +
+                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " + 
+                "  SUP 2.5.4.41 " +
+                "  NO-USER-MODIFICATION " +
+                "  USAGE directoryOperation " +
+                "  X-SCHEMA 'nis' )" );
 
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
