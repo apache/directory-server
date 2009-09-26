@@ -35,17 +35,17 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.LdapSyntaxDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
@@ -262,7 +262,7 @@ public class DescriptionParsers
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
-            if ( attributeType.getSyntax() != null && ! dao.hasSyntax( attributeType.getSyntaxOid() ) )
+            if ( attributeType.getSyntaxOid() != null && ! dao.hasSyntax( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid syntax: " + 
@@ -300,45 +300,57 @@ public class DescriptionParsers
             // if the equality matching rule is null and no super type is specified then there is
             // definitely no equality matchingRule that can be resolved.  We cannot use an attribute
             // without a matchingRule for search or for building indices not to mention lookups.
-            if ( attributeType.getEqualityOid() == null && attributeType.getSuperiorOid() == null )
+            if ( attributeType.getEqualityOid() == null )
             {
-                throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule " +
-                    "\nand no super type from which to derive an EQUALITY matchingRule.", 
-                    ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-            else if ( attributeType.getEqualityOid() == null )
-            {
-                AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSuperiorOid() );
-
-                if ( superType.getEquality() == null )
+                if ( attributeType.getSuperiorOid() == null )
                 {
                     throw new LdapOperationNotSupportedException(
-                        "Cannot permit the addition of an attributeType with which cannot resolve an " +
-                        "EQUALITY matchingRule from it's super type.", 
+                        "Cannot permit the addition of an attributeType with an no EQUALITY matchingRule " +
+                        "\nand no super type from which to derive an EQUALITY matchingRule.", 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
+                }
+                else
+                {
+                    AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSuperiorOid() );
+
+                    if ( superType == null )
+                    {
+                        throw new LdapOperationNotSupportedException(
+                            "Cannot permit the addition of an attributeType with which cannot resolve an " +
+                            "EQUALITY matchingRule from it's super type.", 
+                            ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    }
                 }
             }
             
-            // a syntax is manditory for an attributeType and if not provided by the description 
+            // a syntax is mandatory for an attributeType and if not provided by the description 
             // must be provided from some ancestor in the attributeType hierarchy; without either
             // of these the description definitely cannot resolve a syntax and cannot be allowed.
             // if a supertype exists then it must resolve a proper syntax somewhere in the hierarchy.
-            if ( attributeType.getSyntax() == null && attributeType.getSuperiorOid() == null )
+            if ( attributeType.getSyntaxOid() == null && attributeType.getSuperiorOid() == null )
             {
                 throw new LdapOperationNotSupportedException(
-                    "Cannot permit the addition of an attributeType with an no syntax " +
+                    "Cannot permit the addition of an attributeType with no syntax " +
                     "\nand no super type from which to derive a syntax.", 
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
 
-            AttributeType at = new AttributeType( attributeType.getOid() );
-            at.applyRegistries( globalRegistries );
+            attributeType.applyRegistries( globalRegistries );
             
-            setSchemaObjectProperties( attributeType, at );
-
-            attributeTypes[pos++] = at;
+            // Inject the schema
+            if ( ( attributeType.getExtensions() == null ) || 
+                 ( attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) == null ) )
+            {
+                throw new LdapOperationNotSupportedException(
+                    "Cannot permit the addition of an attributeType not associated with a schema ",
+                    ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
+            String schemaName = attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            attributeType.setSchemaName( schemaName );
+            
+            attributeTypes[pos++] = attributeType;
         }
         
         return attributeTypes;
