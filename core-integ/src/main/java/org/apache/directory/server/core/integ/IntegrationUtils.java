@@ -322,23 +322,18 @@ public class IntegrationUtils
     {
         Schema schema = service.getRegistries().getLoadedSchema( schemaName );
         
-        if ( schema != null )
-        {
-            return schema.isDisabled();
-        }
-        else
-        {
-            // If the schema is not loaded, it's disabled
-            return false;
-        }
+        return ( schema == null ) || schema.isDisabled();
     }
     
     
     /**
-     * A helper method which tells if a schema is enabled
+     * A helper method which tells if a schema is enabled. A shema must be
+     * loaded and enabled.
      */
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
-    	return service.getRegistries().isSchemaLoaded( schemaName );
+        Schema schema = service.getRegistries().getLoadedSchema( schemaName );
+        
+        return ( schema != null ) && schema.isEnabled();
     }
 }
