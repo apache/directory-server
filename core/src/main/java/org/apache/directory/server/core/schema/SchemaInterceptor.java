@@ -1187,9 +1187,9 @@ public class SchemaInterceptor extends BaseInterceptor
     
     
     /**
-     * Modify an entry, applying the given modifications.
+     * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private ServerEntry modifyEntry( LdapDN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
+    private void checkModifyEntry( LdapDN dn, ServerEntry currentEntry, List<Modification> mods ) throws Exception
     {
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
@@ -1358,8 +1358,6 @@ public class SchemaInterceptor extends BaseInterceptor
         // - all the attribute are in MUST and MAY, except fo the extensibleObeject OC
         // is present
         check( dn, tempEntry );
-        
-        return tempEntry;
     }
 
     
@@ -1384,7 +1382,6 @@ public class SchemaInterceptor extends BaseInterceptor
         // First, check that the entry is either a subschemaSubentry or a schema element.
         // This is the case if it's a child of cn=schema or ou=schema
         LdapDN dn = opContext.getDn();
-        ServerEntry targetEntry = null;
         
         // Gets the stored entry on which the modification must be applied
         if ( dn.equals( subschemaSubentryDn ) )
@@ -1396,10 +1393,8 @@ public class SchemaInterceptor extends BaseInterceptor
             
             return;
         }
-        else
-        {
-            targetEntry = modifyEntry( dn, opContext.getEntry(), opContext.getModItems() );
-        }
+
+        checkModifyEntry( dn, opContext.getEntry(), opContext.getModItems() );
         
         next.modify( opContext );
     }
