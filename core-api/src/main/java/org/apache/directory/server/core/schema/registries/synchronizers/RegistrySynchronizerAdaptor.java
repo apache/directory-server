@@ -173,7 +173,9 @@ public class RegistrySynchronizerAdaptor
         
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.add( opContext.getDn(), opContext.getEntry() );
+            LdapDN dn = opContext.getDn();
+            ServerEntry entry = opContext.getEntry();
+            schemaSynchronizer.add( dn, entry );
             return;
         }
         

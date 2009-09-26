@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -58,13 +57,13 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
     
     
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( name );
         String oldOid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, registries );
         
-        if ( ( schemaName != null ) && isSchemaLoaded( name ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             normalizer.setSchemaName( schemaName );
 
@@ -90,9 +89,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         normalizer.setSchemaName( schemaName );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             normalizerRegistry.register( normalizer );
         }
@@ -131,6 +128,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
+        String schemaName = getSchemaName( entry.getDn() );
 
         if ( matchingRuleRegistry.contains( oldOid ) )
         {
@@ -143,7 +141,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUniqueForNormalizer( newOid );
         
-        if ( isSchemaLoaded( entry.getDn() ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Inject the new OID
             ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -167,6 +165,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
+        String oldSchemaName = getSchemaName( oriChildName );
+        String newSchemaName = getSchemaName( newParentName );
 
         if ( matchingRuleRegistry.contains( oldOid ) )
         {
@@ -180,12 +180,12 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUniqueForNormalizer( oid );
         Normalizer normalizer = factory.getNormalizer( entry, registries );
 
-        if ( isSchemaLoaded( oriChildName ) )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             normalizerRegistry.unregister( oldOid );
         }
 
-        if ( isSchemaLoaded( newParentName ) )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             normalizerRegistry.register( normalizer );
         }
@@ -197,6 +197,8 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
+        String oldSchemaName = getSchemaName( oriChildName );
+        String newSchemaName = getSchemaName( newParentName );
 
         if ( matchingRuleRegistry.contains( oid ) )
         {
@@ -208,12 +210,13 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         Normalizer normalizer = factory.getNormalizer( entry, registries );
         
-        if ( isSchemaLoaded( oriChildName ) )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             normalizerRegistry.unregister( oid );
         }
         
-        if ( isSchemaLoaded( newParentName ) )
+        
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             normalizerRegistry.register( normalizer );
         }

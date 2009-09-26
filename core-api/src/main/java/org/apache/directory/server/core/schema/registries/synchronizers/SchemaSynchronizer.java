@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
@@ -62,23 +63,42 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 {
     private final SchemaEntityFactory factory;
     private final PartitionSchemaLoader loader;
-    private final Registries globalRegistries;
+    
+    /** The global registries */
+    private final Registries registries;
+    
+    /** The m-disable AttributeType */
     private final AttributeType disabledAT;
-    private final String OU_OID;
+    
+    /** The CN attributeType */
     private final AttributeType cnAT;
+    
+    /** The m-dependencies AttributeType */
     private final AttributeType dependenciesAT;
+    
+    /** A static DN referencing ou=schema */
+    private final LdapDN ouSchemaDN;
 
 
-    public SchemaSynchronizer( Registries globalRegistries, PartitionSchemaLoader loader ) throws Exception
+    /**
+     * Creates and initializes a new instance of Schema synchronizer
+     *
+     * @param registries The Registries
+     * @param loader The schema loader
+     * @throws Exception If something went wrong
+     */
+    public SchemaSynchronizer( Registries registries, PartitionSchemaLoader loader ) throws Exception
     {
-        this.globalRegistries = globalRegistries;
-        this.disabledAT = globalRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
+        this.registries = registries;
+        disabledAT = registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
         this.loader = loader;
-        this.OU_OID = globalRegistries.getAttributeTypeRegistry().getOidByName( SchemaConstants.OU_AT );
-        this.factory = new SchemaEntityFactory();
-        this.cnAT = globalRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
-        this.dependenciesAT = globalRegistries.getAttributeTypeRegistry()
+        factory = new SchemaEntityFactory();
+        cnAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
+        dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        
+        ouSchemaDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+        ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
 
@@ -195,10 +215,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
-        parentDn.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
-        if ( !parentDn.toNormName().equals( OU_OID + "=schema" ) )
+        parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
+        if ( !parentDn.equals( ouSchemaDN ) )
         {
-            throw new LdapInvalidNameException( "The parent dn of a schema should be " + OU_OID + "=schema and not: "
+            throw new LdapInvalidNameException( "The parent dn of a schema should be " + ouSchemaDN.getUpName() + " and not: "
                 + parentDn.toNormName(), ResultCodeEnum.NAMING_VIOLATION );
         }
 
@@ -208,6 +229,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         if ( disabled == null )
         {
+            // If the attribute is absent, then the schema is enabled by default
             isEnabled = true;
         }
         else if ( ! disabled.contains( "TRUE" ) )
@@ -245,7 +267,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( isEnabled )
         {
             Schema schema = factory.getSchema( entry );
-            globalRegistries.schemaLoaded( schema );
+            registries.schemaLoaded( schema );
         }
     }
 
@@ -275,7 +297,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // no need to check if schema is enabled or disabled here
         // if not in the loaded set there will be no negative effect
-        globalRegistries.schemaUnloaded( loader.getSchema( schemaName ) );
+        registries.schemaUnloaded( loader.getSchema( schemaName ) );
     }
 
 
@@ -292,7 +314,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String rdnAttribute = newRdn.getUpType();
-        String rdnAttributeOid = globalRegistries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
+        String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
 
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
@@ -351,19 +373,19 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // step [2] 
         String newSchemaName = ( String ) newRdn.getUpValue();
-        globalRegistries.getComparatorRegistry().renameSchema( schemaName, newSchemaName );
-        globalRegistries.getNormalizerRegistry().renameSchema( schemaName, newSchemaName );
-        globalRegistries.getSyntaxCheckerRegistry().renameSchema( schemaName, newSchemaName );
+        registries.getComparatorRegistry().renameSchema( schemaName, newSchemaName );
+        registries.getNormalizerRegistry().renameSchema( schemaName, newSchemaName );
+        registries.getSyntaxCheckerRegistry().renameSchema( schemaName, newSchemaName );
         
         // step [3]
-        renameSchema( globalRegistries.getAttributeTypeRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getDitContentRuleRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getDitStructureRuleRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getMatchingRuleRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getMatchingRuleUseRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getNameFormRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getObjectClassRegistry(), schemaName, newSchemaName );
-        renameSchema( globalRegistries.getLdapSyntaxRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getAttributeTypeRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getDitContentRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getDitStructureRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getMatchingRuleRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getMatchingRuleUseRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getNameFormRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getObjectClassRegistry(), schemaName, newSchemaName );
+        renameSchema( registries.getLdapSyntaxRegistry(), schemaName, newSchemaName );
     }
     
 
@@ -478,7 +500,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private boolean disableSchema( String schemaName ) throws Exception
     {
         // First check that the schema is not already disabled
-        Map<String, Schema> schemas = globalRegistries.getLoadedSchemas();
+        Map<String, Schema> schemas = registries.getLoadedSchemas();
         
         Schema schema = schemas.get( schemaName );
         
@@ -496,6 +518,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 "Cannot disable schema with enabled dependents: " + dependents,
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
+        
         schema.disable();
         
         // @TODO elecharny
@@ -506,7 +529,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                     " and we have to implement the unload method below." );
         }
         
-        // globalRegistries.unload( schemaName );
+        // registries.unload( schemaName );
         
         return SCHEMA_MODIFIED;
     }
@@ -518,14 +541,18 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     private boolean enableSchema( String schemaName ) throws Exception
     {
-        if ( globalRegistries.isSchemaLoaded( schemaName ) )
+        Schema schema = loader.getSchema( schemaName );
+
+        if ( schema != null )
         {
             // TODO log warning: schemaName + " was already loaded"
+            schema.enable();
+            registries.schemaLoaded( schema );
             return SCHEMA_UNCHANGED;
         }
 
-        Schema schema = loader.getSchema( schemaName );
-        loader.loadWithDependencies( schema, globalRegistries );
+        loader.loadWithDependencies( schema, registries );
+        schema = loader.getSchema( schemaName );
         schema.enable();
         
         return SCHEMA_MODIFIED;
@@ -553,7 +580,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( isEnabled )
         {
             // check to make sure all the dependencies are also enabled
-            Map<String,Schema> loaded = globalRegistries.getLoadedSchemas();
+            Map<String,Schema> loaded = registries.getLoadedSchemas();
             
             for ( Value<?> value:dependencies )
             {

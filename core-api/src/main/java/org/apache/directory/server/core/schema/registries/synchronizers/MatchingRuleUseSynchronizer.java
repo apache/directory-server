@@ -46,7 +46,7 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
 
 
     @Override
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub

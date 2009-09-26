@@ -20,19 +20,27 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
+import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -55,12 +63,13 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
     
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         LdapSyntax syntax = factory.getSyntax( targetEntry, registries, getSchemaName( name ) );
+        String schemaName = getSchemaName( entry.getDn() );
         
-        if ( isSchemaLoaded( name ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             syntaxRegistry.unregister( oid );
             syntaxRegistry.register( syntax );
@@ -82,35 +91,102 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         LdapSyntax syntax = factory.getSyntax( entry, registries, schemaName );
 
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             syntaxRegistry.register( syntax );
         }
         else
         {
-            // even for disabled schemas add OIDs
             registerOids( syntax );
         }
     }
 
+    
+    /**
+     * Check if a syntax is used by an AT or a MR
+     */
+    private List<SchemaObject> checkInUse( String oid )
+    {
+        AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
+        List<SchemaObject> dependees = new ArrayList<SchemaObject>();
+        
+        for ( AttributeType attributeType : atRegistry )
+        {
+            if ( oid.equals( attributeType.getSyntax().getOid() ) )
+            {
+                dependees.add( attributeType );
+            }
+        }
+        
+        MatchingRuleRegistry mrRegistry = registries.getMatchingRuleRegistry();
+        
+        for ( MatchingRule matchingRule : mrRegistry )
+        {
+            if ( oid.equals( matchingRule.getSyntax().getOid() ) )
+            {
+                dependees.add( matchingRule );
+            }
+        }
+        
+        return dependees;
+    }
+    
+    
+    /**
+     * Get the list of SchemaObject's name using a given syntax
+     */
+    private String getNames( List<SchemaObject> schemaObjects )
+    {
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        
+        for ( SchemaObject schemaObject : schemaObjects )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ", " );
+            }
+            
+            sb.append(  schemaObject.getName() );
+        }
+        
+        return sb.toString();
+    }
 
+    
     /**
      * {@inheritDoc}
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
-        
         String schemaName = getSchemaName( entry.getDn() );
-        Schema schema = registries.getLoadedSchema( schemaName );
+        LdapSyntax syntax = factory.getSyntax( entry, registries, schemaName );
         
-        if ( ( schema != null ) && schema.isEnabled() )
+        // Check that this syntax is not used by an AttributeType
+        List<SchemaObject> dependees = checkInUse( oid );
+        
+        if ( dependees.size() != 0 )
+        {
+            throw new LdapOperationNotSupportedException( "The syntax with OID " + oid 
+              + " cannot be deleted until all entities" 
+              + " using this syntax have also been deleted.  The following dependees exist: " 
+              + getNames( dependees ), 
+              ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        if ( isSchemaEnabled( schemaName ) )
         {
             syntaxRegistry.unregister( oid );
         }
-        unregisterOids( oid );
+        else
+        {
+            unregisterOids( syntax );
+        }
     }
 
     
@@ -120,18 +196,19 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String oldOid = getOid( entry );
+        String schemaName = getSchemaName( entry.getDn() );
 
-        // Dependency checks are to be handled by the SystemPartition not here.
-//        Set<ServerEntry> dependees = dao.listSyntaxDependents( oldOid );
-//        
-//        if ( dependees != null && dependees.size() > 0 )
-//        {
-//            throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid
-//                + " cannot be deleted until all entities" 
-//                + " using this syntax have also been deleted.  The following dependees exist: " 
-//                + getOids( dependees ), 
-//                ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
+        // Check that this syntax is not used by an AttributeType
+        List<SchemaObject> dependees = checkInUse( oldOid );
+        
+        if ( dependees.size() != 0 )
+        {
+            throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid 
+              + " cannot be deleted until all entities" 
+              + " using this syntax have also been deleted.  The following dependees exist: " 
+              + getNames( dependees ), 
+              ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
@@ -140,19 +217,18 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         LdapSyntax syntax = factory.getSyntax( targetEntry, registries, getSchemaName( entry.getDn() ) );
         
-        if ( isSchemaLoaded( entry.getDn() ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             syntaxRegistry.unregister( oldOid );
             syntaxRegistry.register( syntax );
         }
         else
         {
+            // always remove old OIDs that are not in schema anymore
+            unregisterOids( syntax );
             // even for disabled schemas add OIDs
             registerOids( syntax );
         }
-        
-        // always remove old OIDs that are not in schema anymore
-        unregisterOids( oldOid );
     }
 
 
@@ -161,19 +237,20 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
+        String oldSchemaName = getSchemaName( oriChildName );
+        String newSchemaName = getSchemaName( newParentName );
 
-        // Dep test before deletion is to be done by the SchemaPartition
-//        
-//        Set<ServerEntry> dependees = dao.listSyntaxDependents( oldOid );
-//        
-//        if ( dependees != null && dependees.size() > 0 )
-//        {
-//            throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid 
-//                + " cannot be deleted until all entities" 
-//                + " using this syntax have also been deleted.  The following dependees exist: " 
-//                + getOids( dependees ), 
-//                ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
+        // Check that this syntax is not used by an AttributeType
+        List<SchemaObject> dependees = checkInUse( oldOid );
+        
+        if ( dependees.size() != 0 )
+        {
+            throw new LdapOperationNotSupportedException( "The syntax with OID " + oldOid 
+              + " cannot be deleted until all entities" 
+              + " using this syntax have also been deleted.  The following dependees exist: " 
+              + getNames( dependees ), 
+              ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
 
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRn.getValue();
@@ -182,14 +259,16 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         LdapSyntax syntax = factory.getSyntax( targetEntry, registries, getSchemaName( newParentName ) );
 
-        if ( isSchemaLoaded( oriChildName ) )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             syntaxRegistry.unregister( oldOid );
         }
-        // always remove old OIDs that are not in schema anymore
-        unregisterOids( oldOid );
+        else
+        {
+            unregisterOids( syntax );
+        }
 
-        if ( isSchemaLoaded( newParentName ) )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             syntaxRegistry.register( syntax );
         }
@@ -206,6 +285,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
+        String oldSchemaName = getSchemaName( oriChildName );
+        String newSchemaName = getSchemaName( newParentName );
 
         // schema dep check before delete to be handled by the SchemaPartition
 //        
@@ -222,14 +303,22 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         
         LdapSyntax syntax = factory.getSyntax( entry, registries, getSchemaName( newParentName ) );
         
-        if ( isSchemaLoaded( oriChildName ) )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             syntaxRegistry.unregister( oid );
         }
+        else
+        {
+            unregisterOids( syntax );
+        }
         
-        if ( isSchemaLoaded( newParentName ) )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             syntaxRegistry.register( syntax );
+        }
+        else
+        {
+            registerOids( syntax );
         }
     }
     

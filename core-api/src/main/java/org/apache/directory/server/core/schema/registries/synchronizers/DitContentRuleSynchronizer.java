@@ -49,7 +49,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, javax.naming.directory.Attributes)
      */
     @Override
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws NamingException
     {
         // TODO Auto-generated method stub

@@ -49,7 +49,7 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
      * javax.naming.directory.Attributes)
      */
     @Override
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         return SCHEMA_UNCHANGED;

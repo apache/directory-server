@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -55,16 +54,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws Exception
     {
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             if ( atRegistry.contains( oid ) )
             {
@@ -90,9 +87,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         AttributeType at = factory.getAttributeType( entry, registries, schemaName );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Don't inject the modified element if the schema is disabled
             atRegistry.register( at );
@@ -116,9 +111,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType at = factory.getAttributeType( entry, registries, schemaName );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
             if ( atRegistry.hasDescendants( at.getOid() ) )
@@ -132,8 +125,10 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Don't inject the modified element if the schema is disabled
             atRegistry.unregister( at.getOid() );
         }
-        
-        unregisterOids( at.getOid() );
+        else
+        {
+            unregisterOids( at );
+        }
     }
 
 
@@ -159,9 +154,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
 
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
             if ( atRegistry.hasDescendants( oldAt.getOid() ) )
@@ -175,9 +168,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             atRegistry.unregister( oldAt.getOid() );
             atRegistry.register( at );
         }
-        
-        unregisterOids( oldAt.getOid() );
-        registerOids( at );
+        else
+        {
+            unregisterOids( oldAt );
+            registerOids( at );
+        }
     }
 
 
@@ -194,18 +189,16 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         AttributeType at = factory.getAttributeType( targetEntry, registries, newSchemaName );
 
-        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
-        
-        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             atRegistry.unregister( oldAt.getOid() );
         }
+        else
+        {
+            unregisterOids( oldAt );
+        }
 
-        unregisterOids( oldAt.getOid() );
-
-        Schema newSchema = registries.getLoadedSchema( newSchemaName );
-        
-        if ( ( newSchema != null ) && newSchema.isEnabled() )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             atRegistry.register( at );
         }
@@ -225,18 +218,22 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
         AttributeType at = factory.getAttributeType( entry, registries, newSchemaName );
         
-        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
-        
-        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             atRegistry.unregister( oldAt.getOid() );
         }
+        else
+        {
+            unregisterOids( oldAt );
+        }
         
-        Schema newSchema = registries.getLoadedSchema( newSchemaName );
-        
-        if ( ( newSchema != null ) && newSchema.isEnabled() )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             atRegistry.register( at );
+        }
+        else
+        {
+            registerOids( at );
         }
     }
     

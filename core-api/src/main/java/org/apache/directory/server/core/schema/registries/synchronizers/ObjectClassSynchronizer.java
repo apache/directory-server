@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -54,12 +53,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, getSchemaName( name ) );
+        String schemaName = getSchemaName( entry.getDn() );
 
-        if ( isSchemaLoaded( name ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             objectClassRegistry.unregister( oid );
             objectClassRegistry.register( oc );
@@ -81,9 +81,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
 
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             objectClassRegistry.register( oc );
         }
@@ -102,9 +100,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
 
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
             if ( objectClassRegistry.hasDescendants( oc.getOid() ) )
@@ -117,8 +113,10 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             
             objectClassRegistry.unregister( oc.getOid() );
         }
-        
-        unregisterOids( oc.getOid() );
+        else
+        {
+            unregisterOids( oc );
+        }
     }
 
 
@@ -154,9 +152,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, schemaName );
 
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
             if ( objectClassRegistry.hasDescendants( oldOc.getOid() ) )
@@ -172,10 +168,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
+            unregisterOids( oldOc );
             registerOids( oc );
         }
-        
-        unregisterOids( oldOc.getOid() );
     }
 
 
@@ -204,18 +199,16 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, newSchemaName );
 
-        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
-        
-        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             objectClassRegistry.unregister( oldOc.getOid() );
         }
+        else
+        {
+            unregisterOids( oldOc );
+        }
         
-        unregisterOids( oldOc.getOid() );
-        
-        Schema newSchema = registries.getLoadedSchema( newSchemaName );
-        
-        if ( ( newSchema != null ) && newSchema.isEnabled() )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             objectClassRegistry.register( oc );
         }
@@ -247,14 +240,22 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         ObjectClass oc = factory.getObjectClass( entry, registries, newSchemaName );
         
-        if ( isSchemaLoaded( oriChildName ) )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             objectClassRegistry.unregister( oldAt.getOid() );
         }
+        else
+        {
+            unregisterOids( oldAt );
+        }
         
-        if ( isSchemaLoaded( newParentName ) )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             objectClassRegistry.register( oc );
+        }
+        else
+        {
+            registerOids( oc );
         }
     }
 

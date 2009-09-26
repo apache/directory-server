@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 
 
 /**
@@ -59,13 +58,13 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
     
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         LdapComparator<?> comparator = factory.getLdapComparator( targetEntry, registries );
         
-        if ( ( schemaName != null ) && isSchemaLoaded( name ) )
+        if ( isSchemaEnabled( schemaName ) )
         {
             comparator.setSchemaName( schemaName );
 
@@ -90,9 +89,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( name );
         comparator.setSchemaName( schemaName );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             comparatorRegistry.register( comparator );
         }
@@ -141,9 +138,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         String schemaName = getSchemaName( entry.getDn() );
         
-        Schema schema = registries.getLoadedSchema( schemaName );
-        
-        if ( ( schema != null ) && schema.isEnabled() )
+        if ( isSchemaEnabled( schemaName ) )
         {
             // Inject the new OID in the entry
             ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -186,18 +181,14 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         String oldSchemaName = getSchemaName( oriChildName );
         
-        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
-        
-        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             comparatorRegistry.unregister( oldOid );
         }
 
         String newSchemaName = getSchemaName( newParentName );
         
-        Schema newSchema = registries.getLoadedSchema( newSchemaName );
-        
-        if ( ( newSchema != null ) && newSchema.isEnabled() )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             comparatorRegistry.register( comparator );
         }
@@ -222,18 +213,14 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         String oldSchemaName = getSchemaName( oriChildName );
         
-        Schema oldSchema = registries.getLoadedSchema( oldSchemaName );
-        
-        if ( ( oldSchema != null ) && oldSchema.isEnabled() )
+        if ( isSchemaEnabled( oldSchemaName ) )
         {
             comparatorRegistry.unregister( oid );
         }
         
         String newSchemaName = getSchemaName( newParentName );
         
-        Schema newSchema = registries.getLoadedSchema( newSchemaName );
-        
-        if ( ( newSchema != null ) && newSchema.isEnabled() )
+        if ( isSchemaEnabled( newSchemaName ) )
         {
             comparatorRegistry.register( comparator );
         }

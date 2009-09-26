@@ -51,7 +51,7 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
      * javax.naming.directory.Attributes)
      */
     @Override
-    protected boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub

@@ -20,6 +20,12 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -31,15 +37,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
-
-//import javax.naming.NamingException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -50,16 +51,25 @@ import javax.naming.NamingException;
  */
 public abstract class AbstractRegistrySynchronizer implements RegistrySynchronizer
 {
+    /** The global registries */
     protected final Registries registries;
+    
+    /** The OID registry */
+    protected final OidRegistry oidRegistry;
+    
+    /** The m-oid AttrributeType */
     protected final AttributeType m_oidAT;
+    
+    /** The Schema objetc factory */
     protected final SchemaEntityFactory factory;
 
     
     protected AbstractRegistrySynchronizer( Registries targetRegistries ) throws Exception
     {
-        this.registries = targetRegistries;
-        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
-        this.factory = new SchemaEntityFactory();
+        registries = targetRegistries;
+        m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        factory = new SchemaEntityFactory();
+        oidRegistry = registries.getOidRegistry();
     }
     
     
@@ -69,6 +79,32 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
+    /**
+     * Tells if a schema is loaded and enabled 
+     *
+     * @param schemaName The schema we want to check
+     * @return true if the schema is loaded and enabled, false otherwise
+     */
+    protected boolean isSchemaEnabled( String schemaName )
+    {
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        return ( ( schema != null ) && schema.isEnabled() );
+    }
+    
+    
+    /**
+     * Exctract the schema name from the DN. It is supposed to be the 
+     * second RDN in the dn :
+     * <pre>
+     * ou=schema, cn=MySchema, ...
+     * </pre>
+     * Here, the schemaName is MySchema
+     *
+     * @param dn The DN we want to get the schema name from
+     * @return The schema name
+     * @throws NamingException If we got an error
+     */
     protected String getSchemaName( LdapDN dn ) throws NamingException
     {
         if ( dn.size() < 2 )
@@ -85,7 +121,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( registries.getOidRegistry().hasOid( oid ) )
+        if ( oidRegistry.hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -97,7 +133,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = schemaObject.getOid();
 
-        if ( registries.getOidRegistry().hasOid( oid ) )
+        if ( oidRegistry.hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -107,7 +143,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected void checkOidIsUnique( String oid ) throws Exception
     {
-        if ( registries.getOidRegistry().hasOid( oid ) )
+        if ( oidRegistry.hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -161,14 +197,14 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
-    protected void unregisterOids( String oid ) throws Exception
+    protected void unregisterOids( SchemaObject obj ) throws Exception
     {
-        registries.getOidRegistry().unregister( oid );
+        oidRegistry.unregister( obj.getOid() );
     }
     
     
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        registries.getOidRegistry().register( obj );
+        oidRegistry.register( obj );
     }
 }
