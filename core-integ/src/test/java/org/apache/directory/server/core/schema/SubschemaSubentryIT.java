@@ -524,7 +524,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -542,7 +542,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyComparator BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -677,7 +677,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
@@ -695,7 +695,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummyNormalizer BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
