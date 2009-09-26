@@ -166,11 +166,12 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private LdapDN schemaModificationAttributesDN;
 
+    /** The schema manager */
     private SchemaSubentryManager schemaManager;
 
     private SchemaService schemaService;
 
-    // the base DN (normalized) of the schema partition
+    /** the base DN (normalized) of the schema partition */
     private LdapDN schemaBaseDN;
 
     /** A map used to store all the objectClasses superiors */
@@ -222,6 +223,11 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaModificationAttributesDN.normalize( atRegistry.getNormalizerMapping() );
 
         computeSuperiors();
+        
+        // Initialize the schema manager
+        PartitionSchemaLoader loader = (PartitionSchemaLoader)schemaService.getSchemaPartition().getLoader();
+        SchemaPartitionDao dao = loader.getDao();
+        schemaManager = new SchemaSubentryManager( registries, loader, dao );
 
         if ( IS_DEBUG )
         {
@@ -1384,16 +1390,11 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( dn.equals( subschemaSubentryDn ) )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, opContext );
-
-            ServerEntry currentEntry = schemaService.getSubschemaEntry( SCHEMA_SUBENTRY_RETURN_ATTRIBUTES );
-            targetEntry = modifyEntry( dn, currentEntry, opContext.getModItems() );
-
+            
             // Now that the entry has been modified, update the SSSE
-            schemaManager.modifySchemaSubentry( 
-                opContext, 
-                opContext.getEntry(), 
-                targetEntry, 
-                opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            
+            return;
         }
         else
         {

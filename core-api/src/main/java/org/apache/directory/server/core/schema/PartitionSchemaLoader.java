@@ -884,4 +884,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         Properties props = new Properties();
         loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries );
     }
+
+
+    /**
+     * @return the dao
+     */
+    public SchemaPartitionDao getDao()
+    {
+        return dao;
+    }
 }

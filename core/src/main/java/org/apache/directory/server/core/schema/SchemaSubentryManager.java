@@ -30,6 +30,7 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -63,6 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SchemaSubentryManager
 {
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( SchemaSubentryManager.class );
 
     // indices of handlers and object ids into arrays
@@ -80,8 +82,12 @@ public class SchemaSubentryManager
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
 
+    /** The registries */
     private final Registries registries;
+    
     private final SchemaSubentryModifier subentryModifier;
+    
+    /** The description parsers */
     private final DescriptionParsers parsers;
     
     /** 
@@ -152,11 +158,146 @@ public class SchemaSubentryManager
     }
 
     
+    /**
+     * Add a schema object into the SSSE
+     *
+     * @param opContext The add context
+     * @param doCascadeAdd unused
+     * @throws Exception If the addition failed
+     */
+    public void addSchemaSubentry( AddOperationContext opContext, boolean doCascadeAdd )
+        throws Exception
+    {
+        if ( doCascadeAdd )
+        {
+            LOG.error( CASCADING_ERROR );
+        }
+
+        //String attrOid = opContext.getEntry().get( attributeType );
+        //int index = opAttr2handlerIndex.get( opAttrOid );
+        int index = 0;
+        
+        switch( index )
+        {
+            case( COMPARATOR_INDEX ):
+                LdapComparatorDescription[] comparatorDescriptions = parsers.parseComparators( null );
+                
+                for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
+                {
+                    subentryModifier.add( opContext, comparatorDescription );
+                }
+                
+                break;
+                
+            case( NORMALIZER_INDEX ):
+                NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( null );
+                
+                for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
+                {
+                    subentryModifier.add( opContext, normalizerDescription );
+                }
+                
+                break;
+                
+            case( SYNTAX_CHECKER_INDEX ):
+                SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( null );
+                
+                for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
+                {
+                    subentryModifier.add( opContext, syntaxCheckerDescription );
+                }
+                
+                break;
+                
+            case( SYNTAX_INDEX ):
+                LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( null );
+                
+                for ( LdapSyntax syntax : syntaxes )
+                {
+                    subentryModifier.addSchemaObject( opContext, syntax );
+                }
+                
+                break;
+                
+            case( MATCHING_RULE_INDEX ):
+                MatchingRule[] mrs = parsers.parseMatchingRules( null );
+                
+                for ( MatchingRule mr : mrs )
+                {
+                    subentryModifier.addSchemaObject( opContext, mr );
+                }
+                
+                break;
+                
+            case( ATTRIBUTE_TYPE_INDEX ):
+                AttributeType[] ats = parsers.parseAttributeTypes( null );
+                
+                for ( AttributeType at : ats )
+                {
+                    subentryModifier.addSchemaObject( opContext, at );
+                }
+                
+                break;
+                
+            case( OBJECT_CLASS_INDEX ):
+                ObjectClass[] ocs = parsers.parseObjectClasses( null );
+
+                for ( ObjectClass oc : ocs )
+                {
+                    subentryModifier.addSchemaObject( opContext, oc );
+                }
+                
+                break;
+                
+            case( MATCHING_RULE_USE_INDEX ):
+                MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( null );
+                
+                for ( MatchingRuleUse mru : mrus )
+                {
+                    subentryModifier.addSchemaObject( opContext, mru );
+                }
+                
+                break;
+                
+            case( DIT_STRUCTURE_RULE_INDEX ):
+                DITStructureRule[] dsrs = parsers.parseDitStructureRules( null );
+                
+                for ( DITStructureRule dsr : dsrs )
+                {
+                    subentryModifier.addSchemaObject( opContext, dsr );
+                }
+                
+                break;
+                
+            case( DIT_CONTENT_RULE_INDEX ):
+                DITContentRule[] dcrs = parsers.parseDitContentRules( null );
+                
+                for ( DITContentRule dcr : dcrs )
+                {
+                    subentryModifier.addSchemaObject( opContext, dcr );
+                }
+                
+                break;
+                
+            case( NAME_FORM_INDEX ):
+                NameForm[] nfs = parsers.parseNameForms( null );
+                
+                for ( NameForm nf : nfs )
+                {
+                    subentryModifier.addSchemaObject( opContext, nf );
+                }
+                
+                break;
+                
+            default:
+                throw new IllegalStateException( "Unknown index into handler array: " + index );
+        }
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modifySchemaSubentry(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
      */
-    public void modifySchemaSubentry( ModifyOperationContext opContext, 
-        ServerEntry subentry, ServerEntry targetSubentry, boolean doCascadeModify ) throws Exception 
+    public void modifySchemaSubentry( ModifyOperationContext opContext, boolean doCascadeModify ) throws Exception 
     {
         for ( Modification mod : opContext.getModItems() )
         {

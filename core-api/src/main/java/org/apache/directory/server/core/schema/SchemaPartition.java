@@ -482,4 +482,13 @@ public final class SchemaPartition extends AbstractPartition
     {
         this.loader = loader;
     }
+    
+    
+    /**
+     * @return The schemapartition loader
+     */
+    public SchemaLoader getLoader()
+    {
+        return loader;
+    }
 }

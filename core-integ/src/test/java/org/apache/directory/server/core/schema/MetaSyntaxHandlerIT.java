@@ -45,8 +45,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -55,6 +53,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -119,15 +118,15 @@ public class MetaSyntaxHandlerIT
     public void testAddSyntax() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_SYNTAX_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaSyntax" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-description", DESCRIPTION0 );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         createDummySyntaxChecker( OID, "apachemeta" );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -140,7 +139,7 @@ public class MetaSyntaxHandlerIT
     public void testDeleteSyntax() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         testAddSyntax();
         
         getSchemaContext( service ).destroySubcontext( dn );
@@ -164,11 +163,11 @@ public class MetaSyntaxHandlerIT
     public void testRenameSyntax() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         testAddSyntax();
         
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old syntax OID should be removed from the registry after being renamed", 
@@ -189,15 +188,16 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntax() throws Exception
     {
         testAddSyntax();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getSyntaxContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -210,15 +210,16 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxAndChangeRdn() throws Exception
     {
         testAddSyntax();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getSyntaxContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -242,10 +243,10 @@ public class MetaSyntaxHandlerIT
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        Attribute attr = new BasicAttribute( "m-description", DESCRIPTION1 );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -269,10 +270,10 @@ public class MetaSyntaxHandlerIT
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
 
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
-        mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
+        mods.put( "m-description", DESCRIPTION1 );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "syntax OID should still be present", 
@@ -295,7 +296,7 @@ public class MetaSyntaxHandlerIT
     public void testDeleteSyntaxWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         testAddSyntax();
         addDependeeMatchingRule( OID );
         
@@ -315,16 +316,17 @@ public class MetaSyntaxHandlerIT
     
     
     @Test
+    @Ignore
     public void testMoveSyntaxWhenInUse() throws Exception
     {
         testAddSyntax();
         addDependeeMatchingRule( OID );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getSyntaxContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -342,16 +344,17 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxAndChangeRdnWhenInUse() throws Exception
     {
         testAddSyntax();
         addDependeeMatchingRule( OID );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getSyntaxContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -384,16 +387,16 @@ public class MetaSyntaxHandlerIT
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_MATCHING_RULE_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaMatchingRule" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, MR_OID );
-        attrs.put( MetaSchemaConstants.M_SYNTAX_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, MR_DESCRIPTION );
+        attrs.put( "m-oid", MR_OID );
+        attrs.put( "m-syntax", OID );
+        attrs.put( "m-description", MR_DESCRIPTION );
         
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + MR_OID );
+        dn.add( "m-oid" + "=" + MR_OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( getMatchingRuleRegistry().contains( MR_OID ) );
@@ -405,12 +408,12 @@ public class MetaSyntaxHandlerIT
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         testAddSyntax();
         addDependeeMatchingRule( OID );
         
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -433,15 +436,16 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxToTop() throws Exception
     {
         testAddSyntax();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN top = new LdapDN();
-        top.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        top.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -459,15 +463,16 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxToComparatorContainer() throws Exception
     {
         testAddSyntax();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -488,16 +493,16 @@ public class MetaSyntaxHandlerIT
     public void testAddSyntaxToDisabledSchema() throws Exception
     {
         Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_SYNTAX_OC );
+        Attribute oc = new BasicAttribute( "objectClass", "top" );
+        oc.add( "metaTop" );
+        oc.add( "metaSyntax" );
         attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION0 );
+        attrs.put( "m-oid", OID );
+        attrs.put( "m-description", DESCRIPTION0 );
         
         // nis is by default inactive
         LdapDN dn = getSyntaxContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         createDummySyntaxChecker( OID, "nis" );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
@@ -507,16 +512,17 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxToDisabledSchema() throws Exception
     {
         testAddSyntax();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         LdapDN newdn = getSyntaxContainer( "nis" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -526,19 +532,20 @@ public class MetaSyntaxHandlerIT
 
 
     @Test
+    @Ignore
     public void testMoveSyntaxToEnabledSchema() throws Exception
     {
         testAddSyntaxToDisabledSchema();
         
         // nis is inactive by default
         LdapDN dn = getSyntaxContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "syntax OID should NOT be present when added to disabled nis schema", 
             getLdapSyntaxRegistry().contains( OID ) );
 
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -564,6 +571,7 @@ public class MetaSyntaxHandlerIT
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
         dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         Attribute attr = new BasicAttribute( opAttr );
+        
         for ( String description : descriptions )
         {
             attr.add( description );
