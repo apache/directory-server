@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,9 +45,19 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ObjectClassSynchronizer.class );
+
+    /** The ObjectClass registry */
     private final ObjectClassRegistry objectClassRegistry;
 
 
+    /**
+     * Creates a new instance of ObjectClassSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public ObjectClassSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -71,23 +83,31 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         checkOidIsUnique( entry );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( dn );
         ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
+
+        addToSchema( oc, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
             objectClassRegistry.register( oc );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {
             registerOids( oc );
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -98,24 +118,40 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
+        ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
+
+        if ( !isSchemaLoaded( schemaName ) )
+        {
+            // Cannot remove an AT from a not loaded schema
+            String msg = "Cannot delete " + entry.getDn().getUpName() + ", from the not loade schema " +
+                schemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
 
         if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
-            if ( objectClassRegistry.hasDescendants( oc.getOid() ) )
+            if ( objectClassRegistry.hasDescendants( objectClass.getOid() ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                     " dependant ObjectClasses";
                 
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
-            
-            objectClassRegistry.unregister( oc.getOid() );
+        }
+
+        deleteFromSchema( objectClass, schemaName );
+
+        if ( isSchemaEnabled( schemaName ) )
+        {
+            objectClassRegistry.unregister( objectClass.getOid() );
+            LOG.debug( "Removed {} from the enabled schema {}", objectClass, schemaName );
         }
         else
         {
-            unregisterOids( oc );
+            unregisterOids( objectClass );
+            LOG.debug( "Removed {} from the disabled schema {}", objectClass, schemaName );
         }
     }
 

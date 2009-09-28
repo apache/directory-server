@@ -37,6 +37,12 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class NameFormSynchronizer extends AbstractRegistrySynchronizer
 {
+    /**
+     * Creates a new instance of NameFormSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     protected NameFormSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -56,11 +62,10 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#add(
-     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
+    /**
+     * {@inheritDoc}
      */
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    public void add( ServerEntry entry ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

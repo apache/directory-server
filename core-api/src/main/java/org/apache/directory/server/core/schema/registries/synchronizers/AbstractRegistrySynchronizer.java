@@ -32,15 +32,19 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.SchemaWrapper;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -51,6 +55,9 @@ import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
  */
 public abstract class AbstractRegistrySynchronizer implements RegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractRegistrySynchronizer.class );
+
     /** The global registries */
     protected final Registries registries;
     
@@ -73,9 +80,28 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
+    /**
+     * Tells if the schema the DN references is loaded or not
+     *
+     * @param dn The SchemaObject's DN 
+     * @return true if the schema is loaded
+     * @throws Exception If The DN is not a SchemaObject DN
+     */
     protected boolean isSchemaLoaded( LdapDN dn ) throws Exception
     {
         return registries.isSchemaLoaded( getSchemaName( dn ) );
+    }
+    
+    
+    /**
+     * Tells if the schemaName is loaded or not
+     *
+     * @param schemaName The schema we want to check
+     * @return true if the schema is loaded
+     */
+    protected boolean isSchemaLoaded( String schemaName )
+    {
+        return registries.isSchemaLoaded( schemaName );
     }
     
     
@@ -149,7 +175,84 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 ResultCodeEnum.OTHER );
         }
     }
+
     
+    /**
+     * Add a new SchemaObject to the schema registry, assuming that
+     * it has an associated schema and that this schema is loaded
+     */
+    protected void addToSchema( SchemaObject schemaObject, String schemaName ) throws Exception
+    {
+        if ( isSchemaLoaded( schemaName ) )
+        {
+            Set<SchemaWrapper> schemaObjects = registries.getObjectBySchemaname().get( schemaName );
+            
+            if ( schemaObjects == null )
+            {
+                schemaObjects = registries.addSchema( schemaName );
+            }
+            
+            SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
+            
+            if ( schemaObjects.contains( schemaWrapper ) )
+            {
+                String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
+                " as this schema already contains this element";
+                LOG.warn( msg );
+            
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
+            schemaObjects.add( schemaWrapper );
+            LOG.debug( "The SchemaObject {} has been added to the schema {}", schemaObject, schemaName   );
+        }
+        else
+        {
+            String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
+            " as this schema is not loaded";
+            LOG.warn( msg );
+        
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+    }
+
+    
+    
+    
+    /**
+     * Delete a SchemaObject from the schema registry, assuming that
+     * it has an associated schema and that this schema is loaded
+     */
+    protected void deleteFromSchema( SchemaObject schemaObject, String schemaName ) throws Exception
+    {
+        if ( isSchemaLoaded( schemaName ) )
+        {
+            Set<SchemaWrapper> schemaObjects = registries.getObjectBySchemaname().get( schemaName );
+
+            SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
+            
+            if ( !schemaObjects.contains( schemaWrapper ) )
+            {
+                String msg = "Cannot remove " + schemaObject.getName() + " from " + schemaName + 
+                " as this schema does not contain this element";
+                LOG.warn( msg );
+            
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+            
+            schemaObjects.remove( schemaWrapper );
+            LOG.debug(  "The SchemaObject {} has been removed from the schema {}", schemaObject, schemaName );
+        }
+        else
+        {
+            String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
+            " as this schema is not loaded";
+            LOG.warn( msg );
+        
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+    }
+
     
     protected abstract boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
         throws Exception;

@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,13 +46,53 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( AttributeTypeSynchronizer.class );
+
+    /** A reference to the AttributeType registry */
     private final AttributeTypeRegistry atRegistry;
 
-    
+    /**
+     * Creates a new instance of AttributeTypeSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public AttributeTypeSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
         this.atRegistry = registries.getAttributeTypeRegistry();
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
+    {
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
+        parentDn.remove( parentDn.size() - 1 );
+        
+        checkNewParent( parentDn );
+        checkOidIsUnique( entry );
+        
+        String schemaName = getSchemaName( dn );
+        AttributeType at = factory.getAttributeType( entry, registries, schemaName );
+        
+        addToSchema( at, schemaName );
+        
+        if ( isSchemaEnabled( schemaName ) )
+        {
+            // Don't inject the modified element if the schema is disabled
+            atRegistry.register( at );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+        }
+        else
+        {
+            registerOids( at );
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+        }
     }
 
 
@@ -77,57 +119,47 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
     
     
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
-    {
-        LdapDN parentDn = ( LdapDN ) name.clone();
-        parentDn.remove( parentDn.size() - 1 );
-        checkNewParent( parentDn );
-        checkOidIsUnique( entry );
-        
-        String schemaName = getSchemaName( name );
-        AttributeType at = factory.getAttributeType( entry, registries, schemaName );
-        
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            // Don't inject the modified element if the schema is disabled
-            atRegistry.register( at );
-        }
-        else
-        {
-            registerOids( at );
-        }
-    }
-
-
     /**
-     * Delete the attributeType, if it has no descendant.
-     * 
-     * @param entry the AttributeType entry to delete
-     * @param cascade unused
-     * @exception Exception if the deletion failed
+     * {@inheritDoc}
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType at = factory.getAttributeType( entry, registries, schemaName );
+        AttributeType attributeType = factory.getAttributeType( entry, registries, schemaName );
         
+        if ( !isSchemaLoaded( schemaName ) )
+        {
+            // Cannot remove an AT from a not loaded schema
+            String msg = "Cannot delete " + entry.getDn().getUpName() + ", from the not loade schema " +
+                schemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
         if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
-            if ( atRegistry.hasDescendants( at.getOid() ) )
+            if ( atRegistry.hasDescendants( attributeType.getOid() ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                     " dependant AttributeTypes";
-                
+                LOG.warn( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
-            
+        }
+
+        deleteFromSchema( attributeType, schemaName );
+
+        if ( isSchemaEnabled( schemaName ) )
+        {
             // Don't inject the modified element if the schema is disabled
-            atRegistry.unregister( at.getOid() );
+            atRegistry.unregister( attributeType.getOid() );
+            LOG.debug( "Removed {} from the enabled schema {}", attributeType, schemaName );
         }
         else
         {
-            unregisterOids( at );
+            unregisterOids( attributeType );
+            LOG.debug( "Removed {} from the disabled schema {}", attributeType, schemaName );
         }
     }
 
@@ -187,7 +219,25 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String newOid = ( String ) newRn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
-        AttributeType at = factory.getAttributeType( targetEntry, registries, newSchemaName );
+        AttributeType newAt = factory.getAttributeType( targetEntry, registries, newSchemaName );
+
+        
+        if ( !isSchemaLoaded( oldSchemaName ) )
+        {
+            String msg = "Cannot move a schemaObject from a not loaded schema " + oldSchemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        if ( !isSchemaLoaded( newSchemaName ) )
+        {
+            String msg = "Cannot move a schemaObject to a not loaded schema " + newSchemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        deleteFromSchema( oldAt, oldSchemaName );
+        addToSchema( newAt, newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
@@ -200,11 +250,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            atRegistry.register( at );
+            atRegistry.register( newAt );
         }
         else
         {
-            registerOids( at );
+            registerOids( newAt );
         }
     }
 
@@ -216,7 +266,24 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
         AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
-        AttributeType at = factory.getAttributeType( entry, registries, newSchemaName );
+        AttributeType newAt = factory.getAttributeType( entry, registries, newSchemaName );
+        
+        if ( !isSchemaLoaded( oldSchemaName ) )
+        {
+            String msg = "Cannot move a schemaObject from a not loaded schema " + oldSchemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        if ( !isSchemaLoaded( newSchemaName ) )
+        {
+            String msg = "Cannot move a schemaObject to a not loaded schema " + newSchemaName;
+            LOG.warn( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        deleteFromSchema( oldAt, oldSchemaName );
+        addToSchema( newAt, newSchemaName );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
@@ -229,11 +296,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            atRegistry.register( at );
+            atRegistry.register( newAt );
         }
         else
         {
-            registerOids( at );
+            registerOids( newAt );
         }
     }
     

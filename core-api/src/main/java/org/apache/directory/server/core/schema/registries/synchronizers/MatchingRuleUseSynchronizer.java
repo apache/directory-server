@@ -37,7 +37,12 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
 {
-
+    /**
+     * Creates a new instance of MatchingRuleUseSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     protected MatchingRuleUseSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -54,7 +59,10 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws NamingException
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

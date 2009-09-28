@@ -44,10 +44,8 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
@@ -69,6 +67,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RegistrySynchronizerAdaptor
 {
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( RegistrySynchronizerAdaptor.class );
 
     // indices of handlers and object ids into arrays
@@ -164,18 +163,16 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                LdapDN dn = opContext.getDn();
                 ServerEntry entry = opContext.getEntry();
-                synchronizer.add( dn, entry );
+                synchronizer.add( entry );
                 return;
             }
         }
         
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            LdapDN dn = opContext.getDn();
             ServerEntry entry = opContext.getEntry();
-            schemaSynchronizer.add( dn, entry );
+            schemaSynchronizer.add( entry );
             return;
         }
         
@@ -414,19 +411,5 @@ public class RegistrySynchronizerAdaptor
         }
         
         throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
-    }
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#getSchema(org.apache.directory.shared.ldap.schema.SchemaObject)
-     */
-    public String getSchema( SchemaObject schemaObject ) 
-    {
-        if ( schemaObject.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
-        {
-            return schemaObject.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
-        }
-        
-        return MetaSchemaConstants.SCHEMA_OTHER;
     }
 }

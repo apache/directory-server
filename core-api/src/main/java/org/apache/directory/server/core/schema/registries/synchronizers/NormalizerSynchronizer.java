@@ -35,6 +35,8 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,10 +47,22 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( NormalizerSynchronizer.class );
+
+    /** The normalizer registry */
     private final NormalizerRegistry normalizerRegistry;
+    
+    /** The matchingRule registry */
     private final MatchingRuleRegistry matchingRuleRegistry;
     
 
+    /**
+     * Creates a new instance of NormalizerSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public NormalizerSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -77,21 +91,28 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         checkOidIsUniqueForNormalizer( entry );
         
         Normalizer normalizer = factory.getNormalizer( entry, registries );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( dn );
         normalizer.setSchemaName( schemaName );
         
+        addToSchema( normalizer, schemaName );
+
         if ( isSchemaEnabled( schemaName ) )
         {
             normalizerRegistry.register( normalizer );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -101,23 +122,30 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
-        delete( getOid( entry ), cascade );
-    }
-
-
-    public void delete( String oid, boolean cascade ) throws NamingException
-    {
+        String schemaName = getSchemaName( entry.getDn() );
+        Normalizer normalizer = factory.getNormalizer( entry, registries );
+        String oid = normalizer.getOid();
+        
         if ( matchingRuleRegistry.contains( oid ) )
         {
-            throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid 
+            String msg = "The normalizer with OID " + oid 
                 + " cannot be deleted until all " 
-                + "matchingRules using that normalizer have also been deleted.", 
+                + "matchingRules using that normalizer have also been deleted.";
+            LOG.warn(  msg  );
+            throw new LdapOperationNotSupportedException( msg, 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
+        deleteFromSchema( normalizer, schemaName );
+
         if ( normalizerRegistry.contains( oid ) )
         {
             normalizerRegistry.unregister( oid );
+            LOG.debug( "Removed {} from the enabled schema {}", normalizer, schemaName );
+        }
+        else
+        {
+            LOG.debug( "Removed {} from the enabled schema {}", normalizer, schemaName );
         }
     }
     

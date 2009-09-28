@@ -35,6 +35,8 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,10 +48,22 @@ import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
  */
 public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( SyntaxCheckerSynchronizer.class );
+
+    /** The SyntaxChecker registry */
     private final SyntaxCheckerRegistry syntaxCheckerRegistry;
+    
+    /** The Syntax registry */
     private final LdapSyntaxRegistry ldapSyntaxRegistry;
     
 
+    /**
+     * Creates a new instance of SyntaxCheckerSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public SyntaxCheckerSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -78,9 +92,13 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         String oid = getOid( entry );
@@ -93,12 +111,15 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries );
 
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( dn );
         syntaxChecker.setSchemaName( schemaName );
+
+        addToSchema( syntaxChecker, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
             syntaxCheckerRegistry.register( syntaxChecker );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -112,17 +133,26 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         if ( ldapSyntaxRegistry.contains( oid ) )
         {
-            throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
+            String msg = "The syntaxChecker with OID " + oid 
                 + " cannot be deleted until all " 
-                + "syntaxes using this syntaxChecker have also been deleted.", 
+                + "syntaxes using this syntaxChecker have also been deleted.";
+            throw new LdapOperationNotSupportedException( msg, 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
         String schemaName = getSchemaName( entry.getDn() );
 
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries );
+        deleteFromSchema( syntaxChecker, schemaName );
+
         if ( isSchemaEnabled( schemaName ) )
         {
             syntaxCheckerRegistry.unregister( oid );
+            LOG.debug( "Removed {} from the enabled schema {}", syntaxChecker, schemaName );
+        }
+        else
+        {
+            LOG.debug( "Removed {} from the disabled schema {}", syntaxChecker, schemaName );
         }
     }
 

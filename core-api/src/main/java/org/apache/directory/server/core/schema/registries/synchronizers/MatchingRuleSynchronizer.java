@@ -32,6 +32,8 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,9 +45,19 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( MatchingRuleSynchronizer.class );
+
+    /** The matchingRule registry */
     private final MatchingRuleRegistry matchingRuleRegistry;
 
     
+    /**
+     * Creates a new instance of MatchingRuleSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public MatchingRuleSynchronizer( Registries registries ) 
         throws Exception
     {
@@ -76,23 +88,31 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         checkOidIsUnique( entry );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( dn );
         MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
         
+        addToSchema( mr, schemaName );
+
         if ( isSchemaEnabled( schemaName ) )
         {
             matchingRuleRegistry.register( mr );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {
             registerOids( mr );
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -103,15 +123,19 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
+        MatchingRule matchingRule = factory.getMatchingRule( entry, registries, schemaName );
+        
+        deleteFromSchema( matchingRule, schemaName );
         
         if ( isSchemaEnabled( schemaName ) )
         {
-            matchingRuleRegistry.unregister( mr.getOid() );
+            matchingRuleRegistry.unregister( matchingRule.getOid() );
+            LOG.debug( "Removed {} from the enabled schema {}", matchingRule, schemaName );
         }
         else
         {
-            unregisterOids( mr );
+            unregisterOids( matchingRule );
+            LOG.debug( "Removed {} from the disabled schema {}", matchingRule, schemaName );
         }
     }
 

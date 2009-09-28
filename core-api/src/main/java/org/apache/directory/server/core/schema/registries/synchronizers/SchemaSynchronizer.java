@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -46,10 +45,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.SchemaWrapper;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,6 +63,9 @@ import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
  */
 public class SchemaSynchronizer implements RegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaSynchronizer.class );
+
     private final SchemaEntityFactory factory;
     private final PartitionSchemaLoader loader;
     
@@ -211,9 +216,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
      */
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         parentDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
@@ -288,10 +294,13 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         // Before allowing a schema object to be deleted we must check
         // to make sure it's not depended upon by another schema
         Set<String> dependents = loader.listDependentSchemaNames( schemaName );
+        
         if ( ! dependents.isEmpty() )
         {
+            String msg = "Cannot delete schema that has dependents: " + dependents; 
+            LOG.warn( msg );
             throw new LdapOperationNotSupportedException(
-                "Cannot delete schema that has dependents: " + dependents,
+                msg,
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
@@ -521,15 +530,14 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         schema.disable();
         
-        // @TODO elecharny
-        
-        if ( "blah".equals( "blah" ) )
+        Set<SchemaWrapper> content = registries.getLoadedSchema( schemaName ).getContent(); 
+
+        for ( SchemaWrapper schemaWrapper : content )
         {
-            throw new NotImplementedException( "We have to disable the schema on partition" +
-                    " and we have to implement the unload method below." );
+            SchemaObject schemaObject = schemaWrapper.get();
+            
+            System.out.println( "Disabling " + schemaObject.getName() );
         }
-        
-        // registries.unload( schemaName );
         
         return SCHEMA_MODIFIED;
     }

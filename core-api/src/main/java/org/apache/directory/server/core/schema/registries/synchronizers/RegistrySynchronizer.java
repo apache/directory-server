@@ -45,7 +45,13 @@ public interface RegistrySynchronizer
     static final boolean SCHEMA_UNCHANGED = false;
     
     
-    void add( LdapDN name, ServerEntry entry ) throws Exception;
+    /**
+     * Adds a new SchemaObject to its registry
+     *
+     * @param entry The SchemObject to add
+     * @throws Exception If the addition failed
+     */
+    void add( ServerEntry entry ) throws Exception;
     
     
     /**

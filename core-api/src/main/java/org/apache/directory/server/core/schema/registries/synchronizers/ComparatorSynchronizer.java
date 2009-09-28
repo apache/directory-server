@@ -35,6 +35,8 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,10 +48,22 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( ComparatorSynchronizer.class );
+
+    /** The Comparator registry */
     private final ComparatorRegistry comparatorRegistry;
+    
+    /** The MatchingRule registry */
     private final MatchingRuleRegistry matchingRuleRegistry;
 
     
+    /**
+     * Creates a new instance of ComparatorSynchronizer.
+     *
+     * @param registries The global registries
+     * @throws Exception If the initialization failed
+     */
     public ComparatorSynchronizer( Registries registries ) throws Exception
     {
         super( registries );
@@ -78,20 +92,27 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
     
 
-    public void add( LdapDN name, ServerEntry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void add( ServerEntry entry ) throws Exception
     {
-        LdapDN parentDn = ( LdapDN ) name.clone();
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
         checkOidIsUniqueForComparator( entry );
         LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
         
-        String schemaName = getSchemaName( name );
+        String schemaName = getSchemaName( dn );
         comparator.setSchemaName( schemaName );
         
+        addToSchema( comparator, schemaName );
+
         if ( isSchemaEnabled( schemaName ) )
         {
             comparatorRegistry.register( comparator );
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -102,18 +123,30 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
         String oid = getOid( entry );
+        String schemaName = getSchemaName( entry.getDn() ); 
         
         if ( matchingRuleRegistry.contains( oid ) )
         {
-            throw new LdapOperationNotSupportedException( "The comparator with OID " + oid 
+            String msg = "The comparator with OID " + oid 
                 + " cannot be deleted until all " 
-                + "matchingRules using that comparator have also been deleted.", 
+                + "matchingRules using that comparator have also been deleted.";
+            LOG.warn(  msg  );
+            throw new LdapOperationNotSupportedException( msg, 
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
+        LdapComparator<?> comparator = factory.getLdapComparator( entry, registries );
+
+        deleteFromSchema( comparator, schemaName );
+
         if ( comparatorRegistry.contains( oid ) )
         {
             comparatorRegistry.unregister( oid );
+            LOG.debug( "Removed {} from the enabled schema {}", comparator, schemaName );
+        }
+        else
+        {
+            LOG.debug( "Removed {} from the disabled schema {}", comparator, schemaName );
         }
     }
 
