@@ -32,7 +32,6 @@ import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
@@ -47,7 +46,6 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -369,20 +367,6 @@ public class SchemaSubentryManager
             default:
                 throw new IllegalStateException( "Undefined modify operation: " + modOp );
         }
-    }
-
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#getSchema(org.apache.directory.shared.ldap.schema.SchemaObject)
-     */
-    public String getSchema( SchemaObject schemaObject ) 
-    {
-        if ( schemaObject.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
-        {
-            return schemaObject.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
-        }
-        
-        return MetaSchemaConstants.SCHEMA_OTHER;
     }
     
 
