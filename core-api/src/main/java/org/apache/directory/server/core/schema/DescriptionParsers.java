@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
@@ -68,8 +67,6 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class DescriptionParsers
 {
-    private static final String OTHER_SCHEMA = "other";
-
     private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
     private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
     private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
@@ -736,23 +733,6 @@ public class DescriptionParsers
     
     
     /**
-     * Called to populate the common schema object properties using an abstract 
-     * description object.
-     *   
-     * @param desc the source description object to copy properties from
-     * @param obj the mutable schema object to copy properites to
-     */
-    private void setSchemaObjectProperties( SchemaObject desc, SchemaObject obj )
-    {
-        obj.setDescription( desc.getDescription() );
-        obj.setSchemaName( getSchema( desc ) );
-
-        obj.setNames( desc.getNames() );
-        obj.setObsolete( desc.isObsolete() );
-    }
-    
-    
-    /**
      * Checks to see if the syntax description is human readable by checking 
      * for the presence of the X-IS-HUMAN_READABLE schema extension.
      * 
@@ -778,28 +758,6 @@ public class DescriptionParsers
             {
                 return false;
             }
-        }
-    }
-    
-    
-    /**
-     * Gets the schema name for the schema description by looking up the value 
-     * of the X-SCHEMA schema extension of the description. 
-     * 
-     * @param desc the schema description 
-     * @return the schema name for the schema entity
-     */
-    private String getSchema( SchemaObject desc ) 
-    {
-        List<String> values = desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA );
-        
-        if ( values == null )
-        {
-            return OTHER_SCHEMA;
-        }
-        else 
-        {
-            return values.get( 0 );
         }
     }
 }
