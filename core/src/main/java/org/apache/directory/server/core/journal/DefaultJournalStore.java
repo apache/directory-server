@@ -35,8 +35,6 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 
 /**
  * 
- * @author elecharny
- *
   * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
