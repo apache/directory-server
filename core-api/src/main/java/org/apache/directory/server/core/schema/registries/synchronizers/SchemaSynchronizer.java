@@ -174,10 +174,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( disabledModification != null )
         {
             // We are trying to modify the m-disabled attribute. 
-            hasModification = disable( name, 
-                     disabledModification.getOperation(), 
-                     (ServerAttribute)disabledModification.getAttribute(), 
-                     disabledInEntry );
+            ModificationOperation modification = disabledModification.getOperation();
+            ServerAttribute attribute = (ServerAttribute)disabledModification.getAttribute();
+            
+            hasModification = disable( name, modification, attribute, disabledInEntry );
         }
 
         // check if the new schema is enabled or disabled

@@ -119,7 +119,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         initStaticDNs( "core" );
         initStaticDNs( "apache" );
         initStaticDNs( "apachemeta" );
-        initStaticDNs( "other" );
+        initStaticDNs( MetaSchemaConstants.SCHEMA_OTHER );
         initStaticDNs( "collective" );
         initStaticDNs( "java" );
         initStaticDNs( "cosine" );
