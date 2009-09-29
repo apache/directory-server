@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -254,36 +253,6 @@ public class RegistrySynchronizerAdaptor
         throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.shared.ldap.entry.ModificationOperation, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
-     */
-    public void modify( ModifyOperationContext opContext, ModificationOperation modOp, ServerEntry mods, 
-        ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
-    {
-        EntryAttribute oc = entry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
-        {
-            String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
-            if ( objectClass2synchronizerMap.containsKey( oid ) )
-            {
-                RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.modify( opContext.getDn(), modOp, mods, entry, targetEntry, cascade );
-                return;
-            }
-        }
-
-        if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
-        {
-            schemaSynchronizer.modify( opContext.getDn(), modOp, mods, entry, targetEntry, cascade );
-            return;
-        }
-        
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
-    }
-
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)

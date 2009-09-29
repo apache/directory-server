@@ -28,9 +28,11 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -46,6 +48,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaWrapper;
+import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
@@ -104,52 +107,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         ouSchemaDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
         ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-    }
-
-
-    /**
-     * Reacts to modification of a metaSchema object.  At this point the 
-     * only considerable changes are to the m-disabled and the 
-     * m-dependencies attributes.
-     * 
-     * @param name the dn of the metaSchema object modified
-     * @param modOp the type of modification operation being performed
-     * @param mods the attribute modifications as an Attributes object
-     * @param entry the entry after the modifications have been applied
-     */
-    public boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, 
-        ServerEntry targetEntry, boolean cascade ) throws Exception
-    {
-        boolean hasModification = SCHEMA_UNCHANGED;
-
-        EntryAttribute disabledInMods = mods.get( disabledAT );
-        
-        if ( disabledInMods != null )
-        {
-            disable( name, modOp, disabledInMods, entry.get( disabledAT ) );
-        }
-        
-        // check if the new schema is enabled or disabled
-        boolean isEnabled = false;
-        EntryAttribute disabled = targetEntry.get( this.disabledAT );
-        
-        if ( disabled == null )
-        {
-            isEnabled = true;
-        }
-        else if ( ! disabled.getString().equals( "TRUE" ) )
-        {
-            isEnabled = true;
-        }
-
-        EntryAttribute dependencies = mods.get( dependenciesAT );
-        
-        if ( dependencies != null )
-        {
-            checkForDependencies( isEnabled, targetEntry );
-        }
-        
-        return hasModification;
     }
 
 
@@ -530,6 +487,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         schema.disable();
         
+        // Use brute force right now : iterate through all the schemaObjects
+        // searching for those associated with the disabled schema
+        disableAT( schemaName );
+        
         Set<SchemaWrapper> content = registries.getLoadedSchema( schemaName ).getContent(); 
 
         for ( SchemaWrapper schemaWrapper : content )
@@ -540,6 +501,27 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         
         return SCHEMA_MODIFIED;
+    }
+    
+    
+    private void disableAT( String schemaName )
+    {
+        AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
+        
+        for ( AttributeType attributeType : atRegistry )
+        {
+            if ( schemaName.equalsIgnoreCase( attributeType.getSchemaName() ) )
+            {
+                if ( attributeType.isDisabled() )
+                {
+                    continue;
+                }
+                
+                EntryAttribute disable = new DefaultServerAttribute( disabledAT, "TRUE"  );
+                Modification modification = 
+                    new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, disable );
+            }
+        }
     }
 
 

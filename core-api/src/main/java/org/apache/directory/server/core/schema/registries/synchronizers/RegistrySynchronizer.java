@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -73,9 +72,6 @@ public interface RegistrySynchronizer
      * @throws Exception If the rename failed
      */
     void rename( ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
-    
-    boolean modify( LdapDN name, ModificationOperation modOp, ServerEntry mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded ) 
-        throws Exception;
     
     boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
         throws Exception;
