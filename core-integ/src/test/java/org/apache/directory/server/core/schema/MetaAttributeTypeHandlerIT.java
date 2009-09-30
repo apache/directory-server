@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,17 +101,16 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testAddAttributeType() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaAttributeType" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-equality", "caseIgnoreMatch" );
-        attrs.put( "m-singleValue", "FALSE" );
-        attrs.put( "m-usage", "directoryOperation" );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid:" + OID,
+            "m-syntax:" + SchemaConstants.INTEGER_SYNTAX,
+            "m-description:" + DESCRIPTION0,
+            "m-equality: caseIgnoreMatch",
+            "m-singleValue: FALSE",
+            "m-usage: directoryOperation" );
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
