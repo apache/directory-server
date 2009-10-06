@@ -130,7 +130,7 @@ public class MetaObjectClassHandlerIT
     
     
     @Test
-    public void testDeleteAttributeType() throws Exception
+    public void testDeleteObjectClass() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -183,7 +183,7 @@ public class MetaObjectClassHandlerIT
 
     @Test
     @Ignore
-    public void testMoveAttributeType() throws Exception
+    public void testMoveObjectClass() throws Exception
     {
         addObjectClass();
         
@@ -229,7 +229,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithModificationItems() throws Exception
+    public void testModifyObjectClassWithModificationItems() throws Exception
     {
         addObjectClass();
         
@@ -260,7 +260,7 @@ public class MetaObjectClassHandlerIT
 
     
     @Test
-    public void testModifyAttributeTypeWithAttributes() throws Exception
+    public void testModifyObjectClassWithAttributes() throws Exception
     {
         addObjectClass();
         
