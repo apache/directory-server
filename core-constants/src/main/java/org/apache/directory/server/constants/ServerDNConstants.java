@@ -54,10 +54,10 @@ public class ServerDNConstants
     public static final String CN_SCHEMA_DN_NORMALIZED      = "2.5.4.3=schema";
    
     /** the DN for the schema in dit area */
-    public static final String OU_SCHEMA_DN                 = "ou=schema";
+    //public static final String OU_SCHEMA_DN                 = "ou=schema";
 
     /** the normalized DN for the schema in DIT area */
-    public static final String OU_SCHEMA_DN_NORMALIZED      = "2.5.4.11=schema";
+    //public static final String OU_SCHEMA_DN_NORMALIZED      = "2.5.4.11=schema";
     
     /** The DN for the schema modifications */
     public static final String SCHEMA_MODIFICATIONS_DN      = "cn=schemaModifications,ou=schema";

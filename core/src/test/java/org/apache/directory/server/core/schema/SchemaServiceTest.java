@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,8 +34,6 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -79,19 +79,37 @@ public class SchemaServiceTest
             nameAttrs.add( type.getName() );
         }
         
-        assertTrue( "size of attributes extending name", nameAttrs.size() == 15 || nameAttrs.size() == 23 );
-        assertTrue( nameAttrs.contains( "dmdName" ) );
-        assertTrue( nameAttrs.contains( "o" ) );
-        assertTrue( nameAttrs.contains( "c" ) );
-        assertTrue( nameAttrs.contains( "initials" ) );
-        assertTrue( nameAttrs.contains( "ou" ) );
-        assertTrue( nameAttrs.contains( "sn" ) );
-        assertTrue( nameAttrs.contains( "title" ) );
-        assertTrue( nameAttrs.contains( "l" ) );
-        assertTrue( nameAttrs.contains( "apacheExistence" ) );
-        assertTrue( nameAttrs.contains( "cn" ) );
-        assertTrue( nameAttrs.contains( "st" ) );
-        assertTrue( nameAttrs.contains( "givenName" ) );
+        // We should only have 13 AT
+        String[] expectedNames = new String[]
+        {
+            "sn", 
+            "generationQualifier", 
+            "ou", 
+            "c", 
+            "o", 
+            "l", 
+            "c-st", 
+            "givenName", 
+            "title", 
+            "cn", 
+            "initials", 
+            "dmdName", 
+            "c-ou", 
+            "c-o", 
+            "apacheExistence", 
+            "st", 
+            "c-l"
+        };
+        
+        for ( String name : expectedNames )
+        {
+            if ( nameAttrs.contains( name) )
+            {
+                nameAttrs.remove( name );
+            }
+        }
+        
+        assertEquals( 0, nameAttrs.size() );
     }
 /*
     public void testAlterObjectClassesBogusAttr() throws NamingException

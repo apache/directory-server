@@ -221,7 +221,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             serverEntry = getAttributes( opContext );
         }
+        
+        // Duplicate modifications so that the reverse does not contain the operational attributes
+        List<Modification> clonedMods = new ArrayList<Modification>(); 
 
+        for ( Modification mod : opContext.getModItems() )
+        {
+            clonedMods.add( mod.clone() );
+        }
+
+        // Call the next interceptor
         next.modify( opContext );
 
         // @TODO: needs big consideration!!!
@@ -249,9 +258,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Modify );
         forward.setDn( opContext.getDn() );
         
-        List<Modification> mods = new ArrayList<Modification>( opContext.getModItems().size() );
+        List<Modification> mods = new ArrayList<Modification>( clonedMods.size() );
         
-        for ( Modification modItem : opContext.getModItems() )
+        for ( Modification modItem : clonedMods )
         {
             Modification mod = ((ServerModification)modItem).toClientModification();
             

@@ -162,7 +162,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             name ) );
         
         // we're adding the suffix entry so just ignore stuff to mess with the parent
-        if ( suffix.getNormName().equals( name.getNormName() ) )
+        if ( suffix.equals( name ) )
         {
             nextInterceptor.add( opContext );
             return;

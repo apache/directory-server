@@ -131,37 +131,65 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     {
         
         // Initialize AttributeType Dns
-        LdapDN dn = new LdapDN( "ou=attributetypes,cn=" + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            SchemaConstants.ATTRIBUTES_TYPE_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
-        dn = new LdapDN( "ou=objectclasses,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.OBJECT_CLASSES_PATH, 
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
-        dn = new LdapDN( "ou=matchingrules,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.MATCHING_RULES_PATH, 
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
         // Initialize Comparators Dns
-        dn = new LdapDN( "ou=comparators,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.COMPARATORS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticComparatorsDNs.put( schemaName, dn );
         
         // Initialize Normalizers Dns
-        dn = new LdapDN( "ou=normalizers,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.NORMALIZERS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
-        dn = new LdapDN( "ou=syntaxcheckers,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.SYNTAX_CHECKERS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
         // Initialize Syntaxes Dns
-        dn = new LdapDN( "ou=syntaxes,cn=" + schemaName + ",ou=schema" );
+        dn = new LdapDN( 
+            SchemaConstants.SYNTAXES_PATH,
+            "cn=" + schemaName, 
+            SchemaConstants.OU_SCHEMA );
+        
         dn.normalize( atRegistry.getNormalizerMapping() );
         staticSyntaxesDNs.put( schemaName, dn );
 
@@ -367,7 +395,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         loadDitStructureRules( schema, targetRegistries );
         
-        
         notifyListenerOrRegistries( schema, targetRegistries );
     }
 
@@ -409,7 +436,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=objectclasses,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.OBJECT_CLASSES_PATH, 
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticObjectClassesDNs.put( schema.getSchemaName(), dn );
         }
@@ -510,7 +541,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=attributetypes,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.ATTRIBUTES_TYPE_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
         }
@@ -611,7 +646,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=matchingrules,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.MATCHING_RULES_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
         }
@@ -644,7 +683,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=syntaxes,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.SYNTAXES_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticSyntaxesDNs.put( schema.getSchemaName(), dn );
         }
@@ -676,7 +719,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=syntaxcheckers,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.SYNTAX_CHECKERS_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
         }
@@ -696,7 +743,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
-            SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries );
+            SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries, schema.getSchemaName() );
             SyntaxCheckerDescription syntaxCheckerDescription = 
                 getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
             // @TODO elecharny what should I do with the description
@@ -712,7 +759,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=normalizers,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.NORMALIZERS_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticNormalizersDNs.put( schema.getSchemaName(), dn );
         }
@@ -732,7 +783,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ServerEntry attrs = lookupPartition( resultDN );
-            Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries );
+            Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries,schema.getSchemaName() );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
             // @TODO elecharny what should I do with the description
             
@@ -793,7 +844,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( dn == null )
         {
-            dn = new LdapDN( "ou=comparators,cn=" + schema.getSchemaName() + ",ou=schema" );
+            dn = new LdapDN( 
+                SchemaConstants.COMPARATORS_PATH,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
+            
             dn.normalize( atRegistry.getNormalizerMapping() );
             staticComparatorsDNs.put( schema.getSchemaName(), dn );
         }
@@ -813,7 +868,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
             ClonedServerEntry attrs = lookupPartition( resultDN );
-            LdapComparator<?> comparator = factory.getLdapComparator( attrs, targetRegistries );
+            LdapComparator<?> comparator = factory.getLdapComparator( attrs, targetRegistries, schema.getSchemaName() );
             LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), attrs );
             // @TODO elecharny what should I do with description
             

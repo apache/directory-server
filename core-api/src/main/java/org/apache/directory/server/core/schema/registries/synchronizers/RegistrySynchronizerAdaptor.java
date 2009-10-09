@@ -22,12 +22,10 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
@@ -39,13 +37,11 @@ import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
@@ -205,9 +201,11 @@ public class RegistrySynchronizerAdaptor
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext opContext, ClonedServerEntry entry, boolean doCascadeDelete ) 
+    public void delete( DeleteOperationContext opContext, boolean doCascadeDelete ) 
         throws Exception
     {
+        ServerEntry entry = opContext.getEntry();
+        
         EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -254,12 +252,17 @@ public class RegistrySynchronizerAdaptor
     }
     
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#modify(org.apache.directory.server.core.interceptor.context.ModifyOperationContext, org.apache.directory.server.core.entry.ServerEntry, org.apache.directory.server.core.entry.ServerEntry, boolean)
+    /**
+     * Modify the schema
+     *
+     * @param opContext The context
+     * @param targetEntry The modified entry
+     * @param doCascadeModify Not used
+     * @throws Exception If the modification failed
      */
-    public void modify( ModifyOperationContext opContext, ServerEntry entry, 
-        ServerEntry targetEntry, boolean doCascadeModify ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean doCascadeModify ) throws Exception
     {
+        ServerEntry entry = opContext.getEntry();
         EntryAttribute oc = entry.get( objectClassAT );
         
         for ( Value<?> value:oc )
@@ -269,22 +272,20 @@ public class RegistrySynchronizerAdaptor
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.modify( opContext.getDn(), opContext.getModItems(), entry, targetEntry, doCascadeModify );
-                return;
+                boolean hasModification = synchronizer.modify( opContext, targetEntry, doCascadeModify );
+                return hasModification;
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            LdapDN dn = opContext.getDn();
-            List<Modification> modifications = opContext.getModItems(); 
-            schemaSynchronizer.modify( dn, modifications, entry, targetEntry, doCascadeModify );
-            return;
+            boolean hasModification = schemaSynchronizer.modify( opContext, targetEntry, doCascadeModify );
+            return hasModification;
         }
 
         if ( oc.contains(  ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC ) )
         {
-            return;
+            return false;
         }
         
         LOG.error( String.format( "Unwilling to perform modify on %s:\n\nEntry:\n%s\n\nModifications:\n%s", 

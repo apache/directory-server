@@ -54,6 +54,7 @@ import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -65,7 +66,6 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -363,7 +363,7 @@ public abstract class AbstractServerTest
         envFinal.put( Context.PROVIDER_URL, "" );
         rootDSE = directoryService.getAdminSession();
 
-        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.OU_SCHEMA_DN );
+        envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
 

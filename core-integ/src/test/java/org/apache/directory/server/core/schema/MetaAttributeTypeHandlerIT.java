@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( CiRunner.class )
 @CleanupLevel( Level.CLASS )
-public class MetaAttributeTypeHandlerIT
+public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String DESCRIPTION0 = "A test attributeType";
     private static final String DESCRIPTION1 = "An alternate description";
@@ -70,9 +70,12 @@ public class MetaAttributeTypeHandlerIT
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.2.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.2.100002";
 
-
     public static DirectoryService service;
 
+    protected static AttributeTypeRegistry getAttributeTypeRegistry()
+    {
+        return service.getRegistries().getAttributeTypeRegistry();
+    }
     
     /**
      * Gets relative DN to ou=schema.
@@ -87,19 +90,13 @@ public class MetaAttributeTypeHandlerIT
     }
 
 
-    private static AttributeTypeRegistry getAttributeTypeRegistry()
-    {
-        return service.getRegistries().getAttributeTypeRegistry();
-    }
-    
-    
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
 
     
     @Test
-    public void testAddAttributeType() throws Exception
+    public void testAddAttributeTypeToEnabledSchema() throws Exception
     {
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
@@ -118,37 +115,90 @@ public class MetaAttributeTypeHandlerIT
         
         assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( OID ) );
         assertEquals( getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( isOnDisk( dn ) );
     }
     
     
     @Test
-    public void testDeleteAttributeType() throws Exception
+    public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
-        testAddAttributeType();
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid:" + OID,
+            "m-syntax:" + SchemaConstants.INTEGER_SYNTAX,
+            "m-description:" + DESCRIPTION0,
+            "m-equality: caseIgnoreMatch",
+            "m-singleValue: FALSE",
+            "m-usage: directoryOperation" );
+
+        LdapDN dn = getAttributeTypeContainer( "nis" );
+        dn.add( "m-oid=" + OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
+            getAttributeTypeRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testDeleteAttributeTypeFromEnabledSchema() throws Exception
+    {
+        testAddAttributeTypeToEnabledSchema();
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
+
+        // Check in Registries
+        assertTrue( "attributeType should be removed from the registry after being deleted", 
+            getAttributeTypeRegistry().contains( OID ) );
+
+        // Check on disk that the added SchemaObject exist
+        assertTrue( isOnDisk( dn ) );
         
         getSchemaContext( service ).destroySubcontext( dn );
 
+        // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted", 
             getAttributeTypeRegistry().contains( OID ) );
         
-        try
-        {
-            getAttributeTypeRegistry().lookup( OID );
-            fail( "attributeType lookup should fail after deleting it" );
-        }
-        catch( NamingException e )
-        {
-        }
+        // Check on disk that the deleted SchemaObject does not exist anymore
+        assertFalse( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testDeleteAttributeTypeFromDisabledSchema() throws Exception
+    {
+        testAddAttributeTypeToDisabledSchema();
+
+        LdapDN dn = getAttributeTypeContainer( "nis" );
+        dn.add( "m-oid=" + OID );
+
+        // Check in Registries
+        assertFalse( "attributeType should be removed from the registry after being deleted", 
+            getAttributeTypeRegistry().contains( OID ) );
+
+        // Check on disk that the added SchemaObject exist
+        assertTrue( isOnDisk( dn ) );
+        
+        getSchemaContext( service ).destroySubcontext( dn );
+
+        // Check in Registries
+        assertFalse( "attributeType should be removed from the registry after being deleted", 
+            getAttributeTypeRegistry().contains( OID ) );
+        
+        // Check on disk that the deleted SchemaObject does not exist anymore
+        assertFalse( isOnDisk( dn ) );
     }
 
 
     @Test
     public void testRenameAttributeType() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
 
         LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -178,7 +228,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeType() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -200,7 +250,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeTypeAndChangeRdn() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -224,7 +274,7 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
@@ -255,7 +305,7 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
@@ -313,7 +363,7 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -338,7 +388,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeTypeWhenInUse() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         addDependeeAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -366,7 +416,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         addDependeeAttributeType();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -393,7 +443,7 @@ public class MetaAttributeTypeHandlerIT
     @Test
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
 
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -426,7 +476,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeTypeToTop() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -453,7 +503,7 @@ public class MetaAttributeTypeHandlerIT
     @Ignore
     public void testMoveAttributeTypeToComparatorContainer() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
@@ -477,34 +527,10 @@ public class MetaAttributeTypeHandlerIT
     
     
     @Test
-    public void testAddAttributeTypeToDisabledSchema() throws Exception
-    {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaAttributeType" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-equality", "caseIgnoreMatch" );
-        attrs.put( "m-singleValue", "FALSE" );
-        attrs.put( "m-usage", "directoryOperation" );
-        
-        LdapDN dn = getAttributeTypeContainer( "nis" );
-        dn.add( "m-oid=" + OID );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
-        
-        assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
-            getAttributeTypeRegistry().contains( OID ) );
-    }
-
-
-    @Test
     @Ignore
     public void testMoveAttributeTypeToDisabledSchema() throws Exception
     {
-        testAddAttributeType();
+        testAddAttributeTypeToEnabledSchema();
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );

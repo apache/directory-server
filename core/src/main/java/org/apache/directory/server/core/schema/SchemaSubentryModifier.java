@@ -145,8 +145,12 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );   
-        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getOid() + ",ou=comparators,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + comparatorDescription.getOid(),
+            SchemaConstants.COMPARATORS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         Entry entry = getEntry( dn, comparatorDescription );
 
         opContext.add( (ServerEntry)entry, BYPASS );
@@ -156,8 +160,12 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getOid() + ",ou=normalizers,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + normalizerDescription.getOid(),
+            SchemaConstants.NORMALIZERS_PATH , 
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         Entry entry = getEntry( dn, normalizerDescription );
 
         opContext.add( (ServerEntry)entry, BYPASS );
@@ -167,8 +175,12 @@ public class SchemaSubentryModifier
     public void add( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getOid() + ",ou=syntaxCheckers,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + syntaxCheckerDescription.getOid(),
+            SchemaConstants.SYNTAX_CHECKERS_PATH,
+            "cn=" + schemaName, 
+            SchemaConstants.OU_SCHEMA );
+        
         Entry entry = getEntry( dn, syntaxCheckerDescription );
         opContext.add( (ServerEntry)entry, BYPASS );
     }
@@ -195,8 +207,12 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, NormalizerDescription normalizerDescription ) throws Exception
     {
         String schemaName = getSchema( normalizerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getOid() + ",ou=normalizers,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + normalizerDescription.getOid(),
+            SchemaConstants.NORMALIZERS_PATH,
+            "cn=" + schemaName, 
+            SchemaConstants.OU_SCHEMA );
+        
         opContext.delete( dn, BYPASS );
     }
 
@@ -204,8 +220,11 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws Exception
     {
         String schemaName = getSchema( syntaxCheckerDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getOid() + ",ou=syntaxCheckers,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + syntaxCheckerDescription.getOid(), 
+            SchemaConstants.SYNTAX_CHECKERS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
         opContext.delete( dn, BYPASS );
     }
 
@@ -213,8 +232,12 @@ public class SchemaSubentryModifier
     public void delete( OperationContext opContext, LdapComparatorDescription comparatorDescription ) throws Exception
     {
         String schemaName = getSchema( comparatorDescription );
-        LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getOid() + ",ou=comparators,cn=" 
-            + schemaName + ",ou=schema" );
+        LdapDN dn = new LdapDN( 
+            "m-oid=" + comparatorDescription.getOid(),
+            SchemaConstants.COMPARATORS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+        
         opContext.delete( dn, BYPASS );
     }
 

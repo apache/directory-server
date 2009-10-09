@@ -52,7 +52,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +68,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( CiRunner.class )
 @CleanupLevel( Level.CLASS )
-public class MetaSyntaxHandlerIT
+public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String DESCRIPTION0 = "A test normalizer";
     private static final String DESCRIPTION1 = "An alternate description";
@@ -115,15 +116,14 @@ public class MetaSyntaxHandlerIT
 
     
     @Test
-    public void testAddSyntax() throws Exception
+    public void testAddSyntaxToEnabledSchema() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaSyntax" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-description", DESCRIPTION0 );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntax",
+            "m-oid", OID,
+            "m-description", DESCRIPTION0 );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -132,22 +132,48 @@ public class MetaSyntaxHandlerIT
         
         assertTrue( getLdapSyntaxRegistry().contains( OID ) );
         assertEquals( getLdapSyntaxRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( isOnDisk( dn ) );
     }
     
     
     @Test
-    public void testDeleteSyntax() throws Exception
+    public void testAddSyntaxToDisabledSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntax",
+            "m-oid", OID,
+            "m-description", DESCRIPTION0 );
+        
+        // nis is by default inactive
+        LdapDN dn = getSyntaxContainer( "nis" );
+        dn.add( "m-oid" + "=" + OID );
+        createDummySyntaxChecker( OID, "nis" );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
+            getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testDeleteSyntaxFromEnabledSchema() throws Exception
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
+        
+        assertTrue( isOnDisk( dn ) );
+        assertTrue( "syntax should be removed from the registry after being deleted", 
+            getLdapSyntaxRegistry().contains( OID ) );
         
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "syntax should be removed from the registry after being deleted", 
             getLdapSyntaxRegistry().contains( OID ) );
 
-        //noinspection EmptyCatchBlock
         try
         {
             getLdapSyntaxRegistry().lookup( OID );
@@ -156,6 +182,37 @@ public class MetaSyntaxHandlerIT
         catch( NamingException e )
         {
         }
+
+        assertFalse( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testDeleteSyntaxFromDisabledSchema() throws Exception
+    {
+        LdapDN dn = getSyntaxContainer( "nis" );
+        dn.add( "m-oid" + "=" + OID );
+        testAddSyntaxToDisabledSchema();
+
+        assertTrue( isOnDisk( dn ) );
+        assertFalse( "syntax should be removed from the registry after being deleted", 
+            getLdapSyntaxRegistry().contains( OID ) );
+
+        getSchemaContext( service ).destroySubcontext( dn );
+
+        assertFalse( "syntax should be removed from the registry after being deleted", 
+            getLdapSyntaxRegistry().contains( OID ) );
+
+        try
+        {
+            getLdapSyntaxRegistry().lookup( OID );
+            fail( "syntax lookup should fail after deleting it" );
+        }
+        catch( NamingException e )
+        {
+        }
+        
+        assertFalse( isOnDisk( dn ) );
     }
 
 
@@ -164,7 +221,7 @@ public class MetaSyntaxHandlerIT
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
         newdn.add( "m-oid" + "=" + NEW_OID );
@@ -191,7 +248,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntax() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -213,7 +270,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntaxAndChangeRdn() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -237,7 +294,7 @@ public class MetaSyntaxHandlerIT
     @Test
     public void testModifySyntaxWithModificationItems() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapSyntax syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
@@ -264,7 +321,7 @@ public class MetaSyntaxHandlerIT
     @Test
     public void testModifySyntaxWithAttributes() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapSyntax syntax = getLdapSyntaxRegistry().lookup( OID );
         assertEquals( syntax.getDescription(), DESCRIPTION0 );
@@ -297,7 +354,7 @@ public class MetaSyntaxHandlerIT
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
         try
@@ -319,7 +376,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntaxWhenInUse() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
@@ -347,7 +404,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntaxAndChangeRdnWhenInUse() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
@@ -386,14 +443,13 @@ public class MetaSyntaxHandlerIT
     
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaMatchingRule" );
-        attrs.put( oc );
-        attrs.put( "m-oid", MR_OID );
-        attrs.put( "m-syntax", OID );
-        attrs.put( "m-description", MR_DESCRIPTION );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", MR_OID,
+            "m-syntax", OID,
+            "m-description", MR_DESCRIPTION );
         
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + MR_OID );
@@ -409,7 +465,7 @@ public class MetaSyntaxHandlerIT
     {
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         addDependeeMatchingRule( OID );
         
         LdapDN newdn = getSyntaxContainer( "apachemeta" );
@@ -439,7 +495,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntaxToTop() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -466,7 +522,7 @@ public class MetaSyntaxHandlerIT
     @Ignore
     public void testMoveSyntaxToComparatorContainer() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -490,32 +546,10 @@ public class MetaSyntaxHandlerIT
     
     
     @Test
-    public void testAddSyntaxToDisabledSchema() throws Exception
-    {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaSyntax" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-description", DESCRIPTION0 );
-        
-        // nis is by default inactive
-        LdapDN dn = getSyntaxContainer( "nis" );
-        dn.add( "m-oid" + "=" + OID );
-        createDummySyntaxChecker( OID, "nis" );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
-        
-        assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
-            getLdapSyntaxRegistry().contains( OID ) );
-    }
-
-
-    @Test
     @Ignore
     public void testMoveSyntaxToDisabledSchema() throws Exception
     {
-        testAddSyntax();
+        testAddSyntaxToEnabledSchema();
         
         LdapDN dn = getSyntaxContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
@@ -560,7 +594,7 @@ public class MetaSyntaxHandlerIT
     private void createDummySyntaxChecker( String oid, String schema ) throws Exception
     {
         List<String> descriptions = new ArrayList<String>();
-        descriptions.add( "( " + oid + " DESC 'bogus desc' FQCN " + AcceptAllSyntaxChecker.class.getName() 
+        descriptions.add( "( " + oid + " DESC 'bogus desc' FQCN " + OctetStringSyntaxChecker.class.getName() 
             + " X-SCHEMA '" + schema + "' )" );
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
     }

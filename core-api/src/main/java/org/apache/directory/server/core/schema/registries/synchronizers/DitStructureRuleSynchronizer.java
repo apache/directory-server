@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
@@ -50,13 +51,11 @@ public class DitStructureRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(
-     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, 
-     * javax.naming.directory.Attributes)
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, 
         boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub

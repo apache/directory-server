@@ -42,6 +42,7 @@ import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerBinaryValue;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.filtering.EntryFilter;
@@ -100,7 +101,7 @@ import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,6 +187,8 @@ public class SchemaInterceptor extends BaseInterceptor
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
 
+    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
+    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
 
     /**
      * Initialize the Schema Service
@@ -209,7 +212,7 @@ public class SchemaInterceptor extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
-        schemaBaseDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+        schemaBaseDN = new LdapDN( SchemaConstants.OU_SCHEMA );
         schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
 
@@ -229,6 +232,9 @@ public class SchemaInterceptor extends BaseInterceptor
         SchemaPartitionDao dao = loader.getDao();
         schemaManager = new SchemaSubentryManager( registries, loader, dao );
 
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        
         if ( IS_DEBUG )
         {
             LOG.debug( "SchemaInterceptor Initialized !" );
@@ -1207,9 +1213,13 @@ public class SchemaInterceptor extends BaseInterceptor
             // We don't allow modification of operational attributes
             if ( !attributeType.isUserModifiable() )
             {
-                String msg = "Cannot modify the attribute : " + attributeType;
-                LOG.error( msg );
-                throw new NoPermissionException( msg );
+                if ( !attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) &&
+                     !attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+                {
+                    String msg = "Cannot modify the attribute : " + attributeType;
+                    LOG.error( msg );
+                    throw new NoPermissionException( msg );
+                }
             }
             
             switch ( mod.getOperation() )
@@ -1387,6 +1397,22 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( dn.equals( subschemaSubentryDn ) )
         {
             LOG.debug( "Modification attempt on schema subentry {}: \n{}", dn, opContext );
+            
+            // We can get rid of the modifiersName and modifyTimestamp, they are useless.
+            List<Modification> mods = opContext.getModItems();
+            List<Modification> cleanMods = new ArrayList<Modification>(); 
+            
+            for ( Modification mod:mods )
+            {
+                AttributeType at = ((ServerAttribute)( (ServerModification)mod).getAttribute()).getAttributeType();
+                
+                if ( !MODIFIERS_NAME_ATTRIBUTE_TYPE.equals( at ) && !MODIFY_TIMESTAMP_ATTRIBUTE_TYPE.equals( at ) ) 
+                {
+                    cleanMods.add( mod );
+                }
+            }
+            
+            opContext.setModItems( cleanMods );
             
             // Now that the entry has been modified, update the SSSE
             schemaManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
@@ -1895,7 +1921,7 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = ( ( ServerAttribute ) attribute ).getAttributeType();
             SyntaxChecker syntaxChecker = attributeType.getSyntax().getSyntaxChecker();
 
-            if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
+            if ( syntaxChecker instanceof OctetStringSyntaxChecker )
             {
                 // This is a speedup : no need to check the syntax of any value
                 // if all the syntaxes are accepted...

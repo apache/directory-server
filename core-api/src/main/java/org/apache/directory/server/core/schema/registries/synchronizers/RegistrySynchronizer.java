@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import java.util.List;
-
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 
@@ -73,7 +71,17 @@ public interface RegistrySynchronizer
      */
     void rename( ServerEntry entry, Rdn newRdn, boolean cascaded ) throws Exception;
     
-    boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry, ServerEntry targetEntry, boolean cascaded )
+
+    /**
+     * Applies a set of modification to an entry
+     *
+     * @param opContext The OperationContext, which contains the entry and the modifications to apply
+     * @param targetEntry The modified entry
+     * @param cascaded Unused
+     * @return True if the modification has been done
+     * @throws Exception If the modification failed
+     */
+    boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascaded )
         throws Exception;
     
     void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, ServerEntry entry,

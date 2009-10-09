@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -32,6 +33,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +68,14 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, 
         boolean cascade ) throws Exception
     {
+        LdapDN name = opContext.getDn();
+        ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( targetEntry, registries, schemaName );
         
@@ -96,22 +103,49 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         LdapDN dn = entry.getDn();
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
-        checkNewParent( parentDn );
+
+        // The parent DN must be ou=matchingrules,cn=<schemaName>,ou=schema
+        checkParent( parentDn, matchingRuleRegistry, SchemaConstants.MATCHING_RULE );
+
+        // The new schemaObject's OID must not already exist
         checkOidIsUnique( entry );
         
+        // Build the new MatchingRule from the given entry
         String schemaName = getSchemaName( dn );
-        MatchingRule mr = factory.getMatchingRule( entry, registries, schemaName );
+        MatchingRule matchingRule = factory.getMatchingRule( entry, registries, schemaName );
         
-        addToSchema( mr, schemaName );
+        // At this point, the constructed MatchingRule has not been checked against the 
+        // existing Registries. It may be broken (missing SYNTAX), it will be checked
+        // there, if the schema and the MatchingRule are both enabled.
+        Schema schema = registries.getLoadedSchema( schemaName );
 
+        if ( schema.isEnabled() && matchingRule.isEnabled() )
+        {
+            matchingRule.applyRegistries( registries );
+        }
+        
+        // Associates this MatchingRule with the schema
+        addToSchema( matchingRule, schemaName );
+
+        // Don't inject the modified element if the schema is disabled
         if ( isSchemaEnabled( schemaName ) )
         {
-            matchingRuleRegistry.register( mr );
+            // Update the referenced and referencing objects
+            // The Syntax
+            registries.addReference( matchingRule, matchingRule.getSyntax() );
+            
+            // The Normalizer
+            registries.addReference( matchingRule, matchingRule.getNormalizer() );
+            
+            // The Comparator
+            registries.addReference( matchingRule, matchingRule.getLdapComparator() );
+            
+            matchingRuleRegistry.register( matchingRule );
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {
-            registerOids( mr );
+            registerOids( matchingRule );
             LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
@@ -122,13 +156,32 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
+        parentDn.remove( parentDn.size() - 1 );
+        
+        // The parent DN must be ou=matchingrules,cn=<schemaName>,ou=schema
+        checkParent( parentDn, matchingRuleRegistry, SchemaConstants.MATCHING_RULE );
+
+        // Get the MatchingRule from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
         MatchingRule matchingRule = factory.getMatchingRule( entry, registries, schemaName );
+        String oid = matchingRule.getOid();
         
         deleteFromSchema( matchingRule, schemaName );
         
-        if ( isSchemaEnabled( schemaName ) )
+        if ( matchingRuleRegistry.contains( oid ) )
         {
+            // Update the referenced and referencing objects
+            // The Syntax
+            registries.delReference( matchingRule, matchingRule.getSyntax() );
+            
+            // The Normalizer
+            registries.delReference( matchingRule, matchingRule.getNormalizer() );
+            
+            // The Comparator
+            registries.delReference( matchingRule, matchingRule.getLdapComparator() );
+
             matchingRuleRegistry.unregister( matchingRule.getOid() );
             LOG.debug( "Removed {} from the enabled schema {}", matchingRule, schemaName );
         }

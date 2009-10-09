@@ -41,8 +41,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
-import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -53,6 +51,7 @@ import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +66,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( CiRunner.class )
 @CleanupLevel( Level.CLASS )
-public class MetaNormalizerHandlerIT
+public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";
@@ -113,72 +112,127 @@ public class MetaNormalizerHandlerIT
 
 
     @Test
-    public void testAddNormalizer() throws Exception
+    public void testAddNormalizerToEnabledSchema() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
-        attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_FQCN_AT, NoOpNormalizer.class.getName() );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, "A test normalizer" );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaNormalizer",
+            "m-fqcn", NoOpNormalizer.class.getName(),
+            "m-oid", OID,
+            "m-description: A test normalizer" );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( getNormalizerRegistry().contains( OID ) );
         assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
+        assertTrue( isOnDisk( dn ) );
     }
     
     
     @Test
-    public void testAddNormalizerWithByteCode() throws Exception
+    public void testAddNormalizerToDisabledSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaNormalizer",
+            "m-fqcn", NoOpNormalizer.class.getName(),
+            "m-oid", OID,
+            "m-description: A test normalizer" );
+        
+        // nis is by default inactive
+        LdapDN dn = getNormalizerContainer( "nis" );
+        dn.add( "m-oid" + "=" + OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
+            getNormalizerRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testAddNormalizerWithByteCodeToEnabledSchema() throws Exception
     {
         InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
         while ( in.available() > 0 )
         {
             out.write( in.read() );
         }
         
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
-        attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_FQCN_AT, "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer" );
-        attrs.put( MetaSchemaConstants.M_BYTECODE_AT, out.toByteArray() );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, "A test normalizer" );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaNormalizer",
+            "m-fqcn", "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer",
+            "m-bytecode", out.toByteArray(),
+            "m-oid", OID,
+            "m-description: A test normalizer" );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( getNormalizerRegistry().contains( OID ) );
         assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer" );
+        assertTrue( isOnDisk( dn ) );
     }
     
     
     @Test
-    public void testDeleteNormalizer() throws Exception
+    public void testAddNormalizerWithByteCodeToDisabledSchema() throws Exception
+    {
+        InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" );
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        while ( in.available() > 0 )
+        {
+            out.write( in.read() );
+        }
+        
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaNormalizer",
+            "m-fqcn", "org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer",
+            "m-bytecode", out.toByteArray(),
+            "m-oid", OID,
+            "m-description: A test normalizer" );
+        
+        LdapDN dn = getNormalizerContainer( "nis" );
+        dn.add( "m-oid" + "=" + OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertFalse( getNormalizerRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testDeleteNormalizerFromEnabledSchema() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddNormalizer();
+        dn.add( "m-oid" + "=" + OID );
+        testAddNormalizerToEnabledSchema();
+        
+        assertTrue( "normalizer should be removed from the registry after being deleted", 
+            getNormalizerRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
         
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "normalizer should be removed from the registry after being deleted", 
             getNormalizerRegistry().contains( OID ) );
 
-        //noinspection EmptyCatchBlock
         try
         {
             getNormalizerRegistry().lookup( OID );
@@ -187,6 +241,37 @@ public class MetaNormalizerHandlerIT
         catch( NamingException e )
         {
         }
+
+        assertFalse( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testDeleteNormalizerFromDisabledSchema() throws Exception
+    {
+        LdapDN dn = getNormalizerContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        testAddNormalizerToEnabledSchema();
+
+        assertTrue( "normalizer should be removed from the registry after being deleted", 
+            getNormalizerRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+        
+        getSchemaContext( service ).destroySubcontext( dn );
+
+        assertFalse( "normalizer should be removed from the registry after being deleted", 
+            getNormalizerRegistry().contains( OID ) );
+
+        try
+        {
+            getNormalizerRegistry().lookup( OID );
+            fail( "normalizer lookup should fail after deleting the normalizer" );
+        }
+        catch( NamingException e )
+        {
+        }
+
+        assertFalse( isOnDisk( dn ) );
     }
 
 
@@ -194,11 +279,11 @@ public class MetaNormalizerHandlerIT
     public void testRenameNormalizer() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddNormalizer();
+        dn.add( "m-oid" + "=" + OID );
+        testAddNormalizerToEnabledSchema();
         
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old normalizer OID should be removed from the registry after being renamed", 
@@ -224,13 +309,13 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizer() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getNormalizerContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -249,13 +334,13 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizerAndChangeRdn() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getNormalizerContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -276,13 +361,13 @@ public class MetaNormalizerHandlerIT
     @Test
     public void testModifyNormalizerWithModificationItems() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
+        Attribute attr = new BasicAttribute( "m-fqcn", DeepTrimNormalizer.class.getName() );
         mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
         getSchemaContext( service ).modifyAttributes( dn, mods );
 
@@ -300,13 +385,13 @@ public class MetaNormalizerHandlerIT
     @Test
     public void testModifyNormalizerWithAttributes() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
         
         Attributes mods = new BasicAttributes( true );
-        mods.put( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
+        mods.put( "m-fqcn", DeepTrimNormalizer.class.getName() );
         getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "normalizer OID should still be present", 
@@ -329,8 +414,8 @@ public class MetaNormalizerHandlerIT
     public void testDeleteNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddNormalizer();
+        dn.add( "m-oid" + "=" + OID );
+        testAddNormalizerToEnabledSchema();
         getMatchingRuleRegistry().register( new DummyMR() );
         
         try
@@ -354,14 +439,14 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizerWhenInUse() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getNormalizerContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -384,14 +469,14 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizerAndChangeRdnWhenInUse() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = getNormalizerContainer( "apache" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -414,12 +499,12 @@ public class MetaNormalizerHandlerIT
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        testAddNormalizer();
+        dn.add( "m-oid" + "=" + OID );
+        testAddNormalizerToEnabledSchema();
         getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
+        newdn.add( "m-oid" + "=" + NEW_OID );
         
         try
         {
@@ -447,13 +532,13 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizerToTop() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN top = new LdapDN();
-        top.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        top.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -474,13 +559,13 @@ public class MetaNormalizerHandlerIT
     @Ignore
     public void testMoveNormalizerToComparatorContainer() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         LdapDN newdn = new LdapDN( "ou=comparators,cn=apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         try
         {
@@ -495,42 +580,20 @@ public class MetaNormalizerHandlerIT
         assertTrue( "normalizer should still be in the registry after move failure", 
             getNormalizerRegistry().contains( OID ) );
     }
-    
-    
-    @Test
-    public void testAddNormalizerToDisabledSchema() throws Exception
-    {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT, "top" );
-        oc.add( MetaSchemaConstants.META_TOP_OC );
-        oc.add( MetaSchemaConstants.META_NORMALIZER_OC );
-        attrs.put( oc );
-        attrs.put( MetaSchemaConstants.M_FQCN_AT, NoOpNormalizer.class.getName() );
-        attrs.put( MetaSchemaConstants.M_OID_AT, OID );
-        attrs.put( MetaSchemaConstants.M_DESCRIPTION_AT, "A test normalizer" );
-        
-        // nis is by default inactive
-        LdapDN dn = getNormalizerContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
-        
-        assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
-            getNormalizerRegistry().contains( OID ) );
-    }
 
 
     @Test
     @Ignore
     public void testMoveNormalizerToDisabledSchema() throws Exception
     {
-        testAddNormalizer();
+        testAddNormalizerToEnabledSchema();
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         // nis is inactive by default
         LdapDN newdn = getNormalizerContainer( "nis" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 
@@ -547,13 +610,13 @@ public class MetaNormalizerHandlerIT
         
         // nis is inactive by default
         LdapDN dn = getNormalizerContainer( "nis" );
-        dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        dn.add( "m-oid" + "=" + OID );
 
         assertFalse( "normalizer OID should NOT be present when added to disabled nis schema", 
             getNormalizerRegistry().contains( OID ) );
 
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
-        newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
+        newdn.add( "m-oid" + "=" + OID );
         
         getSchemaContext( service ).rename( dn, newdn );
 

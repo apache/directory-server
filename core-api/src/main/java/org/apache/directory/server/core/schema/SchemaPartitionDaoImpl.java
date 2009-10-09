@@ -198,7 +198,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
     private EntryFilteringCursor listSchemas() throws Exception
     {
-        LdapDN base = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+        LdapDN base = new LdapDN( SchemaConstants.OU_SCHEMA );
         base.normalize( atRegistry.getNormalizerMapping() );
         ExprNode filter = new EqualityNode<String>( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ),
             new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC ) );

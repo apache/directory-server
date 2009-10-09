@@ -20,6 +20,30 @@
 package org.apache.directory.server.core.jndi;
 
 
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidSearchFilterException;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamingListener;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
@@ -48,29 +72,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidSearchFilterException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.event.EventDirContext;
-import javax.naming.event.NamingListener;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -468,7 +469,9 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public DirContext createSubcontext( String name, Attributes attrs ) throws NamingException
     {
-        return createSubcontext( new LdapDN( name ), AttributeUtils.toCaseInsensitive( attrs ) );
+        LdapDN dn = new LdapDN( name );
+        Attributes attributes = AttributeUtils.toCaseInsensitive( attrs );
+        return createSubcontext( dn, attributes );
     }
 
 

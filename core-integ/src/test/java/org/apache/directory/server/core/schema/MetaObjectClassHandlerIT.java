@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +59,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( CiRunner.class )
 @CleanupLevel( Level.CLASS )
-public class MetaObjectClassHandlerIT
+public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     private static final String NAME = "testObjectClass";
     private static final String NEW_NAME = "alternateName";
@@ -94,54 +95,68 @@ public class MetaObjectClassHandlerIT
     }
     
     
-    private void addObjectClass() throws Exception
+    private LdapDN addObjectClass() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", NAME);
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid: " + OID,
+            "m-name: " + NAME,
+            "m-description: " + DESCRIPTION0,
+            "m-typeObjectClass: AUXILIARY",
+            "m-must: cn",
+            "m-may: ou" );
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        return dn;
     }
 
     
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
-
-
     @Test
-    public void testAddObjectClass() throws Exception
+    public void testAddObjectClassToEnabledSchema() throws Exception
     {
-        addObjectClass();
+        LdapDN dn = addObjectClass();
         
         assertTrue( getObjectClassRegistry().contains( OID ) );
         assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( isOnDisk( dn ) );
     }
     
     
     @Test
-    public void testDeleteObjectClass() throws Exception
+    public void testAddObjectClassToDisabledSchema1() throws Exception
+    {
+        LdapDN dn = addObjectClassToDisabledSchema();
+        
+        assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
+            getObjectClassRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testDeleteObjectClassFromEnabledSchema() throws Exception
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
         addObjectClass();
-        
+
+        assertTrue( "objectClass should be removed from the registry after being deleted", 
+            getObjectClassRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+
         getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "objectClass should be removed from the registry after being deleted", 
             getObjectClassRegistry().contains( OID ) );
 
-        //noinspection EmptyCatchBlock
         try
         {
             getObjectClassRegistry().lookup( OID );
@@ -150,8 +165,39 @@ public class MetaObjectClassHandlerIT
         catch( NamingException e )
         {
         }
+
+        assertFalse( isOnDisk( dn ) );
     }
 
+    
+    @Test
+    public void testDeleteObjectClassFromDisabledSchema() throws Exception
+    {
+        LdapDN dn = getObjectClassContainer( "nis" );
+        dn.add( "m-oid" + "=" + OID );
+        addObjectClassToDisabledSchema();
+        
+        assertFalse( "objectClass should be removed from the registry after being deleted", 
+            getObjectClassRegistry().contains( OID ) );
+        assertTrue( isOnDisk( dn ) );
+        
+        getSchemaContext( service ).destroySubcontext( dn );
+
+        assertFalse( "objectClass should be removed from the registry after being deleted", 
+            getObjectClassRegistry().contains( OID ) );
+
+        try
+        {
+            getObjectClassRegistry().lookup( OID );
+            fail( "objectClass lookup should fail after deleting it" );
+        }
+        catch( NamingException e )
+        {
+        }
+        
+        assertFalse( isOnDisk( dn ) );
+    }
+    
 
     @Test
     public void testRenameObjectClassType() throws Exception
@@ -477,35 +523,26 @@ public class MetaObjectClassHandlerIT
     }
 
     
-    private void addObjectClassToDisabledSchema() throws Exception
+    private LdapDN addObjectClassToDisabledSchema() throws Exception
     {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaObjectClass" );
-        attrs.put( oc );
-        attrs.put( "m-oid", OID );
-        attrs.put( "m-name", NAME);
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-typeObjectClass", "AUXILIARY" );
-        attrs.put( "m-must", "cn" );
-        attrs.put( "m-may", "ou" );
-        
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid: " + OID,
+            "m-name: " + NAME,
+            "m-description: " + DESCRIPTION0,
+            "m-typeObjectClass: AUXILIARY",
+            "m-must: cn",
+            "m-may: ou" );
+
         LdapDN dn = getObjectClassContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
         getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        return dn;
     }
     
-    @Test
-    public void testAddObjectClassToDisabledSchema1() throws Exception
-    {
-        addObjectClassToDisabledSchema();
-        
-        assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
-            getObjectClassRegistry().contains( OID ) );
-    }
-
-
     @Test
     @Ignore
     public void testMoveObjectClassToDisabledSchema() throws Exception

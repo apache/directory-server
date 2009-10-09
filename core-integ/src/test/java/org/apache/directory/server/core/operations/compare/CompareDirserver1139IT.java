@@ -20,13 +20,15 @@
 package org.apache.directory.server.core.operations.compare;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -37,15 +39,11 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -96,7 +94,7 @@ public class CompareDirserver1139IT
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=krb5kdc" );
         boolean isKrb5kdcDisabled = false;
         
-        if ( nisAttrs.get( "m-disabled" ) != null )
+        if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5kdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
         }
@@ -118,39 +116,35 @@ public class CompareDirserver1139IT
     private void injectEntries( LdapContext sysRoot ) throws Exception
     {
         // Add the group
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "ObjectClass" );
-        oc.add( "groupOfNames" );
-        oc.add( "top" );
-        attrs.put( oc );
-        attrs.put( "cn", "group" );
-        attrs.put( "member", "cn=user,ou=users,ou=system" );
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "ObjectClass: top",
+            "ObjectClass: groupOfNames",
+            "cn: group",
+            "member: cn=user,ou=users,ou=system" );
         
         sysRoot.createSubcontext( "cn=group,ou=groups", attrs );
         
         // Add the user
-        attrs = new BasicAttributes( "objectClass", "top", true );
-        oc = new BasicAttribute( "ObjectClass" );
-        oc.add( "top" );
-        oc.add( "organizationalPerson" );
-        oc.add( "person" );
-        oc.add( "krb5Principal" );
-        oc.add( "posixAccount" );
-        oc.add( "shadowAccount" );
-        oc.add( "krb5KDCEntry" );
-        oc.add( "inetOrgPerson" );
-        attrs.put( oc );
-        attrs.put( "cn", "user" );
-        attrs.put( "gidnumber", "100" );
-        attrs.put( "givenname", "user" );
-        attrs.put( "homedirectory", "/home/users/user" );
-        attrs.put( "krb5KeyVersionNumber", "1" );
-        attrs.put( "krb5PrincipalName", "user@APACHE.ORG" );
-        attrs.put( "loginshell", "/bin/bash" );
-        attrs.put( "mail", "user@apache.org" );
-        attrs.put( "sn", "User" );
-        attrs.put( "uid", "user" );
-        attrs.put( "uidnumber", "1001" );
+        attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: organizationalPerson",
+            "objectClass: person",
+            "objectClass: krb5Principal",
+            "objectClass: posixAccount",
+            "objectClass: shadowAccount",
+            "objectClass: krb5KDCEntry",
+            "objectClass: inetOrgPerson",
+            "cn: user",
+            "gidnumber: 100",
+            "givenname: user",
+            "homedirectory: /home/users/user",
+            "krb5KeyVersionNumber: 1",
+            "krb5PrincipalName: user@APACHE.ORG",
+            "loginshell: /bin/bash",
+            "mail: user@apache.org",
+            "sn: User",
+            "uid: user",
+            "uidnumber: 1001" );
         
         sysRoot.createSubcontext( "cn=user,ou=users", attrs );
     }

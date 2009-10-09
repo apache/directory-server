@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.operational;
 
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -124,6 +122,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private Registries registries;
     
     private static AttributeType CREATE_TIMESTAMP_ATTRIBUTE_TYPE;
+    private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
+    private static AttributeType MODIFY_TIMESTAMP_ATTRIBUTE_TYPE;
 
 
     /**
@@ -147,6 +147,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
         
         CREATE_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
     }
 
 
@@ -171,8 +173,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         ServerEntry entry = opContext.getEntry();
 
-        entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
-        
+        /*
+         * @TODO : This code was probably created while working on Mitosis. Most probably dead code. Commented. 
+         * Check JIRA DIRSERVER-1416
         if ( opContext.getEntry().containsAttribute( CREATE_TIMESTAMP_ATTRIBUTE_TYPE ) )
         {
             // As we already have a CreateTimeStamp value in the context, use it, but only if
@@ -193,9 +196,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
+        */
         
         // Add the UUID and the entryCSN. The UUID is stored as a byte[] representation of 
         // its String value
+        // @TODO : If we are using replication, those four OAs may be already present.
+        // We have to deal with this as soon as we have the replication working again.
+        entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+        entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         entry.put( SchemaConstants.ENTRY_UUID_AT, SchemaUtils.uuidToBytes( UUID.randomUUID() ) );
         entry.put( SchemaConstants.ENTRY_CSN_AT, service.getCSN().toString() );
         
@@ -211,6 +219,46 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // added at this point.
         // If so, remove them, and if there are no more attributes, simply return.
         // otherwise, inject those values into the list of modifications
+        List<Modification> mods = opContext.getModItems();
+        
+        for ( Modification modification: mods )
+        {
+            AttributeType attributeType = ((ServerAttribute)modification.getAttribute()).getAttributeType();
+            
+            if ( attributeType.equals( MODIFIERS_NAME_ATTRIBUTE_TYPE ) )
+            {
+                String message = "The ModifiersName operational attribute cannot be modified by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+
+            if ( attributeType.equals( MODIFY_TIMESTAMP_ATTRIBUTE_TYPE ) )
+            {
+                String message = "The ModifyTimestamp operational attribute cannot be modified by a user";
+                LOG.error( message );
+                throw new LdapSchemaViolationException( message, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS );
+            }
+        }
+        
+        // Inject the ModifiersName AT if it's not present
+        ServerAttribute attribute = new DefaultServerAttribute( 
+            MODIFIERS_NAME_ATTRIBUTE_TYPE, 
+            getPrincipal().getName());
+
+        Modification modifiersName = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+
+        mods.add( modifiersName );
+        
+        // Inject the ModifyTimestamp AT if it's not present
+        attribute = new DefaultServerAttribute( 
+            MODIFY_TIMESTAMP_ATTRIBUTE_TYPE,
+            DateUtils.getGeneralizedTime() );
+        
+        Modification timestamp = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+
+        mods.add( timestamp );
+        
+        // Go down in the chain
         nextInterceptor.modify( opContext );
         
         if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
@@ -223,6 +271,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // -------------------------------------------------------------------
         // TODO : Why can't we add those elements on teh original modifications ???
         // Or into the context ?
+        /*
         List<Modification> modItemList = new ArrayList<Modification>(2);
         
         AttributeType modifiersNameAt = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
@@ -248,6 +297,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             opContext.getDn(), modItemList );
         newModify.setEntry( opContext.getAlteredEntry() );
         service.getPartitionNexus().modify( newModify );
+        */
     }
 
 

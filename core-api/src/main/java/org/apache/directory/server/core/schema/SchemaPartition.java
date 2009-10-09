@@ -50,6 +50,7 @@ import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.partition.NullPartition;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
@@ -196,7 +197,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public final String getSuffix()
     {
-        return ServerDNConstants.OU_SCHEMA_DN;
+        return SchemaConstants.OU_SCHEMA;
     }
 
 
@@ -205,7 +206,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public final void setSuffix( String suffix )
     {
-        LOG.warn( "This partition's suffix is fixed: {}", ServerDNConstants.OU_SCHEMA_DN );
+        LOG.warn( "This partition's suffix is fixed: {}", SchemaConstants.OU_SCHEMA );
     }
 
 
@@ -231,7 +232,7 @@ public final class SchemaPartition extends AbstractPartition
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         wrapped.setId( ID );
-        wrapped.setSuffix( ServerDNConstants.OU_SCHEMA_DN );
+        wrapped.setSuffix( SchemaConstants.OU_SCHEMA );
         wrapped.getSuffixDn().normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         wrapped.setRegistries( registries );
         
@@ -288,8 +289,24 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
+        // At this point, the added SchemaObject does not exist in the partition
+        // We have to check if it's enabled and then inject it into the registries
+        // but only if it does not break the server.
         synchronizer.add( opContext );
-        wrapped.add( opContext );
+        
+        // Now, write the newly added SchemaObject into the schemaPartition
+        try
+        {
+            wrapped.add( opContext );
+        }
+        catch ( Exception e )
+        {
+            // If something went wrong, we have to unregister the schemaObject
+            // from the registries
+            // TODO : deregister the newly added element.
+            throw e;
+        }
+
         updateSchemaModificationAttributes( opContext );
     }
 
@@ -309,8 +326,20 @@ public final class SchemaPartition extends AbstractPartition
     public void delete( DeleteOperationContext opContext ) throws Exception
     {
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
-        synchronizer.delete( opContext, opContext.getEntry(), cascade );
-        wrapped.delete( opContext );
+        
+        // The SchemaObject always exist when we reach this method.
+        synchronizer.delete( opContext, cascade );
+        
+        try
+        {
+            wrapped.delete( opContext );
+        }
+        catch ( Exception e )
+        {
+            // TODO : If something went wrong, what should we do here ?
+            throw e;
+        }
+
         updateSchemaModificationAttributes( opContext );
     }
 
@@ -360,8 +389,12 @@ public final class SchemaPartition extends AbstractPartition
         
         boolean cascade = opContext.hasRequestControl( CascadeControl.CONTROL_OID );
         
-        synchronizer.modify( opContext, opContext.getEntry(), targetEntry, cascade );
-        wrapped.modify( opContext );
+        boolean hasModification = synchronizer.modify( opContext, targetEntry, cascade );
+        
+        if ( hasModification )
+        {
+            wrapped.modify( opContext );
+        }
         
         if ( !opContext.getDn().equals( schemaModificationDN ) )
         {
@@ -490,5 +523,14 @@ public final class SchemaPartition extends AbstractPartition
     public SchemaLoader getLoader()
     {
         return loader;
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Partition : " + ID;
     }
 }

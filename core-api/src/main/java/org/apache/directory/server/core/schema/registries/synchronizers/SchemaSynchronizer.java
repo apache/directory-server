@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,15 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.CoreSession;
+import org.apache.directory.server.core.OperationManager;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.partition.ByPassConstants;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -47,11 +51,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.schema.SchemaWrapper;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
+import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,9 +90,14 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /** The m-dependencies AttributeType */
     private final AttributeType dependenciesAT;
     
+    /** The modifiersName AttributeType */
+    private final AttributeType modifiersNameAT;
+    
+    /** The modifyTimestamp AttributeType */
+    private final AttributeType modifyTimestampAT;
+    
     /** A static DN referencing ou=schema */
     private final LdapDN ouSchemaDN;
-
 
     /**
      * Creates and initializes a new instance of Schema synchronizer
@@ -104,24 +115,21 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         cnAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         dependenciesAT = registries.getAttributeTypeRegistry()
             .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        modifiersNameAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFIERS_NAME_AT );
+        modifyTimestampAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
         
-        ouSchemaDN = new LdapDN( ServerDNConstants.OU_SCHEMA_DN );
+        ouSchemaDN = new LdapDN( SchemaConstants.OU_SCHEMA );
         ouSchemaDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
 
     /**
-     * Reacts to modification of a metaSchema object.  At this point the 
-     * only considerable changes are to the m-disabled and the 
-     * m-dependencies attributes.
-     * 
-     * @param name the dn of the metaSchema object modified
-     * @param mods the attribute modifications as an ModificationItem arry
-     * @param entry the entry after the modifications have been applied
+     * {@inheritDoc}
      */
-    public boolean modify( LdapDN name, List<Modification> mods, ServerEntry entry,
-        ServerEntry targetEntry, boolean cascade ) throws Exception
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        ServerEntry entry = opContext.getEntry();
+        List<Modification> mods = opContext.getModItems(); 
         boolean hasModification = SCHEMA_UNCHANGED;
         
         // Check if the entry has a m-disabled attribute 
@@ -134,7 +142,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             ModificationOperation modification = disabledModification.getOperation();
             ServerAttribute attribute = (ServerAttribute)disabledModification.getAttribute();
             
-            hasModification = disable( name, modification, attribute, disabledInEntry );
+            hasModification = modifyDisable( opContext, modification, attribute, disabledInEntry );
         }
 
         // check if the new schema is enabled or disabled
@@ -384,9 +392,33 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     // -----------------------------------------------------------------------
 
     
-    private boolean disable( LdapDN name, ModificationOperation modOp, EntryAttribute disabledInMods, EntryAttribute disabledInEntry )
-        throws Exception
+    /**
+     * Modify the Disable flag (the flag can be set to true or false).
+     * 
+     * We can ADD, REMOVE or MODIFY this flag. The following matrix expose what will be the consequences
+     * of this operation, depending on the current state
+     * 
+     * <pre>
+     *                 +-------------------+--------------------+--------------------+
+     *     op/state    |       TRUE        |       FALSE        |       ABSENT       |
+     * +-------+-------+----------------------------------------+--------------------+
+     * | ADD   | TRUE  | do nothing        | do nothing         | disable the schema |
+     * |       +-------+-------------------+--------------------+--------------------+
+     * |       | FALSE | do nothing        | do nothing         | do nothing         |
+     * +-------+-------+-------------------+--------------------+--------------------+
+     * |REMOVE | N/A   | enable the schema | do nothing         | do nothing         |
+     * +-------+-------+-------------------+--------------------+--------------------+
+     * |MODIFY | TRUE  | do nothing        | disable the schema | disable the schema |
+     * |       +-------+-------------------+--------------------+--------------------+
+     * |       | FALSE | enable the schema | do nothing         |  do nothing        |
+     * +-------+-------+-------------------+--------------------+--------------------+
+     * </pre>
+     */
+    private boolean modifyDisable( ModifyOperationContext opContext, ModificationOperation modOp, 
+        EntryAttribute disabledInMods, EntryAttribute disabledInEntry ) throws Exception
     {
+        LdapDN name = opContext.getDn();
+        
         switch ( modOp )
         {
             /*
@@ -398,7 +430,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 {
                     if ( "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
                     {
-                        return disableSchema( getSchemaName( name ) );
+                        return disableSchema( opContext.getSession(), getSchemaName( name ) );
                     }
                 }
                 
@@ -431,7 +463,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 }
                 
                 boolean isNewStateDisabled = false;
-                
+               
                 if ( disabledInMods != null )
                 {
                     isNewStateDisabled = "TRUE".equalsIgnoreCase( disabledInMods.getString() );
@@ -444,7 +476,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
                 if ( !isCurrentlyDisabled && isNewStateDisabled )
                 {
-                    return disableSchema( getSchemaName( name ) );
+                    return disableSchema( opContext.getSession(), getSchemaName( name ) );
                 }
                 
                 break;
@@ -462,8 +494,71 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         return ( String ) schema.getRdn().getValue();
     }
 
+    
+    /**
+     * Build the DN to access a schemaObject path for a specific schema 
+     */
+    private LdapDN buildDn( SchemaObjectType schemaObjectType, String schemaName ) throws NamingException
+    {
+        
+        LdapDN path = new LdapDN( 
+            SchemaConstants.OU_SCHEMA,
+            "cn=" + schemaName,
+            schemaObjectType.getRdn()
+            );
+        
+        return path;
+    }
+    
+    
+    /**
+     * Disable a schema and update all of its schemaObject 
+     */
+    private void disable( SchemaObject schemaObject, CoreSession session, Registries registries )
+        throws Exception
+    {
+        Schema schema = registries.getLoadedSchema( schemaObject.getSchemaName() );
+        List<Modification> modifications = new ArrayList<Modification>();
+        
+        // The m-disabled AT
+        EntryAttribute disabledAttr = new DefaultServerAttribute( disabledAT, "FALSE" );
+        Modification disabledMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, disabledAttr );
+        
+        modifications.add( disabledMod );
+        
+        // The modifiersName AT
+        EntryAttribute modifiersNameAttr = 
+            new DefaultServerAttribute( modifiersNameAT, session.getEffectivePrincipal().getName() );
+        Modification modifiersNameMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, modifiersNameAttr );
+        
+        modifications.add( modifiersNameMod );
+        
+        // The modifyTimestamp AT
+        EntryAttribute modifyTimestampAttr = 
+            new DefaultServerAttribute( modifyTimestampAT, DateUtils.getGeneralizedTime() );
+        Modification modifyTimestampMod = new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, modifyTimestampAttr );
+        
+        modifications.add( modifyTimestampMod );
+        
+        // Call the modify operation
+        LdapDN dn = buildDn( schemaObject.getObjectType(), schemaObject.getName() );
+        
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, dn, modifications );
+        modifyContext.setByPassed( ByPassConstants.BYPASS_ALL_COLLECTION );
 
-    private boolean disableSchema( String schemaName ) throws Exception
+        OperationManager operationManager = 
+            session.getDirectoryService().getOperationManager();
+        
+        operationManager.modify( modifyContext );
+        
+        // Now iterate on all the schemaObject under this schema
+        for ( SchemaWrapper schemaWrapper : schema.getContent() )
+        {
+            
+        }
+    }
+
+    private boolean disableSchema( CoreSession session, String schemaName ) throws Exception
     {
         // First check that the schema is not already disabled
         Map<String, Schema> schemas = registries.getLoadedSchemas();
@@ -489,7 +584,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // Use brute force right now : iterate through all the schemaObjects
         // searching for those associated with the disabled schema
-        disableAT( schemaName );
+        disableAT( session, schemaName );
         
         Set<SchemaWrapper> content = registries.getLoadedSchema( schemaName ).getContent(); 
 
@@ -504,7 +599,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
     
     
-    private void disableAT( String schemaName )
+    private void disableAT( CoreSession session, String schemaName )
     {
         AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
         
@@ -520,21 +615,36 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 EntryAttribute disable = new DefaultServerAttribute( disabledAT, "TRUE"  );
                 Modification modification = 
                     new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, disable );
+                
+                //session.modify( dn, mods, ignoreReferral, log )
             }
         }
     }
 
 
     /**
-     * TODO - for now we're just going to add the schema to the global 
-     * registries ... we may need to add it to more than that though later.
+     * Enabling a schema consist on switching all of its schema element to enable.
      */
     private boolean enableSchema( String schemaName ) throws Exception
     {
         Schema schema = loader.getSchema( schemaName );
 
-        if ( schema != null )
+        if ( schema == null )
         {
+            // This is not possible. We can't enable a schema which is not loaded.
+            String msg = "Unwilling to enable a not loaded schema: " + schemaName;
+            LOG.error( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        for ( SchemaWrapper schemaWrapper : schema.getContent() )
+        {
+            SchemaObject schemaObject = schemaWrapper.get();
+            
+            if ( schemaObject.isDisabled() )
+            {
+                //schemaObject.enable();
+        }
             // TODO log warning: schemaName + " was already loaded"
             schema.enable();
             registries.schemaLoaded( schema );

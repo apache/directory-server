@@ -20,23 +20,14 @@
 package org.apache.directory.server.core.operational;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.util.StringTools;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -51,6 +42,17 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -369,29 +371,19 @@ public class OperationalAttributeServiceIT
      *
      * @throws NamingException on error
      */
-    @Test
+    @Test( expected=LdapSchemaViolationException.class )
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );
 
-        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
+            new BasicAttribute(
             "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
-        try
-        {
-            sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
-                { modifyOp } );
-            fail( "modification of entry should fail" );
-        }
-        catch ( InvalidAttributeValueException e )
-        {
-            // expected
-        }
-        catch ( NoPermissionException e )
-        {
-            // expected
-        }
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+        fail( "modification of entry should fail" );
     }
 
 

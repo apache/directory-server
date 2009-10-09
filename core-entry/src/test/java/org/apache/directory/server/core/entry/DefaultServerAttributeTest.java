@@ -570,7 +570,7 @@ public class DefaultServerAttributeTest
     {
         ServerAttribute attr = new DefaultServerAttribute( atCN );
         
-        // No value, this should be valid
+        // No value, this should not be valid
         assertFalse( attr.isValid() );
         
         attr.add( "test", "test2", "A123\\;" );

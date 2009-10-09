@@ -79,7 +79,7 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSche
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
@@ -238,6 +238,7 @@ public class SubschemaSubentryIT
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "syntaxCheckers" );
         SyntaxCheckerDescription syntaxCheckerDescription = null; 
+
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
@@ -272,7 +273,7 @@ public class SubschemaSubentryIT
             
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
 
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries() );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries(), schemaName );
             assertEquals( oid, syntaxChecker.getOid() );
         }
         else
@@ -320,9 +321,9 @@ public class SubschemaSubentryIT
         
         // ( 1.3.6.1.4.1.18060.0.4.0.2.10000 DESC 'bogus desc' FQCN org.foo.Bar BYTECODE 14561234 )
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
-            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+            + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
-            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+            + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
 
         // -------------------------------------------------------------------
         // add and check
@@ -819,11 +820,11 @@ public class SubschemaSubentryIT
 
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
-            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+            + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
-            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+            + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN " 
-            + AcceptAllSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
+            + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );

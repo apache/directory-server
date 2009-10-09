@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import static org.junit.Assert.assertEquals;
@@ -79,7 +79,7 @@ public class ServerBinaryValueTest
     @Before public void initAT()
     {
         s = TestServerEntryUtils.syntaxFactory( "1.1.1.1", false );
-        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
+        s.setSyntaxChecker( new OctetStringSyntaxChecker() );
         mr = TestServerEntryUtils.matchingRuleFactory( "1.1.2.1" );
         mr.setSyntax( s );
         

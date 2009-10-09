@@ -39,6 +39,7 @@ import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
@@ -184,7 +185,7 @@ public class IntegrationUtils
 
     public static LdapContext getSchemaContext( DirectoryService service ) throws Exception
     {
-        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, ServerDNConstants.OU_SCHEMA_DN );
+        return getContext( ServerDNConstants.ADMIN_SYSTEM_DN, service, SchemaConstants.OU_SCHEMA );
     }
 
 

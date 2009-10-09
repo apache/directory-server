@@ -20,12 +20,10 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -33,6 +31,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,18 +73,46 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
         
-        checkNewParent( parentDn );
+        // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
+        checkParent( parentDn, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        
+        // The new schemaObject's OID must not already exist
         checkOidIsUnique( entry );
         
+        // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
         AttributeType at = factory.getAttributeType( entry, registries, schemaName );
         
+        // At this point, the constructed AttributeType has not been checked against the 
+        // existing Registries. It may be broken (missing SUP, or such), it will be checked
+        // there, if the schema and the AttributeType are both enabled.
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( schema.isEnabled() && at.isEnabled() )
+        {
+            at.applyRegistries( registries );
+        }
+        
+        // Associates this AttributeType with the schema
         addToSchema( at, schemaName );
         
+        // Don't inject the modified element if the schema is disabled
         if ( isSchemaEnabled( schemaName ) )
         {
-            // Don't inject the modified element if the schema is disabled
             atRegistry.register( at );
+            
+            // Update the referenced objects
+            // The Syntax,
+            registries.addReference( at, at.getSyntax() );
+
+            // The Superior if any
+            registries.addReference( at, at.getSuperior() );
+
+            // The MatchingRules
+            registries.addReference( at, at.getEquality() );
+            registries.addReference( at, at.getOrdering() );
+            registries.addReference( at, at.getSubstring() );
+
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
@@ -96,9 +123,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) 
         throws Exception
     {
+        LdapDN name = opContext.getDn();
+        ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
         AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
@@ -124,36 +156,59 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
+        parentDn.remove( parentDn.size() - 1 );
+        
+        // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
+        checkParent( parentDn, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        
+        // Get the AttributeType from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType attributeType = factory.getAttributeType( entry, registries, schemaName );
         
-        if ( !isSchemaLoaded( schemaName ) )
-        {
-            // Cannot remove an AT from a not loaded schema
-            String msg = "Cannot delete " + entry.getDn().getUpName() + ", from the not loade schema " +
-                schemaName;
-            LOG.warn( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
+        String oid = attributeType.getOid();
+        
+        // Depending on the fact that the schema is enabled or disabled, we will have
+        // to unregister the AttributeType from the registries or not. In any case,
+        // we have to remove it from the schemaPartition.
+        // We also have to check that the removal will let the server Registries in a 
+        // stable state, which means in this case that we don't have any AttributeType
+        // directly inherit from the removed AttributeType, and that no ObjectClass
+        // has this AttributeType in its MAY or MUST...
+        // We will also have to remove an index that has been set on this AttributeType.
         if ( isSchemaEnabled( schemaName ) )
         {
-            // Check that the entry has no descendant
-            if ( atRegistry.hasDescendants( attributeType.getOid() ) )
+            if ( registries.isReferenced( attributeType ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
-                    " dependant AttributeTypes";
+                    " dependant SchemaObjects :\n" + getReferenced( attributeType );
                 LOG.warn( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
 
+        // Remove the AttributeType from the schema content
         deleteFromSchema( attributeType, schemaName );
 
-        if ( isSchemaEnabled( schemaName ) )
+        // Update the Registries now
+        if ( atRegistry.contains( oid ) )
         {
             // Don't inject the modified element if the schema is disabled
             atRegistry.unregister( attributeType.getOid() );
+            
+            // Now, update the references.
+            // The Syntax
+            registries.delReference( attributeType.getSyntax(), attributeType );
+            
+            // The Superior
+            registries.delReference( attributeType.getSuperior(), attributeType );
+            
+            // The MatchingRules
+            registries.delReference( attributeType.getEquality(), attributeType );
+            registries.delReference( attributeType.getOrdering(), attributeType );
+            registries.delReference( attributeType.getSubstring(), attributeType );
+            
             LOG.debug( "Removed {} from the enabled schema {}", attributeType, schemaName );
         }
         else
@@ -211,7 +266,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
-        checkNewParent( newParentName );
+        checkParent( newParentName, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
         AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
@@ -262,7 +317,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
-        checkNewParent( newParentName );
+        checkParent( newParentName, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
         AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
@@ -301,32 +356,6 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         else
         {
             registerOids( newAt );
-        }
-    }
-    
-    
-    private void checkNewParent( LdapDN newParent ) throws NamingException
-    {
-        if ( newParent.size() != 3 )
-        {
-            throw new LdapInvalidNameException( 
-                "The parent dn of a attributeType should be at most 3 name components in length.", 
-                ResultCodeEnum.NAMING_VIOLATION );
-        }
-        
-        Rdn rdn = newParent.getRdn();
-        
-        if ( ! registries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
-        {
-            throw new LdapInvalidNameException( "The parent entry of a attributeType should be an organizationalUnit.", 
-                ResultCodeEnum.NAMING_VIOLATION );
-        }
-        
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.ATTRIBUTE_TYPES_AT ) )
-        {
-            throw new LdapInvalidNameException( 
-                "The parent entry of a attributeType should have a relative name of ou=attributeTypes.", 
-                ResultCodeEnum.NAMING_VIOLATION );
         }
     }
 }

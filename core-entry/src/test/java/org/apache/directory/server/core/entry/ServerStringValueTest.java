@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,7 +79,7 @@ public class ServerStringValueTest
     @Before public void initAT()
     {
         s = new TestServerEntryUtils.S( "1.1.1.1", false );
-        s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
+        s.setSyntaxChecker( new OctetStringSyntaxChecker() );
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.setSyntax( s );
         mr.setLdapComparator( new StringComparator() );

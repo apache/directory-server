@@ -22,7 +22,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntaxCheckers.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 
 import javax.naming.NamingException;
 
@@ -50,6 +50,6 @@ public class BogusSyntax extends LdapSyntax
 
     public SyntaxChecker getSyntaxChecker() throws NamingException
     {
-        return new AcceptAllSyntaxChecker( getOid() );
+        return new OctetStringSyntaxChecker();
     }
 }

@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +62,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( CiRunner.class )
 @CleanupLevel( Level.CLASS )
-public class MetaSchemaHandlerIT
+public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String TEST_ATTR_OID = "1.3.6.1.1.1.1.0";
@@ -181,7 +182,6 @@ public class MetaSchemaHandlerIT
         }
     }
     
-    
     /**
      * Tests the addition of a new metaSchema object that is enabled 
      * on addition and has no dependencies.
@@ -192,9 +192,12 @@ public class MetaSchemaHandlerIT
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaSchema",
+            "cn: dummy"
+            );
+
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );

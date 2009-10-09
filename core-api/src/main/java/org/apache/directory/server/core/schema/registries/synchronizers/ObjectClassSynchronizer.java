@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -30,9 +31,11 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +68,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public boolean modify( LdapDN name, ServerEntry entry, ServerEntry targetEntry, boolean cascade ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
+        LdapDN name = opContext.getDn();
+        ServerEntry entry = opContext.getEntry();
         String oid = getOid( entry );
         ObjectClass oc = factory.getObjectClass( targetEntry, registries, getSchemaName( name ) );
         String schemaName = getSchemaName( entry.getDn() );
@@ -91,22 +99,57 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         LdapDN dn = entry.getDn();
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( parentDn.size() - 1 );
-        checkNewParent( parentDn );
+        
+        // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
+        checkParent( parentDn, objectClassRegistry, SchemaConstants.OBJECT_CLASS );
+        
+        // The new schemaObject's OID must not already exist
         checkOidIsUnique( entry );
         
+        // Build the new ObjectClass from the given entry
         String schemaName = getSchemaName( dn );
-        ObjectClass oc = factory.getObjectClass( entry, registries, schemaName );
+        ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
 
-        addToSchema( oc, schemaName );
+        // At this point, the constructed ObjectClass has not been checked against the 
+        // existing Registries. It may be broken (missing SUPs), it will be checked
+        // there, if the schema and the ObjectClass are both enabled.
+        Schema schema = registries.getLoadedSchema( schemaName );
+
+        if ( schema.isEnabled() && objectClass.isEnabled() )
+        {
+            objectClass.applyRegistries( registries );
+        }
+        
+        // Associates this ObjectClass with the schema
+        addToSchema( objectClass, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            objectClassRegistry.register( oc );
+            // Update the referenced and referencing objects
+            // The MAY AttributeTypes
+            for ( AttributeType may : objectClass.getMayAttributeTypes() )
+            {
+                registries.addReference( objectClass, may );
+            }
+            
+            // The MUST AttributeTypes
+            for ( AttributeType must : objectClass.getMayAttributeTypes() )
+            {
+                registries.addReference( objectClass, must );
+            }
+            
+            // The superiors
+            for ( ObjectClass superior : objectClass.getSuperiors() )
+            {
+                registries.addReference( objectClass, superior );
+            }
+            
+            objectClassRegistry.register( objectClass );
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {
-            registerOids( oc );
+            registerOids( objectClass );
             LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
@@ -117,34 +160,54 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
      */
     public void delete( ServerEntry entry, boolean cascade ) throws Exception
     {
+        LdapDN dn = entry.getDn();
+        LdapDN parentDn = ( LdapDN ) dn.clone();
+        parentDn.remove( parentDn.size() - 1 );
+        
+        // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
+        checkParent( parentDn, objectClassRegistry, SchemaConstants.OBJECT_CLASS );
+        
+        // Get the ObjectClass from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
 
-        if ( !isSchemaLoaded( schemaName ) )
-        {
-            // Cannot remove an AT from a not loaded schema
-            String msg = "Cannot delete " + entry.getDn().getUpName() + ", from the not loade schema " +
-                schemaName;
-            LOG.warn( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
+        String oid = objectClass.getOid();
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            // Check that the entry has no descendant
-            if ( objectClassRegistry.hasDescendants( objectClass.getOid() ) )
+            if ( registries.isReferenced( objectClass ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
-                    " dependant ObjectClasses";
-                
+                    " dependant SchemaObjects :\n" + getReferenced( objectClass );
+                LOG.warn( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
 
+        // Remove the ObjectClass from the schema content
         deleteFromSchema( objectClass, schemaName );
 
-        if ( isSchemaEnabled( schemaName ) )
+        if ( objectClassRegistry.contains( oid ) )
         {
+            // Update the referenced and referencing objects
+            // The MAY AttributeTypes
+            for ( AttributeType may : objectClass.getMayAttributeTypes() )
+            {
+                registries.delReference( objectClass, may );
+            }
+            
+            // The MUST AttributeTypes
+            for ( AttributeType must : objectClass.getMayAttributeTypes() )
+            {
+                registries.delReference( objectClass, must );
+            }
+            
+            // The superiors
+            for ( ObjectClass superior : objectClass.getSuperiors() )
+            {
+                registries.delReference( objectClass, superior );
+            }
+            
             objectClassRegistry.unregister( objectClass.getOid() );
             LOG.debug( "Removed {} from the enabled schema {}", objectClass, schemaName );
         }
