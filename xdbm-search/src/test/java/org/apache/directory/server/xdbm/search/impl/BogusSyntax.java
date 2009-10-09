@@ -24,8 +24,6 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 
-import javax.naming.NamingException;
-
 
 /**
  * A dummy syntax for testing.
@@ -48,7 +46,7 @@ public class BogusSyntax extends LdapSyntax
     }
 
 
-    public SyntaxChecker getSyntaxChecker() throws NamingException
+    public SyntaxChecker getSyntaxChecker()
     {
         return new OctetStringSyntaxChecker();
     }
