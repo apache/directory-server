@@ -119,7 +119,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( dn );
         LdapSyntax syntax = factory.getSyntax( entry, registries, schemaName );
 
-        // Applies the Registrie sto this Syntax 
+        // Applies the Registries to this Syntax 
         Schema schema = registries.getLoadedSchema( schemaName );
 
         if ( schema.isEnabled() && syntax.isEnabled() )
@@ -219,6 +219,14 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         LdapSyntax syntax = factory.getSyntax( entry, registries, schemaName );
         
+        // Applies the Registries to this Syntax 
+        Schema schema = registries.getLoadedSchema( schemaName );
+
+        if ( schema.isEnabled() && syntax.isEnabled() )
+        {
+            syntax.applyRegistries( registries );
+        }
+
         String oid = syntax.getOid();
         
         if ( isSchemaEnabled( schemaName ) )
@@ -236,11 +244,12 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( syntaxRegistry.contains( oid ) )
         {
-            syntaxRegistry.unregister( oid );
-            
-            // Now, update the references.
+            // Update the references.
             // The SyntaxChecker
-            registries.delReference( syntax.getSyntaxChecker(), syntax );
+            registries.delReference( syntax, syntax.getSyntaxChecker() );
+            
+            // Update the Registry
+            syntaxRegistry.unregister( oid );
             
             LOG.debug( "Removed {} from the enabled schema {}", syntax, schemaName );
         }

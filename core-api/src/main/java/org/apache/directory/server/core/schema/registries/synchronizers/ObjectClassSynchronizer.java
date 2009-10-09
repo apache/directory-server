@@ -171,6 +171,14 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
 
+        // Applies the Registries to this ObjectClass 
+        Schema schema = registries.getLoadedSchema( schemaName );
+
+        if ( schema.isEnabled() && objectClass.isEnabled() )
+        {
+            objectClass.applyRegistries( registries );
+        }
+        
         String oid = objectClass.getOid();
 
         if ( isSchemaEnabled( schemaName ) )
@@ -208,7 +216,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 registries.delReference( objectClass, superior );
             }
             
+            // Update the Registry
             objectClassRegistry.unregister( objectClass.getOid() );
+            
             LOG.debug( "Removed {} from the enabled schema {}", objectClass, schemaName );
         }
         else

@@ -168,6 +168,14 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         MatchingRule matchingRule = factory.getMatchingRule( entry, registries, schemaName );
         String oid = matchingRule.getOid();
         
+        // Applies the Registries to this MatchingRule 
+        Schema schema = registries.getLoadedSchema( schemaName );
+
+        if ( schema.isEnabled() && matchingRule.isEnabled() )
+        {
+            matchingRule.applyRegistries( registries );
+        }
+        
         deleteFromSchema( matchingRule, schemaName );
         
         if ( matchingRuleRegistry.contains( oid ) )
@@ -182,7 +190,9 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             // The Comparator
             registries.delReference( matchingRule, matchingRule.getLdapComparator() );
 
+            // Update the registry
             matchingRuleRegistry.unregister( matchingRule.getOid() );
+            
             LOG.debug( "Removed {} from the enabled schema {}", matchingRule, schemaName );
         }
         else

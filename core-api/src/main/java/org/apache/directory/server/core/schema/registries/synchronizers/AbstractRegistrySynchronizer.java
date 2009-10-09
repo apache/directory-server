@@ -393,11 +393,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         StringBuilder sb = new StringBuilder();
         
-        Set<SchemaObject> usings = registries.getUsing( schemaObject );
+        Set<SchemaWrapper> useds = registries.getUsedBy( schemaObject );
         
-        for ( SchemaObject using:usings )
+        for ( SchemaWrapper used:useds )
         {
-            sb.append( using );
+            sb.append( used );
             sb.append( '\n' );
         }
         

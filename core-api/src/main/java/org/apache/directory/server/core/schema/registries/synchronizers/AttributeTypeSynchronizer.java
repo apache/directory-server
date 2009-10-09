@@ -167,6 +167,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         AttributeType attributeType = factory.getAttributeType( entry, registries, schemaName );
         
+        // Applies the Registries to this AttributeType 
+        Schema schema = registries.getLoadedSchema( schemaName );
+        
+        if ( schema.isEnabled() && attributeType.isEnabled() )
+        {
+            attributeType.applyRegistries( registries );
+        }
+        
         String oid = attributeType.getOid();
         
         // Depending on the fact that the schema is enabled or disabled, we will have
@@ -194,20 +202,20 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Update the Registries now
         if ( atRegistry.contains( oid ) )
         {
-            // Don't inject the modified element if the schema is disabled
-            atRegistry.unregister( attributeType.getOid() );
-            
-            // Now, update the references.
+            // Update the references.
             // The Syntax
-            registries.delReference( attributeType.getSyntax(), attributeType );
+            registries.delReference( attributeType, attributeType.getSyntax() );
             
             // The Superior
-            registries.delReference( attributeType.getSuperior(), attributeType );
+            registries.delReference( attributeType, attributeType.getSuperior() );
             
             // The MatchingRules
-            registries.delReference( attributeType.getEquality(), attributeType );
-            registries.delReference( attributeType.getOrdering(), attributeType );
-            registries.delReference( attributeType.getSubstring(), attributeType );
+            registries.delReference( attributeType, attributeType.getEquality() );
+            registries.delReference( attributeType, attributeType.getOrdering() );
+            registries.delReference( attributeType, attributeType.getSubstring() );
+            
+            // Update the Registry
+            atRegistry.unregister( attributeType.getOid() );
             
             LOG.debug( "Removed {} from the enabled schema {}", attributeType, schemaName );
         }
