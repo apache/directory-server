@@ -255,16 +255,7 @@ public class ServerStringValue extends ClientStringValue
             return valid;
         }
 
-        try
-        {
-            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Cannot check the syntax : " + ne.getMessage();
-            LOG.error( message );
-            valid = false;
-        }
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
         
         return valid;
     }

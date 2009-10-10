@@ -329,16 +329,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             return valid;
         }
 
-        try
-        {
-            valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
-        }
-        catch ( NamingException ne )
-        {
-            String message = "Cannot check the syntax : " + ne.getMessage();
-            LOG.error( message );
-            valid = false;
-        }
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
         
         return valid;
     }
