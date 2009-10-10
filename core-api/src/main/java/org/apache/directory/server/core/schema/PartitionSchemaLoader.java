@@ -79,7 +79,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private static final Logger LOG = LoggerFactory.getLogger( PartitionSchemaLoader.class );
 
     private final SchemaPartitionDao dao;
-    private SchemaEntityFactory factory;
     private Partition partition;
     
     /** The attributeType registry */
@@ -103,7 +102,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     public PartitionSchemaLoader( Partition partition, Registries registries ) throws Exception
     {
-        this.factory = new SchemaEntityFactory();
+        super( new SchemaEntityFactory() );
         this.partition = partition;
         atRegistry = registries.getAttributeTypeRegistry();
         
