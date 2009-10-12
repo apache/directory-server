@@ -20,12 +20,19 @@
 package org.apache.directory.server.core.entry;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -38,14 +45,8 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -162,7 +163,14 @@ public class ServerModificationTest
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+        
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         atC = registries.getAttributeTypeRegistry().lookup( "c" );
     }

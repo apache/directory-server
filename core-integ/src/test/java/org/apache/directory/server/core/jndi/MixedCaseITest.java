@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -62,6 +63,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,7 +116,14 @@ public class MixedCaseITest
             schemaPartition.setRegistries( registries );
             
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-            loader.loadAllEnabled( registries );
+
+            List<Throwable> errors = loader.loadAllEnabled( registries, true );
+            
+            if ( errors.size() != 0 )
+            {
+                fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            }
+
             extractor.extractOrCopy();
 
             service.getChangeLog().setEnabled( true );

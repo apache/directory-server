@@ -22,16 +22,19 @@ package org.apache.directory.server.core.security;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,7 +75,13 @@ public class TlsKeyGeneratorTest
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+        
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
     }
     
     

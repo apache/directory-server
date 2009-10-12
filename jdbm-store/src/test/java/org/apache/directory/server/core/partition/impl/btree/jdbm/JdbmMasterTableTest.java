@@ -20,23 +20,26 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.List;
+
+import jdbm.RecordManager;
+import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
-
-import java.io.File;
-
-import jdbm.RecordManager;
-import jdbm.recman.BaseRecordManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -73,7 +76,13 @@ public class JdbmMasterTableTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         Registries registries = new Registries();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
 
         attributeRegistry = registries.getAttributeTypeRegistry();
     }

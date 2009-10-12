@@ -77,6 +77,30 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         return service.getRegistries().getAttributeTypeRegistry();
     }
     
+    
+    /*
+    @Before
+    public void checkBefore()
+    {
+        System.out.println( "--------------------Before, USING :" );
+        service.getRegistries().dumpUsing();
+        System.out.println( "--------------------Before, USED BY :" );
+        service.getRegistries().dumpUsedBy();
+        //assertTrue( service.getRegistries().check() );
+    }
+    
+    
+    @After
+    public void checkRegistries()
+    {
+        System.out.println( "--------------------After, USING :" );
+        service.getRegistries().dumpUsing();
+        System.out.println( "--------------------After, USED BY :" );
+        service.getRegistries().dumpUsedBy();
+        //assertTrue( service.getRegistries().check() );
+    }
+    */
+    
     /**
      * Gets relative DN to ou=schema.
      *

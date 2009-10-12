@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.schema.comparators.SerializableComparato
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,7 +258,15 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        loader.loadAllEnabled( registries );  
+        // Load the registries. We use a permissive registries at this point
+        // so even if the schema are not ordered or the SchemaObjects are not
+        // ordered in the schemas, we can still load them all.
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            throw new RuntimeException( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
         
         schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );

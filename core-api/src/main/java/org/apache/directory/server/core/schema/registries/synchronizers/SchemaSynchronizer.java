@@ -651,7 +651,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             return SCHEMA_UNCHANGED;
         }
 
-        loader.loadWithDependencies( schema, registries );
+        loader.loadWithDependencies( schema, registries, true );
         schema = loader.getSchema( schemaName );
         schema.enable();
         

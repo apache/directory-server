@@ -23,8 +23,10 @@ package org.apache.directory.server.core.normalization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -34,6 +36,7 @@ import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +61,13 @@ public class NormalizationVisitorTest
     {
         registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
 
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );

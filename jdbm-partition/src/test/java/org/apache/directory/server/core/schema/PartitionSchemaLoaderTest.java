@@ -20,29 +20,30 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
-import javax.naming.NamingException;
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -90,18 +91,14 @@ public class PartitionSchemaLoaderTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
         
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
         
-        if ( !errors.isEmpty() )
+        if ( errors.size() != 0 )
         {
-            NamingException e = new NamingException();
-            e.setRootCause( errors.get( 0 ) );
-            throw e;
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
-
+        
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         // --------------------------------------------------------------------

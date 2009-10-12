@@ -20,30 +20,34 @@
 package org.apache.directory.server.core.subtree;
 
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 
 
@@ -61,7 +65,8 @@ public class SubtreeEvaluatorTest
     static AttributeTypeRegistry attributeRegistry;
     static ConcreteNameComponentNormalizer ncn;
 
-    private static void init() throws Exception
+    @BeforeClass
+    public static void init() throws Exception
     {
     	String workingDirectory = System.getProperty( "workingDirectory" );
 
@@ -77,7 +82,13 @@ public class SubtreeEvaluatorTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
     	
         attributeRegistry = registries.getAttributeTypeRegistry();
         
@@ -101,13 +112,6 @@ public class SubtreeEvaluatorTest
     }
 
     
-    @BeforeClass
-    public static void setUp() throws Exception
-    {
-        init();
-    }
-
-
     @AfterClass
     public static void tearDown() throws Exception
     {

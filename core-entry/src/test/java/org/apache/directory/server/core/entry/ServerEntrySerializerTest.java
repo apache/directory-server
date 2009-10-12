@@ -20,8 +20,12 @@
 package org.apache.directory.server.core.entry;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -31,10 +35,9 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
-
-import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -72,7 +75,13 @@ public class ServerEntrySerializerTest
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+        
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
         
         oids = new HashMap<String, OidNormalizer>();
 

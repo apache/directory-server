@@ -20,33 +20,37 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +93,16 @@ public class NestedFilterTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
-        loader.loadWithDependencies( loader.getSchema( "collective" ), registries );
+        
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+        
+        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         attributeRegistry = registries.getAttributeTypeRegistry();

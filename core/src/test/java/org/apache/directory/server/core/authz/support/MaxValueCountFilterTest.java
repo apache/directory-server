@@ -21,11 +21,13 @@ package org.apache.directory.server.core.authz.support;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -40,6 +42,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -80,7 +83,13 @@ public class MaxValueCountFilterTest
     {
         registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
     }
     
     @Before public void setup() throws NamingException

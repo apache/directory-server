@@ -20,56 +20,59 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger; 
-import org.slf4j.LoggerFactory;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.naming.directory.Attributes;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.xdbm.IndexNotFoundException;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.tools.StoreUtils;
+import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.tools.StoreUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.csn.CsnFactory;
 import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
-
-import javax.naming.directory.Attributes;
-import java.lang.reflect.Method;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.UUID;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -107,7 +110,13 @@ public class JdbmStoreTest
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
 
         attributeRegistry = registries.getAttributeTypeRegistry();
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );

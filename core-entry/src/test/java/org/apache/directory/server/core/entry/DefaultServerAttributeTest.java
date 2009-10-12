@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
@@ -120,7 +121,15 @@ public class DefaultServerAttributeTest
         extractor.extractOrCopy();
     	loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            // We have inconsistencies : log them and exit.
+            throw new RuntimeException( "Inconsistent schemas : " + 
+                ExceptionUtils.printErrors( errors ) );
+        }
         
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         atC = registries.getAttributeTypeRegistry().lookup( "c" );

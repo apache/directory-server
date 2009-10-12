@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -98,8 +99,21 @@ public class LessEqTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
-        loader.loadAllEnabled( registries );
-        loader.loadWithDependencies( loader.getSchema( "collective" ), registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+        
+        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         attributeRegistry = registries.getAttributeTypeRegistry();

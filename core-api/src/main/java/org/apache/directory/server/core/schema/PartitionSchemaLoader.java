@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -260,7 +259,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
         }
 
-        loadWithDependencies( enabledSchemaSet, targetRegistries );
+        loadWithDependencies( enabledSchemaSet, targetRegistries, true );
     }
     
     
@@ -337,8 +336,16 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    public final void loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public final List<Throwable> loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries, boolean check ) throws Exception
     {
+        // Relax the controls at first
+        List<Throwable> errors = new ArrayList<Throwable>();
+        boolean wasRelaxed = targetRegistries.isRelaxed();
+        targetRegistries.setRelaxed( true );
+
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
 
         for ( Schema schema : schemas )
@@ -354,6 +361,17 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries );
             list = notLoaded.values().iterator();
         }
+
+        // At the end, check the registries if required
+        if ( check )
+        {
+            errors = targetRegistries.checkRefInteg();
+        }
+        
+        // Restore the Registries isRelaxed flag
+        targetRegistries.setRelaxed( wasRelaxed );
+        
+        return errors;
     }
 
     /**
@@ -437,7 +455,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         {
             dn = new LdapDN( 
                 SchemaConstants.OBJECT_CLASSES_PATH, 
-                "cn=" + schema.getSchemaName(),
+                "cn", schema.getSchemaName(),
                 SchemaConstants.OU_SCHEMA );
             
             dn.normalize( atRegistry.getNormalizerMapping() );
@@ -458,20 +476,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ClonedServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ClonedServerEntry attrs = lookupPartition( resultDN );
-            ObjectClass oc = factory.getObjectClass( attrs, targetRegistries, schema.getSchemaName() );
+            ClonedServerEntry entry = lookupPartition( resultDN );
             
-            try
-            {
-                targetRegistries.getObjectClassRegistry().register( oc );
-            }
-            catch ( Exception ne )
-            {
-                deferred.add( oc );
-            }
+            registerObjectClass( targetRegistries, entry, schema );
         }
         
         LOG.debug( "Deferred queue size = {}", deferred.size() );
+        
         if ( LOG.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
@@ -488,6 +499,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
         
         int lastCount = deferred.size();
+        
         while ( ! deferred.isEmpty() )
         {
             LOG.debug( "Deferred queue size = {}", deferred.size() );
@@ -866,12 +878,12 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             ClonedServerEntry result = list.get();
             LdapDN resultDN = result.getDn();
             resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ClonedServerEntry attrs = lookupPartition( resultDN );
-            LdapComparator<?> comparator = factory.getLdapComparator( attrs, targetRegistries, schema.getSchemaName() );
-            LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), attrs );
+            ClonedServerEntry entry = lookupPartition( resultDN );
+            
+            LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
             // @TODO elecharny what should I do with description
             
-            targetRegistries.getComparatorRegistry().register( comparator );
+            registerComparator( targetRegistries, entry, schema );
         }
     }
 
@@ -931,12 +943,31 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
     
-    public void loadWithDependencies( Schema schema, Registries registries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public List<Throwable> loadWithDependencies( Schema schema, Registries registries, boolean check ) throws Exception
     {
+        // Relax the controls at first
+        List<Throwable> errors = new ArrayList<Throwable>();
+        boolean wasRelaxed = registries.isRelaxed();
+        registries.setRelaxed( true );
+
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
         notLoaded.put( schema.getSchemaName(), schema );                        
         Properties props = new Properties();
         loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries );
+        
+        // At the end, check the registries if required
+        if ( check )
+        {
+            errors = registries.checkRefInteg();
+        }
+        
+        // Restore the Registries isRelaxed flag
+        registries.setRelaxed( wasRelaxed );
+        
+        return errors;
     }
 
 

@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
+
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
@@ -33,6 +35,7 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -65,11 +68,18 @@ public class RefinementEvaluatorTest
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass public static void init() throws Exception
+    @BeforeClass 
+    public static void init() throws Exception
     {
         registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-        loader.loadAllEnabled( registries );
+
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
     }
 
 

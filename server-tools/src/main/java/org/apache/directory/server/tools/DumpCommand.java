@@ -20,6 +20,8 @@
 package org.apache.directory.server.tools;
 
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -44,8 +46,6 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.cursor.Cursor;
@@ -53,9 +53,12 @@ import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 
 
@@ -99,12 +102,17 @@ public class DumpCommand extends ToolCommand
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         Registries registries = new Registries();
-        loader.loadAllEnabled( registries );
-        loader.loadWithDependencies( loader.getSchema( "collective" ), registries );
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
-        // run referential integrity tests
-        List<Throwable> errors = registries.checkRefInteg();
+        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        
+        if ( errors.size() != 0 )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+        }
+
+        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         if ( !errors.isEmpty() )
         {
