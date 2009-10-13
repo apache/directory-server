@@ -59,7 +59,6 @@ import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
@@ -375,7 +374,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
     /**
-     * {@link SchemaLoader#load(Schema, Registries, boolean)}
+     * {@inheritDoc}
      */
     public final void load( Schema schema, Registries targetRegistries, boolean isDepLoad ) throws Exception
     {
