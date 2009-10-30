@@ -60,9 +60,10 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -146,7 +147,6 @@ public class SearchWithIndicesITest
             DirectoryService service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            Registries registries = service.getRegistries();
             
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
@@ -158,17 +158,21 @@ public class SearchWithIndicesITest
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
             
             schemaPartition.setWrappedPartition( ldifPartition );
-            schemaPartition.setRegistries( registries );
             
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-            List<Throwable> errors = loader.loadAllEnabled( registries, true );
+            SchemaManager sm = new DefaultSchemaManager( loader );
+            
+            sm.loadAllEnabled();
+            List<Throwable> errors = sm.getErrors();
             
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
             }
 
+            schemaPartition.setRegistries( sm.getRegistries() );
+            
             extractor.extractOrCopy();
 
             service.getChangeLog().setEnabled( true );
@@ -182,7 +186,7 @@ public class SearchWithIndicesITest
             systemPartition.setId( "system" );
             ((JdbmPartition)systemPartition).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setRegistries( registries );
+            systemPartition.setRegistries( sm.getRegistries() );
             ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
     
             // Add objectClass attribute for the system partition

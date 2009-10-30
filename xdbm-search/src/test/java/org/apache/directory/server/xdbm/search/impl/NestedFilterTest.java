@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -40,12 +39,14 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -92,16 +93,23 @@ public class NestedFilterTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
-        
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
         
-        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
+        
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+        }
+        
+        registries = sm.getRegistries();
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

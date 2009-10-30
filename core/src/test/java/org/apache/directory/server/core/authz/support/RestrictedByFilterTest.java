@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -40,8 +39,10 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,15 +78,18 @@ public class RestrictedByFilterTest
     
     @BeforeClass public static void setup() throws Exception
     {
-        registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+
+        registries = sm.getRegistries();
 
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );

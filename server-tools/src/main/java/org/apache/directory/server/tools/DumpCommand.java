@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
@@ -59,6 +60,7 @@ import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 
 
@@ -101,16 +103,21 @@ public class DumpCommand extends ToolCommand
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        Registries registries = new Registries();
-
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        SchemaManager sm = new DefaultSchemaManager( loader );
+        sm.loadAllEnabled();
+        Registries registries = sm.getRegistries();
+        
+        List<Throwable> errors = sm.getErrors();
         
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
 
-        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        
+        sm.loadWithDeps( "collective" );
+        
+        errors = sm.getErrors();
         
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 

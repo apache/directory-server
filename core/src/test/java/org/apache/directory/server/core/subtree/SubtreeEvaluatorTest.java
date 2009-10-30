@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -35,6 +34,7 @@ import org.apache.directory.server.core.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -81,14 +82,16 @@ public class SubtreeEvaluatorTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
+        SchemaManager sm = new DefaultSchemaManager( loader );
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+
+        registries = sm.getRegistries();
     	
         attributeRegistry = registries.getAttributeTypeRegistry();
         

@@ -21,16 +21,12 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
 
 import javax.naming.NamingException;
 
@@ -43,15 +39,10 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
@@ -60,7 +51,6 @@ import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +90,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     
     public PartitionSchemaLoader( Partition partition, Registries registries ) throws Exception
     {
-        super( new SchemaEntityFactory() );
         this.partition = partition;
         atRegistry = registries.getAttributeTypeRegistry();
         
@@ -192,73 +181,26 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
 
     }
     
+    
     /**
-     * Utility method to load all enabled schemas into this registry.
-     * 
-     * @param targetRegistries
-     * @throws NamingException
+     * Helper class used to update the static DNs for each kind of Schema Object
      */
-    public void loadEnabled( Registries targetRegistries ) throws Exception
+    private LdapDN updateDNs( Map<String, LdapDN> staticDNs, String path, Schema schema ) throws NamingException
     {
-        /* 
-         * We need to load all names and oids into the oid registry regardless of
-         * the entity being in an enabled schema.  This is necessary because we 
-         * search for values in the schema partition that represent matchingRules
-         * and other entities that are not loaded.  While searching these values
-         * in disabled schemas normalizers will attempt to equate names with oids
-         * and if there is an unrecognized value by a normalizer then the search 
-         * will fail.
-         * 
-         * For example there is a NameOrNumericOidNormalizer that will reduce a 
-         * numeric OID or a non-numeric OID to it's numeric form using the OID 
-         * registry.  While searching the schema partition for attributeTypes we
-         * might find values of matchingRules in the m-ordering, m-equality, and
-         * m-substr attributes of metaAttributeType definitions.  Now if an entry
-         * references a matchingRule that has not been loaded then the 
-         * NameOrNumericOidNormalizer will bomb out when it tries to resolve 
-         * names of matchingRules in unloaded schemas to OID values using the 
-         * OID registry.  To prevent this we need to load all the OID's in advance
-         * regardless of whether they are used or not.
-         */
-        EntryFilteringCursor cursor = dao.listAllNames();
+        LdapDN dn = staticDNs.get( schema.getSchemaName() );
         
-        // @TODO WARNING: this does not work figure out what we need to do  
-        // with this OID registry registration below that we commented out.
-        
-        while ( cursor.next() )
+        if ( dn == null )
         {
-            ServerEntry entry = cursor.get();
-            String oid = entry.get( mOidAT ).getString();
-            EntryAttribute names = entry.get( mNameAT );
-            //targetRegistries.getOidRegistry().register( oid, oid );
+            dn = new LdapDN( 
+                path,
+                "cn=" + schema.getSchemaName(),
+                SchemaConstants.OU_SCHEMA );
             
-            for ( Value<?> value:names )
-            {
-                //targetRegistries.getOidRegistry().register( value.getString(), oid );
-            }
+            dn.normalize( atRegistry.getNormalizerMapping() );
+            staticDNs.put( schema.getSchemaName(), dn );
         }
         
-        cursor.close();
-        
-        
-        Map<String, Schema> allSchemaMap = getSchemas();
-        Set<Schema> enabledSchemaSet = new HashSet<Schema>();
-
-        for ( Schema schema: allSchemaMap.values() )
-        {
-            if ( ! schema.isDisabled() )
-            {
-                LOG.debug( "will attempt to load enabled schema: {}", schema.getSchemaName() );
-                    
-                enabledSchemaSet.add( schema );
-            }
-            else
-            {
-                LOG.debug( "will NOT attempt to load disabled schema: {}", schema.getSchemaName() );
-            }
-        }
-
-        loadWithDependencies( enabledSchemaSet, targetRegistries, true );
+        return dn;
     }
     
     
@@ -335,43 +277,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public final List<Throwable> loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries, boolean check ) throws Exception
-    {
-        // Relax the controls at first
-        List<Throwable> errors = new ArrayList<Throwable>();
-        boolean wasRelaxed = targetRegistries.isRelaxed();
-        targetRegistries.setRelaxed( true );
-
-        HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
-
-        for ( Schema schema : schemas )
-        {
-            notLoaded.put( schema.getSchemaName(), schema );
-        }
-
-        Iterator<Schema> list = notLoaded.values().iterator();
-        
-        while ( list.hasNext() )
-        {
-            Schema schema = list.next();
-            loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries );
-            list = notLoaded.values().iterator();
-        }
-
-        // At the end, check the registries if required
-        if ( check )
-        {
-            errors = targetRegistries.checkRefInteg();
-        }
-        
-        // Restore the Registries isRelaxed flag
-        targetRegistries.setRelaxed( wasRelaxed );
-        
-        return errors;
-    }
 
     /**
      * {@inheritDoc}
@@ -393,281 +298,125 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         LOG.debug( "loading {} schema ...", schema.getSchemaName() );
         
-        loadComparators( schema, targetRegistries );
-        loadNormalizers( schema, targetRegistries );
-        loadSyntaxCheckers( schema, targetRegistries );
-        loadSyntaxes( schema, targetRegistries );
-        loadMatchingRules( schema, targetRegistries );
-        loadAttributeTypes( schema, targetRegistries );
-        loadObjectClasses( schema, targetRegistries );
-        loadMatchingRuleUses( schema, targetRegistries );
-        loadDitContentRules( schema, targetRegistries );
-        loadNameForms( schema, targetRegistries );
+        loadComparators( schema );
+        loadNormalizers( schema );
+        loadSyntaxCheckers( schema );
+        loadSyntaxes( schema );
+        loadMatchingRules( schema );
+        loadAttributeTypes( schema );
+        loadObjectClasses( schema );
+        loadMatchingRuleUses( schema );
+        loadDitContentRules( schema );
+        loadNameForms( schema );
         
         // order does matter here so some special trickery is needed
         // we cannot load a DSR before the DSRs it depends on are loaded?
         // TODO need to confirm this ( or we must make the class for this and use deferred 
         // resolution until everything is available?
         
-        loadDitStructureRules( schema, targetRegistries );
+        loadDitStructureRules( schema );
         
         notifyListenerOrRegistries( schema, targetRegistries );
     }
 
     
-    private void loadMatchingRuleUses( Schema schema, Registries targetRegistries )
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    private void loadDitStructureRules( Schema schema, Registries targetRegistries )
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    private void loadNameForms( Schema schema, Registries targetRegistries )
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    private void loadDitContentRules( Schema schema, Registries targetRegistries )
-    {
-        // TODO Auto-generated method stub
-    }
-
-
-    private void loadObjectClasses( Schema schema, Registries targetRegistries ) throws Exception
-    {
-        /**
-         * Sometimes search may return child objectClasses before their superiors have
-         * been registered like with attributeTypes.  To prevent this from bombing out
-         * the loader we will defer the registration of elements until later.
-         */
-        LinkedList<ObjectClass> deferred = new LinkedList<ObjectClass>();
-
-        LdapDN dn = staticObjectClassesDNs.get( schema.getSchemaName() );
-        
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.OBJECT_CLASSES_PATH, 
-                "cn", schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticObjectClassesDNs.put( schema.getSchemaName(), dn );
-        }
-        
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
-        {
-            return;
-        }
-        
-        LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
-        {
-            ClonedServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ClonedServerEntry entry = lookupPartition( resultDN );
-            
-            registerObjectClass( targetRegistries, entry, schema );
-        }
-        
-        LOG.debug( "Deferred queue size = {}", deferred.size() );
-        
-        if ( LOG.isDebugEnabled() )
-        {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "Deferred queue contains: " );
-            
-            for ( ObjectClass extra : deferred )
-            {
-                buf.append( extra.getName() );
-                buf.append( '[' );
-                buf.append( extra.getOid() );
-                buf.append( "]" );
-                buf.append( "\n" );
-            }
-        }
-        
-        int lastCount = deferred.size();
-        
-        while ( ! deferred.isEmpty() )
-        {
-            LOG.debug( "Deferred queue size = {}", deferred.size() );
-            ObjectClass oc = deferred.removeFirst();
-            Exception lastException = null;
-            
-            try
-            {
-                targetRegistries.getObjectClassRegistry().register( oc );
-            }
-            catch ( Exception ne )
-            {
-                deferred.addLast( oc );
-                lastException = ne;
-            }
-            
-            // if we shrank the deferred list we're doing good and can continue
-            if ( deferred.size() < lastCount )
-            {
-                lastCount = deferred.size();
-            }
-            else
-            {
-                StringBuffer buf = new StringBuffer();
-                buf.append( "A cycle must exist somewhere within the objectClasses of the " );
-                buf.append( schema.getSchemaName() );
-                buf.append( " schema.  We cannot seem to register the following objectClasses:\n" );
-                
-                for ( ObjectClass extra : deferred )
-                {
-                    buf.append( extra.getName() );
-                    buf.append( '[' );
-                    buf.append( extra.getOid() );
-                    buf.append( "]" );
-                    buf.append( "\n" );
-                }
-                
-                NamingException ne = new NamingException( buf.toString() );
-                ne.setRootCause( lastException );
-            }
-        }
-    }
-
-
-    private void loadAttributeTypes( Schema schema, Registries targetRegistries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadAttributeTypes( Schema schema ) throws Exception
     {
         LinkedList<AttributeType> deferred = new LinkedList<AttributeType>();
         
-        LdapDN dn = staticAttributeTypeDNs.get( schema.getSchemaName() );
+        LdapDN dn = updateDNs( staticAttributeTypeDNs, SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
         
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.ATTRIBUTES_TYPE_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
-        }
-        
+        List<Entry> attributeTypeList = new ArrayList<Entry>();
+
+        // Check that we don't have an entry in the Dit for this schema
         if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
-            return;
+            // No : get out, no AttributeType to load
+            return attributeTypeList;
         }
         
         LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
         EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
         
+        // Loop on all the AttributeTypes and add them to the list
         while ( list.next() )
         {
             ServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
-            AttributeType at = factory.getAttributeType( attrs, targetRegistries, schema.getSchemaName() );
             
-            try
-            {
-                targetRegistries.getAttributeTypeRegistry().register( at );
-            }
-            catch ( Exception ne )
-            {
-                deferred.add( at );
-            }
-        }
-
-        LOG.debug( "Deferred queue size = {}", deferred.size() );
-        
-        if ( LOG.isDebugEnabled() )
-        {
-            StringBuffer buf = new StringBuffer();
-            buf.append( "Deferred queue contains: " );
-            
-            for ( AttributeType extra : deferred )
-            {
-                buf.append( extra.getName() );
-                buf.append( '[' );
-                buf.append( extra.getOid() );
-                buf.append( "]" );
-                buf.append( "\n" );
-            }
+            attributeTypeList.add( result );
         }
         
-        int lastCount = deferred.size();
-        
-        while ( ! deferred.isEmpty() )
-        {
-            LOG.debug( "Deferred queue size = {}", deferred.size() );
-            AttributeType at = deferred.removeFirst();
-            Exception lastException = null;
-            
-            try
-            {
-                targetRegistries.getAttributeTypeRegistry().register( at );
-            }
-            catch ( Exception ne )
-            {
-                deferred.addLast( at );
-                lastException = ne;
-            }
-            
-            // if we shrank the deferred list we're doing good and can continue
-            if ( deferred.size() < lastCount )
-            {
-                lastCount = deferred.size();
-            }
-            else
-            {
-                StringBuffer buf = new StringBuffer();
-                buf.append( "A cycle must exist somewhere within the attributeTypes of the " );
-                buf.append( schema.getSchemaName() );
-                buf.append( " schema.  We cannot seem to register the following attributeTypes:\n" );
-                
-                for ( AttributeType extra : deferred )
-                {
-                    buf.append( extra.getName() );
-                    buf.append( '[' );
-                    buf.append( extra.getOid() );
-                    buf.append( "]" );
-                    buf.append( "\n" );
-                }
-                
-                NamingException ne = new NamingException( buf.toString() );
-                ne.setRootCause( lastException );
-            }
-        }
+        return attributeTypeList;
     }
 
 
-    private void loadMatchingRules( Schema schema, Registries targetRegistries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadComparators( Schema schema ) throws Exception
     {
-        LdapDN dn = staticMatchingRulesDNs.get( schema.getSchemaName() );
+        LdapDN dn = updateDNs( staticComparatorsDNs, SchemaConstants.COMPARATORS_PATH, schema );
         
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.MATCHING_RULES_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
-        }
-        
+        List<Entry> comparatorList = new ArrayList<Entry>();
+
         if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
-            return;
+            return comparatorList;
+        }
+        
+        LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
+        
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+        
+        while ( list.next() )
+        {
+            ClonedServerEntry entry = list.get();
+            
+            comparatorList.add( entry );
+        }
+        
+        return comparatorList;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadDitContentRules( Schema schema ) throws Exception
+    {
+        LOG.error( "DitContentRule loading NYI" );
+        
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadDitStructureRules( Schema schema ) throws Exception
+    {
+        LOG.error( "DitStructureRule loading NYI" );
+        
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadMatchingRules( Schema schema ) throws Exception
+    {
+        LdapDN dn = updateDNs( staticMatchingRulesDNs, SchemaConstants.MATCHING_RULES_PATH, schema );
+        
+        List<Entry> matchingRuleList = new ArrayList<Entry>();
+
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        {
+            return matchingRuleList;
         }
         
         LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
@@ -676,111 +425,49 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.next() )
         {
-            ServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
-            MatchingRule mrule = factory.getMatchingRule( attrs, targetRegistries, schema.getSchemaName() );
-            targetRegistries.getMatchingRuleRegistry().register( mrule );
+            ServerEntry entry = list.get();
 
+            matchingRuleList.add( entry );
         }
+        
+        return matchingRuleList;
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadMatchingRuleUses( Schema schema ) throws Exception
+    {
+        LOG.error( "MatchingRuleUse loading NYI" );
+        
+        return null;
     }
 
 
-    private void loadSyntaxes( Schema schema, Registries targetRegistries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadNameForms( Schema schema ) throws Exception
     {
-        LdapDN dn = staticSyntaxesDNs.get( schema.getSchemaName() );
+        LOG.error( "NameForm loading NYI" );
         
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.SYNTAXES_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticSyntaxesDNs.put( schema.getSchemaName(), dn );
-        }
-        
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
-        {
-            return;
-        }
-        
-        LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
-        {
-            ServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
-            LdapSyntax syntax = factory.getSyntax( attrs, targetRegistries, schema.getSchemaName() );
-            targetRegistries.getLdapSyntaxRegistry().register( syntax );
-        }
+        return null;
     }
 
 
-    private void loadSyntaxCheckers( Schema schema, Registries targetRegistries ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadNormalizers( Schema schema ) throws Exception
     {
-        LdapDN dn = staticSyntaxCheckersDNs.get( schema.getSchemaName() );
+        LdapDN dn = updateDNs( staticNormalizersDNs, SchemaConstants.NORMALIZERS_PATH, schema );
         
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.SYNTAX_CHECKERS_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
-        }
-        
+        List<Entry> normalizerList = new ArrayList<Entry>();
+
         if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
         {
-            return;
-        }
-        
-        LOG.debug( "{} schema: loading syntaxCsheckers", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
-        {
-            ServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
-            SyntaxChecker sc = factory.getSyntaxChecker( attrs, targetRegistries, schema.getSchemaName() );
-            SyntaxCheckerDescription syntaxCheckerDescription = 
-                getSyntaxCheckerDescription( schema.getSchemaName(), attrs );
-            // @TODO elecharny what should I do with the description
-            
-            targetRegistries.getSyntaxCheckerRegistry().register( sc );
-        }
-    }
-
-
-    private void loadNormalizers( Schema schema, Registries targetRegistries ) throws Exception
-    {
-        LdapDN dn = staticNormalizersDNs.get( schema.getSchemaName() );
-        
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.NORMALIZERS_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticNormalizersDNs.put( schema.getSchemaName(), dn );
-        }
-        
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
-        {
-            return;
+            return normalizerList;
         }
         
         LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
@@ -789,16 +476,99 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         while ( list.next() )
         {
-            ClonedServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ServerEntry attrs = lookupPartition( resultDN );
-            Normalizer normalizer = factory.getNormalizer( attrs, targetRegistries,schema.getSchemaName() );
-            NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), attrs );
-            // @TODO elecharny what should I do with the description
+            ClonedServerEntry entry = list.get();
             
-            targetRegistries.getNormalizerRegistry().register( normalizer );
+            normalizerList.add( entry );
         }
+        
+        return normalizerList;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadObjectClasses( Schema schema ) throws Exception
+    {
+        LdapDN dn = updateDNs( staticObjectClassesDNs, SchemaConstants.OBJECT_CLASSES_PATH, schema );
+        
+        List<Entry> objectClassList = new ArrayList<Entry>();
+
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        {
+            return objectClassList;
+        }
+        
+        LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
+        
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+        
+        while ( list.next() )
+        {
+            ClonedServerEntry entry = list.get();
+            
+            objectClassList.add( entry );
+        }
+        
+        return objectClassList;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadSyntaxes( Schema schema ) throws Exception
+    {
+        LdapDN dn = updateDNs( staticSyntaxesDNs, SchemaConstants.SYNTAXES_PATH, schema );
+        
+        List<Entry> syntaxList = new ArrayList<Entry>();
+
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        {
+            return syntaxList;
+        }
+        
+        LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
+        
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+        
+        while ( list.next() )
+        {
+            ServerEntry entry = list.get();
+            
+            syntaxList.add( entry );
+        }
+        
+        return syntaxList;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Entry> loadSyntaxCheckers( Schema schema ) throws Exception
+    {
+        LdapDN dn = updateDNs( staticSyntaxCheckersDNs, SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
+        
+        List<Entry> syntaxCheckerList = new ArrayList<Entry>();
+
+        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        {
+            return syntaxCheckerList;
+        }
+        
+        LOG.debug( "{} schema: loading syntaxCsheckers", schema.getSchemaName() );
+        
+        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+        
+        while ( list.next() )
+        {
+            ServerEntry entry = list.get();
+            
+            syntaxCheckerList.add( entry );
+        }
+        
+        return syntaxCheckerList;
     }
 
 
@@ -847,46 +617,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
     
     
-    @SuppressWarnings("unchecked")
-    private void loadComparators( Schema schema, Registries targetRegistries ) throws Exception
-    {
-        LdapDN dn = staticComparatorsDNs.get( schema.getSchemaName() );
-        
-        if ( dn == null )
-        {
-            dn = new LdapDN( 
-                SchemaConstants.COMPARATORS_PATH,
-                "cn=" + schema.getSchemaName(),
-                SchemaConstants.OU_SCHEMA );
-            
-            dn.normalize( atRegistry.getNormalizerMapping() );
-            staticComparatorsDNs.put( schema.getSchemaName(), dn );
-        }
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
-        {
-            return;
-        }
-        
-        LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
-        {
-            ClonedServerEntry result = list.get();
-            LdapDN resultDN = result.getDn();
-            resultDN.normalize( atRegistry.getNormalizerMapping() );
-            ClonedServerEntry entry = lookupPartition( resultDN );
-            
-            LdapComparatorDescription comparatorDescription = getLdapComparatorDescription( schema.getSchemaName(), entry );
-            // @TODO elecharny what should I do with description
-            
-            registerComparator( targetRegistries, entry, schema );
-        }
-    }
-
-
     private LdapComparatorDescription getLdapComparatorDescription( String schemaName, ServerEntry entry ) throws Exception
     {
     	LdapComparatorDescription description = new LdapComparatorDescription( getOid( entry ) );
@@ -939,34 +669,6 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         }
 
         return description;
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    public List<Throwable> loadWithDependencies( Schema schema, Registries registries, boolean check ) throws Exception
-    {
-        // Relax the controls at first
-        List<Throwable> errors = new ArrayList<Throwable>();
-        boolean wasRelaxed = registries.isRelaxed();
-        registries.setRelaxed( true );
-
-        HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
-        notLoaded.put( schema.getSchemaName(), schema );                        
-        Properties props = new Properties();
-        loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, registries );
-        
-        // At the end, check the registries if required
-        if ( check )
-        {
-            errors = registries.checkRefInteg();
-        }
-        
-        // Restore the Registries isRelaxed flag
-        registries.setRelaxed( wasRelaxed );
-        
-        return errors;
     }
 
 

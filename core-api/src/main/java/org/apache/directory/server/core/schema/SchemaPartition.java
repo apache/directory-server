@@ -55,10 +55,10 @@ import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
@@ -117,8 +117,8 @@ public final class SchemaPartition extends AbstractPartition
     /** the wrapped Partition */
     private Partition wrapped = new NullPartition();
     
-    /** schema loader: swapped out after {@link SchemaPartition#initialize()} */
-    private SchemaLoader loader;
+    /** schema manager */
+    private SchemaManager schemaManager;
     
     /** registry synchronizer adaptor */
     private RegistrySynchronizerAdaptor synchronizer;
@@ -242,8 +242,7 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.initialize();
             
             PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, registries );
-            synchronizer = new RegistrySynchronizerAdaptor( registries, partitionLoader );
-            loader = partitionLoader;
+            synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
             
             if ( wrapped instanceof NullPartition )
             {
@@ -261,11 +260,11 @@ public final class SchemaPartition extends AbstractPartition
         // Load the registries. We use a permissive registries at this point
         // so even if the schema are not ordered or the SchemaObjects are not
         // ordered in the schemas, we can still load them all.
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
         {
-            throw new RuntimeException( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            throw new RuntimeException( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
         schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
@@ -518,20 +517,20 @@ public final class SchemaPartition extends AbstractPartition
 
 
     /**
-     * @param loader the loader to set
+     * @param schemaManager the SchemaManager to set
      */
-    public void setLoader( SchemaLoader loader )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
-        this.loader = loader;
+        this.schemaManager = schemaManager;
     }
     
     
     /**
-     * @return The schemapartition loader
+     * @return The schemaManager
      */
-    public SchemaLoader getLoader()
+    public SchemaManager getSchemaManager()
     {
-        return loader;
+        return schemaManager;
     }
     
     

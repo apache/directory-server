@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +112,7 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( Registries registries, PartitionSchemaLoader loader, SchemaPartitionDao dao )
+    public SchemaSubentryManager( Registries registries, SchemaLoader loader, SchemaPartitionDao dao )
         throws Exception
     {
         this.registries = registries;

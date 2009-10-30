@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -41,8 +40,10 @@ import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -81,15 +82,18 @@ public class MaxValueCountFilterTest
     
     @BeforeClass public static void init() throws Exception
     {
-        registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+
+        registries = sm.getRegistries();
     }
     
     @Before public void setup() throws NamingException

@@ -26,17 +26,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.text.ParseException;
-import java.util.List;
 
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,15 +60,18 @@ public class NormalizationVisitorTest
     @BeforeClass
     public static void init() throws Exception
     {
-        registries = new Registries();
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+
+        registries = sm.getRegistries();
 
         AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );

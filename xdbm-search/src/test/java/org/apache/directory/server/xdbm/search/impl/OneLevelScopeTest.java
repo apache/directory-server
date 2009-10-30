@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -46,12 +45,14 @@ import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -95,23 +96,25 @@ public class OneLevelScopeTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
+        SchemaManager sm = new DefaultSchemaManager( loader );
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
         
-        errors = loader.loadWithDependencies( loader.getSchema( "collective" ), registries, true );
+        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
         
-        if ( errors.size() != 0 )
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+        
+        registries = sm.getRegistries();
 
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        SerializableComparator.setRegistry( sm.getRegistries().getComparatorRegistry() );
 
         attributeRegistry = registries.getAttributeTypeRegistry();
     }

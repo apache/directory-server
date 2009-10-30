@@ -32,6 +32,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
@@ -57,7 +58,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     private final Normalizer normalizer;
     
     /** The comparator to use */
-    private final Comparator comparator;
+    private final LdapComparator<?> comparator;
     
     /** The default byte[] comparator if no comparator has been defined */
     private static final Comparator<byte[]> BINARY_COMPARATOR = ByteArrayComparator.INSTANCE;
@@ -204,7 +205,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
                 
                 if ( comparator != null )
                 {
-                    if ( ( comparator.compare( serverValue, nodeValue ) == 0 ) )
+                    if ( ( ((LdapComparator<byte[]>)comparator).compare( serverValue, nodeValue ) == 0 ) )
                     {
                         return true;
                     }
@@ -234,7 +235,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
                 
                 if ( comparator != null )
                 {
-                    if ( comparator.compare( serverValue, nodeValue ) == 0 )
+                    if ( ((LdapComparator<String>)comparator).compare( serverValue, nodeValue ) == 0 )
                     {
                         return true;
                     }

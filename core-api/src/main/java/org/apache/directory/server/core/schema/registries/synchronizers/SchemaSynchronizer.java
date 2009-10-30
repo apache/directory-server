@@ -23,8 +23,6 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -37,19 +35,18 @@ import org.apache.directory.server.core.entry.ServerEntryUtils;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.schema.SchemaWrapper;
@@ -64,6 +61,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * This class handle modifications made on a global schema. Modifications made
+ * on SchemaObjects are handled by the specific shcemaObject synchronizers.
+ * 
  * @TODO poorly implemented - revisit the SchemaChangeHandler for this puppy
  * and do it right.
  *
@@ -76,7 +76,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private static final Logger LOG = LoggerFactory.getLogger( SchemaSynchronizer.class );
 
     private final SchemaEntityFactory factory;
-    private final PartitionSchemaLoader loader;
+    //private final PartitionSchemaLoader loader;
+    
+    private final SchemaManager schemaManager;
     
     /** The global registries */
     private final Registries registries;
@@ -106,11 +108,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param loader The schema loader
      * @throws Exception If something went wrong
      */
-    public SchemaSynchronizer( Registries registries, PartitionSchemaLoader loader ) throws Exception
+    public SchemaSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        this.registries = registries;
+        this.registries = schemaManager.getRegistries();
+        this.schemaManager = schemaManager;
         disabledAT = registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
-        this.loader = loader;
         factory = new SchemaEntityFactory();
         cnAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
         dependenciesAT = registries.getAttributeTypeRegistry()
@@ -124,7 +126,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
 
     /**
-     * {@inheritDoc}
+     * The only modification done on a schema element is on the m-disabled 
+     * attributeType
+     * 
+     * Depending in the existence of this attribute in the previous entry, we will
+     * have to update the entry or not.
      */
     public boolean modify( ModifyOperationContext opContext, ServerEntry targetEntry, boolean cascade ) throws Exception
     {
@@ -136,6 +142,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         EntryAttribute disabledInEntry = entry.get( disabledAT );
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
         
+        // The attribute might be present, but that does not mean we will change it.
         if ( disabledModification != null )
         {
             // We are trying to modify the m-disabled attribute. 
@@ -143,26 +150,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             ServerAttribute attribute = (ServerAttribute)disabledModification.getAttribute();
             
             hasModification = modifyDisable( opContext, modification, attribute, disabledInEntry );
-        }
-
-        // check if the new schema is enabled or disabled
-        boolean isEnabled = false;
-        EntryAttribute disabled = targetEntry.get( disabledAT );
-        
-        if ( disabled == null )
-        {
-            isEnabled = true;
-        }
-        else if ( ! disabled.contains( "TRUE" ) )
-        {
-            isEnabled = true;
-        }
-
-        ServerAttribute dependencies = ServerEntryUtils.getAttribute( mods, dependenciesAT );
-        
-        if ( dependencies != null )
-        {
-            checkForDependencies( isEnabled, targetEntry );
         }
         
         return hasModification;
@@ -258,7 +245,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         // Before allowing a schema object to be deleted we must check
         // to make sure it's not depended upon by another schema
-        Set<String> dependents = loader.listDependentSchemaNames( schemaName );
+        /*Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
         
         if ( ! dependents.isEmpty() )
         {
@@ -271,7 +258,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // no need to check if schema is enabled or disabled here
         // if not in the loaded set there will be no negative effect
-        registries.schemaUnloaded( loader.getSchema( schemaName ) );
+        registries.schemaUnloaded( schemaManager.getSchema( schemaName ) );
+        */
     }
 
 
@@ -316,8 +304,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
          */
         
         // step [1]
+        /*
         String schemaName = getSchemaName( entry.getDn() );
-        Set<String> dependents = loader.listDependentSchemaNames( schemaName );
+        Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
         if ( ! dependents.isEmpty() )
         {
             throw new LdapOperationNotSupportedException( 
@@ -360,6 +349,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         renameSchema( registries.getNameFormRegistry(), schemaName, newSchemaName );
         renameSchema( registries.getObjectClassRegistry(), schemaName, newSchemaName );
         renameSchema( registries.getLdapSyntaxRegistry(), schemaName, newSchemaName );
+        */
     }
     
 
@@ -560,6 +550,19 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private boolean disableSchema( CoreSession session, String schemaName ) throws Exception
     {
+        Schema schema = registries.getLoadedSchema( schemaName );
+
+        if ( schema == null )
+        {
+            // This is not possible. We can't enable a schema which is not loaded.
+            String msg = "Unwilling to enable a not loaded schema: " + schemaName;
+            LOG.error( msg );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+        
+        return schemaManager.disable( schemaName );
+
+        /*
         // First check that the schema is not already disabled
         Map<String, Schema> schemas = registries.getLoadedSchemas();
         
@@ -571,7 +574,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             return SCHEMA_UNCHANGED;
         }
         
-        Set<String> dependents = loader.listEnabledDependentSchemaNames( schemaName );
+        Set<String> dependents = schemaManager.listEnabledDependentSchemaNames( schemaName );
         
         if ( ! dependents.isEmpty() )
         {
@@ -596,6 +599,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         
         return SCHEMA_MODIFIED;
+        */
     }
     
     
@@ -624,10 +628,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     /**
      * Enabling a schema consist on switching all of its schema element to enable.
+     * We have to do it on a temporary registries.
      */
     private boolean enableSchema( String schemaName ) throws Exception
     {
-        Schema schema = loader.getSchema( schemaName );
+        Schema schema = registries.getLoadedSchema( schemaName );
 
         if ( schema == null )
         {
@@ -637,25 +642,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        for ( SchemaWrapper schemaWrapper : schema.getContent() )
-        {
-            SchemaObject schemaObject = schemaWrapper.get();
-            
-            if ( schemaObject.isDisabled() )
-            {
-                //schemaObject.enable();
-        }
-            // TODO log warning: schemaName + " was already loaded"
-            schema.enable();
-            registries.schemaLoaded( schema );
-            return SCHEMA_UNCHANGED;
-        }
-
-        loader.loadWithDependencies( schema, registries, true );
-        schema = loader.getSchema( schemaName );
-        schema.enable();
-        
-        return SCHEMA_MODIFIED;
+        return schemaManager.enable( schemaName );
     }
 
 
@@ -670,6 +657,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws Exception
     {
+        /*
         EntryAttribute dependencies = entry.get( this.dependenciesAT );
 
         if ( dependencies == null )
@@ -696,7 +684,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         else
         {
-            Set<String> allSchemas = loader.getSchemaNames();
+            Set<String> allSchemas = schemaManager.getSchemaNames();
             
             for ( Value<?> value:dependencies )
             {
@@ -710,6 +698,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 }
             }
         }
+        */
     }
 
     

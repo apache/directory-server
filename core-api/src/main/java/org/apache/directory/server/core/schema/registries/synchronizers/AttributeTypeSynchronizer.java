@@ -99,19 +99,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Don't inject the modified element if the schema is disabled
         if ( isSchemaEnabled( schemaName ) )
         {
-            atRegistry.register( at );
-            
-            // Update the referenced objects
-            // The Syntax,
-            registries.addReference( at, at.getSyntax() );
-
-            // The Superior if any
-            registries.addReference( at, at.getSuperior() );
-
-            // The MatchingRules
-            registries.addReference( at, at.getEquality() );
-            registries.addReference( at, at.getOrdering() );
-            registries.addReference( at, at.getSubstring() );
+            registries.register( at );
 
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }

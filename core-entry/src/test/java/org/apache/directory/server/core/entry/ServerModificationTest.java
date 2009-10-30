@@ -43,9 +43,11 @@ import org.apache.directory.shared.ldap.entry.client.ClientAttribute;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -164,13 +166,17 @@ public class ServerModificationTest
         loader = new LdifSchemaLoader( schemaRepository );
         registries = new Registries();
         
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        SchemaManager sm = new DefaultSchemaManager( loader );
+        sm.loadAllEnabled();
+        
+        List<Throwable> errors = sm.getErrors();
         
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
 
+        registries = sm.getRegistries();
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         atC = registries.getAttributeTypeRegistry().lookup( "c" );
     }

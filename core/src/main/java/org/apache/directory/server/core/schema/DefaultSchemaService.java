@@ -97,9 +97,6 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaService#getRegistries()
-     */
     public final Registries getRegistries()
     {
         return schemaPartition.getRegistries();

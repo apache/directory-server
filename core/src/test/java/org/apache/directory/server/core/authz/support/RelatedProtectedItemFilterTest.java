@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.naming.directory.Attribute;
@@ -50,10 +49,12 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -76,7 +77,7 @@ public class RelatedProtectedItemFilterTest
     private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
-    private static Registries registries = new Registries();
+    private static Registries registries;
     private static AttributeTypeRegistry atRegistryA;
     private static AttributeTypeRegistry atRegistryB;
     private static OidRegistry OID_REGISTRY;
@@ -92,12 +93,16 @@ public class RelatedProtectedItemFilterTest
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
+
+        registries = sm.getRegistries();
 
         OID_REGISTRY = registries.getOidRegistry();
 

@@ -101,6 +101,7 @@ import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,8 +229,8 @@ public class SchemaInterceptor extends BaseInterceptor
         computeSuperiors();
         
         // Initialize the schema manager
-        PartitionSchemaLoader loader = (PartitionSchemaLoader)schemaService.getSchemaPartition().getLoader();
-        SchemaPartitionDao dao = loader.getDao();
+        SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
+        SchemaPartitionDao dao = (SchemaPartitionDao)loader.getDao();
         schemaManager = new SchemaSubentryManager( registries, loader, dao );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );

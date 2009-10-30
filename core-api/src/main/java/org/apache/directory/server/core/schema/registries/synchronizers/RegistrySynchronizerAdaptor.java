@@ -33,7 +33,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -44,6 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
@@ -118,10 +118,10 @@ public class RegistrySynchronizerAdaptor
     }
 
 
-    public RegistrySynchronizerAdaptor( Registries registries, PartitionSchemaLoader loader ) throws Exception
+    public RegistrySynchronizerAdaptor( SchemaManager schemaManager ) throws Exception
     {
-        this.registries = registries;
-        this.schemaSynchronizer = new SchemaSynchronizer( registries, loader );
+        this.registries = schemaManager.getRegistries();
+        this.schemaSynchronizer = new SchemaSynchronizer( schemaManager );
         this.objectClassAT = this.registries.getAttributeTypeRegistry()
             .lookup( SchemaConstants.OBJECT_CLASS_AT );
         

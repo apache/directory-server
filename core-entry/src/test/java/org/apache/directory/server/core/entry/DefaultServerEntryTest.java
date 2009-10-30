@@ -52,11 +52,13 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,8 +77,8 @@ public class DefaultServerEntryTest
     private static final byte[] BYTES3 = new byte[]{ 'c' };
 
     private static LdifSchemaLoader loader;
-    private static Registries registries;
     private static AttributeTypeRegistry atr;
+    private static Registries registries;
     
     private static AttributeType atObjectClass;
     private static AttributeType atCN;
@@ -109,18 +111,21 @@ public class DefaultServerEntryTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        SchemaManager sm = new DefaultSchemaManager( loader );
+        sm.loadAllEnabled();
+        
+        List<Throwable> errors = sm.getErrors();
         
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
 
+        registries = sm.getRegistries(); 
         atr = registries.getAttributeTypeRegistry();
 
-        atObjectClass = registries.getAttributeTypeRegistry().lookup( "objectClass" );
+        atObjectClass = sm.getRegistries().getAttributeTypeRegistry().lookup( "objectClass" );
         atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
         atC = registries.getAttributeTypeRegistry().lookup( "c" );
         atL = registries.getAttributeTypeRegistry().lookup( "l" );

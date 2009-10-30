@@ -25,15 +25,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.List;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -77,14 +78,16 @@ public class JdbmMasterTableTest
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         Registries registries = new Registries();
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
-        
-        if ( errors.size() != 0 )
+        SchemaManager sm = new DefaultSchemaManager( loader );
+
+        boolean loaded = sm.loadAllEnabled();
+
+        if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
         }
 
-        attributeRegistry = registries.getAttributeTypeRegistry();
+        attributeRegistry = sm.getRegistries().getAttributeTypeRegistry();
     }
 
 

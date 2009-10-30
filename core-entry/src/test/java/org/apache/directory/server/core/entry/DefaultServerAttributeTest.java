@@ -51,10 +51,11 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -69,7 +70,6 @@ import org.junit.Test;
 public class DefaultServerAttributeTest
 {
     private static LdifSchemaLoader loader;
-    private static Registries registries;
     
     private static AttributeType atCN;
     private static AttributeType atSN;
@@ -120,9 +120,11 @@ public class DefaultServerAttributeTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
     	loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
+        SchemaManager sm = new DefaultSchemaManager( loader );
 
-        List<Throwable> errors = loader.loadAllEnabled( registries, true );
+        sm.loadAllEnabled();
+        
+        List<Throwable> errors = sm.getErrors();
         
         if ( errors.size() != 0 )
         {
@@ -131,10 +133,10 @@ public class DefaultServerAttributeTest
                 ExceptionUtils.printErrors( errors ) );
         }
         
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        atC = registries.getAttributeTypeRegistry().lookup( "c" );
-        atSN = registries.getAttributeTypeRegistry().lookup( "sn" );
-        atPwd = registries.getAttributeTypeRegistry().lookup( "userpassword" );
+        atCN = sm.getRegistries().getAttributeTypeRegistry().lookup( "cn" );
+        atC = sm.getRegistries().getAttributeTypeRegistry().lookup( "c" );
+        atSN = sm.getRegistries().getAttributeTypeRegistry().lookup( "sn" );
+        atPwd = sm.getRegistries().getAttributeTypeRegistry().lookup( "userpassword" );
     }
 
     /**

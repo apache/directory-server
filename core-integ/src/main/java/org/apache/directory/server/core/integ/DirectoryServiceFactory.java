@@ -37,9 +37,10 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.schema.SchemaPartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
 
 
@@ -74,7 +75,6 @@ public interface DirectoryServiceFactory
             DirectoryService service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            Registries registries = service.getRegistries();
             
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
@@ -86,11 +86,15 @@ public interface DirectoryServiceFactory
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
             
             schemaPartition.setWrappedPartition( ldifPartition );
-            schemaPartition.setRegistries( registries );
             
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+            SchemaManager sm = new DefaultSchemaManager( loader );
 
-            List<Throwable> errors = loader.loadAllEnabled( registries, true );
+            boolean loaded = sm.loadAllEnabled();
+            schemaPartition.setRegistries( sm.getRegistries() );
+            schemaPartition.setSchemaManager( sm );
+            
+            List<Throwable> errors = sm.getErrors();
             
             if ( errors.size() != 0 )
             {
@@ -110,7 +114,7 @@ public interface DirectoryServiceFactory
             systemPartition.setId( "system" );
             ((JdbmPartition)systemPartition).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setRegistries( registries );
+            systemPartition.setRegistries( sm.getRegistries() );
             ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
     
             // Add objectClass attribute for the system partition
