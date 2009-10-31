@@ -36,7 +36,7 @@
 
   <properties>
     <projectName>Apache Directory Server</projectName>
-    <distMgmtSiteUrl>scpexe://vm094.oxylos.org/var/www/html/projects/apacheds/</distMgmtSiteUrl>
+    <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>0.9.16-SNAPSHOT</org.apache.directory.shared.version>
