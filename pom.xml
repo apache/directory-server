@@ -32,7 +32,7 @@
 
   <properties>
     <projectName>ApacheDS-Shared</projectName>
-    <distMgmtSiteUrl>scpexe://vm094.oxylos.org/var/www/html/projects/shared/</distMgmtSiteUrl>
+    <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/shared/gen-docs/${version}/</distMgmtSiteUrl>
     <skin.version>1.0.0</skin.version>
   </properties>
   
