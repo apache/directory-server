@@ -91,7 +91,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
         PartitionNexus nexus = service.getPartitionNexus();
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.STRONG );
         CoreSession session = service.getSession( principal );
         Set<String> suffixes = nexus.listSuffixes( new ListSuffixOperationContext( session ) );
@@ -109,7 +109,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                     BTreePartition btPartition = ( BTreePartition ) partition;
                     // TODO : If a partition does not have an initial entry associated, we wil:
                     // get a NPE : this has to be fixed.
-                    PartitionFrame frame = new PartitionFrame( btPartition, service.getRegistries() );
+                    PartitionFrame frame = new PartitionFrame( btPartition, service.getSchemaManager() );
                     Point pos = getCenteredPosition( frame );
                     pos.y = launchedWindowCount * 20 + pos.y;
                     double multiplier = getAspectRatio() * 20.0;

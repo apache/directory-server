@@ -90,6 +90,12 @@ public class CompareDirserver1139IT
         // -------------------------------------------------------------------
         // Enable the krb5kdc schema
         // -------------------------------------------------------------------
+        // Check if krb5kdc is loaded
+        if ( !service.getSchemaManager().isSchemaLoaded( "krb5kdc" ) )
+        {
+            service.getSchemaManager().load( "krb5kdc" );
+        }
+
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=krb5kdc" );
         boolean isKrb5kdcDisabled = false;

@@ -34,14 +34,14 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.journal.Journal;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 public class MockDirectoryService implements DirectoryService
@@ -99,7 +99,7 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public Registries getRegistries()
+    public SchemaManager getSchemaManager()
     {
         return null;
     }
@@ -116,7 +116,7 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public void setRegistries( Registries registries )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
     }
 

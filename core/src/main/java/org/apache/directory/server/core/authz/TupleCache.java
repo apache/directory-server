@@ -20,6 +20,17 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -42,22 +53,10 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -85,11 +84,6 @@ public class TupleCache
     /** A storage for the PrescriptiveACI attributeType */
     private AttributeType prescriptiveAciAT;
 
-    /**
-     * The OIDs normalizer map
-     */
-    private Map<String, OidNormalizer> normalizerMap;
-
 
     /**
      * Creates a ACITuple cache.
@@ -99,22 +93,19 @@ public class TupleCache
      */
     public TupleCache( CoreSession session ) throws Exception
     {
-        normalizerMap = session.getDirectoryService().getRegistries()
-            .getAttributeTypeRegistry().getNormalizerMapping();
+        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
         this.nexus = session.getDirectoryService().getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
-            .getRegistries().getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry );
-        aciParser = new ACIItemParser( ncn, normalizerMap );
-        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        aciParser = new ACIItemParser( ncn, schemaManager.getNormalizerMapping() );
+        prescriptiveAciAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         initialize( session );
     }
 
 
-    private LdapDN parseNormalized( String name ) throws NamingException
+    private LdapDN parseNormalized( SchemaManager schemaManager, String name ) throws NamingException
     {
         LdapDN dn = new LdapDN( name );
-        dn.normalize( normalizerMap );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         return dn;
     }
 
@@ -128,7 +119,7 @@ public class TupleCache
 
         for ( String suffix:suffixes )
         {
-            LdapDN baseDn = parseNormalized( suffix );
+            LdapDN baseDn = parseNormalized( session.getDirectoryService().getSchemaManager(), suffix );
             ExprNode filter = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
                 new ClientStringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
@@ -139,7 +130,8 @@ public class TupleCache
             while ( results.next() )
             {
                 ServerEntry result = results.get();
-                LdapDN subentryDn = result.getDn().normalize( normalizerMap );
+                LdapDN subentryDn = result.getDn().normalize( session.getDirectoryService().getSchemaManager().
+                        getNormalizerMapping() );
                 EntryAttribute aci = result.get( prescriptiveAciAT );
 
                 if ( aci == null )

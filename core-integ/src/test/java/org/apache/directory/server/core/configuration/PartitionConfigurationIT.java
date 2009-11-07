@@ -67,8 +67,8 @@ public class PartitionConfigurationIT
         service.addPartition( partition );
         
         LdapDN suffixDn = new LdapDN( "ou=removable" );
-        suffixDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry ctxEntry = new DefaultServerEntry( service.getRegistries(), suffixDn );
+        suffixDn.normalize( service.getSchemaManager().getNormalizerMapping() );
+        ServerEntry ctxEntry = new DefaultServerEntry( service.getSchemaManager(), suffixDn );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );

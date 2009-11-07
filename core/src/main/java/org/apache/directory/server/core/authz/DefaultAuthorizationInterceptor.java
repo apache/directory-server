@@ -20,11 +20,10 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.NoPermissionException;
-
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+
+import javax.naming.NoPermissionException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.CoreSession;
@@ -57,8 +56,7 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,9 +99,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     
     private Set<String> administrators = new HashSet<String>(2);
     
-    /** The normalizer mapping containing a relation between an OID and a normalizer */
-    private Map<String, OidNormalizer> normalizerMapping;
-    
     private PartitionNexus nexus;
 
     /** A starage for the uniqueMember attributeType */
@@ -122,23 +117,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws Exception
     {
         nexus = directoryService.getPartitionNexus();
-        normalizerMapping = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        SchemaManager schemaManager = directoryService.getSchemaManager();
 
         // disable this static module if basic access control mechanisms are enabled
         enabled = ! directoryService.isAccessControlEnabled();
         
         USER_BASE_DN = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        USER_BASE_DN.normalize( normalizerMapping );
+        USER_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
         
         GROUP_BASE_DN = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
-        GROUP_BASE_DN.normalize( normalizerMapping );
+        GROUP_BASE_DN.normalize( schemaManager.getNormalizerMapping() );
      
         ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
-        ADMIN_GROUP_DN.normalize( normalizerMapping );
+        ADMIN_GROUP_DN.normalize( schemaManager.getNormalizerMapping() );
 
-        AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
-        
-        uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         
         loadAdministrators( directoryService );
     }
@@ -149,7 +142,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
@@ -165,7 +158,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         for ( Value<?> value:uniqueMember )
         {
             LdapDN memberDn = new LdapDN( value.getString() );
-            memberDn.normalize( normalizerMapping );
+            memberDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             newAdministrators.add( memberDn.getNormName() );
         }
         
@@ -546,7 +539,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         
         if ( !dn.isNormalized() )
         {
-            dn.normalize( normalizerMapping );
+            dn.normalize( opContext.getSession().getDirectoryService().getSchemaManager().getNormalizerMapping() );
         }
 
         // Admin users gets full access to all entries

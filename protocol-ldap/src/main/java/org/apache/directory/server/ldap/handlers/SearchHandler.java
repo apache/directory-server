@@ -20,7 +20,15 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import static java.lang.Math.min;
+import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
+import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
+
 import java.util.concurrent.TimeUnit;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.ldap.PagedResultsControl;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.ReferralManager;
@@ -40,17 +48,17 @@ import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.InternalLdapResult;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.InternalResponse;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.filter.SearchScope;
+import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.InternalReferral;
+import org.apache.directory.shared.ldap.message.InternalResponse;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseDone;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseEntry;
-import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.InternalSearchResponseReference;
+import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.control.PagedSearchControl;
@@ -61,15 +69,6 @@ import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
-import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
-
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.ldap.PagedResultsControl;
-
-import static java.lang.Math.min;
 
 
 /**
@@ -101,8 +100,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
     {
         if ( objectClassAttributeType == null )
         {
-            objectClassAttributeType = session.getCoreSession().getDirectoryService().getRegistries()
-                .getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
+            objectClassAttributeType = session.getCoreSession().getDirectoryService().
+                getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         }
         
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT,
@@ -884,7 +883,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
             PresenceNode presenceNode = ( PresenceNode ) req.getFilter();
             
             AttributeType at = session.getCoreSession().getDirectoryService()
-                .getRegistries().getAttributeTypeRegistry().lookup( presenceNode.getAttribute() );
+                .getSchemaManager().lookupAttributeTypeRegistry( presenceNode.getAttribute() );
             if ( at.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 return;
@@ -1015,7 +1014,8 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         boolean isparentReferral = false;
         ReferralManager referralManager = session.getCoreSession().getDirectoryService().getReferralManager();
         
-        reqTargetDn.normalize( session.getCoreSession().getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        reqTargetDn.normalize( session.getCoreSession().getDirectoryService().
+            getSchemaManager().getNormalizerMapping() );
         
         // Check if the entry itself is a referral
         referralManager.lockRead();
@@ -1251,7 +1251,7 @@ public class SearchHandler extends ReferralAwareRequestHandler<InternalSearchReq
         PartitionNexus nexus = ds.getPartitionNexus();
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( ds.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDn.normalize( ds.getSchemaManager().getNormalizerMapping() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
         
         return subschemaSubentryDnNorm.equals( baseNormForm );

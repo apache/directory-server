@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import jdbm.helper.Serializer;
+
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jdbm.helper.Serializer;
 
 
 /**
@@ -48,18 +48,18 @@ public class ServerEntrySerializer implements Serializer
      */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** The registries reference */
-    private transient Registries registries;
+    /** The schemaManager reference */
+    private transient SchemaManager schemaManager;
 
 
     /**
      * Creates a new instance of ServerEntrySerializer.
      *
-     * @param registries The reference to the global registries
+     * @param schemaManager The reference to the global schemaManager
      */
-    public ServerEntrySerializer( Registries registries )
+    public ServerEntrySerializer( SchemaManager schemaManager )
     {
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -144,7 +144,7 @@ public class ServerEntrySerializer implements Serializer
     {
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( bytes ) );
 
-        DefaultServerEntry serverEntry = new DefaultServerEntry( registries );
+        DefaultServerEntry serverEntry = new DefaultServerEntry( schemaManager );
         
         try
         {

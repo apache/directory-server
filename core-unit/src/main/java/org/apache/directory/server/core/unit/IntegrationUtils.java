@@ -19,6 +19,12 @@
 package org.apache.directory.server.core.unit;
 
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
@@ -30,11 +36,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-import java.io.File;
-import java.io.IOException;
 
 
 /**
@@ -90,7 +91,7 @@ public class IntegrationUtils
             case( ChangeType.ADD_ORDINAL ):
                 root.add( 
                     new DefaultServerEntry( 
-                        root.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
+                        root.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
                 break;
                 
             case( ChangeType.DELETE_ORDINAL ):

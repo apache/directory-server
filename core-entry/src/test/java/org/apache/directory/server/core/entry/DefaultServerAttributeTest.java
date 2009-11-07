@@ -120,11 +120,11 @@ public class DefaultServerAttributeTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
     	loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        SchemaManager schemaManager = new DefaultSchemaManager( loader );
 
-        sm.loadAllEnabled();
+        schemaManager.loadAllEnabled();
         
-        List<Throwable> errors = sm.getErrors();
+        List<Throwable> errors = schemaManager.getErrors();
         
         if ( errors.size() != 0 )
         {
@@ -133,10 +133,10 @@ public class DefaultServerAttributeTest
                 ExceptionUtils.printErrors( errors ) );
         }
         
-        atCN = sm.getRegistries().getAttributeTypeRegistry().lookup( "cn" );
-        atC = sm.getRegistries().getAttributeTypeRegistry().lookup( "c" );
-        atSN = sm.getRegistries().getAttributeTypeRegistry().lookup( "sn" );
-        atPwd = sm.getRegistries().getAttributeTypeRegistry().lookup( "userpassword" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atC = schemaManager.lookupAttributeTypeRegistry( "c" );
+        atSN = schemaManager.lookupAttributeTypeRegistry( "sn" );
+        atPwd = schemaManager.lookupAttributeTypeRegistry( "userpassword" );
     }
 
     /**

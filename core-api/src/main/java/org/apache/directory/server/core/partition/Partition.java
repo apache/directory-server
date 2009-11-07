@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition;
 
 
+import javax.naming.InvalidNameException;
+
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerSearchResult;
 import org.apache.directory.server.core.filtering.EntryFilteringCursor;
@@ -36,9 +38,7 @@ import org.apache.directory.server.core.interceptor.context.RenameOperationConte
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-
-import javax.naming.InvalidNameException;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -88,19 +88,19 @@ public interface Partition
     
     
     /**
-     * Gets the schema registries assigned to this Partition.
+     * Gets the schema manager assigned to this Partition.
      *
-     * @return the schema Registries
+     * @return the schema manager
      */
-    Registries getRegistries();
+    SchemaManager getSchemaManager();
     
     
     /**
-     * Sets the schema registries assigned to this Partition.
+     * Sets the schema manager assigned to this Partition.
      *
-     * @param registries the registries to assign to this Partition.
+     * @param registries the manager to assign to this Partition.
      */
-    void setRegistries( Registries registries );
+    void setSchemaManager( SchemaManager schemaManager );
 
 
     // -----------------------------------------------------------------------

@@ -20,26 +20,17 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.DefaultServerEntry;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -58,8 +49,19 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.entry.DefaultServerEntry;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapReferralException;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -104,7 +106,7 @@ public class ReferralIT
 
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ), true ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ), true ); 
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -329,7 +331,7 @@ public class ReferralIT
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
         LdapDN userDN = new LdapDN( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
-        ServerEntry userEntry = new DefaultServerEntry( service.getRegistries(), userDN );
+        ServerEntry userEntry = new DefaultServerEntry( service.getSchemaManager(), userDN );
         
         userEntry.add(  "ObjectClass", "top", "person" );
         userEntry.add( "sn", "karasulu" );

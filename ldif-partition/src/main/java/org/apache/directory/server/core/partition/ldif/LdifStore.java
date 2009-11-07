@@ -42,7 +42,7 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class LdifStore<E> implements Store<E>
     /** in memory store used for serving the config data present in LDIF files  */
     private AvlStore<E> wrappedStore = new AvlStore<E>();
 
-    private Registries registries;
+    private SchemaManager schemaManager;
     
     private LdifReader ldifParser = new LdifReader();
     
@@ -81,10 +81,10 @@ public class LdifStore<E> implements Store<E>
 
     private static Logger LOG = LoggerFactory.getLogger( LdifStore.class );
     
-    public void init( Registries registries ) throws Exception
+    public void init( SchemaManager schemaManager ) throws Exception
     {
-        this.registries = registries;
-        wrappedStore.init( registries );
+        this.schemaManager = schemaManager;
+        wrappedStore.init( schemaManager );
      
         // load the config 
         loadConfig();
@@ -128,7 +128,7 @@ public class LdifStore<E> implements Store<E>
                 LdifEntry ldifEntry = entries.get( 0 );
                 LOG.debug( "adding entry {}", ldifEntry );
 
-                ServerEntry serverEntry = new DefaultServerEntry( registries, ldifEntry.getEntry() );
+                ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
                 
                 // call add on the wrapped store not on the self  
                 wrappedStore.add( serverEntry );
@@ -424,9 +424,9 @@ public class LdifStore<E> implements Store<E>
     }
 
 
-    public void initRegistries( Registries registries )
+    public void initSchemaManager( SchemaManager schemaManager )
     {
-        wrappedStore.initRegistries( registries );
+        wrappedStore.initSchemaManager( schemaManager );
     }
 
 

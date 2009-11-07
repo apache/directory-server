@@ -88,13 +88,14 @@ public interface DirectoryServiceFactory
             schemaPartition.setWrappedPartition( ldifPartition );
             
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-            SchemaManager sm = new DefaultSchemaManager( loader );
-
-            boolean loaded = sm.loadAllEnabled();
-            schemaPartition.setRegistries( sm.getRegistries() );
-            schemaPartition.setSchemaManager( sm );
+            SchemaManager schemaManager = new DefaultSchemaManager( loader );
+            service.setSchemaManager( schemaManager );
             
-            List<Throwable> errors = sm.getErrors();
+            boolean loaded = schemaManager.loadAllEnabled();
+            schemaPartition.setRegistries( schemaManager.getRegistries() );
+            schemaPartition.setSchemaManager( schemaManager );
+            
+            List<Throwable> errors = schemaManager.getErrors();
             
             if ( errors.size() != 0 )
             {
@@ -114,7 +115,7 @@ public interface DirectoryServiceFactory
             systemPartition.setId( "system" );
             ((JdbmPartition)systemPartition).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setRegistries( sm.getRegistries() );
+            systemPartition.setSchemaManager( schemaManager );
             ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
     
             // Add objectClass attribute for the system partition

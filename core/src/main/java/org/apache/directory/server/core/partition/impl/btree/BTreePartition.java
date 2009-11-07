@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -87,7 +87,7 @@ public abstract class BTreePartition implements Partition
     protected SearchEngine<ServerEntry> searchEngine;
     protected Optimizer optimizer;
 
-    protected Registries registries;
+    protected SchemaManager schemaManager;
 
     protected String id;
     protected int cacheSize = -1;
@@ -121,18 +121,18 @@ public abstract class BTreePartition implements Partition
     /**
      * {@inheritDoc}
      */
-    public void setRegistries( Registries registries )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
     
     
     /**
      * {@inheritDoc}
      */
-    public Registries getRegistries()
+    public SchemaManager getSchemaManager()
     {
-        return registries;
+        return schemaManager;
     }
     
     
@@ -351,7 +351,7 @@ public abstract class BTreePartition implements Partition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( this, registries );
+        PartitionViewer viewer = new PartitionViewer( this, schemaManager );
         viewer.execute();
     }
 

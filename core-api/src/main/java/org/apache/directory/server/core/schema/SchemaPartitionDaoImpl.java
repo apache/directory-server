@@ -60,8 +60,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -99,7 +98,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
 
     private final Partition partition;
     private final SchemaEntityFactory factory;
-    private final AttributeTypeRegistry atRegistry;
+    private final SchemaManager schemaManager;
 
     private final String M_NAME_OID;
     private final String CN_OID;
@@ -128,32 +127,32 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
      * @param registries the bootstrap registries that were used to start up the schema partition
      * @throws NamingException if there are problems initializing this schema partion dao
      */
-    public SchemaPartitionDaoImpl( Partition partition, Registries registries ) throws Exception
+    public SchemaPartitionDaoImpl( Partition partition, SchemaManager schemaManager ) throws Exception
     {
         this.partition = partition;
         this.factory = new SchemaEntityFactory();
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
-        this.M_NAME_OID = atRegistry.getOidByName( MetaSchemaConstants.M_NAME_AT );
-        this.CN_OID = atRegistry.getOidByName( SchemaConstants.CN_AT );
-        this.disabledAttributeType = atRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
-        this.M_OID_OID = atRegistry.getOidByName( MetaSchemaConstants.M_OID_AT );
-        this.OBJECTCLASS_OID = atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT );
-        this.M_SYNTAX_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SYNTAX_AT );
-        this.M_ORDERING_OID = atRegistry.getOidByName( MetaSchemaConstants.M_ORDERING_AT );
-        this.M_EQUALITY_OID = atRegistry.getOidByName( MetaSchemaConstants.M_EQUALITY_AT );
-        this.M_SUBSTRING_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUBSTR_AT );
-        this.M_SUP_ATTRIBUTE_TYPE_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
-        this.M_MUST_OID = atRegistry.getOidByName( MetaSchemaConstants.M_MUST_AT );
-        this.M_MAY_OID = atRegistry.getOidByName( MetaSchemaConstants.M_MAY_AT );
-        this.M_AUX_OID = atRegistry.getOidByName( MetaSchemaConstants.M_AUX_AT );
-        this.M_OC_OID = atRegistry.getOidByName( MetaSchemaConstants.M_OC_AT );
-        this.M_SUP_OBJECT_CLASS_OID = atRegistry.getOidByName( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
-        this.M_DEPENDENCIES_OID = atRegistry.getOidByName( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        this.M_NAME_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_NAME_AT );
+        this.CN_OID = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.CN_AT );
+        this.disabledAttributeType = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT );
+        this.M_OID_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_OID_AT );
+        this.OBJECTCLASS_OID = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT );
+        this.M_SYNTAX_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_SYNTAX_AT );
+        this.M_ORDERING_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_ORDERING_AT );
+        this.M_EQUALITY_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_EQUALITY_AT );
+        this.M_SUBSTRING_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_SUBSTR_AT );
+        this.M_SUP_ATTRIBUTE_TYPE_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        this.M_MUST_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_MUST_AT );
+        this.M_MAY_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_MAY_AT );
+        this.M_AUX_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_AUX_AT );
+        this.M_OC_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_OC_AT );
+        this.M_SUP_OBJECT_CLASS_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        this.M_DEPENDENCIES_OID = schemaManager.getAttributeTypeRegistry().getOidByName( MetaSchemaConstants.M_DEPENDENCIES_AT );
         
         for ( String attrId : SCHEMA_ATTRIBUTES )
         {
-            AttributeTypeOptions ato = new AttributeTypeOptions( atRegistry.lookup( attrId ) );
+            AttributeTypeOptions ato = new AttributeTypeOptions( schemaManager.lookupAttributeTypeRegistry( attrId ) );
             schemaAttributesToReturn.add( ato );
         }
     }
@@ -199,8 +198,8 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     private EntryFilteringCursor listSchemas() throws Exception
     {
         LdapDN base = new LdapDN( SchemaConstants.OU_SCHEMA );
-        base.normalize( atRegistry.getNormalizerMapping() );
-        ExprNode filter = new EqualityNode<String>( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ),
+        base.normalize( schemaManager.getNormalizerMapping() );
+        ExprNode filter = new EqualityNode<String>( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ),
             new ClientStringValue( MetaSchemaConstants.META_SCHEMA_OC ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( null );
@@ -218,7 +217,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public Schema getSchema( String schemaName ) throws Exception
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         return factory.getSchema( partition.lookup( new LookupOperationContext( null, dn ) ) );
     }
 
@@ -497,7 +496,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     {
         ServerEntry sr = find( entityName );
         LdapDN dn = sr.getDn();
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         return dn;
     }
 
@@ -553,7 +552,7 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
     public void enableSchema( String schemaName ) throws Exception
     {
         LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         ServerEntry entry = partition.lookup( new LookupOperationContext( null, dn ) );
         EntryAttribute disabledAttr = entry.get( disabledAttributeType );
         List<Modification> mods = new ArrayList<Modification>( 3 );
@@ -573,14 +572,14 @@ public class SchemaPartitionDaoImpl implements SchemaPartitionDao
         }
 
         mods.add( new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, new DefaultServerAttribute(
-            MetaSchemaConstants.M_DISABLED_AT, atRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
+            MetaSchemaConstants.M_DISABLED_AT, schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT ) ) ) );
 
         mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultServerAttribute(
-            SchemaConstants.MODIFIERS_NAME_AT, atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT ),
+            SchemaConstants.MODIFIERS_NAME_AT, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT ),
             ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
 
         mods.add( new ServerModification( ModificationOperation.ADD_ATTRIBUTE, new DefaultServerAttribute(
-            SchemaConstants.MODIFY_TIMESTAMP_AT, atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
+            SchemaConstants.MODIFY_TIMESTAMP_AT, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT ), DateUtils
                 .getGeneralizedTime() ) ) );
 
         partition.modify( new ModifyOperationContext( null, dn, mods ) );

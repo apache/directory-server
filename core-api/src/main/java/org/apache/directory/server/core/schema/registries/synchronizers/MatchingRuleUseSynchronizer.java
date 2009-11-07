@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -41,12 +41,12 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Creates a new instance of MatchingRuleUseSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The global schemaManager
      * @throws Exception If the initialization failed
      */
-    protected MatchingRuleUseSynchronizer( Registries registries ) throws Exception
+    protected MatchingRuleUseSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
+        super( schemaManager );
         // TODO Auto-generated constructor stub
     }
 

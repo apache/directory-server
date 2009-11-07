@@ -92,10 +92,9 @@ import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -130,11 +129,8 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
     /** The DirectoryService instance */
     private DirectoryService directoryService;
     
-    /** The global registries */
-    private Registries registries;
-    
-    /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
+    /** The global schemaManager */
+    private SchemaManager schemaManager;
     
     /** the partitions keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
@@ -221,12 +217,11 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         }
     
         //this.directoryService = directoryService;
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
+        schemaManager = directoryService.getSchemaManager();
         
         // Initialize and normalize the localy used DNs
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
-        adminDn.normalize( atRegistry.getNormalizerMapping() );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
             
         initializeSystemPartition( directoryService );
         
@@ -238,7 +233,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         {
             for ( Partition partition : directoryService.getPartitions() )
             {
-                partition.setRegistries( registries );
+                partition.setSchemaManager( schemaManager );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
     
@@ -307,8 +302,8 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         
         // Add root context entry for system partition
         LdapDN systemSuffixDn = new LdapDN( ServerDNConstants.SYSTEM_DN );
-        systemSuffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry systemEntry = new DefaultServerEntry( registries, systemSuffixDn );
+        systemSuffixDn.normalize( schemaManager.getNormalizerMapping() );
+        ServerEntry systemEntry = new DefaultServerEntry( schemaManager, systemSuffixDn );
 
         // Add the ObjectClasses
         systemEntry.put( SchemaConstants.OBJECT_CLASS_AT,
@@ -325,7 +320,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
             NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
         LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( schemaManager.getNormalizerMapping() );
         CoreSession adminSession = new DefaultCoreSession( 
             new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
         AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
@@ -351,7 +346,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
-                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), 
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), 
                     system.getSuffixDn().getUpName() );
                 rootDSE.put( namingContexts );
             }
@@ -382,7 +377,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             try
             {
                 LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                adminDn.normalize( schemaManager.getNormalizerMapping() );
                 CoreSession adminSession = new DefaultCoreSession( 
                     new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
                 removeContextPartition( new RemoveContextPartitionOperationContext( 
@@ -415,22 +410,22 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
         throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
     }
 
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#getRegistries()
+
+    /**
+     * {@inheritDoc}
      */
-    public Registries getRegistries()
+    public SchemaManager getSchemaManager()
     {
-        return this.registries;
+        return schemaManager;
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#setRegistries(org.apache.directory.shared.ldap.schema.registries.Registries)
+
+    /**
+     * {@inheritDoc}
      */
-    public void setRegistries( Registries registries )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
     
     
@@ -532,15 +527,15 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
     public boolean compare( CompareOperationContext compareContext ) throws Exception
     {
         Partition partition = getPartition( compareContext.getDn() );
-        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
+        //AttributeTypeRegistry registry = schemaManager.getAttributeTypeRegistry();
         
         // complain if we do not recognize the attribute being compared
-        if ( !registry.contains( compareContext.getOid() ) )
+        if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
             throw new LdapInvalidAttributeIdentifierException( compareContext.getOid() + " not found within the attributeType registry" );
         }
 
-        AttributeType attrType = registry.lookup( compareContext.getOid() );
+        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( compareContext.getOid() );
         
         EntryAttribute attr = partition.lookup( compareContext.newLookupContext( 
             compareContext.getDn() ) ).get( attrType.getName() );
@@ -790,7 +785,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                     {
                         try
                         {
-                            realIds.add( atRegistry.getOidByName( idTrimmed ) );
+                            realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
                         }
                         catch ( Exception e )
                         {
@@ -802,7 +797,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                    ServerEntry serverEntry = new DefaultServerEntry( registries, base );
+                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( serverEntry ), opContext );
                 }
                 
@@ -813,13 +808,13 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
                     return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( rootDSE ), opContext );
                 }
                 
-                ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+                ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
                 
                 ServerEntry rootDSE = getRootDSE( new GetRootDSEOperationContext( opContext.getSession() ) );
                 
                 for ( EntryAttribute attribute:rootDSE )
                 {
-                    AttributeType type = atRegistry.lookup( attribute.getUpId() );
+                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
                     
                     if ( realIds.contains( type.getOid() ) )
                     {
@@ -842,7 +837,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             throw new LdapNameNotFoundException();
         }
     
-        base.normalize( atRegistry.getNormalizerMapping() );
+        base.normalize( schemaManager.getNormalizerMapping() );
         Partition backend = getPartition( base );
         return backend.search( opContext );
     }
@@ -904,7 +899,7 @@ public class DefaultPartitionNexus implements Partition, PartitionNexus
             if ( namingContexts == null )
             {
                 namingContexts = new DefaultServerAttribute( 
-                    registries.getAttributeTypeRegistry().lookup( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getUpName() );
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.NAMING_CONTEXTS_AT ), partitionSuffix.getUpName() );
                 rootDSE.put( namingContexts );
             }
             else

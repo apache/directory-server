@@ -34,8 +34,6 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
@@ -54,28 +52,25 @@ public class NormalizationVisitorTest
     /** a filter node value normalizer and undefined node remover */
     private static FilterNormalizingVisitor normVisitor;
     
-    /** A reference to the registries */
-    private static Registries registries;
+    /** A reference to the schemaManager */
+    private static SchemaManager schemaManager;
     
     @BeforeClass
     public static void init() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        registries = sm.getRegistries();
-
-        AttributeTypeRegistry attributeRegistry = registries.getAttributeTypeRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
-        normVisitor = new FilterNormalizingVisitor( ncn, registries );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        normVisitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
 
     @Test

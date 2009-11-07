@@ -27,7 +27,7 @@ import org.apache.directory.shared.ldap.message.MessageDecoder;
 import org.apache.directory.shared.ldap.message.MessageEncoder;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -82,10 +82,11 @@ final class LdapProtocolCodecFactory implements ProtocolCodecFactory
         {
             public boolean isBinary( String id )
             {
-                AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+                SchemaManager schemaManager = directoryService.getSchemaManager();
+                
                 try
                 {
-                    AttributeType type = attrRegistry.lookup( id );
+                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
                     return ! type.getSyntax().isHumanReadable();
                 }
                 catch ( Exception e )

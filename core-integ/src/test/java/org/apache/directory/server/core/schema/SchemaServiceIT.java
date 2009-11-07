@@ -20,9 +20,19 @@
 package org.apache.directory.server.core.schema;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -35,21 +45,11 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -180,13 +180,13 @@ public class SchemaServiceIT
         
         // should be fine with unique OID
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), numberOfGunsAttrEntry.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) ); 
 
         // should blow chuncks using same OID
         try
         {
             service.getAdminSession().add( 
-                new DefaultServerEntry( service.getRegistries(), shipOCEntry.getEntry() ) ); 
+                new DefaultServerEntry( service.getSchemaManager(), shipOCEntry.getEntry() ) ); 
             
             fail( "Should not be possible to create two schema entities with the same OID." );
         }

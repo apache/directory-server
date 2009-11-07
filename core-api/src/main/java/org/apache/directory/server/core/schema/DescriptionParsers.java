@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITContentRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.DITStructureRuleDescriptionSchemaParser;
@@ -54,7 +55,6 @@ import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescriptionSche
 import org.apache.directory.shared.ldap.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -79,7 +79,7 @@ public class DescriptionParsers
     private static final DITContentRule[] EMPTY_DIT_CONTENT_RULES = new DITContentRule[0];
     private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
 
-    private final Registries globalRegistries;
+    private final SchemaManager schemaManager;
     
     private final LdapComparatorDescriptionSchemaParser comparatorParser =
         new LdapComparatorDescriptionSchemaParser();
@@ -112,9 +112,9 @@ public class DescriptionParsers
      * 
      * @param globalRegistries the registries to use while creating new schema entities
      */
-    public DescriptionParsers( Registries globalRegistries, SchemaPartitionDao dao )
+    public DescriptionParsers( SchemaManager schemaManager, SchemaPartitionDao dao )
     {
-        this.globalRegistries = globalRegistries;
+        this.schemaManager = schemaManager;
         this.dao = dao;
     }
 
@@ -308,7 +308,7 @@ public class DescriptionParsers
                 }
                 else
                 {
-                    AttributeType superType = globalRegistries.getAttributeTypeRegistry().lookup( attributeType.getSuperiorOid() );
+                    AttributeType superType = schemaManager.lookupAttributeTypeRegistry( attributeType.getSuperiorOid() );
 
                     if ( superType == null )
                     {
@@ -333,7 +333,7 @@ public class DescriptionParsers
             }
             
 
-            attributeType.applyRegistries( globalRegistries );
+            attributeType.applyRegistries( schemaManager.getRegistries() );
             
             // Inject the schema
             if ( ( attributeType.getExtensions() == null ) || 
@@ -442,7 +442,7 @@ public class DescriptionParsers
             }
             
             ObjectClass oc = new ObjectClass( objectClass.getOid() );
-            oc.applyRegistries( globalRegistries );
+            oc.applyRegistries( schemaManager.getRegistries() );
             
             objectClasses[pos++] = oc;
         }

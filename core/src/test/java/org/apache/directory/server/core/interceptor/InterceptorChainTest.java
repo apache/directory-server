@@ -20,6 +20,19 @@
 package org.apache.directory.server.core.interceptor;
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DefaultCoreSession;
 import org.apache.directory.server.core.DirectoryService;
@@ -33,31 +46,19 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.journal.Journal;
 import org.apache.directory.server.core.partition.ByPassConstants;
-import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.replication.ReplicationConfiguration;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-
-
-
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -325,7 +326,7 @@ public class InterceptorChainTest
         }
 
 
-        public Registries getRegistries()
+        public SchemaManager getSchemaManager()
         {
             return null;
         }
@@ -699,6 +700,13 @@ public class InterceptorChainTest
         {
             // TODO Auto-generated method stub
             return null;
+        }
+
+
+        public void setSchemaManager( SchemaManager schemaManager )
+        {
+            // TODO Auto-generated method stub
+            
         }
     }
 }

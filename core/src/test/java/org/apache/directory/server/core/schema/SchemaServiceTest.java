@@ -31,8 +31,6 @@ import java.util.Set;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -45,7 +43,7 @@ import org.junit.Test;
  */
 public class SchemaServiceTest
 {
-    private static Registries registries;
+    private static SchemaManager schemaManager;
     
     
     @BeforeClass
@@ -64,22 +62,20 @@ public class SchemaServiceTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        registries = sm.getRegistries();
-        
-        loaded = sm.loadWithDeps( "nis" );
+        loaded = schemaManager.loadWithDeps( "nis" );
         
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -87,8 +83,7 @@ public class SchemaServiceTest
     @Test
     public void testDescendants() throws Exception
     {
-        AttributeTypeRegistry attrRegistry = registries.getAttributeTypeRegistry();
-        Iterator<AttributeType> list = attrRegistry.descendants( "name" );
+        Iterator<AttributeType> list = schemaManager.getAttributeTypeRegistry().descendants( "name" );
         Set<String> nameAttrs = new HashSet<String>();
         
         while ( list.hasNext() )

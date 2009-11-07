@@ -155,7 +155,7 @@ public class ReferralManagerImpl implements ReferralManager
         {
             // We will store each entry's DN into the Referral tree
             LdapDN suffixDn = new LdapDN( suffix );
-            suffixDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            suffixDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             EntryFilteringCursor cursor = nexus.search( new SearchOperationContext( adminSession, suffixDn, AliasDerefMode.DEREF_ALWAYS,
                 referralFilter, searchControl ) );
             

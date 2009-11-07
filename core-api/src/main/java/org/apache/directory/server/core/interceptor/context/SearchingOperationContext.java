@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import static org.apache.directory.shared.ldap.filter.SearchScope.ONELEVEL;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,8 +41,6 @@ import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.directory.shared.ldap.filter.SearchScope.ONELEVEL;
 
 
 /**
@@ -157,7 +157,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
                     
                     AttributeType attributeType = session.getDirectoryService()
-                        .getRegistries().getAttributeTypeRegistry().lookup( id );
+                        .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
                     
                     returningAttributes.add( attrOptions );

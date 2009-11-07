@@ -49,8 +49,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -75,8 +73,7 @@ public class SubtreeScopeTest
 
     File wkdir;
     Store<ServerEntry> store;
-    static Registries registries = null;
-    static AttributeTypeRegistry attributeRegistry;
+    static SchemaManager schemaManager = null;
 
 
     @BeforeClass
@@ -95,25 +92,21 @@ public class SubtreeScopeTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
-        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
+        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
         
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
-        registries = sm.getRegistries();
-
-        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -137,7 +130,7 @@ public class SubtreeScopeTest
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -645,9 +638,9 @@ public class SubtreeScopeTest
             SchemaConstants.OU_AT_OID + "=board of directors," +
             SchemaConstants.O_AT_OID  + "=good times co."
         );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
-        ServerEntry attrs = new DefaultServerEntry( registries, dn );
+        ServerEntry attrs = new DefaultServerEntry( schemaManager, dn );
         attrs.add( "objectClass", "alias", "extensibleObject" );
         attrs.add( "cn", "jd" );
         attrs.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -660,9 +653,9 @@ public class SubtreeScopeTest
             SchemaConstants.OU_AT_OID + "=board of directors," +
             SchemaConstants.O_AT_OID  + "=good times co."
         );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
-        attrs = new DefaultServerEntry( registries, dn );
+        attrs = new DefaultServerEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "cn", "jdoe" );
         attrs.add( "sn", "doe" );

@@ -121,7 +121,7 @@ public class JdbmPartition extends BTreePartition
     {
         store.setWorkingDirectory( getPartitionDir() );
 
-        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
 
         // setup optimizer and registries for parent
@@ -141,7 +141,7 @@ public class JdbmPartition extends BTreePartition
         store.setName( id );
         
         // Normalize the suffix
-        suffix.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        suffix.normalize( schemaManager.getNormalizerMapping() );
         store.setSuffixDn( suffix.getNormName() );
         store.setWorkingDirectory( getPartitionDir() );
 
@@ -163,7 +163,7 @@ public class JdbmPartition extends BTreePartition
                 index.setWkDirPath( obj.getWkDirPath() );
             }
 
-            String oid = registries.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
+            String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
             
             if ( SYS_INDEX_OIDS.contains( oid ) )
             {
@@ -220,7 +220,7 @@ public class JdbmPartition extends BTreePartition
             store.setUserIndices( userIndices );
         }
 
-        store.init( registries );
+        store.init( schemaManager );
     }
 
 

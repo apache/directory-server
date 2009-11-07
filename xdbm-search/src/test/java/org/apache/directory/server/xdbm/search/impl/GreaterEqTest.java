@@ -49,12 +49,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -79,8 +76,7 @@ public class GreaterEqTest
 
     File wkdir;
     Store<ServerEntry> store;
-    static Registries registries = null;
-    static AttributeTypeRegistry attributeRegistry;
+    static SchemaManager schemaManager = null;
 
 
     @BeforeClass
@@ -100,27 +96,21 @@ public class GreaterEqTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
-        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
+        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
         
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
-        registries = sm.getRegistries();
-        
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
-        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -146,7 +136,7 @@ public class GreaterEqTest
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.POSTALCODE_AT_OID ) );
 
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -172,9 +162,9 @@ public class GreaterEqTest
     @Test
     public void testCursorIndexed() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new ServerStringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         GreaterEqCursor cursor = new GreaterEqCursor( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
@@ -403,9 +393,9 @@ public class GreaterEqTest
     @Test
     public void testCursorNotIndexed() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new ServerStringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         GreaterEqCursor cursor = new GreaterEqCursor( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
@@ -560,9 +550,9 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTALCODE_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTALCODE_AT_OID, new ServerStringValue( at, "3" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -605,9 +595,9 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.STREET_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.STREET_AT_OID, new ServerStringValue( at, "2" ) );
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
@@ -615,8 +605,8 @@ public class GreaterEqTest
         assertNotNull( evaluator.getComparator() );
 
         LdapDN dn = new LdapDN( "cn=jane doe,o=good times co." );
-        dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        ServerEntry attrs = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        ServerEntry attrs = new DefaultServerEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
         attrs.add( "c-street", "3" );
         attrs.add( "cn", "jane doe" );
@@ -633,10 +623,10 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.C_POSTALCODE_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.C_POSTALCODE_AT_OID, new ServerStringValue( at, "2" ) );
 
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String,ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -651,10 +641,10 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
-        AttributeType at = attributeRegistry.lookup( SchemaConstants.POSTOFFICEBOX_AT_OID );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         GreaterEqNode node = new GreaterEqNode( SchemaConstants.POSTOFFICEBOX_AT_OID, new ServerStringValue( at, "3" ) );
 
-        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, registries );
+        GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
         ForwardIndexEntry<String,ServerEntry> indexEntry = new ForwardIndexEntry<String, ServerEntry>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
@@ -702,8 +692,8 @@ public class GreaterEqTest
         at.setSchemaName( "other" );
         at.setSyntax( new BogusSyntax( 1 ) );
         
-        registries.getAttributeTypeRegistry().register( at );
-        registries.getLdapSyntaxRegistry().register( at.getSyntax() );
+        schemaManager.register( at );
+        schemaManager.register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
@@ -711,11 +701,11 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        registries.getSyntaxCheckerRegistry().register( at.getSyntax().getSyntaxChecker() );
+        schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
-        new GreaterEqEvaluator( node, store, registries );
-        registries.getAttributeTypeRegistry().unregister( at.getOid() );
+        new GreaterEqEvaluator( node, store, schemaManager );
+        schemaManager.unregister( at );
     }
 
 
@@ -732,8 +722,8 @@ public class GreaterEqTest
         at.setSyntax( new BogusSyntax( 2 ) );
         at.setOrdering( mr );
             
-        registries.getAttributeTypeRegistry().register( at );
-        registries.getLdapSyntaxRegistry().register( at.getSyntax() );
+        schemaManager.register( at );
+        schemaManager.register( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
@@ -741,10 +731,10 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        registries.getSyntaxCheckerRegistry().register( at.getSyntax().getSyntaxChecker() );
+        schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
-        new GreaterEqEvaluator( node, store, registries );
-        registries.getAttributeTypeRegistry().unregister( at.getOid() );
+        new GreaterEqEvaluator( node, store, schemaManager );
+        schemaManager.unregister( at );
     }
 }

@@ -41,8 +41,7 @@ import org.apache.directory.server.xdbm.tools.IndexUtils;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -53,7 +52,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
  */
 public class IndexCommand extends ToolCommand
 {
-    private Registries bootstrapRegistries = new Registries();
+    private SchemaManager schemaManager;
 
     private DirectoryService directoryService;
 
@@ -64,7 +63,7 @@ public class IndexCommand extends ToolCommand
 
 
     @SuppressWarnings("unchecked")
-    private Registries loadRegistries() throws Exception
+    private SchemaManager loadSchemaManager() throws Exception
     {
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -73,17 +72,16 @@ public class IndexCommand extends ToolCommand
         directoryService.setWorkingDirectory( getInstanceLayout().getPartitionsDir() );
         directoryService.startup();
 
-        Registries globalRegistries = directoryService.getRegistries();//registries;//
-        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
+        SchemaManager schemaManager = directoryService.getSchemaManager();
         
-        return globalRegistries;
+        return schemaManager;
     }
 
 
     public void execute( CommandLine cmdline ) throws Exception
     {
 //        getLayout().verifyInstallation();
-        bootstrapRegistries = loadRegistries();
+        schemaManager = loadSchemaManager();
 
         String[] partitions = cmdline.getOptionValues( 'p' );
         String attribute = cmdline.getOptionValue( 'a' );
@@ -99,7 +97,7 @@ public class IndexCommand extends ToolCommand
                 indexDir = new File( indexDirPath );
             }
             
-            AttributeType attrType = bootstrapRegistries.getAttributeTypeRegistry().lookup( attribute );
+            AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( attribute );
             
             System.out.println( "building index for attribute type: " + attrType + ", of the partition: " + partitions[ii] );
             if( indexDir != null )
@@ -128,7 +126,7 @@ public class IndexCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, bootstrapRegistries );
+        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
         JdbmIndex index = new JdbmIndex();
         index.setAttributeId( attributeType.getName() );
         index.setCacheSize( JdbmIndex.DEFAULT_INDEX_CACHE_SIZE );
@@ -140,7 +138,7 @@ public class IndexCommand extends ToolCommand
         }
 
         index.setWkDirPath( indexDirectory );
-        index.init( attributeType, indexDirectory );
+        index.init( schemaManager, attributeType, indexDirectory );
 
         IndexUtils.printContents( index );
         
@@ -150,7 +148,7 @@ public class IndexCommand extends ToolCommand
         existenceIdx.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
 
         existenceIdx.setWkDirPath( partitionDirectory );
-        existenceIdx.init( bootstrapRegistries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), partitionDirectory );
+        existenceIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID ), partitionDirectory );
 
         Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
         

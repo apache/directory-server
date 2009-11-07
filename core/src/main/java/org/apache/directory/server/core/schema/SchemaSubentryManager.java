@@ -45,11 +45,10 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,8 +79,8 @@ public class SchemaSubentryManager
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
 
-    /** The registries */
-    private final Registries registries;
+    /** The schemaManager */
+    private final SchemaManager schemaManager;
     
     private final SchemaSubentryModifier subentryModifier;
     
@@ -112,46 +111,44 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( Registries registries, SchemaLoader loader, SchemaPartitionDao dao )
+    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, SchemaPartitionDao dao )
         throws Exception
     {
-        this.registries = registries;
-        this.subentryModifier = new SchemaSubentryModifier( registries, dao );
-        this.parsers = new DescriptionParsers( registries, dao );
+        this.schemaManager = schemaManager;
+        this.subentryModifier = new SchemaSubentryModifier( schemaManager, dao );
+        this.parsers = new DescriptionParsers( schemaManager, dao );
         
-        AttributeTypeRegistry atRegistry = registries.getAttributeTypeRegistry();
-
-        String comparatorsOid = atRegistry.getOidByName( SchemaConstants.COMPARATORS_AT );
+        String comparatorsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, COMPARATOR_INDEX );
 
-        String normalizersOid = atRegistry.getOidByName( SchemaConstants.NORMALIZERS_AT );
+        String normalizersOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.NORMALIZERS_AT );
         opAttr2handlerIndex.put( normalizersOid, NORMALIZER_INDEX );
 
-        String syntaxCheckersOid = atRegistry.getOidByName( SchemaConstants.SYNTAX_CHECKERS_AT );
+        String syntaxCheckersOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, SYNTAX_CHECKER_INDEX );
 
-        String ldapSyntaxesOid = atRegistry.getOidByName( SchemaConstants.LDAP_SYNTAXES_AT );
+        String ldapSyntaxesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.LDAP_SYNTAXES_AT );
         opAttr2handlerIndex.put( ldapSyntaxesOid, SYNTAX_INDEX );
 
-        String matchingRulesOid = atRegistry.getOidByName( SchemaConstants.MATCHING_RULES_AT );
+        String matchingRulesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.MATCHING_RULES_AT );
         opAttr2handlerIndex.put( matchingRulesOid, MATCHING_RULE_INDEX );
 
-        String attributeTypesOid = atRegistry.getOidByName( SchemaConstants.ATTRIBUTE_TYPES_AT );
+        String attributeTypesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.ATTRIBUTE_TYPES_AT );
         opAttr2handlerIndex.put( attributeTypesOid, ATTRIBUTE_TYPE_INDEX );
 
-        String objectClassesOid = atRegistry.getOidByName( SchemaConstants.OBJECT_CLASSES_AT );
+        String objectClassesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASSES_AT );
         opAttr2handlerIndex.put( objectClassesOid, OBJECT_CLASS_INDEX );
 
-        String matchingRuleUseOid = atRegistry.getOidByName( SchemaConstants.MATCHING_RULE_USE_AT );
+        String matchingRuleUseOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.MATCHING_RULE_USE_AT );
         opAttr2handlerIndex.put( matchingRuleUseOid, MATCHING_RULE_USE_INDEX );
 
-        String ditStructureRulesOid = atRegistry.getOidByName( SchemaConstants.DIT_STRUCTURE_RULES_AT );
+        String ditStructureRulesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         opAttr2handlerIndex.put( ditStructureRulesOid, DIT_STRUCTURE_RULE_INDEX );
 
-        String ditContentRulesOid = atRegistry.getOidByName( SchemaConstants.DIT_CONTENT_RULES_AT );
+        String ditContentRulesOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.DIT_CONTENT_RULES_AT );
         opAttr2handlerIndex.put( ditContentRulesOid, DIT_CONTENT_RULE_INDEX );
 
-        String nameFormsOid = atRegistry.getOidByName( SchemaConstants.NAME_FORMS_AT );
+        String nameFormsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, NAME_FORM_INDEX );
     }
 
@@ -163,7 +160,7 @@ public class SchemaSubentryManager
     {
         for ( Modification mod : opContext.getModItems() )
         {
-            String opAttrOid = registries.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
+            String opAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( mod.getAttribute().getId() );
             
             ServerAttribute serverAttribute = (ServerAttribute)mod.getAttribute();
 

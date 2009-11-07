@@ -66,16 +66,14 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,8 +116,8 @@ public class PartitionFrame extends JFrame
     private EntryNode root;
 
     
-    /** A handle on the global registries */
-    private Registries registries;
+    /** A handle on the global schemaManager */
+    private SchemaManager schemaManager;
 
     /**
      * Creates new form JFrame
@@ -127,10 +125,10 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( BTreePartition db, Registries registries ) throws Exception
+    public PartitionFrame( BTreePartition db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
         initialize();
         buildIndicesMenu( partition );
@@ -394,7 +392,7 @@ public class PartitionFrame extends JFrame
                 return;
             }
 
-            AddEntryDialog dialog = new AddEntryDialog( this, false, registries );
+            AddEntryDialog dialog = new AddEntryDialog( this, false, schemaManager );
             dialog.setParentDn( parentDn );
 
             centerOnScreen( dialog );
@@ -469,7 +467,7 @@ public class PartitionFrame extends JFrame
                 
                 LdapDN ndn = new LdapDN( StringTools.deepTrimToLower( updn ) );
 
-                ServerEntry attrs = new DefaultServerEntry( registries, entry.getEntry() );
+                ServerEntry attrs = new DefaultServerEntry( schemaManager, entry.getEntry() );
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {

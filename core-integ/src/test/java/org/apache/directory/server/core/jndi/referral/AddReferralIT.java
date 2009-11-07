@@ -128,7 +128,7 @@ public class AddReferralIT
         
         // Core API entry
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultServerEntry( service.getRegistries(), dn );
+        serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );

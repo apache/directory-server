@@ -43,10 +43,7 @@ import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -71,8 +68,7 @@ public class NotCursorTest
 
     File wkdir;
     Store<ServerEntry> store;
-    static Registries registries = null;
-    static AttributeTypeRegistry attributeRegistry;
+    static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
 
@@ -93,27 +89,21 @@ public class NotCursorTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
-        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
+        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
         
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-        
-        registries = sm.getRegistries();
-
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
-        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -137,9 +127,9 @@ public class NotCursorTest
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         
-        evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         
         LOG.debug( "Created new store" );
@@ -216,7 +206,7 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
         
         ExprNode exprNode = new SubstringNode( "cn", "J", null );
-        Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, registries );
+        Evaluator<? extends ExprNode, ServerEntry> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         notNode.addNode( exprNode );
         
         NotCursor cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );

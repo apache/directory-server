@@ -79,9 +79,9 @@ public class AvlPartition extends BTreePartition
 
     public void initialize( ) throws Exception
     {
-        setRegistries( registries );
+        setSchemaManager( schemaManager );
 
-        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         CursorBuilder cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
 
         // setup optimizer and registries for parent
@@ -116,9 +116,9 @@ public class AvlPartition extends BTreePartition
                 index.setAttributeId( obj.getAttributeId() );
             }
 
-            String oid = registries.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
+            String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
 
-            if ( SYS_INDEX_OIDS.contains( registries.getAttributeTypeRegistry().getOidByName( index.getAttributeId() ) ) )
+            if ( SYS_INDEX_OIDS.contains( schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() ) ) )
             {
                 if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
                 {
@@ -165,7 +165,7 @@ public class AvlPartition extends BTreePartition
             store.setUserIndices( userIndices );
         }
 
-        store.init( registries );
+        store.init( schemaManager );
     }
 
 

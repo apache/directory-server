@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.schema.registries.Registries;
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
     public Collection<ACITuple> filter( 
-            Registries registries, 
+            SchemaManager schemaManager, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,

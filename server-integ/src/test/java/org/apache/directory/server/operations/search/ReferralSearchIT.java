@@ -20,6 +20,15 @@
 package org.apache.directory.server.operations.search;
 
  
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,23 +46,12 @@ import javax.naming.ldap.ManageReferralControl;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
 import org.apache.directory.server.integ.SiRunner;
-
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -144,7 +142,7 @@ public class ReferralSearchIT
         {
             LdifEntry entry = reader.next();
             ldapServer.getDirectoryService().getAdminSession().add( 
-                new DefaultServerEntry( ldapServer.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
+                new DefaultServerEntry( ldapServer.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
         }
     }
     

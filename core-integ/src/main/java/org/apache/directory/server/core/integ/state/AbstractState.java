@@ -204,7 +204,7 @@ public abstract class AbstractState implements TestServiceState
                     for ( LdifEntry entry : ldifReader )
                     {
                         service.getAdminSession().add( 
-                            new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                            new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                         LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
                     }
                 }
@@ -230,7 +230,7 @@ public abstract class AbstractState implements TestServiceState
                         try
                         {
                             service.getAdminSession().add( 
-                                new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                                new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                             LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
                         }
                         catch ( Exception e )

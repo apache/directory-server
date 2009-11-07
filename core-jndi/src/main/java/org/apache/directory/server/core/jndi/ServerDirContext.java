@@ -214,7 +214,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         List<Modification> newMods = ServerEntryUtils.convertToServerModification( 
             modItems, 
-            getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+            getDirectoryService().getSchemaManager() );
 
         try
         {
@@ -251,7 +251,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
         List<Modification> newMods = ServerEntryUtils
-            .toServerModification( mods, getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+            .toServerModification( mods, getDirectoryService().getSchemaManager() );
         try
         {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -271,7 +271,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         List<Modification> newMods = ServerEntryUtils
             .convertToServerModification( mods, 
-                getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+                getDirectoryService().getSchemaManager() );
         try
         {
             doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -315,7 +315,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         LdapDN target = buildTarget( name );
 
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( attrs ), target,
-            getDirectoryService().getRegistries() );
+            getDirectoryService().getSchemaManager() );
 
         // No object binding so we just add the attributes
         if ( null == obj )
@@ -335,7 +335,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, getEnvironment(), attrs );
         ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( 
-            res.getAttributes(), target, getDirectoryService().getRegistries() );
+            res.getAttributes(), target, getDirectoryService().getSchemaManager() );
 
         if ( outServerEntry != serverEntry )
         {
@@ -387,7 +387,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, getDirectoryService().getRegistries() );
+            JavaLdapSupport.serialize( serverEntry, obj, getDirectoryService().getSchemaManager() );
             try
             {
                 // setup the op context
@@ -402,7 +402,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             // Grab attributes and merge with outAttrs
             ServerEntry entry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ), target,
-                getDirectoryService().getRegistries() );
+                getDirectoryService().getSchemaManager() );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {
@@ -533,7 +533,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         try
         {
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attributes, 
-                target, getDirectoryService().getRegistries() );
+                target, getDirectoryService().getSchemaManager() );
             doAddOperation( target, serverEntry );
         }
         catch ( Exception e )

@@ -54,8 +54,8 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
@@ -229,13 +229,14 @@ public class TriggerInterceptor extends BaseInterceptor
         super.init( directoryService );
         
         triggerSpecCache = new TriggerSpecCache( directoryService );
-        final AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        final SchemaManager schemaManager = directoryService.getSchemaManager();
+
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
                     public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
                     {
-                        return attrRegistry.getNormalizerMapping();
+                        return schemaManager.getNormalizerMapping();
                     }
                 }
             );

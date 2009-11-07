@@ -20,6 +20,14 @@
 package org.apache.directory.server.configuration;
 
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -32,17 +40,9 @@ import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -343,8 +343,7 @@ public class ApacheDS
         LdapDN dn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         
         // Must normalize the dn or - IllegalStateException!
-        AttributeTypeRegistry reg = directoryService.getRegistries().getAttributeTypeRegistry();
-        dn.normalize( reg.getNormalizerMapping() );
+        dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
         
         ensureLdifFileBase();
 

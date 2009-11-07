@@ -59,10 +59,9 @@ import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,14 +111,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     };
 
 
-    private AttributeTypeRegistry atRegistry;
-
     private DirectoryService service;
 
     private LdapDN subschemaSubentryDn;
     
-    /** The registries */
-    private Registries registries;
+    /** The schemaManager */
+    private SchemaManager schemaManager;
     
     private static AttributeType CREATE_TIMESTAMP_ATTRIBUTE_TYPE;
     private static AttributeType MODIFIERS_NAME_ATTRIBUTE_TYPE;
@@ -137,18 +134,17 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws Exception
     {
         service = directoryService;
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
+        schemaManager = directoryService.getSchemaManager();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = service.getPartitionNexus()
                 .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         
-        CREATE_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.CREATE_TIMESTAMP_AT );
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        CREATE_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
     }
 
 
@@ -309,7 +305,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         LdapDN newDn = opContext.getNewDn();
         
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( registries, newDn );
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, newDn );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -327,7 +323,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -347,7 +343,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
-        ServerEntry serverEntry = new DefaultServerEntry( registries, opContext.getDn() );
+        ServerEntry serverEntry = new DefaultServerEntry( schemaManager, opContext.getDn() );
         serverEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal().getName() );
         serverEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -534,7 +530,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-                String name = atRegistry.lookup( rdn.getNormType() ).getName();
+                String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 String value = rdn.getAtav().getNormValue().getString(); 
                 newDn.add( new Rdn( name, name, value, value ) );
                 continue;
@@ -546,7 +542,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             for ( Iterator<AttributeTypeAndValue> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = atavs.next();
-                String type = atRegistry.lookup( rdn.getNormType() ).getName();
+                String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getNormValue() );
                 
                 if ( atavs.hasNext() )

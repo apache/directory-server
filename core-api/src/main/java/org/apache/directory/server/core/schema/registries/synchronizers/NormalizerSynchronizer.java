@@ -33,9 +33,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.registries.MatchingRuleRegistry;
-import org.apache.directory.shared.ldap.schema.registries.NormalizerRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,24 +49,15 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( NormalizerSynchronizer.class );
 
-    /** The normalizer registry */
-    private final NormalizerRegistry normalizerRegistry;
-    
-    /** The matchingRule registry */
-    private final MatchingRuleRegistry matchingRuleRegistry;
-    
-
     /**
      * Creates a new instance of NormalizerSynchronizer.
      *
      * @param registries The global registries
      * @throws Exception If the initialization failed
      */
-    public NormalizerSynchronizer( Registries registries ) throws Exception
+    public NormalizerSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
-        this.normalizerRegistry = registries.getNormalizerRegistry();
-        this.matchingRuleRegistry = registries.getMatchingRuleRegistry();
+        super( schemaManager );
     }
     
     
@@ -81,14 +70,14 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oldOid = getOid( entry );
-        Normalizer normalizer = factory.getNormalizer( targetEntry, registries, schemaName );
+        Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
         
         if ( isSchemaEnabled( schemaName ) )
         {
             normalizer.setSchemaName( schemaName );
 
-            normalizerRegistry.unregister( oldOid );
-            normalizerRegistry.register( normalizer );
+            schemaManager.unregisterNormalizer( oldOid );
+            schemaManager.register( normalizer );
             
             return SCHEMA_MODIFIED;
         }
@@ -107,7 +96,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
-        checkParent( parentDn, normalizerRegistry, SchemaConstants.NORMALIZER );
+        checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
 
         // The new schemaObject's OID must not already exist
         checkOidIsUniqueForNormalizer( entry );
@@ -115,13 +104,13 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Normalizer from the given entry
         String schemaName = getSchemaName( dn );
         
-        Normalizer normalizer = factory.getNormalizer( entry, registries, schemaName );
+        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         addToSchema( normalizer, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            normalizerRegistry.register( normalizer );
+            schemaManager.register( normalizer );
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
     }
@@ -137,17 +126,17 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=normalizers,cn=<schemaName>,ou=schema
-        checkParent( parentDn, normalizerRegistry, SchemaConstants.NORMALIZER );
+        checkParent( parentDn, schemaManager, SchemaConstants.NORMALIZER );
         
         // Get the Normalizer from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        Normalizer normalizer = factory.getNormalizer( entry, registries, schemaName );
+        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         String oid = normalizer.getOid();
         
         if ( isSchemaEnabled( schemaName ) )
         {
-            if ( registries.isReferenced( normalizer ) )
+            if ( schemaManager.getRegistries().isReferenced( normalizer ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                 " dependant SchemaObjects :\n" + getReferenced( normalizer );
@@ -158,9 +147,9 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         
         deleteFromSchema( normalizer, schemaName );
 
-        if ( normalizerRegistry.contains( oid ) )
+        if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
-            normalizerRegistry.unregister( oid );
+            schemaManager.unregisterNormalizer( oid );
             LOG.debug( "Removed {} from the enabled schema {}", normalizer, schemaName );
         }
         else
@@ -178,7 +167,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
 
-        if ( matchingRuleRegistry.contains( oldOid ) )
+        if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -201,9 +190,9 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             newDn.add( newRdn );
             targetEntry.setDn( newDn );
 
-            Normalizer normalizer = factory.getNormalizer( targetEntry, registries, schemaName );
-            normalizerRegistry.unregister( oldOid );
-            normalizerRegistry.register( normalizer );
+            Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
+            schemaManager.unregisterNormalizer( oldOid );
+            schemaManager.register( normalizer );
         }
     }
 
@@ -216,7 +205,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
 
-        if ( matchingRuleRegistry.contains( oldOid ) )
+        if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -226,16 +215,16 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForNormalizer( oid );
-        Normalizer normalizer = factory.getNormalizer( entry, registries, newSchemaName );
+        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            normalizerRegistry.unregister( oldOid );
+            schemaManager.unregisterNormalizer( oldOid );
         }
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            normalizerRegistry.register( normalizer );
+            schemaManager.register( normalizer );
         }
     }
 
@@ -248,7 +237,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
 
-        if ( matchingRuleRegistry.contains( oid ) )
+        if ( schemaManager.getMatchingRuleRegistry().contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The normalizer with OID " + oid 
                 + " cannot be moved to another schema until all " 
@@ -256,24 +245,24 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        Normalizer normalizer = factory.getNormalizer( entry, registries, newSchemaName );
+        Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), newSchemaName );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            normalizerRegistry.unregister( oid );
+            schemaManager.unregisterNormalizer( oid );
         }
         
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            normalizerRegistry.register( normalizer );
+            schemaManager.register( normalizer );
         }
     }
 
     
     private void checkOidIsUniqueForNormalizer( String oid ) throws NamingException
     {
-        if ( registries.getNormalizerRegistry().contains( oid ) )
+        if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -285,7 +274,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         String oid = getOid( entry );
         
-        if ( registries.getNormalizerRegistry().contains( oid ) )
+        if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -304,7 +293,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         
         Rdn rdn = newParent.getRdn();
 
-        if ( ! registries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a normalizer should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

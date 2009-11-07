@@ -51,9 +51,9 @@ import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.schema.SchemaWrapper;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
@@ -143,6 +143,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Modification disabledModification = ServerEntryUtils.getModificationItem( mods, disabledAT );
         
         // The attribute might be present, but that does not mean we will change it.
+        // If it's absent, and if we have it in the previous entry, that mean we want
+        // to enable the schema
         if ( disabledModification != null )
         {
             // We are trying to modify the m-disabled attribute. 
@@ -151,6 +153,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             
             hasModification = modifyDisable( opContext, modification, attribute, disabledInEntry );
         }
+        else if ( disabledInEntry != null )
+        {
+            hasModification = modifyDisable( opContext, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
+        }
+            
         
         return hasModification;
     }
@@ -636,10 +643,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( schema == null )
         {
-            // This is not possible. We can't enable a schema which is not loaded.
-            String msg = "Unwilling to enable a not loaded schema: " + schemaName;
-            LOG.error( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            // We have to load the schema before enabling it.
+            schemaManager.loadDisabled( schemaName );
         }
         
         return schemaManager.enable( schemaName );
@@ -703,14 +708,14 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     
     /**
-     * Used to iterate through SchemaObjects in a SchemaObjectRegistry and rename
+     * Used to iterate through SchemaObjects in a DefaultSchemaObjectRegistry and rename
      * their schema property to a new schema name.
      * 
      * @param registry the registry whose objects are changed
      * @param originalSchemaName the original schema name
      * @param newSchemaName the new schema name
      */
-    private void renameSchema( SchemaObjectRegistry<? extends SchemaObject> registry, String originalSchemaName, String newSchemaName ) 
+    private void renameSchema( DefaultSchemaObjectRegistry<? extends SchemaObject> registry, String originalSchemaName, String newSchemaName ) 
     {
         Iterator<? extends SchemaObject> list = registry.iterator();
         while ( list.hasNext() )

@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.ber.tlv.Value;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -113,7 +113,7 @@ public class PagedSearchContext
      * Build a set of OIDs from the list of attributes we have in the search request
      */
     private Set<String> buildAttributeSet( InternalSearchRequest request, LdapSession session, 
-        AttributeTypeRegistry atRegistry )
+        SchemaManager schemaManager )
     {
         Set<String> requestSet = new HashSet<String>();
         
@@ -122,7 +122,7 @@ public class PagedSearchContext
         {
             try
             {
-                AttributeType at = atRegistry.lookup( attribute );
+                AttributeType at = schemaManager.lookupAttributeTypeRegistry( attribute );
                 requestSet.add( at.getOid() );
             }
             catch ( NamingException ne )
@@ -181,8 +181,8 @@ public class PagedSearchContext
             return false;
         }
         
-        AttributeTypeRegistry atRegistry = 
-            session.getLdapServer().getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        SchemaManager schemaManager = 
+            session.getLdapServer().getDirectoryService().getSchemaManager();
 
         // Compares the attributes
         if ( request.getAttributes() == null )
@@ -207,8 +207,8 @@ public class PagedSearchContext
                 }
                 
                 // Build the set of attributeType from both requests
-                Set<String> requestSet = buildAttributeSet( request, session, atRegistry );
-                Set<String> previousRequestSet = buildAttributeSet( previousSearchRequest, session, atRegistry );
+                Set<String> requestSet = buildAttributeSet( request, session, schemaManager );
+                Set<String> previousRequestSet = buildAttributeSet( previousSearchRequest, session, schemaManager );
                 
                 // Check that both sets have the same size again after having converted
                 // the attributes to OID
@@ -233,11 +233,11 @@ public class PagedSearchContext
         // Compare the baseDN
         try
         {
-            request.getBase().normalize( atRegistry.getNormalizerMapping() );
+            request.getBase().normalize( schemaManager.getNormalizerMapping() );
             
             if ( !previousSearchRequest.getBase().isNormalized() )
             {
-                previousSearchRequest.getBase().normalize( atRegistry.getNormalizerMapping() );
+                previousSearchRequest.getBase().normalize( schemaManager.getNormalizerMapping() );
             }
             
             if ( !request.getBase().equals( previousSearchRequest.getBase() ) )

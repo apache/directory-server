@@ -39,12 +39,10 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaWrapper;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
-import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +59,8 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractRegistrySynchronizer.class );
 
-    /** The global registries */
-    protected final Registries registries;
-    
-    /** The OID registry */
-    protected final OidRegistry oidRegistry;
+    /** The global SchemaManager */
+    protected final SchemaManager schemaManager;
     
     /** The m-oid AttributeType */
     protected final AttributeType m_oidAT;
@@ -93,13 +88,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
     
     
-    protected AbstractRegistrySynchronizer( Registries targetRegistries ) throws Exception
+    protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        registries = targetRegistries;
-        m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
+        this.schemaManager = schemaManager;
+        m_oidAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
-        oidRegistry = registries.getOidRegistry();
-        
     }
     
     
@@ -112,7 +105,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected boolean isSchemaLoaded( LdapDN dn ) throws Exception
     {
-        return registries.isSchemaLoaded( getSchemaName( dn ) );
+        return schemaManager.isSchemaLoaded( getSchemaName( dn ) );
     }
     
     
@@ -124,7 +117,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected boolean isSchemaLoaded( String schemaName )
     {
-        return registries.isSchemaLoaded( schemaName );
+        return schemaManager.isSchemaLoaded( schemaName );
     }
     
     
@@ -136,7 +129,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected boolean isSchemaEnabled( String schemaName )
     {
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
         
         return ( ( schema != null ) && schema.isEnabled() );
     }
@@ -170,7 +163,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( oidRegistry.hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -181,7 +174,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Checks that the parent DN is a valid DN
      */
-    protected void checkParent( LdapDN newParent, SchemaObjectRegistry<?> registry, String objectType ) throws NamingException
+    protected void checkParent( LdapDN newParent, SchemaManager schemaManager, String objectType ) throws NamingException
     {
         if ( newParent.size() != 3 )
         {
@@ -192,7 +185,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         
         Rdn rdn = newParent.getRdn();
         
-        if ( ! registries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a " + objectType + " should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
@@ -211,7 +204,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = schemaObject.getOid();
 
-        if ( oidRegistry.hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -221,7 +214,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected void checkOidIsUnique( String oid ) throws Exception
     {
-        if ( oidRegistry.hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().hasOid( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -238,12 +231,12 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         if ( isSchemaLoaded( schemaName ) )
         {
             // Get the set of all the SchemaObjects associated with this schema
-            Set<SchemaWrapper> schemaObjects = registries.getObjectBySchemaName().get( schemaName );
+            Set<SchemaWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
             
             if ( schemaObjects == null )
             {
                 // TODO : this should never happen...
-                schemaObjects = registries.addSchema( schemaName );
+                schemaObjects = schemaManager.getRegistries().addSchema( schemaName );
             }
             
             SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
@@ -281,7 +274,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( isSchemaLoaded( schemaName ) )
         {
-            Set<SchemaWrapper> schemaObjects = registries.getObjectBySchemaName().get( schemaName );
+            Set<SchemaWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
 
             SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
             
@@ -337,7 +330,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         for ( ServerEntry result : results )
         {
             LdapDN dn = result.getDn();
-            dn.normalize( this.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( schemaManager.getNormalizerMapping() );
             oids.add( ( String ) dn.getRdn().getValue() );
         }
         
@@ -366,7 +359,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected void unregisterOids( SchemaObject obj ) throws Exception
     {
-        oidRegistry.unregister( obj.getOid() );
+        schemaManager.getOidRegistry().unregister( obj.getOid() );
     }
     
     
@@ -378,7 +371,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        oidRegistry.register( obj );
+        schemaManager.getOidRegistry().register( obj );
     }
     
     
@@ -393,7 +386,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         StringBuilder sb = new StringBuilder();
         
-        Set<SchemaWrapper> useds = registries.getUsedBy( schemaObject );
+        Set<SchemaWrapper> useds = schemaManager.getRegistries().getUsedBy( schemaObject );
         
         for ( SchemaWrapper used:useds )
         {

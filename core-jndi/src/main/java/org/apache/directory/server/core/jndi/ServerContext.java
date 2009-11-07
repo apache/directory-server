@@ -338,7 +338,7 @@ public abstract class ServerContext implements EventContext
             
             if ( result )
             {
-                ServerEntry emptyEntry = new DefaultServerEntry( service.getRegistries(), LdapDN.EMPTY_LDAPDN ); 
+                ServerEntry emptyEntry = new DefaultServerEntry( service.getSchemaManager(), LdapDN.EMPTY_LDAPDN ); 
                 return new BaseEntryFilteringCursor( new SingletonCursor<ServerEntry>( emptyEntry ), (SearchOperationContext)opContext );
             }
             else
@@ -831,7 +831,7 @@ public abstract class ServerContext implements EventContext
 
         // let's be sure that the Attributes is case insensitive
         ServerEntry outServerEntry = ServerEntryUtils.toServerEntry( AttributeUtils.toCaseInsensitive( res
-            .getAttributes() ), target, service.getRegistries() );
+            .getAttributes() ), target, service.getSchemaManager() );
 
         if ( outServerEntry != null )
         {
@@ -885,7 +885,7 @@ public abstract class ServerContext implements EventContext
             injectRdnAttributeValues( target, serverEntry );
 
             // Serialize object into entry attributes and add it.
-            JavaLdapSupport.serialize( serverEntry, obj, service.getRegistries() );
+            JavaLdapSupport.serialize( serverEntry, obj, service.getSchemaManager() );
             try
             {
                 doAddOperation( target, serverEntry );
@@ -899,7 +899,7 @@ public abstract class ServerContext implements EventContext
         {
             // Grab attributes and merge with outAttrs
             ServerEntry serverEntry = ServerEntryUtils.toServerEntry( ( ( DirContext ) obj ).getAttributes( "" ),
-                target, service.getRegistries() );
+                target, service.getSchemaManager() );
 
             if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
             {

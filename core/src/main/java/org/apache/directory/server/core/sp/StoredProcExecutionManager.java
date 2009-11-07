@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.sp;
 
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -33,13 +40,6 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
-
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -87,7 +87,7 @@ public class StoredProcExecutionManager
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         
         AttributeType at = session.getDirectoryService()
-            .getRegistries().getAttributeTypeRegistry().lookup( "storedProcUnitName" );
+            .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( "storedProcUnitName", new ServerStringValue( at, spUnitName ) );
         LdapDN dn = new LdapDN( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter, 

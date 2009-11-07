@@ -20,13 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.shared.ldap.schema.LdapComparator;
-import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.schema.registries.ComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
-import java.util.Iterator;
+
+import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.shared.ldap.schema.registries.DefaultComparatorRegistry;
+import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -35,7 +36,7 @@ import java.util.Iterator;
 * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
 * @version $$Rev$$
 */
-class MockComparatorRegistry extends ComparatorRegistry
+class MockComparatorRegistry extends DefaultComparatorRegistry
 {
     public MockComparatorRegistry( OidRegistry oidRegistry )
     {

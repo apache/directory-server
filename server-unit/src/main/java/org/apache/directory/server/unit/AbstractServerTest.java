@@ -145,7 +145,7 @@ public abstract class AbstractServerTest
         for ( LdifEntry entry:ldifReader )
         {
             rootDSE.add( 
-                new DefaultServerEntry( directoryService.getRegistries(), entry.getEntry() ) ); 
+                new DefaultServerEntry( directoryService.getSchemaManager(), entry.getEntry() ) ); 
             
             if ( verifyEntries )
             {
@@ -412,7 +412,7 @@ public abstract class AbstractServerTest
             {
                 rootDSE.add( 
                     new DefaultServerEntry( 
-                        rootDSE.getDirectoryService().getRegistries(), ldifEntry.getEntry() ) ); 
+                        rootDSE.getDirectoryService().getSchemaManager(), ldifEntry.getEntry() ) ); 
             }
         }
         catch ( Exception e )
@@ -440,7 +440,7 @@ public abstract class AbstractServerTest
         {
             rootDSE.add( 
                 new DefaultServerEntry( 
-                    rootDSE.getDirectoryService().getRegistries(), entry.getEntry() ) ); 
+                    rootDSE.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
         }
     }
 }

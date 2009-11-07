@@ -77,10 +77,9 @@ import org.apache.directory.shared.ldap.message.control.SubentriesControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
@@ -126,10 +125,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private PartitionNexus nexus;
 
     /** The global registries */
-    private Registries registries;
-
-    /** The AttributeType registry */
-    private AttributeTypeRegistry atRegistry;
+    private SchemaManager schemaManager;
 
     /** The OID registry */
     private OidRegistry oidRegistry;
@@ -141,21 +137,20 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
+        schemaManager = directoryService.getSchemaManager();
+        oidRegistry = schemaManager.getOidRegistry();
 
         // setup various attribute type values
-        objectClassType = atRegistry.lookup( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+        objectClassType = schemaManager.lookupAttributeTypeRegistry( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
 
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
             public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
             {
-                return atRegistry.getNormalizerMapping();
+                return schemaManager.getNormalizerMapping();
             }
-        }, atRegistry.getNormalizerMapping() );
-        evaluator = new SubtreeEvaluator( oidRegistry, atRegistry );
+        }, schemaManager.getNormalizerMapping() );
+        evaluator = new SubtreeEvaluator( oidRegistry, schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = this.nexus.listSuffixes( null );
@@ -170,10 +165,10 @@ public class SubentryInterceptor extends BaseInterceptor
         for ( String suffix:suffixes )
         {
             LdapDN suffixDn = new LdapDN( suffix );
-            suffixDn.normalize( atRegistry.getNormalizerMapping() );
+            suffixDn.normalize( schemaManager.getNormalizerMapping() );
 
             LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            adminDn.normalize( schemaManager.getNormalizerMapping() );
             CoreSession adminSession = new DefaultCoreSession( 
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
 
@@ -198,7 +193,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                dnName.normalize( atRegistry.getNormalizerMapping() );
+                dnName.normalize( schemaManager.getNormalizerMapping() );
                 subentryCache.setSubentry( dnName.toString(), ss, getSubentryTypes( subentry ) );
             }
         }
@@ -327,7 +322,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     public ServerEntry getSubentryAttributes( LdapDN dn, ServerEntry entryAttrs ) throws Exception
     {
-        ServerEntry subentryAttrs = new DefaultServerEntry( registries, dn );
+        ServerEntry subentryAttrs = new DefaultServerEntry( schemaManager, dn );
         Iterator<String> list = subentryCache.nameIterator();
 
         while ( list.hasNext() )
@@ -350,7 +345,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( operational == null )
                     {
                         operational = new DefaultServerAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT,
-                            atRegistry.lookup( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
+                            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
 
@@ -362,8 +357,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( operational == null )
                     {
-                        operational = new DefaultServerAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, atRegistry
-                            .lookup( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
+                        operational = new DefaultServerAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
+                            .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                         subentryAttrs.put( operational );
                     }
 
@@ -376,7 +371,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( operational == null )
                     {
                         operational = new DefaultServerAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                            atRegistry.lookup( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+                            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
 
@@ -389,7 +384,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( operational == null )
                     {
                         operational = new DefaultServerAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT,
-                            atRegistry.lookup( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+                            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                         subentryAttrs.put( operational );
                     }
 
@@ -487,7 +482,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -523,8 +518,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultServerAttribute( atRegistry
-                                .lookup( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
+                            operational = new DefaultServerAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
 
@@ -537,8 +532,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultServerAttribute( atRegistry
-                                .lookup( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
+                            operational = new DefaultServerAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                             entry.put( operational );
                         }
 
@@ -551,8 +546,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultServerAttribute( atRegistry
-                                .lookup( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+                            operational = new DefaultServerAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
 
@@ -565,8 +560,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( operational == null )
                         {
-                            operational = new DefaultServerAttribute( atRegistry
-                                .lookup( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+                            operational = new DefaultServerAttribute( schemaManager
+                                .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                             entry.put( operational );
                         }
 
@@ -612,7 +607,7 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -625,7 +620,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = new LdapDN( candidate.getDn() );
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -734,8 +729,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String aSUBENTRY_OPATTRS : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    ServerAttribute opAttr = new DefaultServerAttribute( aSUBENTRY_OPATTRS, atRegistry
-                        .lookup( aSUBENTRY_OPATTRS ) );
+                    ServerAttribute opAttr = new DefaultServerAttribute( aSUBENTRY_OPATTRS, schemaManager
+                        .lookupAttributeTypeRegistry( aSUBENTRY_OPATTRS ) );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );
                 }
@@ -773,7 +768,7 @@ public class SubentryInterceptor extends BaseInterceptor
             next.rename( opContext );
 
             subentry = subentryCache.getSubentry( newNormName );
-            ExprNode filter = new PresenceNode( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -785,7 +780,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
@@ -848,7 +843,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = subentryCache.getSubentry( newNormName );
 
-            ExprNode filter = new PresenceNode( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -860,7 +855,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -884,7 +879,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) parent.clone();
             newName.add( opContext.getNewRdn() );
-            newName.normalize( atRegistry.getNormalizerMapping() );
+            newName.normalize( schemaManager.getNormalizerMapping() );
             List<Modification> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.size() > 0 )
@@ -934,7 +929,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
@@ -1005,7 +1000,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
 
-        ServerEntry attrs = new DefaultServerEntry( registries, LdapDN.EMPTY_LDAPDN );
+        ServerEntry attrs = new DefaultServerEntry( schemaManager, LdapDN.EMPTY_LDAPDN );
         attrs.put( ocFinalState );
         return getSubentryTypes( attrs );
     }
@@ -1056,7 +1051,7 @@ public class SubentryInterceptor extends BaseInterceptor
             apName.remove( apName.size() - 1 );
             LdapDN oldBaseDn = ( LdapDN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( atRegistry.getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+            ExprNode filter = new PresenceNode( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1068,7 +1063,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
@@ -1089,7 +1084,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 ServerEntry candidate = subentries.get();
                 LdapDN dn = candidate.getDn();
-                dn.normalize( atRegistry.getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
@@ -1134,8 +1129,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultServerAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, atRegistry
-                    .lookup( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
+                operational = new DefaultServerAttribute( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, schemaManager
+                    .lookupAttributeTypeRegistry( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
             else
@@ -1153,8 +1148,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultServerAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, atRegistry
-                    .lookup( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
+                operational = new DefaultServerAttribute( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, schemaManager
+                    .lookupAttributeTypeRegistry( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) );
                 operational.add( newName.toString() );
             }
             else
@@ -1173,7 +1168,7 @@ public class SubentryInterceptor extends BaseInterceptor
             if ( operational == null )
             {
                 operational = new DefaultServerAttribute( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                    atRegistry.lookup( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
+                    schemaManager.lookupAttributeTypeRegistry( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
             else
@@ -1191,8 +1186,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( operational == null )
             {
-                operational = new DefaultServerAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, atRegistry
-                    .lookup( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+                operational = new DefaultServerAttribute( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, schemaManager
+                    .lookupAttributeTypeRegistry( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
                 operational.add( newName.toString() );
             }
             else
@@ -1218,7 +1213,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private ServerEntry getSubentryOperatationalAttributes( LdapDN name, Subentry subentry ) throws Exception
     {
-        ServerEntry operational = new DefaultServerEntry( registries, name );
+        ServerEntry operational = new DefaultServerEntry( schemaManager, name );
 
         if ( subentry.isAccessControlSubentry() )
         {
@@ -1294,7 +1289,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( ( opAttr != null ) && opAttr.contains( dn ) )
             {
-                AttributeType attributeType = atRegistry.lookup( opAttrId );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( opAttrId );
                 ServerAttribute attr = new DefaultServerAttribute( opAttrId, attributeType, dn );
                 modList.add( new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attr ) );
             }
@@ -1379,7 +1374,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             LdapDN ndn = new LdapDN( dn );
-            ndn.normalize( atRegistry.getNormalizerMapping() );
+            ndn.normalize( schemaManager.getNormalizerMapping() );
             String normalizedDn = ndn.toString();
             return !subentryCache.hasSubentry( normalizedDn );
         }
@@ -1411,7 +1406,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             LdapDN ndn = new LdapDN( dn );
-            ndn.normalize( atRegistry.getNormalizerMapping() );
+            ndn.normalize( schemaManager.getNormalizerMapping() );
             return subentryCache.hasSubentry( ndn.toNormName() );
         }
     }
@@ -1466,7 +1461,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 for ( String attribute : SUBENTRY_OPATTRS )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
-                    AttributeType type = atRegistry.lookup( attribute );
+                    AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute );
                     ServerAttribute opAttr = new DefaultServerAttribute( attribute, type );
                     opAttr.add( subentryDn );
                     modList.add( new ServerModification( op, opAttr ) );

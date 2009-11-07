@@ -20,17 +20,17 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import java.util.Iterator;
+
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
-
-import java.util.Iterator;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -44,18 +44,18 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
 {
     private final PresenceNode node;
     private final Store<ServerEntry> db;
-    private final Registries registries;
     private final AttributeType type;
+    private final SchemaManager schemaManager;
     private final Index<String,ServerEntry> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, Registries registries )
+    public PresenceEvaluator( PresenceNode node, Store<ServerEntry> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
         this.node = node;
-        this.registries = registries;
-        this.type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
+        this.schemaManager = schemaManager;
+        this.type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -131,13 +131,13 @@ public class PresenceEvaluator implements Evaluator<PresenceNode, ServerEntry>
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             do
             {

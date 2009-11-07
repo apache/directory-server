@@ -54,8 +54,8 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
@@ -95,12 +95,13 @@ public class TriggerSpecCache
     public TriggerSpecCache( DirectoryService directoryService ) throws Exception
     {
         this.nexus = directoryService.getPartitionNexus();
-        final AttributeTypeRegistry registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        final SchemaManager schemaManager = directoryService.getSchemaManager();
+
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
                 public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
                 {
-                    return registry.getNormalizerMapping();
+                    return schemaManager.getNormalizerMapping();
                 }
             });
         initialize( directoryService );
@@ -123,7 +124,7 @@ public class TriggerSpecCache
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             
             LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            adminDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            adminDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
             CoreSession adminSession = new DefaultCoreSession( 
                 new LdapPrincipal( adminDn, AuthenticationLevel.STRONG ), directoryService );
             EntryFilteringCursor results = nexus.search( new SearchOperationContext( 
@@ -141,8 +142,8 @@ public class TriggerSpecCache
                     continue;
                 }
 
-                LdapDN normSubentryName = subentryDn.normalize( directoryService.getRegistries()
-                    .getAttributeTypeRegistry().getNormalizerMapping() );
+                LdapDN normSubentryName = subentryDn.normalize( directoryService.getSchemaManager()
+                    .getNormalizerMapping() );
                 subentryAdded( normSubentryName, resultEntry );
             }
             

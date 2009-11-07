@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
@@ -35,15 +34,16 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 
@@ -56,48 +56,48 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class AttributesFactory
 {
-    public ServerEntry getAttributes( SchemaObject obj, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( SchemaObject obj, Schema schema, SchemaManager schemaManager ) throws NamingException
     {
         if ( obj instanceof LdapSyntax )
         {
-            return getAttributes( ( LdapSyntax ) obj, schema, registries );
+            return getAttributes( ( LdapSyntax ) obj, schema, schemaManager );
         }
         else if ( obj instanceof MatchingRule )
         {
-            return getAttributes( ( MatchingRule ) obj, schema, registries );
+            return getAttributes( ( MatchingRule ) obj, schema, schemaManager );
         }
         else if ( obj instanceof AttributeType )
         {
-            return getAttributes( ( AttributeType ) obj, schema, registries );
+            return getAttributes( ( AttributeType ) obj, schema, schemaManager );
         }
         else if ( obj instanceof ObjectClass )
         {
-            return getAttributes( ( ObjectClass ) obj, schema, registries );
+            return getAttributes( ( ObjectClass ) obj, schema, schemaManager );
         }
         else if ( obj instanceof MatchingRuleUse )
         {
-            return getAttributes( ( MatchingRuleUse ) obj, schema, registries );
+            return getAttributes( ( MatchingRuleUse ) obj, schema, schemaManager );
         }
         else if ( obj instanceof DITStructureRule )
         {
-            return getAttributes( ( DITStructureRule ) obj, schema, registries );
+            return getAttributes( ( DITStructureRule ) obj, schema, schemaManager );
         }
         else if ( obj instanceof DITContentRule )
         {
-            return getAttributes( ( DITContentRule ) obj, schema, registries );
+            return getAttributes( ( DITContentRule ) obj, schema, schemaManager );
         }
         else if ( obj instanceof NameForm )
         {
-            return getAttributes( ( NameForm ) obj, schema, registries );
+            return getAttributes( ( NameForm ) obj, schema, schemaManager );
         }
         
         throw new IllegalArgumentException( "Unknown SchemaObject type: " + obj.getClass() );
     }
     
     
-    public ServerEntry getAttributes( Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( Schema schema, SchemaManager schemaManager ) throws NamingException
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SCHEMA_OC );
         entry.put( SchemaConstants.CN_AT, schema.getSchemaName() );
@@ -113,7 +113,7 @@ public class AttributesFactory
         
         if ( dependencies != null && dependencies.length > 0 )
         {
-            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
+            EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
             
             for ( String dependency:dependencies )
             {
@@ -127,9 +127,9 @@ public class AttributesFactory
     }
     
     
-    public ServerEntry getAttributes( SyntaxChecker syntaxChecker, Schema schema, Registries registries )
+    public ServerEntry getAttributes( SyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_CHECKER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, syntaxChecker.getOid() );
@@ -141,23 +141,23 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws NamingException
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_SYNTAX_OC );
         entry.put( MetaSchemaConstants.X_HUMAN_READABLE_AT, getBoolean( syntax.isHumanReadable() ) );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        injectCommon( syntax, entry, registries );
+        injectCommon( syntax, entry, schemaManager );
         
         return entry;
     }
 
     
-    public ServerEntry getAttributes( String oid, Normalizer normalizer, Schema schema, Registries registries )
+    public ServerEntry getAttributes( String oid, Normalizer normalizer, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_NORMALIZER_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
@@ -168,9 +168,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, Registries registries )
+    public ServerEntry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_COMPARATOR_OC );
         entry.put( MetaSchemaConstants.M_OID_AT, oid );
@@ -187,22 +187,22 @@ public class AttributesFactory
      * @return Attributes
      * @throws NamingException
      */
-    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws NamingException
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_MATCHING_RULE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        injectCommon( matchingRule, entry, registries );
+        injectCommon( matchingRule, entry, schemaManager );
         return entry;
     }
 
     
-    public ServerEntry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, Registries registries )
+    public ServerEntry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -211,9 +211,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( DITStructureRule dITStructureRule, Schema schema, Registries registries )
+    public ServerEntry getAttributes( DITStructureRule dITStructureRule, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -222,9 +222,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( DITContentRule dITContentRule, Schema schema, Registries registries )
+    public ServerEntry getAttributes( DITContentRule dITContentRule, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -233,9 +233,9 @@ public class AttributesFactory
     }
 
     
-    public ServerEntry getAttributes( NameForm nameForm, Schema schema, Registries registries )
+    public ServerEntry getAttributes( NameForm nameForm, Schema schema, SchemaManager schemaManager )
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, "" );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
@@ -262,9 +262,9 @@ public class AttributesFactory
      * @return Attributes
      * @throws NamingException
      */
-    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws NamingException
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
@@ -275,7 +275,7 @@ public class AttributesFactory
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        injectCommon( attributeType, entry, registries );
+        injectCommon( attributeType, entry, schemaManager );
         
         AttributeType superior = attributeType.getSuperior();
         
@@ -351,21 +351,21 @@ public class AttributesFactory
      * @return the attributes of the metaSchema entry representing the objectClass
      * @throws NamingException if there are any problems
      */
-    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, Registries registries ) throws NamingException
+    public ServerEntry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws NamingException
     {
-        ServerEntry entry = new DefaultServerEntry( registries );
+        ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_OBJECT_CLASS_OC );
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         
-        injectCommon( objectClass, entry, registries );
+        injectCommon( objectClass, entry, schemaManager );
 
         // handle the superior objectClasses 
         if ( objectClass.getSuperiors() != null && objectClass.getSuperiors().size() != 0 )
         {
-            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
+            EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
             List<ObjectClass> superClasses = objectClass.getSuperiors();
             
             for ( ObjectClass superClass:superClasses )
@@ -379,7 +379,7 @@ public class AttributesFactory
         // add the must list
         if ( objectClass.getMustAttributeTypes() != null && objectClass.getMustAttributeTypes().size() != 0 )
         {
-            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MUST_AT ) );
+            EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_MUST_AT ) );
             List<AttributeType> mustList = objectClass.getMustAttributeTypes();
 
             for ( AttributeType attributeType:mustList )
@@ -393,7 +393,7 @@ public class AttributesFactory
         // add the may list
         if ( objectClass.getMayAttributeTypes() != null && objectClass.getMayAttributeTypes().size() != 0 )
         {
-            EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_MAY_AT ) );
+            EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_MAY_AT ) );
             List<AttributeType> mayList = objectClass.getMayAttributeTypes();
 
             for ( AttributeType attributeType:mayList )
@@ -420,9 +420,9 @@ public class AttributesFactory
     }
     
     
-    private final void injectCommon( SchemaObject object, ServerEntry entry, Registries registries ) throws NamingException
+    private final void injectCommon( SchemaObject object, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
     {
-        injectNames( object.getNames(), entry, registries );
+        injectNames( object.getNames(), entry, schemaManager );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
         entry.put( MetaSchemaConstants.M_OID_AT, object.getOid() );
         
@@ -433,14 +433,14 @@ public class AttributesFactory
     }
     
     
-    private final void injectNames( List<String> names, ServerEntry entry, Registries registries ) throws NamingException
+    private final void injectNames( List<String> names, ServerEntry entry, SchemaManager schemaManager ) throws NamingException
     {
         if ( ( names == null ) || ( names.size() == 0 ) )
         {
             return;
         }
         
-        EntryAttribute attr = new DefaultServerAttribute( registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_NAME_AT ) );
+        EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_NAME_AT ) );
 
         for ( String name:names )
         {

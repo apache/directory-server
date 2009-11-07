@@ -43,11 +43,11 @@ import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.schema.registries.AbstractSchemaLoader;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -70,7 +70,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private Partition partition;
     
     /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
+    private SchemaManager schemaManager;
     
     private final AttributeType mOidAT;
     private final AttributeType mNameAT;
@@ -88,18 +88,18 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     private static Map<String, LdapDN> staticSyntaxesDNs = new HashMap<String, LdapDN>();
     
     
-    public PartitionSchemaLoader( Partition partition, Registries registries ) throws Exception
+    public PartitionSchemaLoader( Partition partition, SchemaManager schemaManager ) throws Exception
     {
         this.partition = partition;
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
         
-        dao = new SchemaPartitionDaoImpl( this.partition, registries );
-        mOidAT = atRegistry.lookup( MetaSchemaConstants.M_OID_AT );
-        mNameAT = atRegistry.lookup( MetaSchemaConstants.M_NAME_AT );
-        cnAT = atRegistry.lookup( SchemaConstants.CN_AT );
-        byteCodeAT = atRegistry.lookup( MetaSchemaConstants.M_BYTECODE_AT );
-        descAT = atRegistry.lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
-        fqcnAT = atRegistry.lookup( MetaSchemaConstants.M_FQCN_AT );
+        dao = new SchemaPartitionDaoImpl( this.partition, schemaManager );
+        mOidAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_OID_AT );
+        mNameAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_NAME_AT );
+        cnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CN_AT );
+        byteCodeAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_BYTECODE_AT );
+        descAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DESCRIPTION_AT );
+        fqcnAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_FQCN_AT );
         
         initStaticDNs( "system" );
         initStaticDNs( "core" );
@@ -122,7 +122,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticAttributeTypeDNs.put( schemaName, dn );
 
         // Initialize ObjectClasses Dns
@@ -131,7 +131,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticObjectClassesDNs.put( schemaName, dn );
 
         // Initialize MatchingRules Dns
@@ -140,7 +140,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticMatchingRulesDNs.put( schemaName, dn );
 
         // Initialize Comparators Dns
@@ -149,7 +149,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticComparatorsDNs.put( schemaName, dn );
         
         // Initialize Normalizers Dns
@@ -158,7 +158,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticNormalizersDNs.put( schemaName, dn );
 
         // Initialize SyntaxCheckers Dns
@@ -167,7 +167,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxCheckersDNs.put( schemaName, dn );
 
         // Initialize Syntaxes Dns
@@ -176,7 +176,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             "cn=" + schemaName, 
             SchemaConstants.OU_SCHEMA );
         
-        dn.normalize( atRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         staticSyntaxesDNs.put( schemaName, dn );
 
     }
@@ -196,7 +196,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
                 "cn=" + schema.getSchemaName(),
                 SchemaConstants.OU_SCHEMA );
             
-            dn.normalize( atRegistry.getNormalizerMapping() );
+            dn.normalize( schemaManager.getNormalizerMapping() );
             staticDNs.put( schema.getSchemaName(), dn );
         }
         

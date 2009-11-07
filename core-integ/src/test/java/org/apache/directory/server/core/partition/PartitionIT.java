@@ -123,18 +123,19 @@ public final class PartitionIT
             
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
             
-            SchemaManager sm = new DefaultSchemaManager( loader );
-
-            sm.loadAllEnabled();
+            SchemaManager schemaManager = new DefaultSchemaManager( loader );
+            service.setSchemaManager( schemaManager );
             
-            List<Throwable> errors = sm.getErrors();
+            schemaManager.loadAllEnabled();
+            
+            List<Throwable> errors = schemaManager.getErrors();
             
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
             }
 
-            schemaPartition.setRegistries( sm.getRegistries() );
+            schemaPartition.setSchemaManager( schemaManager );
 
             extractor.extractOrCopy();
 
@@ -149,7 +150,7 @@ public final class PartitionIT
             systemPartition.setId( "system" );
             ((JdbmPartition)systemPartition).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
-            systemPartition.setRegistries( sm.getRegistries() );
+            systemPartition.setSchemaManager( schemaManager );
             ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
     
             // Add objectClass attribute for the system partition
@@ -159,19 +160,19 @@ public final class PartitionIT
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
             
             service.setSystemPartition( systemPartition );
-            schemaPartition.setSchemaManager( sm );
+            schemaPartition.setSchemaManager( schemaManager );
 
             Partition foo = new JdbmPartition();
             foo.setId( "foo" );
             foo.setSuffix( "dc=foo,dc=com" );
-            foo.setRegistries( sm.getRegistries() );
+            foo.setSchemaManager( schemaManager );
             ((JdbmPartition)foo).setPartitionDir( new File( workingDirectory, "foo" ) );
             service.addPartition( foo );
             
             Partition bar = new JdbmPartition();
             bar.setId( "bar" );
             bar.setSuffix( "dc=bar,dc=com" );
-            bar.setRegistries( sm.getRegistries() );
+            bar.setSchemaManager( schemaManager );
             ((JdbmPartition)bar).setPartitionDir( new File( workingDirectory, "bar" ) );
             service.addPartition( bar );
             

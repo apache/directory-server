@@ -21,7 +21,6 @@ package org.apache.directory.server.core.exception;
 
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryService;
@@ -62,7 +61,6 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 
 
 /**
@@ -82,11 +80,6 @@ public class ExceptionInterceptor extends BaseInterceptor
     private DirectoryService directoryService;
     private LdapDN subschemSubentryDn;
 
-    
-    /**
-     * The OIDs normalizer map
-     */
-    private Map<String, OidNormalizer> normalizerMap;
     
     /**
      * A cache to store entries which are not aliases. 
@@ -124,10 +117,9 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         this.directoryService = directoryService;
         nexus = directoryService.getPartitionNexus();
-        normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         Value<?> attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemSubentryDn = new LdapDN( attr.getString() );
-        subschemSubentryDn.normalize( normalizerMap );
+        subschemSubentryDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
     }
 
 

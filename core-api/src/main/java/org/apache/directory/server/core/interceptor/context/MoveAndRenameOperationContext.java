@@ -121,7 +121,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
             newDn = new LdapDN( getParent().getUpName() );
             newDn.add( getNewRdn().getUpName() );
             newDn.normalize( session.getDirectoryService()
-                .getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                .getSchemaManager().getNormalizerMapping() );
         }
         
         return newDn;

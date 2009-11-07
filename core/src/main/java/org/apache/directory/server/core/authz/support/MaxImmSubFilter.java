@@ -20,12 +20,12 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import javax.naming.directory.SearchControls;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 
@@ -75,7 +75,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
 
     public Collection<ACITuple> filter( 
-            Registries registries, 
+            SchemaManager schemaManager, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
@@ -122,7 +122,7 @@ public class MaxImmSubFilter implements ACITupleFilter
                 {
                     if ( immSubCount < 0 )
                     {
-                        immSubCount = getImmSubCount( registries, opContext, entryName );
+                        immSubCount = getImmSubCount( schemaManager, opContext, entryName );
                     }
 
                     ProtectedItem.MaxImmSub mis = ( ProtectedItem.MaxImmSub ) item;
@@ -154,7 +154,7 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    private int getImmSubCount( Registries registries, OperationContext opContext, LdapDN entryName ) throws Exception
+    private int getImmSubCount( SchemaManager schemaManager, OperationContext opContext, LdapDN entryName ) throws Exception
     {
         int cnt = 0;
         EntryFilteringCursor results = null;

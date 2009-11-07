@@ -45,8 +45,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -69,11 +68,8 @@ public class ReferralInterceptor extends BaseInterceptor
 
     private PartitionNexus nexus;
 
-    /** The attributeType registry */
-    private AttributeTypeRegistry atRegistry;
-
-    /** The global registries */
-    private Registries registries;
+    /** The global schemaManager */
+    private SchemaManager schemaManager;
 
     /** The referralManager */
     private ReferralManager referralManager;
@@ -205,8 +201,7 @@ public class ReferralInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws Exception
     {
         nexus = directoryService.getPartitionNexus();
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
+        schemaManager = directoryService.getSchemaManager();
 
         // Initialize the referralManager
         referralManager = new ReferralManagerImpl( directoryService );
@@ -214,7 +209,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
     }
 

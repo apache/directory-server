@@ -32,10 +32,9 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.registries.LdapSyntaxRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.schema.registries.SyntaxCheckerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,24 +51,15 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( SyntaxCheckerSynchronizer.class );
 
-    /** The SyntaxChecker registry */
-    private final SyntaxCheckerRegistry syntaxCheckerRegistry;
-    
-    /** The Syntax registry */
-    private final LdapSyntaxRegistry ldapSyntaxRegistry;
-    
-
     /**
      * Creates a new instance of SyntaxCheckerSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The global schemaManager
      * @throws Exception If the initialization failed
      */
-    public SyntaxCheckerSynchronizer( Registries registries ) throws Exception
+    public SyntaxCheckerSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
-        this.syntaxCheckerRegistry = registries.getSyntaxCheckerRegistry();
-        this.ldapSyntaxRegistry = registries.getLdapSyntaxRegistry();
+        super( schemaManager );
     }
 
 
@@ -82,14 +72,14 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, registries, schemaName );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
         
         if ( isSchemaEnabled( schemaName ) )
         {
             syntaxChecker.setSchemaName( schemaName );
 
-            syntaxCheckerRegistry.unregister( oid );
-            syntaxCheckerRegistry.register( syntaxChecker );
+            schemaManager.unregisterSyntaxChecker( oid );
+            schemaManager.register( syntaxChecker );
             
             return SCHEMA_MODIFIED;
         }
@@ -108,7 +98,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
 
         // The parent DN must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
-        checkParent( parentDn, syntaxCheckerRegistry, SchemaConstants.SYNTAX_CHECKER );
+        checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX_CHECKER );
 
         // The new schemaObject's OID must not already exist
         checkOidIsUniqueForSyntaxChecker( entry );
@@ -116,13 +106,13 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new SyntaxChecker from the given entry
         String schemaName = getSchemaName( dn );
         
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries, schemaName );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         addToSchema( syntaxChecker, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            syntaxCheckerRegistry.register( syntaxChecker );
+            schemaManager.register( syntaxChecker );
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
     }
@@ -138,17 +128,17 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=syntaxcheckers,cn=<schemaName>,ou=schema
-        checkParent( parentDn, syntaxCheckerRegistry, SchemaConstants.SYNTAX_CHECKER );
+        checkParent( parentDn, schemaManager, SchemaConstants.SYNTAX_CHECKER );
 
         // Get the SyntaxChecker's instance
         String schemaName = getSchemaName( entry.getDn() );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries, schemaName );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         String oid = syntaxChecker.getOid();
         
         if ( isSchemaEnabled( schemaName ) )
         {
-            if ( registries.isReferenced( syntaxChecker ) )
+            if ( schemaManager.getRegistries().isReferenced( syntaxChecker ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                 " dependant SchemaObjects :\n" + getReferenced( syntaxChecker );
@@ -161,9 +151,9 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         deleteFromSchema( syntaxChecker, schemaName );
 
         // Update the Registries now
-        if ( syntaxCheckerRegistry.contains( oid ) )
+        if ( schemaManager.getSyntaxCheckerRegistry().contains( oid ) )
         {
-            syntaxCheckerRegistry.unregister( oid );
+            schemaManager.unregisterSyntaxChecker( oid );
             LOG.debug( "Removed {} from the enabled schema {}", syntaxChecker, schemaName );
         }
         else
@@ -181,7 +171,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         String oldOid = getOid( entry );
         String schemaName = getSchemaName( entry.getDn() );
 
-        if ( ldapSyntaxRegistry.contains( oldOid ) )
+        if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -192,7 +182,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         
-        if ( registries.getSyntaxCheckerRegistry().contains( newOid ) )
+        if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -202,9 +192,9 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( schemaName ) )
         {
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, registries, schemaName );
-            syntaxCheckerRegistry.unregister( oldOid );
-            syntaxCheckerRegistry.register( syntaxChecker );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
+            schemaManager.unregisterSyntaxChecker( oldOid );
+            schemaManager.register( syntaxChecker );
         }
     }
 
@@ -217,7 +207,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
 
-        if ( ldapSyntaxRegistry.contains( oldOid ) )
+        if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oldOid 
                 + " cannot have it's OID changed until all " 
@@ -229,23 +219,23 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         String newOid = ( String ) newRdn.getValue();
         
-        if ( registries.getSyntaxCheckerRegistry().contains( newOid ) )
+        if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( targetEntry, registries, newSchemaName );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager.getRegistries(), newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            syntaxCheckerRegistry.unregister( oldOid );
+            schemaManager.unregisterSyntaxChecker( oldOid );
         }
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            syntaxCheckerRegistry.register( syntaxChecker );
+            schemaManager.register( syntaxChecker );
         }
     }
 
@@ -258,7 +248,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
 
-        if ( ldapSyntaxRegistry.contains( oid ) )
+        if ( schemaManager.getLdapSyntaxRegistry().contains( oid ) )
         {
             throw new LdapOperationNotSupportedException( "The syntaxChecker with OID " + oid 
                 + " cannot be moved to another schema until all " 
@@ -266,16 +256,16 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( entry, registries, newSchemaName );
+        SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(), newSchemaName );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            syntaxCheckerRegistry.unregister( oid );
+            schemaManager.unregisterSyntaxChecker( oid );
         }
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            syntaxCheckerRegistry.register( syntaxChecker );
+            schemaManager.register( syntaxChecker );
         }
     }
     
@@ -284,7 +274,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     {
         String oid = getOid( entry );
         
-        if ( registries.getNormalizerRegistry().contains( oid ) )
+        if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema SyntaxChecker is not unique.", 
                 ResultCodeEnum.OTHER );
@@ -302,7 +292,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! registries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a syntaxChecker should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

@@ -269,11 +269,11 @@ public class SchemaPersistenceIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
     }
 }

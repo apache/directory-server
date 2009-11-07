@@ -33,8 +33,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +50,16 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ObjectClassSynchronizer.class );
 
-    /** The ObjectClass registry */
-    private final ObjectClassRegistry objectClassRegistry;
-
 
     /**
      * Creates a new instance of ObjectClassSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The global schemaManager
      * @throws Exception If the initialization failed
      */
-    public ObjectClassSynchronizer( Registries registries ) throws Exception
+    public ObjectClassSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
-        this.objectClassRegistry = registries.getObjectClassRegistry();
+        super( schemaManager );
     }
 
 
@@ -76,13 +71,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         LdapDN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String oid = getOid( entry );
-        ObjectClass oc = factory.getObjectClass( targetEntry, registries, getSchemaName( name ) );
+        ObjectClass oc = factory.getObjectClass( targetEntry, schemaManager.getRegistries(), getSchemaName( name ) );
         String schemaName = getSchemaName( entry.getDn() );
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            objectClassRegistry.unregister( oid );
-            objectClassRegistry.register( oc );
+            schemaManager.unregisterObjectClass( oid );
+            schemaManager.register( oc );
             
             return SCHEMA_MODIFIED;
         }
@@ -101,23 +96,23 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
-        checkParent( parentDn, objectClassRegistry, SchemaConstants.OBJECT_CLASS );
+        checkParent( parentDn, schemaManager, SchemaConstants.OBJECT_CLASS );
         
         // The new schemaObject's OID must not already exist
         checkOidIsUnique( entry );
         
         // Build the new ObjectClass from the given entry
         String schemaName = getSchemaName( dn );
-        ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
+        ObjectClass objectClass = factory.getObjectClass( entry, schemaManager.getRegistries(), schemaName );
 
         // At this point, the constructed ObjectClass has not been checked against the 
         // existing Registries. It may be broken (missing SUPs), it will be checked
         // there, if the schema and the ObjectClass are both enabled.
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
 
         if ( schema.isEnabled() && objectClass.isEnabled() )
         {
-            objectClass.applyRegistries( registries );
+            objectClass.applyRegistries( schemaManager.getRegistries() );
         }
         
         // Associates this ObjectClass with the schema
@@ -129,22 +124,22 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             // The MAY AttributeTypes
             for ( AttributeType may : objectClass.getMayAttributeTypes() )
             {
-                registries.addReference( objectClass, may );
+                schemaManager.getRegistries().addReference( objectClass, may );
             }
             
             // The MUST AttributeTypes
             for ( AttributeType must : objectClass.getMayAttributeTypes() )
             {
-                registries.addReference( objectClass, must );
+                schemaManager.getRegistries().addReference( objectClass, must );
             }
             
             // The superiors
             for ( ObjectClass superior : objectClass.getSuperiors() )
             {
-                registries.addReference( objectClass, superior );
+                schemaManager.getRegistries().addReference( objectClass, superior );
             }
             
-            objectClassRegistry.register( objectClass );
+            schemaManager.register( objectClass );
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
@@ -165,25 +160,25 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=objectclasses,cn=<schemaName>,ou=schema
-        checkParent( parentDn, objectClassRegistry, SchemaConstants.OBJECT_CLASS );
+        checkParent( parentDn, schemaManager, SchemaConstants.OBJECT_CLASS );
         
         // Get the ObjectClass from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        ObjectClass objectClass = factory.getObjectClass( entry, registries, schemaName );
+        ObjectClass objectClass = factory.getObjectClass( entry, schemaManager.getRegistries(), schemaName );
 
         // Applies the Registries to this ObjectClass 
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
 
         if ( schema.isEnabled() && objectClass.isEnabled() )
         {
-            objectClass.applyRegistries( registries );
+            objectClass.applyRegistries( schemaManager.getRegistries() );
         }
         
         String oid = objectClass.getOid();
 
         if ( isSchemaEnabled( schemaName ) )
         {
-            if ( registries.isReferenced( objectClass ) )
+            if ( schemaManager.getRegistries().isReferenced( objectClass ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                     " dependant SchemaObjects :\n" + getReferenced( objectClass );
@@ -195,29 +190,29 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         // Remove the ObjectClass from the schema content
         deleteFromSchema( objectClass, schemaName );
 
-        if ( objectClassRegistry.contains( oid ) )
+        if ( schemaManager.getObjectClassRegistry().contains( oid ) )
         {
             // Update the referenced and referencing objects
             // The MAY AttributeTypes
             for ( AttributeType may : objectClass.getMayAttributeTypes() )
             {
-                registries.delReference( objectClass, may );
+                schemaManager.getRegistries().delReference( objectClass, may );
             }
             
             // The MUST AttributeTypes
             for ( AttributeType must : objectClass.getMayAttributeTypes() )
             {
-                registries.delReference( objectClass, must );
+                schemaManager.getRegistries().delReference( objectClass, must );
             }
             
             // The superiors
             for ( ObjectClass superior : objectClass.getSuperiors() )
             {
-                registries.delReference( objectClass, superior );
+                schemaManager.getRegistries().delReference( objectClass, superior );
             }
             
             // Update the Registry
-            objectClassRegistry.unregister( objectClass.getOid() );
+            schemaManager.unregisterObjectClass( objectClass.getOid() );
             
             LOG.debug( "Removed {} from the enabled schema {}", objectClass, schemaName );
         }
@@ -235,7 +230,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        ObjectClass oldOc = factory.getObjectClass( entry, registries, schemaName );
+        ObjectClass oldOc = factory.getObjectClass( entry, schemaManager.getRegistries(), schemaName );
 
         // Dependency constraints are not managed by this class
 //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
@@ -259,12 +254,12 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         newDn.add( newRdn );
         
         checkOidIsUnique( newOid );
-        ObjectClass oc = factory.getObjectClass( targetEntry, registries, schemaName );
+        ObjectClass oc = factory.getObjectClass( targetEntry, schemaManager.getRegistries(), schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
-            if ( objectClassRegistry.hasDescendants( oldOc.getOid() ) )
+            if ( schemaManager.getObjectClassRegistry().hasDescendants( oldOc.getOid() ) )
             {
                 String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn + 
                     " as the later has descendants' ObjectClasses";
@@ -272,8 +267,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            objectClassRegistry.unregister( oldOc.getOid() );
-            objectClassRegistry.register( oc );
+            schemaManager.unregisterObjectClass( oldOc.getOid() );
+            schemaManager.register( oc );
         }
         else
         {
@@ -288,7 +283,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
-        ObjectClass oldOc = factory.getObjectClass( entry, registries, oldSchemaName );
+        ObjectClass oldOc = factory.getObjectClass( entry, schemaManager.getRegistries(), oldSchemaName );
 
         // this class does not handle dependencies
 //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldOc );
@@ -306,11 +301,11 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        ObjectClass oc = factory.getObjectClass( targetEntry, registries, newSchemaName );
+        ObjectClass oc = factory.getObjectClass( targetEntry, schemaManager.getRegistries(), newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            objectClassRegistry.unregister( oldOc.getOid() );
+            schemaManager.unregisterObjectClass( oldOc.getOid() );
         }
         else
         {
@@ -319,7 +314,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            objectClassRegistry.register( oc );
+            schemaManager.register( oc );
         }
         else
         {
@@ -334,12 +329,12 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        ObjectClass oldAt = factory.getObjectClass( entry, registries, oldSchemaName );
+        ObjectClass oldAt = factory.getObjectClass( entry, schemaManager.getRegistries(), oldSchemaName );
 
         // dependencies are not managed by this class
 //        Set<ServerEntry> dependees = dao.listObjectClassDependents( oldAt );
 //        if ( dependees != null && dependees.size() > 0 )
-//        {
+//        {s
 //            throw new LdapOperationNotSupportedException( "The objectClass with OID " + oldAt.getOid() 
 //                + " cannot be deleted until all entities" 
 //                + " using this objectClass have also been deleted.  The following dependees exist: " 
@@ -347,11 +342,11 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 //                ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
 
-        ObjectClass oc = factory.getObjectClass( entry, registries, newSchemaName );
+        ObjectClass oc = factory.getObjectClass( entry, schemaManager.getRegistries(), newSchemaName );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            objectClassRegistry.unregister( oldAt.getOid() );
+            schemaManager.unregisterObjectClass( oldAt.getOid() );
         }
         else
         {
@@ -360,7 +355,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            objectClassRegistry.register( oc );
+            schemaManager.register( oc );
         }
         else
         {
@@ -380,7 +375,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         Rdn rdn = newParent.getRdn();
         
-        if ( ! registries.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
+        if ( ! schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a objectClass should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );

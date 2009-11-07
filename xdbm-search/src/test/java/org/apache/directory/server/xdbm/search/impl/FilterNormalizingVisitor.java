@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +70,8 @@ public class FilterNormalizingVisitor implements FilterVisitor
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
 
-    /** the global registries used to resolve OIDs for attributeType ids */
-    private final Registries registries;
+    /** the global schemaManager used to resolve OIDs for attributeType ids */
+    private final SchemaManager schemaManager;
 
 
     /**
@@ -118,10 +118,10 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param ncn The name component normalizer to use
      * @param registries The global registries
      */
-    public FilterNormalizingVisitor( NameComponentNormalizer ncn, Registries registries )
+    public FilterNormalizingVisitor( NameComponentNormalizer ncn, SchemaManager schemaManager )
     {
         this.ncn = ncn;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -141,7 +141,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         {
             Value<?> normalized = null;
 
-            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
@@ -175,7 +175,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )
@@ -215,7 +215,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         try
         {
-            node.setAttribute( registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
             node.setValue( normalized );
             return node;
         }
@@ -293,7 +293,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         try
         {
-            node.setAttribute( registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
 
             if ( normInitial != null )
             {
@@ -338,7 +338,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
     {
         try
         {
-            node.setAttribute( registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
+            node.setAttribute( schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() ) );
             return node;
         }
         catch ( NamingException ne )

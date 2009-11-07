@@ -188,7 +188,7 @@ public class DefaultCoreSession implements CoreSession
     {
         Value<?> val = null;
         
-        AttributeType attributeType = directoryService.getRegistries().getAttributeTypeRegistry().lookup( oid );
+        AttributeType attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
         
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )
@@ -507,7 +507,7 @@ public class DefaultCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
+            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
         }
         
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );
@@ -542,7 +542,7 @@ public class DefaultCoreSession implements CoreSession
         
         for ( Modification mod:mods )
         {
-            serverModifications.add( new ServerModification( directoryService.getRegistries(), mod ) );
+            serverModifications.add( new ServerModification( directoryService.getSchemaManager(), mod ) );
         }
 
         ModifyOperationContext opContext = new ModifyOperationContext( this, dn, serverModifications );

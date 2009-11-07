@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.entry.ServerAttribute;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -32,19 +39,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.NamingException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 
 /**
@@ -73,7 +72,7 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyReplace( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
+    public static void preventStructuralClassRemovalOnModifyReplace( SchemaManager schemaManager, LdapDN name, ModificationOperation mod,
         ServerAttribute attribute ) throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -103,7 +102,7 @@ public class SchemaChecker
         // check that there is at least one structural objectClass in the replacement set
         for ( Value<?> value:attribute )
         {
-            ObjectClass ocType = registry.lookup( value.getString() );
+            ObjectClass ocType = schemaManager.getObjectClassRegistry().lookup( value.getString() );
 
             if ( ocType.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
@@ -198,7 +197,7 @@ public class SchemaChecker
      * @throws NamingException if modify operations leave the entry inconsistent
      * without a STRUCTURAL objectClass
      */
-    public static void preventStructuralClassRemovalOnModifyRemove( ObjectClassRegistry registry, LdapDN name, ModificationOperation mod,
+    public static void preventStructuralClassRemovalOnModifyRemove( SchemaManager schemaManager, LdapDN name, ModificationOperation mod,
         EntryAttribute attribute, EntryAttribute entryObjectClasses ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
@@ -258,7 +257,7 @@ public class SchemaChecker
         // check resultant set of objectClass values for a structural objectClass
         for ( Value<?> objectClass:cloned )
         {
-            ObjectClass oc = registry.lookup( objectClass.getString() );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( objectClass.getString() );
             
             if ( oc.getType() == ObjectClassTypeEnum.STRUCTURAL )
             {
@@ -382,7 +381,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyReplace( LdapDN name, ModificationOperation mod, 
-        ServerAttribute attribute, AttributeTypeRegistry atRegistry )
+        ServerAttribute attribute, SchemaManager schemaManager )
         throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -391,7 +390,7 @@ public class SchemaChecker
         }
 
         Set<String> rdnAttributes = getRdnAttributes( name );
-        String id = atRegistry.getOidByName( attribute.getUpId() );
+        String id = schemaManager.getAttributeTypeRegistry().getOidByName( attribute.getUpId() );
 
         if ( !rdnAttributes.contains( id ) )
         {
@@ -416,7 +415,8 @@ public class SchemaChecker
         // from here on the modify operation replaces specific values
         // of the Rdn attribute so we must check to make sure all the old
         // rdn attribute values are present in the replacement set
-        String rdnValue = getRdnValue( id, name, atRegistry );
+        String rdnValue = getRdnValue( id, name, schemaManager );
+        
         for ( int ii = 0; ii < attribute.size(); ii++ )
         {
             // if the old rdn value is not in the rdn attribute then
@@ -458,7 +458,7 @@ public class SchemaChecker
      */
     public static void preventRdnChangeOnModifyReplace( 
         LdapDN name, ModificationOperation mod, ServerEntry entry, 
-        AttributeTypeRegistry atRegistry )
+        SchemaManager schemaManager )
         throws NamingException
     {
         if ( mod != ModificationOperation.REPLACE_ATTRIBUTE )
@@ -495,7 +495,7 @@ public class SchemaChecker
                 // from here on the modify operation replaces specific values
                 // of the Rdn attribute so we must check to make sure all the old
                 // rdn attribute values are present in the replacement set
-                String rdnValue = getRdnValue( id, name, atRegistry );
+                String rdnValue = getRdnValue( id, name, schemaManager );
 
                 // if the old rdn value is not in the rdn attribute then
                 // we must complain with a schema violation
@@ -536,7 +536,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, ServerAttribute attribute, 
-        AttributeTypeRegistry atRegistry ) throws NamingException
+        SchemaManager schemaManager ) throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
         {
@@ -546,7 +546,7 @@ public class SchemaChecker
         Set<String> rdnAttributes = getRdnAttributes( name );
         String id = attribute.getId();
 
-        if ( !rdnAttributes.contains( atRegistry.getOidByName( id ) ) )
+        if ( !rdnAttributes.contains( schemaManager.getAttributeTypeRegistry().getOidByName( id ) ) )
         {
             return;
         }
@@ -570,7 +570,7 @@ public class SchemaChecker
         // from here on the modify operation only deletes specific values
         // of the Rdn attribute so we must check if one of those values
         // are used by the Rdn attribute value pair for the name of the entry
-        String rdnValue = getRdnValue( id, name, atRegistry );
+        String rdnValue = getRdnValue( id, name, schemaManager );
         
         for ( Value<?> value:attribute )
         {
@@ -611,7 +611,7 @@ public class SchemaChecker
      * @throws NamingException if the modify operation is removing an Rdn attribute
      */
     public static void preventRdnChangeOnModifyRemove( LdapDN name, ModificationOperation mod, 
-        ServerEntry entry, AttributeTypeRegistry atRegistry )
+        ServerEntry entry, SchemaManager schemaManager )
         throws NamingException
     {
         if ( mod != ModificationOperation.REMOVE_ATTRIBUTE )
@@ -645,7 +645,7 @@ public class SchemaChecker
                 // from here on the modify operation only deletes specific values
                 // of the Rdn attribute so we must check if one of those values
                 // are used by the Rdn attribute value pair for the name of the entry
-                String rdnValue = getRdnValue( id, name, atRegistry );
+                String rdnValue = getRdnValue( id, name, schemaManager );
                 EntryAttribute rdnAttr = entry.get( id );
                 
                 for ( Value<?> value:rdnAttr )
@@ -678,10 +678,10 @@ public class SchemaChecker
      * attribute is not an rdn attribute
      * @throws NamingException if the name is malformed in any way
      */
-    private static String getRdnValue( String id, LdapDN name, AttributeTypeRegistry atRegistry ) throws NamingException
+    private static String getRdnValue( String id, LdapDN name, SchemaManager schemaManager ) throws NamingException
     {
         // Transform the rdnAttrId to it's OID counterPart
-        String idOid = atRegistry.getOidByName( id );
+        String idOid = schemaManager.getAttributeTypeRegistry().getOidByName( id );
 
         if ( idOid == null )
         {
@@ -696,7 +696,7 @@ public class SchemaChecker
             String rdnAttrId = NamespaceTools.getRdnAttribute( comps[ii] );
             
             // Transform the rdnAttrId to it's OID counterPart
-            String rdnAttrOid = atRegistry.getOidByName( rdnAttrId );
+            String rdnAttrOid = schemaManager.getAttributeTypeRegistry().getOidByName( rdnAttrId );
 
             if ( rdnAttrOid == null )
             {

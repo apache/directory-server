@@ -50,9 +50,7 @@ import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
@@ -77,9 +75,9 @@ public class RelatedProtectedItemFilterTest
     private static Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
-    private static Registries registries;
-    private static AttributeTypeRegistry atRegistryA;
-    private static AttributeTypeRegistry atRegistryB;
+    private static SchemaManager schemaManager;
+    //private static AttributeTypeRegistry atRegistryA;
+    //private static AttributeTypeRegistry atRegistryB;
     private static OidRegistry OID_REGISTRY;
 
     private static RelatedProtectedItemFilter filterA;
@@ -93,34 +91,29 @@ public class RelatedProtectedItemFilterTest
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        registries = sm.getRegistries();
-
-        OID_REGISTRY = registries.getOidRegistry();
+        OID_REGISTRY = schemaManager.getOidRegistry();
 
         GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );
         
-        atRegistryA = registries.getAttributeTypeRegistry();
-        atRegistryB = registries.getAttributeTypeRegistry();
-
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, atRegistryA ), OID_REGISTRY, atRegistryA );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
 
         filterB = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
-            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, atRegistryB ), OID_REGISTRY, atRegistryB );
+            OID_REGISTRY ) ), new ExpressionEvaluator( OID_REGISTRY, schemaManager ), OID_REGISTRY, schemaManager );
 
         USER_NAMES.add( USER_NAME );
         GROUP_NAMES.add( GROUP_NAME );
-        CN_AT = registries.getAttributeTypeRegistry().lookup( "cn" );
+        CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
 
     
@@ -338,7 +331,7 @@ public class RelatedProtectedItemFilterTest
         attrTypes.add( "cn" );
         Collection<ACITuple> tuples = getTuples( new ProtectedItem.SelfValue( attrTypes ) );
 
-        ServerEntry entry = new DefaultServerEntry( registries, USER_NAME );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, USER_NAME );
         entry.put( "cn", USER_NAME.toNormName() );
 
         // Test wrong scope

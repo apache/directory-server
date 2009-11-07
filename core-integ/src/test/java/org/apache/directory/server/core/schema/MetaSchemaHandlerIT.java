@@ -46,7 +46,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,12 +67,6 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     private static final String TEST_ATTR_OID = "1.3.6.1.1.1.1.0";
     
     public static DirectoryService service;
-
-
-    private static AttributeTypeRegistry getAttributeTypeRegistry()
-    {
-        return service.getRegistries().getAttributeTypeRegistry();
-    }
 
 
     @Before
@@ -354,14 +347,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     @Test
     public void testEnableSchema() throws Exception
     {
-        AttributeTypeRegistry atr = getAttributeTypeRegistry();
-        
         // check that the nis schema is not loaded
         assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.contains( TEST_ATTR_OID ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
         
         // now enable the test schema
         IntegrationUtils.enableSchema( service, "nis" );
@@ -371,7 +362,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( atr.contains( TEST_ATTR_OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
     }
 
 
@@ -384,14 +375,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     @Test
     public void testEnableSchemaAlreadyEnabled() throws Exception
     {
-        AttributeTypeRegistry atr = getAttributeTypeRegistry();
-        
         // check that the nis schema is not loaded
         assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.contains( TEST_ATTR_OID ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
         
         // now enable the test schema
         IntegrationUtils.enableSchema( service, "nis" );
@@ -404,7 +393,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertTrue( atr.contains( TEST_ATTR_OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
     }
 
     
@@ -417,14 +406,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     @Test
     public void testDisableSchemaAlreadyDisabled() throws Exception
     {
-        AttributeTypeRegistry atr = getAttributeTypeRegistry();
-        
         // check that the nis schema is not loaded
         assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
-        assertFalse( atr.contains( TEST_ATTR_OID ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
         
         // now disable the test schema
         IntegrationUtils.disableSchema( service, "nis" );
@@ -440,7 +427,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
-        assertFalse( atr.contains( TEST_ATTR_OID ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
     }
 
     
@@ -456,14 +443,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         // let's enable the test schema
         testEnableSchema();
         
-        AttributeTypeRegistry atr = getAttributeTypeRegistry();
-        
         // check that the nis schema is enabled
         assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( atr.contains( TEST_ATTR_OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
         
         // now disable the test schema 
         IntegrationUtils.disableSchema( service, "samba" );
@@ -474,7 +459,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
-        assertFalse( atr.contains( TEST_ATTR_OID ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
     }
 
     
@@ -507,11 +492,9 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
         assertTrue( IntegrationUtils.isEnabled( service, "dummy" ) );
         
-        AttributeTypeRegistry atr = getAttributeTypeRegistry();
-        
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
-        assertTrue( atr.contains( TEST_ATTR_OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
         
         // now try to disable the test schema which should fail 
         // since it's dependent, the dummy schema, is enabled
@@ -535,7 +518,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
-        assertTrue( atr.contains( TEST_ATTR_OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( TEST_ATTR_OID ) );
     }
     
     
@@ -626,13 +609,13 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         LdapContext schemaRoot = getSchemaContext( service );
 
         IntegrationUtils.enableSchema( service, "samba" );
-        assertTrue( getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
-        assertEquals( "samba", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
+        assertEquals( "samba", service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
         
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
-        assertTrue( getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
-        assertEquals( "foo", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
+        assertEquals( "foo", service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
 
         //noinspection EmptyCatchBlock
         try

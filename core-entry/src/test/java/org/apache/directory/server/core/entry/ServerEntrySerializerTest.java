@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
@@ -53,7 +52,7 @@ import org.junit.Test;
 public class ServerEntrySerializerTest
 {
     private static LdifSchemaLoader loader;
-    private static Registries registries;
+    private static SchemaManager schemaManager;
     private static Map<String, OidNormalizer> oids;
     private static Map<String, OidNormalizer> oidOids;
 
@@ -76,19 +75,16 @@ public class ServerEntrySerializerTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
         
-        SchemaManager sm = new DefaultSchemaManager( loader );
-        sm.loadAllEnabled();
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
         
-        List<Throwable> errors = sm.getErrors();
+        List<Throwable> errors = schemaManager.getErrors();
         
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
-        
-        registries = sm.getRegistries();
         
         oids = new HashMap<String, OidNormalizer>();
 
@@ -124,9 +120,9 @@ public class ServerEntrySerializerTest
     @Test public void testSerializeEmtpyServerEntry() throws Exception
     {
         LdapDN dn = LdapDN.EMPTY_LDAPDN;
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
         byte[] data = ses.serialize( entry );
         
@@ -141,9 +137,9 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
         byte[] data = ses.serialize( entry );
         
@@ -158,10 +154,10 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
 
         byte[] data = ses.serialize( entry );
         
@@ -176,13 +172,13 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "cn=text, dc=example, dc=com" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", (String)null );
         entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
         byte[] data = ses.serialize( entry );
         
@@ -197,13 +193,13 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", (String)null );
         entry.add( "userPassword", StringTools.getBytesUtf8( "password" ) );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
         byte[] data = ses.serialize( entry );
         
@@ -218,9 +214,9 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         
         byte[] data = ses.serialize( entry );
         
@@ -235,10 +231,10 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
-        EntryAttribute oc = new DefaultServerAttribute( "ObjectClass", registries.getAttributeTypeRegistry().lookup( "objectclass" ) );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
+        EntryAttribute oc = new DefaultServerAttribute( "ObjectClass", schemaManager.lookupAttributeTypeRegistry( "objectclass" ) );
         entry.add( oc );
         
         byte[] data = ses.serialize( entry );
@@ -254,9 +250,9 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "ObjectClass", "top", "person" );
         
         byte[] data = ses.serialize( entry );
@@ -272,9 +268,9 @@ public class ServerEntrySerializerTest
         LdapDN dn = new LdapDN( "" );
         dn.normalize( oids );
         
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
 
-        ServerEntrySerializer ses = new ServerEntrySerializer( registries );
+        ServerEntrySerializer ses = new ServerEntrySerializer( schemaManager );
         entry.add( "userPassword", StringTools.getBytesUtf8( "secret" ) );
         
         byte[] data = ses.serialize( entry );

@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
@@ -55,7 +55,7 @@ public class ExpressionEvaluator implements Evaluator
      *
      * @param leafEvaluator handles leaf node evaluation.
      */
-    public ExpressionEvaluator(LeafEvaluator leafEvaluator)
+    public ExpressionEvaluator( LeafEvaluator leafEvaluator )
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -68,11 +68,11 @@ public class ExpressionEvaluator implements Evaluator
      * @param oidRegistry the oid reg used for attrID to oid resolution
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
-    public ExpressionEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
+    public ExpressionEvaluator( OidRegistry oidRegistry, SchemaManager schemaManager )
     {
         SubstringEvaluator substringEvaluator = null;
-        substringEvaluator = new SubstringEvaluator( attributeTypeRegistry );
-        leafEvaluator = new LeafEvaluator( attributeTypeRegistry, substringEvaluator );
+        substringEvaluator = new SubstringEvaluator( schemaManager );
+        leafEvaluator = new LeafEvaluator( schemaManager, substringEvaluator );
     }
 
 

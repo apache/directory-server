@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -62,7 +61,7 @@ import org.junit.Test;
 public class ServerModificationTest
 {
     private static LdifSchemaLoader loader;
-    private static Registries registries;
+    private static SchemaManager schemaManager;
     private static AttributeType atCN;
     
     // A SINGLE-VALUE attribute
@@ -120,7 +119,7 @@ public class ServerModificationTest
             oIn = new ObjectInputStream( in );
 
             ServerModification value = new ServerModification();
-            value.deserialize( oIn, registries.getAttributeTypeRegistry() );
+            value.deserialize( oIn, schemaManager );
 
             return value;
         }
@@ -164,21 +163,19 @@ public class ServerModificationTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
-        registries = new Registries();
         
-        SchemaManager sm = new DefaultSchemaManager( loader );
-        sm.loadAllEnabled();
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
         
-        List<Throwable> errors = sm.getErrors();
+        List<Throwable> errors = schemaManager.getErrors();
         
         if ( errors.size() != 0 )
         {
             fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
 
-        registries = sm.getRegistries();
-        atCN = registries.getAttributeTypeRegistry().lookup( "cn" );
-        atC = registries.getAttributeTypeRegistry().lookup( "c" );
+        atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
+        atC = schemaManager.lookupAttributeTypeRegistry( "c" );
     }
 
 
@@ -214,7 +211,7 @@ public class ServerModificationTest
         attribute.add( "test1", "test2" );
         Modification serverModification = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( registries, serverModification );
+        Modification copy = new ServerModification( schemaManager, serverModification );
         
         assertTrue( copy instanceof ServerModification );
         assertEquals( copy, serverModification );
@@ -239,7 +236,7 @@ public class ServerModificationTest
         attribute.add( "test1", "test2" );
         Modification clientModification = new ClientModification( ModificationOperation.ADD_ATTRIBUTE, attribute );
         
-        Modification copy = new ServerModification( registries, clientModification );
+        Modification copy = new ServerModification( schemaManager, clientModification );
         
         assertTrue( copy instanceof ServerModification );
         assertFalse( copy instanceof ClientModification );

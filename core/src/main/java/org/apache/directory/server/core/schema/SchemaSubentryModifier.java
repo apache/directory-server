@@ -47,11 +47,11 @@ import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.Base64;
 
@@ -81,20 +81,20 @@ public class SchemaSubentryModifier
     private AttributesFactory factory = new AttributesFactory();
     private final SchemaPartitionDao dao;
     
-    /** The server registries */
-    private Registries registries; 
+    /** The server schemaManager */
+    private SchemaManager schemaManager; 
 
     
     /**
      * 
      * Creates a new instance of SchemaSubentryModifier.
      *
-     * @param registries The server registries
+     * @param schemaManager The server schemaManager
      * @param dao
      */
-    public SchemaSubentryModifier( Registries registries, SchemaPartitionDao dao )
+    public SchemaSubentryModifier( SchemaManager schemaManager, SchemaPartitionDao dao )
     {
-        this.registries = registries;
+        this.schemaManager = schemaManager;
         this.dao = dao;
     }
     
@@ -190,7 +190,7 @@ public class SchemaSubentryModifier
     {
         Schema schema = dao.getSchema( obj.getSchemaName() );
         LdapDN dn = getDn( obj );
-        ServerEntry entry = factory.getAttributes( obj, schema, registries );
+        ServerEntry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );
 
         opContext.add( entry, BYPASS );
@@ -244,7 +244,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( LdapDN dn, LdapComparatorDescription comparatorDescription )
     {
-        Entry entry = new DefaultServerEntry( registries, dn );
+        Entry entry = new DefaultServerEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
                     SchemaConstants.TOP_OC, 
@@ -271,7 +271,7 @@ public class SchemaSubentryModifier
 
     private Entry getEntry( LdapDN dn, NormalizerDescription normalizerDescription )
     {
-        Entry entry = new DefaultServerEntry( registries, dn );
+        Entry entry = new DefaultServerEntry( schemaManager, dn );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 
@@ -309,7 +309,7 @@ public class SchemaSubentryModifier
     
     private Entry getEntry( LdapDN dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        Entry entry = new DefaultServerEntry( registries, dn );
+        Entry entry = new DefaultServerEntry( schemaManager, dn );
         
         entry.put( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.TOP_OC, 

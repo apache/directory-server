@@ -270,7 +270,7 @@ public class OperationalAttributeServiceIT
     {
         LdifEntry akarasulu = getUserAddLdif();
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         LdapContext sysRoot = getSystemContext( service );
         createData( sysRoot );

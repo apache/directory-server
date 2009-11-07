@@ -25,10 +25,10 @@ import jdbm.helper.LongSerializer;
 import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
-import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.core.entry.ServerEntrySerializer;
+import org.apache.directory.server.xdbm.MasterTable;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -112,26 +112,29 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      * Creates the master table using JDBM B+Trees for the backing store.
      *
      * @param recMan the JDBM record manager
-     * @param registries the schema registries
+     * @param schemaManager the schema mamanger
      * @throws Exception if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan, Registries registries ) throws Exception
+    public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
     {
-        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( registries ) );
-        adminTbl = new JdbmTable<String,String>( "admin", recMan, STRING_COMPARATOR, null, null );
+        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new ServerEntrySerializer( schemaManager ) );
+        adminTbl = new JdbmTable<String,String>( schemaManager, "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
         {
             adminTbl.put( SEQPROP_KEY, "0" );
         }
+        
+        LONG_COMPARATOR.setSchemaManager( schemaManager );
+        STRING_COMPARATOR.setSchemaManager( schemaManager );
     }
 
 
-    protected JdbmMasterTable( RecordManager recMan, String dbName, Serializer serializer ) throws Exception
+    protected JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager, String dbName, Serializer serializer ) throws Exception
     {
-        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
-        adminTbl = new JdbmTable<String,String>( dbName, recMan, STRING_COMPARATOR, null, null );
+        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
+        adminTbl = new JdbmTable<String,String>( schemaManager, dbName, recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )

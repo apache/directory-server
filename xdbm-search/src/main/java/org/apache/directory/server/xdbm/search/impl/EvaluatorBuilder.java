@@ -20,9 +20,13 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -35,11 +39,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.NotImplementedException;
-
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -51,7 +51,7 @@ import java.util.ArrayList;
 public class EvaluatorBuilder
 {
     private final Store<ServerEntry> db;
-    private final Registries registries;
+    private final SchemaManager schemaManager;
 
 
     /**
@@ -62,10 +62,10 @@ public class EvaluatorBuilder
      * @param registries the schema registries
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<ServerEntry> db, Registries registries ) throws Exception
+    public EvaluatorBuilder( Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -76,19 +76,19 @@ public class EvaluatorBuilder
             /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateEvaluator( ( ApproximateNode ) node, db, registries );
+                return new ApproximateEvaluator( ( ApproximateNode ) node, db, schemaManager );
                 
             case EQUALITY:
-                return new EqualityEvaluator( ( EqualityNode ) node, db, registries );
+                return new EqualityEvaluator( ( EqualityNode ) node, db, schemaManager );
                 
             case GREATEREQ:
-                return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, registries );
+                return new GreaterEqEvaluator( ( GreaterEqNode ) node, db, schemaManager );
                 
             case LESSEQ:
-                return new LessEqEvaluator( ( LessEqNode ) node, db, registries );
+                return new LessEqEvaluator( ( LessEqNode ) node, db, schemaManager );
                 
             case PRESENCE:
-                return new PresenceEvaluator( ( PresenceNode ) node, db, registries );
+                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
                 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
@@ -101,7 +101,7 @@ public class EvaluatorBuilder
                 }
                 
             case SUBSTRING:
-                return new SubstringEvaluator( ( SubstringNode ) node, db, registries );
+                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager );
 
             /* ---------- LOGICAL OPERATORS ---------- */
 

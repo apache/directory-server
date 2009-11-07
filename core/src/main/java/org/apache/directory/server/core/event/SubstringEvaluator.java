@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -44,8 +44,8 @@ import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
  */
 public class SubstringEvaluator implements Evaluator
 {
-    /** AttributeType registry needed for normalizing and comparing values */
-    private AttributeTypeRegistry atRegistry;
+    /** SchemaManager needed for normalizing and comparing values */
+    private SchemaManager schemaManager;
 
 
     /**
@@ -54,9 +54,9 @@ public class SubstringEvaluator implements Evaluator
      * @param oidRegistry the OID registry for name to OID mapping
      * @param attributeTypeRegistry the attributeType registry
      */
-    public SubstringEvaluator( AttributeTypeRegistry atRegistry )
+    public SubstringEvaluator( SchemaManager schemaManager )
     {
-        this.atRegistry = atRegistry;
+        this.schemaManager = schemaManager;
     }
 
 
@@ -67,8 +67,8 @@ public class SubstringEvaluator implements Evaluator
     {
         Pattern regex = null;
         SubstringNode snode = (SubstringNode)node;
-        String oid = atRegistry.getOidByName( snode.getAttribute() );
-        AttributeType type = atRegistry.lookup( oid );
+        String oid = schemaManager.getAttributeTypeRegistry().getOidByName( snode.getAttribute() );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( oid );
         MatchingRule matchingRule = type.getSubstring();
         
         if ( matchingRule == null )

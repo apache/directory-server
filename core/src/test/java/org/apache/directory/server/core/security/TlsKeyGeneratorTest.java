@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -53,7 +52,7 @@ public class TlsKeyGeneratorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( TlsKeyGeneratorTest.class );
     private static LdifSchemaLoader loader;
-    private static Registries registries;
+    private static SchemaManager schemaManager;
     
 
     /**
@@ -75,16 +74,14 @@ public class TlsKeyGeneratorTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        registries = sm.getRegistries();
     }
     
     
@@ -94,7 +91,7 @@ public class TlsKeyGeneratorTest
     @Test
     public void testAll() throws Exception
     {
-        DefaultServerEntry entry = new DefaultServerEntry( registries, new LdapDN() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, new LdapDN() );
         TlsKeyGenerator.addKeyPair( entry );
         LOG.debug( "Entry: {}", entry );
         assertTrue( entry.contains( SchemaConstants.OBJECT_CLASS_AT, TlsKeyGenerator.TLS_KEY_INFO_OC ) );

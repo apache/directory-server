@@ -29,7 +29,7 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.event.Evaluator;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -56,9 +56,9 @@ public class SubtreeEvaluator
      * @param attrRegistry registry to be looked up
      * @throws NamingException 
      */
-    public SubtreeEvaluator( OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry )
+    public SubtreeEvaluator( OidRegistry oidRegistry, SchemaManager schemaManager )
     {
-        evaluator = new ExpressionEvaluator(oidRegistry, attrRegistry );
+        evaluator = new ExpressionEvaluator( oidRegistry, schemaManager );
     }
 
 

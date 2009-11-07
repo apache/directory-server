@@ -778,7 +778,7 @@ public class AddIT
         }
         
         LdapDN userDn = new LdapDN( principalDn );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
         if ( dn == null )

@@ -222,7 +222,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -307,7 +307,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -387,7 +387,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -632,7 +632,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -715,7 +715,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -769,7 +769,7 @@ public class DefaultOperationManager implements OperationManager
             // Now, check the destination
             // Normalize the opContext DN
             LdapDN parentDn = opContext.getParent();
-            parentDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
@@ -817,7 +817,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();
@@ -871,7 +871,7 @@ public class DefaultOperationManager implements OperationManager
             // Now, check the destination
             // Normalize the opContext DN
             LdapDN parentDn = opContext.getParent();
-            parentDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            parentDn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // If he parent DN is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
@@ -921,7 +921,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // Inject the newDn into the operation context
             // Inject the new DN into the context
@@ -1013,7 +1013,7 @@ public class DefaultOperationManager implements OperationManager
         {
             // Normalize the opContext DN
             LdapDN dn = opContext.getDn();
-            dn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            dn.normalize( directoryService.getSchemaManager().getNormalizerMapping() );
 
             // We have to deal with the referral first
             directoryService.getReferralManager().lockRead();

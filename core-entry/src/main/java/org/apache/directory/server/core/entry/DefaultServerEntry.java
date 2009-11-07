@@ -40,8 +40,7 @@ import org.apache.directory.shared.ldap.entry.client.DefaultClientEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.LdapDNSerializer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,14 +63,14 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerEntry.class );
 
-    /** The AttributeType registries */
-    private final transient AttributeTypeRegistry atRegistry;
-    
     /** A speedup to get the ObjectClass attribute */
     private static transient AttributeType OBJECT_CLASS_AT;
     
     /** A mutex to manage synchronization*/
     private static transient Object MUTEX = new Object();
+    
+    /** The SchemaManager */
+    private SchemaManager schemaManager;
 
 
     //-------------------------------------------------------------------------
@@ -89,7 +88,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             throw new IllegalArgumentException( message );
         }
         
-        return atRegistry.lookup( upId );
+        return schemaManager.lookupAttributeTypeRegistry( upId );
     }
 
     
@@ -134,7 +133,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * We can't do it once as a static part in the body of this class, because
      * the access to the registries is mandatory to get back the AttributeType.
      */
-    private void initObjectClassAT( Registries registries )
+    private void initObjectClassAT( SchemaManager schemaManager )
     {
         try
         {
@@ -142,7 +141,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             {
                 synchronized ( MUTEX )
                 {
-                    OBJECT_CLASS_AT = atRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
+                    OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
                 }
             }
         }
@@ -208,7 +207,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      */
     /* no protection ! */ DefaultServerEntry()
     {
-        atRegistry = null;
+        schemaManager = null;
         dn = LdapDN.EMPTY_LDAPDN;
     }
 
@@ -223,13 +222,13 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * 
      * @param registries The reference to the global registries
      */
-    public DefaultServerEntry( Registries registries )
+    public DefaultServerEntry( SchemaManager schemaManager )
     {
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
         dn = LdapDN.EMPTY_LDAPDN;
 
         // Initialize the ObjectClass object
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
     }
 
 
@@ -245,12 +244,12 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param registries The reference to the global registries
      * @param entry the entry to copy
      */
-    public DefaultServerEntry( Registries registries, Entry entry )
+    public DefaultServerEntry( SchemaManager schemaManager, Entry entry )
     {
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
         // Initialize the ObjectClass object
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
 
         // We will clone the existing entry, because it may be normalized
         if ( entry.getDn() != null )
@@ -267,7 +266,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             try
             {
                 // The dn must be normalized
-                dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+                dn.normalize( schemaManager.getNormalizerMapping() );
             }
             catch ( NamingException ne )
             {
@@ -292,7 +291,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
                 }
                 else
                 {
-                    attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getId() );
+                    attributeType = schemaManager.lookupAttributeTypeRegistry( attribute.getId() );
                 }
                 
                 // Create a new ServerAttribute.
@@ -322,7 +321,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param registries The reference to the global registries
      * @param dn The DN for this serverEntry. Can be null.
      */
-    public DefaultServerEntry( Registries registries, LdapDN dn )
+    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn )
     {
         if ( dn == null )
         {
@@ -333,10 +332,10 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             this.dn = dn;
         }
         
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
         // Initialize the ObjectClass object
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
     }
 
 
@@ -357,7 +356,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null.
      * @param attributeTypes The list of attributes to create, without value.
      */
-    public DefaultServerEntry( Registries registries, LdapDN dn, AttributeType... attributeTypes )
+    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, AttributeType... attributeTypes )
     {
         if ( dn == null )
         {
@@ -368,10 +367,10 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             this.dn = dn;
         }
 
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
         // Initialize the ObjectClass object
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
 
         // Add the attributeTypes
         set( attributeTypes );
@@ -399,7 +398,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param attributeType The attribute to create, without value.
      * @param upId The User Provided ID fro this AttributeType
      */
-    public DefaultServerEntry( Registries registries, LdapDN dn, AttributeType attributeType, String upId )
+    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, AttributeType attributeType, String upId )
     {
         if ( dn == null )
         {
@@ -410,11 +409,11 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             this.dn = dn;
         }
         
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
         // Initialize the ObjectClass object
 
         // Initialize the ObjectClass object
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
 
         try
         {
@@ -441,7 +440,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null.
      * @param upIds The list of attributes to create.
      */
-    public DefaultServerEntry( Registries registries, LdapDN dn, String... upIds )
+    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, String... upIds )
     {
         if ( dn == null )
         {
@@ -452,9 +451,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             this.dn = dn;
         }
         
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
 
         set( upIds );
     }
@@ -473,7 +472,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
      * @param dn The DN for this serverEntry. Can be null
      * @param attributes The list of attributes to create
      */
-    public DefaultServerEntry( Registries registries, LdapDN dn, ServerAttribute... attributes )
+    public DefaultServerEntry( SchemaManager schemaManager, LdapDN dn, ServerAttribute... attributes )
     {
         if ( dn == null )
         {
@@ -484,9 +483,9 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             this.dn = dn;
         }
         
-        atRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
 
-        initObjectClassAT( registries );
+        initObjectClassAT( schemaManager );
 
         for ( ServerAttribute attribute:attributes )
         {
@@ -991,7 +990,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
         try
         {
-            AttributeType attributeType = atRegistry.lookup( id );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
             
             if ( attributeType == null )
             {
@@ -1033,7 +1032,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
         try
         {
-            AttributeType attributeType = atRegistry.lookup( id );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
             
             if ( attributeType == null )
             {
@@ -1075,7 +1074,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         
         try
         {
-            AttributeType attributeType = atRegistry.lookup( id );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
             
             if ( attributeType == null )
             {
@@ -1180,7 +1179,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
     {
         try
         {
-            return get( atRegistry.lookup( StringTools.trim( StringTools.toLowerCase( alias ) ) ) );
+            return get( schemaManager.lookupAttributeTypeRegistry( StringTools.trim( StringTools.toLowerCase( alias ) ) ) );
         }
         catch ( NamingException ne )
         {
@@ -2104,7 +2103,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             
             try
             {
-                attributeType = atRegistry.lookup( attribute );
+                attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
             }
             catch ( NamingException ne )
             {
@@ -2385,7 +2384,7 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
             
             try
             {
-                AttributeType attributeType = atRegistry.lookup( oid );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
                 
                 // Create the attribute we will read
                 DefaultServerAttribute attribute = new DefaultServerAttribute( attributeType );

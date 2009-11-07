@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -230,18 +229,18 @@ public final class SchemaPartition extends AbstractPartition
         // Load apachemeta schema from within the ldap-schema Jar with all the
         // schema it depends on.  This is a minimal mandatory set of schemas.
         // -----------------------------------------------------------------------
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        //SerializableComparator.setSchemaManager( schemaManager );
 
         wrapped.setId( ID );
         wrapped.setSuffix( SchemaConstants.OU_SCHEMA );
-        wrapped.getSuffixDn().normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        wrapped.setRegistries( registries );
+        wrapped.getSuffixDn().normalize( schemaManager.getNormalizerMapping() );
+        wrapped.setSchemaManager( schemaManager );
         
         try
         {
             wrapped.initialize();
             
-            PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, registries );
+            PartitionSchemaLoader partitionLoader = new PartitionSchemaLoader( wrapped, schemaManager );
             synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
             
             if ( wrapped instanceof NullPartition )
@@ -268,7 +267,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         
         schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        schemaModificationDN.normalize( schemaManager.getNormalizerMapping() );
     }
     
     

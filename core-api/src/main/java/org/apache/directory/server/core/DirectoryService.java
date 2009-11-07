@@ -38,7 +38,7 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.csn.Csn;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -98,9 +98,9 @@ public interface DirectoryService extends ServerEntryFactory
     void removePartition( Partition partition ) throws Exception;
 
     /**
-     * @return The Directory Service registries
+     * @return The Directory Service SchemaManager
      */
-    Registries getRegistries();
+    SchemaManager getSchemaManager();
 
 
     /**
@@ -486,4 +486,12 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the replication configuration for this DirectoryService
      */
     ReplicationConfiguration getReplicationConfiguration();
+    
+    
+    /**
+     * Associates a SchemaManager to the service
+     * 
+     * @param schemaManager The SchemaManager to associate
+     */
+    void setSchemaManager( SchemaManager schemaManager );
 }

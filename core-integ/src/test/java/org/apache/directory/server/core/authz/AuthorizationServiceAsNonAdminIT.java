@@ -20,16 +20,22 @@
 package org.apache.directory.server.core.authz;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.naming.NamingException;
 
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.LdapPrincipal;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import org.apache.directory.server.core.integ.annotations.Factory;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.Entry;
@@ -46,14 +52,8 @@ import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.NamingException;
 
 
 /**
@@ -81,7 +81,7 @@ public class AuthorizationServiceAsNonAdminIT
         LdifEntry akarasulu = getUserAddLdif();
 
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
@@ -106,7 +106,7 @@ public class AuthorizationServiceAsNonAdminIT
         LdifEntry akarasulu = getUserAddLdif();
 
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {
@@ -134,7 +134,7 @@ public class AuthorizationServiceAsNonAdminIT
         LdifEntry akarasulu = getUserAddLdif();
         
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
         
         // Read the entry we just created using the akarasuluSession
         Entry readEntry = service.getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
@@ -149,7 +149,7 @@ public class AuthorizationServiceAsNonAdminIT
         mods.add( mod );
       
         LdapDN userDn = new LdapDN( "uid=akarasulu,ou=users,ou=system" );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getAttributeTypeRegistry().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         CoreSession akarasuluSession = service.getSession( principal );
 
@@ -176,7 +176,7 @@ public class AuthorizationServiceAsNonAdminIT
         LdifEntry akarasulu = getUserAddLdif();
         
         service.getAdminSession().add( 
-            new DefaultServerEntry( service.getRegistries(), akarasulu.getEntry() ) ); 
+            new DefaultServerEntry( service.getSchemaManager(), akarasulu.getEntry() ) ); 
 
         try
         {

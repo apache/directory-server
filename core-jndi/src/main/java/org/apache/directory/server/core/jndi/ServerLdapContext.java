@@ -181,7 +181,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         Value<?> val = null;
         
-        AttributeType attributeType = getService().getRegistries().getAttributeTypeRegistry().lookup( oid );
+        AttributeType attributeType = getService().getSchemaManager().lookupAttributeTypeRegistry( oid );
         
         // make sure we add the request controls to operation
         if ( attributeType.getSyntax().isHumanReadable() )

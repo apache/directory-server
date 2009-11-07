@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
@@ -29,7 +31,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
@@ -48,19 +50,15 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AttributeTypeSynchronizer.class );
 
-    /** A reference to the AttributeType registry */
-    private final AttributeTypeRegistry atRegistry;
-
     /**
      * Creates a new instance of AttributeTypeSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The global schemaManager
      * @throws Exception If the initialization failed
      */
-    public AttributeTypeSynchronizer( Registries registries ) throws Exception
+    public AttributeTypeSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
-        this.atRegistry = registries.getAttributeTypeRegistry();
+        super( schemaManager );
     }
 
     
@@ -74,23 +72,49 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
-        checkParent( parentDn, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         
         // The new schemaObject's OID must not already exist
         checkOidIsUnique( entry );
         
         // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
-        AttributeType at = factory.getAttributeType( entry, registries, schemaName );
+        
+        // At this point, as we may break the regisytries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
+        AttributeType at = factory.getAttributeType( entry, clonedRegistries, schemaName );
+        
+        if ( at == null )
+        {
+            // We couldn't create the AT : this is an error
+            return;
+        }
+        
+        List<Throwable> errors = clonedRegistries.checkRefInteg();
+        
+        if ( errors.size() == 0 )
+        {
+            clonedRegistries.setStrict();
+            schemaManager.setRegistries( clonedRegistries  );
+        }
+        else
+        {
+            // We have some error : reject the addition and get out
+            return;
+        }
         
         // At this point, the constructed AttributeType has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the AttributeType are both enabled.
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
         
         if ( schema.isEnabled() && at.isEnabled() )
         {
-            at.applyRegistries( registries );
+            at.applyRegistries( schemaManager.getRegistries() );
         }
         
         // Associates this AttributeType with the schema
@@ -99,7 +123,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Don't inject the modified element if the schema is disabled
         if ( isSchemaEnabled( schemaName ) )
         {
-            registries.register( at );
+            schemaManager.register( at );
 
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
@@ -121,16 +145,16 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
+        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaName );
         
         if ( isSchemaEnabled( schemaName ) )
         {
-            if ( atRegistry.contains( oid ) )
+            if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
             {
-                atRegistry.unregister( oid );
+                schemaManager.unregisterAttributeType( oid );
             }
             
-            atRegistry.register( at );
+            schemaManager.register( at );
             
             return SCHEMA_MODIFIED;
         }
@@ -149,18 +173,18 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         parentDn.remove( parentDn.size() - 1 );
         
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
-        checkParent( parentDn, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         
         // Get the AttributeType from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType attributeType = factory.getAttributeType( entry, registries, schemaName );
+        AttributeType attributeType = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaName );
         
         // Applies the Registries to this AttributeType 
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
         
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
-            attributeType.applyRegistries( registries );
+            attributeType.applyRegistries( schemaManager.getRegistries() );
         }
         
         String oid = attributeType.getOid();
@@ -175,7 +199,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // We will also have to remove an index that has been set on this AttributeType.
         if ( isSchemaEnabled( schemaName ) )
         {
-            if ( registries.isReferenced( attributeType ) )
+            if ( schemaManager.getRegistries().isReferenced( attributeType ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
                     " dependant SchemaObjects :\n" + getReferenced( attributeType );
@@ -188,22 +212,22 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         deleteFromSchema( attributeType, schemaName );
 
         // Update the Registries now
-        if ( atRegistry.contains( oid ) )
+        if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
         {
             // Update the references.
             // The Syntax
-            registries.delReference( attributeType, attributeType.getSyntax() );
+            schemaManager.getRegistries().delReference( attributeType, attributeType.getSyntax() );
             
             // The Superior
-            registries.delReference( attributeType, attributeType.getSuperior() );
+            schemaManager.getRegistries().delReference( attributeType, attributeType.getSuperior() );
             
             // The MatchingRules
-            registries.delReference( attributeType, attributeType.getEquality() );
-            registries.delReference( attributeType, attributeType.getOrdering() );
-            registries.delReference( attributeType, attributeType.getSubstring() );
+            schemaManager.getRegistries().delReference( attributeType, attributeType.getEquality() );
+            schemaManager.getRegistries().delReference( attributeType, attributeType.getOrdering() );
+            schemaManager.getRegistries().delReference( attributeType, attributeType.getSubstring() );
             
             // Update the Registry
-            atRegistry.unregister( attributeType.getOid() );
+            schemaManager.unregister( attributeType );
             
             LOG.debug( "Removed {} from the enabled schema {}", attributeType, schemaName );
         }
@@ -221,7 +245,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType oldAt = factory.getAttributeType( entry, registries, schemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaName );
 
         // Inject the new OID
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -235,12 +259,12 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         newDn.add( newRdn );
         targetEntry.setDn( newDn );
         
-        AttributeType at = factory.getAttributeType( targetEntry, registries, schemaName );
+        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
             // Check that the entry has no descendant
-            if ( atRegistry.hasDescendants( oldAt.getOid() ) )
+            if ( schemaManager.getAttributeTypeRegistry().hasDescendants( oldAt.getOid() ) )
             {
                 String msg = "Cannot rename " + entry.getDn().getUpName() + " to " + newDn + 
                     " as the later has descendants' AttributeTypes";
@@ -248,8 +272,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            atRegistry.unregister( oldAt.getOid() );
-            atRegistry.register( at );
+            schemaManager.unregisterAttributeType( oldAt.getOid() );
+            schemaManager.register( at );
         }
         else
         {
@@ -262,15 +286,15 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void moveAndRename( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         ServerEntry entry, boolean cascade ) throws Exception
     {
-        checkParent( newParentName, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), oldSchemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
-        AttributeType newAt = factory.getAttributeType( targetEntry, registries, newSchemaName );
+        AttributeType newAt = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), newSchemaName );
 
         
         if ( !isSchemaLoaded( oldSchemaName ) )
@@ -292,7 +316,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            atRegistry.unregister( oldAt.getOid() );
+            schemaManager.unregisterAttributeType( oldAt.getOid() );
         }
         else
         {
@@ -301,7 +325,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            atRegistry.register( newAt );
+            schemaManager.register( newAt );
         }
         else
         {
@@ -313,11 +337,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void move( LdapDN oriChildName, LdapDN newParentName, ServerEntry entry, boolean cascade ) 
         throws Exception
     {
-        checkParent( newParentName, atRegistry, SchemaConstants.ATTRIBUTE_TYPE );
+        checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, registries, oldSchemaName );
-        AttributeType newAt = factory.getAttributeType( entry, registries, newSchemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), oldSchemaName );
+        AttributeType newAt = factory.getAttributeType( entry, schemaManager.getRegistries(), newSchemaName );
         
         if ( !isSchemaLoaded( oldSchemaName ) )
         {
@@ -338,7 +362,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
-            atRegistry.unregister( oldAt.getOid() );
+            schemaManager.unregisterAttributeType( oldAt.getOid() );
         }
         else
         {
@@ -347,7 +371,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            atRegistry.register( newAt );
+            schemaManager.register( newAt );
         }
         else
         {

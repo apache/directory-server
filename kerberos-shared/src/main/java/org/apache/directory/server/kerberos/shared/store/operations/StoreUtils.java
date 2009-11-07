@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,9 +101,9 @@ public class StoreUtils
      * @return the filter expression tree
      * @throws Exception if there are problems while looking up attributes
      */
-    private static ExprNode getFilter( AttributeTypeRegistry registry, String principal ) throws Exception
+    private static ExprNode getFilter( SchemaManager schemaManager, String principal ) throws Exception
     {
-        AttributeType type = registry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
         Value<String> value = new ServerStringValue( type, principal );
         return new EqualityNode<String>( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, value );
     }
@@ -125,9 +125,9 @@ public class StoreUtils
         
         try
         {
-            AttributeTypeRegistry registry = session.getDirectoryService().getRegistries().getAttributeTypeRegistry();
+            SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
             cursor = session.search( searchBaseDn, SearchScope.SUBTREE, 
-                getFilter( registry, principal ), AliasDerefMode.DEREF_ALWAYS, null );
+                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, null );
     
             cursor.beforeFirst();
             if ( cursor.next() )

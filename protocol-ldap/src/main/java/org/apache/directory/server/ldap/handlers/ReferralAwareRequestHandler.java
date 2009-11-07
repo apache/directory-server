@@ -33,15 +33,14 @@ import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.InternalLdapResult;
 import org.apache.directory.shared.ldap.message.InternalReferral;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.InternalResultResponseRequest;
 import org.apache.directory.shared.ldap.message.InternalSearchRequest;
+import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.control.ManageDsaITControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.ldap.util.LdapURL;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,8 +221,8 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             }
             
             LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
-            urlDn.normalize( session.getCoreSession().getDirectoryService().getRegistries()
-                .getAttributeTypeRegistry().getNormalizerMapping() ); 
+            urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
+                .getNormalizerMapping() ); 
             
             if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
             {
@@ -322,8 +321,8 @@ public abstract class ReferralAwareRequestHandler<T extends InternalResultRespon
             
             // Normalize the DN to check for same dn
             LdapDN urlDn = new LdapDN( ldapUrl.getDn().getUpName() );
-            urlDn.normalize( session.getCoreSession().getDirectoryService().getRegistries()
-                .getAttributeTypeRegistry().getNormalizerMapping() ); 
+            urlDn.normalize( session.getCoreSession().getDirectoryService().getSchemaManager()
+                .getNormalizerMapping() ); 
             
             if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
             {

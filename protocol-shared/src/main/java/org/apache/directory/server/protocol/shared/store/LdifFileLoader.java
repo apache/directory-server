@@ -203,7 +203,7 @@ public class LdifFileLoader
                         {
                             coreSession.add( 
                                 new DefaultServerEntry( 
-                                    coreSession.getDirectoryService().getRegistries(), entry ) ); 
+                                    coreSession.getDirectoryService().getSchemaManager(), entry ) ); 
                            count++;
                             log.info( "Created {}.", rdn );
                         } 

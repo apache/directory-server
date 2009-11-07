@@ -48,9 +48,8 @@ import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,13 +99,11 @@ public class GroupCache
      */
     public GroupCache( CoreSession session ) throws Exception
     {
-        normalizerMap = session.getDirectoryService().getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
+        normalizerMap = schemaManager.getNormalizerMapping();
         nexus = session.getDirectoryService().getPartitionNexus();
-        AttributeTypeRegistry attributeTypeRegistry = session.getDirectoryService()
-            .getRegistries().getAttributeTypeRegistry();
-
-        memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID );
-        uniqueMemberAT = attributeTypeRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        memberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MEMBER_AT_OID );
+        uniqueMemberAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.UNIQUE_MEMBER_AT_OID );
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
@@ -376,7 +373,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, Registries registries )
+    public void groupModified( LdapDN name, List<Modification> mods, ServerEntry entry, SchemaManager schemaManager )
         throws NamingException
     {
         EntryAttribute members = null;

@@ -108,7 +108,7 @@ public class IntegrationUtils
             if ( entry.isChangeAdd() )
             {
                 service.getAdminSession().add( 
-                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) );
+                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) );
             }
             else if ( entry.isChangeModify() )
             {
@@ -141,7 +141,7 @@ public class IntegrationUtils
         }
 
         LdapDN userDn = new LdapDN( principalDn );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
 
         if ( dn == null )
@@ -164,7 +164,7 @@ public class IntegrationUtils
         }
         
         LdapDN userDn = new LdapDN( principalDn );
-        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        userDn.normalize( service.getSchemaManager().getNormalizerMapping() );
         LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
         
         if ( dn == null )
@@ -204,7 +204,7 @@ public class IntegrationUtils
         {
             case( ChangeType.ADD_ORDINAL ):
                 session.add( 
-                    new DefaultServerEntry( service.getRegistries(), entry.getEntry() ) ); 
+                    new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                 break;
                 
             case( ChangeType.DELETE_ORDINAL ):
@@ -321,7 +321,7 @@ public class IntegrationUtils
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
-        Schema schema = service.getRegistries().getLoadedSchema( schemaName );
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
         
         return ( schema == null ) || schema.isDisabled();
     }
@@ -333,7 +333,7 @@ public class IntegrationUtils
      */
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
-        Schema schema = service.getRegistries().getLoadedSchema( schemaName );
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
         
         return ( schema != null ) && schema.isEnabled();
     }

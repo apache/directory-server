@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.BooleanComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimNormalizer;
@@ -229,7 +230,7 @@ public class SubschemaSubentryIT
     // -----------------------------------------------------------------------
 
     
-    private void checkSyntaxCheckerPresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    private void checkSyntaxCheckerPresent( SchemaManager schemaManager, String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
@@ -271,9 +272,9 @@ public class SubschemaSubentryIT
             assertNotNull( attrs );
             SchemaEntityFactory factory = new SchemaEntityFactory();
             
-            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+            ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getSchemaManager() );
 
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( serverEntry, service.getRegistries(), schemaName );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, serverEntry, service.getSchemaManager().getRegistries(), schemaName );
             assertEquals( oid, syntaxChecker.getOid() );
         }
         else
@@ -297,11 +298,11 @@ public class SubschemaSubentryIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getSyntaxCheckerRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getSyntaxCheckerRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getSyntaxCheckerRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getSyntaxCheckerRegistry().contains( oid ) );
         }
     }
 
@@ -331,8 +332,8 @@ public class SubschemaSubentryIT
         
         // 2nd change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
         // remove and check
@@ -340,8 +341,8 @@ public class SubschemaSubentryIT
 
         // 3rd change
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
         // test failure to replace
@@ -367,7 +368,7 @@ public class SubschemaSubentryIT
 
         // 4th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove
@@ -375,7 +376,7 @@ public class SubschemaSubentryIT
 
         // 5th change
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
@@ -386,7 +387,7 @@ public class SubschemaSubentryIT
 
         // 6th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
 
         // after a total of 6 changes 
         if ( service.getChangeLog().getLatest() != null )
@@ -464,11 +465,11 @@ public class SubschemaSubentryIT
 
         if ( isPresent )
         {
-            assertTrue( service.getRegistries().getComparatorRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getComparatorRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getComparatorRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getComparatorRegistry().contains( oid ) );
         }
     }
     
@@ -617,11 +618,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getNormalizerRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getNormalizerRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getNormalizerRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getNormalizerRegistry().contains( oid ) );
         }
     }
     
@@ -772,11 +773,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getLdapSyntaxRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getLdapSyntaxRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getLdapSyntaxRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getLdapSyntaxRegistry().contains( oid ) );
         }
     }
     
@@ -827,9 +828,9 @@ public class SubschemaSubentryIT
             + OctetStringSyntaxChecker.class.getName() + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
-        checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
+        checkSyntaxCheckerPresent( service.getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
         // add and check
@@ -943,11 +944,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getMatchingRuleRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getMatchingRuleRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getMatchingRuleRegistry().contains( oid ) );
         }
     }
     
@@ -1156,11 +1157,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getAttributeTypeRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
         }
     }
     
@@ -1426,9 +1427,9 @@ public class SubschemaSubentryIT
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
         
-        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getSchemaManager() );
         
-        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1489,9 +1490,9 @@ public class SubschemaSubentryIT
         assertNotNull( attrs );
         SchemaEntityFactory factory = new SchemaEntityFactory();
         
-        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getRegistries() );
+        ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( serverEntry, service.getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1573,11 +1574,11 @@ public class SubschemaSubentryIT
         
         if ( isPresent ) 
         { 
-            assertTrue( service.getRegistries().getObjectClassRegistry().contains( oid ) );
+            assertTrue( service.getSchemaManager().getObjectClassRegistry().contains( oid ) );
         }
         else
         {
-            assertFalse( service.getRegistries().getObjectClassRegistry().contains( oid ) );
+            assertFalse( service.getSchemaManager().getObjectClassRegistry().contains( oid ) );
         }
     }
     
@@ -1874,7 +1875,7 @@ public class SubschemaSubentryIT
         Attribute modifyTimestampAttr = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttr );
         LdapDN expectedDN = new LdapDN( "uid=admin,ou=system" );
-        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttr.get() );
         assertNotNull( modifyTimestampAttr );
 
@@ -1912,7 +1913,7 @@ public class SubschemaSubentryIT
         Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
         expectedDN = new LdapDN( "uid=admin,ou=system" );
-        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         
@@ -1965,7 +1966,7 @@ public class SubschemaSubentryIT
         modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
         expectedDN = new LdapDN( "cn=bogus user,ou=system" );
-        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getSchemaManager().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         

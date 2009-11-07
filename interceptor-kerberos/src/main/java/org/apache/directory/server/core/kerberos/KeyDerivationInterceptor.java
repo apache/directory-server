@@ -30,21 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import javax.naming.NamingException;
+
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.exception.ExceptionInterceptor;
-import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
-import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.entry.ClonedServerEntry;
 import org.apache.directory.server.core.entry.DefaultServerAttribute;
@@ -54,6 +44,18 @@ import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.entry.ServerModification;
 import org.apache.directory.server.core.entry.ServerStringValue;
 import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
@@ -69,8 +71,7 @@ import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +159,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             entry.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalName );
             entry.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
-            entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getRegistries(), keys ) );
+            entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getSchemaManager(), keys ) );
 
             log.debug( "Adding modified entry '{}' for DN '{}'.", entry, normName
                 .getUpName() );
@@ -367,8 +368,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             newModsList.add( mod );
         }
         
-        AttributeTypeRegistry atRegistry = modContext.getSession()
-            .getDirectoryService().getRegistries().getAttributeTypeRegistry();
+        SchemaManager schemaManager = modContext.getSession()
+            .getDirectoryService().getSchemaManager();
 
         // Add our modification items.
         newModsList.add( 
@@ -376,29 +377,29 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 ModificationOperation.REPLACE_ATTRIBUTE, 
                 new DefaultServerAttribute(
                     KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, 
-                    atRegistry.lookup( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
+                    schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
                     principalName ) ) );
         newModsList.add( 
             new ServerModification( 
                 ModificationOperation.REPLACE_ATTRIBUTE, 
                 new DefaultServerAttribute(
                     KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, 
-                    atRegistry.lookup( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
+                    schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
                     Integer.toString( kvno ) ) ) );
         
         ServerAttribute attribute = getKeyAttribute( modContext.getSession()
-            .getDirectoryService().getRegistries(), keys );
+            .getDirectoryService().getSchemaManager(), keys );
         newModsList.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
 
         modContext.setModItems( newModsList );
     }
 
 
-    private ServerAttribute getKeyAttribute( Registries registries, Map<EncryptionType, EncryptionKey> keys ) throws Exception
+    private ServerAttribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys ) throws Exception
     {
         ServerAttribute keyAttribute = 
             new DefaultServerAttribute( KerberosAttribute.KRB5_KEY_AT, 
-                registries.getAttributeTypeRegistry().lookup( KerberosAttribute.KRB5_KEY_AT ) );
+                schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
 
         Iterator<EncryptionKey> it = keys.values().iterator();
 

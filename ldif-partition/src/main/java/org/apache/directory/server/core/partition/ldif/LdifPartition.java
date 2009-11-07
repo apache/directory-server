@@ -55,8 +55,8 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.util.SystemUtils;
 import org.slf4j.Logger;
@@ -163,7 +163,7 @@ public class LdifPartition extends BTreePartition
         // Initialize the AvlPartition
         wrappedPartition.setId( id );
         wrappedPartition.setSuffix( suffix.getUpName() );
-        wrappedPartition.setRegistries( registries );
+        wrappedPartition.setSchemaManager( schemaManager );
         wrappedPartition.initialize();
         
         // Create the CsnFactory with a invalid ReplicaId
@@ -185,7 +185,7 @@ public class LdifPartition extends BTreePartition
         
         if ( !suffix.isNormalized() )
         {
-            suffix.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+            suffix.normalize( schemaManager.getNormalizerMapping() );
         }
         
         String suffixDirName = getFileName( suffix );
@@ -221,7 +221,7 @@ public class LdifPartition extends BTreePartition
                 if ( contextEntryFile.exists() )
                 {
                     LdifReader reader = new LdifReader( contextEntryFile );
-                    contextEntry = new DefaultServerEntry( registries, reader.next().getEntry() ); 
+                    contextEntry = new DefaultServerEntry( schemaManager, reader.next().getEntry() ); 
                 }
                 else
                 {
@@ -475,7 +475,7 @@ public class LdifPartition extends BTreePartition
                     LdifEntry ldifEntry = ldifEntries.get( 0 );
                     LOG.debug( "Adding entry {}", ldifEntry );
 
-                    ServerEntry serverEntry = new DefaultServerEntry( registries, ldifEntry.getEntry() );
+                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
                     
                     if ( !serverEntry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
                     {
@@ -561,7 +561,7 @@ public class LdifPartition extends BTreePartition
     {
         // First, get the AT name, or OID
         String normAT = rdn.getAtav().getNormType();
-        AttributeType at = registries.getAttributeTypeRegistry().lookup( normAT );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
         
         String atName = at.getName();
 
@@ -589,7 +589,7 @@ public class LdifPartition extends BTreePartition
         {
             // First, get the AT name, or OID
             String normAT = rdn.getAtav().getNormType();
-            AttributeType at = registries.getAttributeTypeRegistry().lookup( normAT );
+            AttributeType at = schemaManager.lookupAttributeTypeRegistry( normAT );
             
             String atName = at.getName();
 
@@ -969,9 +969,9 @@ public class LdifPartition extends BTreePartition
 
 
     @Override
-    public void setRegistries( Registries registries )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
-        super.setRegistries( registries );
+        super.setSchemaManager( schemaManager );
     }
 
 
@@ -1085,7 +1085,7 @@ public class LdifPartition extends BTreePartition
     {
         List<LdifEntry> entries = ldifParser.parseLdif( contextEntry );
         
-        this.contextEntry = new DefaultServerEntry( registries, entries.get( 0 ).getEntry() );
+        this.contextEntry = new DefaultServerEntry( schemaManager, entries.get( 0 ).getEntry() );
     }
 
 

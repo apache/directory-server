@@ -62,8 +62,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -88,8 +86,7 @@ public class AvlStoreTest
 
     private static File wkdir;
     private static AvlStore<ServerEntry> store;
-    private static Registries registries = null;
-    private static AttributeTypeRegistry attributeRegistry;
+    private static SchemaManager schemaManager = null;
 
 
     @BeforeClass
@@ -109,18 +106,14 @@ public class AvlStoreTest
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        registries = sm.getRegistries();
-        
-        attributeRegistry = registries.getAttributeTypeRegistry();
     }
 
 
@@ -142,7 +135,7 @@ public class AvlStoreTest
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         LOG.debug( "Created new store" );
     }
 
@@ -324,7 +317,7 @@ public class AvlStoreTest
     public void testFreshStore() throws Exception
     {
         LdapDN dn = new LdapDN( "o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
         assertEquals( 1L, ( long ) store.getEntryId( dn.toNormName() ) );
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryUpdn( dn.toNormName() ) );
@@ -359,8 +352,8 @@ public class AvlStoreTest
         
         // add an alias and delete to test dropAliasIndices method
         LdapDN dn = new LdapDN( "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "alias", "extensibleObject" );
         entry.add( "ou", "Apache" );
         entry.add( "commonName",  "Jack Daniels");
@@ -408,8 +401,8 @@ public class AvlStoreTest
       
       // dn id 12
       LdapDN martinDn = new LdapDN( "cn=Marting King,ou=Sales,o=Good Times Co." );
-      martinDn.normalize( attributeRegistry.getNormalizerMapping() );
-      DefaultServerEntry entry = new DefaultServerEntry( registries, martinDn );
+      martinDn.normalize( schemaManager.getNormalizerMapping() );
+      DefaultServerEntry entry = new DefaultServerEntry( schemaManager, martinDn );
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Sales" );
       entry.add( "cn",  "Martin King");
@@ -423,7 +416,7 @@ public class AvlStoreTest
       assertEquals( 12, ( long ) cursor.get().getId() );
       
       LdapDN newParentDn = new LdapDN( "ou=Board of Directors,o=Good Times Co." );
-      newParentDn.normalize( attributeRegistry.getNormalizerMapping() );
+      newParentDn.normalize( schemaManager.getNormalizerMapping() );
       
       store.move( martinDn, newParentDn );
       cursor = idx.forwardCursor( 3L);
@@ -433,8 +426,8 @@ public class AvlStoreTest
       
       // dn id 13
       LdapDN marketingDn = new LdapDN( "ou=Marketing,ou=Sales,o=Good Times Co." );
-      marketingDn.normalize( attributeRegistry.getNormalizerMapping() );
-      entry = new DefaultServerEntry( registries, marketingDn );
+      marketingDn.normalize( schemaManager.getNormalizerMapping() );
+      entry = new DefaultServerEntry( schemaManager, marketingDn );
       entry.add( "objectClass", "top", "organizationalUnit" );
       entry.add( "ou", "Marketing" );
       entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -443,8 +436,8 @@ public class AvlStoreTest
 
       // dn id 14
       LdapDN jimmyDn = new LdapDN( "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-      jimmyDn.normalize( attributeRegistry.getNormalizerMapping() );
-      entry = new DefaultServerEntry( registries, jimmyDn );
+      jimmyDn.normalize( schemaManager.getNormalizerMapping() );
+      entry = new DefaultServerEntry( schemaManager, jimmyDn );
       entry.add( "objectClass", "top", "person", "organizationalPerson" );
       entry.add( "ou", "Marketing" );
       entry.add( "cn",  "Jimmy Wales");
@@ -682,8 +675,8 @@ public class AvlStoreTest
     public void testAddWithoutParentId() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Not Present" );
         entry.add( "cn",  "Martin King");
@@ -695,8 +688,8 @@ public class AvlStoreTest
     public void testAddWithoutObjectClass() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Martin King,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "ou", "Sales" );
         entry.add( "cn",  "Martin King");
         store.add( entry );
@@ -707,11 +700,11 @@ public class AvlStoreTest
     public void testModifyAddOUAttrib() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         attrib.add( "Engineering" );
         
         Modification add = new ServerModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
@@ -726,8 +719,8 @@ public class AvlStoreTest
     public void testRename() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
         entry.add( "cn",  "Private Ryan");
@@ -746,8 +739,8 @@ public class AvlStoreTest
     public void testMove() throws Exception
     {
         LdapDN childDn = new LdapDN( "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        childDn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry childEntry = new DefaultServerEntry( registries, childDn );
+        childDn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry childEntry = new DefaultServerEntry( schemaManager, childDn );
         childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
         childEntry.add( "ou", "Engineering" );
         childEntry.add( "cn",  "Private Ryan");
@@ -757,7 +750,7 @@ public class AvlStoreTest
         store.add( childEntry );
 
         LdapDN parentDn = new LdapDN( "ou=Sales,o=Good Times Co." );
-        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+        parentDn.normalize( schemaManager.getNormalizerMapping() );
 
         Rdn rdn = new Rdn("cn=Ryan");
 
@@ -765,10 +758,10 @@ public class AvlStoreTest
 
         // to drop the alias indices   
         childDn = new LdapDN( "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        childDn.normalize( attributeRegistry.getNormalizerMapping() );
+        childDn.normalize( schemaManager.getNormalizerMapping() );
         
         parentDn = new LdapDN( "ou=Engineering,o=Good Times Co." );
-        parentDn.normalize( attributeRegistry.getNormalizerMapping() );
+        parentDn.normalize( schemaManager.getNormalizerMapping() );
         
         assertEquals( 3, store.getSubAliasIndex().count() );
         
@@ -782,11 +775,11 @@ public class AvlStoreTest
     public void testModifyAdd() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SURNAME_AT,
-            attributeRegistry.lookup( SchemaConstants.SURNAME_AT ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SURNAME_AT ) );
         
         String attribVal = "Walker";
         attrib.add( attribVal );
@@ -800,7 +793,7 @@ public class AvlStoreTest
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "+1974045779";
         entry.add( "telephoneNumber", attribVal );
         
@@ -814,11 +807,11 @@ public class AvlStoreTest
     public void testModifyReplace() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
         
         String attribVal = "Johnny";
         attrib.add( attribVal );
@@ -834,7 +827,7 @@ public class AvlStoreTest
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         attribVal = "JWalker";
         entry.add( "sn", attribVal );
         
@@ -847,11 +840,11 @@ public class AvlStoreTest
     public void testModifyRemove() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
+        dn.normalize( schemaManager.getNormalizerMapping() );
 
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.SN_AT,
-            attributeRegistry.lookup( SchemaConstants.SN_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SN_AT_OID ) );
         
         Modification add = new ServerModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
         mods.add( add );
@@ -864,7 +857,7 @@ public class AvlStoreTest
         assertNull( lookedup.get( "sn" ) );
         
         // testing the store.modify( dn, mod, entry ) API
-        ServerEntry entry = new DefaultServerEntry( registries, dn );
+        ServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         
         // add an entry for the sake of testing the remove operation
         entry.add( "sn", "JWalker" );
@@ -880,8 +873,8 @@ public class AvlStoreTest
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
         LdapDN dn = new LdapDN( "cn=Tim B,ou=Sales,o=Good Times Co." );
-        dn.normalize( attributeRegistry.getNormalizerMapping() );
-        DefaultServerEntry entry = new DefaultServerEntry( registries, dn );
+        dn.normalize( schemaManager.getNormalizerMapping() );
+        DefaultServerEntry entry = new DefaultServerEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "cn", "Tim B");
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -891,7 +884,7 @@ public class AvlStoreTest
         
         List<Modification> mods = new ArrayList<Modification>();
         ServerAttribute attrib = new DefaultServerAttribute( SchemaConstants.OU_AT,
-            attributeRegistry.lookup( SchemaConstants.OU_AT_OID ) );
+            schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT_OID ) );
         
         String attribVal = "Marketing";
         attrib.add( attribVal );

@@ -43,7 +43,7 @@ import org.apache.directory.server.core.interceptor.context.SearchingOperationCo
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.shared.ldap.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -325,14 +325,14 @@ public class NullPartition extends AbstractPartition
     }
 
 
-    public Registries getRegistries()
+    public SchemaManager getSchemaManager()
     {
         // TODO Auto-generated method stub
         return null;
     }
 
 
-    public void setRegistries( Registries registries )
+    public void setSchemaManager( SchemaManager schemaManager )
     {
         // TODO Auto-generated method stub
         

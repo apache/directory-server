@@ -35,10 +35,10 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -53,7 +53,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
 {
     private final EqualityNode<T> node;
     private final Store<ServerEntry> db;
-    private final Registries registries;
+    private final SchemaManager schemaManager;
     private final AttributeType type;
     private final Normalizer normalizer;
     
@@ -69,12 +69,12 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     private final Index<T,ServerEntry> idx;
 
 
-    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, Registries registries )
+    public EqualityEvaluator( EqualityNode<T> node, Store<ServerEntry> db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
         this.node = node;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -87,7 +87,7 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         else
         {
             idx = null;
-            type = registries.getAttributeTypeRegistry().lookup( node.getAttribute() );
+            type = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
 
             MatchingRule mr = type.getEquality();
 
@@ -145,13 +145,13 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
         // If we do not have the attribute, loop through the sub classes of
         // the attributeType.  Perhaps the entry has an attribute value of a
         // subtype (descendant) that will produce a match
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {

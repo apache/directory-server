@@ -27,14 +27,15 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.authz.support.ACITupleFilter;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
+import org.apache.directory.shared.ldap.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
@@ -45,14 +46,14 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  * @version $Rev$, $Date$
  *
  */
-public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
+public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType> implements AttributeTypeRegistry, Cloneable 
 {
     private final boolean returnOperational;
 
 
     public DummyAttributeTypeRegistry(boolean returnOperational)
     {
-    	super( new OidRegistry() );
+        super( SchemaObjectType.ATTRIBUTE_TYPE, new OidRegistry() );
         this.returnOperational = returnOperational;
     }
 
@@ -143,5 +144,22 @@ public class DummyAttributeTypeRegistry extends AttributeTypeRegistry
     public Set<String> getBinaryAttributes() throws NamingException
     {
         return null;
+    }
+
+    
+    public void unregisterDescendants( AttributeType attributeType, AttributeType ancestor ) 
+    throws NamingException
+    {
+    }
+
+    
+    public void registerDescendants( AttributeType attributeType, AttributeType ancestor ) 
+    throws NamingException
+    {
+    }
+    
+    
+    public void addMappingFor( AttributeType attributeType ) throws NamingException
+    {
     }
 }

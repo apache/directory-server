@@ -125,17 +125,17 @@ public class RegistrySynchronizerAdaptor
         this.objectClassAT = this.registries.getAttributeTypeRegistry()
             .lookup( SchemaConstants.OBJECT_CLASS_AT );
         
-        this.registrySynchronizers[COMPARATOR_INDEX] = new ComparatorSynchronizer( registries ); 
-        this.registrySynchronizers[NORMALIZER_INDEX] = new NormalizerSynchronizer( registries );
-        this.registrySynchronizers[SYNTAX_CHECKER_INDEX] = new SyntaxCheckerSynchronizer( registries );
-        this.registrySynchronizers[SYNTAX_INDEX] = new SyntaxSynchronizer( registries );
-        this.registrySynchronizers[MATCHING_RULE_INDEX] = new MatchingRuleSynchronizer( registries );
-        this.registrySynchronizers[ATTRIBUTE_TYPE_INDEX] = new AttributeTypeSynchronizer( registries );
-        this.registrySynchronizers[OBJECT_CLASS_INDEX] = new ObjectClassSynchronizer( registries );
-        this.registrySynchronizers[MATCHING_RULE_USE_INDEX] = new MatchingRuleUseSynchronizer( registries );
-        this.registrySynchronizers[DIT_STRUCTURE_RULE_INDEX] = new DitStructureRuleSynchronizer( registries ); 
-        this.registrySynchronizers[DIT_CONTENT_RULE_INDEX] = new DitContentRuleSynchronizer( registries ); 
-        this.registrySynchronizers[NAME_FORM_INDEX] = new NameFormSynchronizer( registries ); 
+        this.registrySynchronizers[COMPARATOR_INDEX] = new ComparatorSynchronizer( schemaManager ); 
+        this.registrySynchronizers[NORMALIZER_INDEX] = new NormalizerSynchronizer( schemaManager );
+        this.registrySynchronizers[SYNTAX_CHECKER_INDEX] = new SyntaxCheckerSynchronizer( schemaManager );
+        this.registrySynchronizers[SYNTAX_INDEX] = new SyntaxSynchronizer( schemaManager );
+        this.registrySynchronizers[MATCHING_RULE_INDEX] = new MatchingRuleSynchronizer( schemaManager );
+        this.registrySynchronizers[ATTRIBUTE_TYPE_INDEX] = new AttributeTypeSynchronizer( schemaManager );
+        this.registrySynchronizers[OBJECT_CLASS_INDEX] = new ObjectClassSynchronizer( schemaManager );
+        this.registrySynchronizers[MATCHING_RULE_USE_INDEX] = new MatchingRuleUseSynchronizer( schemaManager );
+        this.registrySynchronizers[DIT_STRUCTURE_RULE_INDEX] = new DitStructureRuleSynchronizer( schemaManager ); 
+        this.registrySynchronizers[DIT_CONTENT_RULE_INDEX] = new DitContentRuleSynchronizer( schemaManager ); 
+        this.registrySynchronizers[NAME_FORM_INDEX] = new NameFormSynchronizer( schemaManager ); 
 
         ObjectClassRegistry ocReg = registries.getObjectClassRegistry();
         for ( int ii = 0; ii < META_OBJECT_CLASSES.length; ii++ )

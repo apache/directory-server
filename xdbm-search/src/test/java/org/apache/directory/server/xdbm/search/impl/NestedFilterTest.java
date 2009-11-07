@@ -40,11 +40,8 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -69,8 +66,7 @@ public class NestedFilterTest
 
     File wkdir;
     Store<ServerEntry> store;
-    static Registries registries = null;
-    static AttributeTypeRegistry attributeRegistry;
+    static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     Optimizer optimizer;
@@ -93,30 +89,24 @@ public class NestedFilterTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
-        loaded = sm.loadWithDeps( loader.getSchema( "collective" ) );
+        loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
         
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
         
-        registries = sm.getRegistries();
-        
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
-        attributeRegistry = registries.getAttributeTypeRegistry();
-        
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry );
-        visitor = new FilterNormalizingVisitor( ncn, registries );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
+        visitor = new FilterNormalizingVisitor( ncn, schemaManager );
     }
 
     
@@ -140,9 +130,9 @@ public class NestedFilterTest
 
         store.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new JdbmIndex( SchemaConstants.CN_AT_OID ) );
-        StoreUtils.loadExampleData( store, registries );
+        StoreUtils.loadExampleData( store, schemaManager );
         
-        evaluatorBuilder = new EvaluatorBuilder( store, registries );
+        evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         optimizer = new DefaultOptimizer( store );
         

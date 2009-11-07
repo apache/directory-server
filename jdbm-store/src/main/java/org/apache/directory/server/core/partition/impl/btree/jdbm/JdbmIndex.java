@@ -20,6 +20,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.naming.NamingException;
+
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
@@ -28,21 +33,17 @@ import jdbm.recman.CacheRecordManager;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.Tuple;
 import org.apache.directory.shared.ldap.cursor.Cursor;
 import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.naming.NamingException;
 
 
 /** 
@@ -154,7 +155,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
     }
 
 
-    public void init( AttributeType attributeType, File wkDirPath ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType, File wkDirPath ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
         
@@ -179,7 +180,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
 
         try
         {
-            initTables();
+            initTables( schemaManager );
         }
         catch ( IOException e )
         {
@@ -199,7 +200,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
      * tables
      * @throws NamingException 
      */
-    private void initTables() throws IOException
+    private void initTables( SchemaManager schemaManager ) throws IOException
     {
         SerializableComparator<K> comp;
 
@@ -217,7 +218,11 @@ public class JdbmIndex<K,O> implements Index<K,O>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
+        LongComparator.INSTANCE.setSchemaManager( schemaManager );
+        comp.setSchemaManager( schemaManager );
+        
         forward = new JdbmTable<K, Long>(
+            schemaManager,
             attribute.getName() + FORWARD_BTREE, 
             numDupLimit,
             recMan, 
@@ -233,6 +238,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         if ( attribute.isSingleValued() )
         {
             reverse = new JdbmTable<Long,K>(
+                schemaManager,
                 attribute.getName() + REVERSE_BTREE,
                 recMan,
                 LongComparator.INSTANCE,
@@ -242,6 +248,7 @@ public class JdbmIndex<K,O> implements Index<K,O>
         else
         {
             reverse = new JdbmTable<Long,K>(
+                schemaManager,
                 attribute.getName() + REVERSE_BTREE,
                 numDupLimit,
                 recMan,

@@ -45,9 +45,9 @@ import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
 import org.apache.directory.shared.ldap.schema.NameForm;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 
 
 /**
@@ -97,9 +97,9 @@ public class DefaultSchemaService implements SchemaService
     }
 
 
-    public final Registries getRegistries()
+    public final SchemaManager getSchemaManager()
     {
-        return schemaPartition.getRegistries();
+        return schemaPartition.getSchemaManager();
     }
     
     
@@ -127,9 +127,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateComparators() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.COMPARATORS_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.COMPARATORS_AT ) );
 
-        Iterator<LdapComparator<?>> list = getRegistries().getComparatorRegistry().iterator();
+        Iterator<LdapComparator<?>> list = getSchemaManager().getComparatorRegistry().iterator();
         
         while ( list.hasNext() )
         {
@@ -143,9 +143,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateNormalizers() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.NORMALIZERS_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NORMALIZERS_AT ) );
 
-        Iterator<Normalizer> list = getRegistries().getNormalizerRegistry().iterator();
+        Iterator<Normalizer> list = getSchemaManager().getNormalizerRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -159,9 +159,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateSyntaxCheckers() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.SYNTAX_CHECKERS_AT ) );
 
-        Iterator<SyntaxChecker> list = getRegistries().getSyntaxCheckerRegistry().iterator();
+        Iterator<SyntaxChecker> list = getSchemaManager().getSyntaxCheckerRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -175,9 +175,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateObjectClasses() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASSES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASSES_AT ) );
 
-        Iterator<ObjectClass> list = getRegistries().getObjectClassRegistry().iterator();
+        Iterator<ObjectClass> list = getSchemaManager().getObjectClassRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -192,9 +192,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateAttributeTypes() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
 
-        Iterator<AttributeType> list = getRegistries().getAttributeTypeRegistry().iterator();
+        Iterator<AttributeType> list = getSchemaManager().getAttributeTypeRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -209,9 +209,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateMatchingRules() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.MATCHING_RULES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULES_AT ) );
 
-        Iterator<MatchingRule> list = getRegistries().getMatchingRuleRegistry().iterator();
+        Iterator<MatchingRule> list = getSchemaManager().getMatchingRuleRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -226,9 +226,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateMatchingRuleUses() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.MATCHING_RULE_USE_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.MATCHING_RULE_USE_AT ) );
 
-        Iterator<MatchingRuleUse> list = getRegistries().getMatchingRuleUseRegistry().iterator();
+        Iterator<MatchingRuleUse> list = getSchemaManager().getMatchingRuleUseRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -243,9 +243,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateSyntaxes() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.LDAP_SYNTAXES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.LDAP_SYNTAXES_AT ) );
 
-        Iterator<LdapSyntax> list = getRegistries().getLdapSyntaxRegistry().iterator();
+        Iterator<LdapSyntax> list = getSchemaManager().getLdapSyntaxRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -260,9 +260,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateDitContextRules() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_CONTENT_RULES_AT ) );
 
-        Iterator<DITContentRule> list = getRegistries().getDitContentRuleRegistry().iterator();
+        Iterator<DITContentRule> list = getSchemaManager().getDITContentRuleRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -277,9 +277,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateDitStructureRules() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
 
-        Iterator<DITStructureRule> list = getRegistries().getDitStructureRuleRegistry().iterator();
+        Iterator<DITStructureRule> list = getSchemaManager().getDITStructureRuleRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -294,9 +294,9 @@ public class DefaultSchemaService implements SchemaService
     private ServerAttribute generateNameForms() throws NamingException
     {
         ServerAttribute attr = new DefaultServerAttribute( 
-            getRegistries().getAttributeTypeRegistry().lookup( SchemaConstants.NAME_FORMS_AT ) );
+            getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.NAME_FORMS_AT ) );
 
-        Iterator<NameForm> list = getRegistries().getNameFormRegistry().iterator();
+        Iterator<NameForm> list = getSchemaManager().getNameFormRegistry().iterator();
 
         while ( list.hasNext() )
         {
@@ -313,7 +313,7 @@ public class DefaultSchemaService implements SchemaService
      */
     private void generateSchemaSubentry( ServerEntry mods ) throws NamingException
     {
-        ServerEntry attrs = new DefaultServerEntry( getRegistries(), mods.getDn() );
+        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), mods.getDn() );
 
         // add the objectClass attribute : 'top', 'subschema', 'subentry' and 'apacheSubschema' 
         attrs.put( SchemaConstants.OBJECT_CLASS_AT, 
@@ -408,7 +408,7 @@ public class DefaultSchemaService implements SchemaService
         {
             schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
             schemaModificationAttributesDN.normalize( 
-                getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+                getSchemaManager().getNormalizerMapping() );
         }
         catch ( NamingException e )
         {
@@ -443,7 +443,7 @@ public class DefaultSchemaService implements SchemaService
         }
 
         Set<String> setOids = new HashSet<String>();
-        ServerEntry attrs = new DefaultServerEntry( getRegistries(), LdapDN.EMPTY_LDAPDN );
+        ServerEntry attrs = new DefaultServerEntry( getSchemaManager(), LdapDN.EMPTY_LDAPDN );
         boolean returnAllOperationalAttributes = false;
 
         synchronized( lock )
@@ -506,7 +506,7 @@ public class DefaultSchemaService implements SchemaService
                 }
                 else
                 {
-                    setOids.add( getRegistries().getAttributeTypeRegistry().getOidByName( id ) );
+                    setOids.add( getSchemaManager().getAttributeTypeRegistry().getOidByName( id ) );
                 }
             }
 

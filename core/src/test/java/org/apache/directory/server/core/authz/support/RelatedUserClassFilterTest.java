@@ -37,6 +37,8 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
@@ -53,18 +55,19 @@ public class RelatedUserClassFilterTest
 
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
-    private static final LdapDN GROUP_NAME;
-    private static final LdapDN USER_NAME;
+    private static LdapDN GROUP_NAME;
+    private static LdapDN USER_NAME;
     private static final Set<LdapDN> USER_NAMES = new HashSet<LdapDN>();
     private static final Set<LdapDN> GROUP_NAMES = new HashSet<LdapDN>();
 
-    private static final SubtreeEvaluator SUBTREE_EVALUATOR;
+    private static SubtreeEvaluator SUBTREE_EVALUATOR;
 
-    private static final RelatedUserClassFilter filter;
+    private static RelatedUserClassFilter filter;
 
-    static
+    @BeforeClass
+    public static void init() throws Exception
     {
-        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DummyAttributeTypeRegistry(true) );
+        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DefaultSchemaManager( null ) );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
         
         try

@@ -85,8 +85,8 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         super( session, modifyRequest.getName() );
         
         modItems = ServerEntryUtils.toServerModification( 
-            modifyRequest.getModificationItems().toArray( new ClientModification[0]), 
-            session.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
+            modifyRequest.getModificationItems().toArray( new ClientModification[0] ), 
+            session.getDirectoryService().getSchemaManager() );
         
         requestControls = modifyRequest.getControls();
 

@@ -93,7 +93,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
     {
         super( session );
         entry = new ClonedServerEntry( 
-            new DefaultServerEntry( session.getDirectoryService().getRegistries(), addRequest.getEntry() ) );
+            new DefaultServerEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
         

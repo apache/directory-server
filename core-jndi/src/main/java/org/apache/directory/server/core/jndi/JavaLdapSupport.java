@@ -20,13 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.entry.DefaultServerAttribute;
-import org.apache.directory.server.core.entry.ServerAttribute;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,6 +27,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.naming.NamingException;
+
+import org.apache.directory.server.core.entry.DefaultServerAttribute;
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -164,7 +164,7 @@ class JavaLdapSupport
      * @param obj the object to serialize
      * @throws NamingException if the object cannot be serialized
      */
-    static void serialize( ServerEntry entry, Object obj, Registries registries ) throws NamingException
+    static void serialize( ServerEntry entry, Object obj, SchemaManager schemaManager ) throws NamingException
     {
         /* Let's add the object classes first:
          * objectClass: top
@@ -184,7 +184,7 @@ class JavaLdapSupport
 
         // Add all the class names this object can be cast to:
         Class<?>[] classes = obj.getClass().getClasses();
-        AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( JCLASSNAMES_ATTR );
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( JCLASSNAMES_ATTR );
         ServerAttribute javaClassNames = new DefaultServerAttribute( attributeType, JCLASSNAMES_ATTR );
 
         for ( int ii = 0; ii < classes.length; ii++ )

@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -63,8 +63,8 @@ public class LeafEvaluator implements Evaluator
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-    /** AttributeType registry needed for normalizing and comparing values */
-    private AttributeTypeRegistry attributeTypeRegistry;
+    /** SchemaManager needed for normalizing and comparing values */
+    private SchemaManager schemaManager;
     
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
@@ -82,10 +82,10 @@ public class LeafEvaluator implements Evaluator
      *
      * @param substringEvaluator
      */
-    public LeafEvaluator( AttributeTypeRegistry attributeTypeRegistry,
+    public LeafEvaluator( SchemaManager schemaManager,
         SubstringEvaluator substringEvaluator )
     {
-        this.attributeTypeRegistry = attributeTypeRegistry;
+        this.schemaManager = schemaManager;
         this.scopeEvaluator = new ScopeEvaluator();
         this.substringEvaluator = substringEvaluator;
     }
@@ -163,7 +163,7 @@ public class LeafEvaluator implements Evaluator
         String attrId = node.getAttribute();
 
         // get the attribute associated with the node
-        AttributeType type = attributeTypeRegistry.lookup( attrId );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( attrId );
         EntryAttribute attr = entry.get( type );
 
         // If we do not have the attribute just return false
@@ -260,7 +260,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if AVA value exists in attribute
-        AttributeType at = attributeTypeRegistry.lookup( node.getAttribute() );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( node.getAttribute() );
         Value<?> value = null;
         
         if ( at.getSyntax().isHumanReadable() )
@@ -351,7 +351,7 @@ public class LeafEvaluator implements Evaluator
     private MatchingRule getMatchingRule( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = null;
-        AttributeType type = attributeTypeRegistry.lookup( attrId );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( attrId );
 
         switch ( matchType )
         {

@@ -40,7 +40,6 @@ import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.JarLdifSchemaLoader;
@@ -72,28 +71,26 @@ public class RestrictedByFilterTest
     }
 
 
-    /** A reference to the registries */
-    private static Registries registries;
+    /** A reference to the schemaManager */
+    private static SchemaManager schemaManager;
 
     
     @BeforeClass public static void setup() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        registries = sm.getRegistries();
 
         LdapDN entryName = new LdapDN( "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxImmSub( 2 ) );
-        ENTRY = new DefaultServerEntry( registries, entryName );
+        ENTRY = new DefaultServerEntry( schemaManager, entryName );
 
         ENTRY.put( "cn", "1", "2" );
     }

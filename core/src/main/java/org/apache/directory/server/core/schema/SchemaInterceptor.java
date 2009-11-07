@@ -94,12 +94,10 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
@@ -145,17 +143,11 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
 
-    /**
-     * the global schema object registries
-     */
-    private Registries registries;
+    /** the global schema object SchemaManager */
+    private SchemaManager schemaManager;
 
     /** A global reference to the ObjectClass attributeType */
     private AttributeType OBJECT_CLASS;
-    /**
-     * the global attributeType registry
-     */
-    private AttributeTypeRegistry atRegistry;
 
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
@@ -169,7 +161,7 @@ public class SchemaInterceptor extends BaseInterceptor
     private LdapDN schemaModificationAttributesDN;
 
     /** The schema manager */
-    private SchemaSubentryManager schemaManager;
+    private SchemaSubentryManager schemaSubEntryManager;
 
     private SchemaService schemaService;
 
@@ -205,36 +197,35 @@ public class SchemaInterceptor extends BaseInterceptor
         }
 
         nexus = directoryService.getPartitionNexus();
-        registries = directoryService.getRegistries();
-        atRegistry = registries.getAttributeTypeRegistry();
-        OBJECT_CLASS = atRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
+        schemaManager = directoryService.getSchemaManager();
+        OBJECT_CLASS = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
         schemaBaseDN = new LdapDN( SchemaConstants.OU_SCHEMA );
-        schemaBaseDN.normalize( atRegistry.getNormalizerMapping() );
+        schemaBaseDN.normalize( schemaManager.getNormalizerMapping() );
         schemaService = directoryService.getSchemaService();
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry.getString() );
-        subschemaSubentryDn.normalize( atRegistry.getNormalizerMapping() );
+        subschemaSubentryDn.normalize( schemaManager.getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationAttributesDN.normalize( atRegistry.getNormalizerMapping() );
+        schemaModificationAttributesDN.normalize( schemaManager.getNormalizerMapping() );
 
         computeSuperiors();
         
         // Initialize the schema manager
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
         SchemaPartitionDao dao = (SchemaPartitionDao)loader.getDao();
-        schemaManager = new SchemaSubentryManager( registries, loader, dao );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, dao );
 
-        MODIFIERS_NAME_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = atRegistry.lookup( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
+        MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );
         
         if ( IS_DEBUG )
         {
@@ -396,7 +387,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private void computeSuperiors() throws Exception
     {
-        Iterator<ObjectClass> objectClasses = registries.getObjectClassRegistry().iterator();
+        Iterator<ObjectClass> objectClasses = schemaManager.getObjectClassRegistry().iterator();
         superiors = new ConcurrentHashMap<String, List<ObjectClass>>();
         allMust = new ConcurrentHashMap<String, List<AttributeType>>();
         allMay = new ConcurrentHashMap<String, List<AttributeType>>();
@@ -472,12 +463,12 @@ public class SchemaInterceptor extends BaseInterceptor
             try
             {
                 // Check that the attribute is declared
-                if ( registries.getAttributeTypeRegistry().contains( attribute ) )
+                if ( schemaManager.getAttributeTypeRegistry().contains( attribute ) )
                 {
-                    String oid = atRegistry.getOidByName( attribute );
+                    String oid = schemaManager.getAttributeTypeRegistry().getOidByName( attribute );
 
                     // The attribute must be an AttributeType
-                    if ( atRegistry.contains( oid ) )
+                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
                     {
                         if ( !filteredAttrs.containsKey( oid ) )
                         {
@@ -532,7 +523,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private Value<?> convert( String id, Object value ) throws Exception
     {
-        AttributeType at = atRegistry.lookup( id );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( id );
 
         if ( at.getSyntax().isHumanReadable() )
         {
@@ -603,7 +594,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 SubstringNode node = ( ( SubstringNode ) filter );
 
-                if ( !atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
                     String message = "A Substring filter should be used only on Human Readable attributes";
                     LOG.error( message );
@@ -643,7 +634,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
 
-                if ( !atRegistry.lookup( node.getAttribute() ).getSyntax().isHumanReadable() )
+                if ( !schemaManager.lookupAttributeTypeRegistry( node.getAttribute() ).getSyntax().isHumanReadable() )
                 {
                     String message = "A Extensible filter should be used only on Human Readable attributes";
                     LOG.error( message );
@@ -740,16 +731,16 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 String objectClassOid = null;
 
-                if ( registries.getObjectClassRegistry().contains( objectClass ) )
+                if ( schemaManager.getObjectClassRegistry().contains( objectClass ) )
                 {
-                    objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getOid();
+                    objectClassOid = schemaManager.getObjectClassRegistry().lookup( objectClass ).getOid();
                 }
                 else
                 {
                     return new BaseEntryFilteringCursor( new EmptyCursor<ServerEntry>(), opContext );
                 }
 
-                String nodeOid = atRegistry.getOidByName( node.getAttribute() );
+                String nodeOid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
 
                 // see if node attribute is objectClass
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
@@ -841,19 +832,18 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private boolean isRequired( String attrId, EntryAttribute objectClasses ) throws Exception
     {
-        OidRegistry oidRegistry = registries.getOidRegistry();
-        ObjectClassRegistry registry = registries.getObjectClassRegistry();
+        OidRegistry oidRegistry = schemaManager.getOidRegistry();
 
         if ( !oidRegistry.hasOid( attrId ) )
         {
             return false;
         }
 
-        String attrOid = registries.getAttributeTypeRegistry().getOidByName( attrId );
+        String attrOid = schemaManager.getAttributeTypeRegistry().getOidByName( attrId );
 
         for ( Value<?> objectClass : objectClasses )
         {
-            ObjectClass ocSpec = registry.lookup( objectClass.getString() );
+            ObjectClass ocSpec = schemaManager.getObjectClassRegistry().lookup( objectClass.getString() );
 
             for ( AttributeType must : ocSpec.getMustAttributeTypes() )
             {
@@ -961,7 +951,6 @@ public class SchemaInterceptor extends BaseInterceptor
     private boolean getObjectClasses( EntryAttribute objectClasses, List<ObjectClass> result ) throws Exception
     {
         Set<String> ocSeen = new HashSet<String>();
-        ObjectClassRegistry registry = registries.getObjectClassRegistry();
 
         // We must select all the ObjectClasses, except 'top',
         // but including all the inherited ObjectClasses
@@ -981,7 +970,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 hasExtensibleObject = true;
             }
 
-            ObjectClass oc = registry.lookup( objectClassName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( objectClassName );
 
             // Add all unseen objectClasses to the list, except 'top'
             if ( !ocSeen.contains( oc.getOid() ) )
@@ -1006,7 +995,7 @@ public class SchemaInterceptor extends BaseInterceptor
         for ( Value<?> value : objectClasses )
         {
             String ocName = value.getString();
-            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
             List<AttributeType> types = oc.getMustAttributeTypes();
 
@@ -1029,13 +1018,13 @@ public class SchemaInterceptor extends BaseInterceptor
         Set<String> allowed = new HashSet<String>( must );
 
         // Add the 'ObjectClass' attribute ID
-        allowed.add( registries.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
+        allowed.add( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );
 
         // Loop on all objectclasses
         for ( Value<?> objectClass : objectClasses )
         {
             String ocName = objectClass.getString();
-            ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().lookup( ocName );
 
             List<AttributeType> types = oc.getMayAttributeTypes();
 
@@ -1082,7 +1071,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 String ocLowerName = ocName.toLowerCase();
 
-                ObjectClass objectClass = registries.getObjectClassRegistry().lookup( ocLowerName );
+                ObjectClass objectClass = schemaManager.getObjectClassRegistry().lookup( ocLowerName );
 
                 if ( !objectClasses.contains( ocLowerName ) )
                 {
@@ -1139,13 +1128,13 @@ public class SchemaInterceptor extends BaseInterceptor
             // are still present in the entry.
             for ( AttributeTypeAndValue atav : oldRDN )
             {
-                AttributeType type = atRegistry.lookup( atav.getUpType() );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
                 tmpEntry.remove( type, atav.getUpValue() );
             }
             
             for ( AttributeTypeAndValue atav : newRdn )
             {
-                AttributeType type = atRegistry.lookup( atav.getUpType() );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
                 if ( !tmpEntry.contains( type, atav.getNormValue() ) )
                 {
@@ -1161,7 +1150,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // Check that no operational attributes are removed
             for ( AttributeTypeAndValue atav : oldRDN )
             {
-                AttributeType attributeType = atRegistry.lookup( atav.getUpType() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
                 if ( !attributeType.isUserModifiable() )
                 {
@@ -1416,7 +1405,7 @@ public class SchemaInterceptor extends BaseInterceptor
             opContext.setModItems( cleanMods );
             
             // Now that the entry has been modified, update the SSSE
-            schemaManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
+            schemaSubEntryManager.modifySchemaSubentry(  opContext, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             
             return;
         }
@@ -1563,7 +1552,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( AttributeType attributeType : entry.getAttributeTypes() )
         {
-            if ( !atRegistry.contains( attributeType.getName() ) )
+            if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
                 throw new LdapInvalidAttributeIdentifierException( attributeType.getName()
                     + " not found in attribute registry!" );
@@ -1619,8 +1608,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
     private void checkOcSuperior( ServerEntry entry ) throws Exception
     {
-        ObjectClassRegistry ocRegistry = registries.getObjectClassRegistry();
-        
         // handle the m-supObjectClass meta attribute
         EntryAttribute supOC = entry.get( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
         
@@ -1642,7 +1629,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     String supName = sup.getString();
                     
-                    ObjectClass superior = ocRegistry.lookup( supName );
+                    ObjectClass superior = schemaManager.getObjectClassRegistry().lookup( supName );
 
                     switch ( ocType )
                     {
@@ -1702,7 +1689,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 next.add( addContext );
 
-                if ( registries.isSchemaLoaded( schemaName ) )
+                if ( schemaManager.isSchemaLoaded( schemaName ) )
                 {
                     // Update the OC superiors for each added ObjectClass
                     computeSuperiors();
@@ -1716,12 +1703,12 @@ public class SchemaInterceptor extends BaseInterceptor
                 next.add( addContext );
 
                 // Update the structures now that the schema element has been added
-                Schema schema = registries.getLoadedSchema( schemaName );
+                Schema schema = schemaManager.getLoadedSchema( schemaName );
                 
                 if ( ( schema != null ) && schema.isEnabled() )
                 {
                     String ocName = entry.get( MetaSchemaConstants.M_NAME_AT ).getString();
-                    ObjectClass addedOC = registries.getObjectClassRegistry().lookup( ocName );
+                    ObjectClass addedOC = schemaManager.getObjectClassRegistry().lookup( ocName );
                     computeSuperior( addedOC );
                 }
             }

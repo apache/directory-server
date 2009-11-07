@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 /**
@@ -42,12 +42,12 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Creates a new instance of DitContentRuleSynchronizer.
      *
-     * @param registries The global registries
+     * @param schemaManager The global schemaManager
      * @throws Exception If the initialization failed
      */
-    protected DitContentRuleSynchronizer( Registries registries ) throws Exception
+    protected DitContentRuleSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        super( registries );
+        super( schemaManager );
         // TODO Auto-generated constructor stub
     }
 

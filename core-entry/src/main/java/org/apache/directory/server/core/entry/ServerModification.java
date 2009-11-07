@@ -24,15 +24,13 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.naming.NamingException;
-//import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +79,7 @@ public class ServerModification implements Modification
     }
     
     
-    public ServerModification( Registries registries, Modification modification )
+    public ServerModification( SchemaManager schemaManager, Modification modification )
     {
         operation = modification.getOperation();
         
@@ -97,7 +95,7 @@ public class ServerModification implements Modification
             }
             else
             {
-                at = registries.getAttributeTypeRegistry().lookup( modAttribute.getId() );
+                at = schemaManager.lookupAttributeTypeRegistry( modAttribute.getId() );
             }
             
             attribute = new DefaultServerAttribute( at, modAttribute );
@@ -278,7 +276,7 @@ public class ServerModification implements Modification
      * @throws ClassNotFoundException if we weren't able to construct a Modification instance
      * @throws NamingException If we didn't found the AttributeType in the registries
      */
-    public void deserialize( ObjectInput in, AttributeTypeRegistry atRegistry ) throws IOException, ClassNotFoundException, NamingException
+    public void deserialize( ObjectInput in, SchemaManager schemaManager ) throws IOException, ClassNotFoundException, NamingException
     {
         // Read the operation
         int op = in.readInt();
@@ -289,7 +287,7 @@ public class ServerModification implements Modification
         String oid = in.readUTF();
         
         // Lookup for tha associated AttributeType
-        AttributeType attributeType = atRegistry.lookup( oid );
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
         
         attribute = new DefaultServerAttribute( attributeType );
         

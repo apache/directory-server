@@ -21,9 +21,9 @@ package org.apache.directory.server.core.jndi.referral;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -133,7 +133,7 @@ public class CompareReferralIT
         
         // Core API entry
         LdapDN dn = new LdapDN( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultServerEntry( service.getRegistries(), dn );
+        serverEntry = new DefaultServerEntry( service.getSchemaManager(), dn );
 
         serverEntry.put( "ObjectClass", "top", "person" );
         serverEntry.put( "sn", "elecharny" );

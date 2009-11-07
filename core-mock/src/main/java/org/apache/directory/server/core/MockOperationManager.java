@@ -126,7 +126,7 @@ public class MockOperationManager implements OperationManager
     public EntryFilteringCursor search( SearchOperationContext opContext ) throws Exception
     {
         MockCursor cursor = new MockCursor( count );
-        cursor.setRegistries( opContext.getSession().getDirectoryService().getRegistries() );
+        cursor.setSchemaManager( opContext.getSession().getDirectoryService().getSchemaManager() );
         return new BaseEntryFilteringCursor( cursor, opContext );
     }
 

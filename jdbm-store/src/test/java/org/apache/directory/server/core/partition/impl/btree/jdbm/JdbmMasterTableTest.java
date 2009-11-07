@@ -31,8 +31,6 @@ import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
 import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
@@ -57,8 +55,7 @@ public class JdbmMasterTableTest
     transient JdbmMasterTable<Integer> table;
     transient File dbFile;
     transient RecordManager recman;
-    transient Registries registries = null;
-    transient AttributeTypeRegistry attributeRegistry;
+    transient SchemaManager schemaManager = null;
 
 
     public JdbmMasterTableTest() throws Exception
@@ -76,18 +73,15 @@ public class JdbmMasterTableTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        Registries registries = new Registries();
 
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        attributeRegistry = sm.getRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -104,10 +98,10 @@ public class JdbmMasterTableTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        table = new JdbmMasterTable<Integer>( recman, registries );
+        table = new JdbmMasterTable<Integer>( recman, schemaManager );
         LOG.debug( "Created new table and populated it with data" );
 
-        JdbmMasterTable<Integer> t2 = new JdbmMasterTable<Integer>( recman, registries );
+        JdbmMasterTable<Integer> t2 = new JdbmMasterTable<Integer>( recman, schemaManager );
         t2.close();
     }
 

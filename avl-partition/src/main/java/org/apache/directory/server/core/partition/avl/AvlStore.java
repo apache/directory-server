@@ -58,8 +58,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,8 +79,6 @@ public class AvlStore<E> implements Store<E>
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlStore.class );
 
-    private AttributeTypeRegistry attributeTypeRegistry;
-
     /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
     private static AttributeType ALIASED_OBJECT_NAME_AT;
@@ -91,18 +88,25 @@ public class AvlStore<E> implements Store<E>
 
     /** the normalized distinguished name index */
     private AvlIndex<String, E> ndnIdx;
+    
     /** the user provided distinguished name index */
     private AvlIndex<String, E> updnIdx;
+    
     /** the attribute existence index */
     private AvlIndex<String, E> existenceIdx;
+    
     /** a system index on aliasedObjectName attribute */
     private AvlIndex<String, E> aliasIdx;
+    
     /** a system index on the entries of descendants of root DN*/
     private AvlIndex<Long, E> subLevelIdx;
+    
     /** the parent child relationship index */
     private AvlIndex<Long, E> oneLevelIdx;
+    
     /** the one level scope alias index */
     private AvlIndex<Long, E> oneAliasIdx;
+    
     /** the subtree scope alias index */
     private AvlIndex<Long, E> subAliasIdx;
 
@@ -123,6 +127,9 @@ public class AvlStore<E> implements Store<E>
 
     /** true if initialized */
     private boolean initialized;
+    
+    /** A pointer on the schemaManager */
+    private SchemaManager schemaManager;
 
     /** 
      * TODO we need to check out why we have so many suffix 
@@ -575,7 +582,7 @@ public class AvlStore<E> implements Store<E>
     {
         try
         {
-            id = attributeTypeRegistry.getOidByName( id );
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
         catch ( NamingException e )
         {
@@ -610,7 +617,7 @@ public class AvlStore<E> implements Store<E>
     {
         try
         {
-            id = attributeTypeRegistry.getOidByName( id );
+            id = schemaManager.getAttributeTypeRegistry().getOidByName( id );
         }
         catch ( NamingException e )
         {
@@ -659,17 +666,17 @@ public class AvlStore<E> implements Store<E>
      * {@inheritDoc}
      * TODO why this and initRegistries on Store interface ???
      */
-    public void init( Registries registries ) throws Exception
+    public void init( SchemaManager schemaManager ) throws Exception
     {
-        initRegistries( registries );
+        initSchemaManager( schemaManager );
 
-        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
-        ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        ALIASED_OBJECT_NAME_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
         // Create the master table (the table containing all the entries)
         master = new AvlMasterTable<ServerEntry>( name, new LongComparator(), null, false );
 
-        suffixDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        suffixDn.normalize( schemaManager.getNormalizerMapping() );
         // -------------------------------------------------------------------
         // Initializes the user and system indices
         // -------------------------------------------------------------------
@@ -688,7 +695,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( ndnIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             ndnIdx = new AvlIndex<String, E>();
             ndnIdx.setAttributeId( ApacheSchemaConstants.APACHE_N_DN_AT_OID );
             ndnIdx.initialize( attributeType );
@@ -697,7 +704,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( updnIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             updnIdx = new AvlIndex<String, E>();
             updnIdx.setAttributeId( ApacheSchemaConstants.APACHE_UP_DN_AT_OID );
             updnIdx.initialize( attributeType );
@@ -706,7 +713,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( existenceIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             existenceIdx = new AvlIndex<String, E>();
             existenceIdx.setAttributeId( ApacheSchemaConstants.APACHE_EXISTENCE_AT_OID );
             existenceIdx.initialize( attributeType );
@@ -715,7 +722,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( oneLevelIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx = new AvlIndex<Long, E>();
             oneLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
             oneLevelIdx.initialize( attributeType );
@@ -724,7 +731,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( oneAliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx = new AvlIndex<Long, E>();
             oneAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx.initialize( attributeType );
@@ -733,7 +740,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( subAliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             subAliasIdx = new AvlIndex<Long, E>();
             subAliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
             subAliasIdx.initialize( attributeType );
@@ -742,7 +749,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( aliasIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             aliasIdx = new AvlIndex<String, E>();
             aliasIdx.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             aliasIdx.initialize( attributeType );
@@ -751,7 +758,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( subLevelIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx = new AvlIndex<Long, E>();
             subLevelIdx.setAttributeId( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
             subLevelIdx.initialize( attributeType );
@@ -760,7 +767,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryCsnIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_CSN_AT_OID ); 
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT_OID ); 
             entryCsnIdx = new AvlIndex<String, E>();
             entryCsnIdx.setAttributeId( SchemaConstants.ENTRY_CSN_AT_OID );
             entryCsnIdx.initialize( attributeType );
@@ -769,7 +776,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( entryUuidIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.ENTRY_UUID_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = new AvlIndex<byte[], E>();
             entryUuidIdx.setAttributeId( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx.initialize( attributeType );
@@ -778,7 +785,7 @@ public class AvlStore<E> implements Store<E>
 
         if ( objectClassIdx == null )
         {
-            AttributeType attributeType = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT_OID );
             objectClassIdx = new AvlIndex<String, E>();
             objectClassIdx.setAttributeId( SchemaConstants.OBJECT_CLASS_AT_OID );
             objectClassIdx.initialize( attributeType );
@@ -796,15 +803,15 @@ public class AvlStore<E> implements Store<E>
 
             for ( AvlIndex<?, E> index : userIndices.values() )
             {
-                String oid = attributeTypeRegistry.getOidByName( index.getAttributeId() );
-                AttributeType attributeType = attributeTypeRegistry.lookup( oid );
+                String oid = schemaManager.getAttributeTypeRegistry().getOidByName( index.getAttributeId() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
 
                 // Check that the attributeType has an EQUALITY matchingRule
                 MatchingRule mr = attributeType.getEquality();
 
                 if ( mr != null )
                 {
-                    index.initialize( attributeTypeRegistry.lookup( oid ) );
+                    index.initialize( schemaManager.lookupAttributeTypeRegistry( oid ) );
                     tmp.put( oid, index );
                 }
                 else
@@ -826,9 +833,9 @@ public class AvlStore<E> implements Store<E>
     /**
      * {@inheritDoc}
      */
-    public void initRegistries( Registries registries )
+    public void initSchemaManager( SchemaManager schemaManager )
     {
-        this.attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        this.schemaManager = schemaManager;
     }
 
 
@@ -879,7 +886,7 @@ public class AvlStore<E> implements Store<E>
         ndnIdx.drop( id );
         if ( !updn.isNormalized() )
         {
-            updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+            updn.normalize( schemaManager.getNormalizerMapping() );
         }
         ndnIdx.add( updn.toNormName(), id );
 
@@ -923,7 +930,7 @@ public class AvlStore<E> implements Store<E>
 
             String rdn = oldUpdn.get( oldUpdn.size() - 1 );
             LdapDN rdnDN = new LdapDN( rdn );
-            rdnDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
+            rdnDN.normalize( schemaManager.getNormalizerMapping() );
             childUpdn.add( rdnDN.getRdn() );
 
             // Modify the child
@@ -957,7 +964,7 @@ public class AvlStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
 
-        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -984,7 +991,7 @@ public class AvlStore<E> implements Store<E>
         }
 
         // add all the values in mods to the same attribute in the entry
-        AttributeType type = attributeTypeRegistry.lookup( modsOid );
+        AttributeType type = schemaManager.lookupAttributeTypeRegistry( modsOid );
 
         for ( Value<?> value : mods )
         {
@@ -1020,7 +1027,7 @@ public class AvlStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
 
-        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1049,7 +1056,7 @@ public class AvlStore<E> implements Store<E>
             }
         }
 
-        AttributeType attrType = attributeTypeRegistry.lookup( modsOid );
+        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
         /*
          * If there are no attribute values in the modifications then this 
          * implies the compelete removal of the attribute from the entry. Else
@@ -1111,7 +1118,7 @@ public class AvlStore<E> implements Store<E>
             throw new Exception( "Cannot store a ClonedServerEntry" );
         }
 
-        String modsOid = attributeTypeRegistry.getOidByName( mods.getId() );
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
 
         // Special case for the ObjectClass index
         if ( modsOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
@@ -1372,7 +1379,7 @@ public class AvlStore<E> implements Store<E>
         {
             String newNormType = newAtav.getNormType();
             String newNormValue = newAtav.getNormValue().getString();
-            AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newNormType );
+            AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
             Object unEscapedRdn = Rdn.unescapeValue( newAtav.getUpValue().getString() );
 
@@ -1442,7 +1449,7 @@ public class AvlStore<E> implements Store<E>
                 {
                     String oldNormType = oldAtav.getNormType();
                     String oldNormValue = oldAtav.getNormValue().getString();
-                    AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldNormType );
+                    AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 
                     if ( hasUserIndexOn( oldNormType ) )
@@ -1479,7 +1486,7 @@ public class AvlStore<E> implements Store<E>
         newUpdn.add( newRdn.getUpName() ); // add da new upRdn
 
         // gotta normalize cuz this thang is cloned and not normalized by default
-        newUpdn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        newUpdn.normalize( schemaManager.getNormalizerMapping() );
 
         modifyDn( id, newUpdn, false ); // propagate dn changes
 
@@ -1758,7 +1765,7 @@ public class AvlStore<E> implements Store<E>
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizedAliasTargetDn = new LdapDN( aliasTarget );
-        normalizedAliasTargetDn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        normalizedAliasTargetDn.normalize( schemaManager.getNormalizerMapping() );
 
         /*
          * Check For Cycles

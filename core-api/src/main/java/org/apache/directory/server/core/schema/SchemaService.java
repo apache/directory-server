@@ -4,7 +4,7 @@ package org.apache.directory.server.core.schema;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 
 
 public interface SchemaService
@@ -21,9 +21,9 @@ public interface SchemaService
 
 
     /**
-     * @return the registries loaded from schemaPartition
+     * @return the schemaManager loaded from schemaPartition
      */
-    abstract Registries getRegistries();
+    abstract SchemaManager getSchemaManager();
 
 
     abstract SchemaPartition getSchemaPartition();

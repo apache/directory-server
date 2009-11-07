@@ -23,20 +23,20 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.entry.ServerAttribute;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.entry.Value;
 
 
 /**
@@ -50,8 +50,8 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
     /** Database used while evaluating candidates */
     private final Store<ServerEntry> db;
     
-    /** Oid Registry used to translate attributeIds to OIDs */
-    private final Registries registries;
+    /** Reference to the SchemaManager */
+    private final SchemaManager schemaManager;
 
     /** The Substring expression */
     private final SubstringNode node;
@@ -74,14 +74,14 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
      * @param registries the set of registries
      * @throws Exception if there are failures accessing resources and the db
      */
-    public SubstringEvaluator( SubstringNode node, Store<ServerEntry> db, Registries registries ) throws Exception
+    public SubstringEvaluator( SubstringNode node, Store<ServerEntry> db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.node = node;
-        this.registries = registries;
+        this.schemaManager = schemaManager;
 
-        String oid = registries.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
-        type = registries.getAttributeTypeRegistry().lookup( oid );
+        String oid = schemaManager.getAttributeTypeRegistry().getOidByName( node.getAttribute() );
+        type = schemaManager.lookupAttributeTypeRegistry( oid );
 
         MatchingRule rule = type.getSubstring();
 
@@ -276,13 +276,13 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
 
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {
@@ -371,13 +371,13 @@ public class SubstringEvaluator implements Evaluator<SubstringNode, ServerEntry>
 
         // If we do not have the attribute, loop through the descendant
         // May be the node Attribute has descendant ?
-        if ( registries.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( node.getAttribute() ) )
         {
             // TODO check to see if descendant handling is necessary for the
             // index so we can match properly even when for example a name
             // attribute is used instead of more specific commonName
             Iterator<AttributeType> descendants =
-                registries.getAttributeTypeRegistry().descendants( node.getAttribute() );
+                schemaManager.getAttributeTypeRegistry().descendants( node.getAttribute() );
 
             while ( descendants.hasNext() )
             {

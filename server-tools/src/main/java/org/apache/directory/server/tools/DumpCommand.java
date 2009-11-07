@@ -54,10 +54,7 @@ import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
@@ -72,7 +69,7 @@ import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
  */
 public class DumpCommand extends ToolCommand
 {
-    private Registries bootstrapRegistries = new Registries();
+    private SchemaManager schemaManager;
     private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
 
@@ -83,7 +80,7 @@ public class DumpCommand extends ToolCommand
     }
 
 
-    private Registries loadRegistries() throws Exception
+    private SchemaManager loadSchemaManager() throws Exception
     {
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -103,11 +100,10 @@ public class DumpCommand extends ToolCommand
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
-        sm.loadAllEnabled();
-        Registries registries = sm.getRegistries();
+        schemaManager = new DefaultSchemaManager( loader );
+        schemaManager.loadAllEnabled();
         
-        List<Throwable> errors = sm.getErrors();
+        List<Throwable> errors = schemaManager.getErrors();
         
         if ( errors.size() != 0 )
         {
@@ -115,12 +111,10 @@ public class DumpCommand extends ToolCommand
         }
 
         
-        sm.loadWithDeps( "collective" );
+        schemaManager.loadWithDeps( "collective" );
         
-        errors = sm.getErrors();
+        errors = schemaManager.getErrors();
         
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-
         if ( !errors.isEmpty() )
         {
             MultiException e = new MultiException();
@@ -131,8 +125,6 @@ public class DumpCommand extends ToolCommand
             
             throw e;
         }
-
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         // --------------------------------------------------------------------
         // Initialize schema partition or bomb out if we cannot find it on disk
@@ -154,17 +146,16 @@ public class DumpCommand extends ToolCommand
         // Initialize schema subsystem and reset registries
         // --------------------------------------------------------------------
 //        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
-        Registries globalRegistries = new Registries();
 //        schemaLoader.loadEnabled( globalRegistries );
 //        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
-        return globalRegistries;
+        return schemaManager;
     }
 
 
     public void execute( CommandLine cmdline ) throws Exception
     {
         getLayout().verifyInstallation();
-        bootstrapRegistries = loadRegistries();
+        schemaManager = loadSchemaManager();
 
         includeOperational = cmdline.hasOption( 'o' );
         String[] partitions = cmdline.getOptionValues( 'p' );
@@ -175,11 +166,9 @@ public class DumpCommand extends ToolCommand
         
         if ( excludedAttributes != null )
         {
-            AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-            
             for ( String attributeType:excludedAttributes)
             {
-                AttributeType type = registry.lookup( attributeType );
+                AttributeType type = schemaManager.lookupAttributeTypeRegistry( attributeType );
                 exclusions.add( type.getName() );
             }
         }
@@ -220,14 +209,14 @@ public class DumpCommand extends ToolCommand
         base.disableTransactions();
         CacheRecordManager recMan = new CacheRecordManager( base, new MRU( 1000 ) );
 
-        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, bootstrapRegistries );
-        AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
+        JdbmMasterTable<ServerEntry> master = new JdbmMasterTable<ServerEntry>( recMan, schemaManager );
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "apacheUpdn" );
         JdbmIndex idIndex = new JdbmIndex();
         idIndex.setAttributeId( attributeType.getName() );
         idIndex.setWkDirPath( partitionDirectory );
         idIndex.setCacheSize( 1000 );
         idIndex.setNumDupLimit( 1000 );
-        idIndex.init( attributeType, partitionDirectory );
+        idIndex.init( schemaManager, attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
         Cursor<Tuple<Long,ServerEntry>> list = master.cursor();
@@ -272,14 +261,13 @@ public class DumpCommand extends ToolCommand
     private void filterAttributes( String dn, Attributes entry ) throws Exception
     {
         List<String> toRemove = new ArrayList<String>();
-        AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
         NamingEnumeration<? extends Attribute> attrs = entry.getAll();
         
         while ( attrs.hasMore() )
         {
             Attribute attr = attrs.next();
             
-            if ( !registry.contains( attr.getID() ) )
+            if ( !schemaManager.getAttributeTypeRegistry().contains( attr.getID() ) )
             {
                 if ( !isQuietEnabled() )
                 {
@@ -289,7 +277,7 @@ public class DumpCommand extends ToolCommand
                 continue;
             }
 
-            AttributeType type = registry.lookup( attr.getID() );
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attr.getID() );
             boolean isOperational = type.getUsage() != UsageEnum.USER_APPLICATIONS;
             
             if ( exclusions.contains( attr.getID() ) || ( isOperational && ( !includeOperational ) ) )

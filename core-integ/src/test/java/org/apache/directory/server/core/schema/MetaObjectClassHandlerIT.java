@@ -91,7 +91,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     private static ObjectClassRegistry getObjectClassRegistry()
     {
-        return service.getRegistries().getObjectClassRegistry();
+        return service.getSchemaManager().getObjectClassRegistry();
     }
     
     

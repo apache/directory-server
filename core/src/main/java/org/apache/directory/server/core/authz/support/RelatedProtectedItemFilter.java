@@ -41,9 +41,8 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -58,20 +57,20 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 {
     private final RefinementEvaluator refinementEvaluator;
     private final Evaluator entryEvaluator;
-    private final AttributeTypeRegistry atRegistry;
+    private final SchemaManager schemaManager;
 
 
     public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator, 
-        OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry )
+        OidRegistry oidRegistry, SchemaManager schemaManager )
     {
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
-        this.atRegistry = attrRegistry;
+        this.schemaManager = schemaManager;
     }
 
 
     public Collection<ACITuple> filter( 
-            Registries registries, 
+            SchemaManager schemaManager, 
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             OperationContext opContext,
@@ -113,7 +112,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         
         if ( attrId != null )
         {
-            oid = atRegistry.getOidByName( attrId );
+            oid = schemaManager.getAttributeTypeRegistry().getOidByName( attrId );
         }
         
         for ( ProtectedItem item : tuple.getProtectedItems() )
@@ -154,7 +153,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 for ( Iterator<String> j = aav.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( atRegistry.getOidByName( j.next() ) ) )
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( j.next() ) ) )
                     {
                         return true;
                     }
@@ -171,7 +170,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 
                 for ( Iterator<String> j = at.iterator(); j.hasNext(); )
                 {
-                    if ( oid.equals( atRegistry.getOidByName( j.next() ) ) )
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( j.next() ) ) )
                     {
                         return true;
                     }
@@ -188,8 +187,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
                 {
                     Attribute attr = j.next();
-                    String attrOid = atRegistry.getOidByName( attr.getID() );
-                    AttributeType attrType = atRegistry.lookup( attrOid );
+                    String attrOid = schemaManager.getAttributeTypeRegistry().getOidByName( attr.getID() );
+                    AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( attrOid );
                     
                     if ( oid.equals( attrOid ) && AttributeUtils.containsValue( attr, attrValue, attrType ) )
                     {
@@ -221,7 +220,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     MaxValueCountItem mvcItem = j.next();
                     
-                    if ( oid.equals( atRegistry.getOidByName( mvcItem.getAttributeType() ) ) )
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( mvcItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -247,7 +246,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<RestrictedByItem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByItem rbItem = j.next();
-                    if ( oid.equals( atRegistry.getOidByName( rbItem.getAttributeType() ) ) )
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( rbItem.getAttributeType() ) ) )
                     {
                         return true;
                     }
@@ -265,7 +264,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     String svItem = j.next();
                     
-                    if ( oid.equals( atRegistry.getOidByName( svItem ) ) )
+                    if ( oid.equals( schemaManager.getAttributeTypeRegistry().getOidByName( svItem ) ) )
                     {
                         EntryAttribute attr = entry.get( oid );
                         

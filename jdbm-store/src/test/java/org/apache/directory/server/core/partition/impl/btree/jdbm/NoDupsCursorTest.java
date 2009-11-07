@@ -19,28 +19,34 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.server.xdbm.Tuple;
-import org.apache.directory.shared.ldap.cursor.Cursor;
-import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
+
+import org.apache.directory.server.xdbm.Table;
+import org.apache.directory.server.xdbm.Tuple;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.cursor.Cursor;
+import org.apache.directory.shared.ldap.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.directory.shared.schema.DefaultSchemaManager;
+import org.apache.directory.shared.schema.loader.ldif.LdifSchemaLoader;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,9 +61,37 @@ public class NoDupsCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    transient Table<Integer,Integer> table;
+    transient Table<String,String> table;
     transient File dbFile;
     transient RecordManager recman;
+    private static SchemaManager schemaManager;
+
+
+    @BeforeClass
+    public static void init() throws Exception
+    {
+        String workingDirectory = System.getProperty( "workingDirectory" );
+
+        if ( workingDirectory == null )
+        {
+            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            int targetPos = path.indexOf( "target" );
+            workingDirectory = path.substring( 0, targetPos + 6 );
+        }
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
+        extractor.extractOrCopy();
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
+        }
+    }
 
 
     @Before
@@ -73,11 +107,11 @@ public class NoDupsCursorTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        // gosh this is a terrible use of a global static variable
-        SerializableComparator.setRegistry( 
-            new MockComparatorRegistry(
-                new OidRegistry() ) );
-        table = new JdbmTable<Integer,Integer>( "test", recman, new SerializableComparator<Integer>( "" ), null, null );
+        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        comparator.setSchemaManager( schemaManager );
+
+        table = new JdbmTable<String,String>( schemaManager, "test", recman, 
+            comparator, null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -100,7 +134,7 @@ public class NoDupsCursorTest
     @Test( expected=InvalidCursorPositionException.class )
     public void testEmptyTable() throws Exception
     {
-        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        Cursor<Tuple<String,String>> cursor = table.cursor();
         assertNotNull( cursor );
         
         assertFalse( cursor.available() );
@@ -113,7 +147,7 @@ public class NoDupsCursorTest
         cursor = table.cursor();
         assertFalse( cursor.next() );
 
-        cursor.after( new Tuple<Integer,Integer>(7,7) );
+        cursor.after( new Tuple<String,String>( "7", "7" ) );
         cursor.get();
     }
 
@@ -121,13 +155,13 @@ public class NoDupsCursorTest
     @Test
     public void testOnTableWithSingleEntry() throws Exception
     {
-        table.put( 1, 1 );
-        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        table.put( "1", "1" );
+        Cursor<Tuple<String,String>> cursor = table.cursor();
         assertTrue( cursor.first() );
     
-        Tuple<Integer,Integer> tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertTrue( tuple.getValue().equals( 1 ) );
+        Tuple<String,String> tuple = cursor.get();
+        assertEquals( "1", tuple.getKey() );
+        assertEquals( "1", tuple.getValue() );
     
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
@@ -140,35 +174,36 @@ public class NoDupsCursorTest
     {
         for( int i=1; i < 10; i++ )
         {
-            table.put( i, i );
+            String istr = Integer.toString( i );
+            table.put( istr, istr );
         }
     
-        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        Cursor<Tuple<String,String>> cursor = table.cursor();
         
-        cursor.after( new Tuple<Integer,Integer>( 2,2 ) );
+        cursor.after( new Tuple<String,String>( "2", "2" ) );
         assertTrue( cursor.next() );
     
-        Tuple<Integer,Integer> tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 3 ) );
-        assertTrue( tuple.getValue().equals( 3 ) );
+        Tuple<String,String> tuple = cursor.get();
+        assertEquals( "3", tuple.getKey() );
+        assertEquals( "3", tuple.getValue() );
     
-        cursor.before( new Tuple<Integer,Integer>(7,7) );
+        cursor.before( new Tuple<String,String>( "7", "7" ) );
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 7 ) );
-        assertTrue( tuple.getValue().equals( 7 ) );
+        assertEquals( "7", tuple.getKey() );
+        assertEquals( "7", tuple.getValue() );
     
         cursor.last();
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 9 ) );
-        assertTrue( tuple.getValue().equals( 9 ) );
+        assertEquals( "9", tuple.getKey() );
+        assertEquals( "9", tuple.getValue() );
     
         cursor.beforeFirst();
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertTrue( tuple.getValue().equals( 1 ) );
+        assertEquals( "1", tuple.getKey() );
+        assertEquals( "1", tuple.getValue() );
     
         cursor.afterLast();
         assertFalse( cursor.next() );
@@ -178,13 +213,13 @@ public class NoDupsCursorTest
         
         // just to clear the jdbmTuple value so that line 127 inside after(tuple) method
         // can be executed as part of the below after(tuple) call
-        cursor.before(new Tuple<Integer,Integer>( 1,1 )); 
-        cursor.after( new Tuple<Integer,Integer>( 0,0 ) );
+        cursor.before(new Tuple<String,String>( "1", "1" )); 
+        cursor.after( new Tuple<String,String>( "0", "0" ) );
         
         cursor.next();
         tuple = cursor.get();
-        assertTrue( tuple.getKey().equals( 1 ) );
-        assertTrue( tuple.getValue().equals( 1 ) );
+        assertEquals( "1", tuple.getKey() );
+        assertEquals( "1", tuple.getValue() );
     }
     
 
@@ -193,59 +228,60 @@ public class NoDupsCursorTest
     {
         for( int i=1; i < 10; i++ )
         {
-            table.put( i, i );
+            String istr = Integer.toString( i );
+            table.put( istr, istr );
         }
     
-        Cursor<Tuple<Integer,Integer>> cursor = table.cursor();
+        Cursor<Tuple<String,String>> cursor = table.cursor();
         
         // go to last and call next then previous twice then next
         cursor.afterLast();
         assertFalse( cursor.next() );
         assertTrue( cursor.previous() );
-        assertEquals( 9, ( int ) cursor.get().getKey() );
+        assertEquals( "9", cursor.get().getKey() );
         
         assertTrue( cursor.previous() );
-        assertEquals( 8, ( int ) cursor.get().getKey() );
+        assertEquals( "8", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
-         assertEquals( 9, ( int ) cursor.get().getKey() );
+         assertEquals( "9", cursor.get().getKey() );
  
         
         // go to last and call previous then next and again previous 
         cursor.afterLast();
         assertTrue( cursor.previous() );
-        assertEquals( 9, ( int ) cursor.get().getKey() );
+        assertEquals( "9", cursor.get().getKey() );
         
         assertTrue( cursor.next() );
-        assertEquals( 9, ( int ) cursor.get().getKey() );
+        assertEquals( "9", cursor.get().getKey() );
         
         assertTrue( cursor.previous() );
-        assertEquals( 8, ( int ) cursor.get().getKey() );
+        assertEquals( "8", cursor.get().getKey() );
         
         
         // go to first and call previous then next twice and again next
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
-        assertEquals( 1, ( int ) cursor.get().getKey() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
-        assertEquals( 2, ( int ) cursor.get().getKey() );
+        assertEquals( "2", cursor.get().getKey() );
         
         assertTrue( cursor.previous() );
-        assertEquals( 1, ( int ) cursor.get().getKey() );
+        assertEquals( "1", cursor.get().getKey() );
 
 
         // go to first and call next twice then previous
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 1, ( int ) cursor.get().getKey() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
-        assertEquals( 2, ( int ) cursor.get().getKey() );
+        assertEquals( "2", cursor.get().getKey() );
         
         assertTrue( cursor.previous() );
-        assertEquals( 1, ( int ) cursor.get().getKey() );
+        assertEquals( "1", cursor.get().getKey() );
 
     }
     

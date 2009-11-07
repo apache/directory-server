@@ -35,9 +35,7 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.directory.shared.schema.DefaultSchemaManager;
@@ -58,7 +56,7 @@ import org.junit.Test;
 @Ignore ( "Ignore this test until we get the LDIF partition in place." )
 public class PartitionSchemaLoaderTest
 {
-    private static Registries registries;
+    private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
     private static JdbmPartition schemaPartition;
 
@@ -91,17 +89,14 @@ public class PartitionSchemaLoaderTest
         SchemaLdifExtractor extractor = new SchemaLdifExtractor( workingDirectory );
         extractor.extractOrCopy();
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
-        SchemaManager sm = new DefaultSchemaManager( loader );
+        schemaManager = new DefaultSchemaManager( loader );
 
-        boolean loaded = sm.loadAllEnabled();
+        boolean loaded = schemaManager.loadAllEnabled();
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( sm.getErrors() ) );
+            fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
-
-        registries = sm.getRegistries();
-        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
 
         // --------------------------------------------------------------------
         // TODO add code here to start up the LDIF schema partition
@@ -113,7 +108,7 @@ public class PartitionSchemaLoaderTest
     
     @Test public void testGetSchemas() throws Exception
     {
-        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
+        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
         Map<String,Schema> schemas = loader.getSchemas();
         
         Schema schema = schemas.get( "mozilla" );
@@ -232,7 +227,7 @@ public class PartitionSchemaLoaderTest
     
     @Test public void testGetSchemaNames() throws Exception
     {
-        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, registries );
+        PartitionSchemaLoader loader = new PartitionSchemaLoader( schemaPartition, schemaManager );
         Set<String> schemaNames = loader.getSchemaNames();
         assertTrue( schemaNames.contains( "mozilla" ) );
         assertTrue( schemaNames.contains( "core" ) );
