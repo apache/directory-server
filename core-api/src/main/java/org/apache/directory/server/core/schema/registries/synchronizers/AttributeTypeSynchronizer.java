@@ -86,45 +86,39 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Relax the cloned registries
         clonedRegistries.setRelaxed();
         
-        AttributeType at = factory.getAttributeType( entry, clonedRegistries, schemaName );
+        AttributeType at = factory.getAttributeType( entry, clonedRegistries, schemaManager, schemaName );
         
-        if ( at == null )
+        // if the AT is null, that means the schema is disabled
+        if ( at != null )
         {
-            // We couldn't create the AT : this is an error
-            return;
-        }
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            if ( errors.size() == 0 )
+            {
+                clonedRegistries.setStrict();
+                schemaManager.setRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
         
-        List<Throwable> errors = clonedRegistries.checkRefInteg();
+            // At this point, the constructed AttributeType has not been checked against the 
+            // existing Registries. It may be broken (missing SUP, or such), it will be checked
+            // there, if the schema and the AttributeType are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+            
+            if ( schema.isEnabled() && at.isEnabled() )
+            {
+                at.applyRegistries( schemaManager.getRegistries() );
+            }
         
-        if ( errors.size() == 0 )
-        {
-            clonedRegistries.setStrict();
-            schemaManager.setRegistries( clonedRegistries  );
-        }
-        else
-        {
-            // We have some error : reject the addition and get out
-            return;
-        }
-        
-        // At this point, the constructed AttributeType has not been checked against the 
-        // existing Registries. It may be broken (missing SUP, or such), it will be checked
-        // there, if the schema and the AttributeType are both enabled.
-        Schema schema = schemaManager.getLoadedSchema( schemaName );
-        
-        if ( schema.isEnabled() && at.isEnabled() )
-        {
-            at.applyRegistries( schemaManager.getRegistries() );
-        }
-        
-        // Associates this AttributeType with the schema
-        addToSchema( at, schemaName );
-        
-        // Don't inject the modified element if the schema is disabled
-        if ( isSchemaEnabled( schemaName ) )
-        {
+            // Associates this AttributeType with the schema
+            addToSchema( at, schemaName );
+            
             schemaManager.register( at );
-
+    
             LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
@@ -145,7 +139,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
         String oid = getOid( entry );
-        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaName );
+        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaManager, schemaName );
         
         if ( isSchemaEnabled( schemaName ) )
         {
@@ -177,7 +171,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         // Get the AttributeType from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType attributeType = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaName );
+        AttributeType attributeType = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaManager, schemaName );
         
         // Applies the Registries to this AttributeType 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
@@ -245,7 +239,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaManager, schemaName );
 
         // Inject the new OID
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
@@ -259,7 +253,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         newDn.add( newRdn );
         targetEntry.setDn( newDn );
         
-        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaName );
+        AttributeType at = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaManager, schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
@@ -289,12 +283,12 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), oldSchemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaManager, oldSchemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
-        AttributeType newAt = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), newSchemaName );
+        AttributeType newAt = factory.getAttributeType( targetEntry, schemaManager.getRegistries(), schemaManager, newSchemaName );
 
         
         if ( !isSchemaLoaded( oldSchemaName ) )
@@ -340,8 +334,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), oldSchemaName );
-        AttributeType newAt = factory.getAttributeType( entry, schemaManager.getRegistries(), newSchemaName );
+        AttributeType oldAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaManager, oldSchemaName );
+        AttributeType newAt = factory.getAttributeType( entry, schemaManager.getRegistries(), schemaManager, newSchemaName );
         
         if ( !isSchemaLoaded( oldSchemaName ) )
         {

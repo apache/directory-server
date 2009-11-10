@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -139,7 +140,42 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     
     
     @Test
-    public void testAddAttributeTypeToDisabledSchema() throws Exception
+    public void testAddAttributeTypeToUnLoadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid:" + OID,
+            "m-syntax:" + SchemaConstants.INTEGER_SYNTAX,
+            "m-description:" + DESCRIPTION0,
+            "m-equality: caseIgnoreMatch",
+            "m-singleValue: FALSE",
+            "m-usage: directoryOperation" );
+
+        LdapDN dn = getAttributeTypeContainer( "notloaded" );
+        dn.add( "m-oid=" + OID );
+        
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
+        
+        assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        
+        // The added entry must not be present on disk
+        assertFalse( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testAddAttributeTypeToLoadedDisabledSchema() throws Exception
     {
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
@@ -154,13 +190,16 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
 
         LdapDN dn = getAttributeTypeContainer( "nis" );
         dn.add( "m-oid=" + OID );
+        
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        
+        // The added entry must be present on disk
         assertTrue( isOnDisk( dn ) );
     }
-    
+
     
     @Test
     public void testDeleteAttributeTypeFromEnabledSchema() throws Exception
@@ -188,6 +227,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
     
     
+    /*
     @Test
     public void testDeleteAttributeTypeFromDisabledSchema() throws Exception
     {
@@ -201,9 +241,17 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
         // Check on disk that the added SchemaObject exist
-        assertTrue( isOnDisk( dn ) );
+        assertFalse( isOnDisk( dn ) );
         
-        getSchemaContext( service ).destroySubcontext( dn );
+        try
+        {
+            getSchemaContext( service ).destroySubcontext( dn );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
 
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted", 
@@ -212,6 +260,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         // Check on disk that the deleted SchemaObject does not exist anymore
         assertFalse( isOnDisk( dn ) );
     }
+    */
 
 
     @Test
@@ -565,6 +614,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
 
+    /*
     @Test
     @Ignore
     public void testMoveMatchingRuleToEnabledSchema() throws Exception
@@ -589,4 +639,5 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertEquals( "attributeType should be in apachemeta schema after move", 
             service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
     }
+    */
 }

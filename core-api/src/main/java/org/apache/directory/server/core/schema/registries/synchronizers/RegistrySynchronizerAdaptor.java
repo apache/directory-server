@@ -185,6 +185,7 @@ public class RegistrySynchronizerAdaptor
             
             String ouValue = ( String ) opContext.getDn().getRdn().getValue();
             ouValue = ouValue.trim().toLowerCase();
+            
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
                 throw new LdapInvalidNameException( 

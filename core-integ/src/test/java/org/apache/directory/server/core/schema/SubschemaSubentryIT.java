@@ -1429,7 +1429,7 @@ public class SubschemaSubentryIT
         
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getSchemaManager() );
         
-        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), service.getSchemaManager(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1492,7 +1492,7 @@ public class SubschemaSubentryIT
         
         ServerEntry serverEntry = ServerEntryUtils.toServerEntry( attrs, LdapDN.EMPTY_LDAPDN, service.getSchemaManager() );
 
-        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), "nis" );
+        AttributeType at = factory.getAttributeType( serverEntry, service.getSchemaManager().getRegistries(), service.getSchemaManager(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
