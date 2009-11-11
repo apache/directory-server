@@ -175,7 +175,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     
     
     @Test
-    public void testAddAttributeTypeToLoadedDisabledSchema() throws Exception
+    public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
