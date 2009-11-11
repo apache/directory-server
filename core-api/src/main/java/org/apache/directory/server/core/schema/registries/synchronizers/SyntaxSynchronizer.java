@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,27 +110,53 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         
         // Build the new Syntax from the given entry
         String schemaName = getSchemaName( dn );
+        
+        // At this point, as we may break the registries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
         LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        // Applies the Registries to this Syntax 
-        Schema schema = schemaManager.getLoadedSchema( schemaName );
-
-        if ( schema.isEnabled() && syntax.isEnabled() )
+        if ( syntax != null )
         {
-            syntax.applyRegistries( schemaManager.getRegistries() );
-        }
-        
-        // Associates this Syntax with the schema
-        addToSchema( syntax, schemaName );
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            if ( errors.size() == 0 )
+            {
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
 
-        // Don't inject the modified element if the schema is disabled
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            // Update the using table, as a Syntax is associated with a SyntaxChecker
-            schemaManager.getRegistries().addReference( syntax, syntax.getSyntaxChecker() );
+            // At this point, the constructed Syntax has not been checked against the 
+            // existing Registries. It may be broken , it will be checked
+            // there, if the schema and the Syntax are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+            
+            if ( schema.isEnabled() && syntax.isEnabled() )
+            {
+                syntax.applyRegistries( schemaManager.getRegistries() );
+            }
+            
+            
+            // Associates this Syntax with the schema
+            addToSchema( syntax, schemaName );
 
-            schemaManager.register( syntax );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            // Don't inject the modified element if the schema is disabled
+            if ( isSchemaEnabled( schemaName ) )
+            {
+                // Update the using table, as a Syntax is associated with a SyntaxChecker
+                schemaManager.getRegistries().addReference( syntax, syntax.getSyntaxChecker() );
+
+                schemaManager.register( syntax );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            }
         }
         else
         {

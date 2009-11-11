@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -153,7 +154,38 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( isOnDisk( dn ) );
     }
 
-
+    
+    @Test
+    public void testAddSyntaxToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntax",
+            "m-oid", OID,
+            "m-description", DESCRIPTION0 );
+        
+        // nis is by default inactive
+        LdapDN dn = getSyntaxContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+        createDummySyntaxChecker( OID, "nis" );
+        
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
+        
+        assertFalse( "adding new syntax to disabled schema should not register it into the registries", 
+            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
+    }
+    
+    
     @Test
     public void testDeleteSyntaxFromEnabledSchema() throws Exception
     {
