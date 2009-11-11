@@ -108,12 +108,15 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
-        addToSchema( comparator, schemaName );
-
-        if ( isSchemaEnabled( schemaName ) && comparator.isEnabled() )
+        if ( comparator != null )
         {
-            schemaManager.register( comparator );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            addToSchema( comparator, schemaName );
+
+            if ( isSchemaEnabled( schemaName ) && comparator.isEnabled() )
+            {
+                schemaManager.register( comparator );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            }
         }
     }
 

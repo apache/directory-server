@@ -71,7 +71,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         LdapDN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String schemaName = getSchemaName( name );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, schemaManager.getRegistries(), schemaName );
+        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
         
         String oldOid = getOid( entry );
         
@@ -106,7 +106,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         
         // Build the new MatchingRule from the given entry
         String schemaName = getSchemaName( dn );
-        MatchingRule matchingRule = factory.getMatchingRule( entry, schemaManager.getRegistries(), schemaName );
+        MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         // At this point, the constructed MatchingRule has not been checked against the 
         // existing Registries. It may be broken (missing SYNTAX), it will be checked
@@ -159,7 +159,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the MatchingRule from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        MatchingRule matchingRule = factory.getMatchingRule( entry, schemaManager.getRegistries(), schemaName );
+        MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         String oid = matchingRule.getOid();
         
         // Applies the Registries to this MatchingRule 
@@ -203,13 +203,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     public void rename( ServerEntry entry, Rdn newRdn, boolean cascade ) throws Exception
     {
         String schemaName = getSchemaName( entry.getDn() );
-        MatchingRule oldMr = factory.getMatchingRule( entry, schemaManager.getRegistries(), schemaName );
+        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, schemaManager.getRegistries(), schemaName );
+        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
 
         if ( isSchemaEnabled( schemaName ) )
         {
@@ -230,13 +230,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( entry, schemaManager.getRegistries(), oldSchemaName );
+        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
         ServerEntry targetEntry = ( ServerEntry ) entry.clone();
         String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        MatchingRule mr = factory.getMatchingRule( targetEntry, schemaManager.getRegistries(), newSchemaName );
+        MatchingRule mr = factory.getMatchingRule( schemaManager, targetEntry, schemaManager.getRegistries(), newSchemaName );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {
@@ -264,8 +264,8 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-        MatchingRule oldMr = factory.getMatchingRule( entry, schemaManager.getRegistries(), oldSchemaName );
-        MatchingRule newMr = factory.getMatchingRule( entry, schemaManager.getRegistries(), newSchemaName );
+        MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
+        MatchingRule newMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), newSchemaName );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {

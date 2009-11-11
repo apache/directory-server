@@ -77,7 +77,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         LdapDN name = opContext.getDn();
         ServerEntry entry = opContext.getEntry();
         String oid = getOid( entry );
-        LdapSyntax syntax = factory.getSyntax( targetEntry, schemaManager.getRegistries(), getSchemaName( name ) );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(), getSchemaName( name ) );
         String schemaName = getSchemaName( entry.getDn() );
         
         if ( isSchemaEnabled( schemaName ) )
@@ -109,7 +109,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         
         // Build the new Syntax from the given entry
         String schemaName = getSchemaName( dn );
-        LdapSyntax syntax = factory.getSyntax( entry, schemaManager.getRegistries(), schemaName );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // Applies the Registries to this Syntax 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
@@ -206,7 +206,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         
         // Get the Syntax from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        LdapSyntax syntax = factory.getSyntax( entry, schemaManager.getRegistries(), schemaName );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         // Applies the Registries to this Syntax 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
@@ -275,7 +275,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        LdapSyntax syntax = factory.getSyntax( targetEntry, schemaManager.getRegistries(), getSchemaName( entry.getDn() ) );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(), getSchemaName( entry.getDn() ) );
         
         if ( isSchemaEnabled( schemaName ) )
         {
@@ -317,7 +317,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         checkOidIsUnique( newOid );
         
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
-        LdapSyntax syntax = factory.getSyntax( targetEntry, schemaManager.getRegistries(), getSchemaName( newParentName ) );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, targetEntry, schemaManager.getRegistries(), getSchemaName( newParentName ) );
 
         if ( isSchemaEnabled( oldSchemaName ) )
         {
@@ -361,7 +361,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 //                ResultCodeEnum.UNWILLING_TO_PERFORM );
 //        }
         
-        LdapSyntax syntax = factory.getSyntax( entry, schemaManager.getRegistries(), getSchemaName( newParentName ) );
+        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), getSchemaName( newParentName ) );
         
         if ( isSchemaEnabled( oldSchemaName ) )
         {

@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -139,6 +140,37 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testAddComparatorToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaComparator",
+            "m-fqcn: " + StringComparator.class.getName(),
+            "m-oid: " + OID,
+            "m-description: A test comparator" );
+        
+        // nis is by default inactive
+        LdapDN dn = getComparatorContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
+        
+        assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
+            schemaManager.getComparatorRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 
