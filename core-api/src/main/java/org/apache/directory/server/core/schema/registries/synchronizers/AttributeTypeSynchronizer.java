@@ -80,7 +80,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
         
-        // At this point, as we may break the regisytries, work on a cloned registries
+        // At this point, as we may break the registries, work on a cloned registries
         Registries clonedRegistries = schemaManager.getRegistries().clone();
         
         // Relax the cloned registries
@@ -96,7 +96,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.size() == 0 )
             {
                 clonedRegistries.setStrict();
-                schemaManager.setRegistries( clonedRegistries  );
+                schemaManager.swapRegistries( clonedRegistries  );
             }
             else
             {
