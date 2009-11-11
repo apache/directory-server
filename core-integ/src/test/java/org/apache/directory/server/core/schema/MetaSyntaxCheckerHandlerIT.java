@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -140,6 +141,37 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testAddSyntaxCheckerToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaSyntaxChecker",
+            "m-fqcn", OctetStringSyntaxChecker.class.getName(),
+            "m-oid", OID,
+            "m-description: A test syntaxChecker" );
+        
+        // nis is by default inactive
+        LdapDN dn = getSyntaxCheckerContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
+        
+        assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries", 
+            schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 

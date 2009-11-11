@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -35,6 +37,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,14 +109,45 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new SyntaxChecker from the given entry
         String schemaName = getSchemaName( dn );
         
+        // At this point, as we may break the registries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        addToSchema( syntaxChecker, schemaName );
-
-        if ( isSchemaEnabled( schemaName ) )
+        if ( syntaxChecker != null )
         {
-            schemaManager.register( syntaxChecker );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            if ( errors.size() == 0 )
+            {
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
+
+            // At this point, the constructed syntaxChecker has not been checked against the 
+            // existing Registries. It will be checked there, if the schema and the 
+            // LdapComparator are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+            
+            if ( schema.isEnabled() && syntaxChecker.isEnabled() )
+            {
+                syntaxChecker.applyRegistries( schemaManager.getRegistries() );
+                addToSchema( syntaxChecker, schemaName );
+                schemaManager.register( syntaxChecker );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            }
+        }
+        else
+        {
+            LOG.debug( "The syntaxChecker {} cannot be added in schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -141,15 +175,16 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             if ( schemaManager.getRegistries().isReferenced( syntaxChecker ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
-                " dependant SchemaObjects :\n" + getReferenced( syntaxChecker );
-            LOG.warn( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    " dependant SchemaObjects :\n" + getReferenced( syntaxChecker );
+                LOG.warn( msg );
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
+
+            // As the syntaxChecker has the same OID than its attached MR, it won't
+            // be loaded into the schemaManager if it's disabled
+            deleteFromSchema( syntaxChecker, schemaName );
         }
         
-        // Remove the SyntaxChecker from the schema content
-        deleteFromSchema( syntaxChecker, schemaName );
-
         // Update the Registries now
         if ( schemaManager.getSyntaxCheckerRegistry().contains( oid ) )
         {
