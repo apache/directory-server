@@ -149,7 +149,6 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         else
         {
             LOG.debug( "The comparator {} cannot be added in schema {}", dn.getUpName(), schemaName );
-
         }
     }
 

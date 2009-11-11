@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -98,8 +99,6 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
-
-
     @Test
     public void testAddNormalizerToEnabledSchema() throws Exception
     {
@@ -142,6 +141,37 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testAddNormalizerToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaNormalizer",
+            "m-fqcn", NoOpNormalizer.class.getName(),
+            "m-oid", OID,
+            "m-description: A test normalizer" );
+        
+        // nis is by default inactive
+        LdapDN dn = getNormalizerContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Expected result.
+        }
+        
+        assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
+            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
     }
     
     

@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -34,6 +36,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,14 +108,45 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Normalizer from the given entry
         String schemaName = getSchemaName( dn );
         
+        // At this point, as we may break the registries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
-        addToSchema( normalizer, schemaName );
-
-        if ( isSchemaEnabled( schemaName ) )
+        if ( normalizer != null )
         {
-            schemaManager.register( normalizer );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            if ( errors.size() == 0 )
+            {
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
+
+            // At this point, the constructed Normalizer has not been checked against the 
+            // existing Registries. It will be checked there, if the schema and the 
+            // LdapComparator are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+            
+            if ( schema.isEnabled() && normalizer.isEnabled() )
+            {
+                normalizer.applyRegistries( schemaManager.getRegistries() );
+                addToSchema( normalizer, schemaName );
+                schemaManager.register( normalizer );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            }
+        }
+        else
+        {
+            LOG.debug( "The normalizer {} cannot be added in schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -139,13 +174,16 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             if ( schemaManager.getRegistries().isReferenced( normalizer ) )
             {
                 String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
-                " dependant SchemaObjects :\n" + getReferenced( normalizer );
-            LOG.warn( msg );
-            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                    " dependant SchemaObjects :\n" + getReferenced( normalizer );
+                LOG.warn( msg );
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
+
+            // As the normalizer has the same OID than its attached MR, it won't
+            // be loaded into the schemaManager if it's disabled
+            deleteFromSchema( normalizer, schemaName );
         }
         
-        deleteFromSchema( normalizer, schemaName );
 
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
