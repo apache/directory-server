@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -32,6 +34,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,41 +109,65 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         
         // Build the new MatchingRule from the given entry
         String schemaName = getSchemaName( dn );
+        
+        // At this point, as we may break the registries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
         MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
-        // At this point, the constructed MatchingRule has not been checked against the 
-        // existing Registries. It may be broken (missing SYNTAX), it will be checked
-        // there, if the schema and the MatchingRule are both enabled.
-        Schema schema = schemaManager.getLoadedSchema( schemaName );
-
-        if ( schema.isEnabled() && matchingRule.isEnabled() )
+        // if the matchingRule is null, that means the schema is disabled
+        if ( matchingRule != null )
         {
-            matchingRule.applyRegistries( schemaManager.getRegistries() );
-        }
-        
-        // Associates this MatchingRule with the schema
-        addToSchema( matchingRule, schemaName );
-
-        // Don't inject the modified element if the schema is disabled
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            // Update the referenced and referencing objects
-            // The Syntax
-            schemaManager.getRegistries().addReference( matchingRule, matchingRule.getSyntax() );
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
             
-            // The Normalizer
-            schemaManager.getRegistries().addReference( matchingRule, matchingRule.getNormalizer() );
+            if ( errors.size() == 0 )
+            {
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
             
-            // The Comparator
-            schemaManager.getRegistries().addReference( matchingRule, matchingRule.getLdapComparator() );
+            // At this point, the constructed MatchingRule has not been checked against the 
+            // existing Registries. It may be broken (missing SYNTAX), it will be checked
+            // there, if the schema and the MatchingRule are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+    
+            if ( schema.isEnabled() && matchingRule.isEnabled() )
+            {
+                matchingRule.applyRegistries( schemaManager.getRegistries() );
+            }
             
-            schemaManager.register( matchingRule );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
-        }
-        else
-        {
-            registerOids( matchingRule );
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            // Associates this MatchingRule with the schema
+            addToSchema( matchingRule, schemaName );
+    
+            // Don't inject the modified element if the schema is disabled
+            if ( isSchemaEnabled( schemaName ) )
+            {
+                // Update the referenced and referencing objects
+                // The Syntax
+                schemaManager.getRegistries().addReference( matchingRule, matchingRule.getSyntax() );
+                
+                // The Normalizer
+                schemaManager.getRegistries().addReference( matchingRule, matchingRule.getNormalizer() );
+                
+                // The Comparator
+                schemaManager.getRegistries().addReference( matchingRule, matchingRule.getLdapComparator() );
+                
+                schemaManager.register( matchingRule );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+            }
+            else
+            {
+                registerOids( matchingRule );
+                LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            }
         }
     }
 

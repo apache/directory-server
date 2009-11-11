@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -137,6 +138,36 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertFalse( "adding new matchingRule to disabled schema should not register it into the registries", 
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
+    }
+    
+    
+    @Test
+    public void testAddMatchingRuleToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", OID,
+            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+            "m-description", DESCRIPTION0 );
+        
+        LdapDN dn = getMatchingRuleContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Excpected result
+        }
+        
+        assertFalse( "adding new matchingRule to disabled schema should not register it into the registries", 
+            schemaManager.getMatchingRuleRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
     }
     
 
