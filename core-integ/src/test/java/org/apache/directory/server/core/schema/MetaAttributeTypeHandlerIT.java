@@ -139,7 +139,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
     
     
-    @Ignore // tmp
     @Test
     public void testAddAttributeTypeToUnLoadedSchema() throws Exception
     {
@@ -175,7 +174,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
     
     
-    @Ignore // tmp
     @Test
     public void testAddAttributeTypeToDisabledSchema() throws Exception
     {
@@ -203,7 +201,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
     
-    @Ignore // tmp
     @Test
     public void testDeleteAttributeTypeFromEnabledSchema() throws Exception
     {
@@ -266,7 +263,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     */
 
 
-    @Ignore // tmp
     @Test
     public void testRenameAttributeType() throws Exception
     {
@@ -343,7 +339,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
     
-    @Ignore // tmp
     @Test
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
@@ -375,7 +370,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
     
-    @Ignore // tmp
     @Test
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
@@ -434,7 +428,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
 
-    @Ignore // tmp
     @Test
     public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
@@ -515,7 +508,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
     
-    @Ignore // tmp
     @Test
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
