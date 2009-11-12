@@ -145,14 +145,18 @@ public class RegistrySynchronizerAdaptor
         }
     }
 
-    
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeManager#add(org.apache.directory.server.core.interceptor.context.AddOperationContext)
+
+    /**
+     * Add a new SchemaObject or a new Schema in the Schema partition.
+     *
+     * @param opContext The Add context, containing the entry to be added
+     * @throws Exception If the addition failed 
      */
     public void add( AddOperationContext opContext ) throws Exception
     {
         EntryAttribute oc = opContext.getEntry().get( objectClassAT );
         
+        // First check if we are adding a schemaObject
         for ( Value<?> value:oc )
         {
 
@@ -160,6 +164,8 @@ public class RegistrySynchronizerAdaptor
             
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
+                // This is one of the eleven SchemaObject :
+                // AT, C, DCR, DSR, MR, MRU, NF, N, OC, S, SC
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
                 ServerEntry entry = opContext.getEntry();
                 synchronizer.add( entry );
@@ -167,6 +173,7 @@ public class RegistrySynchronizerAdaptor
             }
         }
         
+        // This is a Schema
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             ServerEntry entry = opContext.getEntry();
@@ -174,13 +181,14 @@ public class RegistrySynchronizerAdaptor
             return;
         }
         
+        // What is this for ??? TODO : remove this code if it's useless...
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
             if ( opContext.getDn().size() != 3 )
             {
-                throw new LdapInvalidNameException( 
-                    "Schema entity containers of objectClass organizationalUnit should be 3 name components in length.", 
-                    ResultCodeEnum.NAMING_VIOLATION );
+                String msg = "Schema entity containers of objectClass organizationalUnit should be 3 name components in length.";
+                LOG.error( msg );
+                throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
             
             String ouValue = ( String ) opContext.getDn().getRdn().getValue();
@@ -188,14 +196,16 @@ public class RegistrySynchronizerAdaptor
             
             if ( ! VALID_OU_VALUES.contains( ouValue ) )
             {
-                throw new LdapInvalidNameException( 
-                    "Expecting organizationalUnit with one of the following names: " + VALID_OU_VALUES, 
-                    ResultCodeEnum.NAMING_VIOLATION );
+                String msg = "Expecting organizationalUnit with one of the following names: " + VALID_OU_VALUES;
+                LOG.error( msg );
+                throw new LdapInvalidNameException( msg, ResultCodeEnum.NAMING_VIOLATION );
             }
-            return;
         }
 
-        throw new LdapOperationNotSupportedException( ResultCodeEnum.UNWILLING_TO_PERFORM );
+        
+        String msg = "Cannot add an entry on " + opContext.getDn();
+        LOG.error( msg );
+        throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
     
 
