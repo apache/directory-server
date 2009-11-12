@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -34,6 +36,7 @@ import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,44 +106,67 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         // Build the new ObjectClass from the given entry
         String schemaName = getSchemaName( dn );
+        
+        // At this point, as we may break the registries, work on a cloned registries
+        Registries clonedRegistries = schemaManager.getRegistries().clone();
+        
+        // Relax the cloned registries
+        clonedRegistries.setRelaxed();
+        
         ObjectClass objectClass = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        // At this point, the constructed ObjectClass has not been checked against the 
-        // existing Registries. It may be broken (missing SUPs), it will be checked
-        // there, if the schema and the ObjectClass are both enabled.
-        Schema schema = schemaManager.getLoadedSchema( schemaName );
-
-        if ( schema.isEnabled() && objectClass.isEnabled() )
+        // if the AT is null, that means the schema is disabled
+        if ( objectClass != null )
         {
-            objectClass.applyRegistries( schemaManager.getRegistries() );
-        }
-        
-        // Associates this ObjectClass with the schema
-        addToSchema( objectClass, schemaName );
-
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            // Update the referenced and referencing objects
-            // The MAY AttributeTypes
-            for ( AttributeType may : objectClass.getMayAttributeTypes() )
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            if ( errors.size() == 0 )
             {
-                schemaManager.getRegistries().addReference( objectClass, may );
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the addition and get out
+                return;
+            }
+            // At this point, the constructed ObjectClass has not been checked against the 
+            // existing Registries. It may be broken (missing SUPs), it will be checked
+            // there, if the schema and the ObjectClass are both enabled.
+            Schema schema = schemaManager.getLoadedSchema( schemaName );
+    
+            if ( schema.isEnabled() && objectClass.isEnabled() )
+            {
+                objectClass.applyRegistries( schemaManager.getRegistries() );
             }
             
-            // The MUST AttributeTypes
-            for ( AttributeType must : objectClass.getMayAttributeTypes() )
+            // Associates this ObjectClass with the schema
+            addToSchema( objectClass, schemaName );
+    
+            if ( isSchemaEnabled( schemaName ) )
             {
-                schemaManager.getRegistries().addReference( objectClass, must );
+                // Update the referenced and referencing objects
+                // The MAY AttributeTypes
+                for ( AttributeType may : objectClass.getMayAttributeTypes() )
+                {
+                    schemaManager.getRegistries().addReference( objectClass, may );
+                }
+                
+                // The MUST AttributeTypes
+                for ( AttributeType must : objectClass.getMayAttributeTypes() )
+                {
+                    schemaManager.getRegistries().addReference( objectClass, must );
+                }
+                
+                // The superiors
+                for ( ObjectClass superior : objectClass.getSuperiors() )
+                {
+                    schemaManager.getRegistries().addReference( objectClass, superior );
+                }
+                
+                schemaManager.register( objectClass );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
-            
-            // The superiors
-            for ( ObjectClass superior : objectClass.getSuperiors() )
-            {
-                schemaManager.getRegistries().addReference( objectClass, superior );
-            }
-            
-            schemaManager.register( objectClass );
-            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {

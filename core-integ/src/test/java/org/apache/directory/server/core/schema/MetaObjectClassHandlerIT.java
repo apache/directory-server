@@ -26,6 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -131,13 +132,46 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     
     
     @Test
-    public void testAddObjectClassToDisabledSchema1() throws Exception
+    public void testAddObjectClassToDisabledSchema() throws Exception
     {
         LdapDN dn = addObjectClassToDisabledSchema();
         
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
             getObjectClassRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
+    }
+
+
+    @Test
+    public void testAddObjectClassToUnloadedSchema() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaObjectClass",
+            "m-oid: " + OID,
+            "m-name: " + NAME,
+            "m-description: " + DESCRIPTION0,
+            "m-typeObjectClass: AUXILIARY",
+            "m-must: cn",
+            "m-may: ou" );
+
+        LdapDN dn = getObjectClassContainer( "notloaded" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        try
+        {
+            getSchemaContext( service ).createSubcontext( dn, attrs );
+            fail( "Should not be there" );
+        }
+        catch( NameNotFoundException nnfe )
+        {
+            // Excpected result
+        }
+        
+        assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
+            getObjectClassRegistry().contains( OID ) );
+        assertFalse( isOnDisk( dn ) );
     }
 
 
@@ -542,6 +576,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         return dn;
     }
+    
     
     @Test
     @Ignore
