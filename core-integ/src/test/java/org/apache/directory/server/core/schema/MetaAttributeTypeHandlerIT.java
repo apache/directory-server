@@ -132,11 +132,14 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
         
+        // Pre-checks
         assertFalse( isOnDisk( dn ) );
         assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
+        // Post-checks
         assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
         assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
         assertTrue( isOnDisk( dn ) );
