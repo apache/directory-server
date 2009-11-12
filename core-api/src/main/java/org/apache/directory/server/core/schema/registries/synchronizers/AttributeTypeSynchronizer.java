@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,30 +81,11 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
         
-        // At this point, as we may break the registries, work on a cloned registries
-        Registries clonedRegistries = schemaManager.getRegistries().clone();
-        
-        // Relax the cloned registries
-        clonedRegistries.setRelaxed();
-        
-        AttributeType at = factory.getAttributeType( schemaManager, entry, clonedRegistries, schemaName );
+        AttributeType at = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         // if the AT is null, that means the schema is disabled
         if ( at != null )
         {
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
-            
-            if ( errors.size() == 0 )
-            {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
-            }
-            else
-            {
-                // We have some error : reject the addition and get out
-                return;
-            }
-        
             // At this point, the constructed AttributeType has not been checked against the 
             // existing Registries. It may be broken (missing SUP, or such), it will be checked
             // there, if the schema and the AttributeType are both enabled.
@@ -111,7 +93,35 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             
             if ( schema.isEnabled() && at.isEnabled() )
             {
+                // As we may break the registries, work on a cloned registries
+                Registries clonedRegistries = schemaManager.getRegistries().clone();
+                
+                // Relax the cloned registries
+                clonedRegistries.setRelaxed();
+                
+                // Apply the registries to the newly created AT
                 at.applyRegistries( schemaManager.getRegistries() );
+                
+                // Check the registries now
+                List<Throwable> errors = clonedRegistries.checkRefInteg();
+                
+                // If we didn't get any error, swap the registries
+                if ( errors.size() == 0 )
+                {
+                    clonedRegistries.setStrict();
+                    schemaManager.swapRegistries( clonedRegistries  );
+                }
+                else
+                {
+                    // We have some error : reject the addition and get out
+                    // TODO : we have to destroy the cloned registries
+                    //schemaManager.destroy( clonedRegistries );
+                    // The schema is disabled. We still have to update the backend
+                    String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "+
+                        "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    LOG.info( msg );
+                    throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                }
             }
         
             // Associates this AttributeType with the schema
