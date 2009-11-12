@@ -113,8 +113,8 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
-
-    
+    // Test Add operation
+    // ----------------------------------------------------------------------
     @Test
     public void testAddAttributeTypeToEnabledSchema() throws Exception
     {
@@ -131,6 +131,10 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
+        
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
@@ -201,6 +205,9 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
     
+    // ----------------------------------------------------------------------
+    // Test Delete operation
+    // ----------------------------------------------------------------------
     @Test
     public void testDeleteAttributeTypeFromEnabledSchema() throws Exception
     {
@@ -227,7 +234,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
     
     
-    /*
     @Test
     public void testDeleteAttributeTypeFromDisabledSchema() throws Exception
     {
@@ -240,18 +246,11 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertFalse( "attributeType should be removed from the registry after being deleted", 
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
 
-        // Check on disk that the added SchemaObject exist
-        assertFalse( isOnDisk( dn ) );
+        // Check on disk that the added SchemaObject exists
+        assertTrue( isOnDisk( dn ) );
         
-        try
-        {
-            getSchemaContext( service ).destroySubcontext( dn );
-            fail( "Should not be there" );
-        }
-        catch( NameNotFoundException nnfe )
-        {
-            // Expected result.
-        }
+        // Remove the AT
+        getSchemaContext( service ).destroySubcontext( dn );
 
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted", 
@@ -260,7 +259,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         // Check on disk that the deleted SchemaObject does not exist anymore
         assertFalse( isOnDisk( dn ) );
     }
-    */
 
 
     @Test

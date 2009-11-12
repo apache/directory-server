@@ -181,6 +181,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         // Get the AttributeType from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
+        
         AttributeType attributeType = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         // Applies the Registries to this AttributeType 
