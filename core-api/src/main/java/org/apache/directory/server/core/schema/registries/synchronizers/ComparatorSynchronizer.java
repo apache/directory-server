@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,29 +111,10 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Comparator from the given entry
         String schemaName = getSchemaName( dn );
         
-        // At this point, as we may break the registries, work on a cloned registries
-        Registries clonedRegistries = schemaManager.getRegistries().clone();
-        
-        // Relax the cloned registries
-        clonedRegistries.setRelaxed();
-        
         LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         if ( comparator != null )
         {
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
-            
-            if ( errors.size() == 0 )
-            {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
-            }
-            else
-            {
-                // We have some error : reject the addition and get out
-                return;
-            }
-
             // At this point, the constructed LdapComparator has not been checked against the 
             // existing Registries. It will be checked there, if the schema and the 
             // LdapComparator are both enabled.
@@ -140,9 +122,35 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             
             if ( schema.isEnabled() && comparator.isEnabled() )
             {
+                // At this point, as we may break the registries, work on a cloned registries
+                Registries clonedRegistries = schemaManager.getRegistries().clone();
+                
+                // Relax the cloned registries
+                clonedRegistries.setRelaxed();
+                
                 comparator.applyRegistries( schemaManager.getRegistries() );
-                addToSchema( comparator, schemaName );
+                
+                List<Throwable> errors = clonedRegistries.checkRefInteg();
+                
+                if ( errors.size() == 0 )
+                {
+                    clonedRegistries.setStrict();
+                    schemaManager.swapRegistries( clonedRegistries  );
+                }
+                else
+                {
+                    // We have some error : reject the addition and get out
+                    // TODO : we have to destroy the cloned registries
+                    //schemaManager.destroy( clonedRegistries );
+                    // The schema is disabled. We still have to update the backend
+                    String msg = "Cannot add the Comparator " + entry.getDn().getUpName() + " into the registries, "+
+                        "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    LOG.info( msg );
+                    throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                }
+
                 schemaManager.register( comparator );
+
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
         }
