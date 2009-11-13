@@ -98,6 +98,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
+    // Test Add operation
+    // ----------------------------------------------------------------------
     @Test
     public void testAddComparatorToEnabledSchema() throws Exception
     {
@@ -111,8 +113,15 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
+        // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
@@ -135,8 +144,15 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         // nis is by default inactive
         LdapDN dn = getComparatorContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
+        
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
+        // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
@@ -158,6 +174,11 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         LdapDN dn = getComparatorContainer( "notloaded" );
         dn.add( "m-oid" + "=" + OID );
         
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+
+        // Addition
         try
         {
             getSchemaContext( service ).createSubcontext( dn, attrs );
@@ -168,6 +189,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
             // Expected result.
         }
         
+        // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         assertFalse( isOnDisk( dn ) );
@@ -196,8 +218,15 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
+        // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
@@ -229,8 +258,15 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         // nis is by default inactive
         LdapDN dn = getComparatorContainer( "nis" );
         dn.add( "m-oid" + "=" + OID );
+
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
+        // Post-checks
         assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
             schemaManager.getComparatorRegistry().contains( OID ) );
 
@@ -238,18 +274,25 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
     
 
+    // ----------------------------------------------------------------------
+    // Test Delete operation
+    // ----------------------------------------------------------------------
     @Test
     public void testDeleteComparatorFromEnabledSchema() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
         testAddComparatorToEnabledSchema();
         
+        // Pre-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
         
+        // Deletion
         getSchemaContext( service ).destroySubcontext( dn );
 
+        // Post-checks
         assertFalse( "comparator should be removed from the registry after being deleted", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         
@@ -273,12 +316,15 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         dn.add( "m-oid" + "=" + OID );
         testAddComparatorToDisabledSchema();
 
+        // Pre-checks
         assertFalse( "comparator should be removed from the registry after being deleted", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         assertTrue( isOnDisk( dn ) );
         
+        // Deletion
         getSchemaContext( service ).destroySubcontext( dn );
 
+        // Post-checks
         assertFalse( "comparator should be removed from the registry after being deleted", 
             schemaManager.getComparatorRegistry().contains( OID ) );
         
@@ -427,15 +473,21 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a MR exists and uses the Comparator
     // ----------------------------------------------------------------------
-
-    
     @Test
     public void testDeleteComparatorWhenInUse() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
         testAddComparatorToEnabledSchema();
-        schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
+        
+        MatchingRule mr = new DummyMR();
+        schemaManager.register( mr );
+        
+        // Pre-checks
+        assertTrue( isOnDisk( dn ) );
+        assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( mr.getOid() ) );
         
         try
         {
