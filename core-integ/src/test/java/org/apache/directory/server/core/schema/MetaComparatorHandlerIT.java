@@ -75,6 +75,17 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public static DirectoryService service;
     public static SchemaManager schemaManager;
     
+    class DummyMR extends MatchingRule
+    {
+        public DummyMR()
+        {
+            super( OID );
+            addName( "dummy" );
+        }
+
+        private static final long serialVersionUID = 1L;
+    }
+    
     
     @Before
     public void setup()
@@ -342,6 +353,90 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
 
     @Test
+    public void testDeleteComparatorWhenInUse() throws Exception
+    {
+        LdapDN dn = getComparatorContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        testAddComparatorToEnabledSchema();
+        
+        MatchingRule mr = new DummyMR();
+        schemaManager.register( mr );
+        
+        // Pre-checks
+        assertTrue( isOnDisk( dn ) );
+        assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
+        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( mr.getOid() ) );
+        
+        try
+        {
+            getSchemaContext( service ).destroySubcontext( dn );
+            fail( "should not be able to delete a comparator in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "comparator should still be in the registry after delete failure", 
+            schemaManager.getComparatorRegistry().contains( OID ) );
+        schemaManager.unregister( mr );
+    }
+    
+    
+    // ----------------------------------------------------------------------
+    // Test Modify operation
+    // ----------------------------------------------------------------------
+    @Test
+    public void testModifyComparatorWithModificationItems() throws Exception
+    {
+        testAddComparatorToEnabledSchema();
+        
+        LdapDN dn = getComparatorContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        ModificationItem[] mods = new ModificationItem[1];
+        Attribute attr = new BasicAttribute( "m-fqcn", BooleanComparator.class.getName() );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        getSchemaContext( service ).modifyAttributes( dn, mods );
+
+        assertTrue( "comparator OID should still be present", 
+            schemaManager.getComparatorRegistry().contains( OID ) );
+        
+        assertEquals( "comparator schema should be set to apachemeta", 
+            schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+
+        Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
+        assertEquals( clazz, BooleanComparator.class );
+    }
+
+
+    @Test
+    public void testModifyComparatorWithAttributes() throws Exception
+    {
+        testAddComparatorToEnabledSchema();
+        
+        LdapDN dn = getComparatorContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        Attributes mods = new BasicAttributes( true );
+        mods.put( "m-fqcn", BooleanComparator.class.getName() );
+        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+
+        assertTrue( "comparator OID should still be present", 
+            schemaManager.getComparatorRegistry().contains( OID ) );
+        
+        assertEquals( "comparator schema should be set to apachemeta", 
+            schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+
+        Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
+        assertEquals( clazz, BooleanComparator.class );
+    }
+    
+    // ----------------------------------------------------------------------
+    // Test Rename operation
+    // ----------------------------------------------------------------------
+    @Test
     public void testRenameComparator() throws Exception
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
@@ -370,6 +465,37 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
 
+    @Test
+    public void testRenameComparatorWhenInUse() throws Exception
+    {
+        LdapDN dn = getComparatorContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        testAddComparatorToEnabledSchema();
+        schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
+        
+        LdapDN newdn = getComparatorContainer( "apachemeta" );
+        newdn.add( "m-oid" + "=" + NEW_OID );
+        
+        try
+        {
+            getSchemaContext( service ).rename( dn, newdn );
+            fail( "should not be able to rename a comparator in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "comparator should still be in the registry after rename failure", 
+            schemaManager.getComparatorRegistry().contains( OID ) );
+        schemaManager.getMatchingRuleRegistry().unregister( OID );
+        service.getSchemaManager().getOidRegistry().unregister( OID );
+    }
+
+
+    // ----------------------------------------------------------------------
+    // Test Move operation
+    // ----------------------------------------------------------------------
     @Test
     @Ignore
     public void testMoveComparator() throws Exception
@@ -423,89 +549,9 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
 
-    @Test
-    public void testModifyComparatorWithModificationItems() throws Exception
-    {
-        testAddComparatorToEnabledSchema();
-        
-        LdapDN dn = getComparatorContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-        
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-fqcn", BooleanComparator.class.getName() );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( service ).modifyAttributes( dn, mods );
-
-        assertTrue( "comparator OID should still be present", 
-            schemaManager.getComparatorRegistry().contains( OID ) );
-        
-        assertEquals( "comparator schema should be set to apachemeta", 
-            schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-
-        Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz, BooleanComparator.class );
-    }
-
-
-    @Test
-    public void testModifyComparatorWithAttributes() throws Exception
-    {
-        testAddComparatorToEnabledSchema();
-        
-        LdapDN dn = getComparatorContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-        
-        Attributes mods = new BasicAttributes( true );
-        mods.put( "m-fqcn", BooleanComparator.class.getName() );
-        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
-
-        assertTrue( "comparator OID should still be present", 
-            schemaManager.getComparatorRegistry().contains( OID ) );
-        
-        assertEquals( "comparator schema should be set to apachemeta", 
-            schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-
-        Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz, BooleanComparator.class );
-    }
-    
-
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a MR exists and uses the Comparator
     // ----------------------------------------------------------------------
-    @Test
-    public void testDeleteComparatorWhenInUse() throws Exception
-    {
-        LdapDN dn = getComparatorContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-        
-        testAddComparatorToEnabledSchema();
-        
-        MatchingRule mr = new DummyMR();
-        schemaManager.register( mr );
-        
-        // Pre-checks
-        assertTrue( isOnDisk( dn ) );
-        assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
-        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( mr.getOid() ) );
-        
-        try
-        {
-            getSchemaContext( service ).destroySubcontext( dn );
-            fail( "should not be able to delete a comparator in use" );
-        }
-        catch( LdapOperationNotSupportedException e ) 
-        {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        assertTrue( "comparator should still be in the registry after delete failure", 
-            schemaManager.getComparatorRegistry().contains( OID ) );
-        schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getOidRegistry().unregister( OID );
-    }
-    
-    
     @Test
     @Ignore
     public void testMoveComparatorWhenInUse() throws Exception
@@ -566,34 +612,6 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
     
-    @Test
-    public void testRenameComparatorWhenInUse() throws Exception
-    {
-        LdapDN dn = getComparatorContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-        testAddComparatorToEnabledSchema();
-        schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
-        
-        LdapDN newdn = getComparatorContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
-        
-        try
-        {
-            getSchemaContext( service ).rename( dn, newdn );
-            fail( "should not be able to rename a comparator in use" );
-        }
-        catch( LdapOperationNotSupportedException e ) 
-        {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        assertTrue( "comparator should still be in the registry after rename failure", 
-            schemaManager.getComparatorRegistry().contains( OID ) );
-        schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getOidRegistry().unregister( OID );
-    }
-
-
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
@@ -696,17 +714,5 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         assertEquals( "comparator should be in apachemeta schema after move", 
             schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-    }
-
-
-    class DummyMR extends MatchingRule
-    {
-        public DummyMR()
-        {
-            super( OID );
-            addName( "dummy" );
-        }
-
-        private static final long serialVersionUID = 1L;
     }
 }

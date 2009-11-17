@@ -263,83 +263,34 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertFalse( isOnDisk( dn ) );
     }
 
-
+    
     @Test
-    public void testRenameAttributeType() throws Exception
+    public void testDeleteAttributeTypeWhenInUse() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
 
-        LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        
-        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
-        newdn.add( "m-oid=" + NEW_OID );
-        schemaRoot.rename( dn, newdn );
-
-        assertFalse( "old attributeType OID should be removed from the registry after being renamed", 
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        addDependeeAttributeType();
         
         try
         {
-            service.getSchemaManager().getAttributeTypeRegistry().lookup( OID );
-            fail( "attributeType lookup should fail after renaming the attributeType" );
+            getSchemaContext( service ).destroySubcontext( dn );
+            fail( "should not be able to delete a attributeType in use" );
         }
-        catch( NamingException e )
+        catch( LdapOperationNotSupportedException e ) 
         {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
-    }
-
-
-    @Test
-    @Ignore
-    public void testMoveAttributeType() throws Exception
-    {
-        testAddAttributeTypeToEnabledSchema();
-        
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( "m-oid=" + OID );
-
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( "m-oid=" + OID );
-        
-        getSchemaContext( service ).rename( dn, newdn );
-
-        assertTrue( "attributeType OID should still be present",
-                service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-        
-        assertEquals( "attributeType schema should be set to apache not apachemeta", 
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
-    }
-
-
-    @Test
-    @Ignore
-    public void testMoveAttributeTypeAndChangeRdn() throws Exception
-    {
-        testAddAttributeTypeToEnabledSchema();
-        
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( "m-oid=" + OID );
-
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( "m-oid=" + NEW_OID );
-        
-        getSchemaContext( service ).rename( dn, newdn );
-
-        assertFalse( "old attributeType OID should NOT be present", 
+        assertTrue( "attributeType should still be in the registry after delete failure", 
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-        
-        assertTrue( "new attributeType OID should be present", 
-            service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
-        
-        assertEquals( "attributeType with new oid should have schema set to apache NOT apachemeta", 
-            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
     }
-
     
+    
+    // ----------------------------------------------------------------------
+    // Test Modify operation
+    // ----------------------------------------------------------------------
     @Test
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
@@ -401,114 +352,37 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     
 
     // ----------------------------------------------------------------------
-    // Test move, rename, and delete when a MR exists and uses the Normalizer
+    // Test Rename operation
     // ----------------------------------------------------------------------
-
-    
-    private void addDependeeAttributeType() throws Exception
-    {
-        Attributes attrs = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "objectClass", "top" );
-        oc.add( "metaTop" );
-        oc.add( "metaAttributeType" );
-        attrs.put( oc );
-        attrs.put( "m-oid", DEPENDEE_OID );
-        attrs.put( "m-syntax", SchemaConstants.INTEGER_SYNTAX );
-        attrs.put( "m-description", DESCRIPTION0 );
-        attrs.put( "m-equality", "caseIgnoreMatch" );
-        attrs.put( "m-singleValue", "FALSE" );
-        attrs.put( "m-usage", "directoryOperation" );
-        attrs.put( "m-supAttributeType", OID );
-        
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( "m-oid=" + DEPENDEE_OID );
-        getSchemaContext( service ).createSubcontext( dn, attrs );
-        
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
-        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
-    }
-
-
     @Test
-    public void testDeleteAttributeTypeWhenInUse() throws Exception
+    public void testRenameAttributeType() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
 
+        LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( "m-oid=" + OID );
-        addDependeeAttributeType();
         
-        try
-        {
-            getSchemaContext( service ).destroySubcontext( dn );
-            fail( "should not be able to delete a attributeType in use" );
-        }
-        catch( LdapOperationNotSupportedException e ) 
-        {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        assertTrue( "attributeType should still be in the registry after delete failure", 
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-    }
-    
-    
-    @Test
-    @Ignore
-    public void testMoveAttributeTypeWhenInUse() throws Exception
-    {
-        testAddAttributeTypeToEnabledSchema();
-        addDependeeAttributeType();
-        
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( "m-oid=" + OID );
-
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
-        newdn.add( "m-oid=" + OID );
-        
-        try
-        {
-            getSchemaContext( service ).rename( dn, newdn );
-            fail( "should not be able to move a attributeType in use" );
-        }
-        catch( LdapOperationNotSupportedException e ) 
-        {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        assertTrue( "attributeType should still be in the registry after move failure", 
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-    }
-
-
-    @Test
-    @Ignore
-    public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
-    {
-        testAddAttributeTypeToEnabledSchema();
-        addDependeeAttributeType();
-        
-        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
-        dn.add( "m-oid=" + OID );
-
-        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( "m-oid=" + NEW_OID );
+        schemaRoot.rename( dn, newdn );
+
+        assertFalse( "old attributeType OID should be removed from the registry after being renamed", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
         
         try
         {
-            getSchemaContext( service ).rename( dn, newdn );
-            fail( "should not be able to move a attributeType in use" );
+            service.getSchemaManager().getAttributeTypeRegistry().lookup( OID );
+            fail( "attributeType lookup should fail after renaming the attributeType" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch( NamingException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        assertTrue( "attributeType should still be in the registry after move failure", 
-            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
     }
 
-    
+
     @Test
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
@@ -537,8 +411,53 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
 
 
     // ----------------------------------------------------------------------
-    // Let's try some freaky stuff
+    // Test Move operation
     // ----------------------------------------------------------------------
+    @Test
+    @Ignore
+    public void testMoveAttributeType() throws Exception
+    {
+        testAddAttributeTypeToEnabledSchema();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( "m-oid=" + OID );
+        
+        getSchemaContext( service ).rename( dn, newdn );
+
+        assertTrue( "attributeType OID should still be present",
+                service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        
+        assertEquals( "attributeType schema should be set to apache not apachemeta", 
+            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
+    }
+
+
+    @Test
+    @Ignore
+    public void testMoveAttributeTypeAndChangeRdn() throws Exception
+    {
+        testAddAttributeTypeToEnabledSchema();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( "m-oid=" + NEW_OID );
+        
+        getSchemaContext( service ).rename( dn, newdn );
+
+        assertFalse( "old attributeType OID should NOT be present", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+        
+        assertTrue( "new attributeType OID should be present", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( NEW_OID ) );
+        
+        assertEquals( "attributeType with new oid should have schema set to apache NOT apachemeta", 
+            service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
+    }
 
 
     @Test
@@ -615,6 +534,91 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     }
 
 
+    @Test
+    @Ignore
+    public void testMoveAttributeTypeWhenInUse() throws Exception
+    {
+        testAddAttributeTypeToEnabledSchema();
+        addDependeeAttributeType();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( "m-oid=" + OID );
+        
+        try
+        {
+            getSchemaContext( service ).rename( dn, newdn );
+            fail( "should not be able to move a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after move failure", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+    }
+
+
+    @Test
+    @Ignore
+    public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws Exception
+    {
+        testAddAttributeTypeToEnabledSchema();
+        addDependeeAttributeType();
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=" + OID );
+
+        LdapDN newdn = getAttributeTypeContainer( "apache" );
+        newdn.add( "m-oid=" + NEW_OID );
+        
+        try
+        {
+            getSchemaContext( service ).rename( dn, newdn );
+            fail( "should not be able to move a attributeType in use" );
+        }
+        catch( LdapOperationNotSupportedException e ) 
+        {
+            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+        }
+
+        assertTrue( "attributeType should still be in the registry after move failure", 
+            service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+    }
+
+    
+    // ----------------------------------------------------------------------
+    // Test move, rename, and delete when a MR exists and uses the Normalizer
+    // ----------------------------------------------------------------------
+    private void addDependeeAttributeType() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaAttributeType",
+            "m-oid", DEPENDEE_OID,
+            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+            "m-description", DESCRIPTION0,
+            "m-equality: caseIgnoreMatch",
+            "m-singleValue: FALSE",
+            "m-usage: directryOperation",
+            "m-supAttributeType", OID );
+        
+        LdapDN dn = getAttributeTypeContainer( "apachemeta" );
+        dn.add( "m-oid=" + DEPENDEE_OID );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( DEPENDEE_OID ) );
+        assertEquals( service.getSchemaManager().getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+    }
+
+
+    // ----------------------------------------------------------------------
+    // Let's try some freaky stuff
+    // ----------------------------------------------------------------------
     /*
     @Test
     @Ignore
