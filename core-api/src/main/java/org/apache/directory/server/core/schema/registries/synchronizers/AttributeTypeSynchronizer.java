@@ -81,14 +81,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Build the new AttributeType from the given entry
         String schemaName = getSchemaName( dn );
         
-        AttributeType at = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        AttributeType attributeType = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         
         // At this point, the constructed AttributeType has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the AttributeType are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
         
-        if ( schema.isEnabled() && at.isEnabled() )
+        if ( schema.isEnabled() && attributeType.isEnabled() )
         {
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
@@ -96,8 +96,17 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Relax the cloned registries
             clonedRegistries.setRelaxed();
             
+            // Associates this AttributeType with the schema
+            clonedRegistries.register( attributeType );
+            
+            // Associate the AT with its schema
+            clonedRegistries.associateWithSchema( attributeType );
+
             // Apply the registries to the newly created AT
-            at.applyRegistries( schemaManager.getRegistries() );
+            attributeType.applyRegistries( clonedRegistries );
+            
+            // Update the cross references for AT
+            clonedRegistries.addCrossReferences( attributeType );
             
             // Check the registries now
             List<Throwable> errors = clonedRegistries.checkRefInteg();
@@ -121,10 +130,18 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
-    
-        // Associates this AttributeType with the schema
-        schemaManager.register( at );
+        else
+        {
+            // At least, we register the OID in the globalOidRegistry, and associates it with the
+            // schema
 
+            // Associate the AT with its schema
+            schemaManager.getRegistries().associateWithSchema( attributeType );
+
+            // And register the attributeType in the globalOidregistry
+            registerOids( attributeType );
+        }
+    
         LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
     }
 
@@ -169,66 +186,61 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
         
-        // Get the AttributeType from the given entry ( it has been grabbed from the server earlier)
+        // Test that the Oid exists
+        AttributeType attributeType = (AttributeType)checkOidExists( entry );
+        
+        // Get the SchemaName
         String schemaName = getSchemaName( entry.getDn() );
         
-        AttributeType attributeType = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
-        
-        // Applies the Registries to this AttributeType 
+        // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
         
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
-            attributeType.applyRegistries( schemaManager.getRegistries() );
-        }
-        
-        String oid = attributeType.getOid();
-        
-        // Depending on the fact that the schema is enabled or disabled, we will have
-        // to unregister the AttributeType from the registries or not. In any case,
-        // we have to remove it from the schemaPartition.
-        // We also have to check that the removal will let the server Registries in a 
-        // stable state, which means in this case that we don't have any AttributeType
-        // directly inherit from the removed AttributeType, and that no ObjectClass
-        // has this AttributeType in its MAY or MUST...
-        // We will also have to remove an index that has been set on this AttributeType.
-        if ( schema.isEnabled() )
-        {
-            if ( schemaManager.getRegistries().isReferenced( attributeType ) )
+            // As we may break the registries, work on a cloned registries
+            Registries clonedRegistries = schemaManager.getRegistries().clone();
+            
+            // Relax the cloned registries
+            clonedRegistries.setRelaxed();
+            
+            // Remove this AttributeType from the Registries
+            clonedRegistries.unregister( attributeType );
+            
+            // Remove the AttributeType from the schema/SchemaObject Map
+            clonedRegistries.dissociateFromSchema( attributeType );
+
+            // Update the cross references for AT
+            clonedRegistries.delCrossReferences( attributeType );
+            
+            // Check the registries now
+            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            
+            // If we didn't get any error, swap the registries
+            if ( errors.size() == 0 )
             {
-                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some " +
-                    " dependant SchemaObjects :\n" + getReferenced( attributeType );
-                LOG.warn( msg );
+                clonedRegistries.setStrict();
+                schemaManager.swapRegistries( clonedRegistries  );
+            }
+            else
+            {
+                // We have some error : reject the deletion and get out
+                // Destroy the cloned registries
+                schemaManager.destroy( clonedRegistries );
+                
+                // The schema is disabled. We still have to update the backend
+                String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " into the registries, "+
+                    "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
-        }
-
-        // Remove the AttributeType from the schema content
-        deleteFromSchema( attributeType, schemaName );
-
-        // Update the Registries now
-        if ( schemaManager.getAttributeTypeRegistry().contains( oid ) )
-        {
-            // Update the references.
-            // The Syntax
-            schemaManager.getRegistries().delReference( attributeType, attributeType.getSyntax() );
-            
-            // The Superior
-            schemaManager.getRegistries().delReference( attributeType, attributeType.getSuperior() );
-            
-            // The MatchingRules
-            schemaManager.getRegistries().delReference( attributeType, attributeType.getEquality() );
-            schemaManager.getRegistries().delReference( attributeType, attributeType.getOrdering() );
-            schemaManager.getRegistries().delReference( attributeType, attributeType.getSubstring() );
-            
-            // Update the Registry
-            schemaManager.unregister( attributeType );
-            
-            LOG.debug( "Removed {} from the enabled schema {}", attributeType, schemaName );
         }
         else
         {
             unregisterOids( attributeType );
+            
+            // Remove the AttributeType from the schema/SchemaObject Map
+            schemaManager.getRegistries().dissociateFromSchema( attributeType );
+            
             LOG.debug( "Removed {} from the disabled schema {}", attributeType, schemaName );
         }
     }

@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaObjectType;
-import org.apache.directory.shared.ldap.schema.SchemaWrapper;
+import org.apache.directory.shared.ldap.schema.SchemaObjectWrapper;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
@@ -549,7 +549,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         operationManager.modify( modifyContext );
         
         // Now iterate on all the schemaObject under this schema
-        for ( SchemaWrapper schemaWrapper : schema.getContent() )
+        for ( SchemaObjectWrapper schemaObjectWrapper : schema.getContent() )
         {
             
         }
@@ -596,9 +596,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         // searching for those associated with the disabled schema
         disableAT( session, schemaName );
         
-        Set<SchemaWrapper> content = registries.getLoadedSchema( schemaName ).getContent(); 
+        Set<SchemaObjectWrapper> content = registries.getLoadedSchema( schemaName ).getContent(); 
 
-        for ( SchemaWrapper schemaWrapper : content )
+        for ( SchemaObjectWrapper schemaWrapper : content )
         {
             SchemaObject schemaObject = schemaWrapper.get();
             

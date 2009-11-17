@@ -35,13 +35,14 @@ import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.SchemaWrapper;
+import org.apache.directory.shared.ldap.schema.SchemaObjectWrapper;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
@@ -172,6 +173,26 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     
     /**
+     * Check that a SchemaObject exists in the global OidRegsitry, and if so,
+     * return it.
+     */
+    protected SchemaObject checkOidExists( ServerEntry entry ) throws Exception
+    {
+        String oid = getOid( entry );
+
+        if ( schemaManager.getOidRegistry().hasOid( oid ) )
+        {
+            return schemaManager.getOidRegistry().getSchemaObject( oid );
+        }
+        else
+        {
+            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity does not exist.",
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+    
+    /**
      * Checks that the parent DN is a valid DN
      */
     protected void checkParent( LdapDN newParent, SchemaManager schemaManager, String objectType ) throws NamingException
@@ -206,7 +227,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( schemaManager.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
+            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
@@ -216,7 +237,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( schemaManager.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
+            throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
@@ -231,7 +252,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         if ( isSchemaLoaded( schemaName ) )
         {
             // Get the set of all the SchemaObjects associated with this schema
-            Set<SchemaWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
+            Set<SchemaObjectWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
             
             if ( schemaObjects == null )
             {
@@ -239,9 +260,9 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 schemaObjects = schemaManager.getRegistries().addSchema( schemaName );
             }
             
-            SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
+            SchemaObjectWrapper schemaObjectWrapper = new SchemaObjectWrapper( schemaObject );
             
-            if ( schemaObjects.contains( schemaWrapper ) )
+            if ( schemaObjects.contains( schemaObjectWrapper ) )
             {
                 String msg = "Cannot inject " + schemaObject.getName() + " into " + schemaName + 
                 " as this schema already contains this element";
@@ -250,7 +271,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            schemaObjects.add( schemaWrapper );
+            schemaObjects.add( schemaObjectWrapper );
             LOG.debug( "The SchemaObject {} has been added to the schema {}", schemaObject, schemaName   );
         }
         else
@@ -274,11 +295,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( isSchemaLoaded( schemaName ) )
         {
-            Set<SchemaWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
+            Set<SchemaObjectWrapper> schemaObjects = schemaManager.getRegistries().getObjectBySchemaName().get( schemaName );
 
-            SchemaWrapper schemaWrapper = new SchemaWrapper( schemaObject );
+            SchemaObjectWrapper schemaObjectWrapper = new SchemaObjectWrapper( schemaObject );
             
-            if ( !schemaObjects.contains( schemaWrapper ) )
+            if ( !schemaObjects.contains( schemaObjectWrapper ) )
             {
                 String msg = "Cannot remove " + schemaObject.getName() + " from " + schemaName + 
                 " as this schema does not contain this element";
@@ -287,7 +308,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-            schemaObjects.remove( schemaWrapper );
+            schemaObjects.remove( schemaObjectWrapper );
             LOG.debug(  "The SchemaObject {} has been removed from the schema {}", schemaObject, schemaName );
         }
         else
@@ -386,9 +407,9 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         StringBuilder sb = new StringBuilder();
         
-        Set<SchemaWrapper> useds = schemaManager.getRegistries().getUsedBy( schemaObject );
+        Set<SchemaObjectWrapper> useds = schemaManager.getRegistries().getUsedBy( schemaObject );
         
-        for ( SchemaWrapper used:useds )
+        for ( SchemaObjectWrapper used:useds )
         {
             sb.append( used );
             sb.append( '\n' );
