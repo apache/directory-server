@@ -27,7 +27,6 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.schema.registries.DefaultComparatorRegistry;
-import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 
 
 /**
@@ -38,9 +37,9 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
 */
 class MockComparatorRegistry extends DefaultComparatorRegistry
 {
-    public MockComparatorRegistry( OidRegistry oidRegistry )
+    public MockComparatorRegistry()
     {
-        super( oidRegistry );
+        super();
     }
 
 
