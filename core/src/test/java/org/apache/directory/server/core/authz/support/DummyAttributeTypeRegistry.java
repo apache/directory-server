@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectRegistry;
 import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
+import org.apache.directory.shared.ldap.schema.registries.SchemaObjectRegistry;
 
 
 /**
@@ -46,7 +47,7 @@ import org.apache.directory.shared.ldap.schema.registries.OidRegistry;
  * @version $Rev$, $Date$
  *
  */
-public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType> implements AttributeTypeRegistry, Cloneable 
+public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<AttributeType> 
 {
     private final boolean returnOperational;
 
@@ -161,5 +162,11 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     
     public void addMappingFor( AttributeType attributeType ) throws NamingException
     {
+    }
+
+
+    public SchemaObjectRegistry<AttributeType> copy()
+    {
+        return null;
     }
 }
