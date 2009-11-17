@@ -92,7 +92,7 @@ public class RefinementEvaluatorTest
      */
     @Before public void setUp() throws Exception
     {
-        OidRegistry registry = registries.getOidRegistry();
+        OidRegistry registry = registries.getGlobalOidRegistry();
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( registry );
         evaluator = new RefinementEvaluator( leafEvaluator );
         
