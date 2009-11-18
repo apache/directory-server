@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
+import org.apache.directory.shared.ldap.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -93,15 +94,40 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         return new LdapDN( "ou=matchingRules,cn=" + schemaName );
     }
     
+    private LdapDN getComparatorContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=comparators,cn=" + schemaName );
+    }
+    
+    
+    private void createComparator() throws Exception
+    {
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaComparator",
+            "m-fqcn: " + StringComparator.class.getName(),
+            "m-oid: " + OID,
+            "m-description: A test comparator" );
+        
+        LdapDN dn = getComparatorContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        
+        // Addition
+        getSchemaContext( service ).createSubcontext( dn, attrs );
+    }
+    
     
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
-
-
+    // Test Add operation
+    // ----------------------------------------------------------------------
     @Test
     public void testAddMatchingRuleToEnabledSchema() throws Exception
     {
+        createComparator();
+        
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
@@ -112,10 +138,17 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );
         dn.add( "m-oid" + "=" + OID );
+        
+        // Pre-checks
+        assertFalse( isOnDisk( dn ) );
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
+
+        // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( schemaManager.getMatchingRuleRegistry().contains( OID ) );
-        assertEquals( schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
+        // Post-checks
+        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+        assertEquals( service.getSchemaManager().getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
         assertTrue( isOnDisk( dn ) );
     }
     
@@ -123,6 +156,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     @Test
     public void testAddMatchingRuleToDisabledSchema() throws Exception
     {
+        createComparator();
+        
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
@@ -144,6 +179,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     @Test
     public void testAddMatchingRuleToUnloadedSchema() throws Exception
     {
+        createComparator();
+        
         Attributes attrs = AttributeUtils.createAttributes( 
             "objectClass: top",
             "objectClass: metaTop",
@@ -162,7 +199,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         }
         catch( NameNotFoundException nnfe )
         {
-            // Excpected result
+            // Expected result
         }
         
         assertFalse( "adding new matchingRule to disabled schema should not register it into the registries", 
@@ -170,7 +207,10 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertFalse( isOnDisk( dn ) );
     }
     
-
+    
+    // ----------------------------------------------------------------------
+    // Test Delete operation
+    // ----------------------------------------------------------------------
     @Test
     public void testDeleteMatchingRuleFromEnabledSchema() throws Exception
     {
@@ -219,80 +259,9 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
 
-    @Test
-    public void testRenameMatchingRule() throws Exception
-    {
-        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-        testAddMatchingRuleToEnabledSchema();
-        
-        LdapDN newdn = getMatchingRuleContainer( "apachemeta" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
-        getSchemaContext( service ).rename( dn, newdn );
-
-        assertFalse( "old matchingRule OID should be removed from the registry after being renamed", 
-            schemaManager.getMatchingRuleRegistry().contains( OID ) );
-        
-        try
-        {
-            schemaManager.getMatchingRuleRegistry().lookup( OID );
-            fail( "matchingRule lookup should fail after renaming the matchingRule" );
-        }
-        catch( NamingException e )
-        {
-        }
-
-        assertTrue( schemaManager.getMatchingRuleRegistry().contains( NEW_OID ) );
-    }
-
-
-    @Test
-    @Ignore
-    public void testMoveMatchingRule() throws Exception
-    {
-        testAddMatchingRuleToEnabledSchema();
-        
-        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-
-        LdapDN newdn = getMatchingRuleContainer( "apache" );
-        newdn.add( "m-oid" + "=" + OID );
-        
-        getSchemaContext( service ).rename( dn, newdn );
-
-        assertTrue( "matchingRule OID should still be present", 
-            schemaManager.getMatchingRuleRegistry().contains( OID ) );
-        
-        assertEquals( "matchingRule schema should be set to apache not apachemeta", 
-            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apache" );
-    }
-
-
-    @Test
-    @Ignore
-    public void testMoveMatchingRuleAndChangeRdn() throws Exception
-    {
-        testAddMatchingRuleToEnabledSchema();
-        
-        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
-
-        LdapDN newdn = getMatchingRuleContainer( "apache" );
-        newdn.add( "m-oid" + "=" + NEW_OID );
-        
-        getSchemaContext( service ).rename( dn, newdn );
-
-        assertFalse( "old matchingRule OID should NOT be present", 
-            schemaManager.getMatchingRuleRegistry().contains( OID ) );
-        
-        assertTrue( "new matchingRule OID should be present", 
-            schemaManager.getMatchingRuleRegistry().contains( NEW_OID ) );
-        
-        assertEquals( "matchingRule with new oid should have schema set to apache NOT apachemeta", 
-            schemaManager.getMatchingRuleRegistry().getSchemaName( NEW_OID ), "apache" );
-    }
-
-
+    // ----------------------------------------------------------------------
+    // Test Modify operation
+    // ----------------------------------------------------------------------
     @Test
     public void testModifyMatchingRuleWithModificationItems() throws Exception
     {
@@ -351,7 +320,87 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertEquals( mr.getDescription(), DESCRIPTION1 );
         assertEquals( mr.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
+
+
+    // ----------------------------------------------------------------------
+    // Test Rename operation
+    // ----------------------------------------------------------------------
+    @Test
+    public void testRenameMatchingRule() throws Exception
+    {
+        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+        testAddMatchingRuleToEnabledSchema();
+        
+        LdapDN newdn = getMatchingRuleContainer( "apachemeta" );
+        newdn.add( "m-oid" + "=" + NEW_OID );
+        getSchemaContext( service ).rename( dn, newdn );
+
+        assertFalse( "old matchingRule OID should be removed from the registry after being renamed", 
+            schemaManager.getMatchingRuleRegistry().contains( OID ) );
+        
+        try
+        {
+            schemaManager.getMatchingRuleRegistry().lookup( OID );
+            fail( "matchingRule lookup should fail after renaming the matchingRule" );
+        }
+        catch( NamingException e )
+        {
+        }
+
+        assertTrue( schemaManager.getMatchingRuleRegistry().contains( NEW_OID ) );
+    }
+
     
+    // ----------------------------------------------------------------------
+    // Test Move operation
+    // ----------------------------------------------------------------------
+    @Test
+    @Ignore
+    public void testMoveMatchingRule() throws Exception
+    {
+        testAddMatchingRuleToEnabledSchema();
+        
+        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+
+        LdapDN newdn = getMatchingRuleContainer( "apache" );
+        newdn.add( "m-oid" + "=" + OID );
+        
+        getSchemaContext( service ).rename( dn, newdn );
+
+        assertTrue( "matchingRule OID should still be present", 
+            schemaManager.getMatchingRuleRegistry().contains( OID ) );
+        
+        assertEquals( "matchingRule schema should be set to apache not apachemeta", 
+            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apache" );
+    }
+
+
+    @Test
+    @Ignore
+    public void testMoveMatchingRuleAndChangeRdn() throws Exception
+    {
+        testAddMatchingRuleToEnabledSchema();
+        
+        LdapDN dn = getMatchingRuleContainer( "apachemeta" );
+        dn.add( "m-oid" + "=" + OID );
+
+        LdapDN newdn = getMatchingRuleContainer( "apache" );
+        newdn.add( "m-oid" + "=" + NEW_OID );
+        
+        getSchemaContext( service ).rename( dn, newdn );
+
+        assertFalse( "old matchingRule OID should NOT be present", 
+            schemaManager.getMatchingRuleRegistry().contains( OID ) );
+        
+        assertTrue( "new matchingRule OID should be present", 
+            schemaManager.getMatchingRuleRegistry().contains( NEW_OID ) );
+        
+        assertEquals( "matchingRule with new oid should have schema set to apache NOT apachemeta", 
+            schemaManager.getMatchingRuleRegistry().getSchemaName( NEW_OID ), "apache" );
+    }
+
 
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a MR exists and uses the Normalizer

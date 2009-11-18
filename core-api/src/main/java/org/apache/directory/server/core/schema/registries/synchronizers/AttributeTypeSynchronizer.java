@@ -96,7 +96,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Relax the cloned registries
             clonedRegistries.setRelaxed();
             
-            // Associates this AttributeType with the schema
+            // Register the AttributeType in the cloned registries
             clonedRegistries.register( attributeType );
             
             // Associate the AT with its schema
