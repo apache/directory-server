@@ -358,6 +358,36 @@ public class LdapDNTest
 
 
     /**
+     * Test for DIRSTUDIO-589, DIRSTUDIO-591, DIRSHARED-38 
+     * 
+     * Check escaped sharp followed by a hex sequence
+     * (without the ESC it would be a valid hexstring).
+     */
+    @Test
+    public void testLdapDNEscSharpNumber() throws InvalidNameException, NamingException
+    {
+        LdapDN dn = new LdapDN( "a = \\#123456" );
+
+        assertTrue( LdapDN.isValid( "a = \\#123456" ) );
+        assertEquals( "a=\\#123456", dn.toString() );
+        assertEquals( "a = \\#123456", dn.getUpName() );
+
+        Rdn rdn = dn.getRdn();
+        assertEquals( "a = \\#123456", rdn.getUpName() );
+
+        assertTrue( LdapDN.isValid( "a = \\#00" ) );
+        assertTrue( LdapDN.isValid( "a = \\#11" ) );
+        assertTrue( LdapDN.isValid( "a = \\#99" ) );
+        assertTrue( LdapDN.isValid( "a = \\#AA" ) );
+        assertTrue( LdapDN.isValid( "a = \\#FF" ) );
+
+        assertTrue( LdapDN.isValid( "uid=\\#123456" ) );
+        assertTrue( LdapDN.isValid( "cn=\\#ACL_AD-Projects_Author,ou=Notes_Group,o=Contacts,c=DE" ) );
+        assertTrue( LdapDN.isValid( "cn=\\#Abraham" ) );
+    }
+
+
+   /**
      * test a simple DN with a # on first position
      */
     @Test
