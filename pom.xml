@@ -389,6 +389,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <configuration>
+          <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
           <aggregate>true</aggregate>
         </configuration>
       </plugin>
