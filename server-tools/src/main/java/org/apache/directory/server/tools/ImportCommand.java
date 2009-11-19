@@ -720,6 +720,8 @@ public class ImportCommand extends ToolCommand
             System.out.println( "Done!" );
             System.out.println( nbMod + " entries changed in " + ( ( t1 - t0 ) / 1000 ) + " seconds" );
         }
+        
+        ldifReader.close();
 
         // Logout to the server
         unbind( messageId++ );
