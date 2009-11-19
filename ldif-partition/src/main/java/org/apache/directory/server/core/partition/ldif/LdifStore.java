@@ -67,7 +67,7 @@ public class LdifStore<E> implements Store<E>
 
     private SchemaManager schemaManager;
     
-    private LdifReader ldifParser = new LdifReader();
+    private LdifReader ldifReader;
     
     private FileFilter dirFilter = new FileFilter()
     {
@@ -118,30 +118,42 @@ public class LdifStore<E> implements Store<E>
         
         File ldifFile = new File( entryDir, entryDir.getName() + CONF_FILE_EXTN );
         
-        if( ldifFile.exists() )
+        try
         {
-            LOG.debug( "parsing ldif file {}", ldifFile.getName() );
-            List<LdifEntry> entries = ldifParser.parseLdifFile( ldifFile.getAbsolutePath() );
-            if( entries != null && !entries.isEmpty() )
-            {
-                // this ldif will have only one entry
-                LdifEntry ldifEntry = entries.get( 0 );
-                LOG.debug( "adding entry {}", ldifEntry );
+            
+            ldifReader = new LdifReader();
 
-                ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
+            if( ldifFile.exists() )
+            {
+                LOG.debug( "parsing ldif file {}", ldifFile.getName() );
+                List<LdifEntry> entries = ldifReader.parseLdifFile( ldifFile.getAbsolutePath() );
                 
-                // call add on the wrapped store not on the self  
-                wrappedStore.add( serverEntry );
+                if( entries != null && !entries.isEmpty() )
+                {
+                    // this ldif will have only one entry
+                    LdifEntry ldifEntry = entries.get( 0 );
+                    LOG.debug( "adding entry {}", ldifEntry );
+    
+                    ServerEntry serverEntry = new DefaultServerEntry( schemaManager, ldifEntry.getEntry() );
+                    
+                    // call add on the wrapped store not on the self  
+                    wrappedStore.add( serverEntry );
+                }
+            }
+            else
+            {
+                // TODO do we need to bomb out if the expected LDIF file doesn't exist
+                // I think so
+                LOG.warn( "ldif file doesn't exist {}", ldifFile.getAbsolutePath() );
             }
         }
-        else
+        finally
         {
-            // TODO do we need to bomb out if the expected LDIF file doesn't exist
-            // I think so
-            LOG.warn( "ldif file doesn't exist {}", ldifFile.getAbsolutePath() );
+            ldifReader.close();
         }
         
         File[] dirs = entryDir.listFiles( dirFilter );
+        
         if( dirs != null )
         {
             for( File f : dirs )

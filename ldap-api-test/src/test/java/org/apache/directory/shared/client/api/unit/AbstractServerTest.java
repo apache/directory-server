@@ -436,5 +436,7 @@ public abstract class AbstractServerTest
                 new DefaultServerEntry( 
                     rootDSE.getDirectoryService().getSchemaManager(), entry.getEntry() ) ); 
         }
+        
+        reader.close();
     }
 }

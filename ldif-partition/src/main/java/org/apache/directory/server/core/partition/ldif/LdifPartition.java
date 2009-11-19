@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.ldif;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -94,7 +95,7 @@ public class LdifPartition extends BTreePartition
     private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
     
     /** The LDIF file parser */
-    private LdifReader ldifParser = new LdifReader();
+    //private LdifReader ldifReader;
 
     /** The directory into which the partition is stored */
     private String workingDirectory;
@@ -221,7 +222,8 @@ public class LdifPartition extends BTreePartition
                 if ( contextEntryFile.exists() )
                 {
                     LdifReader reader = new LdifReader( contextEntryFile );
-                    contextEntry = new DefaultServerEntry( schemaManager, reader.next().getEntry() ); 
+                    contextEntry = new DefaultServerEntry( schemaManager, reader.next().getEntry() );
+                    reader.close();
                 }
                 else
                 {
@@ -464,10 +466,12 @@ public class LdifPartition extends BTreePartition
         
         if ( ( entries != null ) && ( entries.length != 0 ) )
         {
+            LdifReader ldifReader = new LdifReader();
+            
             for ( File entry : entries )
             {
                 LOG.debug( "parsing ldif file {}", entry.getName() );
-                List<LdifEntry> ldifEntries = ldifParser.parseLdifFile( entry.getAbsolutePath() );
+                List<LdifEntry> ldifEntries = ldifReader.parseLdifFile( entry.getAbsolutePath() );
                 
                 if ( ( ldifEntries != null ) && !ldifEntries.isEmpty() )
                 {
@@ -491,10 +495,12 @@ public class LdifPartition extends BTreePartition
                     wrappedPartition.getStore().add( serverEntry );
                 }
             }
+            
+            ldifReader.close();
         }
         else
         {
-            // If we don't have ldif files, we won't have sub directories
+            // If we don't have ldif files, we won't have sub-directories
             return;
         }
         
@@ -1083,7 +1089,17 @@ public class LdifPartition extends BTreePartition
      */
     public void setContextEntry( String contextEntry ) throws NamingException
     {
-        List<LdifEntry> entries = ldifParser.parseLdif( contextEntry );
+        LdifReader ldifReader = new LdifReader();
+        List<LdifEntry> entries = ldifReader.parseLdif( contextEntry );
+        
+        try
+        {
+            ldifReader.close();
+        }
+        catch ( IOException ioe )
+        {
+            // What can we do here ???
+        }
         
         this.contextEntry = new DefaultServerEntry( schemaManager, entries.get( 0 ).getEntry() );
     }

@@ -207,6 +207,8 @@ public abstract class AbstractState implements TestServiceState
                             new DefaultServerEntry( service.getSchemaManager(), entry.getEntry() ) ); 
                         LOG.debug( "Successfully injected LDIF enry for test {}: {}", settings.getDescription(), entry );
                     }
+                    
+                    ldifReader.close();
                 }
                 catch ( Exception e )
                 {
@@ -214,6 +216,7 @@ public abstract class AbstractState implements TestServiceState
                 }
             }
         }
+        
         ldifs =  settings.getLdifs( ldifs );
         
         if ( ldifs.size() != 0 )
@@ -238,6 +241,8 @@ public abstract class AbstractState implements TestServiceState
                             LOG.error( "Cannot inject the following entry : {}. Error : {}.", entry, e.getMessage() );
                         }
                     }
+                    
+                    ldifReader.close();
                 }
                 catch ( Exception e )
                 {

@@ -20,12 +20,10 @@
 package org.apache.directory.server.protocol.shared.store;
 
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
@@ -178,7 +176,7 @@ public class LdifFileLoader
         {
             in = getLdifStream();
 
-            for ( LdifEntry ldifEntry:new LdifReader( new BufferedReader( new InputStreamReader( in ) ) ) )
+            for ( LdifEntry ldifEntry:new LdifReader( in ) )
             {
                 LdapDN dn = ldifEntry.getDn();
 

@@ -56,8 +56,6 @@ public class DitToLdifWriter
 
     private LdapConnection connection;
 
-    private LdifReader ldifParser = new LdifReader();
-    
     private FileFilter dirFilter = new FileFilter()
     {
         public boolean accept( File dir )
@@ -71,6 +69,7 @@ public class DitToLdifWriter
     public DitToLdifWriter()
     {
         connection = new LdapConnection( "localhost", 10389 );
+        
         try
         {
             connection.bind( "uid=admin,ou=system", "secret" );
@@ -91,6 +90,7 @@ public class DitToLdifWriter
         while( cursor.next() )
         {
             SearchResponse searchRes = cursor.get();
+            
             if( searchRes instanceof SearchResultEntry )
             {
                 SearchResultEntry searchResultEntry = ( SearchResultEntry ) searchRes;
@@ -100,6 +100,7 @@ public class DitToLdifWriter
                 int size = entryDn.size();
                 
                 filePath.append( baseDir.getAbsolutePath() ).append( File.separator );
+                
                 for( int i =0; i< size; i++ )
                 {
                     filePath.append( entryDn.getRdn( i ).getUpName().toLowerCase() ).append( File.separator );
@@ -138,25 +139,35 @@ public class DitToLdifWriter
     {
         LOG.warn( "processing dir {}", entryDir.getName() );
         File ldifFile = new File( entryDir, entryDir.getName() + ".ldif" );
+        LdifReader ldifReader = new LdifReader();
         
-        if( ldifFile.exists() )
+        try
         {
-            LOG.warn( "ldif file {} exists", ldifFile.getName() );
-            List<LdifEntry> entries = ldifParser.parseLdifFile( ldifFile.getAbsolutePath() );
-            if( entries != null && !entries.isEmpty() )
+            if( ldifFile.exists() )
             {
-                LOG.warn( "adding entry {}", entries.get( 0 ) );
-                // this ldif will have only one entry
-                AddResponse resp = connection.add( entries.get( 0 ).getEntry() );
-                LOG.warn( "{}", resp.getLdapResult().getResultCode() );
+                LOG.warn( "ldif file {} exists", ldifFile.getName() );
+                List<LdifEntry> entries = ldifReader.parseLdifFile( ldifFile.getAbsolutePath() );
+                
+                if( entries != null && !entries.isEmpty() )
+                {
+                    LOG.warn( "adding entry {}", entries.get( 0 ) );
+                    // this ldif will have only one entry
+                    AddResponse resp = connection.add( entries.get( 0 ).getEntry() );
+                    LOG.warn( "{}", resp.getLdapResult().getResultCode() );
+                }
+            }
+            else
+            {
+                LOG.warn( "ldif file doesn't exist {}", ldifFile.getAbsolutePath() );
             }
         }
-        else
+        finally
         {
-            LOG.warn( "ldif file doesn't exist {}", ldifFile.getAbsolutePath() );
+            ldifReader.close();
         }
         
         File[] dirs = entryDir.listFiles( dirFilter );
+        
         if( dirs != null )
         {
             for( File f : dirs )
@@ -178,24 +189,6 @@ public class DitToLdifWriter
         String partitionSuffix = "ou=config";
         File baseDir = new File( "/tmp" );
         configWriter.dumpDitToFS( partitionSuffix, baseDir );
-//        configWriter.loadConfig( baseDir, partitionSuffix );
         configWriter.close();
-
-        /*
-        LdifReader reader = new LdifReader( new File( "src/main/resources/ads-2.ldif" ) );
-        Iterator<LdifEntry> itr = reader.iterator();
-        while( itr.hasNext() )
-        {
-            try
-            {
-                LdifEntry entry = itr.next();
-                configWriter.connection.add( entry.getEntry() );
-            }
-            catch( Exception e )
-            {
-                System.exit( 1 );
-            }
-        }
-        */
     }
 }

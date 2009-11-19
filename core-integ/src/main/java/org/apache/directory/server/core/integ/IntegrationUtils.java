@@ -123,6 +123,9 @@ public class IntegrationUtils
                 throw new NamingException( message );
             }
         }
+        
+        // And close the reader
+        reader.close();
     }
 
 
