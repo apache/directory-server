@@ -701,7 +701,7 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        schemaManager.register( at.getSyntax().getSyntaxChecker() );
+        //schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, schemaManager );
@@ -714,7 +714,7 @@ public class GreaterEqTest
     {
         MatchingRule mr = new MatchingRule( "1.1" );
         mr.setSyntax( new BogusSyntax( 1 ) );
-        mr.setLdapComparator( new StringComparator() );
+        mr.setLdapComparator( new StringComparator( "1.1" ) );
         
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
         at.addName( "bogus" );
@@ -731,7 +731,7 @@ public class GreaterEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        schemaManager.register( at.getSyntax().getSyntaxChecker() );
+        //schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, schemaManager );

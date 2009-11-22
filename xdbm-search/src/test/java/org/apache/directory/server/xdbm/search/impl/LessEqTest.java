@@ -748,7 +748,7 @@ public class LessEqTest
     {
         MatchingRule mr = new MatchingRule( "1.1" );
         mr.setSyntax( new BogusSyntax( 2 ) );
-        mr.setLdapComparator( new StringComparator() );
+        mr.setLdapComparator( new StringComparator( "1.1" ) );
         
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
         at.addName( "bogus" );
@@ -765,7 +765,6 @@ public class LessEqTest
         names.add( "bogus" );
         desc.setNames( names );
         desc.setObsolete( false );
-        schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new LessEqEvaluator( node, store, schemaManager );

@@ -61,10 +61,10 @@ public class EqualityEvaluator<T> implements Evaluator<EqualityNode<T>, ServerEn
     private final LdapComparator<?> comparator;
     
     /** The default byte[] comparator if no comparator has been defined */
-    private static final Comparator<byte[]> BINARY_COMPARATOR = ByteArrayComparator.INSTANCE;
+    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
     
     /** The default String comparator if no comparator has been defined */
-    private static final Comparator<String> STRING_COMPARATOR = StringComparator.INSTANCE;
+    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
     
     private final Index<T,ServerEntry> idx;
 
