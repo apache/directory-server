@@ -376,7 +376,7 @@ public class ServerBinaryValue extends ClientBinaryValue
                 }
                 else
                 {
-                    return ByteArrayComparator.INSTANCE.compare( getNormalizedValueReference(), 
+                    return new ByteArrayComparator( null ).compare( getNormalizedValueReference(), 
                         binaryValue.getNormalizedValueReference() );
                 }
             }

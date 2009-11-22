@@ -20,6 +20,13 @@
 package org.apache.directory.server.core.entry;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,14 +45,6 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.util.StringTools;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -83,7 +82,7 @@ public class ServerBinaryValueTest
         mr = TestServerEntryUtils.matchingRuleFactory( "1.1.2.1" );
         mr.setSyntax( s );
         
-        mr.setLdapComparator( new ByteArrayComparator() );
+        mr.setLdapComparator( new ByteArrayComparator( "1.1.1" ) );
         mr.setNormalizer( new Normalizer( "1.1.1" )
         {
             private static final long serialVersionUID = 1L;

@@ -26,9 +26,9 @@ import org.apache.directory.shared.ldap.entry.client.ClientBinaryValue;
 import org.apache.directory.shared.ldap.entry.client.ClientStringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
+import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -248,7 +248,7 @@ public class TestServerEntryUtils
         MatchingRule matchingRule = new MatchingRule( "1.2.2" );
         matchingRule.setSyntax( syntax );
 
-        matchingRule.setLdapComparator( new ByteArrayComparator() );
+        matchingRule.setLdapComparator( new ByteArrayComparator( "1.2.2" ) );
         
         matchingRule.setNormalizer( new Normalizer( "1.1.1" )
         {

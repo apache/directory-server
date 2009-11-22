@@ -82,7 +82,7 @@ public class ServerStringValueTest
         s.setSyntaxChecker( new OctetStringSyntaxChecker() );
         mr = new TestServerEntryUtils.MR( "1.1.2.1" );
         mr.setSyntax( s );
-        mr.setLdapComparator( new StringComparator() );
+        mr.setLdapComparator( new StringComparator( "1.1.2.1" ) );
         mr.setNormalizer( new DeepTrimToLowerNormalizer( "1.1.2.1" ) );
         at = new TestServerEntryUtils.AT( "1.1.3.1" );
         at.setEquality( mr );
