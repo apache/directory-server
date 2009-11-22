@@ -92,7 +92,6 @@ public interface DirectoryServiceFactory
             service.setSchemaManager( schemaManager );
             
             boolean loaded = schemaManager.loadAllEnabled();
-            schemaPartition.setRegistries( schemaManager.getRegistries() );
             schemaPartition.setSchemaManager( schemaManager );
             
             List<Throwable> errors = schemaManager.getErrors();
