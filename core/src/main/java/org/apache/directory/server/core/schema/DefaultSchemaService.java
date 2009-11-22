@@ -92,7 +92,7 @@ public class DefaultSchemaService implements SchemaService
             return true;
         }
 
-        LdapDN dn = new LdapDN( dnString ).normalize( schemaPartition.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapDN dn = new LdapDN( dnString ).normalize( schemaPartition.getSchemaManager().getNormalizerMapping() );
         return dn.getNormName().equals( ServerDNConstants.CN_SCHEMA_DN_NORMALIZED );
     }
 
