@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.message.control.CascadeControl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
@@ -154,16 +153,6 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
-    /**
-     * Gets the Registries in this {@link SchemaPartition}.  Will be null 
-     * until this partition is initialized.
-     */
-    public Registries getRegistries()
-    {
-        return registries;
-    }
-    
-    
     /**
      * Get's the ID which is fixed: 'schema'.
      */
@@ -502,13 +491,13 @@ public final class SchemaPartition extends AbstractPartition
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE, 
             new DefaultServerAttribute( 
                 ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT,
-                registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ),
+                schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT ),
                 modifyTimestamp ) ) );
         
         mods.add( new ServerModification( ModificationOperation.REPLACE_ATTRIBUTE,
             new DefaultServerAttribute( 
                 ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, 
-                registries.getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
+                schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT ),
                 modifiersName ) ) );
         
         opContext.modify( schemaModificationDN, mods, ByPassConstants.SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
