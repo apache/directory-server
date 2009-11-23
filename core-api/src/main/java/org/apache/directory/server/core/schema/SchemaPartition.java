@@ -58,7 +58,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,16 +244,6 @@ public final class SchemaPartition extends AbstractPartition
             throw new RuntimeException( e );
         }
 
-        // Load the registries. We use a permissive registries at this point
-        // so even if the schema are not ordered or the SchemaObjects are not
-        // ordered in the schemas, we can still load them all.
-        boolean loaded = schemaManager.loadAllEnabled();
-
-        if ( !loaded )
-        {
-            throw new RuntimeException( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
-        }
-        
         schemaModificationDN = new LdapDN( ServerDNConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationDN.normalize( schemaManager.getNormalizerMapping() );
     }
