@@ -3436,4 +3436,38 @@ public class LdapDNTest
         assertEquals( "cn", atav2.getUpType() );
         assertEquals( "Amos Tori", atav2.getUpValue().getString() );
     }
+
+
+    /**
+     * Test for DIRSHARED-39.
+     * (Trailing escaped space not parsed correctly by the DN parser(
+     */
+    @Test
+    public void testTrailingEscapedSpace() throws Exception
+    {
+        LdapDN dn1 = new LdapDN( "ou=A\\ ,ou=system" );
+        assertEquals( "ou=A\\ ,ou=system", dn1.getUpName() );
+        assertEquals( "ou=A\\ ,ou=system", dn1.getNormName() );
+        assertEquals( "ou=A\\ ", dn1.getRdn().getUpName() );
+        assertEquals( "ou=A\\ ", dn1.getRdn().getNormName() );
+
+        LdapDN dn2 = new LdapDN( "ou=A\\20,ou=system" );
+        assertEquals( "ou=A\\20,ou=system", dn2.getUpName() );
+        assertEquals( "ou=A\\ ,ou=system", dn2.getNormName() );
+        assertEquals( "ou=A\\20", dn2.getRdn().getUpName() );
+        assertEquals( "ou=A\\ ", dn2.getRdn().getNormName() );
+        
+        LdapDN dn3 = new LdapDN( "ou=\\ ,ou=system" );
+        assertEquals( "ou=\\ ,ou=system", dn3.getUpName() );
+        assertEquals( "ou=\\ ,ou=system", dn3.getNormName() );
+        assertEquals( "ou=\\ ", dn3.getRdn().getUpName() );
+        assertEquals( "ou=\\ ", dn3.getRdn().getNormName() );
+        
+        LdapDN dn4 = new LdapDN( "ou=\\20,ou=system" );
+        assertEquals( "ou=\\20,ou=system", dn4.getUpName() );
+        assertEquals( "ou=\\ ,ou=system", dn4.getNormName() );
+        assertEquals( "ou=\\20", dn4.getRdn().getUpName() );
+        assertEquals( "ou=\\ ", dn4.getRdn().getNormName() );
+    }
+
 }

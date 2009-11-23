@@ -534,16 +534,14 @@ string [UpAndNormValue value]
         
         // trim trailing space characters manually
         // don't know how to tell antlr that the last char mustn't be a space.
-        int length = string.length();
-        while ( length > 1 && string.charAt( length - 1 ) == ' ' && string.charAt( length - 2 ) != '\\' )
+        while ( string.length() > 0 && value.upValue.length() > 1 
+            && value.upValue.charAt( value.upValue.length() - 1 ) == ' ' 
+            && value.upValue.charAt( value.upValue.length() - 2 ) != '\\' )
         {
-            string = string.substring( 0, length - 1 );
-            length = string.length();
-            
+            string = string.substring( 0, string.length() - 1 );
             value.upValue = value.upValue.substring( 0, value.upValue.length() - 1 );
             value.trailingSpaces += " ";
         }
-        string = string.replace("\\ ", " ");
         
         value.normValue = string;
     }
@@ -714,7 +712,7 @@ special returns [String special]
         |
         rangle:RANGLE { special = rangle.getText(); }
         |
-        space:SPACE { special = "\\" + space.getText(); }
+        space:SPACE { special = space.getText(); }
         |
         sharp:SHARP { special = sharp.getText(); }
         |
