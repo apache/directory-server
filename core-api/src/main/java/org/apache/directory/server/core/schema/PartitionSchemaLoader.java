@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -323,31 +322,32 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadAttributeTypes( Schema schema ) throws Exception
+    public List<Entry> loadAttributeTypes( Schema... schemas ) throws Exception
     {
-        LinkedList<AttributeType> deferred = new LinkedList<AttributeType>();
-        
-        LdapDN dn = updateDNs( staticAttributeTypeDNs, SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
-        
         List<Entry> attributeTypeList = new ArrayList<Entry>();
 
-        // Check that we don't have an entry in the Dit for this schema
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        for ( Schema schema : schemas )
         {
-            // No : get out, no AttributeType to load
-            return attributeTypeList;
-        }
-        
-        LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        // Loop on all the AttributeTypes and add them to the list
-        while ( list.next() )
-        {
-            ServerEntry result = list.get();
+            LdapDN dn = updateDNs( staticAttributeTypeDNs, SchemaConstants.ATTRIBUTES_TYPE_PATH, schema );
             
-            attributeTypeList.add( result );
+            // Check that we don't have an entry in the Dit for this schema
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                // No : get out, no AttributeType to load
+                return attributeTypeList;
+            }
+            
+            LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            // Loop on all the AttributeTypes and add them to the list
+            while ( list.next() )
+            {
+                ServerEntry result = list.get();
+                
+                attributeTypeList.add( result );
+            }
         }
         
         return attributeTypeList;
@@ -357,26 +357,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadComparators( Schema schema ) throws Exception
+    public List<Entry> loadComparators( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticComparatorsDNs, SchemaConstants.COMPARATORS_PATH, schema );
-        
         List<Entry> comparatorList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return comparatorList;
         }
         
-        LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ClonedServerEntry entry = list.get();
+            LdapDN dn = updateDNs( staticComparatorsDNs, SchemaConstants.COMPARATORS_PATH, schema );
             
-            comparatorList.add( entry );
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return comparatorList;
+            }
+            
+            LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ClonedServerEntry entry = list.get();
+                
+                comparatorList.add( entry );
+            }
         }
         
         return comparatorList;
@@ -386,7 +394,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadDitContentRules( Schema schema ) throws Exception
+    public List<Entry> loadDitContentRules( Schema... schemas ) throws Exception
     {
         LOG.error( "DitContentRule loading NYI" );
         
@@ -397,7 +405,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadDitStructureRules( Schema schema ) throws Exception
+    public List<Entry> loadDitStructureRules( Schema... schemas ) throws Exception
     {
         LOG.error( "DitStructureRule loading NYI" );
         
@@ -408,26 +416,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadMatchingRules( Schema schema ) throws Exception
+    public List<Entry> loadMatchingRules( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticMatchingRulesDNs, SchemaConstants.MATCHING_RULES_PATH, schema );
-        
         List<Entry> matchingRuleList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return matchingRuleList;
         }
         
-        LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ServerEntry entry = list.get();
-
-            matchingRuleList.add( entry );
+            LdapDN dn = updateDNs( staticMatchingRulesDNs, SchemaConstants.MATCHING_RULES_PATH, schema );
+            
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return matchingRuleList;
+            }
+            
+            LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ServerEntry entry = list.get();
+    
+                matchingRuleList.add( entry );
+            }
         }
         
         return matchingRuleList;
@@ -437,7 +453,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadMatchingRuleUses( Schema schema ) throws Exception
+    public List<Entry> loadMatchingRuleUses( Schema... schemas ) throws Exception
     {
         LOG.error( "MatchingRuleUse loading NYI" );
         
@@ -448,7 +464,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadNameForms( Schema schema ) throws Exception
+    public List<Entry> loadNameForms( Schema... schemas ) throws Exception
     {
         LOG.error( "NameForm loading NYI" );
         
@@ -459,26 +475,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadNormalizers( Schema schema ) throws Exception
+    public List<Entry> loadNormalizers( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticNormalizersDNs, SchemaConstants.NORMALIZERS_PATH, schema );
-        
         List<Entry> normalizerList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return normalizerList;
         }
         
-        LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ClonedServerEntry entry = list.get();
+            LdapDN dn = updateDNs( staticNormalizersDNs, SchemaConstants.NORMALIZERS_PATH, schema );
             
-            normalizerList.add( entry );
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return normalizerList;
+            }
+            
+            LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ClonedServerEntry entry = list.get();
+                
+                normalizerList.add( entry );
+            }
         }
         
         return normalizerList;
@@ -488,26 +512,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadObjectClasses( Schema schema ) throws Exception
+    public List<Entry> loadObjectClasses( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticObjectClassesDNs, SchemaConstants.OBJECT_CLASSES_PATH, schema );
-        
         List<Entry> objectClassList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return objectClassList;
         }
         
-        LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ClonedServerEntry entry = list.get();
+            LdapDN dn = updateDNs( staticObjectClassesDNs, SchemaConstants.OBJECT_CLASSES_PATH, schema );
             
-            objectClassList.add( entry );
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return objectClassList;
+            }
+            
+            LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ClonedServerEntry entry = list.get();
+                
+                objectClassList.add( entry );
+            }
         }
         
         return objectClassList;
@@ -517,26 +549,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadSyntaxes( Schema schema ) throws Exception
+    public List<Entry> loadSyntaxes( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticSyntaxesDNs, SchemaConstants.SYNTAXES_PATH, schema );
-        
         List<Entry> syntaxList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return syntaxList;
         }
         
-        LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ServerEntry entry = list.get();
+            LdapDN dn = updateDNs( staticSyntaxesDNs, SchemaConstants.SYNTAXES_PATH, schema );
             
-            syntaxList.add( entry );
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return syntaxList;
+            }
+            
+            LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ServerEntry entry = list.get();
+                
+                syntaxList.add( entry );
+            }
         }
         
         return syntaxList;
@@ -546,26 +586,34 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     /**
      * {@inheritDoc}
      */
-    public List<Entry> loadSyntaxCheckers( Schema schema ) throws Exception
+    public List<Entry> loadSyntaxCheckers( Schema... schemas ) throws Exception
     {
-        LdapDN dn = updateDNs( staticSyntaxCheckersDNs, SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
-        
         List<Entry> syntaxCheckerList = new ArrayList<Entry>();
-
-        if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+        
+        if ( schemas == null )
         {
             return syntaxCheckerList;
         }
         
-        LOG.debug( "{} schema: loading syntaxCsheckers", schema.getSchemaName() );
-        
-        EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
-        
-        while ( list.next() )
+        for ( Schema schema : schemas )
         {
-            ServerEntry entry = list.get();
+            LdapDN dn = updateDNs( staticSyntaxCheckersDNs, SchemaConstants.SYNTAX_CHECKERS_PATH, schema );
             
-            syntaxCheckerList.add( entry );
+            if ( ! partition.hasEntry( new EntryOperationContext( null, dn ) ) )
+            {
+                return syntaxCheckerList;
+            }
+            
+            LOG.debug( "{} schema: loading syntaxCsheckers", schema.getSchemaName() );
+            
+            EntryFilteringCursor list = partition.list( new ListOperationContext( null, dn ) );
+            
+            while ( list.next() )
+            {
+                ServerEntry entry = list.get();
+                
+                syntaxCheckerList.add( entry );
+            }
         }
         
         return syntaxCheckerList;
