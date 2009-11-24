@@ -20,8 +20,6 @@
 package org.apache.directory.server.tools;
 
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -107,7 +105,7 @@ public class DumpCommand extends ToolCommand
         
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
+            throw new Exception( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
         }
 
         
