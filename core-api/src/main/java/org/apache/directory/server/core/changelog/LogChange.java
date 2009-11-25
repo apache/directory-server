@@ -29,5 +29,5 @@ package org.apache.directory.server.core.changelog;
 public enum LogChange
 {
     TRUE,  // The change must me stored 
-    FALSE  // The change must not be stred
+    FALSE  // The change must not be stored
 }
