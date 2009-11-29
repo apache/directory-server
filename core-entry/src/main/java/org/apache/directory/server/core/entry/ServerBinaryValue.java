@@ -370,7 +370,7 @@ public class ServerBinaryValue extends ClientBinaryValue
             {
                 Comparator<? super byte[]> comparator = getLdapComparator();
                 
-                if ( comparator == null )
+                if ( comparator != null )
                 {
                     return comparator.compare( getNormalizedValueReference(), binaryValue.getNormalizedValueReference() );
                 }
