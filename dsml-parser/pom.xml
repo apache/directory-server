@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.16-SNAPSHOT</version>
+    <version>0.9.16</version>
   </parent>
 
   <artifactId>shared-dsml-parser</artifactId>
