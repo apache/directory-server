@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.16</version>
+    <version>0.9.17-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-jndi</artifactId>
   <name>Apache Directory JNDI Shared</name>
