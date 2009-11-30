@@ -80,7 +80,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             schemaManager.unregisterObjectClass( oid );
-            schemaManager.register( oc );
+            schemaManager.add( oc );
             
             return SCHEMA_MODIFIED;
         }
@@ -164,7 +164,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                     schemaManager.getRegistries().addReference( objectClass, superior );
                 }
                 
-                schemaManager.register( objectClass );
+                schemaManager.add( objectClass );
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
         }
@@ -294,7 +294,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             }
             
             schemaManager.unregisterObjectClass( oldOc.getOid() );
-            schemaManager.register( oc );
+            schemaManager.add( oc );
         }
         else
         {
@@ -340,7 +340,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( oc );
+            schemaManager.add( oc );
         }
         else
         {
@@ -381,7 +381,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( oc );
+            schemaManager.add( oc );
         }
         else
         {

@@ -102,7 +102,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Applies the added SchemaObject to the given register
      */
-    protected List<Throwable> applyAdd( List<Throwable> errors, Registries registries, SchemaObject schemaObject ) throws NamingException
+    protected List<Throwable> add( List<Throwable> errors, Registries registries, SchemaObject schemaObject ) throws NamingException
     {
         // Relax the registries
         registries.setRelaxed();

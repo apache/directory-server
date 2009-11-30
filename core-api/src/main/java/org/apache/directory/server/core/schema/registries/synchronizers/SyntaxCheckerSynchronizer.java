@@ -82,7 +82,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             syntaxChecker.setSchemaName( schemaName );
 
             schemaManager.unregisterSyntaxChecker( oid );
-            schemaManager.register( syntaxChecker );
+            schemaManager.add( syntaxChecker );
             
             return SCHEMA_MODIFIED;
         }
@@ -141,7 +141,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             {
                 syntaxChecker.applyRegistries( schemaManager.getRegistries() );
                 addToSchema( syntaxChecker, schemaName );
-                schemaManager.register( syntaxChecker );
+                schemaManager.add( syntaxChecker );
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
         }
@@ -229,7 +229,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         {
             SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
             schemaManager.unregisterSyntaxChecker( oldOid );
-            schemaManager.register( syntaxChecker );
+            schemaManager.add( syntaxChecker );
         }
     }
 
@@ -270,7 +270,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( syntaxChecker );
+            schemaManager.add( syntaxChecker );
         }
     }
 
@@ -300,7 +300,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( syntaxChecker );
+            schemaManager.add( syntaxChecker );
         }
     }
     

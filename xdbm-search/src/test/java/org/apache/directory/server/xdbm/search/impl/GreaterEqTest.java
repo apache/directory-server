@@ -692,8 +692,8 @@ public class GreaterEqTest
         at.setSchemaName( "other" );
         at.setSyntax( new BogusSyntax( 1 ) );
         
-        schemaManager.register( at );
-        schemaManager.register( at.getSyntax() );
+        schemaManager.add( at );
+        schemaManager.add( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
@@ -722,8 +722,8 @@ public class GreaterEqTest
         at.setSyntax( new BogusSyntax( 2 ) );
         at.setOrdering( mr );
             
-        schemaManager.register( at );
-        schemaManager.register( at.getSyntax() );
+        schemaManager.add( at );
+        schemaManager.add( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );

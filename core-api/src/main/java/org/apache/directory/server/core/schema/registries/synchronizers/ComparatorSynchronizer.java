@@ -85,7 +85,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             comparator.setSchemaName( schemaName );
 
             schemaManager.unregisterComparator( oid );
-            schemaManager.register( comparator );
+            schemaManager.add( comparator );
             
             return SCHEMA_MODIFIED;
         }
@@ -304,7 +304,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             // Register the new comparator, and unregister the old one
             LdapComparator<?> comparator = factory.getLdapComparator( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
             schemaManager.unregisterComparator( oldOid );
-            schemaManager.register( comparator );
+            schemaManager.add( comparator );
         }
     }
 
@@ -339,7 +339,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( comparator );
+            schemaManager.add( comparator );
         }
     }
 
@@ -371,7 +371,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( comparator );
+            schemaManager.add( comparator );
         }
     }
     

@@ -95,7 +95,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            applyAdd( errors, clonedRegistries, attributeType );
+            // Inject the newly created AttributeType in the cloned registries
+            add( errors, clonedRegistries, attributeType );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -104,7 +105,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                applyAdd( errors, schemaManager.getRegistries(), attributeType );
+                add( errors, schemaManager.getRegistries(), attributeType );
             }
             else
             {
@@ -150,7 +151,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
                 schemaManager.unregisterAttributeType( oid );
             }
             
-            schemaManager.register( at );
+            schemaManager.add( at );
             
             return SCHEMA_MODIFIED;
         }
@@ -265,7 +266,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             }
             
             schemaManager.unregisterAttributeType( oldAt.getOid() );
-            schemaManager.register( at );
+            schemaManager.add( at );
         }
         else
         {
@@ -317,7 +318,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( newAt );
+            schemaManager.add( newAt );
         }
         else
         {
@@ -363,7 +364,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( newAt );
+            schemaManager.add( newAt );
         }
         else
         {

@@ -361,7 +361,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         testAddComparatorToEnabledSchema();
         
         MatchingRule mr = new DummyMR();
-        schemaManager.register( mr );
+        schemaManager.add( mr );
         
         // Pre-checks
         assertTrue( isOnDisk( dn ) );

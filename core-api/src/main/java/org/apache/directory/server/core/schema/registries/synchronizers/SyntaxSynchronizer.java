@@ -84,7 +84,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             schemaManager.unregisterLdapSyntax( oid );
-            schemaManager.register( syntax );
+            schemaManager.add( syntax );
             
             return SCHEMA_MODIFIED;
         }
@@ -154,7 +154,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
                 // Update the using table, as a Syntax is associated with a SyntaxChecker
                 schemaManager.getRegistries().addReference( syntax, syntax.getSyntaxChecker() );
 
-                schemaManager.register( syntax );
+                schemaManager.add( syntax );
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
         }
@@ -307,7 +307,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             schemaManager.unregisterLdapSyntax( oldOid );
-            schemaManager.register( syntax );
+            schemaManager.add( syntax );
         }
         else
         {
@@ -357,7 +357,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( syntax );
+            schemaManager.add( syntax );
         }
         else
         {
@@ -401,7 +401,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( syntax );
+            schemaManager.add( syntax );
         }
         else
         {

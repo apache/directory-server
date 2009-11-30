@@ -81,7 +81,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             normalizer.setSchemaName( schemaName );
 
             schemaManager.unregisterNormalizer( oldOid );
-            schemaManager.register( normalizer );
+            schemaManager.add( normalizer );
             
             return SCHEMA_MODIFIED;
         }
@@ -140,7 +140,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             {
                 normalizer.applyRegistries( schemaManager.getRegistries() );
                 addToSchema( normalizer, schemaName );
-                schemaManager.register( normalizer );
+                schemaManager.add( normalizer );
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
         }
@@ -230,7 +230,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
             Normalizer normalizer = factory.getNormalizer( schemaManager, targetEntry, schemaManager.getRegistries(), schemaName );
             schemaManager.unregisterNormalizer( oldOid );
-            schemaManager.register( normalizer );
+            schemaManager.add( normalizer );
         }
     }
 
@@ -262,7 +262,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( normalizer );
+            schemaManager.add( normalizer );
         }
     }
 
@@ -293,7 +293,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( normalizer );
+            schemaManager.add( normalizer );
         }
     }
 

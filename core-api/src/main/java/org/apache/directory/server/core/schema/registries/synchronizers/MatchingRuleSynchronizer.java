@@ -83,7 +83,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             schemaManager.unregisterMatchingRule( oldOid );
-            schemaManager.register( mr );
+            schemaManager.add( mr );
             
             return SCHEMA_MODIFIED;
         }
@@ -264,7 +264,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             schemaManager.unregisterMatchingRule( oldMr.getOid() );
-            schemaManager.register( mr );
+            schemaManager.add( mr );
         }
         else
         {
@@ -299,7 +299,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( mr );
+            schemaManager.add( mr );
         }
         else
         {
@@ -328,7 +328,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         
         if ( isSchemaEnabled( newSchemaName ) )
         {
-            schemaManager.register( newMr );
+            schemaManager.add( newMr );
         }
         else
         {

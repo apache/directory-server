@@ -734,7 +734,7 @@ public class LessEqTest
         at.setSchemaName( "other" );
         at.setSyntax( new BogusSyntax( 1 ) );
         
-        schemaManager.register( at );
+        schemaManager.add( at );
 
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
 
@@ -756,8 +756,8 @@ public class LessEqTest
         at.setSyntax( new BogusSyntax(3) );
         at.setOrdering( mr );
 
-        schemaManager.register( at );
-        schemaManager.register( at.getSyntax() );
+        schemaManager.add( at );
+        schemaManager.add( at.getSyntax() );
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
         desc.setFqcn( BogusSyntax.class.getName() );
