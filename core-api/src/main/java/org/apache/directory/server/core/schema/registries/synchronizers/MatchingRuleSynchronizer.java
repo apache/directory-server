@@ -152,7 +152,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the addition and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
                 
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot add the MatchingRule " + entry.getDn().getUpName() + " into the registries, "+
@@ -226,7 +226,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
                 
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the MatchingRule " + entry.getDn().getUpName() + " into the registries, "+

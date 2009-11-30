@@ -118,38 +118,29 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It will be checked there, if the schema and the 
         // LdapComparator are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        
+        List<Throwable> errors = null;
+
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
-            // At this point, as we may break the registries, work on a cloned registries
+            // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
+            errors = applyAdd( clonedRegistries, comparator );
             
-            // Associates this Comparator with the schema
-            clonedRegistries.register( comparator );
-            
-            // Associate the Comparator with its schema
-            clonedRegistries.associateWithSchema( comparator );
-
-            // Apply the registries to the newly created Comparator
-            comparator.applyRegistries( clonedRegistries );
-            
-            // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            // Remove the cloned registries
+            clonedRegistries.clear();
             
             // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
+            if ( errors.isEmpty() )
             {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
+                // Apply the addition to the real registries
+                schemaManager.getRegistries().applyAdd( comparator );
             }
             else
             {
                 // We have some error : reject the addition and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
                 
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot add the Comparator " + entry.getDn().getUpName() + " into the registries, "+
@@ -233,7 +224,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
 
                 String msg = "There is at least one MatchingRule using the Comparator with OID " + comparator.getOid();
                 LOG.debug( msg );
@@ -260,7 +251,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
                 
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " into the registries, "+

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -61,7 +62,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     {
         super( schemaManager );
     }
-
+    
     
     /**
      * {@inheritDoc}
@@ -87,43 +88,27 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the AttributeType are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
         
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
+            applyAdd( errors, clonedRegistries, attributeType );
             
-            // Register the AttributeType in the cloned registries
-            clonedRegistries.register( attributeType );
+            // Remove the cloned registries
+            clonedRegistries.clear();
             
-            // Associate the AT with its schema
-            clonedRegistries.associateWithSchema( attributeType );
-
-            // Apply the registries to the newly created AT
-            attributeType.applyRegistries( clonedRegistries );
-            
-            // Update the cross references for AT
-            clonedRegistries.addCrossReferences( attributeType );
-            
-            // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
-            
-            // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
+            // If we didn't get any error, apply the addition to the real retistries
+            if ( errors.isEmpty() )
             {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
+                // Apply the addition to the real registries
+                applyAdd( errors, schemaManager.getRegistries(), attributeType );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
-                
-                // The schema is disabled. We still have to update the backend
                 String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "+
                     "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
@@ -225,7 +210,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // Destroy the cloned registries
-                schemaManager.destroy( clonedRegistries );
+                clonedRegistries.clear();
                 
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " into the registries, "+

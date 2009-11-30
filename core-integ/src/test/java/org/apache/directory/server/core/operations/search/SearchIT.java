@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,6 +154,11 @@ public class SearchIT
     public static DirectoryService service;
     public static LdapContext sysRoot;
 
+    @BeforeClass
+    public static void setup() throws Exception
+    {
+    }
+    
     
     /**
      * @param sysRoot the system root to add entries to
@@ -161,6 +167,8 @@ public class SearchIT
     @Before
     public void createData() throws Exception
     {
+        service.getSchemaManager().enable( "nis" );
+
         sysRoot = getSystemContext( service ); 
             
         /*
