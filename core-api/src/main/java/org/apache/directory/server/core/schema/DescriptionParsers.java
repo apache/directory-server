@@ -21,6 +21,7 @@ package org.apache.directory.server.core.schema;
 
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -332,8 +333,9 @@ public class DescriptionParsers
                     ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
             
-
-            attributeType.applyRegistries( schemaManager.getRegistries() );
+            List<Throwable> errors = new ArrayList<Throwable>();
+            
+            attributeType.applyRegistries( errors, schemaManager.getRegistries() );
             
             // Inject the schema
             if ( ( attributeType.getExtensions() == null ) || 
@@ -442,7 +444,8 @@ public class DescriptionParsers
             }
             
             ObjectClass oc = new ObjectClass( objectClass.getOid() );
-            oc.applyRegistries( schemaManager.getRegistries() );
+            List<Throwable> errors = new ArrayList<Throwable>();
+            oc.applyRegistries( errors, schemaManager.getRegistries() );
             
             objectClasses[pos++] = oc;
         }
