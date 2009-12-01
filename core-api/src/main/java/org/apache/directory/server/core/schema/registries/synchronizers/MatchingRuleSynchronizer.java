@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -113,6 +114,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( dn );
         
         MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         // At this point, the constructed MatchingRule has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
@@ -123,38 +125,23 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         {
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
-            
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
-            
-            // Register the MatchingRule in the cloned registries
-            clonedRegistries.register( matchingRule );
-        
-            // Associate the MatchingRule with its schema
-            clonedRegistries.associateWithSchema( matchingRule );
 
-            // Apply the registries to the newly created MatchingRule
-            matchingRule.applyRegistries( clonedRegistries );
+            add( errors, clonedRegistries, matchingRule );
             
-            // Update the cross references for MatchingRule
-            clonedRegistries.addCrossReferences( matchingRule );
-            
-            // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            // Remove the cloned registries
+            clonedRegistries.clear();
             
             // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
+            if ( errors.isEmpty() )
             {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
+                // Apply the addition to the real registries
+                add( errors, schemaManager.getRegistries(), matchingRule );
+
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-                
-                // The schema is disabled. We still have to update the backend
                 String msg = "Cannot add the MatchingRule " + entry.getDn().getUpName() + " into the registries, "+
                     "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
@@ -165,12 +152,9 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         {
             // At least, we register the OID in the globalOidRegistry, and associates it with the
             // schema
-
-            // Associate the MatchingRule with its schema
             schemaManager.getRegistries().associateWithSchema( matchingRule );
 
-            // And register the macthingRule in the globalOidregistry
-            registerOids( matchingRule );
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 

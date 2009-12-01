@@ -106,6 +106,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             {
                 // Apply the addition to the real registries
                 add( errors, schemaManager.getRegistries(), attributeType );
+                
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
@@ -120,15 +122,10 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         {
             // At least, we register the OID in the globalOidRegistry, and associates it with the
             // schema
-
-            // Associate the AT with its schema
             schemaManager.getRegistries().associateWithSchema( attributeType );
 
-            // And register the attributeType in the globalOidregistry
-            registerOids( attributeType );
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
-    
-        LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
     }
 
 

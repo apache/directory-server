@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,57 +112,49 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Syntax from the given entry
         String schemaName = getSchemaName( dn );
         
-        // At this point, as we may break the registries, work on a cloned registries
-        Registries clonedRegistries = schemaManager.getRegistries().clone();
-        
-        // Relax the cloned registries
-        clonedRegistries.setRelaxed();
-        
         LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        if ( syntax != null )
+        // At this point, the constructed Syntax has not been checked against the 
+        // existing Registries. It may be broken (missing SUP, or such), it will be checked
+        // there, if the schema and the Syntax are both enabled.
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
+        
+        if ( schema.isEnabled() && syntax.isEnabled() )
         {
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            // As we may break the registries, work on a cloned registries
+            Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            if ( errors.size() == 0 )
+            // Inject the newly created Syntax in the cloned registries
+            add( errors, clonedRegistries, syntax );
+            
+            // Remove the cloned registries
+            clonedRegistries.clear();
+            
+            // If we didn't get any error, apply the addition to the real retistries
+            if ( errors.isEmpty() )
             {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
+                // Apply the addition to the real registries
+                add( errors, schemaManager.getRegistries(), syntax );
+
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                return;
-            }
-
-            // At this point, the constructed Syntax has not been checked against the 
-            // existing Registries. It may be broken , it will be checked
-            // there, if the schema and the Syntax are both enabled.
-            Schema schema = schemaManager.getLoadedSchema( schemaName );
-            
-            if ( schema.isEnabled() && syntax.isEnabled() )
-            {
-                syntax.applyRegistries( schemaManager.getRegistries() );
-            }
-            
-            
-            // Associates this Syntax with the schema
-            addToSchema( syntax, schemaName );
-
-            // Don't inject the modified element if the schema is disabled
-            if ( isSchemaEnabled( schemaName ) )
-            {
-                // Update the using table, as a Syntax is associated with a SyntaxChecker
-                schemaManager.getRegistries().addReference( syntax, syntax.getSyntaxChecker() );
-
-                schemaManager.add( syntax );
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                String msg = "Cannot add the Syntax " + entry.getDn().getUpName() + " into the registries, "+
+                    "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                LOG.info( msg );
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
-            registerOids( syntax );
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            // At least, we register the OID in the globalOidRegistry, and associates it with the
+            // schema
+            schemaManager.getRegistries().associateWithSchema( syntax );
+
+            LOG.debug( "The Syntax {} cannot be added in schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -240,7 +233,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && syntax.isEnabled() )
         {
-            syntax.applyRegistries( schemaManager.getRegistries() );
+            syntax.applyRegistries( null, schemaManager.getRegistries() );
         }
 
         String oid = syntax.getOid();

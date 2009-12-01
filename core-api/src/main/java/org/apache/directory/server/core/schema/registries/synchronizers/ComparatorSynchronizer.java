@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -118,31 +119,28 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It will be checked there, if the schema and the 
         // LdapComparator are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        List<Throwable> errors = null;
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            errors = applyAdd( clonedRegistries, comparator );
+            // Inject the newly created Comparator in the cloned registries
+            add( errors, clonedRegistries, comparator );
             
             // Remove the cloned registries
             clonedRegistries.clear();
             
-            // If we didn't get any error, swap the registries
+            // If we didn't get any error, add the Comparator into the real registries
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                schemaManager.getRegistries().applyAdd( comparator );
+                add( errors, schemaManager.getRegistries(), comparator );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-                
-                // The schema is disabled. We still have to update the backend
                 String msg = "Cannot add the Comparator " + entry.getDn().getUpName() + " into the registries, "+
                     "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
@@ -153,6 +151,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
+            LOG.debug( "The comparator {} cannot be added in schema {}", dn.getUpName(), schemaName );
+
             // At least, we associates the comparator with the schema
             schemaManager.getRegistries().associateWithSchema( comparator );
         }

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -38,6 +39,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,45 +110,48 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         // Build the new Normalizer from the given entry
         String schemaName = getSchemaName( dn );
         
-        // At this point, as we may break the registries, work on a cloned registries
-        Registries clonedRegistries = schemaManager.getRegistries().clone();
-        
-        // Relax the cloned registries
-        clonedRegistries.setRelaxed();
-        
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(), schemaName );
+
+        // At this point, the constructed Normalizer has not been checked against the 
+        // existing Registries. It will be checked there, if the schema and the 
+        // Normalizer are both enabled.
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
         
-        if ( normalizer != null )
+        if ( schema.isEnabled() && normalizer.isEnabled() )
         {
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            // As we may break the registries, work on a cloned registries
+            Registries clonedRegistries = schemaManager.getRegistries().clone();
             
-            if ( errors.size() == 0 )
+            // Inject the newly created Normalizer in the cloned registries
+            add( errors, clonedRegistries, normalizer );
+            
+            // Remove the cloned registries
+            clonedRegistries.clear();
+            
+            // If we didn't get any error, add the Normalizer into the real registries
+            if ( errors.isEmpty() )
             {
-                clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries  );
+                // Apply the addition to the real registries
+                add( errors, schemaManager.getRegistries(), normalizer );
             }
             else
             {
                 // We have some error : reject the addition and get out
-                return;
+                String msg = "Cannot add the Normalizer " + entry.getDn().getUpName() + " into the registries, "+
+                    "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                LOG.info( msg );
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
-
-            // At this point, the constructed Normalizer has not been checked against the 
-            // existing Registries. It will be checked there, if the schema and the 
-            // LdapComparator are both enabled.
-            Schema schema = schemaManager.getLoadedSchema( schemaName );
             
-            if ( schema.isEnabled() && normalizer.isEnabled() )
-            {
-                normalizer.applyRegistries( schemaManager.getRegistries() );
-                addToSchema( normalizer, schemaName );
-                schemaManager.add( normalizer );
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
-            }
+            LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
         }
         else
         {
             LOG.debug( "The normalizer {} cannot be added in schema {}", dn.getUpName(), schemaName );
+
+            // At least, we associates the Normalizer with the schema
+            schemaManager.getRegistries().associateWithSchema( normalizer );
         }
     }
 
