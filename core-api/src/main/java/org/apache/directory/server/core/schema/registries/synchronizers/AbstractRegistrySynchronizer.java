@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,7 +43,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.schema.SchemaObjectWrapper;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
@@ -96,30 +94,6 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         this.schemaManager = schemaManager;
         m_oidAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
-    }
-    
-    
-    /**
-     * Applies the added SchemaObject to the given register
-     */
-    protected List<Throwable> add( List<Throwable> errors, Registries registries, SchemaObject schemaObject ) throws NamingException
-    {
-        // Relax the registries
-        registries.setRelaxed();
-        
-        // Register the SchemaObject in the registries
-        registries.add( schemaObject );
-
-        // Build the SchemaObject references
-        registries.buildReference( errors, schemaObject );
-        
-        // Check the registries now
-        List<Throwable> checkErrors = registries.checkRefInteg();
-        
-        errors.addAll( checkErrors );
-        
-        // return the errors
-        return errors;
     }
     
     
@@ -368,7 +342,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         return modify( name, entry, targetEntry, cascade );
     }
     */
-
+    
     
     protected Set<String> getOids( Set<ServerEntry> results ) throws Exception
     {

@@ -122,7 +122,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
 
-            add( errors, clonedRegistries, objectClass );
+            clonedRegistries.add( errors, objectClass );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -131,7 +131,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), objectClass );
+            	schemaManager.getRegistries().add( errors, objectClass );
 
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }

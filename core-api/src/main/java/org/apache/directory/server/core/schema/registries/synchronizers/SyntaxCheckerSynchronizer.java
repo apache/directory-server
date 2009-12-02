@@ -125,7 +125,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
             // Inject the newly created SyntaxChecker in the cloned registries
-            add( errors, clonedRegistries, syntaxChecker );
+            clonedRegistries.add( errors, syntaxChecker );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -134,7 +134,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), syntaxChecker );
+            	schemaManager.getRegistries().add( errors, syntaxChecker );
             }
             else
             {

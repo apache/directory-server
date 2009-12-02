@@ -127,7 +127,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
             // Inject the newly created Comparator in the cloned registries
-            add( errors, clonedRegistries, comparator );
+            clonedRegistries.add( errors, comparator );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -136,7 +136,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), comparator );
+            	schemaManager.getRegistries().add( errors, comparator );
             }
             else
             {

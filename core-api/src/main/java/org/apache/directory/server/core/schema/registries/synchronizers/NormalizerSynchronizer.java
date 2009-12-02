@@ -124,7 +124,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
             // Inject the newly created Normalizer in the cloned registries
-            add( errors, clonedRegistries, normalizer );
+            clonedRegistries.add( errors, normalizer );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -133,7 +133,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), normalizer );
+            	schemaManager.getRegistries().add( errors, normalizer );
             }
             else
             {

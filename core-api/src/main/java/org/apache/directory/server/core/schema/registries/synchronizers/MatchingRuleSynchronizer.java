@@ -126,7 +126,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
 
-            add( errors, clonedRegistries, matchingRule );
+            clonedRegistries.add( errors, matchingRule );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -135,7 +135,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), matchingRule );
+            	schemaManager.getRegistries().add( errors, matchingRule );
 
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }

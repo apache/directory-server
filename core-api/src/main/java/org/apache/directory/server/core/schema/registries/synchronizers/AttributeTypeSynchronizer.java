@@ -96,7 +96,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
             // Inject the newly created AttributeType in the cloned registries
-            add( errors, clonedRegistries, attributeType );
+            clonedRegistries.add( errors, attributeType );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -105,7 +105,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), attributeType );
+                schemaManager.getRegistries().add( errors, attributeType );
                 
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }

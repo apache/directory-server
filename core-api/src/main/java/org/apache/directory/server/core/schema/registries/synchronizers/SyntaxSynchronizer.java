@@ -126,7 +126,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             Registries clonedRegistries = schemaManager.getRegistries().clone();
             
             // Inject the newly created Syntax in the cloned registries
-            add( errors, clonedRegistries, syntax );
+            clonedRegistries.add( errors, syntax );
             
             // Remove the cloned registries
             clonedRegistries.clear();
@@ -135,7 +135,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.isEmpty() )
             {
                 // Apply the addition to the real registries
-                add( errors, schemaManager.getRegistries(), syntax );
+            	schemaManager.getRegistries().add( errors, syntax );
 
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
