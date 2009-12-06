@@ -101,9 +101,9 @@ UTFMB : '\u0080'..'\uFFFE' ;
  *
  * To avoid nondeterminism the following 
  * rules are excluded. These rules are 
- * explicitely added in the productions.
+ * explicitly added in the productions.
  *   EQUALS (0x3D) 
--*   HYPHEN (0x2D)  
+ *   HYPHEN (0x2D)  
  *   DIGIT (0x30-0x39)
  *   ALPHA (0x41-0x5A and 0x61-0x7A)
  */
@@ -556,7 +556,7 @@ string [UpAndNormValue value]
  * The rule LUTF1_REST doesn't contain the following charcters,
  * so we must check them additionally
  *   EQUALS (0x3D) 
--*   HYPHEN (0x2D)  
+ *   HYPHEN (0x2D)  
  *   DIGIT (0x30-0x39)
  *   ALPHA (0x41-0x5A and 0x61-0x7A)
  */
@@ -574,6 +574,8 @@ lutf1 returns [String lutf1=""]
     digit:DIGIT { lutf1 = digit.getText(); }
     |
     alpha:ALPHA { lutf1 = alpha.getText(); }
+    | 
+    numericoid:NUMERICOID  { lutf1 = numericoid.getText(); }    
     ;
     
 /**
@@ -584,7 +586,7 @@ lutf1 returns [String lutf1=""]
  * The rule LUTF1_REST doesn't contain the following charcters,
  * so we must check them additionally
  *   EQUALS (0x3D) 
--*   HYPHEN (0x2D)  
+ *   HYPHEN (0x2D)  
  *   DIGIT (0x30-0x39)
  *   ALPHA (0x41-0x5A and 0x61-0x7A)
  *   SHARP
@@ -608,6 +610,8 @@ sutf1 returns [String sutf1=""]
     sharp:SHARP { sutf1 = sharp.getText(); }
     | 
     space:SPACE  { sutf1 = space.getText(); }
+    | 
+    numericoid:NUMERICOID  { sutf1 = numericoid.getText(); }    
     ;    
 
 

@@ -3470,4 +3470,42 @@ public class LdapDNTest
         assertEquals( "ou=\\ ", dn4.getRdn().getNormName() );
     }
 
+
+    /**
+     * Test for DIRSHARED-41, DIRSTUDIO-603.
+     * (DN parser fails to parse names containing an numeric OID value)
+     */
+    @Test
+    public void testNumericOid() throws Exception
+    {
+        // numeric OID only
+        LdapDN dn1 = new LdapDN( "cn=loopback+ipHostNumber=127.0.0.1,ou=Hosts,dc=mygfs,dc=com" );
+        assertEquals( "cn=loopback+ipHostNumber=127.0.0.1,ou=Hosts,dc=mygfs,dc=com", dn1.getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=127.0.0.1,ou=Hosts,dc=mygfs,dc=com", dn1.getNormName() );
+        assertEquals( "cn=loopback+ipHostNumber=127.0.0.1", dn1.getRdn().getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=127.0.0.1", dn1.getRdn().getNormName() );
+        assertEquals( "127.0.0.1", dn1.getRdn().getAttributeTypeAndValue( "ipHostNumber" ).getUpValue().get() );
+        
+        // numeric OID with suffix
+        LdapDN dn2 = new LdapDN( "cn=loopback+ipHostNumber=X127.0.0.1,ou=Hosts,dc=mygfs,dc=com" );
+        assertEquals( "cn=loopback+ipHostNumber=X127.0.0.1,ou=Hosts,dc=mygfs,dc=com", dn2.getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=X127.0.0.1,ou=Hosts,dc=mygfs,dc=com", dn2.getNormName() );
+        assertEquals( "cn=loopback+ipHostNumber=X127.0.0.1", dn2.getRdn().getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=X127.0.0.1", dn2.getRdn().getNormName() );
+
+        // numeric OID with prefix
+        LdapDN dn3 = new LdapDN( "cn=loopback+ipHostNumber=127.0.0.1Y,ou=Hosts,dc=mygfs,dc=com" );
+        assertEquals( "cn=loopback+ipHostNumber=127.0.0.1Y,ou=Hosts,dc=mygfs,dc=com", dn3.getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=127.0.0.1Y,ou=Hosts,dc=mygfs,dc=com", dn3.getNormName() );
+        assertEquals( "cn=loopback+ipHostNumber=127.0.0.1Y", dn3.getRdn().getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=127.0.0.1Y", dn3.getRdn().getNormName() );
+
+        // numeric OID with special characters
+        LdapDN dn4 = new LdapDN( "cn=loopback+ipHostNumber=\\#127.0.0.1 Z,ou=Hosts,dc=mygfs,dc=com" );
+        assertEquals( "cn=loopback+ipHostNumber=\\#127.0.0.1 Z,ou=Hosts,dc=mygfs,dc=com", dn4.getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=\\#127.0.0.1 Z,ou=Hosts,dc=mygfs,dc=com", dn4.getNormName() );
+        assertEquals( "cn=loopback+ipHostNumber=\\#127.0.0.1 Z", dn4.getRdn().getUpName() );
+        assertEquals( "cn=loopback+iphostnumber=\\#127.0.0.1 Z", dn4.getRdn().getNormName() );
+    }
+
 }
