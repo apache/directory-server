@@ -220,6 +220,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the Schema
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
@@ -245,13 +246,13 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             }
 
             // Remove this Comparator from the Registries
-            clonedRegistries.unregister( comparator );
+            clonedRegistries.delete( errors, comparator );
 
             // Remove the Comparator from the schema/SchemaObject Map
             clonedRegistries.dissociateFromSchema( comparator );
 
             // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            errors = clonedRegistries.checkRefInteg();
 
             // If we didn't get any error, swap the registries
             if ( errors.size() == 0 )

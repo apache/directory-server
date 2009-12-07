@@ -188,7 +188,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && objectClass.isEnabled() )
         {
-            objectClass.applyRegistries( null, schemaManager.getRegistries() );
+            objectClass.removeFromRegistries( null, schemaManager.getRegistries() );
         }
 
         String oid = objectClass.getOid();

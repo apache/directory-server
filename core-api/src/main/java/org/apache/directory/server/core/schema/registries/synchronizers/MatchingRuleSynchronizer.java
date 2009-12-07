@@ -189,6 +189,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && matchingRule.isEnabled() )
         {
@@ -199,7 +200,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             clonedRegistries.setRelaxed();
 
             // Remove this MatchingRule from the Registries
-            clonedRegistries.unregister( matchingRule );
+            clonedRegistries.delete( errors, matchingRule );
 
             // Remove the MatchingRule from the schema/SchemaObject Map
             clonedRegistries.dissociateFromSchema( matchingRule );
@@ -208,7 +209,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             clonedRegistries.delCrossReferences( matchingRule );
 
             // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            errors = clonedRegistries.checkRefInteg();
 
             // If we didn't get any error, swap the registries
             if ( errors.size() == 0 )

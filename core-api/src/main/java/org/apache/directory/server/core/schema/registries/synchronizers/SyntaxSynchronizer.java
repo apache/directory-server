@@ -243,7 +243,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && syntax.isEnabled() )
         {
-            syntax.applyRegistries( null, schemaManager.getRegistries() );
+            syntax.removeFromRegistries( null, schemaManager.getRegistries() );
         }
 
         String oid = syntax.getOid();

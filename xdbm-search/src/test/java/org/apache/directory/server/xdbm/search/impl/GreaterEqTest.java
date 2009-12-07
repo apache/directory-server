@@ -721,7 +721,7 @@ public class GreaterEqTest
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, schemaManager );
-        schemaManager.unregister( at );
+        schemaManager.delete( at );
     }
 
 
@@ -753,6 +753,6 @@ public class GreaterEqTest
 
         GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new GreaterEqEvaluator( node, store, schemaManager );
-        schemaManager.unregister( at );
+        schemaManager.delete( at );
     }
 }

@@ -188,6 +188,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
@@ -198,7 +199,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             clonedRegistries.setRelaxed();
 
             // Remove this AttributeType from the Registries
-            clonedRegistries.unregister( attributeType );
+            clonedRegistries.delete( errors, attributeType );
 
             // Remove the AttributeType from the schema/SchemaObject Map
             clonedRegistries.dissociateFromSchema( attributeType );
@@ -207,10 +208,10 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             clonedRegistries.delCrossReferences( attributeType );
 
             // Check the registries now
-            List<Throwable> errors = clonedRegistries.checkRefInteg();
+            errors = clonedRegistries.checkRefInteg();
 
             // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
+            if ( errors.isEmpty() )
             {
                 clonedRegistries.setStrict();
                 schemaManager.swapRegistries( clonedRegistries );

@@ -764,26 +764,28 @@ public class LessEqTest
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
 
         new LessEqEvaluator( node, store, schemaManager );
-        schemaManager.unregister( at );
+        schemaManager.delete( at );
     }
 
 
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
+        LdapSyntax syntax = new BogusSyntax( 2 );
+
         MatchingRule mr = new MatchingRule( "1.1" );
-        mr.setSyntax( new BogusSyntax( 2 ) );
+        mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
 
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax( 3 ) );
+        at.setSyntax( syntax );
         at.setOrdering( mr );
 
-        schemaManager.add( at.getSyntax() );
-        schemaManager.add( mr );
-        schemaManager.add( at );
+        assertTrue( schemaManager.add( syntax ) );
+        assertTrue( schemaManager.add( mr ) );
+        assertTrue( schemaManager.add( at ) );
 
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
@@ -795,6 +797,6 @@ public class LessEqTest
 
         LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
         new LessEqEvaluator( node, store, schemaManager );
-        schemaManager.unregister( at );
+        schemaManager.delete( at );
     }
 }
