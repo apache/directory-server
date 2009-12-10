@@ -77,15 +77,14 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
-@Factory ( MixedCaseITest.MyFactory.class )
+@RunWith(CiRunner.class)
+@CleanupLevel(Level.CLASS)
+@Factory(MixedCaseITest.MyFactory.class)
 public class MixedCaseITest
 {
     public static DirectoryService service;
 
     private static final String SUFFIX_DN = "dc=Apache,dc=Org";
-
 
     public static class MyFactory implements DirectoryServiceFactory
     {
@@ -100,36 +99,45 @@ public class MixedCaseITest
                 workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
             }
 
-            DirectoryService service = new DefaultDirectoryService();
+            service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
+
+            return service;
+        }
+
+
+        public void init() throws Exception
+        {
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            
+
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
-            
+
+            String workingDirectory = service.getWorkingDirectory().getPath();
+
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-            
+
             // Extract the schema on disk (a brand new one) and load the registries
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            
+
             schemaPartition.setWrappedPartition( ldifPartition );
-            
+
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
 
             SchemaManager schemaManager = new DefaultSchemaManager( loader );
             service.setSchemaManager( schemaManager );
-            
+
             schemaManager.loadAllEnabled();
-            
+
             List<Throwable> errors = schemaManager.getErrors();
-            
+
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
             }
-            
+
             schemaPartition.setSchemaManager( schemaManager );
-            
+
             extractor.extractOrCopy();
 
             service.getChangeLog().setEnabled( true );
@@ -137,21 +145,20 @@ public class MixedCaseITest
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-            
+
             // Inject the System Partition
             Partition systemPartition = new JdbmPartition();
             systemPartition.setId( "system" );
-            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setSchemaManager( schemaManager );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
-    
+            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
+
             // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( 
-                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-            
+
             service.setSystemPartition( systemPartition );
 
             JdbmPartition partition = new JdbmPartition();
@@ -160,18 +167,16 @@ public class MixedCaseITest
             partition.setPartitionDir( new File( workingDirectory, "apache" ) );
 
             HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "objectClass" ) );
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "ou" ) );
-            indexedAttributes.add( new JdbmIndex<String,ServerEntry>( "uid" ) );
+            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "objectClass" ) );
+            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "ou" ) );
+            indexedAttributes.add( new JdbmIndex<String, ServerEntry>( "uid" ) );
             partition.setIndexedAttributes( indexedAttributes );
 
             service.addPartition( partition );
-
-            return service;
         }
     }
 
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -181,8 +186,8 @@ public class MixedCaseITest
         entry.add( "dc", "Apache" );
         service.getAdminSession().add( entry );
     }
-    
-    
+
+
     @Test
     public void testSearch() throws Exception
     {
@@ -207,11 +212,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = AttributeUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou: Test"
-            );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
@@ -236,12 +238,8 @@ public class MixedCaseITest
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = AttributeUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou: Test",
-            "description: Old Value"
-            );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test", "description: Old Value" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
@@ -275,11 +273,8 @@ public class MixedCaseITest
 
         String dn = "ou=Test";
 
-        Attributes attributes = AttributeUtils.createAttributes( 
-            "objectClass: top",
-            "objectClass: organizationalUnit",
-            "ou: Test"
-            );
+        Attributes attributes = AttributeUtils.createAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );

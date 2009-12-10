@@ -71,7 +71,6 @@ public class AutzIntegUtils
 {
     public static DirectoryService service;
 
-
     public static class ServiceFactory implements DirectoryServiceFactory
     {
         public DirectoryService newInstance() throws Exception
@@ -85,30 +84,39 @@ public class AutzIntegUtils
                 workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
             }
 
-            DirectoryService service = new DefaultDirectoryService();
+            service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
+
+            return service;
+        }
+
+
+        public void init() throws Exception
+        {
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            
+
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
-            
+
+            String workingDirectory = service.getWorkingDirectory().getPath();
+
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-            
+
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            
+
             schemaPartition.setWrappedPartition( ldifPartition );
-            
+
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-            
+
             SchemaManager schemaManager = new DefaultSchemaManager( loader );
             service.setSchemaManager( schemaManager );
 
             schemaManager.loadAllEnabled();
-            
+
             List<Throwable> errors = schemaManager.getErrors();
-            
+
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
@@ -123,28 +131,25 @@ public class AutzIntegUtils
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-            
+
             // Inject the System Partition
             Partition systemPartition = new JdbmPartition();
             systemPartition.setId( "system" );
-            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setSchemaManager( schemaManager );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
-    
+            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
+
             // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( 
-                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-            
+
             service.setSystemPartition( systemPartition );
             service.setAccessControlEnabled( true );
             AutzIntegUtils.service = service;
-            return service;
         }
     }
-
 
     public static class DefaultServiceFactory implements DirectoryServiceFactory
     {
@@ -161,32 +166,41 @@ public class AutzIntegUtils
 
             DirectoryService service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
+
+            return service;
+        }
+
+
+        public void init() throws Exception
+        {
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            
+
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
-            
+
+            String workingDirectory = service.getWorkingDirectory().getPath();
+
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-            
+
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            
+
             schemaPartition.setWrappedPartition( ldifPartition );
-            
+
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
             SchemaManager schemaManager = new DefaultSchemaManager( loader );
             service.setSchemaManager( schemaManager );
 
             schemaManager.loadAllEnabled();
-            
+
             List<Throwable> errors = schemaManager.getErrors();
-            
+
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
             }
-            
+
             schemaPartition.setSchemaManager( schemaManager );
 
             extractor.extractOrCopy();
@@ -196,25 +210,23 @@ public class AutzIntegUtils
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-            
+
             // Inject the System Partition
             Partition systemPartition = new JdbmPartition();
             systemPartition.setId( "system" );
-            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setSchemaManager( schemaManager );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
-    
+            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
+
             // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( 
-                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-            
+
             service.setSystemPartition( systemPartition );
             service.setAccessControlEnabled( false );
             AutzIntegUtils.service = service;
-            return service;
         }
     }
 
@@ -248,7 +260,7 @@ public class AutzIntegUtils
     public static DirContext getContextAsAdmin( String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin, ou=system" );
@@ -342,7 +354,7 @@ public class AutzIntegUtils
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
-        
+
         // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
         group.put( "uniqueMember", "uid=admin, ou=system" );
         adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
@@ -408,7 +420,7 @@ public class AutzIntegUtils
     public static DirContext getContextAs( Name user, String password, String dn ) throws Exception
     {
         LdapContext sysRoot = getSystemContext( service );
-        Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, user.toString() );
@@ -508,8 +520,8 @@ public class AutzIntegUtils
         Attributes changes = new BasicAttributes( "subentryACI", aciItem, true );
         adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
-    
-    
+
+
     /**
      * Replaces values of an prescriptiveACI attribute of a subentry subordinate
      * to ou=system.
@@ -524,7 +536,8 @@ public class AutzIntegUtils
         Attributes changes = new BasicAttributes( "prescriptiveACI", aciItem, true );
         adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
     }
-    
+
+
     public static void addPrescriptiveACI( String cn, String aciItem ) throws Exception
     {
         DirContext adminCtx = getContextAsAdmin();

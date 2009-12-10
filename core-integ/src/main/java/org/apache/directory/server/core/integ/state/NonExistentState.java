@@ -108,9 +108,11 @@ public class NonExistentState extends AbstractState
      *
      * @throws Exception on failures to start the core directory service
      */
-    public void startup() throws Exception
+    public void startup( InheritableSettings settings ) throws Exception
     {
         LOG.debug( "calling startup()" );
+        DirectoryServiceFactory factory = settings.getFactory();
+        factory.init();
         context.getService().startup();
     }
 
@@ -161,11 +163,9 @@ public class NonExistentState extends AbstractState
                     return;
                 }
 
-                
                 context.setState( context.getStartedNormalState() );
                 context.getState().test( testClass, statement, notifier, settings );
                 return;
-
 
             case PRISTINE:
             case ROLLBACK:
@@ -180,7 +180,6 @@ public class NonExistentState extends AbstractState
                     return;
                 }
 
-                /*
                 try
                 {
                     cleanup();
@@ -191,11 +190,9 @@ public class NonExistentState extends AbstractState
                     testAborted( notifier, settings.getDescription(), ioe );
                     return;
                 }
-                */
-
                 try
                 {
-                    startup();
+                    startup( settings );
                 }
                 catch ( Exception e )
                 {

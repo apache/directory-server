@@ -59,8 +59,11 @@ public interface DirectoryServiceFactory
      * The default factory returns stock instances of a directory
      * service with smart defaults
      */
-    DirectoryServiceFactory DEFAULT = new DirectoryServiceFactory() 
+    DirectoryServiceFactory DEFAULT = new DirectoryServiceFactory()
     {
+        private DirectoryService service;
+
+
         public DirectoryService newInstance() throws Exception
         {
             String workingDirectory = System.getProperty( "workingDirectory" );
@@ -72,33 +75,42 @@ public interface DirectoryServiceFactory
                 workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
             }
 
-            DirectoryService service = new DefaultDirectoryService();
+            service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
+
+            return service;
+        }
+
+
+        public void init() throws Exception
+        {
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            
+
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
-            
+
+            String workingDirectory = service.getWorkingDirectory().getPath();
+
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-            
+
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            
+
             schemaPartition.setWrappedPartition( ldifPartition );
-            
+
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
             SchemaManager schemaManager = new DefaultSchemaManager( loader );
             service.setSchemaManager( schemaManager );
-            
+
             // We have to load the schema now, otherwise we won't be able
             // to initialize the Partitions, as we won't be able to parse 
             // and normalize their suffix DN
             boolean loaded = schemaManager.loadAllEnabled();
             schemaPartition.setSchemaManager( schemaManager );
-            
+
             List<Throwable> errors = schemaManager.getErrors();
-            
+
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
@@ -111,26 +123,27 @@ public interface DirectoryServiceFactory
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-            
+
             // Inject the System Partition
             Partition systemPartition = new JdbmPartition();
             systemPartition.setId( "system" );
-            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setSchemaManager( schemaManager );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
-    
+            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
+
             // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( 
-                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-            
+
             service.setSystemPartition( systemPartition );
-            
-            return service;
         }
     };
+
+
+    void init() throws Exception;
+
 
     DirectoryService newInstance() throws Exception;
 }

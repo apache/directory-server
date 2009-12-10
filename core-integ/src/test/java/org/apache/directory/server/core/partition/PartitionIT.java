@@ -61,41 +61,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
 /**
  * Test cases for partition handling.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
-@Factory ( PartitionIT.Factory.class )
-@ApplyLdifs (
-    {
-        "dn: dc=foo,dc=com\n" +
-        "objectClass: top\n" +
-        "objectClass: domain\n" +
-        "dc: foo\n\n" +
+@RunWith(CiRunner.class)
+@Factory(PartitionIT.Factory.class)
+@ApplyLdifs(
+    { "dn: dc=foo,dc=com\n" + "objectClass: top\n" + "objectClass: domain\n" + "dc: foo\n\n" +
 
-        "dn: dc=bar,dc=com\n" +
-        "objectClass: top\n" +
-        "objectClass: domain\n" +
-        "dc: bar\n\n"
-    }
-)
+    "dn: dc=bar,dc=com\n" + "objectClass: top\n" + "objectClass: domain\n" + "dc: bar\n\n" })
 public final class PartitionIT
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
     public static DirectoryService service;
 
-    
     /**
      * Creates a DirectoryService configured with two separate dc=com based 
      * domains to test multiple partitions.
      */
     public static class Factory implements DirectoryServiceFactory
     {
-        public DirectoryService newInstance() throws Exception 
+        public DirectoryService newInstance() throws Exception
         {
             String workingDirectory = System.getProperty( "workingDirectory" );
 
@@ -106,30 +95,39 @@ public final class PartitionIT
                 workingDirectory = path.substring( 0, targetPos + 6 ) + "/server-work";
             }
 
-            DirectoryService service = new DefaultDirectoryService();
+            service = new DefaultDirectoryService();
             service.setWorkingDirectory( new File( workingDirectory ) );
+
+            return service;
+        }
+
+
+        public void init() throws Exception
+        {
             SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
-            
+
             // Init the LdifPartition
             LdifPartition ldifPartition = new LdifPartition();
-            
+
+            String workingDirectory = service.getWorkingDirectory().getPath();
+
             ldifPartition.setWorkingDirectory( workingDirectory + "/schema" );
-            
+
             // Extract the schema on disk (a brand new one) and load the registries
             File schemaRepository = new File( workingDirectory, "schema" );
             SchemaLdifExtractor extractor = new SchemaLdifExtractor( new File( workingDirectory ) );
-            
+
             schemaPartition.setWrappedPartition( ldifPartition );
-            
+
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-            
+
             SchemaManager schemaManager = new DefaultSchemaManager( loader );
             service.setSchemaManager( schemaManager );
-            
+
             schemaManager.loadAllEnabled();
-            
+
             List<Throwable> errors = schemaManager.getErrors();
-            
+
             if ( errors.size() != 0 )
             {
                 fail( "Schema load failed : " + ExceptionUtils.printErrors( errors ) );
@@ -144,21 +142,20 @@ public final class PartitionIT
             // change the working directory to something that is unique
             // on the system and somewhere either under target directory
             // or somewhere in a temp area of the machine.
-            
+
             // Inject the System Partition
             Partition systemPartition = new JdbmPartition();
             systemPartition.setId( "system" );
-            ((JdbmPartition)systemPartition).setCacheSize( 500 );
+            ( ( JdbmPartition ) systemPartition ).setCacheSize( 500 );
             systemPartition.setSuffix( ServerDNConstants.SYSTEM_DN );
             systemPartition.setSchemaManager( schemaManager );
-            ((JdbmPartition)systemPartition).setPartitionDir( new File( workingDirectory, "system" ) );
-    
+            ( ( JdbmPartition ) systemPartition ).setPartitionDir( new File( workingDirectory, "system" ) );
+
             // Add objectClass attribute for the system partition
-            Set<Index<?,ServerEntry>> indexedAttrs = new HashSet<Index<?,ServerEntry>>();
-            indexedAttrs.add( 
-                new JdbmIndex<Object,ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
+            Set<Index<?, ServerEntry>> indexedAttrs = new HashSet<Index<?, ServerEntry>>();
+            indexedAttrs.add( new JdbmIndex<Object, ServerEntry>( SchemaConstants.OBJECT_CLASS_AT ) );
             ( ( JdbmPartition ) systemPartition ).setIndexedAttributes( indexedAttrs );
-            
+
             service.setSystemPartition( systemPartition );
             schemaPartition.setSchemaManager( schemaManager );
 
@@ -166,20 +163,18 @@ public final class PartitionIT
             foo.setId( "foo" );
             foo.setSuffix( "dc=foo,dc=com" );
             foo.setSchemaManager( schemaManager );
-            ((JdbmPartition)foo).setPartitionDir( new File( workingDirectory, "foo" ) );
+            ( ( JdbmPartition ) foo ).setPartitionDir( new File( workingDirectory, "foo" ) );
             service.addPartition( foo );
-            
+
             Partition bar = new JdbmPartition();
             bar.setId( "bar" );
             bar.setSuffix( "dc=bar,dc=com" );
             bar.setSchemaManager( schemaManager );
-            ((JdbmPartition)bar).setPartitionDir( new File( workingDirectory, "bar" ) );
+            ( ( JdbmPartition ) bar ).setPartitionDir( new File( workingDirectory, "bar" ) );
             service.addPartition( bar );
-            
-            return service;
         }
     }
-    
+
 
     /**
      * Test case to weed out issue in DIRSERVER-1118.
@@ -193,13 +188,13 @@ public final class PartitionIT
          * Confirm the presence of the partitions foo and bar through DS API
          */
         HashMap<String, Partition> partitionMap = new HashMap<String, Partition>();
-        
+
         for ( Partition partition : service.getPartitions() )
         {
             LOG.debug( "partition id = {}", partition.getId() );
             partitionMap.put( partition.getId(), partition );
         }
-        
+
         assertNotNull( partitionMap.containsKey( "foo" ) );
         assertNotNull( partitionMap.containsKey( "bar" ) );
 
@@ -208,19 +203,19 @@ public final class PartitionIT
          * namingContexts as values innamingContexts attribute of the rootDSE
          */
         LdapContext rootDSE = getRootContext( service );
-        Attribute namingContexts = rootDSE.getAttributes( "", 
-            new String[] { "namingContexts" } ).get( "namingContexts" );
+        Attribute namingContexts = rootDSE.getAttributes( "", new String[]
+            { "namingContexts" } ).get( "namingContexts" );
         assertTrue( namingContexts.contains( "dc=foo,dc=com" ) );
         assertTrue( namingContexts.contains( "dc=bar,dc=com" ) );
         LOG.debug( "Found both dc=foo,dc=com and dc=bar,dc=com in namingContexts" );
-        
+
         /*
          * Add, lookup, then delete entry in both foo and bar partitions
          */
         addLookupDelete( "dc=foo,dc=com" );
         addLookupDelete( "dc=bar,dc=com" );
     }
-    
+
 
     /**
      * Given the suffix DN of a partition this method will add an entry, look 
@@ -236,12 +231,12 @@ public final class PartitionIT
         String entryDn = "ou=people," + partitionSuffix;
         rootDSE.createSubcontext( entryDn, attrs );
         LOG.debug( "added entry {} to partition {}", entryDn, partitionSuffix );
-        
+
         Attributes reloaded = rootDSE.getAttributes( entryDn );
         assertNotNull( reloaded );
         assertTrue( reloaded.get( "ou" ).contains( "people" ) );
         LOG.debug( "looked up entry {} from partition {}", entryDn, partitionSuffix );
-        
+
         rootDSE.destroySubcontext( entryDn );
         try
         {
