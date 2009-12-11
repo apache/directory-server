@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.shared</groupId>
     <artifactId>shared-parent</artifactId>
-    <version>0.9.17</version>
+    <version>0.9.18-SNAPSHOT</version>
   </parent>
   <artifactId>shared-cursor</artifactId>
   <name>Cursor implementation</name>
