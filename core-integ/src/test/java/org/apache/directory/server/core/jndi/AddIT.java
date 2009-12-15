@@ -20,16 +20,11 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -37,6 +32,13 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 /**
@@ -198,13 +200,16 @@ public class AddIT
         
         try
         {
-           Object obj = sysRoot.getAttributes( "cn" );
-           assertNotNull( obj );
+           Attributes result = sysRoot.getAttributes( "cn=John\\+Doe" );
+           assertNotNull( result );
+           
+           Attribute cn = result.get( "cn" );
+           assertNotNull( cn );
+           assertEquals( 1, cn.size() );
         }
         catch( Exception e )
         {
             fail( e.getMessage() );
         }
     }
-
 }
