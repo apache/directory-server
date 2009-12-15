@@ -42,7 +42,7 @@ public class BogusSyntax extends LdapSyntax
         setObsolete( false );
         addName( "bogus" );
         setDescription( "bogus" );
-        setSchemaName( "bogus" );
+        setSchemaName( "other" );
     }
 
 

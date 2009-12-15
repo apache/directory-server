@@ -758,13 +758,20 @@ public class LessEqTest
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
 
-        schemaManager.add( syntax );
-        schemaManager.add( at );
+        assertTrue( schemaManager.add( syntax ) );
+        assertTrue( schemaManager.add( at ) );
 
-        LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
+        try
+        {
+            LessEqNode node = new LessEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
 
-        new LessEqEvaluator( node, store, schemaManager );
-        schemaManager.delete( at );
+            new LessEqEvaluator( node, store, schemaManager );
+        }
+        finally
+        {
+            assertTrue( schemaManager.delete( at ) );
+            assertTrue( schemaManager.delete( syntax ) );
+        }
     }
 
 

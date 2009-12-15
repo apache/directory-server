@@ -719,28 +719,36 @@ public class GreaterEqTest
         schemaManager.add( syntax );
         schemaManager.add( at );
 
-        GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
-        new GreaterEqEvaluator( node, store, schemaManager );
-        schemaManager.delete( at );
+        try
+        {
+            GreaterEqNode node = new GreaterEqNode( at.getOid(), new ServerStringValue( at, "3" ) );
+            new GreaterEqEvaluator( node, store, schemaManager );
+        }
+        finally 
+        {
+            schemaManager.delete( at );
+            schemaManager.delete( syntax );
+        }
     }
 
 
     @Test
     public void testEvaluatorAttributeOrderingMatchingRule() throws Exception
     {
+        LdapSyntax syntax = new BogusSyntax( 1 );
         MatchingRule mr = new MatchingRule( "1.1" );
-        mr.setSyntax( new BogusSyntax( 1 ) );
+        mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
 
         AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
-        at.setSyntax( new BogusSyntax( 2 ) );
+        at.setSyntax( syntax );
         at.setOrdering( mr );
 
-        schemaManager.add( at.getSyntax() );
-        schemaManager.add( mr );
-        schemaManager.add( at );
+        assertTrue( schemaManager.add( syntax ) );
+        assertTrue( schemaManager.add( mr ) );
+        assertTrue( schemaManager.add( at ) );
 
         SyntaxCheckerDescription desc = new SyntaxCheckerDescription( at.getSyntax().getOid() );
         desc.setDescription( "bogus" );
