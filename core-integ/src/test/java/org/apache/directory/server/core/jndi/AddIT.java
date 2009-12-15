@@ -26,6 +26,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +35,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 
@@ -43,59 +45,58 @@ import javax.naming.ldap.LdapContext;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-@RunWith ( CiRunner.class )
+@RunWith(CiRunner.class)
 public class AddIT
 {
     public static DirectoryService service;
-    
 
-//    /**
-//     * Test that attribute name case is preserved after adding an entry
-//     * in the case the user added them.  This is to test DIRSERVER-832.
-//     */
-//    public void testAddCasePreservedOnAttributeNames() throws Exception
-//    {
-//        Attributes attrs = new AttributesImpl( true );
-//        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
-//        oc.add( "PERSON" );
-//        oc.add( "organizationalPerson" );
-//        oc.add( "inetORGperson" );
-//        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
-//        Attribute dc = new AttributeImpl( "sN", "Spacey" );
-//        attrs.put( oc );
-//        attrs.put( cn );
-//        attrs.put( dc);
-//        sysRoot.createSubcontext( "uID=kevin", attrs );
-//        Attributes returned = sysRoot.getObject( "UID=kevin" );
-//        
-//        NamingEnumeration attrList = returned.getAll();
-//        while( attrList.hasMore() )
-//        {
-//            Attribute attr = ( Attribute ) attrList.next();
-//            
-//            if ( attr.getID().equalsIgnoreCase( "uid" ) )
-//            {
-//                assertEquals( "uID", attr.getID() );
-//            }
-//            
-//            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
-//            {
-//                assertEquals( "ObjectClass", attr.getID() );
-//            }
-//            
-//            if ( attr.getID().equalsIgnoreCase( "sn" ) )
-//            {
-//                assertEquals( "sN", attr.getID() );
-//            }
-//            
-//            if ( attr.getID().equalsIgnoreCase( "cn" ) )
-//            {
-//                assertEquals( "Cn", attr.getID() );
-//            }
-//        }
-//    }
-    
-    
+
+    //    /**
+    //     * Test that attribute name case is preserved after adding an entry
+    //     * in the case the user added them.  This is to test DIRSERVER-832.
+    //     */
+    //    public void testAddCasePreservedOnAttributeNames() throws Exception
+    //    {
+    //        Attributes attrs = new AttributesImpl( true );
+    //        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+    //        oc.add( "PERSON" );
+    //        oc.add( "organizationalPerson" );
+    //        oc.add( "inetORGperson" );
+    //        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
+    //        Attribute dc = new AttributeImpl( "sN", "Spacey" );
+    //        attrs.put( oc );
+    //        attrs.put( cn );
+    //        attrs.put( dc);
+    //        sysRoot.createSubcontext( "uID=kevin", attrs );
+    //        Attributes returned = sysRoot.getObject( "UID=kevin" );
+    //        
+    //        NamingEnumeration attrList = returned.getAll();
+    //        while( attrList.hasMore() )
+    //        {
+    //            Attribute attr = ( Attribute ) attrList.next();
+    //            
+    //            if ( attr.getID().equalsIgnoreCase( "uid" ) )
+    //            {
+    //                assertEquals( "uID", attr.getID() );
+    //            }
+    //            
+    //            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
+    //            {
+    //                assertEquals( "ObjectClass", attr.getID() );
+    //            }
+    //            
+    //            if ( attr.getID().equalsIgnoreCase( "sn" ) )
+    //            {
+    //                assertEquals( "sN", attr.getID() );
+    //            }
+    //            
+    //            if ( attr.getID().equalsIgnoreCase( "cn" ) )
+    //            {
+    //                assertEquals( "Cn", attr.getID() );
+    //            }
+    //        }
+    //    }
+
     /**
      * Test that we can't add an entry with an attribute type not within
      * any of the MUST or MAY of any of its objectClasses
@@ -113,7 +114,7 @@ public class AddIT
         Attribute dc = new BasicAttribute( "dc", "ke" );
         attrs.put( oc );
         attrs.put( cn );
-        attrs.put( dc);
+        attrs.put( dc );
 
         String base = "uid=kevin";
 
@@ -164,4 +165,46 @@ public class AddIT
             assertTrue( true );
         }
     }
+
+
+    /**
+     * test case for DIRSERVER-1442
+     */
+    @Test
+    public void testAddAttributeWithEscapedPlusCharacter() throws Exception
+    {
+        Attributes attributes = new BasicAttributes( false );
+        attributes.put( "objectClass", "top" );
+        attributes.put( "objectClass", "inetorgperson" );
+        attributes.put( "cn", "John\\+Doe" );
+        attributes.put( "sn", "\\+Name\\+" );
+        
+        LdapContext sysRoot = getSystemContext( service );
+        DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", attributes );
+        
+        ServerLdapContext sc = ( ServerLdapContext ) dc;
+        
+        assertTrue( sc.getDn().toString().contains( "+" ) );
+
+        try
+        {
+           Object obj = sysRoot.lookup( "cn=John\\+Doe" );
+           assertNotNull( obj );
+        }
+        catch( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+        
+        try
+        {
+           Object obj = sysRoot.getAttributes( "cn" );
+           assertNotNull( obj );
+        }
+        catch( Exception e )
+        {
+            fail( e.getMessage() );
+        }
+    }
+
 }
