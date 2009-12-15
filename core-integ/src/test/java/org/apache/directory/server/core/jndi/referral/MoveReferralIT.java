@@ -43,9 +43,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.DefaultServerEntry;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -65,7 +63,6 @@ import org.junit.runner.RunWith;
  * @version $Rev: 691179 $
  */
 @RunWith ( CiRunner.class )
-@CleanupLevel ( Level.CLASS )
 @ApplyLdifs( {
     // Root
     "dn: c=WW,ou=system\n" +
