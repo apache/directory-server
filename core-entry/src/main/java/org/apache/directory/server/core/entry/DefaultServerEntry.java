@@ -2282,10 +2282,10 @@ public final class DefaultServerEntry extends AbstractEntry<AttributeType> imple
         // now clone all the servrAttributes
         clone.attributes.clear();
         
-        for ( AttributeType key:attributes.keySet() )
+        for ( EntryAttribute entryAttribute : attributes.values() )
         {
-            EntryAttribute value = (ServerAttribute)attributes.get( key ).clone();
-            clone.attributes.put( key, value );
+            ServerAttribute value = (ServerAttribute)entryAttribute.clone();
+            clone.attributes.put( value.getAttributeType(), value );
         }
         
         // We are done !
