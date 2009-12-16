@@ -94,28 +94,15 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Inject the newly created AttributeType in the cloned registries
-            clonedRegistries.add( errors, attributeType );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, apply the addition to the real retistries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( attributeType ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, attributeType );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
                 String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    + "the resulting registries would be inconsistent :" + StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
