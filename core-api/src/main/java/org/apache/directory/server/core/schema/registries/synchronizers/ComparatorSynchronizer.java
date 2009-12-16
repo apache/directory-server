@@ -258,7 +258,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             if ( errors.size() == 0 )
             {
                 clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries );
+                //schemaManager.swapRegistries( clonedRegistries );
             }
             else
             {

@@ -195,9 +195,6 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // As we may break the registries, work on a cloned registries
             Registries clonedRegistries = schemaManager.getRegistries().clone();
 
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
-
             // Remove this AttributeType from the Registries
             clonedRegistries.delete( errors, attributeType );
 
@@ -209,12 +206,19 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
             // Check the registries now
             errors = clonedRegistries.checkRefInteg();
+            
+            // Clear the cloned registries
+            clonedRegistries.clear();
 
             // If we didn't get any error, swap the registries
             if ( errors.isEmpty() )
             {
                 clonedRegistries.setStrict();
-                schemaManager.swapRegistries( clonedRegistries );
+                schemaManager.getRegistries().delete( errors, attributeType );
+                schemaManager.getRegistries().dissociateFromSchema( attributeType );
+                schemaManager.getRegistries().delCrossReferences( attributeType );
+                
+                LOG.debug( "Removed {} from the schema {}", attributeType, schemaName );
             }
             else
             {
