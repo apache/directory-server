@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.LdapComparator;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -126,23 +125,9 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Inject the newly created Comparator in the cloned registries
-            clonedRegistries.add( errors, comparator );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, add the Comparator into the real registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( comparator ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, comparator );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
-
             }
             else
             {
@@ -224,58 +209,34 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
-
-            // Before removing a comparator, we have to check that there are no MR pointing
-            // on it, as it won't be done during the integrity check : in this case, the
-            // check will create a default comparator instead of raising an error...
-            if ( clonedRegistries.getMatchingRuleRegistry().contains( comparator.getOid() ) )
+            if ( schemaManager.delete( comparator ) )
             {
-                // We have some error : reject the deletion and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-
-                String msg = "There is at least one MatchingRule using the Comparator with OID " + comparator.getOid();
-                LOG.debug( msg );
-
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            // Remove this Comparator from the Registries
-            clonedRegistries.delete( errors, comparator );
-
-            // Remove the Comparator from the schema/SchemaObject Map
-            clonedRegistries.dissociateFromSchema( comparator );
-
-            // Check the registries now
-            errors = clonedRegistries.checkRefInteg();
-
-            // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
-            {
-                clonedRegistries.setStrict();
-                //schemaManager.swapRegistries( clonedRegistries );
+                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
-                // We have some error : reject the deletion and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-
-                // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
             // Should not be there...
+            // At least, we register the OID in the globalOidRegistry, and associates it with the
+            // schema
+            schemaManager.getRegistries().associateWithSchema( errors, comparator );
+
+            if ( !errors.isEmpty() )
+            {
+                String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "
+                    + "we have got some errors :" + StringTools.listToString( errors );
+
+                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            }
+
+            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 

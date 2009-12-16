@@ -125,30 +125,16 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && syntaxChecker.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Inject the newly created SyntaxChecker in the cloned registries
-            clonedRegistries.add( errors, syntaxChecker );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, add the SyntaxChecker into the real registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( syntaxChecker ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, syntaxChecker );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
-                // We have some error : reject the addition and get out
-                String msg = "Cannot add the SyntaxChecker " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the SyntaxChecker " + entry.getDn().getUpName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else

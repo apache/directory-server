@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -123,30 +122,16 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && normalizer.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Inject the newly created Normalizer in the cloned registries
-            clonedRegistries.add( errors, normalizer );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, add the Normalizer into the real registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( normalizer ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, normalizer );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
-                // We have some error : reject the addition and get out
-                String msg = "Cannot add the Normalizer " + entry.getDn().getUpName() + " into the registries, "
+                String msg = "Cannot delete the Normalizer " + entry.getDn().getUpName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+            throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
