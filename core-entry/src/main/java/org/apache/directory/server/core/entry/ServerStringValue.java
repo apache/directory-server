@@ -422,7 +422,15 @@ public class ServerStringValue extends ClientStringValue
                 }
                 else
                 {
-                    return comparator.compare( getNormalizedValue(), other.getNormalizedValue() ) == 0;
+                    if ( isNormalized() )
+                    {
+                        return comparator.compare( getNormalizedValue(), other.getNormalizedValue() ) == 0;
+                    }
+                    else
+                    {
+                        Normalizer normalizer = attributeType.getEquality().getNormalizer();
+                        return comparator.compare( normalizer.normalize( get() ), normalizer.normalize( other.get() ) ) == 0;
+                    }
                 }
             }
             catch ( NamingException ne )
