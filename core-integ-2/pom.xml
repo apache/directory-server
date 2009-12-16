@@ -26,12 +26,12 @@
     <artifactId>apacheds-parent</artifactId>
     <version>1.5.6-SNAPSHOT</version>
   </parent>
-  <artifactId>apacheds-core-integ</artifactId>
+  <artifactId>apacheds-core-integ-2</artifactId>
   <name>ApacheDS Core Integration</name>
   <packaging>jar</packaging>  
 
   <description>
-    Integration testing framework for Apache Directory Server.
+    *Advanced* Integration testing framework for Apache Directory Server.
   </description>
 
   <dependencies>
