@@ -94,23 +94,6 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
 
-    /**
-     * Gets relative DN to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return the dn to the ou underwhich comparators are found for a schmea
-     * @throws Exception if there are dn construction issues
-     */
-    private LdapDN getComparatorContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=comparators,cn=" + schemaName );
-    }
-
-    private LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=matchingRules,cn=" + schemaName );
-    }
-
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------

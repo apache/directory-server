@@ -157,9 +157,6 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // The parent DN must be ou=comparators,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.COMPARATOR );
 
-        // Test that the Oid exists
-        LdapComparator<?> comparator = null;
-
         // Get the SchemaName
         String schemaName = getSchemaName( entry.getDn() );
 
@@ -173,6 +170,9 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             
             return;
         }
+
+        // Test that the Oid exists
+        LdapComparator<?> comparator = null;
 
         try
         {

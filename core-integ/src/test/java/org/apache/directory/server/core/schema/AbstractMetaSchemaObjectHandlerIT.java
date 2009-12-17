@@ -85,4 +85,69 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
         
         return file.exists();
     }
+    
+    
+    /**
+     * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the a schema's attributeType entity container
+     * @throws Exception on failure
+     */
+    protected LdapDN getAttributeTypeContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=attributeTypes,cn=" + schemaName );
+    }
+
+
+    /**
+     * Get relative DN to ou=schema for Comparators
+     *
+     * @param schemaName the name of the schema
+     * @return the dn to the ou under which comparators are found for a schema
+     * @throws Exception if there are dn construction issues
+     */
+    protected LdapDN getComparatorContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=comparators,cn=" + schemaName );
+    }
+
+    
+    /**
+     * Get relative DN to ou=schema for MatchingRules
+     *
+     * @param schemaName the name of the schema
+     * @return the dn to the ou under which MatchingRules are found for a schema
+     * @throws Exception if there are dn construction issues
+     */
+    protected LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=matchingRules,cn=" + schemaName );
+    }
+    
+
+    /**
+     * Get relative DN to ou=schema for Syntaxes
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the container holding syntaxes for the schema
+     * @throws Exception on dn parse errors
+     */
+    protected LdapDN getSyntaxContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=syntaxes,cn=" + schemaName );
+    }
+    
+    
+    /**
+     * Get relative DN to ou=schema for SyntaxCheckers
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the container holding syntax checkers for the schema
+     * @throws Exception on dn parse errors
+     */
+    protected LdapDN getSyntaxCheckerContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=syntaxCheckers,cn=" + schemaName );
+    }
 }

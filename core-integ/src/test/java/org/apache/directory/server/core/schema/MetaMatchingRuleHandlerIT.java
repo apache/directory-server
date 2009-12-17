@@ -82,24 +82,6 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     }
 
 
-    /**
-     * Gets relative DN to ou=schema.
-     * 
-     * @param schemaName the name of the schema
-     * @return  the dn of the container of matchingRules for a schema
-     * @throws Exception on error
-     */
-    private LdapDN getMatchingRuleContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=matchingRules,cn=" + schemaName );
-    }
-    
-    private LdapDN getComparatorContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=comparators,cn=" + schemaName );
-    }
-    
-    
     private void createComparator() throws Exception
     {
         Attributes attrs = AttributeUtils.createAttributes( 

@@ -74,19 +74,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     public static DirectoryService service;
     public static SchemaManager schemaManager;
 
-    /**
-     * Gets relative DN to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return the dn of the a schema's attributeType entity container
-     * @throws Exception on failure
-     */
-    private LdapDN getAttributeTypeContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=attributeTypes,cn=" + schemaName );
-    }
-
-
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------

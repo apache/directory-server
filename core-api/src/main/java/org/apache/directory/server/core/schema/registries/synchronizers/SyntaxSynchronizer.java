@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -120,51 +119,26 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the Syntax are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && syntax.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Inject the newly created Syntax in the cloned registries
-            clonedRegistries.add( errors, syntax );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, apply the addition to the real retistries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( syntax ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, syntax );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
                 String msg = "Cannot add the Syntax " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
-            // At least, we register the OID in the globalOidRegistry, and associates it with the
-            // schema
-            schemaManager.getRegistries().associateWithSchema( errors, syntax );
-
-            if ( !errors.isEmpty() )
-            {
-                String msg = "Cannot add the Syntax " + entry.getDn().getUpName() + " into the registries, "
-                    + "we have got some errors :" + StringTools.listToString( errors );
-
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            LOG.debug( "The Syntax {} cannot be added in schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The Syntax {} cannot be added in the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
@@ -236,46 +210,42 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the Syntax from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        // Applies the Registries to this Syntax 
+        // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+        
+        if ( schema.isDisabled() )
+        {
+            // The schema is disabled, nothing to do.
+            LOG.debug( "The Syntax {} cannot be removed from the disabled schema {}.", 
+                dn.getUpName(), schemaName );
+            
+            return;
+        }
+
+        // Test that the Oid exists
+        LdapSyntax syntax = ( LdapSyntax ) checkOidExists( entry );
+
+        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && syntax.isEnabled() )
         {
-            syntax.removeFromRegistries( null, schemaManager.getRegistries() );
-        }
-
-        String oid = syntax.getOid();
-
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            if ( schemaManager.getRegistries().isReferenced( syntax ) )
+            if ( schemaManager.delete( syntax ) )
             {
-                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some "
-                    + " dependant SchemaObjects :\n" + getReferenced( syntax );
-                LOG.warn( msg );
+                LOG.debug( "Removed {} from the schema {}", syntax, schemaName );
+            }
+            else
+            {
+                // We have some error : reject the deletion and get out
+                String msg = "Cannot delete the Syntax " + entry.getDn().getUpName() + " into the registries, "
+                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
-
-        deleteFromSchema( syntax, schemaName );
-
-        if ( schemaManager.getLdapSyntaxRegistry().contains( oid ) )
-        {
-            // Update the references.
-            // The SyntaxChecker
-            schemaManager.getRegistries().delReference( syntax, syntax.getSyntaxChecker() );
-
-            // Update the Registry
-            schemaManager.unregisterLdapSyntax( oid );
-
-            LOG.debug( "Removed {} from the enabled schema {}", syntax, schemaName );
-        }
         else
         {
-            unregisterOids( syntax );
-            LOG.debug( "Removed {} from the enabled schema {}", syntax, schemaName );
+            LOG.debug( "Removed {} from the disabled schema {}", syntax, schemaName );
         }
     }
 

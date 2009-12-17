@@ -295,6 +295,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
 
     @Test
+    @Ignore
     public void testRenameNormalizer() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
@@ -378,6 +379,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     
     @Test
+    @Ignore
     public void testModifyNormalizerWithModificationItems() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -402,6 +404,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     
     @Test
+    @Ignore
     public void testModifyNormalizerWithAttributes() throws Exception
     {
         testAddNormalizerToEnabledSchema();
