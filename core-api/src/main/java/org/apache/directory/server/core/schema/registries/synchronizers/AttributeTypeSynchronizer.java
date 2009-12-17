@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -90,7 +89,6 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the AttributeType are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
@@ -102,26 +100,15 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the addition and get out
                 String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( schemaManager.getErrors() );
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
-            // At least, we register the OID in the globalOidRegistry, and associates it with the
-            // schema
-            schemaManager.getRegistries().associateWithSchema( errors, attributeType );
-
-            if ( !errors.isEmpty() )
-            {
-                String msg = "Cannot add the AttributeType " + entry.getDn().getUpName() + " into the registries, "
-                    + "we have got some errors :" + StringTools.listToString( errors );
-
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The AttributeType {} cannot be added in the disabled schema {}.", attributeType, schemaName );
         }
     }
 
@@ -167,53 +154,35 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // The parent DN must be ou=attributetypes,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );
 
-        // Test that the Oid exists
-        AttributeType attributeType = ( AttributeType ) checkOidExists( entry );
-
         // Get the SchemaName
         String schemaName = getSchemaName( entry.getDn() );
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+
+        if ( schema.isDisabled() )
+        {
+            // The schema is disabled, nothing to do.
+            LOG.debug( "The AttributeType {} cannot be removed from the disabled schema {}.", 
+                dn.getUpName(), schemaName );
+            
+            return;
+        }
+        
+        // Test that the Oid exists
+        AttributeType attributeType = ( AttributeType ) checkOidExists( entry );
+
         List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Remove this AttributeType from the Registries
-            clonedRegistries.delete( errors, attributeType );
-
-            // Remove the AttributeType from the schema/SchemaObject Map
-            clonedRegistries.dissociateFromSchema( attributeType );
-
-            // Update the cross references for AT
-            clonedRegistries.delCrossReferences( attributeType );
-
-            // Check the registries now
-            errors = clonedRegistries.checkRefInteg();
-            
-            // Clear the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, swap the registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.delete( attributeType ) )
             {
-                clonedRegistries.setStrict();
-                schemaManager.getRegistries().delete( errors, attributeType );
-                schemaManager.getRegistries().dissociateFromSchema( attributeType );
-                schemaManager.getRegistries().delCrossReferences( attributeType );
-                
                 LOG.debug( "Removed {} from the schema {}", attributeType, schemaName );
             }
             else
             {
                 // We have some error : reject the deletion and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-
-                // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " into the registries, "
                     + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
                 LOG.info( msg );
@@ -222,11 +191,6 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         }
         else
         {
-            unregisterOids( attributeType );
-
-            // Remove the AttributeType from the schema/SchemaObject Map
-            schemaManager.getRegistries().dissociateFromSchema( attributeType );
-
             LOG.debug( "Removed {} from the disabled schema {}", attributeType, schemaName );
         }
     }

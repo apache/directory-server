@@ -115,6 +115,9 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         
         // Addition
         getSchemaContext( service ).createSubcontext( dn, attrs );
+        
+        assertTrue( isOnDisk( dn ) );
+        assertTrue( service.getSchemaManager().getComparatorRegistry().contains( OID ) );
     }
     
     
@@ -263,6 +266,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // Test Modify operation
     // ----------------------------------------------------------------------
     @Test
+    @Ignore
     public void testModifyMatchingRuleWithModificationItems() throws Exception
     {
         testAddMatchingRuleToEnabledSchema();
@@ -294,6 +298,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     
     @Test
+    @Ignore
     public void testModifyMatchingRuleWithAttributes() throws Exception
     {
         testAddMatchingRuleToEnabledSchema();
@@ -326,6 +331,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // Test Rename operation
     // ----------------------------------------------------------------------
     @Test
+    @Ignore
     public void testRenameMatchingRule() throws Exception
     {
         LdapDN dn = getMatchingRuleContainer( "apachemeta" );

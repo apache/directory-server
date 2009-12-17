@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -36,7 +33,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -116,8 +112,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
-
+        
         // At this point, the constructed MatchingRule has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the MatchingRule are both enabled.
@@ -125,46 +120,23 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && matchingRule.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            clonedRegistries.add( errors, matchingRule );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, swap the registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( matchingRule ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, matchingRule );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
                 String msg = "Cannot add the MatchingRule " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
-            // At least, we register the OID in the globalOidRegistry, and associates it with the
-            // schema
-            schemaManager.getRegistries().associateWithSchema( errors, matchingRule );
-
-            if ( !errors.isEmpty() )
-            {
-                String msg = "Cannot add the MatchingRule " + entry.getDn().getUpName() + " into the registries, "
-                    + "we have got some errors :" + StringTools.listToString( errors );
-
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The MztchingRule {} cannot be added in the disabled schema {}.", matchingRule, schemaName );
         }
     }
 
@@ -181,62 +153,43 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         // The parent DN must be ou=matchingrules,cn=<schemaName>,ou=schema
         checkParent( parentDn, schemaManager, SchemaConstants.MATCHING_RULE );
 
-        // Test that the Oid exists
-        MatchingRule matchingRule = ( MatchingRule ) checkOidExists( entry );
-
         // Get the SchemaName
         String schemaName = getSchemaName( entry.getDn() );
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
+        
+        if ( schema.isDisabled() )
+        {
+            // The schema is disabled, nothing to do.
+            LOG.debug( "The MatchingRule {} cannot be removed from the disabled schema {}.", 
+                dn.getUpName(), schemaName );
+            
+            return;
+        }
+
+        // Test that the Oid exists
+        MatchingRule matchingRule = ( MatchingRule ) checkOidExists( entry );
 
         if ( schema.isEnabled() && matchingRule.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            // Relax the cloned registries
-            clonedRegistries.setRelaxed();
-
-            // Remove this MatchingRule from the Registries
-            clonedRegistries.delete( errors, matchingRule );
-
-            // Remove the MatchingRule from the schema/SchemaObject Map
-            clonedRegistries.dissociateFromSchema( matchingRule );
-
-            // Update the cross references for MatchingRule
-            clonedRegistries.delCrossReferences( matchingRule );
-
-            // Check the registries now
-            errors = clonedRegistries.checkRefInteg();
-
-            // If we didn't get any error, swap the registries
-            if ( errors.size() == 0 )
+            if ( schemaManager.delete( matchingRule ) )
             {
-                clonedRegistries.setStrict();
-                //schemaManager.swapRegistries( clonedRegistries );
+                LOG.debug( "Removed {} from the schema {}", matchingRule, schemaName );
             }
             else
             {
                 // We have some error : reject the deletion and get out
-                // Destroy the cloned registries
-                clonedRegistries.clear();
-
                 // The schema is disabled. We still have to update the backend
                 String msg = "Cannot delete the MatchingRule " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
         else
         {
-            unregisterOids( matchingRule );
-
-            // Remove the MatchingRule from the schema/SchemaObject Map
-            schemaManager.getRegistries().dissociateFromSchema( matchingRule );
-
             LOG.debug( "Removed {} from the disabled schema {}", matchingRule, schemaName );
         }
     }

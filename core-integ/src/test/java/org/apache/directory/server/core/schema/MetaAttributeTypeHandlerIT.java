@@ -74,29 +74,6 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     public static DirectoryService service;
     public static SchemaManager schemaManager;
 
-    /*
-    @Before
-    public void checkBefore()
-    {
-        System.out.println( "--------------------Before, USING :" );
-        service.getRegistries().dumpUsing();
-        System.out.println( "--------------------Before, USED BY :" );
-        service.getRegistries().dumpUsedBy();
-        //assertTrue( service.getRegistries().check() );
-    }
-    
-    
-    @After
-    public void checkRegistries()
-    {
-        System.out.println( "--------------------After, USING :" );
-        service.getRegistries().dumpUsing();
-        System.out.println( "--------------------After, USED BY :" );
-        service.getRegistries().dumpUsedBy();
-        //assertTrue( service.getRegistries().check() );
-    }
-    */
-    
     /**
      * Gets relative DN to ou=schema.
      *
@@ -302,6 +279,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     // Test Modify operation
     // ----------------------------------------------------------------------
     @Test
+    @Ignore
     public void testModifyAttributeTypeWithModificationItems() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
@@ -333,6 +311,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
 
     
     @Test
+    @Ignore
     public void testModifyAttributeTypeWithAttributes() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
@@ -365,6 +344,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
     // Test Rename operation
     // ----------------------------------------------------------------------
     @Test
+    @Ignore
     public void testRenameAttributeType() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
@@ -394,6 +374,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
 
 
     @Test
+    @Ignore
     public void testRenameAttributeTypeWhenInUse() throws Exception
     {
         testAddAttributeTypeToEnabledSchema();
@@ -614,7 +595,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
             "m-description", DESCRIPTION0,
             "m-equality: caseIgnoreMatch",
             "m-singleValue: FALSE",
-            "m-usage: directryOperation",
+            "m-usage: directoryOperation",
             "m-supAttributeType", OID );
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
