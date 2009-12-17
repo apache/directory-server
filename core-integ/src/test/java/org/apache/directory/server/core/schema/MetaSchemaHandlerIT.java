@@ -31,7 +31,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
@@ -102,10 +101,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
@@ -123,12 +124,14 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( "m-dependencies", "nis" );
-        dummySchema.get( "m-dependencies" ).add( "core" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            MetaSchemaConstants.M_DISABLED_AT, "TRUE",
+            "m-dependencies: nis",
+            "m-dependencies: core" );
+        
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         assertFalse( IntegrationUtils.isEnabled( service, "dummy" ) );
@@ -146,12 +149,13 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        dummySchema.put( "m-dependencies", "missing" );
-        dummySchema.get( "m-dependencies" ).add( "core" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            MetaSchemaConstants.M_DISABLED_AT, "TRUE",
+            "m-dependencies: missing",
+            "m-dependencies: core" );
         
         try
         {
@@ -208,10 +212,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( "m-dependencies", "nis" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            "m-dependencies: nis" );
         
         try
         {
@@ -308,10 +313,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     {
         LdapContext schemaRoot = getSchemaContext( service );
 
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( "m-dependencies", "missing" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            "m-dependencies: missing" );
         
         try
         {
@@ -478,14 +484,16 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         // let's enable the test schema and add the dummy schema
         // as enabled by default and dependends on the test schema
         
-//      // enables the test schema and samba
+        // enables the test schema and samba
         testEnableSchema(); 
         
         // adds enabled dummy schema that depends on the test schema  
-        Attributes dummySchema = new BasicAttributes( "objectClass", "top", true );
-        dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
-        dummySchema.put( "cn", "dummy" );
-        dummySchema.put( "m-dependencies", "nis" );
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top", 
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: dummy",
+            "m-dependencies: nis" );
+        
         schemaRoot.createSubcontext( "cn=dummy", dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
@@ -525,8 +533,6 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // -----------------------------------------------------------------------
     // Schema Rename Tests
     // -----------------------------------------------------------------------
-
-
     /**
      * Makes sure we can change the name of a schema with entities in it.
      * Will use the samba schema which comes out of the box and nothing 
@@ -632,8 +638,6 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // -----------------------------------------------------------------------
     // Dependency Modify Tests
     // -----------------------------------------------------------------------
-
-
     /**
      * Checks to make sure the addition of an undefined schema to the dependencies 
      * of an existing schema fail with an UNWILLING_TO_PERFORM result code.
