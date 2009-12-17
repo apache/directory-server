@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.entry.ServerEntry;
@@ -34,10 +31,8 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -113,7 +108,6 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         ObjectClass objectClass = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
 
         // At this point, the constructed ObjectClass has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
@@ -122,46 +116,24 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schema.isEnabled() && objectClass.isEnabled() )
         {
-            // As we may break the registries, work on a cloned registries
-            Registries clonedRegistries = schemaManager.getRegistries().clone();
-
-            clonedRegistries.add( errors, objectClass );
-
-            // Remove the cloned registries
-            clonedRegistries.clear();
-
-            // If we didn't get any error, swap the registries
-            if ( errors.isEmpty() )
+            if ( schemaManager.add( objectClass ) )
             {
-                // Apply the addition to the real registries
-                schemaManager.getRegistries().add( errors, objectClass );
-
                 LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
                 // We have some error : reject the addition and get out
                 String msg = "Cannot add the ObjectClass " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
+
         }
         else
         {
-            // At least, we register the OID in the globalOidRegistry, and associates it with the
-            // schema
-            schemaManager.getRegistries().associateWithSchema( errors, objectClass );
-
-            if ( !errors.isEmpty() )
-            {
-                String msg = "Cannot add the OjectClass " + entry.getDn().getUpName() + " into the registries, "
-                    + "we have got some errors :" + StringTools.listToString( errors );
-
-                throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
-            }
-
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "The ObjectClass {} cannot be added in the disabled schema {}.", objectClass, schemaName );
         }
     }
 
@@ -180,62 +152,40 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the ObjectClass from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        ObjectClass objectClass = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(),
-            schemaName );
-
-        // Applies the Registries to this ObjectClass 
+        
+        // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
+
+        if ( schema.isDisabled() )
+        {
+            // The schema is disabled, nothing to do.
+            LOG.debug( "The ObjectClass {} cannot be removed from the disabled schema {}.", 
+                dn.getUpName(), schemaName );
+            
+            return;
+        }
+        
+        // Test that the Oid exists
+        ObjectClass objectClass = ( ObjectClass ) checkOidExists( entry );
 
         if ( schema.isEnabled() && objectClass.isEnabled() )
         {
-            objectClass.removeFromRegistries( null, schemaManager.getRegistries() );
-        }
-
-        String oid = objectClass.getOid();
-
-        if ( isSchemaEnabled( schemaName ) )
-        {
-            if ( schemaManager.getRegistries().isReferenced( objectClass ) )
+            if ( schemaManager.delete( objectClass ) )
             {
-                String msg = "Cannot delete " + entry.getDn().getUpName() + ", as there are some "
-                    + " dependant SchemaObjects :\n" + getReferenced( objectClass );
-                LOG.warn( msg );
+                LOG.debug( "Removed {} from the schema {}", objectClass, schemaName );
+            }
+            else
+            {
+                // We have some error : reject the deletion and get out
+                String msg = "Cannot delete the ObjectClass " + entry.getDn().getUpName() + " from the registries, "
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
+                LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
         }
-
-        // Remove the ObjectClass from the schema content
-        deleteFromSchema( objectClass, schemaName );
-
-        if ( schemaManager.getObjectClassRegistry().contains( oid ) )
-        {
-            // Update the referenced and referencing objects
-            // The MAY AttributeTypes
-            for ( AttributeType may : objectClass.getMayAttributeTypes() )
-            {
-                schemaManager.getRegistries().delReference( objectClass, may );
-            }
-
-            // The MUST AttributeTypes
-            for ( AttributeType must : objectClass.getMayAttributeTypes() )
-            {
-                schemaManager.getRegistries().delReference( objectClass, must );
-            }
-
-            // The superiors
-            for ( ObjectClass superior : objectClass.getSuperiors() )
-            {
-                schemaManager.getRegistries().delReference( objectClass, superior );
-            }
-
-            // Update the Registry
-            schemaManager.unregisterObjectClass( objectClass.getOid() );
-
-            LOG.debug( "Removed {} from the enabled schema {}", objectClass, schemaName );
-        }
         else
         {
-            unregisterOids( objectClass );
             LOG.debug( "Removed {} from the disabled schema {}", objectClass, schemaName );
         }
     }

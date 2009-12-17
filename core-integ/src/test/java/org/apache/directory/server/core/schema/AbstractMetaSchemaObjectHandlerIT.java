@@ -125,7 +125,21 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
         return new LdapDN( "ou=matchingRules,cn=" + schemaName );
     }
     
-    
+   
+    /**
+     * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the container which contains objectClasses
+     * @throws Exception on error
+     */
+    protected LdapDN getObjectClassContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=objectClasses,cn=" + schemaName );
+    }
+
+
+
     /**
      * Gets relative DN to ou=schema.
      *
