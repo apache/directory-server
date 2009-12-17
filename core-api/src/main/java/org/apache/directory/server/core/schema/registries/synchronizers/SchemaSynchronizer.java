@@ -23,6 +23,7 @@ package org.apache.directory.server.core.schema.registries.synchronizers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -40,6 +41,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Modification;
 import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -55,6 +57,7 @@ import org.apache.directory.shared.ldap.schema.registries.DefaultSchemaObjectReg
 import org.apache.directory.shared.ldap.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.registries.Schema;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.schema.loader.ldif.SchemaEntityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -662,7 +665,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     private void checkForDependencies( boolean isEnabled, ServerEntry entry ) throws Exception
     {
-        /*
         EntryAttribute dependencies = entry.get( this.dependenciesAT );
 
         if ( dependencies == null )
@@ -689,13 +691,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         else
         {
-            Set<String> allSchemas = schemaManager.getSchemaNames();
-            
             for ( Value<?> value:dependencies )
             {
                 String dependency = value.getString();
                 
-                if ( ! allSchemas.contains( dependency ) )
+                if ( schemaManager.getLoadedSchema( StringTools.toLowerCase( dependency ) ) == null )
                 {
                     throw new LdapOperationNotSupportedException( 
                         "Unwilling to perform operation on schema with missing dependencies: " + dependency, 
@@ -703,7 +703,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 }
             }
         }
-        */
     }
 
     
