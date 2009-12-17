@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.schema.registries.synchronizers;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.MetaSchemaConstants;
@@ -172,8 +169,6 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         // Test that the Oid exists
         AttributeType attributeType = ( AttributeType ) checkOidExists( entry );
 
-        List<Throwable> errors = new ArrayList<Throwable>();
-
         if ( schema.isEnabled() && attributeType.isEnabled() )
         {
             if ( schemaManager.delete( attributeType ) )
@@ -183,8 +178,9 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " into the registries, "
-                    + "the resulting registries would be inconsistent :" + StringTools.listToString( errors );
+                String msg = "Cannot delete the AttributeType " + entry.getDn().getUpName() + " from the registries, "
+                    + "the resulting registries would be inconsistent :" + 
+                    StringTools.listToString( schemaManager.getErrors() );
                 LOG.info( msg );
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
