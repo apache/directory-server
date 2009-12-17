@@ -834,7 +834,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         OidRegistry oidRegistry = schemaManager.getOidRegistry();
 
-        if ( !oidRegistry.hasOid( attrId ) )
+        if ( !oidRegistry.contains( attrId ) )
         {
             return false;
         }

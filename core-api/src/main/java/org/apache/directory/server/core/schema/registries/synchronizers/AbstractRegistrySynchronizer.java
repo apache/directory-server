@@ -164,7 +164,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( schemaManager.getOidRegistry().hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -180,7 +180,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( schemaManager.getOidRegistry().hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().contains( oid ) )
         {
             return schemaManager.getOidRegistry().getSchemaObject( oid );
         }
@@ -225,7 +225,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = schemaObject.getOid();
 
-        if ( schemaManager.getOidRegistry().hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -235,7 +235,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected void checkOidIsUnique( String oid ) throws Exception
     {
-        if ( schemaManager.getOidRegistry().hasOid( oid ) )
+        if ( schemaManager.getOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
