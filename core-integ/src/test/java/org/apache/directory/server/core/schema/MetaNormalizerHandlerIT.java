@@ -42,6 +42,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -80,19 +81,6 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     public void setup()
     {
         schemaManager = service.getSchemaManager();
-    }
-
-
-    /**
-     * Gets relative DN to ou=schema.
-     *
-     * @param schemaName the name of the schema
-     * @return  the name of the container with normalizer entries in it
-     * @throws Exception on error
-     */
-    private LdapDN getNormalizerContainer( String schemaName ) throws Exception
-    {
-        return new LdapDN( "ou=normalizers,cn=" + schemaName );
     }
 
 
@@ -430,30 +418,52 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a MR exists and uses the Normalizer
     // ----------------------------------------------------------------------
-
-    
     @Test
     public void testDeleteNormalizerWhenInUse() throws Exception
     {
-        LdapDN dn = getNormalizerContainer( "apachemeta" );
-        dn.add( "m-oid" + "=" + OID );
+        LdapDN nDn = getNormalizerContainer( "apachemeta" );
+        nDn.add( "m-oid" + "=" + OID );
+
+        // Create a new Normalizer
         testAddNormalizerToEnabledSchema();
-        schemaManager.getMatchingRuleRegistry().register( new DummyMR() );
+        assertTrue( isOnDisk( nDn ) );
+        assertTrue( service.getSchemaManager().getNormalizerRegistry().contains( OID ) );
         
+        // Create a MR using this Normalizer
+        Attributes attrs = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", OID,
+            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+            "m-description: test" );
+
+        LdapDN mrDn = getMatchingRuleContainer( "apachemeta" );
+        mrDn.add( "m-oid" + "=" + OID );
+
+        // Pre-checks
+        assertFalse( isOnDisk( mrDn ) );
+        assertFalse( service.getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+
+        // MatchingRule Addition
+        getSchemaContext( service ).createSubcontext( mrDn, attrs );
+
+        // Post-checks
+        assertTrue( isOnDisk( mrDn ) );
+        assertTrue( service.getSchemaManager().getMatchingRuleRegistry().contains( OID ) );
+
         try
         {
-            getSchemaContext( service ).destroySubcontext( dn );
-            fail( "should not be able to delete a normalizer in use" );
+            getSchemaContext( service ).destroySubcontext( nDn );
+            fail( "should not be able to delete a Normalizer in use" );
         }
-        catch( LdapOperationNotSupportedException e ) 
+        catch ( LdapOperationNotSupportedException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        assertTrue( "normalizer should still be in the registry after delete failure", 
-            schemaManager.getNormalizerRegistry().contains( OID ) );
-        schemaManager.getMatchingRuleRegistry().unregister( OID );
-        schemaManager.getGlobalOidRegistry().unregister( OID );
+        assertTrue( "Normalizer should still be in the registry after delete failure", schemaManager
+            .getNormalizerRegistry().contains( OID ) );
     }
     
     
@@ -518,6 +528,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 
     
     @Test
+    @Ignore
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );

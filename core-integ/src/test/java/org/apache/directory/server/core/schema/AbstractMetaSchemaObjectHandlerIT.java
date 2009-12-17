@@ -125,6 +125,19 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
         return new LdapDN( "ou=matchingRules,cn=" + schemaName );
     }
     
+    
+    /**
+     * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return  the name of the container with normalizer entries in it
+     * @throws Exception on error
+     */
+    protected LdapDN getNormalizerContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "ou=normalizers,cn=" + schemaName );
+    }
+
 
     /**
      * Get relative DN to ou=schema for Syntaxes
