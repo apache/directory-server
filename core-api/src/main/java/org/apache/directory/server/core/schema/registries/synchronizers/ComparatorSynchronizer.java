@@ -171,6 +171,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         // Test that the Oid exists
         LdapComparator<?> comparator = null;
 
+        // Get the SchemaName
+        String schemaName = getSchemaName( entry.getDn() );
+
+        // Get the Schema
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
+
         try
         {
             comparator = ( LdapComparator<?> ) checkComparatorOidExists( entry );
@@ -179,39 +185,41 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             // The comparator does not exist : may be normal, if the schema is disabled
             // We will check that by looking on the disk
-            String schemaName = getSchemaName( dn );
-            comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(), schemaName );
-
-            if ( schemaManager.getRegistries().contains( comparator ) )
+            if ( schema.isEnabled() )
             {
-                // Remove the Comparator from the schema/SchemaObject Map
-                schemaManager.getRegistries().dissociateFromSchema( comparator );
+                comparator = factory.getLdapComparator( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-                // Ok, we can exit. 
-                return;
+                if ( schemaManager.getRegistries().contains( comparator ) )
+                {
+                    // Remove the Comparator from the schema/SchemaObject Map
+                    schemaManager.getRegistries().dissociateFromSchema( comparator );
+    
+                    // Ok, we can exit. 
+                    return;
+                }
+                else
+                {
+                    // Ok, definitively an error
+                    String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " as it "
+                        + "does not exist in any schema";
+                    LOG.info( msg );
+                    throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                }
             }
             else
             {
-                // Ok, definitively an error
-                String msg = "Cannot delete the Comparator " + entry.getDn().getUpName() + " as it "
-                    + "does not exist in any schema";
-                LOG.info( msg );
-                throw new LdapSchemaViolationException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                LOG.debug( "Delete {} from the disabled schema {}", dn.getUpName(), schemaName );
+                return;
             }
         }
 
-        // Get the SchemaName
-        String schemaName = getSchemaName( entry.getDn() );
-
-        // Get the Schema
-        Schema schema = schemaManager.getLoadedSchema( schemaName );
         List<Throwable> errors = new ArrayList<Throwable>();
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
             if ( schemaManager.delete( comparator ) )
             {
-                LOG.debug( "Added {} into the enabled schema {}", dn.getUpName(), schemaName );
+                LOG.debug( "Deleted {} from the enabled schema {}", dn.getUpName(), schemaName );
             }
             else
             {
@@ -226,7 +234,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             // Should not be there...
             // At least, we register the OID in the globalOidRegistry, and associates it with the
             // schema
-            schemaManager.getRegistries().associateWithSchema( errors, comparator );
+            schemaManager.getRegistries().dissociateFromSchema( errors, comparator );
 
             if ( !errors.isEmpty() )
             {
@@ -236,7 +244,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 throw new LdapOperationNotSupportedException( msg, ResultCodeEnum.UNWILLING_TO_PERFORM );
             }
 
-            LOG.debug( "Added {} into the disabled schema {}", dn.getUpName(), schemaName );
+            LOG.debug( "Delete {} from the disabled schema {}", dn.getUpName(), schemaName );
         }
     }
 
