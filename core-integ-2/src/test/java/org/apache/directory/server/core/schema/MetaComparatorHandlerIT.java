@@ -468,7 +468,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "comparator should still be in the registry after rename failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getOidRegistry().unregister( OID );
+        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -554,7 +554,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getOidRegistry().unregister( OID );
+        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -584,7 +584,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
             .getComparatorRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        service.getSchemaManager().getOidRegistry().unregister( OID );
+        service.getSchemaManager().getGlobalOidRegistry().unregister( OID );
     }
 
 

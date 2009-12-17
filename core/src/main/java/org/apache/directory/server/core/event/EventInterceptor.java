@@ -81,7 +81,7 @@ public class EventInterceptor extends BaseInterceptor
         super.init( ds );
         
         this.ds = ds;
-        OidRegistry oidRegistry = ds.getSchemaManager().getOidRegistry();
+        OidRegistry oidRegistry = ds.getSchemaManager().getGlobalOidRegistry();
         SchemaManager schemaManager = ds.getSchemaManager();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );

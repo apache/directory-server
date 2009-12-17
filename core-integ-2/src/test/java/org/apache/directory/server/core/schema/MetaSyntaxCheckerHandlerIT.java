@@ -450,7 +450,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertTrue( "syntaxChecker should still be in the registry after delete failure", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
     
     
@@ -480,7 +480,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertTrue( "syntaxChecker should still be in the registry after move failure", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -510,7 +510,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertTrue( "syntaxChecker should still be in the registry after move failure", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
     
@@ -538,7 +538,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandlerI
         assertTrue( "syntaxChecker should still be in the registry after rename failure", 
             schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 

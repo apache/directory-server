@@ -164,7 +164,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( schemaManager.getOidRegistry().contains( oid ) )
+        if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
             throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -180,9 +180,9 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = getOid( entry );
 
-        if ( schemaManager.getOidRegistry().contains( oid ) )
+        if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            return schemaManager.getOidRegistry().getSchemaObject( oid );
+            return schemaManager.getGlobalOidRegistry().getSchemaObject( oid );
         }
         else
         {
@@ -225,7 +225,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         String oid = schemaObject.getOid();
 
-        if ( schemaManager.getOidRegistry().contains( oid ) )
+        if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -235,7 +235,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected void checkOidIsUnique( String oid ) throws Exception
     {
-        if ( schemaManager.getOidRegistry().contains( oid ) )
+        if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
@@ -380,7 +380,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected void unregisterOids( SchemaObject obj ) throws Exception
     {
-        schemaManager.getOidRegistry().unregister( obj.getOid() );
+        schemaManager.getGlobalOidRegistry().unregister( obj.getOid() );
     }
     
     
@@ -392,7 +392,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      */
     protected void registerOids( SchemaObject obj ) throws Exception
     {
-        schemaManager.getOidRegistry().register( obj );
+        schemaManager.getGlobalOidRegistry().register( obj );
     }
     
     

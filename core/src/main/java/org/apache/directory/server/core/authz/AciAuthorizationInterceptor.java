@@ -220,7 +220,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         subentryAciType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.SUBENTRY_ACI_AT_OID );
         
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( schemaManager ), schemaManager.getNormalizerMapping() );
-        engine = new ACDFEngine( schemaManager.getOidRegistry(), schemaManager );
+        engine = new ACDFEngine( schemaManager.getGlobalOidRegistry(), schemaManager );
         chain = directoryService.getInterceptorChain();
         enabled = directoryService.isAccessControlEnabled();
 

@@ -832,7 +832,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private boolean isRequired( String attrId, EntryAttribute objectClasses ) throws Exception
     {
-        OidRegistry oidRegistry = schemaManager.getOidRegistry();
+        OidRegistry oidRegistry = schemaManager.getGlobalOidRegistry();
 
         if ( !oidRegistry.contains( attrId ) )
         {

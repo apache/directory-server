@@ -100,7 +100,7 @@ public class RelatedProtectedItemFilterTest
             fail( "Schema load failed : " + ExceptionUtils.printErrors( schemaManager.getErrors() ) );
         }
 
-        OID_REGISTRY = schemaManager.getOidRegistry();
+        OID_REGISTRY = schemaManager.getGlobalOidRegistry();
 
         GROUP_NAME = new LdapDN( "ou=test,ou=groups,ou=system" );
         USER_NAME = new LdapDN( "ou=test, ou=users, ou=system" );

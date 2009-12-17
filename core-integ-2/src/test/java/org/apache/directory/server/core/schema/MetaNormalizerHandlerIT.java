@@ -450,7 +450,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "normalizer should still be in the registry after delete failure", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
     
     
@@ -480,7 +480,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "normalizer should still be in the registry after move failure", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
@@ -510,7 +510,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "normalizer should still be in the registry after move failure", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
     
@@ -538,7 +538,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         assertTrue( "normalizer should still be in the registry after rename failure", 
             schemaManager.getNormalizerRegistry().contains( OID ) );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
-        schemaManager.getOidRegistry().unregister( OID );
+        schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 

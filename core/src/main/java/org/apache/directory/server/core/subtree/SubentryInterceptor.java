@@ -138,7 +138,7 @@ public class SubentryInterceptor extends BaseInterceptor
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         schemaManager = directoryService.getSchemaManager();
-        oidRegistry = schemaManager.getOidRegistry();
+        oidRegistry = schemaManager.getGlobalOidRegistry();
 
         // setup various attribute type values
         objectClassType = schemaManager.lookupAttributeTypeRegistry( schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.OBJECT_CLASS_AT ) );

@@ -204,7 +204,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
         
         // The GlobalOidRegistries must not contain the AT
-        assertFalse( service.getSchemaManager().getOidRegistry().contains( OID ) );
+        assertFalse( service.getSchemaManager().getGlobalOidRegistry().contains( OID ) );
         
         // The added entry must be present on disk
         assertTrue( isOnDisk( dn ) );
@@ -267,7 +267,7 @@ public class MetaAttributeTypeHandlerIT extends AbstractMetaSchemaObjectHandlerI
         // Check in Registries
         assertFalse( "attributeType should be removed from the registry after being deleted", 
             service.getSchemaManager().getAttributeTypeRegistry().contains( OID ) );
-        assertFalse( service.getSchemaManager().getOidRegistry().contains( OID ) );
+        assertFalse( service.getSchemaManager().getGlobalOidRegistry().contains( OID ) );
         
         // Check on disk that the deleted SchemaObject does not exist anymore
         assertFalse( isOnDisk( dn ) );

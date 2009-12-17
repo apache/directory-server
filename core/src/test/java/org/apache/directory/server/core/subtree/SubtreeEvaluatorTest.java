@@ -96,7 +96,7 @@ public class SubtreeEvaluatorTest
     public void initTest()
     {
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
-        evaluator = new SubtreeEvaluator( schemaManager.getOidRegistry(), schemaManager );
+        evaluator = new SubtreeEvaluator( schemaManager.getGlobalOidRegistry(), schemaManager );
     }
 
 
