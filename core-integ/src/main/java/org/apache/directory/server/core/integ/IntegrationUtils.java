@@ -331,6 +331,17 @@ public class IntegrationUtils
     
     
     /**
+     * A helper method which tells if a schema is loaded.
+     */
+    public static boolean isLoaded( DirectoryService service, String schemaName )
+    {
+        Schema schema = service.getSchemaManager().getLoadedSchema( schemaName );
+        
+        return ( schema != null );
+    }
+    
+    
+    /**
      * A helper method which tells if a schema is enabled. A shema must be
      * loaded and enabled.
      */

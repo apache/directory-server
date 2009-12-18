@@ -466,7 +466,16 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                
                 if ( disabledInMods != null )
                 {
-                    isNewStateDisabled = "TRUE".equalsIgnoreCase( disabledInMods.getString() );
+                    Value<?> val = disabledInMods.get();
+                    
+                    if ( val == null )
+                    {
+                        isNewStateDisabled = false;
+                    }
+                    else
+                    {
+                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getString() );
+                    }
                 }
 
                 if ( isCurrentlyDisabled && !isNewStateDisabled )

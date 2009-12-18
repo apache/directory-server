@@ -80,8 +80,10 @@ import org.junit.runner.RunWith;
 public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
 {
     /** a test attribute in the test schema: uidNumber in nis schema */
-    private static final String NIS_ATTR_OID = "1.3.6.1.1.1.1.0";
     private static final String UID_NUMBER_ATTR = "uidnumber";
+    
+    /** Another test attribute : krb5principalName taken from the Krb5Kdc schema */
+    private static final String KRB5_PRINCIPAL_NAME_ATTR = "krb5PrincipalName";
     
     public static DirectoryService service;
 
@@ -103,6 +105,20 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         IntegrationUtils.disableSchema( service, "nis" );
     }
 
+    
+    private void createDisabledBrokenSchema() throws Exception
+    {
+        LdapContext schemaRoot = getSchemaContext( service );
+
+        // Create the schema
+        Attributes dummySchema = AttributeUtils.createAttributes( 
+            "objectClass: top",
+            "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
+            "cn: broken",
+            MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
+        
+        schemaRoot.createSubcontext( "cn=broken", dummySchema );
+    }
     
     // -----------------------------------------------------------------------
     // Enabling Schema tests
@@ -213,9 +229,130 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         // TODO : create a special Schema colliding with an existing one
     }
 
+    
     // -----------------------------------------------------------------------
     // Disabling Schema tests
     // -----------------------------------------------------------------------
+    /**
+     * Checks to make sure updates disabling a metaSchema object in
+     * the schema partition triggers the loading of that schema into
+     * the global registries.
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testDisableExistingSchema() throws Exception
+    {
+        // Check that the krb5kdc schema is loaded
+        assertTrue( IntegrationUtils.isLoaded( service, "krb5kdc" ) );
+
+        // check that the krb5kdc schema is enabled
+        assertTrue( IntegrationUtils.isEnabled( service, "krb5kdc" ) );
+        
+        // double check and make sure an attribute from that schema is 
+        // in the AttributeTypeRegistry
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
+        
+        // now disable the krb5kdc schema
+        IntegrationUtils.disableSchema( service, "krb5kdc" );
+        
+        // now test that the schema is not enabled 
+        assertTrue( IntegrationUtils.isDisabled( service, "krb5kdc" ) );
+        
+        // double check and make sure the test attribute from the 
+        // test schema is now loaded and present within the attr registry
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
+    }
+
+
+    /**
+     * Checks that trying to disable a non existing schema does not work
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testDisableNotExistingSchema() throws Exception
+    {
+        // check that the 'wrong' schema is not loaded
+        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+        
+        // now disable the 'wrong' schema
+        try
+        {
+            IntegrationUtils.disableSchema( service, "wrong" );
+            fail();
+        }
+        catch ( LdapNameNotFoundException lnnfe )
+        {
+            // Expected
+            assertTrue( true );
+        }
+        
+        // Test again that the schema is not loaded 
+        assertFalse( IntegrationUtils.isLoaded( service, "wrong" ) );
+    }
+
+    
+    /**
+     * Checks to make sure that if we try to disable an already disabled
+     * schema, we don't do anything.
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testDisableSchemaAlreadyDisabled() throws Exception
+    {
+        // check that the nis schema is loaded
+        assertTrue( IntegrationUtils.isLoaded(  service, "nis" ) );
+        
+        // Check that it's not enabled
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        
+        // double check and make sure an attribute from that schema is 
+        // not in the AttributeTypeRegistry
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+        
+        // now disable the test schema again
+        IntegrationUtils.disableSchema( service, "nis" );
+
+        // now test that the schema is not loaded 
+        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
+        
+        // double check and make sure the test attribute from the 
+        // test schema is not loaded and present within the attr registry
+        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
+    }
+
+    
+    /**
+     * Checks that if we disable a schema which will break the registries, we get 
+     * an error. 
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testDisableSchemaBreakingRegistries() throws Exception
+    {
+        // check that the nis schema is loaded
+        assertTrue( IntegrationUtils.isLoaded(  service, "system" ) );
+        
+        // Check that it's enabled
+        assertTrue( IntegrationUtils.isEnabled( service, "system" ) );
+        
+        // double check and make sure an attribute from that schema is 
+        // in the AttributeTypeRegistry
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
+        
+        // now disable the system schema : it should break the registries, thus being rejected
+        IntegrationUtils.disableSchema( service, "system" );
+
+        // now test that the schema is not loaded 
+        assertTrue( IntegrationUtils.isEnabled( service, "system" ) );
+        
+        // double check and make sure the test attribute from the 
+        // test schema is loaded and present within the attr registry
+        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( "cn" ) );
+    }
 
     // -----------------------------------------------------------------------
     // Schema Add Tests
@@ -471,74 +608,6 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandlerIT
         catch( NamingException e )
         {
         }
-    }
-
-    
-
-    
-    /**
-     * Checks to make sure that if we try to disable an already disabled
-     * schema, we don't do anything.
-     *
-     * @throws Exception on error
-     */
-    @Test
-    public void testDisableSchemaAlreadyDisabled() throws Exception
-    {
-        // check that the nis schema is not loaded
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
-        
-        // double check and make sure an attribute from that schema is 
-        // not in the AttributeTypeRegistry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
-        // now disable the test schema
-        IntegrationUtils.disableSchema( service, "nis" );
-        
-        // now test that the schema is loaded 
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
-        
-        // and disable it again (it should not do anything)
-        IntegrationUtils.disableSchema( service, "nis" );
-        
-        // and test again that the schema is still disabled
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
-        
-        // double check and make sure the test attribute from the 
-        // test schema is now loaded and present within the attr registry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-    }
-
-    
-    /**
-     * Checks to make sure an attempt to disable a metaSchema fails if 
-     * that schema has dependents which are enabled.
-     *
-     * @throws Exception on error
-     */
-    @Test
-    public void testDisableSchema() throws Exception
-    {
-        // let's enable the test schema
-        testEnableExistingSchema();
-        
-        // check that the nis schema is enabled
-        assertTrue( IntegrationUtils.isEnabled( service, "nis" ) );
-        
-        // double check and make sure an attribute from that schema is 
-        // in the AttributeTypeRegistry
-        assertTrue( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
-        // now disable the test schema 
-        IntegrationUtils.disableSchema( service, "samba" );
-        IntegrationUtils.disableSchema( service, "nis" );
-        
-        // now test that the schema is NOT loaded 
-        assertTrue( IntegrationUtils.isDisabled( service, "nis" ) );
-        
-        // double check and make sure the test attribute from the test  
-        // schema is now NOT loaded and present within the attr registry
-        assertFalse( service.getSchemaManager().getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
     
