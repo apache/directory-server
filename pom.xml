@@ -345,9 +345,9 @@
     <module>core-mock</module>
     <module>core-jndi</module>
     <module>core-constants</module>
-    <module>core-shared</module>
     <module>core-unit</module>
     <module>core-integ</module>
+    <module>core-integ-2</module>
     <module>core-entry</module>
     <module>core-avl</module>
     <module>avl-partition</module>

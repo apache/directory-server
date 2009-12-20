@@ -124,12 +124,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-shared</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>opensymphony</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
