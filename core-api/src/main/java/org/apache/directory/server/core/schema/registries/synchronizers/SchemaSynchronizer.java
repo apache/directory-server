@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -235,7 +236,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( isEnabled )
         {
             Schema schema = factory.getSchema( entry );
-            registries.schemaLoaded( schema );
+            schemaManager.load( schema );
         }
     }
 
@@ -255,9 +256,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         // Before allowing a schema object to be deleted we must check
         // to make sure it's not depended upon by another schema
-        /*Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
+        Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
         
-        if ( ! dependents.isEmpty() )
+        if ( ( dependents != null ) && ! dependents.isEmpty() )
         {
             String msg = "Cannot delete schema that has dependents: " + dependents; 
             LOG.warn( msg );
@@ -268,8 +269,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         
         // no need to check if schema is enabled or disabled here
         // if not in the loaded set there will be no negative effect
-        registries.schemaUnloaded( schemaManager.getSchema( schemaName ) );
-        */
+        schemaManager.unload( schemaName );
     }
 
 

@@ -91,6 +91,19 @@ public abstract class AbstractMetaSchemaObjectHandlerIT
      * Gets relative DN to ou=schema.
      *
      * @param schemaName the name of the schema
+     * @return the dn of the a schema entity container
+     * @throws Exception on failure
+     */
+    protected LdapDN getSchemaContainer( String schemaName ) throws Exception
+    {
+        return new LdapDN( "cn=" + schemaName );
+    }
+    
+    
+    /**
+     * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
      * @return the dn of the a schema's attributeType entity container
      * @throws Exception on failure
      */
