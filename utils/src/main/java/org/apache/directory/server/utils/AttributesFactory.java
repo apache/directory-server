@@ -267,7 +267,7 @@ public class AttributesFactory
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
-        entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntax().getOid() );
+        entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
         entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isUserModifiable() ) );
         entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValued() ) );
@@ -277,55 +277,26 @@ public class AttributesFactory
 
         injectCommon( attributeType, entry, schemaManager );
         
-        AttributeType superior = attributeType.getSuperior();
+        String superiorOid = attributeType.getSuperiorOid();
         
-        if ( superior != null )
+        if ( superiorOid != null )
         {
-            // use name if we can for clarity
-            String sup = superior.getName();
-            
-            if ( sup == null )
-            {
-                sup = superior.getOid();
-            }
-            
-            entry.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, sup );
+            entry.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, superiorOid );
         }
         
-        if ( attributeType.getEquality() != null )
+        if ( attributeType.getEqualityOid() != null )
         {
-            String equality = attributeType.getEquality().getName();
-            
-            if ( equality == null )
-            {
-                equality = attributeType.getEquality().getOid();
-            }
-            
-            entry.put( MetaSchemaConstants.M_EQUALITY_AT, equality );
+            entry.put( MetaSchemaConstants.M_EQUALITY_AT, attributeType.getEqualityOid() );
         }
 
-        if ( attributeType.getSubstring() != null )
+        if ( attributeType.getSubstringOid() != null )
         {
-            String substr = attributeType.getSubstring().getName();
-            
-            if ( substr == null )
-            {
-                substr = attributeType.getSubstring().getOid();
-            }
-            
-            entry.put( MetaSchemaConstants.M_SUBSTR_AT, substr );
+            entry.put( MetaSchemaConstants.M_SUBSTR_AT, attributeType.getSubstringOid() );
         }
 
-        if ( attributeType.getOrdering() != null )
+        if ( attributeType.getOrderingOid() != null )
         {
-            String ordering = attributeType.getOrdering().getName();
-            
-            if ( ordering == null )
-            {
-                ordering = attributeType.getOrdering().getOid();
-            }
-            
-            entry.put( MetaSchemaConstants.M_ORDERING_AT, ordering );
+            entry.put( MetaSchemaConstants.M_ORDERING_AT, attributeType.getOrderingOid() );
         }
 
         return entry;
