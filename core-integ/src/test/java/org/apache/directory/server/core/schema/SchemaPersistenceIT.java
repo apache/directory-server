@@ -103,8 +103,7 @@ public class SchemaPersistenceIT
                 "  NAME ( 'type1' 'altName' ) " +
                 "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " + 
                 "  SUP 2.5.4.41 " +
-                "  NO-USER-MODIFICATION " +
-                "  USAGE directoryOperation " +
+                "  USAGE userApplications " +
                 "  X-SCHEMA 'nis' )" );
 
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );

@@ -240,9 +240,10 @@ public class SubschemaSubentryIT
         Attribute attrTypes = attrs.get( "syntaxCheckers" );
         SyntaxCheckerDescription syntaxCheckerDescription = null; 
 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        for ( int i = 0; i < attrTypes.size(); i++ )
         {
-            String desc = ( String ) attrTypes.get( ii );
+            String desc = ( String ) attrTypes.get( i );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
                 syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER.parseSyntaxCheckerDescription( desc );
