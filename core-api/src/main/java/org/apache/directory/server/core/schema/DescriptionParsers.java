@@ -429,11 +429,10 @@ public class DescriptionParsers
                 }
             }
 
-            ObjectClass oc = new ObjectClass( objectClass.getOid() );
             List<Throwable> errors = new ArrayList<Throwable>();
-            oc.setRegistries( schemaManager.getRegistries() );
+            objectClass.setRegistries( schemaManager.getRegistries() );
 
-            objectClasses[pos++] = oc;
+            objectClasses[pos++] = objectClass;
         }
 
         return objectClasses;
