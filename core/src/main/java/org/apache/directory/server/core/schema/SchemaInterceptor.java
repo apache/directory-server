@@ -221,8 +221,7 @@ public class SchemaInterceptor extends BaseInterceptor
         
         // Initialize the schema manager
         SchemaLoader loader = schemaService.getSchemaPartition().getSchemaManager().getLoader();
-        SchemaPartitionDao dao = (SchemaPartitionDao)loader.getDao();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, dao );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader );
 
         MODIFIERS_NAME_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_ATTRIBUTE_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.MODIFY_TIMESTAMP_AT );

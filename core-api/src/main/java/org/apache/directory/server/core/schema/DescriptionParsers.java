@@ -68,50 +68,56 @@ import org.apache.directory.shared.ldap.schema.parsers.SyntaxCheckerDescriptionS
  */
 public class DescriptionParsers
 {
-    private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
-    private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
-    private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
-    private static final LdapSyntax[] EMPTY_SYNTAXES = new LdapSyntax[0];
-    private static final MatchingRule[] EMPTY_MATCHING_RULES = new MatchingRule[0];
-    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
-    private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
-    private static final MatchingRuleUse[] EMPTY_MATCHING_RULE_USES = new MatchingRuleUse[0];
-    private static final DITStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
-    private static final DITContentRule[] EMPTY_DIT_CONTENT_RULES = new DITContentRule[0];
-    private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
+    /** Empty arrays of SchemaOjects */
+    private static final LdapComparatorDescription[] EMPTY_COMPARATORS         = new LdapComparatorDescription[0];
+    private static final NormalizerDescription[]     EMPTY_NORMALIZERS         = new NormalizerDescription[0];
+    private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
+    private static final LdapSyntax[]                EMPTY_SYNTAXES            = new LdapSyntax[0];
+    private static final MatchingRule[]              EMPTY_MATCHING_RULES      = new MatchingRule[0];
+    private static final AttributeType[]             EMPTY_ATTRIBUTE_TYPES     = new AttributeType[0];
+    private static final ObjectClass[]               EMPTY_OBJECT_CLASSES      = new ObjectClass[0];
+    private static final MatchingRuleUse[]           EMPTY_MATCHING_RULE_USES  = new MatchingRuleUse[0];
+    private static final DITStructureRule[]          EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
+    private static final DITContentRule[]            EMPTY_DIT_CONTENT_RULES   = new DITContentRule[0];
+    private static final NameForm[]                  EMPTY_NAME_FORMS          = new NameForm[0];
 
-    private final SchemaManager schemaManager;
-
-    private final LdapComparatorDescriptionSchemaParser comparatorParser = new LdapComparatorDescriptionSchemaParser();
-    private final NormalizerDescriptionSchemaParser normalizerParser = new NormalizerDescriptionSchemaParser();
-    private final SyntaxCheckerDescriptionSchemaParser syntaxCheckerParser = new SyntaxCheckerDescriptionSchemaParser();
-    private final LdapSyntaxDescriptionSchemaParser syntaxParser = new LdapSyntaxDescriptionSchemaParser();
-    private final MatchingRuleDescriptionSchemaParser matchingRuleParser = new MatchingRuleDescriptionSchemaParser();
-    private final AttributeTypeDescriptionSchemaParser attributeTypeParser = new AttributeTypeDescriptionSchemaParser();
-    private final ObjectClassDescriptionSchemaParser objectClassParser = new ObjectClassDescriptionSchemaParser();
-    private final MatchingRuleUseDescriptionSchemaParser matchingRuleUseParser = new MatchingRuleUseDescriptionSchemaParser();
+    /** The SchemaObject description's parsers */
+    private final LdapComparatorDescriptionSchemaParser   comparatorParser      = new LdapComparatorDescriptionSchemaParser();
+    private final NormalizerDescriptionSchemaParser       normalizerParser       = new NormalizerDescriptionSchemaParser();
+    private final SyntaxCheckerDescriptionSchemaParser    syntaxCheckerParser    = new SyntaxCheckerDescriptionSchemaParser();
+    private final LdapSyntaxDescriptionSchemaParser       syntaxParser           = new LdapSyntaxDescriptionSchemaParser();
+    private final MatchingRuleDescriptionSchemaParser     matchingRuleParser     = new MatchingRuleDescriptionSchemaParser();
+    private final AttributeTypeDescriptionSchemaParser    attributeTypeParser    = new AttributeTypeDescriptionSchemaParser();
+    private final ObjectClassDescriptionSchemaParser      objectClassParser      = new ObjectClassDescriptionSchemaParser();
+    private final MatchingRuleUseDescriptionSchemaParser  matchingRuleUseParser  = new MatchingRuleUseDescriptionSchemaParser();
     private final DITStructureRuleDescriptionSchemaParser ditStructureRuleParser = new DITStructureRuleDescriptionSchemaParser();
-    private final DITContentRuleDescriptionSchemaParser ditContentRuleParser = new DITContentRuleDescriptionSchemaParser();
-    private final NameFormDescriptionSchemaParser nameFormParser = new NameFormDescriptionSchemaParser();
+    private final DITContentRuleDescriptionSchemaParser   ditContentRuleParser   = new DITContentRuleDescriptionSchemaParser();
+    private final NameFormDescriptionSchemaParser         nameFormParser         = new NameFormDescriptionSchemaParser();
 
-    private final SchemaPartitionDao dao;
-
+    /** The SchemaManager instance */
+    private final SchemaManager schemaManager;
 
     /**
      * Creates a description parser.
      * 
      * @param globalRegistries the registries to use while creating new schema entities
      */
-    public DescriptionParsers( SchemaManager schemaManager, SchemaPartitionDao dao )
+    public DescriptionParsers( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        this.dao = dao;
     }
 
 
+    /**
+     * Parse the SyntaxCheckers description
+     *
+     * @param attr The attribute containing the SC description
+     * @return The array of SyntaxCheckerDescription instances
+     * @throws NamingException If something went wrong
+     */
     public SyntaxCheckerDescription[] parseSyntaxCheckers( EntryAttribute attr ) throws NamingException
     {
-        if ( attr == null || attr.size() == 0 )
+        if ( ( attr == null ) || ( attr.size() == 0 ) )
         {
             return EMPTY_SYNTAX_CHECKERS;
         }
@@ -240,7 +246,7 @@ public class DescriptionParsers
             }
 
             // if the supertype is provided make sure it exists in some schema
-            if ( attributeType.getSuperiorOid() != null && !dao.hasAttributeType( attributeType.getSuperiorOid() ) )
+            if ( ( attributeType.getSuperiorOid() != null ) && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid super type: "
@@ -248,7 +254,7 @@ public class DescriptionParsers
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
-            if ( attributeType.getSyntaxOid() != null && !dao.hasSyntax( attributeType.getSyntaxOid() ) )
+            if ( attributeType.getSyntaxOid() != null && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid syntax: "
@@ -256,7 +262,7 @@ public class DescriptionParsers
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getEqualityOid() != null && !dao.hasMatchingRule( attributeType.getEqualityOid() ) )
+            if ( attributeType.getEqualityOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid EQUALITY matchingRule: "
@@ -264,7 +270,7 @@ public class DescriptionParsers
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getOrderingOid() != null && !dao.hasMatchingRule( attributeType.getOrderingOid() ) )
+            if ( attributeType.getOrderingOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid ORDERING matchingRule: "
@@ -272,7 +278,7 @@ public class DescriptionParsers
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( attributeType.getSubstringOid() != null && !dao.hasMatchingRule( attributeType.getSubstringOid() ) )
+            if ( attributeType.getSubstringOid() != null && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of an attributeType with an invalid SUBSTRINGS matchingRule: "
@@ -378,19 +384,19 @@ public class DescriptionParsers
             // if the super objectClasses are provided make sure it exists in some schema
             if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() > 0 )
             {
-                for ( String superior : objectClass.getSuperiorOids() )
+                for ( String superiorOid : objectClass.getSuperiorOids() )
                 {
-                    if ( superior.equals( SchemaConstants.TOP_OC_OID )
-                        || superior.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
+                    if ( superiorOid.equals( SchemaConstants.TOP_OC_OID )
+                        || superiorOid.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
                     {
                         continue;
                     }
 
-                    if ( !dao.hasObjectClass( superior ) )
+                    if ( !schemaManager.getObjectClassRegistry().contains( superiorOid ) )
                     {
                         throw new LdapOperationNotSupportedException(
                             "Cannot permit the addition of an objectClass with an invalid superior objectClass: "
-                                + superior, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                                + superiorOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -398,13 +404,13 @@ public class DescriptionParsers
             // if the may list is provided make sure attributes exists in some schema
             if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() > 0 )
             {
-                for ( String mayAttr : objectClass.getMayAttributeTypeOids() )
+                for ( String mayAttrOid : objectClass.getMayAttributeTypeOids() )
                 {
-                    if ( !dao.hasAttributeType( mayAttr ) )
+                    if ( !schemaManager.getAttributeTypeRegistry().contains( mayAttrOid ) )
                     {
                         throw new LdapOperationNotSupportedException(
                             "Cannot permit the addition of an objectClass with an invalid "
-                                + "attributeType in the mayList: " + mayAttr, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                                + "attributeType in the mayList: " + mayAttrOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -412,13 +418,13 @@ public class DescriptionParsers
             // if the must list is provided make sure attributes exists in some schema
             if ( objectClass.getMustAttributeTypeOids() != null && objectClass.getMustAttributeTypeOids().size() > 0 )
             {
-                for ( String mustAttr : objectClass.getMustAttributeTypeOids() )
+                for ( String mustAttrOid : objectClass.getMustAttributeTypeOids() )
                 {
-                    if ( !dao.hasAttributeType( mustAttr ) )
+                    if ( !schemaManager.getAttributeTypeRegistry().contains( mustAttrOid ) )
                     {
                         throw new LdapOperationNotSupportedException(
                             "Cannot permit the addition of an objectClass with an invalid "
-                                + "attributeType in the mustList: " + mustAttr, ResultCodeEnum.UNWILLING_TO_PERFORM );
+                                + "attributeType in the mustList: " + mustAttrOid, ResultCodeEnum.UNWILLING_TO_PERFORM );
                     }
                 }
             }
@@ -515,7 +521,7 @@ public class DescriptionParsers
                 throw iave;
             }
 
-            if ( !dao.hasSyntaxChecker( ldapSyntax.getOid() ) )
+            if ( !schemaManager.getSyntaxCheckerRegistry().contains( ldapSyntax.getOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot permit the addition of a syntax without the prior creation of a "
@@ -568,7 +574,7 @@ public class DescriptionParsers
                 throw iave;
             }
 
-            if ( !dao.hasSyntax( matchingRule.getSyntaxOid() ) )
+            if ( !schemaManager.getLdapSyntaxRegistry().contains( matchingRule.getSyntaxOid() ) )
             {
                 throw new LdapOperationNotSupportedException(
                     "Cannot create a matchingRule that depends on non-existant syntax: " + matchingRule.getSyntaxOid(),

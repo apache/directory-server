@@ -79,7 +79,6 @@ public class SchemaSubentryModifier
     }
     
     private AttributesFactory factory = new AttributesFactory();
-    private final SchemaPartitionDao dao;
     
     /** The server schemaManager */
     private SchemaManager schemaManager; 
@@ -92,10 +91,9 @@ public class SchemaSubentryModifier
      * @param schemaManager The server schemaManager
      * @param dao
      */
-    public SchemaSubentryModifier( SchemaManager schemaManager, SchemaPartitionDao dao )
+    public SchemaSubentryModifier( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        this.dao = dao;
     }
     
     
@@ -188,7 +186,7 @@ public class SchemaSubentryModifier
     
     public void addSchemaObject( OperationContext opContext, SchemaObject obj ) throws Exception
     {
-        Schema schema = dao.getSchema( obj.getSchemaName() );
+        Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
         LdapDN dn = getDn( obj );
         ServerEntry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );

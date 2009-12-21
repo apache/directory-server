@@ -111,12 +111,12 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, SchemaPartitionDao dao )
+    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader )
         throws Exception
     {
         this.schemaManager = schemaManager;
-        this.subentryModifier = new SchemaSubentryModifier( schemaManager, dao );
-        this.parsers = new DescriptionParsers( schemaManager, dao );
+        this.subentryModifier = new SchemaSubentryModifier( schemaManager );
+        this.parsers = new DescriptionParsers( schemaManager );
         
         String comparatorsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, COMPARATOR_INDEX );
