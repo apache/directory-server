@@ -1342,7 +1342,7 @@ public class SubschemaSubentryIT
                 "SINGLE-VALUE USAGE userApplications X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
                 "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
-                "NO-USER-MODIFICATION USAGE directoryOperation X-SCHEMA 'nis' )" );
+                "USAGE userApplications X-SCHEMA 'nis' )" );
         
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
         
@@ -1381,7 +1381,7 @@ public class SubschemaSubentryIT
                 "SINGLE-VALUE USAGE userApplications )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10001 NAME ( 'type1' 'altName' ) " +
                 "SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP 2.5.4.41 " +
-                "NO-USER-MODIFICATION USAGE directoryOperation )" );
+                "USAGE userApplications )" );
         
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
         
@@ -1401,7 +1401,7 @@ public class SubschemaSubentryIT
         disableSchema( "nis" );
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-            "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+            "DESC 'bogus description' SUP name SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
             new BasicAttribute( "attributeTypes", substrate ) );
@@ -1455,7 +1455,7 @@ public class SubschemaSubentryIT
         enableSchema( "nis" );
         LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
-            "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+            "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, 
             new BasicAttribute( "attributeTypes", substrate ) );
@@ -1485,7 +1485,7 @@ public class SubschemaSubentryIT
         assertEquals( "bogus description", attributeType.getDescription() );
         assertEquals( "bogus", attributeType.getNames().get( 0 ) );
         assertEquals( "bogusName", attributeType.getNames().get( 1 ) );
-        assertEquals( "name", attributeType.getSuperior().getName() );
+        assertEquals( "name", attributeType.getSuperiorOid() );
         
         attrs = getSchemaContext( service ).getAttributes(
                 "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
@@ -1496,7 +1496,7 @@ public class SubschemaSubentryIT
 
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSuperior().getName() );
+        assertEquals( "name", at.getSuperiorOid() );
         assertEquals( "bogus description", at.getDescription() );
         assertEquals( "bogus", at.getNames().get( 0 ) );
         assertEquals( "bogusName", at.getNames().get( 1 ) );
@@ -1680,7 +1680,7 @@ public class SubschemaSubentryIT
         
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) X-SCHEMA 'nis' )" );
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
                 "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) X-SCHEMA 'nis' )" );
         
@@ -1749,7 +1749,7 @@ public class SubschemaSubentryIT
 
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
                 "MAY ( sn $ cn ) X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
                 "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
@@ -1770,7 +1770,7 @@ public class SubschemaSubentryIT
         
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
                 "MUST ( sn $ cn ) X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
                 "NAME ( 'blah1' 'altname1' ) DESC 'bogus' SUP ( 2.5.6.0 $ domain ) " +
@@ -1791,14 +1791,14 @@ public class SubschemaSubentryIT
         
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) STRUCTURAL " +
+                "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
                 "MUST ( sn $ cn ) " +
-                "MAY ( sn $ ou ) " +
+                "MAY ( gn $ ou ) " +
                 "X-SCHEMA 'nis' ) " );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
                 "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
                 "MUST ( sn $ ou ) " +
-                "MAY ( sn $ ou ) " +
+                "MAY ( cn $ gn ) " +
                 "X-SCHEMA 'nis' )" );
         
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
@@ -1830,13 +1830,13 @@ public class SubschemaSubentryIT
         
         descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10000 " +
-            "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) STRUCTURAL " +
+            "NAME ( 'blah0' 'altname0' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ dynamicObject ) AUXILIARY " +
             "MUST ( sn $ cn ) " +
-            "MAY ( sn $ ou ) )" );
+            "MAY ( gn $ ou ) )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.3.10001 " +
             "NAME ( 'blah1' 'altname1' ) DESC 'bogus' OBSOLETE SUP ( 2.5.6.0 $ domain ) STRUCTURAL " +
             "MUST ( sn $ ou ) " +
-            "MAY ( sn $ ou ) )" );
+            "MAY ( gn $ cn ) )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10000", "other", true );

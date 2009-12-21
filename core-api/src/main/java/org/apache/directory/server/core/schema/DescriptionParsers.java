@@ -326,7 +326,9 @@ public class DescriptionParsers
 
             attributeType.setRegistries( schemaManager.getRegistries() );
 
+            /*
             // Inject the schema
+            
             if ( ( attributeType.getExtensions() == null )
                 || ( attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) == null ) )
             {
@@ -337,6 +339,7 @@ public class DescriptionParsers
 
             String schemaName = attributeType.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
             attributeType.setSchemaName( schemaName );
+            */
 
             attributeTypes[pos++] = attributeType;
         }
