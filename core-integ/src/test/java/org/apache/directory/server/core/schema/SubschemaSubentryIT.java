@@ -417,6 +417,7 @@ public class SubschemaSubentryIT
         for ( int ii = 0; ii < attrTypes.size(); ii++ )
         {
             String desc = ( String ) attrTypes.get( ii );
+            
             if ( desc.indexOf( oid ) != -1 )
             {
                 comparatorDescription = comparatorDescriptionSchemaParser.parseComparatorDescription( desc );
@@ -487,7 +488,7 @@ public class SubschemaSubentryIT
         enableSchema( "nis" );
         List<String> descriptions = new ArrayList<String>();
         
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN " 
             + BooleanComparator.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
             + BooleanComparator.class.getName() + " X-SCHEMA 'nis' )" );
@@ -497,7 +498,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
         checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
@@ -505,7 +506,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
         checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
@@ -527,29 +528,29 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove with valid bytecode
         // -------------------------------------------------------------------
         
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.comparators.DummyComparator BYTECODE " 
             +  getByteCode( "DummyComparator.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
     }
 
     
@@ -640,7 +641,7 @@ public class SubschemaSubentryIT
         enableSchema( "nis" );
         List<String> descriptions = new ArrayList<String>();
         
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10000 DESC 'bogus desc' FQCN " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN " 
             + DeepTrimNormalizer.class.getName() + " X-SCHEMA 'nis' )" );
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10001 DESC 'bogus desc' FQCN " 
             + DeepTrimNormalizer.class.getName() + " X-SCHEMA 'nis' )" );
@@ -650,7 +651,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
         checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
 
         // -------------------------------------------------------------------
@@ -658,7 +659,7 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
         checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
         
         // -------------------------------------------------------------------
@@ -680,29 +681,29 @@ public class SubschemaSubentryIT
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
 
         // -------------------------------------------------------------------
         // check remove with valid bytecode
         // -------------------------------------------------------------------
         
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
 
         // -------------------------------------------------------------------
         // check add no schema info
         // -------------------------------------------------------------------
         
         descriptions.clear();
-        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
+        descriptions.add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.schema.normalizers.DummyNormalizer BYTECODE " 
             +  getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
     }
 
     
@@ -1432,7 +1433,7 @@ public class SubschemaSubentryIT
         
         AttributeType at = factory.getAttributeType( service.getSchemaManager(), serverEntry, service.getSchemaManager().getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
-        assertEquals( "name", at.getSuperior().getName() );
+        assertEquals( "name", at.getSuperiorOid() );
         assertEquals( "bogus description", at.getDescription() );
         assertEquals( "bogus", at.getName() );
         assertEquals( "bogusName", at.getNames().get( 1 ) );
