@@ -192,7 +192,7 @@ public class AttributesFactory
         ServerEntry entry = new DefaultServerEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_MATCHING_RULE_OC );
-        entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntax().getOid() );
+        entry.put( MetaSchemaConstants.M_SYNTAX_AT, matchingRule.getSyntaxOid() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( matchingRule, entry, schemaManager );
@@ -334,60 +334,45 @@ public class AttributesFactory
         injectCommon( objectClass, entry, schemaManager );
 
         // handle the superior objectClasses 
-        if ( objectClass.getSuperiors() != null && objectClass.getSuperiors().size() != 0 )
+        if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
-            List<ObjectClass> superClasses = objectClass.getSuperiors();
             
-            for ( ObjectClass superClass:superClasses )
+            for ( String superior:objectClass.getSuperiorOids() )
             {
-                attr.add( getNameOrNumericoid( superClass ) ); 
+                attr.add( superior ); 
             }
             
             entry.put( attr );
         }
 
         // add the must list
-        if ( objectClass.getMustAttributeTypes() != null && objectClass.getMustAttributeTypes().size() != 0 )
+        if ( objectClass.getMustAttributeTypeOids() != null && objectClass.getMustAttributeTypeOids().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_MUST_AT ) );
-            List<AttributeType> mustList = objectClass.getMustAttributeTypes();
 
-            for ( AttributeType attributeType:mustList )
+            for ( String mustOid :objectClass.getMustAttributeTypeOids() )
             {
-                attr.add( getNameOrNumericoid( attributeType ) );
+                attr.add( mustOid );
             }
             
             entry.put( attr );
         }
         
         // add the may list
-        if ( objectClass.getMayAttributeTypes() != null && objectClass.getMayAttributeTypes().size() != 0 )
+        if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() != 0 )
         {
             EntryAttribute attr = new DefaultServerAttribute( schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_MAY_AT ) );
-            List<AttributeType> mayList = objectClass.getMayAttributeTypes();
 
-            for ( AttributeType attributeType:mayList )
+            for ( String mayOid :objectClass.getMayAttributeTypeOids() )
             {
-                attr.add( getNameOrNumericoid( attributeType ) );
+                attr.add( mayOid );
             }
             
             entry.put( attr );
         }
         
         return entry;
-    }
-
-    
-    private final String getNameOrNumericoid( SchemaObject object )
-    {
-        // first try to use user friendly name if we can
-        if ( object.getName() != null )
-        {
-            return object.getName();
-        }
-        
-        return object.getOid();
     }
     
     
